@@ -39,123 +39,21 @@ export default defineConfig(({ mode }) => ({
     }
   },
   build: {
-    target: 'esnext',
+    target: mode === 'production' ? 'es2015' : 'esnext',
     minify: 'esbuild',
     cssMinify: true,
-    cssCodeSplit: true,
-    modulePreload: {
-      polyfill: true
-    },
-    reportCompressedSize: true,
-    rollupOptions: {
-      external: ['child_process', 'fs', 'path', 'os', '@tauri-apps/api/core'],
-      output: {
-        manualChunks: (id) => {
-          // Aggressive code splitting for super-fast loading
-          if (id.includes('node_modules')) {
-            // Core React chunks
-            if (id.includes('react') || id.includes('react-dom')) {
-              return 'vendor-react';
-            }
-            if (id.includes('react-router')) {
-              return 'vendor-router';
-            }
-            
-            // UI library chunks
-            if (id.includes('@radix-ui') || id.includes('@headlessui')) {
-              return 'vendor-ui';
-            }
-            if (id.includes('lucide-react') || id.includes('clsx') || id.includes('tailwind-merge')) {
-              return 'vendor-utils';
-            }
-            
-            // Form handling
-            if (id.includes('react-hook-form') || id.includes('zod') || id.includes('@hookform')) {
-              return 'vendor-forms';
-            }
-            
-            // Database & API
-            if (id.includes('supabase') || id.includes('@supabase')) {
-              return 'vendor-supabase';
-            }
-            
-            // Charts (heavy)
-            if (id.includes('recharts') || id.includes('reaviz') || id.includes('d3')) {
-              return 'vendor-charts';
-            }
-            
-            // Animation (heavy)
-            if (id.includes('framer-motion') || id.includes('react-spring') || id.includes('lottie')) {
-              return 'vendor-animation';
-            }
-            
-            // AI & Heavy integrations
-            if (id.includes('openai') || id.includes('groq') || id.includes('@anthropic')) {
-              return 'vendor-ai';
-            }
-            
-            // Media & Rich content
-            if (id.includes('spline') || id.includes('@uiw/react-md-editor') || id.includes('canvas-confetti')) {
-              return 'vendor-media';
-            }
-            
-            // Crypto & Blockchain
-            if (id.includes('solana') || id.includes('moralis') || id.includes('web3')) {
-              return 'vendor-crypto';
-            }
-            
-            // Remaining node_modules
-            return 'vendor-misc';
-          }
-          
-          // App-specific chunks by route/feature
-          if (id.includes('/pages/admin') || id.includes('/components/admin')) {
-            return 'app-admin';
-          }
-          if (id.includes('/pages/client') || id.includes('/components/client')) {
-            return 'app-client';
-          }
-          if (id.includes('/pages/partnership') || id.includes('/components/partnership')) {
-            return 'app-partnership';
-          }
-          if (id.includes('/pages/projects') || id.includes('/components/projects')) {
-            return 'app-projects';
-          }
-          if (id.includes('/pages/dashboard') || id.includes('/components/dashboard')) {
-            return 'app-dashboard';
-          }
-          if (id.includes('/components/crypto') || id.includes('/pages/crypto')) {
-            return 'app-crypto';
-          }
-          if (id.includes('/services/') && (id.includes('claude') || id.includes('ai') || id.includes('grok'))) {
-            return 'app-ai-services';
-          }
-        },
-        
-        assetFileNames: (assetInfo) => {
-          if (!assetInfo.name) return 'assets/[name]-[hash][extname]';
-          
-          const extType = assetInfo.name.split('.').pop() || '';
-          if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(extType)) {
-            return `assets/img/[name]-[hash][extname]`;
-          }
-          return `assets/${extType}/[name]-[hash][extname]`;
-        },
-        
-        chunkFileNames: 'assets/js/[name]-[hash].js',
-        entryFileNames: 'assets/js/[name]-[hash].js',
-      },
-    },
+    cssCodeSplit: false, // Prevent CSS splitting issues
     sourcemap: mode === 'development',
-    commonjsOptions: {
-      include: [
-        /node_modules/,
-        'src/components/ui/sonner.tsx',
-        'clsx',
-        'tailwind-merge',
-        'lucide-react',
-      ],
-      exclude: ['moralis']
+    rollupOptions: {
+      external: mode === 'development' ? ['child_process', 'fs', 'path', 'os', '@tauri-apps/api/core'] : [],
+      output: mode === 'production' ? {
+        // Simple chunking for production to avoid React context issues
+        manualChunks: {
+          'vendor': ['react', 'react-dom', 'react-router-dom'],
+          'ui': ['@radix-ui/react-dialog', '@radix-ui/react-slot', 'lucide-react'],
+          'supabase': ['@supabase/supabase-js']
+        }
+      } : {}
     }
   },
   
