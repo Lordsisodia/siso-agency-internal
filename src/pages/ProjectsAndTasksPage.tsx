@@ -8,6 +8,7 @@ import { ProjectDirectoryCard } from '@/components/projects/ProjectDirectoryCard
 import { ActiveTasksView } from '@/components/projects/ActiveTasksView';
 import { useProjects } from '@/hooks/useProjects';
 import { useAuthSession } from '@/hooks/useAuthSession';
+import { useIsMobile } from '@/hooks/use-mobile';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -24,6 +25,7 @@ export default function ProjectsAndTasksPage() {
   const { toast } = useToast();
   const { user, loading: authLoading } = useAuthSession();
   const { data: project, isLoading, error, refetch } = useProjects();
+  const isMobile = useIsMobile();
   
   const isTasksView = location.pathname === '/projects/tasks';
 
@@ -52,6 +54,16 @@ export default function ProjectsAndTasksPage() {
     );
   }
 
+  // Mobile full-screen layout for tasks
+  if (isMobile && isTasksView) {
+    return (
+      <AppLayout>
+        <ActiveTasksView />
+      </AppLayout>
+    );
+  }
+
+  // Desktop layout
   return (
     <AppLayout>
       <div className="container mx-auto px-4 py-8">
