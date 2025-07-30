@@ -20,26 +20,12 @@ export default defineConfig({
     sourcemap: false,
     rollupOptions: {
       output: {
-        // Simpler chunking strategy - keep React ecosystem together
-        manualChunks: (id) => {
-          if (id.includes('node_modules')) {
-            // Core dependencies in one chunk to avoid context issues
-            if (id.includes('react') || 
-                id.includes('react-dom') || 
-                id.includes('react-router') ||
-                id.includes('framer-motion') ||
-                id.includes('@radix-ui')) {
-              return 'vendor';
-            }
-            
-            // Supabase in separate chunk
-            if (id.includes('supabase')) {
-              return 'supabase';
-            }
-            
-            // All other dependencies
-            return 'libs';
-          }
+        // Keep React in main chunk to avoid context issues
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom'],
+          'ui-vendor': ['@radix-ui/react-dialog', '@radix-ui/react-slot', 'lucide-react'],
+          'router': ['react-router-dom'],
+          'supabase': ['@supabase/supabase-js', '@supabase/auth-helpers-react']
         }
       }
     }
