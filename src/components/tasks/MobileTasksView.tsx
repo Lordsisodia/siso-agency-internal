@@ -16,9 +16,12 @@ import {
   AlertCircle,
   CheckCircle2,
   Play,
-  Search
+  Search,
+  List,
+  Settings
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UiTask } from '@/components/projects/ActiveTasksView';
 
 interface MobileTasksViewProps {
@@ -32,7 +35,7 @@ export function MobileTasksView({ tasks, loading, onUpdateTask }: MobileTasksVie
   const [selectedTask, setSelectedTask] = useState<UiTask | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [showChatBot, setShowChatBot] = useState(false);
+  const [activeTab, setActiveTab] = useState('tasks');
   const { toast } = useToast();
 
   // Filter tasks based on status and search
@@ -131,149 +134,211 @@ export function MobileTasksView({ tasks, loading, onUpdateTask }: MobileTasksVie
   }
 
   return (
-    <div className="pb-4 min-h-screen">
-      {/* Mobile Header - Full Width */}
-      <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b p-4">
-        {/* Search Bar */}
-        <div className="relative mb-3">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search tasks..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-background/50"
-          />
-        </div>
-
-        {/* Filter Tabs */}
-        <div className="flex gap-2 overflow-x-auto pb-2">
-          {['all', 'Awaiting Your Action', 'In Development', 'Done'].map((status) => (
-            <Button
-              key={status}
-              variant={filterStatus === status ? "default" : "outline"}
-              size="sm"
-              onClick={() => setFilterStatus(status)}
-              className="whitespace-nowrap"
-            >
-              {status === 'all' ? 'All' : status}
-              {status !== 'all' && (
-                <Badge variant="secondary" className="ml-2">
-                  {tasks.filter(t => t.status.name === status).length}
-                </Badge>
-              )}
-            </Button>
-          ))}
-        </div>
-      </div>
-
-      {/* Task List - Full Screen */}
-      <div className="px-4 space-y-3">
-        {filteredTasks.length === 0 ? (
-          <div className="text-center py-12">
-            <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No tasks found</h3>
-            <p className="text-muted-foreground">
-              {searchQuery ? 'Try adjusting your search' : 'No tasks match the current filter'}
-            </p>
-          </div>
-        ) : (
-          filteredTasks.map((task) => (
-            <Card 
-              key={task.id} 
-              className="p-4 cursor-pointer hover:bg-accent/50 active:bg-accent transition-colors"
-              onClick={() => handleTaskClick(task)}
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex-1 min-w-0">
-                  {/* Task Status and Priority */}
-                  <div className="flex items-center gap-2 mb-2">
-                    {getStatusIcon(task.status.name)}
-                    <Badge 
-                      variant="outline" 
-                      className={`text-xs ${getPriorityColor(task.priority)}`}
+    <div className="h-screen flex flex-col bg-background">
+      {/* iPhone-Optimized Tabbed Interface */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col h-full">
+        {/* Tab Navigation - Bottom iPhone Style */}
+        <div className="flex-1 overflow-hidden">
+          {/* Tasks Tab */}
+          <TabsContent value="tasks" className="h-full mt-0 p-0">
+            <div className="h-full flex flex-col">
+              {/* Header with quick filter */}
+              <div className="p-4 border-b bg-background">
+                <h1 className="text-xl font-bold mb-3">My Tasks</h1>
+                <div className="flex gap-2 overflow-x-auto">
+                  {['all', 'Awaiting Your Action', 'In Development', 'Done'].map((status) => (
+                    <Button
+                      key={status}
+                      variant={filterStatus === status ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setFilterStatus(status)}
+                      className="whitespace-nowrap text-xs"
                     >
-                      {task.priority.toUpperCase()}
-                    </Badge>
+                      {status === 'all' ? 'All' : status.split(' ')[0]}
+                      <Badge variant="secondary" className="ml-1 text-xs">
+                        {status === 'all' ? tasks.length : tasks.filter(t => t.status.name === status).length}
+                      </Badge>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Task List */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-3 pb-20">
+                {loading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="h-6 w-6 animate-spin mr-2" />
+                    <span>Loading tasks...</span>
                   </div>
-
-                  {/* Task Title */}
-                  <h3 className="font-semibold text-sm leading-tight mb-1 pr-2">
-                    {task.name}
-                  </h3>
-
-                  {/* Task Category */}
-                  <p className="text-xs text-muted-foreground mb-2">
-                    {task.category}
-                  </p>
-
-                  {/* Task Description Preview */}
-                  {task.description && (
-                    <p className="text-xs text-muted-foreground line-clamp-2 mb-3">
-                      {task.description}
+                ) : filteredTasks.length === 0 ? (
+                  <div className="text-center py-12">
+                    <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">No tasks</h3>
+                    <p className="text-muted-foreground text-sm">
+                      {searchQuery ? 'Try adjusting your search' : 'No tasks in this category'}
                     </p>
-                  )}
-
-                  {/* Task Meta */}
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <User className="h-3 w-3" />
-                      {task.owner.name}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-3 w-3" />
-                      {task.endAt.toLocaleDateString()}
-                    </div>
                   </div>
+                ) : (
+                  filteredTasks.map((task) => (
+                    <Card 
+                      key={task.id} 
+                      className="p-4 cursor-pointer active:bg-accent transition-colors border-l-4"
+                      style={{ borderLeftColor: task.status.color }}
+                      onClick={() => handleTaskClick(task)}
+                    >
+                      <div className="space-y-2">
+                        {/* Status and Priority */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            {getStatusIcon(task.status.name)}
+                            <span className="text-xs font-medium" style={{ color: task.status.color }}>
+                              {task.status.name}
+                            </span>
+                          </div>
+                          <Badge 
+                            variant="outline" 
+                            className={`text-xs ${getPriorityColor(task.priority)}`}
+                          >
+                            {task.priority.toUpperCase()}
+                          </Badge>
+                        </div>
 
-                  {/* Quick Actions */}
-                  <div className="flex gap-2 mt-3">
-                    {task.status.name !== 'Done' && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const nextStatus = task.status.name === 'Awaiting Your Action' 
-                            ? 'In Development' 
-                            : 'Done';
-                          handleStatusChange(task, nextStatus);
-                        }}
-                        className="text-xs h-7"
-                      >
-                        {task.status.name === 'Awaiting Your Action' ? 'Start' : 'Complete'}
-                      </Button>
-                    )}
-                    {task.actionButton && task.actionLink && (
-                      <Button
-                        size="sm"
-                        variant="default"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          window.location.href = task.actionLink!;
-                        }}
-                        className="text-xs h-7"
-                      >
-                        {task.actionButton}
-                      </Button>
-                    )}
+                        {/* Task Title */}
+                        <h3 className="font-semibold text-base leading-tight">
+                          {task.name}
+                        </h3>
+
+                        {/* Category */}
+                        <p className="text-sm text-muted-foreground">
+                          {task.category}
+                        </p>
+
+                        {/* Quick Action */}
+                        {task.status.name !== 'Done' && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const nextStatus = task.status.name === 'Awaiting Your Action' 
+                                ? 'In Development' 
+                                : 'Done';
+                              handleStatusChange(task, nextStatus);
+                            }}
+                            className="w-full"
+                          >
+                            {task.status.name === 'Awaiting Your Action' ? 'Start Task' : 'Mark Complete'}
+                          </Button>
+                        )}
+                      </div>
+                    </Card>
+                  ))
+                )}
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* Chat Tab */}
+          <TabsContent value="chat" className="h-full mt-0 p-0">
+            <div className="h-full flex flex-col">
+              <div className="p-4 border-b">
+                <h1 className="text-xl font-bold">Task Assistant</h1>
+                <p className="text-sm text-muted-foreground">Get help with your tasks</p>
+              </div>
+              <div className="flex-1 flex items-center justify-center p-8">
+                <div className="text-center space-y-4">
+                  <MessageSquare className="h-16 w-16 mx-auto text-muted-foreground" />
+                  <h3 className="text-lg font-semibold">Chat Coming Soon</h3>
+                  <p className="text-sm text-muted-foreground max-w-xs">
+                    AI-powered task assistance will be available here soon. 
+                    For now, tap on tasks to view details.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* Filters Tab */}
+          <TabsContent value="filters" className="h-full mt-0 p-0">
+            <div className="h-full flex flex-col">
+              <div className="p-4 border-b">
+                <h1 className="text-xl font-bold">Filters & Search</h1>
+                <p className="text-sm text-muted-foreground">Organize your tasks</p>
+              </div>
+              <div className="flex-1 p-4 space-y-6">
+                {/* Search */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Search Tasks</label>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search by name or description..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10"
+                    />
                   </div>
                 </div>
 
-                <ChevronRight className="h-4 w-4 text-muted-foreground ml-2 flex-shrink-0" />
-              </div>
-            </Card>
-          ))
-        )}
-      </div>
+                {/* Status Filter */}
+                <div className="space-y-3">
+                  <label className="text-sm font-medium">Filter by Status</label>
+                  <div className="space-y-2">
+                    {['all', 'Awaiting Your Action', 'In Development', 'Done'].map((status) => (
+                      <Button
+                        key={status}
+                        variant={filterStatus === status ? "default" : "outline"}
+                        onClick={() => setFilterStatus(status)}
+                        className="w-full justify-between"
+                      >
+                        <span>{status === 'all' ? 'All Tasks' : status}</span>
+                        <Badge variant="secondary">
+                          {status === 'all' ? tasks.length : tasks.filter(t => t.status.name === status).length}
+                        </Badge>
+                      </Button>
+                    ))}
+                  </div>
+                </div>
 
-      {/* Floating Chat Button */}
-      <Button
-        onClick={() => setShowChatBot(!showChatBot)}
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg z-50"
-        size="icon"
-      >
-        <MessageSquare className="h-6 w-6" />
-      </Button>
+                {/* Quick Stats */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Quick Stats</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Card className="p-3 text-center">
+                      <div className="text-2xl font-bold text-red-500">
+                        {tasks.filter(t => t.status.name === 'Awaiting Your Action').length}
+                      </div>
+                      <div className="text-xs text-muted-foreground">Pending</div>
+                    </Card>
+                    <Card className="p-3 text-center">
+                      <div className="text-2xl font-bold text-green-500">
+                        {tasks.filter(t => t.status.name === 'Done').length}
+                      </div>
+                      <div className="text-xs text-muted-foreground">Completed</div>
+                    </Card>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+        </div>
+
+        {/* Bottom Tab Bar - iPhone Style */}
+        <TabsList className="grid w-full grid-cols-3 h-16 bg-background border-t rounded-none">
+          <TabsTrigger value="tasks" className="flex-col gap-1 h-full">
+            <List className="h-5 w-5" />
+            <span className="text-xs">Tasks</span>
+          </TabsTrigger>
+          <TabsTrigger value="chat" className="flex-col gap-1 h-full">
+            <MessageSquare className="h-5 w-5" />
+            <span className="text-xs">Chat</span>
+          </TabsTrigger>
+          <TabsTrigger value="filters" className="flex-col gap-1 h-full">
+            <Settings className="h-5 w-5" />
+            <span className="text-xs">Filters</span>
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
 
       {/* Task Details Sheet */}
       <TaskDetailsSheet
@@ -282,31 +347,6 @@ export function MobileTasksView({ tasks, loading, onUpdateTask }: MobileTasksVie
         onClose={() => setSelectedTask(null)}
         onUpdateTask={onUpdateTask}
       />
-
-      {/* Simple Chat Bot Modal */}
-      {showChatBot && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-end">
-          <div className="bg-background rounded-t-lg w-full h-3/4 p-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Task Assistant</h3>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowChatBot(false)}
-              >
-                ✕
-              </Button>
-            </div>
-            <div className="bg-muted p-4 rounded-lg text-center">
-              <MessageSquare className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground">
-                Chat integration coming soon! <br />
-                For now, click on tasks to view details.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
