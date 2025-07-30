@@ -8,11 +8,13 @@ import {
 } from "@/components/ui/kanban";
 import { TaskCard } from './TaskCard';
 import { TaskDetailsSheet } from './TaskDetailsSheet';
+import { MobileTasksView } from '@/components/tasks/MobileTasksView';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthSession } from '@/hooks/useAuthSession';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const taskStatuses = [
   { id: "1", name: "Awaiting Your Action", color: "#FF0000" },
@@ -210,6 +212,7 @@ export function ActiveTasksView() {
   const [showCompletedTasks, setShowCompletedTasks] = useState(false);
   const { toast } = useToast();
   const { user } = useAuthSession();
+  const isMobile = useIsMobile();
 
   // Function to convert database task to UI task format
   const convertDbTaskToUiTask = (dbTask: any): UiTask => {
@@ -382,6 +385,19 @@ export function ActiveTasksView() {
   }
 
 
+  // Mobile view
+  if (isMobile) {
+    return (
+      <MobileTasksView
+        tasks={tasks}
+        loading={loading}
+        onUpdateTask={handleUpdateTask}
+        onDragEnd={handleDragEnd}
+      />
+    );
+  }
+
+  // Desktop view
   return (
     <div className="p-4">
       <TaskDetailsSheet
