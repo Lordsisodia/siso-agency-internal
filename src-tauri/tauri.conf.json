@@ -1,0 +1,48 @@
+{
+  "productName": "SISO Core",
+  "version": "0.1.0",
+  "identifier": "com.siso.core",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
+    "devUrl": "http://localhost:5173",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "SISO Core - Task Management & AI",
+        "width": 1400,
+        "height": 900,
+        "resizable": true,
+        "fullscreen": false,
+        "alwaysOnTop": false
+      }
+    ],
+    "security": {
+      "csp": {
+        "default-src": "'self'",
+        "connect-src": "'self' https://*.supabase.co https://api.openai.com https://api.anthropic.com ws://localhost:* wss://localhost:*",
+        "img-src": "'self' https: data:",
+        "script-src": "'self' 'unsafe-inline' 'unsafe-eval'",
+        "style-src": "'self' 'unsafe-inline'"
+      }
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  },
+  "plugins": {
+    "shell": {
+      "open": true
+    }
+  }
+}

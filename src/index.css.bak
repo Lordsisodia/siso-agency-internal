@@ -1,0 +1,511 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap') layer(fonts);
+@import './components/ui/animations.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 7%;
+    --foreground: 0 0% 88%;
+    --card: 0 0% 3%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 16 100% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 33 100% 50%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 65%;
+    --accent: 16 100% 50%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 85% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
+    --ring: 16 100% 50%;
+    --radius: 0.5rem;
+    --orange-500: 39 93% 50%;
+    --orange-400: 39 93% 60%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply font-['Inter'] antialiased bg-gradient-to-b from-gray-900 to-black text-gray-100;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  #root {
+    @apply min-h-screen;
+  }
+
+  img {
+    content-visibility: auto;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  @keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .animate-gradient {
+    animation: gradient 6s linear infinite;
+  }
+}
+
+.nav-link {
+  @apply relative px-4 py-2.5 text-siso-text hover:text-siso-text-bold transition-colors duration-300;
+}
+
+.nav-link::after {
+  @apply content-[''] absolute left-0 bottom-0 w-0 h-0.5 bg-gradient-to-r from-siso-red to-siso-orange transition-all duration-300 ease-out;
+}
+
+.nav-link:hover::after {
+  @apply w-full;
+}
+
+.glow-card {
+  @apply relative overflow-hidden rounded-lg bg-gradient-to-br from-siso-red/5 to-siso-orange/5 
+    hover:from-siso-red/10 hover:to-siso-orange/10 border border-siso-border hover:border-siso-border-hover
+    p-6 transition-all duration-300 backdrop-blur-sm;
+}
+
+.title-glow {
+  @apply bg-gradient-to-r from-siso-red to-siso-orange bg-clip-text text-transparent;
+}
+
+.node-orange {
+  @apply bg-orange-500/30 text-orange-400 transition-colors duration-300;
+}
+
+.node-orange:hover {
+  @apply bg-orange-500/50 text-orange-400;
+}
+
+.node-orange.active {
+  @apply bg-orange-500/60 text-orange-400;
+}
+
+.gradient-border {
+  @apply relative border-2 border-transparent bg-clip-padding rounded-lg;
+}
+
+.gradient-border::before {
+  @apply content-[''] absolute inset-[-2px] rounded-[inherit] bg-gradient-to-r from-siso-red to-siso-orange -z-10;
+}
+
+.card {
+  @apply rounded-lg border border-siso-border bg-siso-bg-alt p-6 shadow-sm transition-all duration-300
+    hover:border-siso-border-hover hover:shadow-md;
+}
+
+.button-base {
+  @apply rounded-lg px-4 py-2 font-medium transition-all duration-300 disabled:opacity-50 
+    disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-siso-bg;
+}
+
+.button-primary {
+  @apply button-base bg-gradient-to-r from-siso-red to-siso-orange text-white 
+    hover:from-siso-red/90 hover:to-siso-orange/90 focus:ring-siso-red;
+}
+
+.button-secondary {
+  @apply button-base border border-siso-border bg-transparent text-siso-text 
+    hover:bg-siso-bg-alt hover:border-siso-border-hover focus:ring-siso-text;
+}
+
+.input-base {
+  @apply rounded-lg border border-siso-border bg-siso-bg-alt px-4 py-2 text-siso-text 
+    placeholder:text-siso-text-muted focus:border-siso-red focus:outline-none focus:ring-1 
+    focus:ring-siso-red transition-all duration-300;
+}
+
+/* Spreadsheet styles */
+.spreadsheet-grid {
+  /* Enhanced: even darker background for grid */
+  background-color: #0D0D13 !important;
+}
+
+.spreadsheet-grid th,
+.spreadsheet-grid td {
+  background-color: #18181b !important;
+  border-color: #3e3763 !important;
+  color: #ffedc3 !important;
+}
+
+.spreadsheet-grid thead th {
+  background-color: #151521 !important;
+  color: #e0c994 !important;
+  z-index: 5;
+}
+
+.spreadsheet-grid tr,
+.spreadsheet-grid tbody tr {
+  background: #18181b !important;
+  transition: background 0.18s;
+  border-bottom: 2px solid #3e3763 !important; /* Notion-style vivid elines */
+  box-shadow: 0 1.5px 0 0 #3e3763;
+}
+
+.spreadsheet-grid tr:hover,
+.spreadsheet-grid tbody tr:hover {
+  background-color: #222128 !important;
+}
+
+/* Sticky columns - amber border & highlight */
+.spreadsheet-grid .sticky,
+.spreadsheet-grid td.sticky,
+.spreadsheet-grid th.sticky {
+  background-color: #18181b !important;
+  z-index: 10 !important;
+  box-shadow: none !important;
+  border-right: 2px solid #ffc46b !important;
+}
+
+/* Add row styling - plus button highlight */
+.add-expense-row-trigger {
+  border: 1.3px dashed #ffc46b;
+  background-color: #000000e6 !important;
+  color: #ffe9b6 !important;
+  transition: all 0.30s cubic-bezier(0.4,0.0,0.2,1);
+}
+.add-expense-row-trigger:hover {
+  background-color: #1D1923 !important;
+  border-color: #f9d491;
+  color: #fffceb !important;
+}
+
+.spreadsheet-grid .cell-editing {
+  z-index: 13;
+  background-color: #0e1d26 !important;
+  box-shadow: 0 0 0 2px #cda278;
+}
+
+/* Inputs inside spreadsheet */
+.spreadsheet-grid input,
+.spreadsheet-grid select {
+  background-color: #18181b !important;
+  color: #ffecc7 !important;
+  border: 1.4px solid #282434 !important;
+}
+.spreadsheet-grid input:focus,
+.spreadsheet-grid select:focus {
+  border-color: #ffc46b !important;
+  box-shadow: 0 0 0 1px #ffc46b40;
+}
+
+/* Action column last */
+.spreadsheet-grid th:last-child,
+.spreadsheet-grid td:last-child {
+  background: #191717 !important;
+}
+
+/* Make the grid header not blurry */
+.spreadsheet-grid thead {
+  backdrop-filter: none !important;
+}
+
+/* Misc */
+.spreadsheet-grid .dropdown-menu,
+.spreadsheet-grid .dropdown-content,
+.spreadsheet-grid .select-content {
+  background-color: #18181b !important;
+  color: #ffe9b6 !important;
+  z-index: 9999 !important;
+  border-radius: 0.5rem;
+  box-shadow: 0 6px 24px 0 #000c;
+}
+
+/* Row selection/hover highlight */
+.spreadsheet-grid tr.bg-muted\/20,
+.spreadsheet-grid tr.selected-row {
+  background: #181117 !important;
+  outline: 1.5px solid #ffc46b50 !important;
+  border-bottom: 2px solid #ffb74d !important; /* vivid gold eline for selected */
+  box-shadow: 0 1.5px 0 0 #ffb74d;
+}
+
+/* Inputs inside spreadsheet */
+.spreadsheet-grid input,
+.spreadsheet-grid select {
+  background-color: #18181b !important;
+  color: #ffecc7 !important;
+  border: 1.4px solid #282434 !important;
+}
+.spreadsheet-grid input:focus,
+.spreadsheet-grid select:focus {
+  border-color: #ffc46b !important;
+  box-shadow: 0 0 0 1px #ffc46b40;
+}
+
+/* Action column last */
+.spreadsheet-grid th:last-child,
+.spreadsheet-grid td:last-child {
+  background: #191717 !important;
+}
+
+/* Make the grid header not blurry */
+.spreadsheet-grid thead {
+  backdrop-filter: none !important;
+}
+
+/* Misc */
+.spreadsheet-grid .dropdown-menu,
+.spreadsheet-grid .dropdown-content,
+.spreadsheet-grid .select-content {
+  background-color: #18181b !important;
+  color: #ffe9b6 !important;
+  z-index: 9999 !important;
+  border-radius: 0.5rem;
+  box-shadow: 0 6px 24px 0 #000c;
+}
+
+/* Row selection/hover highlight */
+.spreadsheet-grid tr.bg-muted\/20,
+.spreadsheet-grid tr.selected-row {
+  background: #181117 !important;
+  outline: 1.5px solid #ffc46b50 !important;
+}
+
+/* Enhanced Table Styles */
+.enhanced-table {
+  width: 100%;
+  border-collapse: collapse;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.enhanced-table thead {
+  background-color: rgba(249, 250, 251, 0.75);
+  backdrop-filter: blur(8px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.enhanced-table th,
+.enhanced-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+}
+
+.enhanced-table th {
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.enhanced-table tbody tr:hover {
+  background-color: rgba(243, 244, 246, 0.5);
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.hide-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* Spreadsheet styles */
+.spreadsheet-grid {
+  --grid-border-color: rgba(0, 0, 0, 0.1);
+  --grid-hover-color: rgba(0, 0, 0, 0.02);
+  --grid-focus-color: rgba(79, 70, 229, 0.1);
+}
+
+.spreadsheet-grid th {
+  position: relative;
+  background-color: #f9fafb;
+  border-bottom: 1px solid var(--grid-border-color);
+  font-weight: 500;
+}
+
+.spreadsheet-grid td {
+  font-size: 0.875rem;
+}
+
+.spreadsheet-grid tbody tr {
+  transition: background-color 0.2s;
+}
+
+.spreadsheet-grid tbody tr:hover {
+  background-color: var(--grid-hover-color);
+}
+
+.spreadsheet-grid .cell-editable {
+  cursor: cell;
+  transition: background-color 0.2s;
+}
+
+.spreadsheet-grid .cell-editable:hover {
+  background-color: var(--grid-hover-color);
+}
+
+.spreadsheet-grid td.cell-editing {
+  z-index: 10;
+  box-shadow: 0 0 0 2px #4f46e5;
+}
+
+.spreadsheet-grid td.cell-editing input,
+.spreadsheet-grid td.cell-editing select {
+  background-color: white;
+  box-shadow: 0 0 0 2px #4f46e5;
+}
+
+/* Airtable-like styles */
+.airtable-grid {
+  --grid-bg: #f9fafb;
+  --header-bg: #edf2f7;
+  --cell-border: #e5e7eb;
+  --row-hover: #f3f4f6;
+  --selection-color: #ebf4ff;
+  --focus-color: #3b82f6;
+}
+
+.dark .airtable-grid {
+  --grid-bg: #1a1b26;
+  --header-bg: #1e212f;
+  --cell-border: #2d3748;
+  --row-hover: #252a3c;
+  --selection-color: #2d3748;
+  --focus-color: #4f46e5;
+}
+
+.airtable-grid table {
+  border-spacing: 0;
+  width: 100%;
+}
+
+.airtable-grid th {
+  background-color: var(--header-bg);
+  border-bottom: 1px solid var(--cell-border);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  box-shadow: 0 1px 0 var(--cell-border);
+}
+
+.airtable-grid td {
+  border-bottom: 1px solid var(--cell-border);
+  border-right: 1px solid var(--cell-border);
+  transition: all 0.2s;
+}
+
+.airtable-grid tr:hover td {
+  background-color: var(--row-hover);
+}
+
+.airtable-grid tr[data-state="selected"] td {
+  background-color: var(--selection-color);
+}
+
+.airtable-grid td[data-editing="true"] {
+  padding: 0;
+  box-shadow: 0 0 0 2px var(--focus-color);
+  z-index: 10;
+  position: relative;
+}
+
+/* Resizable columns */
+.resizable-header {
+  position: relative;
+}
+
+.resize-handle {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 4px;
+  cursor: col-resize;
+}
+
+.resize-handle:hover,
+.resize-handle.active {
+  background-color: rgba(79, 70, 229, 0.3);
+}
+
+/* Dropdown menus in headers */
+th:hover .header-column-menu {
+  opacity: 1;
+}
+
+.header-column-menu {
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+/* Keyboard navigation highlight */
+.cell-focused {
+  box-shadow: inset 0 0 0 2px var(--focus-color);
+}
+
+/* Cell types */
+.cell-text {
+  font-family: inherit;
+}
+
+.cell-number {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.cell-date {
+  font-variant-numeric: tabular-nums;
+}
+
+.cell-select {}
+
+.cell-checkbox {
+  text-align: center;
+}
+
+/* Add row style */
+.add-row-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--muted-foreground);
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.add-row-button:hover {
+  color: var(--foreground);
+  background-color: var(--row-hover);
+}
