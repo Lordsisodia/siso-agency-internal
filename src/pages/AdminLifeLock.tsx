@@ -21,6 +21,8 @@ import { useNavigate } from 'react-router-dom';
 import { MobileTodayCard } from '@/components/admin/lifelock/ui/MobileTodayCard';
 import { MobileWeekView } from '@/components/admin/lifelock/ui/MobileWeekView';
 import { FloatingActionButton } from '@/components/admin/lifelock/ui/FloatingActionButton';
+import { MobileMicrophoneButton } from '@/components/admin/lifelock/ui/MobileMicrophoneButton';
+import { useAdminCheck } from '@/hooks/useAdminCheck';
 
 interface TaskCard {
   id: string;
@@ -40,6 +42,24 @@ const AdminLifeLock: React.FC = () => {
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [selectedYear, setSelectedYear] = useState(getYear(new Date()));
   const [view, setView] = useState<'week' | 'month'>('week');
+
+  // Voice command handler
+  const handleVoiceCommand = (command: string) => {
+    console.log('🎤 Voice command received:', command);
+    const lowerCommand = command.toLowerCase();
+    
+    if (lowerCommand.includes('today') || lowerCommand.includes('day view')) {
+      navigate('/admin/life-lock/day');
+    } else if (lowerCommand.includes('week') || lowerCommand.includes('week view')) {
+      setView('week');
+    } else if (lowerCommand.includes('month') || lowerCommand.includes('month view')) {
+      setView('month');
+    } else if (lowerCommand.includes('add task') || lowerCommand.includes('new task')) {
+      console.log('Voice: Add task command recognized');
+    } else {
+      console.log('Voice command not recognized. Available commands: today, week, month, add task');
+    }
+  };
 
   // Generate available years (current year ± 2)
   const currentYear = getYear(new Date());
@@ -472,10 +492,13 @@ const AdminLifeLock: React.FC = () => {
         </div>
       </div>
 
+      {/* Mobile Microphone Button - Top Center */}
+      <MobileMicrophoneButton onVoiceCommand={handleVoiceCommand} />
+
       {/* Floating Action Button for Mobile */}
       <FloatingActionButton
         onQuickAdd={() => console.log('Quick add task')}
-        onVoiceInput={() => console.log('Voice input')}
+        onVoiceInput={handleVoiceCommand}
         onTodayView={() => navigate('/admin/life-lock/day')}
         onQuickTimer={() => console.log('Quick timer')}
         onQuickPhoto={() => console.log('Quick photo')}

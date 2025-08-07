@@ -46,6 +46,18 @@ export class VoiceService {
     console.log('🌐 [VOICE AI] User agent:', navigator.userAgent);
     console.log('🔒 [VOICE AI] Is HTTPS:', window.location.protocol === 'https:');
     console.log('🏠 [VOICE AI] Is localhost:', window.location.hostname === 'localhost');
+    console.log('🌍 [VOICE AI] Current URL:', window.location.href);
+    
+    // Check for secure context requirement
+    const isSecureContext = window.location.protocol === 'https:' || 
+                          window.location.hostname === 'localhost' || 
+                          window.location.hostname === '127.0.0.1';
+    
+    if (!isSecureContext) {
+      console.error('❌ [VOICE AI] Voice recognition requires HTTPS or localhost');
+      console.error('🔧 [VOICE AI] Current protocol:', window.location.protocol);
+      console.error('💡 [VOICE AI] Solution: Use https:// or access via localhost');
+    }
     
     if (!this.recognition) {
       console.error('❌ [VOICE AI] Speech recognition not available');
@@ -53,7 +65,7 @@ export class VoiceService {
     }
     
     console.log('✅ [VOICE AI] Speech recognition is available');
-    return true;
+    return true && isSecureContext;
   }
 
   // Check microphone permissions with fallback methods
@@ -163,9 +175,9 @@ export class VoiceService {
 
     return new Promise((resolve, reject) => {
 
-      // Configure recognition
+      // Configure recognition - Enable continuous mode for longer recordings
       this.recognition.lang = config.language || 'en-US';
-      this.recognition.continuous = config.continuous || false;
+      this.recognition.continuous = config.continuous !== undefined ? config.continuous : true; // Default to continuous
       this.recognition.interimResults = config.interimResults || true;
       this.recognition.maxAlternatives = config.maxAlternatives || 1;
 

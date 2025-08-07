@@ -10,6 +10,7 @@ export default defineConfig(({ mode }) => ({
     port: 5173, // Use Vite default port to match Tauri config
     strictPort: false, // Allow fallback to other ports if needed
     open: false, // Don't auto-open browser
+    // https: true, // Enable HTTPS for voice recognition (commented out - see alternative solutions below)
     hmr: {
       overlay: false // Disable overlay for faster updates
     },

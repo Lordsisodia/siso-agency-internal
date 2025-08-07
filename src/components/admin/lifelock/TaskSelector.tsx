@@ -284,9 +284,9 @@ export const TaskSelector: React.FC<TaskSelectorProps> = ({
                     </div>
                     
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-3">
+                      <div className="flex flex-col gap-2">
                         <div className="flex-1">
-                          <h4 className="font-medium text-white truncate">{task.title}</h4>
+                          <h4 className="font-medium text-white leading-relaxed">{task.title}</h4>
                           {task.description && (
                             <p className="text-sm text-gray-400 mt-1 line-clamp-2">
                               {task.description}
@@ -294,7 +294,7 @@ export const TaskSelector: React.FC<TaskSelectorProps> = ({
                           )}
                         </div>
                         
-                        <div className="flex items-center gap-2 flex-shrink-0">
+                        <div className="flex items-center gap-2">
                           <Badge className={`text-xs ${getPriorityColor(task.priority)}`}>
                             {task.priority}
                           </Badge>

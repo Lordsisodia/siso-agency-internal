@@ -417,75 +417,92 @@ export const MobileTaskItem: React.FC<MobileTaskItemProps> = ({
       );
     }
 
-    // Default variant
+    // Default variant - Enhanced Design
     return (
-      <div className="p-3 flex items-center space-x-3">
-        <motion.div
-          whileTap={{ scale: 0.9 }}
-          className="flex-shrink-0"
-        >
-          <Checkbox
-            checked={task.completed}
-            onCheckedChange={onSwipeComplete}
-            className={cn(
-              'border-2 h-5 w-5 rounded-md transition-colors',
-              getColorClasses(color).checkbox
-            )}
-          />
-        </motion.div>
-        
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between">
-            <h3 className={cn(
-              'font-medium text-sm truncate',
-              task.completed ? 'line-through text-gray-500' : 'text-white'
-            )}>
-              {task.title}
-            </h3>
-            
-            {showPriority && task.priority && (
-              <Badge 
-                variant="outline" 
+      <div className="p-4 space-y-3">
+        {/* Top Row - Priority Badge and Duration */}
+        <div className="flex items-center justify-between">
+          {showPriority && task.priority && (
+            <div className="flex items-center space-x-2">
+              <div 
                 className={cn(
-                  'text-xs px-2 py-0.5 ml-2',
-                  getPriorityColor(task.priority)
+                  'w-3 h-3 rounded-full',
+                  task.priority === 'urgent' && 'bg-red-500',
+                  task.priority === 'high' && 'bg-orange-500',
+                  task.priority === 'medium' && 'bg-yellow-500',
+                  task.priority === 'low' && 'bg-green-500'
                 )}
-              >
+              />
+              <span className={cn(
+                'text-xs font-medium uppercase tracking-wider',
+                task.priority === 'urgent' && 'text-red-400',
+                task.priority === 'high' && 'text-orange-400',
+                task.priority === 'medium' && 'text-yellow-400',
+                task.priority === 'low' && 'text-green-400'
+              )}>
                 {task.priority}
-              </Badge>
-            )}
-          </div>
-          
-          {task.description && (
-            <p className="text-gray-400 text-xs mt-1 truncate">
-              {task.description}
-            </p>
+              </span>
+            </div>
           )}
           
           {showDuration && task.estimatedDuration && (
-            <div className="flex items-center space-x-1 mt-1">
-              <Clock className="h-3 w-3 text-gray-400" />
-              <span className="text-xs text-gray-400">
+            <div className="flex items-center space-x-1 text-gray-400">
+              <Clock className="h-3 w-3" />
+              <span className="text-xs font-medium">
                 {task.estimatedDuration}h
               </span>
             </div>
           )}
         </div>
-        
-        <div className="flex items-center space-x-2 text-gray-400">
+
+        {/* Main Content Row */}
+        <div className="flex items-start space-x-3">
           <motion.div
             whileTap={{ scale: 0.9 }}
-            className="p-1 rounded-full hover:bg-gray-700 transition-colors"
-            onClick={onSwipeEdit}
+            className="flex-shrink-0 mt-0.5"
           >
-            <Edit3 className="h-4 w-4" />
+            <Checkbox
+              checked={task.completed}
+              onCheckedChange={onSwipeComplete}
+              className={cn(
+                'border-2 h-5 w-5 rounded-md transition-colors',
+                getColorClasses(color).checkbox
+              )}
+            />
           </motion.div>
           
-          <div className="flex items-center space-x-1">
-            <ChevronRight className="h-3 w-3" />
-            <ChevronRight className="h-3 w-3 -ml-1" />
+          <div className="flex-1 min-w-0">
+            {/* Two-line title - NO TRUNCATION */}
+            <h3 className={cn(
+              'font-medium text-sm leading-tight',
+              task.completed ? 'line-through text-gray-500' : 'text-white',
+              'whitespace-normal break-words'
+            )}>
+              {task.title}
+            </h3>
+            
+            {task.description && (
+              <p className="text-gray-400 text-xs mt-1 line-clamp-2">
+                {task.description}
+              </p>
+            )}
           </div>
+          
+          <motion.div
+            whileTap={{ scale: 0.9 }}
+            className="flex-shrink-0 p-2 rounded-full hover:bg-gray-700 transition-colors cursor-pointer"
+            onClick={onSwipeEdit}
+          >
+            <Edit3 className="h-4 w-4 text-gray-400 hover:text-white" />
+          </motion.div>
         </div>
+
+        {/* Progress Bar (if applicable) */}
+        {task.completed && (
+          <div className="w-full bg-gray-700 rounded-full h-1">
+            <div className="bg-green-500 h-1 rounded-full w-full transition-all duration-300"></div>
+          </div>
+        )}
       </div>
     );
   };

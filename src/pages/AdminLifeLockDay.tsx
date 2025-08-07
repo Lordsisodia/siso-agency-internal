@@ -59,7 +59,7 @@ import {
   DailyTrackerSectionGroup
 } from '@/components/admin/lifelock/ui';
 import { MobileTaskItem, MobileSwipeCard } from '@/components/admin/lifelock/ui/MobileSwipeCard';
-import { FloatingActionButton } from '@/components/admin/lifelock/ui/FloatingActionButton';
+import { BottomNavigation } from '@/components/admin/lifelock/ui/BottomNavigation';
 
 // ... (keeping all the existing interfaces and state management logic)
 
@@ -600,7 +600,7 @@ const AdminLifeLockDay: React.FC = () => {
         },
         {
           language: 'en-US',
-          continuous: false,
+          continuous: true, // Enable continuous recording for longer speech
           interimResults: true
         }
       );
@@ -772,7 +772,7 @@ const AdminLifeLockDay: React.FC = () => {
   return (
     <AdminLayout>
       <div className="min-h-screen w-full bg-gray-900">
-        <div className="max-w-7xl mx-auto p-2 sm:p-4 md:p-6 lg:p-8 space-y-4 sm:space-y-6">
+        <div className="max-w-7xl mx-auto p-2 sm:p-4 md:p-6 lg:p-8 space-y-4 sm:space-y-6 pb-24 sm:pb-8">
           
           {/* Header Section - Enhanced for Mobile */}
           <DailyTrackerSection noPadding>
@@ -790,29 +790,31 @@ const AdminLifeLockDay: React.FC = () => {
                   <span className="sm:hidden">Back</span>
                 </Button>
                 
-                {/* Voice Button - Always visible */}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleVoiceInput}
-                  className={`px-3 py-2 transition-all ${
-                    isListening 
-                      ? 'bg-red-600 text-white border-red-600 hover:bg-red-700 animate-pulse' 
-                      : 'bg-yellow-600 text-white border-yellow-600 hover:bg-yellow-700'
-                  }`}
-                >
-                  {isListening ? (
-                    <>
-                      <MicOff className="h-4 w-4 sm:mr-1" />
-                      <span className="hidden sm:inline">Listening...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Mic className="h-4 w-4 sm:mr-1" />
-                      <span className="hidden sm:inline">Voice</span>
-                    </>
-                  )}
-                </Button>
+                {/* Voice Button - Desktop Only (Mobile uses bottom nav) */}
+                <div className="hidden sm:block">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleVoiceInput}
+                    className={`px-3 py-2 transition-all ${
+                      isListening 
+                        ? 'bg-red-600 text-white border-red-600 hover:bg-red-700 animate-pulse' 
+                        : 'bg-yellow-600 text-white border-yellow-600 hover:bg-yellow-700'
+                    }`}
+                  >
+                    {isListening ? (
+                      <>
+                        <MicOff className="h-4 w-4 mr-1" />
+                        <span>Listening...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Mic className="h-4 w-4 mr-1" />
+                        <span>Voice</span>
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
               
               {/* Enhanced Date Navigation */}
@@ -946,7 +948,6 @@ const AdminLifeLockDay: React.FC = () => {
                               logField: item.logField
                             }}
                             onSwipeComplete={() => toggleItem(morningRoutine, setMorningRoutine, item.id)}
-                            onSwipeEdit={() => console.log('Edit task:', item.id)}
                             onUpdate={(field, value) => updateItemField(morningRoutine, setMorningRoutine, item.id, field, value)}
                             color="yellow"
                           />
@@ -1188,7 +1189,6 @@ const AdminLifeLockDay: React.FC = () => {
                                   logValue: item.logged
                                 }}
                                 onSwipeComplete={() => toggleItem(workoutItems, setWorkoutItems, item.id)}
-                                onSwipeEdit={() => console.log('Edit task:', item.id)}
                                 onUpdate={(field, value) => updateItemField(workoutItems, setWorkoutItems, item.id, field === 'logValue' ? 'logged' : field, value)}
                                 color="red"
                                 variant="workout"
@@ -1247,7 +1247,6 @@ const AdminLifeLockDay: React.FC = () => {
                                     completed: item.completed
                                   }}
                                   onSwipeComplete={() => toggleItem(healthItems, setHealthItems, item.id)}
-                                  onSwipeEdit={() => console.log('Edit task:', item.id)}
                                   color="pink"
                                   variant="compact"
                                 />
@@ -1983,24 +1982,28 @@ const AdminLifeLockDay: React.FC = () => {
         onTasksUpdate={handleAITasksUpdate}
       />
 
-      {/* Floating Action Button for Mobile */}
-      <FloatingActionButton
-        onQuickAdd={() => console.log('Quick add task')}
-        onVoiceInput={handleVoiceInput}
-        onTodayView={() => navigate('/admin/life-lock')}
-        onQuickTimer={() => console.log('Quick timer')}
-        onQuickPhoto={() => console.log('Quick photo')}
+      {/* Bottom Navigation for Mobile */}
+      <BottomNavigation
+        onHomeClick={() => navigate('/admin/life-lock')}
+        onTasksClick={() => console.log('Tasks view')}
+        onVoiceClick={handleVoiceInput}
+        onStatsClick={() => console.log('Stats view')}
+        onMenuClick={() => console.log('Menu')}
+        onQuickAddClick={() => console.log('Quick add task')}
+        isListening={isListening}
       />
 
       {/* Task Detail Modal */}
       <Dialog open={showTaskModal} onOpenChange={setShowTaskModal}>
-        <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold flex items-center space-x-2">
-              <div className="w-2 h-2 rounded-full bg-orange-500"></div>
-              <span>{selectedTask?.title}</span>
+        <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-2xl w-[calc(100vw-2rem)] max-h-[calc(100vh-4rem)] overflow-y-auto sm:w-full">
+          <DialogHeader className="sticky top-0 bg-gray-900 pb-4 z-10">
+            <DialogTitle className="text-lg sm:text-xl font-bold flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 rounded-full bg-orange-500 flex-shrink-0"></div>
+                <span className="line-clamp-2 sm:line-clamp-1">{selectedTask?.title}</span>
+              </div>
             </DialogTitle>
-            <DialogDescription className="text-gray-300">
+            <DialogDescription className="text-gray-300 text-sm">
               {selectedTask?.work_type} • {selectedTask?.category}
             </DialogDescription>
           </DialogHeader>
