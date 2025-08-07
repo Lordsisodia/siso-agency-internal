@@ -11,10 +11,11 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { voiceService } from '@/services/voiceService';
 
 interface FloatingActionButtonProps {
   onQuickAdd?: () => void;
-  onVoiceInput?: () => void;
+  onVoiceInput?: (command: string) => void;
   onQuickTimer?: () => void;
   onQuickPhoto?: () => void;
   onTodayView?: () => void;
@@ -30,23 +31,58 @@ export const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
   className
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isListening, setIsListening] = useState(false);
 
+  const handleVoiceAction = async () => {
+    if (isListening) {
+      voiceService.stopListening();
+      setIsListening(false);
+    } else {
+      try {
+        await voiceService.startListening(
+          (transcript, isFinal) => {
+            if (isFinal && transcript.trim()) {
+              onVoiceInput?.(transcript);
+              setIsListening(false);
+              setIsExpanded(false);
+            }
+          },
+          (error) => {
+            console.error('Voice error:', error);
+            setIsListening(false);
+          },
+          {
+            language: 'en-US',
+            continuous: true,
+            interimResults: true
+          }
+        );
+        setIsListening(true);
+      } catch (error) {
+        console.error('Failed to start voice recognition:', error);
+      }
+    }
+  };
+
+  // Put voice input first to make it the primary action
   const actions = [
+    {
+      id: 'voice',
+      icon: Mic,
+      label: isListening ? 'Stop Recording' : 'Voice Input',
+      onClick: handleVoiceAction,
+      color: isListening 
+        ? 'bg-red-500 hover:bg-red-600 animate-pulse' 
+        : 'bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600',
+      available: !!onVoiceInput
+    },
     {
       id: 'add',
       icon: Plus,
       label: 'Add Task',
       onClick: onQuickAdd,
-      color: 'bg-orange-500 hover:bg-orange-600',
+      color: 'bg-gray-700 hover:bg-gray-600',
       available: !!onQuickAdd
-    },
-    {
-      id: 'voice',
-      icon: Mic,
-      label: 'Voice Input',
-      onClick: onVoiceInput,
-      color: 'bg-blue-500 hover:bg-blue-600',
-      available: !!onVoiceInput
     },
     {
       id: 'timer',

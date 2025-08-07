@@ -61,7 +61,8 @@ export const Sidebar = ({ onExpandedChange, onMobileMenuChange }: SidebarProps) 
 
   const sidebarVariants = {
     expanded: {
-      width: isMobile ? "16rem" : "16rem",
+      width: "16rem",
+      x: 0,
       transition: {
         type: "tween" as const,
         duration: 0.1,
@@ -69,7 +70,8 @@ export const Sidebar = ({ onExpandedChange, onMobileMenuChange }: SidebarProps) 
       }
     },
     collapsed: {
-      width: isMobile ? "0" : "4rem",
+      width: isMobile ? "16rem" : "4rem",
+      x: isMobile ? "-16rem" : 0,
       transition: {
         type: "tween" as const,
         duration: 0.1,
@@ -151,6 +153,7 @@ export const Sidebar = ({ onExpandedChange, onMobileMenuChange }: SidebarProps) 
           border-r border-siso-border shadow-xl
           flex flex-col
           ${isMobile ? 'z-40' : 'z-50'}
+          ${isMobile && !isMobileMenuOpen ? 'pointer-events-none' : ''}
         `}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}

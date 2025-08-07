@@ -479,17 +479,21 @@ export const DeepFocusSessionCard: React.FC<DeepFocusSessionCardProps> = ({
                   <motion.div
                     key={task.id}
                     whileHover={{ x: 4 }}
-                    className="flex items-center space-x-3 p-2 rounded-lg hover:bg-white/5 transition-colors cursor-pointer"
+                    className="flex flex-col space-y-1 p-3 rounded-lg hover:bg-white/5 transition-colors cursor-pointer"
                     onClick={() => onTaskToggle?.(task.id)}
                   >
-                    <Circle className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                    <span className="text-sm text-gray-300 flex-1 truncate">
-                      {task.title}
-                    </span>
+                    <div className="flex items-start space-x-3">
+                      <Circle className="h-4 w-4 text-gray-400 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm text-gray-300 flex-1 leading-relaxed">
+                        {task.title}
+                      </span>
+                    </div>
                     {task.focus_level && (
-                      <Badge variant="outline" className="text-xs px-2 py-0.5 text-orange-400 border-orange-500/50">
-                        L{task.focus_level}
-                      </Badge>
+                      <div className="flex items-center ml-7">
+                        <Badge variant="outline" className="text-xs px-2 py-0.5 text-orange-400 border-orange-500/50">
+                          Focus Level {task.focus_level}
+                        </Badge>
+                      </div>
                     )}
                   </motion.div>
                 ))}
