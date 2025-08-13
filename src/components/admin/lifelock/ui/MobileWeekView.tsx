@@ -14,6 +14,7 @@ import {
 import { cn } from '@/lib/utils';
 import { motion, PanInfo, useMotionValue, useTransform } from 'framer-motion';
 import { format, isSameDay } from 'date-fns';
+import { CompletionRing, StreakIndicator, WeekProgressBar } from './WeekViewEnhancements';
 
 interface TaskCard {
   id: string;
@@ -96,6 +97,12 @@ export const MobileWeekView: React.FC<MobileWeekViewProps> = ({
                 </p>
               </div>
               <div className="flex items-center space-x-1">
+                {/* Completion Ring */}
+                <CompletionRing 
+                  percentage={completionRate} 
+                  size="small" 
+                  showPercentage={false}
+                />
                 {isToday && (
                   <Badge variant="secondary" className="text-xs px-2 py-0.5 bg-orange-500/20 text-orange-300 border-orange-500/40">
                     Today
@@ -208,21 +215,24 @@ export const MobileWeekView: React.FC<MobileWeekViewProps> = ({
               <span>Swipe to navigate weeks</span>
             </div>
 
+            {/* Week Progress Bar */}
+            <WeekProgressBar weekCards={weekCards} className="mb-4" />
+            
             {/* Week Stats */}
             <div className="grid grid-cols-3 gap-2 mb-4">
-              <div className="text-center p-2 bg-gray-800/50 rounded-lg">
+              <div className="text-center p-2 bg-gray-800/50 rounded-lg border border-gray-700/50">
                 <div className="text-xs text-gray-400">Completed</div>
                 <div className="text-sm font-semibold text-green-400">
                   {weekCards.reduce((acc, card) => acc + card.tasks.filter(t => t.completed).length, 0)}
                 </div>
               </div>
-              <div className="text-center p-2 bg-gray-800/50 rounded-lg">
+              <div className="text-center p-2 bg-gray-800/50 rounded-lg border border-gray-700/50">
                 <div className="text-xs text-gray-400">Total</div>
                 <div className="text-sm font-semibold text-orange-400">
                   {weekCards.reduce((acc, card) => acc + card.tasks.length, 0)}
                 </div>
               </div>
-              <div className="text-center p-2 bg-gray-800/50 rounded-lg">
+              <div className="text-center p-2 bg-gray-800/50 rounded-lg border border-gray-700/50">
                 <div className="text-xs text-gray-400">Rate</div>
                 <div className="text-sm font-semibold text-yellow-400">
                   {Math.round(
