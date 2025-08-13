@@ -7,11 +7,15 @@ import App from './App'
 import './index.css'
 import { ErrorFallback } from './components/ErrorFallback'
 import { checkEnv } from './utils/envCheck'
+import { registerServiceWorker } from './utils/registerServiceWorker'
 
 // Check environment on load
 if (import.meta.env.PROD) {
   checkEnv();
 }
+
+// Register service worker for PWA functionality
+registerServiceWorker();
 
 // Optimized QueryClient for super-fast performance
 const queryClient = new QueryClient({

@@ -38,6 +38,7 @@ interface TaskCard {
 
 const AdminLifeLock: React.FC = () => {
   const navigate = useNavigate();
+  const { isAdmin, isLoading: adminLoading } = useAdminCheck();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [selectedYear, setSelectedYear] = useState(getYear(new Date()));
@@ -260,6 +261,23 @@ const AdminLifeLock: React.FC = () => {
       </motion.div>
     );
   };
+
+  // Handle loading state
+  if (adminLoading) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center h-screen">
+          <div className="text-white">Loading...</div>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  // Handle non-admin access
+  if (!isAdmin) {
+    navigate('/login');
+    return null;
+  }
 
   return (
     <AdminLayout>
@@ -492,8 +510,8 @@ const AdminLifeLock: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile Microphone Button - Top Center */}
-      <MobileMicrophoneButton onVoiceCommand={handleVoiceCommand} />
+      {/* Mobile Microphone Button - Top Center - Temporarily disabled for debugging */}
+      {/* <MobileMicrophoneButton onVoiceCommand={handleVoiceCommand} /> */}
 
       {/* Floating Action Button for Mobile */}
       <FloatingActionButton
