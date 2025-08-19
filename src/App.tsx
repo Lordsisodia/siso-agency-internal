@@ -27,8 +27,8 @@ const DecoraPlan = lazy(() => import('./pages/DecoraPlan'));
 const PublicPlanView = lazy(() => import('./pages/PublicPlanView'));
 const Congratulations = lazy(() => import('./pages/onboarding/congratulations'));
 const CryptoExchange = lazy(() => import('./pages/CryptoExchange'));
-const HowToEarn = lazy(() => import('./pages/HowToEarn'));
-const LeaderboardPage = lazy(() => import('./pages/LeaderboardPage'));
+// const HowToEarn = lazy(() => import('./pages/HowToEarn'));
+// const LeaderboardPage = lazy(() => import('./pages/LeaderboardPage'));
 const MyProjects = lazy(() => import('./pages/MyProjects'));
 const Portfolio = lazy(() => import('./pages/Portfolio'));
 const PublicPortfolio = lazy(() => import('./pages/PublicPortfolio'));
@@ -42,16 +42,17 @@ const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const AdminClients = lazy(() => import('./pages/AdminClients'));
 const AdminTasks = lazy(() => import('./pages/AdminTasks'));
 const AdminPlans = lazy(() => import('./pages/AdminPlans'));
-const AdminOutreach = lazy(() => import('./pages/AdminOutreach'));
-const AdminTemplates = lazy(() => import('./pages/AdminTemplates'));
-const AdminTeams = lazy(() => import('./pages/AdminTeams'));
-const AdminPayments = lazy(() => import('./pages/AdminPayments'));
-const AdminDailyPlanner = lazy(() => import('./pages/AdminDailyPlanner'));
+// Archived pages - removed from navigation
+// const AdminOutreach = lazy(() => import('./pages/AdminOutreach'));
+// const AdminTemplates = lazy(() => import('./pages/AdminTemplates'));
+// const AdminTeams = lazy(() => import('./pages/AdminTeams'));
+// const AdminPayments = lazy(() => import('./pages/AdminPayments'));
+// const AdminDailyPlanner = lazy(() => import('./pages/AdminDailyPlanner'));
 const AdminLifeLock = lazy(() => import('./pages/AdminLifeLock'));
 const AdminLifeLockDay = lazy(() => import('./pages/AdminLifeLockDay'));
 const ClientDetailPage = lazy(() => import('./pages/ClientDetailPage'));
 const AdminSettings = lazy(() => import('./pages/AdminSettings'));
-const AdminPrompts = lazy(() => import('./pages/AdminPrompts'));
+// const AdminPrompts = lazy(() => import('./pages/AdminPrompts'));
 const TeamMemberTasksPage = lazy(() => import('./pages/TeamMemberTasksPage'));
 
 // Client pages - separate bundle
@@ -70,10 +71,10 @@ const AppPlan = lazy(() => import('./pages/AppPlan'));
 const AppPlanTestingDashboard = lazy(() => import('@/components/debug/AppPlanTestingDashboard'));
 const DebugPage = lazy(() => import('./pages/debug'));
 
-// Financial & Account section
-const PaymentsPage = lazy(() => import('./pages/financial/PaymentsPage'));
-const LeaderboardsPage = lazy(() => import('./pages/financial/LeaderboardsPage'));
-const FinancialProfilePage = lazy(() => import('./pages/financial/FinancialProfilePage'));
+// Financial & Account section - archived
+// const PaymentsPage = lazy(() => import('./pages/financial/PaymentsPage'));
+// const LeaderboardsPage = lazy(() => import('./pages/financial/LeaderboardsPage'));
+// const FinancialProfilePage = lazy(() => import('./pages/financial/FinancialProfilePage'));
 const ClientAppDetailsPage = lazy(() => import('./pages/ClientAppDetailsPage'));
 const AdminWireframes = lazy(() => import('./pages/AdminWireframes'));
 const UserFlow = lazy(() => import('./pages/UserFlow'));
@@ -216,19 +217,23 @@ function App() {
           <Route path="/admin/dashboard" element={<AuthGuard adminOnly={true}><AdminDashboard /></AuthGuard>} />
           <Route path="/admin/clients" element={<AuthGuard adminOnly={true}><AdminClients /></AuthGuard>} />
           <Route path="/admin/clients/:clientId" element={<AuthGuard adminOnly={true}><ClientDetailPage /></AuthGuard>} />
+          {/* Archived routes - removed from navigation
           <Route path="/admin/prompts" element={<AuthGuard adminOnly={true}><AdminPrompts /></AuthGuard>} />
           <Route path="/admin/outreach" element={<AuthGuard adminOnly={true}><AdminOutreach /></AuthGuard>} />
           <Route path="/admin/templates" element={<AuthGuard adminOnly={true}><AdminTemplates /></AuthGuard>} />
           <Route path="/admin/teams" element={<AuthGuard adminOnly={true}><AdminTeams /></AuthGuard>} />
           <Route path="/admin/payments" element={<AuthGuard adminOnly={true}><AdminPayments /></AuthGuard>} />
           <Route path="/admin/daily-planner" element={<AuthGuard adminOnly={true}><AdminDailyPlanner /></AuthGuard>} />
+          */}
           <Route path="/admin/life-lock" element={<AuthGuard adminOnly={true}><AdminLifeLock /></AuthGuard>} />
           <Route path="/admin/life-lock/day" element={<AuthGuard adminOnly={true}><AdminLifeLockDay /></AuthGuard>} />
           <Route path="/admin/tasks" element={<AuthGuard adminOnly={true}><AdminTasks /></AuthGuard>} />
           <Route path="/admin/tasks/:memberId" element={<AuthGuard adminOnly={true}><TeamMemberTasksPage /></AuthGuard>} />
           <Route path="/admin/settings" element={<AuthGuard adminOnly={true}><AdminSettings /></AuthGuard>} />
+          {/* Plans routes - archived
           <Route path="/admin/plans/create" element={<AuthGuard adminOnly={true}><AdminPlans /></AuthGuard>} />
           <Route path="/admin/plans/:planId/edit" element={<AuthGuard adminOnly={true}><AdminPlans /></AuthGuard>} />
+          */}
           <Route path="/admin/wireframes" element={<AuthGuard adminOnly={true}><AdminWireframes /></AuthGuard>} />
           <Route path="/admin/wireframes/:projectId" element={<AuthGuard adminOnly={true}><AdminWireframes /></AuthGuard>} />
           <Route path="/admin/userflow" element={<AuthGuard adminOnly={true}><AdminUserFlow /></AuthGuard>} />
@@ -277,12 +282,13 @@ function App() {
           <Route path="/plan-builder" element={<AuthGuard><Communication /></AuthGuard>} />
           <Route path="/admin/portfolio" element={<AuthGuard><Portfolio /></AuthGuard>} />
           
-          {/* Financial Routes */}
+          {/* Financial Routes - archived
           <Route path="/financial/payments" element={<AuthGuard><PaymentsPage /></AuthGuard>} />
           <Route path="/financial/leaderboards" element={<AuthGuard><LeaderboardPage /></AuthGuard>} />
+          */}
           
           {/* Account & Resources Routes */}
-          <Route path="/profile" element={<AuthGuard><FinancialProfilePage /></AuthGuard>} />
+          <Route path="/profile" element={<AuthGuard><Profile /></AuthGuard>} />
           <Route path="/resources" element={<AuthGuard><ResourcesPage /></AuthGuard>} />
           <Route path="/resources/documents" element={<AuthGuard><DocumentLibraryPage /></AuthGuard>} />
           
@@ -298,10 +304,11 @@ function App() {
           {/* Client App Details Route */}
           <Route path="/client-app/:clientId" element={<AuthGuard><ClientAppDetailsPage /></AuthGuard>} />
           
-          {/* Legacy Financial Routes (redirected for backward compatibility) */}
+          {/* Legacy Financial Routes - archived
           <Route path="/payments" element={<AuthGuard><PaymentsPage /></AuthGuard>} />
           <Route path="/economy/earn" element={<AuthGuard><HowToEarn /></AuthGuard>} />
           <Route path="/economy/leaderboards" element={<AuthGuard><LeaderboardPage /></AuthGuard>} />
+          */}
           
           {/* Client Dashboard Routes - accessible to all authenticated users but with conditional content */}
           <Route path="/client-dashboard" element={<AuthGuard><ClientDashboard /></AuthGuard>} />

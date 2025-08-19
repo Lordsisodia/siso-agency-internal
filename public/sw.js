@@ -1,8 +1,12 @@
-const CACHE_NAME = 'siso-agency-v1';
+const CACHE_NAME = 'siso-internal-v1';
 const urlsToCache = [
   '/',
   '/index.html',
   '/manifest.json',
+  '/icon-192x192.png',
+  '/icon-512x512.png',
+  '/icon-96x96.png',
+  '/apple-touch-icon.png',
   '/lovable-uploads/c5921a2f-8856-42f4-bec5-2d08b81c5691.png'
 ];
 
