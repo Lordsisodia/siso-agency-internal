@@ -3,25 +3,25 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>SISO AGENCY</title>
-    <meta name="description" content="SISO AGENCY - Scalable Intelligence Systems Operator. Premium digital solutions for ambitious businesses." />
+    <title>SISO Internal</title>
+    <meta name="description" content="SISO Internal - Agency Operations Dashboard. Premium digital solutions for ambitious businesses." />
     <meta name="author" content="SISO AGENCY" />
     
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="/manifest.json" />
-    <meta name="theme-color" content="#FF6B00" />
+    <meta name="theme-color" content="#ea384c" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="SISO" />
+    <meta name="apple-mobile-web-app-title" content="SISO Internal" />
     
     <!-- iOS Icons -->
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     
     <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="SISO AGENCY" />
-    <meta property="og:description" content="Scalable Intelligence Systems Operator. We build and manage intelligent systems that scale with your business." />
+    <meta property="og:title" content="SISO Internal" />
+    <meta property="og:description" content="SISO Internal - Agency Operations Dashboard" />
     <meta property="og:image" content="/lovable-uploads/c5921a2f-8856-42f4-bec5-2d08b81c5691.png" />
     <meta property="og:url" content="https://www.siso.agency" />
     <meta property="og:type" content="website" />
@@ -46,6 +46,26 @@
         'https://www.siso.agency',
         'https://siso.agency'
       ];
+      
+      // PWA Detection and Optimization
+      window.addEventListener('DOMContentLoaded', function() {
+        // Detect if running as PWA
+        const isPWA = window.matchMedia('(display-mode: standalone)').matches 
+                   || window.matchMedia('(display-mode: fullscreen)').matches
+                   || window.navigator.standalone === true;
+        
+        if (isPWA) {
+          document.body.classList.add('pwa-mode');
+          console.log('🚀 Running as PWA');
+          
+          // Prevent zoom on iOS
+          document.addEventListener('touchstart', function(event) {
+            if (event.touches.length > 1) {
+              event.preventDefault();
+            }
+          }, false);
+        }
+      });
       
       // Attempt to prevent third-party script errors
       window.addEventListener('error', function(event) {

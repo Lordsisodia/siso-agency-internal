@@ -1,13 +1,13 @@
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useAdminCheck } from '@/hooks/useAdminCheck';
+import { checkIsAdmin } from '@/utils/supabaseHelpers';
 import { PageLoader } from '@/components/ui/PageLoader';
 
 const Index = () => {
   const navigate = useNavigate();
-  const { isAdmin, isLoading } = useAdminCheck();
+  const [authChecked, setAuthChecked] = useState(false);
   
   useEffect(() => {
     // Skip landing page - redirect directly based on auth status
@@ -16,6 +16,9 @@ const Index = () => {
         const { data } = await supabase.auth.getSession();
         
         if (data.session) {
+          // Check admin status directly to avoid hook dependency issues
+          const isAdmin = await checkIsAdmin();
+          
           // If the user is an admin, redirect to the admin clients page  
           if (isAdmin) {
             navigate('/admin/clients', { replace: true });
@@ -30,13 +33,23 @@ const Index = () => {
         console.error("Auth check error:", error);
         // On error, redirect to login
         navigate('/auth', { replace: true });
+      } finally {
+        setAuthChecked(true);
       }
     };
+
+    // Add a timeout fallback to prevent infinite loading
+    const timeout = setTimeout(() => {
+      if (!authChecked) {
+        console.warn('Auth check taking too long, redirecting to auth');
+        navigate('/auth', { replace: true });
+      }
+    }, 5000);
     
-    if (!isLoading) {
-      checkAuth();
-    }
-  }, [navigate, isAdmin, isLoading]);
+    checkAuth();
+    
+    return () => clearTimeout(timeout);
+  }, [navigate]);
 
   // Show loading while checking auth
   return <PageLoader />;

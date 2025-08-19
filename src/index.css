@@ -963,3 +963,49 @@ th:hover .header-column-menu {
 .animate-pulse-subtle {
   animation: pulse-subtle 3s ease-in-out infinite;
 }
+
+/* PWA Fullscreen Support */
+@media (display-mode: fullscreen) {
+  body {
+    /* Remove any potential padding/margins in fullscreen */
+    margin: 0;
+    padding: 0;
+    /* Ensure app takes full height */
+    min-height: 100vh;
+    height: 100vh;
+  }
+  
+  #root {
+    min-height: 100vh;
+    height: 100vh;
+  }
+}
+
+@media (display-mode: standalone) {
+  body {
+    /* PWA standalone mode optimization */
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+  }
+  
+  #root {
+    min-height: 100vh;
+  }
+}
+
+/* Mobile PWA optimizations */
+@media screen and (max-width: 768px) and (display-mode: standalone) {
+  body {
+    /* Prevent zoom on inputs */
+    -webkit-text-size-adjust: 100%;
+    /* Hide iOS status bar in PWA */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Prevent pull-to-refresh in PWA */
+body.pwa-mode {
+  overscroll-behavior: none;
+}

@@ -1,7 +1,7 @@
 import { 
-  LayoutDashboard, ListTodo, MessageSquare, Wallet, 
-  Trophy, FileText, HelpCircle, 
-  ClipboardList, CalendarClock, User, FlaskConical
+  LayoutDashboard, ListTodo, MessageSquare, 
+  FileText, HelpCircle, 
+  ClipboardList, CalendarClock, FlaskConical
 } from 'lucide-react';
 import { MenuSection } from './types';
 
@@ -42,23 +42,6 @@ export const getMenuSections = (): MenuSection[] => {
           href: '/testing',
           icon: FlaskConical,
           label: 'AI Testing'
-        }
-      ]
-    },
-    {
-      type: 'section',
-      title: 'Financial',
-      icon: Wallet,
-      items: [
-        {
-          href: '/financial/payments',
-          icon: Wallet,
-          label: 'Financial',
-        },
-        {
-          href: '/economy/leaderboards',
-          icon: Trophy,
-          label: 'Leaderboards',
         }
       ]
     },

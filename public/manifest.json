@@ -1,12 +1,13 @@
 {
-  "name": "SISO AGENCY",
+  "name": "SISO Internal",
   "short_name": "SISO",
-  "description": "Scalable Intelligence Systems Operator - Premium digital solutions for ambitious businesses",
+  "description": "SISO Internal - Agency Operations Dashboard",
   "start_url": "/",
-  "display": "standalone",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone", "minimal-ui"],
   "background_color": "#000000",
-  "theme_color": "#FF6B00",
-  "orientation": "portrait",
+  "theme_color": "#ea384c",
+  "orientation": "any",
   "scope": "/",
   "categories": ["business", "productivity"],
   "lang": "en-US",
@@ -54,17 +55,31 @@
   ],
   "shortcuts": [
     {
-      "name": "Dashboard",
-      "short_name": "Dashboard",
-      "description": "View your agency dashboard",
+      "name": "Admin Dashboard",
+      "short_name": "Admin",
+      "description": "View admin dashboard",
       "url": "/admin",
+      "icons": [{ "src": "/icon-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Clients",
+      "short_name": "Clients",
+      "description": "Manage clients",
+      "url": "/admin/clients",
       "icons": [{ "src": "/icon-96x96.png", "sizes": "96x96" }]
     },
     {
       "name": "Tasks",
       "short_name": "Tasks",
-      "description": "Manage your tasks",
+      "description": "Manage tasks",
       "url": "/admin/tasks",
+      "icons": [{ "src": "/icon-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Life Lock",
+      "short_name": "LifeLock",
+      "description": "Life Lock dashboard",
+      "url": "/admin/life-lock",
       "icons": [{ "src": "/icon-96x96.png", "sizes": "96x96" }]
     }
   ]
