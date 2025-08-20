@@ -1,0 +1,12 @@
+{
+  "name": "siso-ide",
+  "version": "1.0.0",
+  "description": "A streamlined IDE interface for Claude Code that provides a beautiful UI while maintaining all the power of command-line Claude.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

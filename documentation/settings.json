@@ -1,0 +1,14 @@
+{
+  "model": "opusplan",
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "context7-mcp",
+    "vectal-mcp"
+  ],
+  "mcp": {
+    "servers": {}
+  },
+  "statusLine": "~/.claude/scripts/siso-status-line.sh",
+  "theme": "dark",
+  "defaultOutputStyle": "siso-enhanced"
+}

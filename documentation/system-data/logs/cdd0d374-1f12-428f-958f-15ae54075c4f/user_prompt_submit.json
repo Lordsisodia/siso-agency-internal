@@ -1,0 +1,16 @@
+[
+  {
+    "session_id": "cdd0d374-1f12-428f-958f-15ae54075c4f",
+    "transcript_path": "/Users/shaansisodia/.claude/projects/-Users-shaansisodia-DEV/cdd0d374-1f12-428f-958f-15ae54075c4f.jsonl",
+    "cwd": "/Users/shaansisodia/DEV",
+    "hook_event_name": "UserPromptSubmit",
+    "prompt": "why cants i see teh hooks going on in thebackend"
+  },
+  {
+    "session_id": "cdd0d374-1f12-428f-958f-15ae54075c4f",
+    "transcript_path": "/Users/shaansisodia/.claude/projects/-Users-shaansisodia-DEV/cdd0d374-1f12-428f-958f-15ae54075c4f.jsonl",
+    "cwd": "/Users/shaansisodia/DEV",
+    "hook_event_name": "UserPromptSubmit",
+    "prompt": "http://localhost:5173/ i see stuff here "
+  }
+]

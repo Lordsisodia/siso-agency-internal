@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Claudia.js Test Console</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <style>
+        body { 
+            background: #2c3e50; 
+            color: #ecf0f1;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        }
+        .container { 
+            margin-top: 20px; 
+            background: #34495e;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        h1 { 
+            color: #e74c3c;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .console-style {
+            background: #1a1a1a;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 3px;
+            font-family: monospace;
+            margin: 10px 0;
+            min-height: 100px;
+            white-space: pre-wrap;
+            border: 1px solid #0f0;
+        }
+        .btn-claudia {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            margin: 5px;
+        }
+        .btn-claudia:hover {
+            background: #c0392b;
+            color: white;
+        }
+        .endpoint-label {
+            color: #3498db;
+            font-weight: bold;
+        }
+        .header {
+            background: #e74c3c;
+            padding: 10px;
+            margin: -20px -20px 20px -20px;
+            border-radius: 5px 5px 0 0;
+        }
+        .logo {
+            font-size: 30px;
+            vertical-align: middle;
+        }
+        input, textarea {
+            background: #2c3e50;
+            color: #ecf0f1;
+            border: 1px solid #7f8c8d;
+            padding: 8px;
+            width: 100%;
+            margin: 5px 0;
+        }
+        .test-section {
+            border: 1px solid #7f8c8d;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><span class="logo">⚡</span> Claudia.js Test Console</h1>
+        </div>
+        
+        <div class="alert alert-info">
+            <strong>Claudia.js Local Testing Interface</strong><br>
+            This simulates AWS Lambda + API Gateway locally
+        </div>
+
+        <div class="test-section">
+            <h3><span class="endpoint-label">Lambda Function Test</span></h3>
+            <p>Event Data (JSON):</p>
+            <textarea id="event" rows="4">{
+  "action": "test",
+  "user": "developer"
+}</textarea>
+            <button class="btn btn-claudia" onclick="testLambda()">⚡ Invoke Lambda</button>
+        </div>
+
+        <div class="test-section">
+            <h3><span class="endpoint-label">API Gateway Simulation</span></h3>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <label>HTTP Method:</label>
+                    <select id="method" class="form-control" style="background: #2c3e50; color: #ecf0f1;">
+                        <option>GET</option>
+                        <option>POST</option>
+                        <option>PUT</option>
+                        <option>DELETE</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label>Path:</label>
+                    <input type="text" id="path" value="/hello" class="form-control">
+                </div>
+            </div>
+            
+            <label style="margin-top: 10px;">Headers (JSON):</label>
+            <textarea id="headers" rows="2">{
+  "Content-Type": "application/json"
+}</textarea>
+            
+            <label>Body (JSON):</label>
+            <textarea id="body" rows="3">{
+  "message": "Test from Claudia Console"
+}</textarea>
+            
+            <button class="btn btn-claudia" onclick="testAPI()">📡 Send API Request</button>
+        </div>
+
+        <div class="test-section">
+            <h3><span class="endpoint-label">Quick Tests</span></h3>
+            <button class="btn btn-claudia" onclick="quickTest('hello')">Test /hello</button>
+            <button class="btn btn-claudia" onclick="quickTest('time')">Test /time</button>
+            <button class="btn btn-claudia" onclick="quickTest('random')">Test /random</button>
+            <button class="btn btn-claudia" onclick="quickTest('echo')">Test /echo</button>
+        </div>
+
+        <h3 style="color: #0f0;">📟 Response Console:</h3>
+        <div id="console" class="console-style">Claudia.js Test Console Ready...
+Type: AWS Lambda + API Gateway Simulator
+Status: Running Locally
+=====================================</div>
+
+        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #7f8c8d;">
+            <small style="color: #95a5a6;">
+                Claudia.js v5.14.1 | Local Development Mode | No AWS Required
+            </small>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5555';
+        
+        function log(message) {
+            const console = document.getElementById('console');
+            const timestamp = new Date().toISOString();
+            console.textContent += `\n[${timestamp}] ${message}`;
+            console.scrollTop = console.scrollHeight;
+        }
+        
+        async function testLambda() {
+            try {
+                const event = JSON.parse(document.getElementById('event').value);
+                log('⚡ Invoking Lambda function...');
+                log('Event: ' + JSON.stringify(event));
+                
+                // Simulate Lambda invocation
+                const response = await fetch(`${API_BASE}/lambda-test`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(event)
+                });
+                
+                const result = await response.json();
+                log('✅ Lambda Response:');
+                log(JSON.stringify(result, null, 2));
+            } catch (error) {
+                log('❌ Error: ' + error.message);
+            }
+        }
+        
+        async function testAPI() {
+            try {
+                const method = document.getElementById('method').value;
+                const path = document.getElementById('path').value;
+                const headers = JSON.parse(document.getElementById('headers').value);
+                const body = document.getElementById('body').value;
+                
+                log(`📡 API Gateway Request: ${method} ${path}`);
+                
+                const options = {
+                    method: method,
+                    headers: headers
+                };
+                
+                if (method !== 'GET' && body) {
+                    options.body = body;
+                }
+                
+                const response = await fetch(`${API_BASE}${path}`, options);
+                const result = await response.json();
+                
+                log(`✅ Status Code: ${response.status}`);
+                log('Response:');
+                log(JSON.stringify(result, null, 2));
+            } catch (error) {
+                log('❌ Error: ' + error.message);
+            }
+        }
+        
+        async function quickTest(endpoint) {
+            try {
+                log(`🚀 Quick Test: /${endpoint}`);
+                
+                let response;
+                if (endpoint === 'echo') {
+                    response = await fetch(`${API_BASE}/${endpoint}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ test: 'Quick test data', timestamp: new Date() })
+                    });
+                } else {
+                    response = await fetch(`${API_BASE}/${endpoint}`);
+                }
+                
+                const result = await response.json();
+                log('✅ Response:');
+                log(JSON.stringify(result, null, 2));
+            } catch (error) {
+                log('❌ Error: ' + error.message);
+            }
+        }
+        
+        // Auto-load
+        window.onload = () => {
+            log('🌐 Connected to local Claudia.js server');
+            log('Ready for testing...\n');
+        };
+    </script>
+</body>
+</html>

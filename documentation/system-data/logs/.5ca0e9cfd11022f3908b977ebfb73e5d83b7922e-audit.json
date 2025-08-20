@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "/Users/shaansisodia/DEV/logs/.5ca0e9cfd11022f3908b977ebfb73e5d83b7922e-audit.json",
+    "files": [
+        {
+            "date": 1755493166667,
+            "name": "/Users/shaansisodia/DEV/logs/mcp-puppeteer-2025-08-18.log",
+            "hash": "e388442757cf67946a60271a8e5e38c4835f6bf44179d7e320b562f8ca36abc8"
+        }
+    ],
+    "hashType": "sha256"
+}

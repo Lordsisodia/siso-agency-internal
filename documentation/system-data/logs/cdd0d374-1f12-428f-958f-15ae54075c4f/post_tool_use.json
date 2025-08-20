@@ -1,0 +1,599 @@
+[
+  {
+    "session_id": "cdd0d374-1f12-428f-958f-15ae54075c4f",
+    "transcript_path": "/Users/shaansisodia/.claude/projects/-Users-shaansisodia-DEV/cdd0d374-1f12-428f-958f-15ae54075c4f.jsonl",
+    "cwd": "/Users/shaansisodia/DEV",
+    "hook_event_name": "PostToolUse",
+    "tool_name": "Glob",
+    "tool_input": {
+      "pattern": "**/*hook*"
+    },
+    "tool_response": {
+      "filenames": [
+        "/Users/shaansisodia/DEV/SISO-INTERNAL/node_modules/react-hotkeys-hook/dist/react-hotkeys-hook.cjs.development.js",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO-INTERNAL/node_modules/react-hotkeys-hook/dist/react-hotkeys-hook.cjs.development.js",
+        "/Users/shaansisodia/DEV/SISO-INTERNAL/node_modules/react-hotkeys-hook/dist/react-hotkeys-hook.cjs.production.min.js",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO-INTERNAL/node_modules/react-hotkeys-hook/dist/react-hotkeys-hook.cjs.production.min.js",
+        "/Users/shaansisodia/DEV/SISO-INTERNAL/node_modules/groq-sdk/node_modules/@types/node/async_hooks.d.ts",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO-INTERNAL/node_modules/groq-sdk/node_modules/@types/node/async_hooks.d.ts",
+        "/Users/shaansisodia/DEV/SISO-INTERNAL/node_modules/react-hotkeys-hook/dist/react-hotkeys-hook.esm.js",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO-INTERNAL/node_modules/react-hotkeys-hook/dist/react-hotkeys-hook.esm.js",
+        "/Users/shaansisodia/DEV/SISO-INTERNAL/node_modules/@types/node/async_hooks.d.ts",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO-INTERNAL/node_modules/@types/node/async_hooks.d.ts",
+        "/Users/shaansisodia/DEV/SISO-INTERNAL/node_modules/eslint-plugin-react-hooks/cjs/eslint-plugin-react-hooks.development.js",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO-INTERNAL/node_modules/eslint-plugin-react-hooks/cjs/eslint-plugin-react-hooks.development.js",
+        "/Users/shaansisodia/DEV/SISO-INTERNAL/node_modules/react-hotkeys-hook/dist/react-hotkeys-hook.cjs.development.js.map",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO-INTERNAL/node_modules/react-hotkeys-hook/dist/react-hotkeys-hook.cjs.development.js.map",
+        "/Users/shaansisodia/DEV/SISO-INTERNAL/node_modules/react-hotkeys-hook/dist/react-hotkeys-hook.cjs.production.min.js.map",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO-INTERNAL/node_modules/react-hotkeys-hook/dist/react-hotkeys-hook.cjs.production.min.js.map",
+        "/Users/shaansisodia/DEV/SISO-INTERNAL/node_modules/eslint-plugin-react-hooks/cjs/eslint-plugin-react-hooks.production.js",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO-INTERNAL/node_modules/eslint-plugin-react-hooks/cjs/eslint-plugin-react-hooks.production.js",
+        "/Users/shaansisodia/DEV/SISO-INTERNAL/node_modules/react-hotkeys-hook/dist/react-hotkeys-hook.esm.js.map",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO-INTERNAL/node_modules/react-hotkeys-hook/dist/react-hotkeys-hook.esm.js.map",
+        "/Users/shaansisodia/DEV/SISO-INTERNAL/node_modules/use-sidecar/dist/es2015/hook.js",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO-INTERNAL/node_modules/use-sidecar/dist/es2015/hook.js",
+        "/Users/shaansisodia/DEV/SISO-INTERNAL/node_modules/use-sidecar/dist/es2019/hook.js",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO-INTERNAL/node_modules/use-sidecar/dist/es2019/hook.js",
+        "/Users/shaansisodia/DEV/SISO-INTERNAL/node_modules/use-sidecar/dist/es5/hook.js",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO-INTERNAL/node_modules/use-sidecar/dist/es5/hook.js",
+        "/Users/shaansisodia/DEV/SISO-INTERNAL/node_modules/eslint-plugin-react-hooks/cjs/eslint-plugin-react-hooks.d.ts",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO-INTERNAL/node_modules/eslint-plugin-react-hooks/cjs/eslint-plugin-react-hooks.d.ts",
+        "/Users/shaansisodia/DEV/SISO-INTERNAL/node_modules/use-sidecar/dist/es2015/hook.d.ts",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO-INTERNAL/node_modules/use-sidecar/dist/es2015/hook.d.ts",
+        "/Users/shaansisodia/DEV/SISO-INTERNAL/node_modules/use-sidecar/dist/es2019/hook.d.ts",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO-INTERNAL/node_modules/use-sidecar/dist/es2019/hook.d.ts",
+        "/Users/shaansisodia/DEV/SISO-INTERNAL/node_modules/use-sidecar/dist/es5/hook.d.ts",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO-INTERNAL/node_modules/use-sidecar/dist/es5/hook.d.ts",
+        "/Users/shaansisodia/DEV/SISO-INTERNAL/node_modules/react-dropzone/typings/tests/hook.tsx",
+        "/Users/shaansisodia/DEV/SISO-INTERNAL/node_modules/groq-sdk/node_modules/@types/node/perf_hooks.d.ts",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO-INTERNAL/node_modules/groq-sdk/node_modules/@types/node/perf_hooks.d.ts",
+        "/Users/shaansisodia/DEV/SISO-INTERNAL/node_modules/@types/node/perf_hooks.d.ts",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO-INTERNAL/node_modules/@types/node/perf_hooks.d.ts",
+        "/Users/shaansisodia/DEV/SISO-INTERNAL/node_modules/react-dnd/dist/internals/wrapConnectorHooks.d.ts",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO-INTERNAL/node_modules/react-dnd/dist/internals/wrapConnectorHooks.d.ts",
+        "/Users/shaansisodia/DEV/SISO-INTERNAL/node_modules/react-dnd/dist/internals/wrapConnectorHooks.js",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO-INTERNAL/node_modules/react-dnd/dist/internals/wrapConnectorHooks.js",
+        "/Users/shaansisodia/DEV/SISO-INTERNAL/node_modules/react-dnd/dist/internals/wrapConnectorHooks.js.map",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO-INTERNAL/node_modules/react-dnd/dist/internals/wrapConnectorHooks.js.map",
+        "/Users/shaansisodia/DEV/SISO-INTERNAL/node_modules/react-dnd/src/internals/wrapConnectorHooks.ts",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO-INTERNAL/node_modules/react-dnd/src/internals/wrapConnectorHooks.ts",
+        "/Users/shaansisodia/DEV/SISO-INTERNAL/node_modules/moment/src/lib/utils/hooks.js",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO-INTERNAL/node_modules/moment/src/lib/utils/hooks.js",
+        "/Users/shaansisodia/DEV/SISO-INTERNAL/node_modules/esm-seedrandom/unittest/node_modules/mocha/lib/hook.js",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO-INTERNAL/node_modules/esm-seedrandom/unittest/node_modules/mocha/lib/hook.js",
+        "/Users/shaansisodia/DEV/SISO-INTERNAL/node_modules/lucide-react/dist/esm/icons/webhook-off.js",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO-INTERNAL/node_modules/lucide-react/dist/esm/icons/webhook-off.js",
+        "/Users/shaansisodia/DEV/SISO-INTERNAL/node_modules/lucide-react/dist/esm/icons/webhook.js",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO-INTERNAL/node_modules/lucide-react/dist/esm/icons/webhook.js",
+        "/Users/shaansisodia/DEV/SISO-INTERNAL/node_modules/esm-seedrandom/unittest/node_modules/@types/node/async_hooks.d.ts",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO-INTERNAL/node_modules/esm-seedrandom/unittest/node_modules/@types/node/async_hooks.d.ts",
+        "/Users/shaansisodia/DEV/SISO-INTERNAL/node_modules/esm-seedrandom/unittest/node_modules/@types/node/perf_hooks.d.ts",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO-INTERNAL/node_modules/esm-seedrandom/unittest/node_modules/@types/node/perf_hooks.d.ts",
+        "/Users/shaansisodia/DEV/SISO-INTERNAL/node_modules/lucide-react/dist/esm/icons/webhook-off.js.map",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO-INTERNAL/node_modules/lucide-react/dist/esm/icons/webhook-off.js.map",
+        "/Users/shaansisodia/DEV/SISO-INTERNAL/node_modules/lucide-react/dist/esm/icons/webhook.js.map",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO-INTERNAL/node_modules/lucide-react/dist/esm/icons/webhook.js.map",
+        "/Users/shaansisodia/DEV/SISO-INTERNAL/dist/webhook.html",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO-INTERNAL/dist/webhook.html",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO_ECOSYSTEM/SISO-CLIENT-BASE/node_modules/source-map-support/register-hook-require.js",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO_ECOSYSTEM/SISO-CLIENT-BASE/node_modules/groq-sdk/node_modules/@types/node/async_hooks.d.ts",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO_ECOSYSTEM/SISO-CLIENT-BASE/node_modules/@types/node/async_hooks.d.ts",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO_ECOSYSTEM/SISO-CLIENT-BASE/node_modules/use-sidecar/dist/es2015/hook.js",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO_ECOSYSTEM/SISO-CLIENT-BASE/node_modules/use-sidecar/dist/es2019/hook.js",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO_ECOSYSTEM/SISO-CLIENT-BASE/node_modules/use-sidecar/dist/es5/hook.js",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO_ECOSYSTEM/SISO-CLIENT-BASE/node_modules/use-sidecar/dist/es2015/hook.d.ts",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO_ECOSYSTEM/SISO-CLIENT-BASE/node_modules/use-sidecar/dist/es2019/hook.d.ts",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO_ECOSYSTEM/SISO-CLIENT-BASE/node_modules/use-sidecar/dist/es5/hook.d.ts",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO_ECOSYSTEM/SISO-CLIENT-BASE/node_modules/groq-sdk/node_modules/@types/node/perf_hooks.d.ts",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO_ECOSYSTEM/SISO-CLIENT-BASE/node_modules/@types/node/perf_hooks.d.ts",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO_ECOSYSTEM/SISO-CLIENT-BASE/node_modules/moment/src/lib/utils/hooks.js",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO_ECOSYSTEM/SISO-CLIENT-BASE/node_modules/lucide-react/dist/esm/icons/webhook.js",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO_ECOSYSTEM/SISO-CLIENT-BASE/node_modules/next/dist/esm/server/route-modules/app-page/vendored/contexts/hooks-client-context.js",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO_ECOSYSTEM/SISO-CLIENT-BASE/node_modules/next/dist/esm/server/route-modules/pages/vendored/contexts/hooks-client-context.js",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO_ECOSYSTEM/SISO-CLIENT-BASE/node_modules/next/dist/server/route-modules/app-page/vendored/contexts/hooks-client-context.js",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO_ECOSYSTEM/SISO-CLIENT-BASE/node_modules/next/dist/server/route-modules/pages/vendored/contexts/hooks-client-context.js",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO_ECOSYSTEM/SISO-CLIENT-BASE/node_modules/next/dist/esm/shared/lib/hooks-client-context.shared-runtime.js",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO_ECOSYSTEM/SISO-CLIENT-BASE/node_modules/next/dist/shared/lib/hooks-client-context.shared-runtime.js",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO_ECOSYSTEM/SISO-CLIENT-BASE/node_modules/next/dist/client/components/hooks-server-context.js",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO_ECOSYSTEM/SISO-CLIENT-BASE/node_modules/next/dist/esm/client/components/hooks-server-context.js",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO_ECOSYSTEM/SISO-CLIENT-BASE/node_modules/next/dist/client/components/react-dev-overlay/pages/hooks.js",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO_ECOSYSTEM/SISO-CLIENT-BASE/node_modules/next/dist/esm/client/components/react-dev-overlay/pages/hooks.js",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO_ECOSYSTEM/SISO-CLIENT-BASE/node_modules/lucide-react/dist/esm/icons/webhook.js.map",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO_ECOSYSTEM/SISO-CLIENT-BASE/node_modules/next/dist/build/babel/plugins/optimize-hook-destructuring.js",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO_ECOSYSTEM/SISO-CLIENT-BASE/node_modules/next/dist/esm/build/babel/plugins/optimize-hook-destructuring.js",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO_ECOSYSTEM/SISO-CLIENT-BASE/node_modules/next/dist/build/next-config-ts/require-hook.js",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO_ECOSYSTEM/SISO-CLIENT-BASE/node_modules/next/dist/esm/build/next-config-ts/require-hook.js",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO_ECOSYSTEM/SISO-CLIENT-BASE/node_modules/next/dist/esm/server/require-hook.js",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO_ECOSYSTEM/SISO-CLIENT-BASE/node_modules/next/dist/server/require-hook.js",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO_ECOSYSTEM/SISO-CLIENT-BASE/node_modules/next/dist/esm/server/route-modules/pages/vendored/contexts/hooks-client-context.js.map",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO_ECOSYSTEM/SISO-CLIENT-BASE/node_modules/next/dist/esm/server/route-modules/app-page/vendored/contexts/hooks-client-context.js.map",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO_ECOSYSTEM/SISO-CLIENT-BASE/node_modules/next/dist/server/route-modules/app-page/vendored/contexts/hooks-client-context.js.map",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO_ECOSYSTEM/SISO-CLIENT-BASE/node_modules/next/dist/esm/shared/lib/hooks-client-context.shared-runtime.js.map",
+        "/Users/shaansisodia/DEV/siso-ecosystem/SISO_ECOSYSTEM/SISO-CLIENT-BASE/node_modules/next/dist/server/route-modules/pages/vendored/contexts/hooks-client-context.js.map"
+      ],
+      "durationMs": 659,
+      "numFiles": 100,
+      "truncated": true
+    }
+  },
+  {
+    "session_id": "cdd0d374-1f12-428f-958f-15ae54075c4f",
+    "transcript_path": "/Users/shaansisodia/.claude/projects/-Users-shaansisodia-DEV/cdd0d374-1f12-428f-958f-15ae54075c4f.jsonl",
+    "cwd": "/Users/shaansisodia/DEV",
+    "hook_event_name": "PostToolUse",
+    "tool_name": "Glob",
+    "tool_input": {
+      "pattern": "**/.claude/**"
+    },
+    "tool_response": {
+      "filenames": [
+        "/Users/shaansisodia/DEV/.claude/settings.local.json",
+        "/Users/shaansisodia/DEV/claude-brain-ecosystem/core-config/settings/.claude/settings.local.json",
+        "/Users/shaansisodia/DEV/claude-code-hooks-multi-agent-observability/.claude/commands/convert_paths_absolute.md",
+        "/Users/shaansisodia/DEV/claude-code-hooks-multi-agent-observability/.claude/commands/prime.md",
+        "/Users/shaansisodia/DEV/claude-code-hooks-multi-agent-observability/.claude/commands/start.md",
+        "/Users/shaansisodia/DEV/claude-code-hooks-multi-agent-observability/.claude/hooks/notification.py",
+        "/Users/shaansisodia/DEV/claude-code-hooks-multi-agent-observability/.claude/hooks/post_tool_use.py",
+        "/Users/shaansisodia/DEV/claude-code-hooks-multi-agent-observability/.claude/hooks/pre_tool_use.py",
+        "/Users/shaansisodia/DEV/claude-code-hooks-multi-agent-observability/.claude/hooks/send_event.py",
+        "/Users/shaansisodia/DEV/claude-code-hooks-multi-agent-observability/.claude/hooks/stop.py",
+        "/Users/shaansisodia/DEV/claude-code-hooks-multi-agent-observability/.claude/hooks/subagent_stop.py",
+        "/Users/shaansisodia/DEV/claude-code-hooks-multi-agent-observability/.claude/hooks/user_prompt_submit.py",
+        "/Users/shaansisodia/DEV/claude-code-hooks-multi-agent-observability/.claude/hooks/utils/constants.py",
+        "/Users/shaansisodia/DEV/claude-code-hooks-multi-agent-observability/.claude/hooks/utils/llm/anth.py",
+        "/Users/shaansisodia/DEV/claude-code-hooks-multi-agent-observability/.claude/hooks/utils/llm/oai.py",
+        "/Users/shaansisodia/DEV/claude-code-hooks-multi-agent-observability/.claude/hooks/utils/summarizer.py",
+        "/Users/shaansisodia/DEV/claude-code-hooks-multi-agent-observability/.claude/hooks/utils/tts/elevenlabs_tts.py",
+        "/Users/shaansisodia/DEV/claude-code-hooks-multi-agent-observability/.claude/hooks/utils/tts/openai_tts.py",
+        "/Users/shaansisodia/DEV/claude-code-hooks-multi-agent-observability/.claude/hooks/utils/tts/pyttsx3_tts.py",
+        "/Users/shaansisodia/DEV/claude-code-hooks-multi-agent-observability/.claude/settings.json",
+        "/Users/shaansisodia/DEV/claude-code-hooks-multi-agent-observability/apps/demo-cc-agent/.claude/commands/convert_paths_absolute.md",
+        "/Users/shaansisodia/DEV/claude-code-hooks-multi-agent-observability/apps/demo-cc-agent/.claude/hooks/notification.py",
+        "/Users/shaansisodia/DEV/claude-code-hooks-multi-agent-observability/apps/demo-cc-agent/.claude/hooks/post_tool_use.py",
+        "/Users/shaansisodia/DEV/claude-code-hooks-multi-agent-observability/apps/demo-cc-agent/.claude/hooks/pre_tool_use.py",
+        "/Users/shaansisodia/DEV/claude-code-hooks-multi-agent-observability/apps/demo-cc-agent/.claude/hooks/send_event.py",
+        "/Users/shaansisodia/DEV/claude-code-hooks-multi-agent-observability/apps/demo-cc-agent/.claude/hooks/stop.py",
+        "/Users/shaansisodia/DEV/claude-code-hooks-multi-agent-observability/apps/demo-cc-agent/.claude/hooks/subagent_stop.py",
+        "/Users/shaansisodia/DEV/claude-code-hooks-multi-agent-observability/apps/demo-cc-agent/.claude/hooks/user_prompt_submit.py",
+        "/Users/shaansisodia/DEV/claude-code-hooks-multi-agent-observability/apps/demo-cc-agent/.claude/hooks/utils/constants.py",
+        "/Users/shaansisodia/DEV/claude-code-hooks-multi-agent-observability/apps/demo-cc-agent/.claude/hooks/utils/llm/anth.py",
+        "/Users/shaansisodia/DEV/claude-code-hooks-multi-agent-observability/apps/demo-cc-agent/.claude/hooks/utils/llm/oai.py",
+        "/Users/shaansisodia/DEV/claude-code-hooks-multi-agent-observability/apps/demo-cc-agent/.claude/hooks/utils/summarizer.py",
+        "/Users/shaansisodia/DEV/claude-code-hooks-multi-agent-observability/apps/demo-cc-agent/.claude/hooks/utils/tts/elevenlabs_tts.py",
+        "/Users/shaansisodia/DEV/claude-code-hooks-multi-agent-observability/apps/demo-cc-agent/.claude/hooks/utils/tts/openai_tts.py",
+        "/Users/shaansisodia/DEV/claude-code-hooks-multi-agent-observability/apps/demo-cc-agent/.claude/hooks/utils/tts/pyttsx3_tts.py",
+        "/Users/shaansisodia/DEV/claude-code-hooks-multi-agent-observability/apps/demo-cc-agent/.claude/settings.json",
+        "/Users/shaansisodia/DEV/.claude/hooks/post_tool_use.py",
+        "/Users/shaansisodia/DEV/.claude/hooks/notification.py",
+        "/Users/shaansisodia/DEV/.claude/hooks/stop.py",
+        "/Users/shaansisodia/DEV/.claude/hooks/pre_tool_use.py",
+        "/Users/shaansisodia/DEV/.claude/hooks/send_event.py",
+        "/Users/shaansisodia/DEV/.claude/hooks/utils/llm/oai.py",
+        "/Users/shaansisodia/DEV/.claude/hooks/utils/llm/anth.py",
+        "/Users/shaansisodia/DEV/.claude/hooks/utils/constants.py",
+        "/Users/shaansisodia/DEV/.claude/hooks/utils/tts/pyttsx3_tts.py",
+        "/Users/shaansisodia/DEV/.claude/hooks/utils/tts/openai_tts.py",
+        "/Users/shaansisodia/DEV/.claude/hooks/utils/tts/elevenlabs_tts.py",
+        "/Users/shaansisodia/DEV/.claude/hooks/utils/summarizer.py",
+        "/Users/shaansisodia/DEV/.claude/hooks/subagent_stop.py",
+        "/Users/shaansisodia/DEV/.claude/hooks/user_prompt_submit.py",
+        "/Users/shaansisodia/DEV/.claude/commands/convert_paths_absolute.md",
+        "/Users/shaansisodia/DEV/.claude/commands/prime.md",
+        "/Users/shaansisodia/DEV/.claude/commands/start.md",
+        "/Users/shaansisodia/DEV/.claude/settings.json",
+        "/Users/shaansisodia/DEV/.claude/hooks/utils/__pycache__/summarizer.cpython-310.pyc",
+        "/Users/shaansisodia/DEV/.claude/hooks/utils/llm/__pycache__/anth.cpython-310.pyc",
+        "/Users/shaansisodia/DEV/.claude/hooks/utils/__pycache__/constants.cpython-313.pyc"
+      ],
+      "durationMs": 258,
+      "numFiles": 57,
+      "truncated": false
+    }
+  },
+  {
+    "session_id": "cdd0d374-1f12-428f-958f-15ae54075c4f",
+    "transcript_path": "/Users/shaansisodia/.claude/projects/-Users-shaansisodia-DEV/cdd0d374-1f12-428f-958f-15ae54075c4f.jsonl",
+    "cwd": "/Users/shaansisodia/DEV",
+    "hook_event_name": "PostToolUse",
+    "tool_name": "Read",
+    "tool_input": {
+      "file_path": "/Users/shaansisodia/DEV/.claude/settings.json"
+    },
+    "tool_response": {
+      "type": "text",
+      "file": {
+        "filePath": "/Users/shaansisodia/DEV/.claude/settings.json",
+        "content": "{\n  \"hooks\": {\n    \"PreToolUse\": [\n      {\n        \"matcher\": \"\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"uv run .claude/hooks/pre_tool_use.py\"\n          },\n          {\n            \"type\": \"command\",\n            \"command\": \"uv run .claude/hooks/send_event.py --source-app DEV-PROJECT --event-type PreToolUse --summarize\"\n          }\n        ]\n      }\n    ],\n    \"PostToolUse\": [\n      {\n        \"matcher\": \"\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"uv run .claude/hooks/post_tool_use.py\"\n          },\n          {\n            \"type\": \"command\",\n            \"command\": \"uv run .claude/hooks/send_event.py --source-app DEV-PROJECT --event-type PostToolUse --summarize\"\n          }\n        ]\n      }\n    ],\n    \"Notification\": [\n      {\n        \"matcher\": \"\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"uv run .claude/hooks/notification.py --notify \"\n          },\n          {\n            \"type\": \"command\",\n            \"command\": \"uv run .claude/hooks/send_event.py --source-app DEV-PROJECT --event-type Notification --summarize\"\n          }\n        ]\n      }\n    ],\n    \"Stop\": [\n      {\n        \"matcher\": \"\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"uv run .claude/hooks/stop.py --chat\"\n          },\n          {\n            \"type\": \"command\",\n            \"command\": \"uv run .claude/hooks/send_event.py --source-app DEV-PROJECT --event-type Stop --add-chat\"\n          }\n        ]\n      }\n    ],\n    \"SubagentStop\": [\n      {\n        \"matcher\": \"\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"uv run .claude/hooks/subagent_stop.py\"\n          },\n          {\n            \"type\": \"command\",\n            \"command\": \"uv run .claude/hooks/send_event.py --source-app DEV-PROJECT --event-type SubagentStop\"\n          }\n        ]\n      }\n    ],\n    \"PreCompact\": [\n      {\n        \"matcher\": \"\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"uv run .claude/hooks/send_event.py --source-app DEV-PROJECT --event-type PreCompact\"\n          }\n        ]\n      }\n    ],\n    \"UserPromptSubmit\": [\n      {\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"uv run .claude/hooks/user_prompt_submit.py --log-only\"\n          },\n          {\n            \"type\": \"command\",\n            \"command\": \"uv run .claude/hooks/send_event.py --source-app DEV-PROJECT --event-type UserPromptSubmit --summarize\"\n          }\n        ]\n      }\n    ]\n  }\n}",
+        "numLines": 104,
+        "startLine": 1,
+        "totalLines": 104
+      }
+    }
+  },
+  {
+    "session_id": "cdd0d374-1f12-428f-958f-15ae54075c4f",
+    "transcript_path": "/Users/shaansisodia/.claude/projects/-Users-shaansisodia-DEV/cdd0d374-1f12-428f-958f-15ae54075c4f.jsonl",
+    "cwd": "/Users/shaansisodia/DEV",
+    "hook_event_name": "PostToolUse",
+    "tool_name": "Read",
+    "tool_input": {
+      "file_path": "/Users/shaansisodia/DEV/.claude/hooks/send_event.py"
+    },
+    "tool_response": {
+      "type": "text",
+      "file": {
+        "filePath": "/Users/shaansisodia/DEV/.claude/hooks/send_event.py",
+        "content": "#!/usr/bin/env -S uv run --script\n# /// script\n# requires-python = \">=3.8\"\n# dependencies = [\n#     \"anthropic\",\n#     \"python-dotenv\",\n# ]\n# ///\n\n\"\"\"\nMulti-Agent Observability Hook Script\nSends Claude Code hook events to the observability server.\n\"\"\"\n\nimport json\nimport sys\nimport os\nimport argparse\nimport urllib.request\nimport urllib.error\nfrom datetime import datetime\nfrom utils.summarizer import generate_event_summary\n\ndef send_event_to_server(event_data, server_url='http://localhost:4000/events'):\n    \"\"\"Send event data to the observability server.\"\"\"\n    try:\n        # Prepare the request\n        req = urllib.request.Request(\n            server_url,\n            data=json.dumps(event_data).encode('utf-8'),\n            headers={\n                'Content-Type': 'application/json',\n                'User-Agent': 'Claude-Code-Hook/1.0'\n            }\n        )\n        \n        # Send the request\n        with urllib.request.urlopen(req, timeout=5) as response:\n            if response.status == 200:\n                return True\n            else:\n                print(f\"Server returned status: {response.status}\", file=sys.stderr)\n                return False\n                \n    except urllib.error.URLError as e:\n        print(f\"Failed to send event: {e}\", file=sys.stderr)\n        return False\n    except Exception as e:\n        print(f\"Unexpected error: {e}\", file=sys.stderr)\n        return False\n\ndef main():\n    # Parse command line arguments\n    parser = argparse.ArgumentParser(description='Send Claude Code hook events to observability server')\n    parser.add_argument('--source-app', required=True, help='Source application name')\n    parser.add_argument('--event-type', required=True, help='Hook event type (PreToolUse, PostToolUse, etc.)')\n    parser.add_argument('--server-url', default='http://localhost:4000/events', help='Server URL')\n    parser.add_argument('--add-chat', action='store_true', help='Include chat transcript if available')\n    parser.add_argument('--summarize', action='store_true', help='Generate AI summary of the event')\n    \n    args = parser.parse_args()\n    \n    try:\n        # Read hook data from stdin\n        input_data = json.load(sys.stdin)\n    except json.JSONDecodeError as e:\n        print(f\"Failed to parse JSON input: {e}\", file=sys.stderr)\n        sys.exit(1)\n    \n    # Prepare event data for server\n    event_data = {\n        'source_app': args.source_app,\n        'session_id': input_data.get('session_id', 'unknown'),\n        'hook_event_type': args.event_type,\n        'payload': input_data,\n        'timestamp': int(datetime.now().timestamp() * 1000)\n    }\n    \n    # Handle --add-chat option\n    if args.add_chat and 'transcript_path' in input_data:\n        transcript_path = input_data['transcript_path']\n        if os.path.exists(transcript_path):\n            # Read .jsonl file and convert to JSON array\n            chat_data = []\n            try:\n                with open(transcript_path, 'r') as f:\n                    for line in f:\n                        line = line.strip()\n                        if line:\n                            try:\n                                chat_data.append(json.loads(line))\n                            except json.JSONDecodeError:\n                                pass  # Skip invalid lines\n                \n                # Add chat to event data\n                event_data['chat'] = chat_data\n            except Exception as e:\n                print(f\"Failed to read transcript: {e}\", file=sys.stderr)\n    \n    # Generate summary if requested\n    if args.summarize:\n        summary = generate_event_summary(event_data)\n        if summary:\n            event_data['summary'] = summary\n        # Continue even if summary generation fails\n    \n    # Send to server\n    success = send_event_to_server(event_data, args.server_url)\n    \n    # Always exit with 0 to not block Claude Code operations\n    sys.exit(0)\n\nif __name__ == '__main__':\n    main()",
+        "numLines": 114,
+        "startLine": 1,
+        "totalLines": 114
+      }
+    }
+  },
+  {
+    "session_id": "cdd0d374-1f12-428f-958f-15ae54075c4f",
+    "transcript_path": "/Users/shaansisodia/.claude/projects/-Users-shaansisodia-DEV/cdd0d374-1f12-428f-958f-15ae54075c4f.jsonl",
+    "cwd": "/Users/shaansisodia/DEV",
+    "hook_event_name": "PostToolUse",
+    "tool_name": "TodoWrite",
+    "tool_input": {
+      "todos": [
+        {
+          "content": "Check if observability server is running on localhost:4000",
+          "status": "in_progress",
+          "id": "1"
+        },
+        {
+          "content": "Start the observability server if not running",
+          "status": "pending",
+          "id": "2"
+        },
+        {
+          "content": "Test hook execution by running a tool",
+          "status": "pending",
+          "id": "3"
+        },
+        {
+          "content": "Show user how to monitor hook events in real-time",
+          "status": "pending",
+          "id": "4"
+        }
+      ]
+    },
+    "tool_response": {
+      "oldTodos": [],
+      "newTodos": [
+        {
+          "content": "Check if observability server is running on localhost:4000",
+          "status": "in_progress",
+          "id": "1"
+        },
+        {
+          "content": "Start the observability server if not running",
+          "status": "pending",
+          "id": "2"
+        },
+        {
+          "content": "Test hook execution by running a tool",
+          "status": "pending",
+          "id": "3"
+        },
+        {
+          "content": "Show user how to monitor hook events in real-time",
+          "status": "pending",
+          "id": "4"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "cdd0d374-1f12-428f-958f-15ae54075c4f",
+    "transcript_path": "/Users/shaansisodia/.claude/projects/-Users-shaansisodia-DEV/cdd0d374-1f12-428f-958f-15ae54075c4f.jsonl",
+    "cwd": "/Users/shaansisodia/DEV",
+    "hook_event_name": "PostToolUse",
+    "tool_name": "Bash",
+    "tool_input": {
+      "command": "curl -s http://localhost:4000/events || echo \"Server not responding\"",
+      "description": "Check if observability server is running"
+    },
+    "tool_response": {
+      "stdout": "Multi-Agent Observability Server",
+      "stderr": "",
+      "interrupted": false,
+      "isImage": false
+    }
+  },
+  {
+    "session_id": "cdd0d374-1f12-428f-958f-15ae54075c4f",
+    "transcript_path": "/Users/shaansisodia/.claude/projects/-Users-shaansisodia-DEV/cdd0d374-1f12-428f-958f-15ae54075c4f.jsonl",
+    "cwd": "/Users/shaansisodia/DEV",
+    "hook_event_name": "PostToolUse",
+    "tool_name": "TodoWrite",
+    "tool_input": {
+      "todos": [
+        {
+          "content": "Check if observability server is running on localhost:4000",
+          "status": "completed",
+          "id": "1"
+        },
+        {
+          "content": "Start the observability server if not running",
+          "status": "completed",
+          "id": "2"
+        },
+        {
+          "content": "Test hook execution by running a tool",
+          "status": "in_progress",
+          "id": "3"
+        },
+        {
+          "content": "Show user how to monitor hook events in real-time",
+          "status": "pending",
+          "id": "4"
+        }
+      ]
+    },
+    "tool_response": {
+      "oldTodos": [
+        {
+          "content": "Check if observability server is running on localhost:4000",
+          "status": "in_progress",
+          "id": "1"
+        },
+        {
+          "content": "Start the observability server if not running",
+          "status": "pending",
+          "id": "2"
+        },
+        {
+          "content": "Test hook execution by running a tool",
+          "status": "pending",
+          "id": "3"
+        },
+        {
+          "content": "Show user how to monitor hook events in real-time",
+          "status": "pending",
+          "id": "4"
+        }
+      ],
+      "newTodos": [
+        {
+          "content": "Check if observability server is running on localhost:4000",
+          "status": "completed",
+          "id": "1"
+        },
+        {
+          "content": "Start the observability server if not running",
+          "status": "completed",
+          "id": "2"
+        },
+        {
+          "content": "Test hook execution by running a tool",
+          "status": "in_progress",
+          "id": "3"
+        },
+        {
+          "content": "Show user how to monitor hook events in real-time",
+          "status": "pending",
+          "id": "4"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "cdd0d374-1f12-428f-958f-15ae54075c4f",
+    "transcript_path": "/Users/shaansisodia/.claude/projects/-Users-shaansisodia-DEV/cdd0d374-1f12-428f-958f-15ae54075c4f.jsonl",
+    "cwd": "/Users/shaansisodia/DEV",
+    "hook_event_name": "PostToolUse",
+    "tool_name": "Bash",
+    "tool_input": {
+      "command": "echo \"Testing hook execution\"",
+      "description": "Test tool execution to trigger hooks"
+    },
+    "tool_response": {
+      "stdout": "Testing hook execution",
+      "stderr": "",
+      "interrupted": false,
+      "isImage": false
+    }
+  },
+  {
+    "session_id": "cdd0d374-1f12-428f-958f-15ae54075c4f",
+    "transcript_path": "/Users/shaansisodia/.claude/projects/-Users-shaansisodia-DEV/cdd0d374-1f12-428f-958f-15ae54075c4f.jsonl",
+    "cwd": "/Users/shaansisodia/DEV",
+    "hook_event_name": "PostToolUse",
+    "tool_name": "TodoWrite",
+    "tool_input": {
+      "todos": [
+        {
+          "content": "Check if observability server is running on localhost:4000",
+          "status": "completed",
+          "id": "1"
+        },
+        {
+          "content": "Start the observability server if not running",
+          "status": "completed",
+          "id": "2"
+        },
+        {
+          "content": "Test hook execution by running a tool",
+          "status": "completed",
+          "id": "3"
+        },
+        {
+          "content": "Show user how to monitor hook events in real-time",
+          "status": "in_progress",
+          "id": "4"
+        }
+      ]
+    },
+    "tool_response": {
+      "oldTodos": [
+        {
+          "content": "Check if observability server is running on localhost:4000",
+          "status": "completed",
+          "id": "1"
+        },
+        {
+          "content": "Start the observability server if not running",
+          "status": "completed",
+          "id": "2"
+        },
+        {
+          "content": "Test hook execution by running a tool",
+          "status": "in_progress",
+          "id": "3"
+        },
+        {
+          "content": "Show user how to monitor hook events in real-time",
+          "status": "pending",
+          "id": "4"
+        }
+      ],
+      "newTodos": [
+        {
+          "content": "Check if observability server is running on localhost:4000",
+          "status": "completed",
+          "id": "1"
+        },
+        {
+          "content": "Start the observability server if not running",
+          "status": "completed",
+          "id": "2"
+        },
+        {
+          "content": "Test hook execution by running a tool",
+          "status": "completed",
+          "id": "3"
+        },
+        {
+          "content": "Show user how to monitor hook events in real-time",
+          "status": "in_progress",
+          "id": "4"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "cdd0d374-1f12-428f-958f-15ae54075c4f",
+    "transcript_path": "/Users/shaansisodia/.claude/projects/-Users-shaansisodia-DEV/cdd0d374-1f12-428f-958f-15ae54075c4f.jsonl",
+    "cwd": "/Users/shaansisodia/DEV",
+    "hook_event_name": "PostToolUse",
+    "tool_name": "TodoWrite",
+    "tool_input": {
+      "todos": [
+        {
+          "content": "Check if observability server is running on localhost:4000",
+          "status": "completed",
+          "id": "1"
+        },
+        {
+          "content": "Start the observability server if not running",
+          "status": "completed",
+          "id": "2"
+        },
+        {
+          "content": "Test hook execution by running a tool",
+          "status": "completed",
+          "id": "3"
+        },
+        {
+          "content": "Show user how to monitor hook events in real-time",
+          "status": "completed",
+          "id": "4"
+        }
+      ]
+    },
+    "tool_response": {
+      "oldTodos": [
+        {
+          "content": "Check if observability server is running on localhost:4000",
+          "status": "completed",
+          "id": "1"
+        },
+        {
+          "content": "Start the observability server if not running",
+          "status": "completed",
+          "id": "2"
+        },
+        {
+          "content": "Test hook execution by running a tool",
+          "status": "completed",
+          "id": "3"
+        },
+        {
+          "content": "Show user how to monitor hook events in real-time",
+          "status": "in_progress",
+          "id": "4"
+        }
+      ],
+      "newTodos": [
+        {
+          "content": "Check if observability server is running on localhost:4000",
+          "status": "completed",
+          "id": "1"
+        },
+        {
+          "content": "Start the observability server if not running",
+          "status": "completed",
+          "id": "2"
+        },
+        {
+          "content": "Test hook execution by running a tool",
+          "status": "completed",
+          "id": "3"
+        },
+        {
+          "content": "Show user how to monitor hook events in real-time",
+          "status": "completed",
+          "id": "4"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "cdd0d374-1f12-428f-958f-15ae54075c4f",
+    "transcript_path": "/Users/shaansisodia/.claude/projects/-Users-shaansisodia-DEV/cdd0d374-1f12-428f-958f-15ae54075c4f.jsonl",
+    "cwd": "/Users/shaansisodia/DEV",
+    "hook_event_name": "PostToolUse",
+    "tool_name": "Bash",
+    "tool_input": {
+      "command": "ps aux | grep -E \"(5173|4000)\" | grep -v grep",
+      "description": "Check what's running on ports 5173 and 4000"
+    },
+    "tool_response": {
+      "stdout": "shaansisodia      3152   6.4  2.1 1867289072 360544   ??  S     6:05PM   6:23.09 /private/var/folders/_g/n9v_ywr5173f74ywkzf843vr0000gn/T/AppTranslocation/8250D8C2-2330-4F9B-966E-6F084D223188/d/Visual Studio Code.app/Contents/Frameworks/Code Helper (Renderer).app/Contents/MacOS/Code Helper (Renderer) --type=renderer --user-data-dir=/Users/shaansisodia/Library/Application Support/Code --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --app-path=/private/var/folders/_g/n9v_ywr5173f74ywkzf843vr0000gn/T/AppTranslocation/8250D8C2-2330-4F9B-966E-6F084D223188/d/Visual Studio Code.app/Contents/Resources/app --enable-sandbox --enable-blink-features=HighlightAPI --disable-blink-features=FontMatchingCTMigration,StandardizedBrowserZoom, --lang=en-GB --num-raster-threads=4 --enable-zero-copy --enable-gpu-memory-buffer-compositor-resources --enable-main-frame-before-activation --renderer-client-id=4 --time-ticks-at-unix-epoch=-1755479828503670 --launch-time-ticks=56883462595 --shared-files --field-trial-handle=1718379636,r,3859754853905749740,1360394291426613828,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EstablishGpuChannelAsync,ScreenCaptureKitPickerScreen,ScreenCaptureKitStreamPickerSonoma --disable-features=CalculateNativeWinOcclusion,FontationsLinuxSystemFonts,MacWebContentsOcclusion,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TimeoutHangingVideoCaptureStarts --variations-seed-version --vscode-window-config=vscode:4eb8652d-32d2-4e80-a63f-444a06f9c9cb --seatbelt-client=60\nshaansisodia      3141   3.2  0.5 444522816  83808   ??  S     6:05PM   0:57.16 /private/var/folders/_g/n9v_ywr5173f74ywkzf843vr0000gn/T/AppTranslocation/8250D8C2-2330-4F9B-966E-6F084D223188/d/Visual Studio Code.app/Contents/Frameworks/Code Helper (GPU).app/Contents/MacOS/Code Helper (GPU) --type=gpu-process --user-data-dir=/Users/shaansisodia/Library/Application Support/Code --gpu-preferences=UAAAAAAAAAAgAAAEAAAAAAAAAAAAAAAAAABgAAMAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAIAAAAAAAAAAgAAAAAAAAA --shared-files --field-trial-handle=1718379636,r,3859754853905749740,1360394291426613828,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EstablishGpuChannelAsync,ScreenCaptureKitPickerScreen,ScreenCaptureKitStreamPickerSonoma --disable-features=CalculateNativeWinOcclusion,FontationsLinuxSystemFonts,MacWebContentsOcclusion,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TimeoutHangingVideoCaptureStarts --variations-seed-version --seatbelt-client=32\nshaansisodia      3198   2.8  0.5 1867004960  87168   ??  S     6:05PM   1:25.70 /private/var/folders/_g/n9v_ywr5173f74ywkzf843vr0000gn/T/AppTranslocation/8250D8C2-2330-4F9B-966E-6F084D223188/d/Visual Studio Code.app/Contents/Frameworks/Code Helper.app/Contents/MacOS/Code Helper --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-GB --service-sandbox-type=none --user-data-dir=/Users/shaansisodia/Library/Application Support/Code --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --shared-files --field-trial-handle=1718379636,r,3859754853905749740,1360394291426613828,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EstablishGpuChannelAsync,ScreenCaptureKitPickerScreen,ScreenCaptureKitStreamPickerSonoma --disable-features=CalculateNativeWinOcclusion,FontationsLinuxSystemFonts,MacWebContentsOcclusion,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TimeoutHangingVideoCaptureStarts --variations-seed-version\nshaansisodia      3134   1.3  1.8 1867483424 305104   ??  S     6:05PM   0:53.74 /private/var/folders/_g/n9v_ywr5173f74ywkzf843vr0000gn/T/AppTranslocation/8250D8C2-2330-4F9B-966E-6F084D223188/d/Visual Studio Code.app/Contents/MacOS/Electron\nshaansisodia      3195   1.0  0.4 1866985792  67888   ??  S     6:05PM   0:34.20 /private/var/folders/_g/n9v_ywr5173f74ywkzf843vr0000gn/T/AppTranslocation/8250D8C2-2330-4F9B-966E-6F084D223188/d/Visual Studio Code.app/Contents/Frameworks/Code Helper.app/Contents/MacOS/Code Helper --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-GB --service-sandbox-type=none --user-data-dir=/Users/shaansisodia/Library/Application Support/Code --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --shared-files --field-trial-handle=1718379636,r,3859754853905749740,1360394291426613828,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EstablishGpuChannelAsync,ScreenCaptureKitPickerScreen,ScreenCaptureKitStreamPickerSonoma --disable-features=CalculateNativeWinOcclusion,FontationsLinuxSystemFonts,MacWebContentsOcclusion,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TimeoutHangingVideoCaptureStarts --variations-seed-version\nshaansisodia      3196   0.5  0.8 1867002496 126032   ??  S     6:05PM   0:22.86 /private/var/folders/_g/n9v_ywr5173f74ywkzf843vr0000gn/T/AppTranslocation/8250D8C2-2330-4F9B-966E-6F084D223188/d/Visual Studio Code.app/Contents/Frameworks/Code Helper (Plugin).app/Contents/MacOS/Code Helper (Plugin) --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-GB --service-sandbox-type=none --dns-result-order=ipv4first --experimental-network-inspection --inspect-port=0 --user-data-dir=/Users/shaansisodia/Library/Application Support/Code --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --shared-files --field-trial-handle=1718379636,r,3859754853905749740,1360394291426613828,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EstablishGpuChannelAsync,ScreenCaptureKitPickerScreen,ScreenCaptureKitStreamPickerSonoma --disable-features=CalculateNativeWinOcclusion,FontationsLinuxSystemFonts,MacWebContentsOcclusion,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TimeoutHangingVideoCaptureStarts --variations-seed-version\nshaansisodia      3205   0.0  0.3 1865206624  50928   ??  S     6:05PM   0:00.48 /private/var/folders/_g/n9v_ywr5173f74ywkzf843vr0000gn/T/AppTranslocation/8250D8C2-2330-4F9B-966E-6F084D223188/d/Visual Studio Code.app/Contents/Frameworks/Code Helper (Plugin).app/Contents/MacOS/Code Helper (Plugin) /private/var/folders/_g/n9v_ywr5173f74ywkzf843vr0000gn/T/AppTranslocation/8250D8C2-2330-4F9B-966E-6F084D223188/d/Visual Studio Code.app/Contents/Resources/app/extensions/markdown-language-features/dist/serverWorkerMain --node-ipc --clientProcessId=3196\nshaansisodia      3194   0.0  0.4 1867000544  67984   ??  S     6:05PM   0:01.73 /private/var/folders/_g/n9v_ywr5173f74ywkzf843vr0000gn/T/AppTranslocation/8250D8C2-2330-4F9B-966E-6F084D223188/d/Visual Studio Code.app/Contents/Frameworks/Code Helper.app/Contents/MacOS/Code Helper --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-GB --service-sandbox-type=none --user-data-dir=/Users/shaansisodia/Library/Application Support/Code --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --shared-files --field-trial-handle=1718379636,r,3859754853905749740,1360394291426613828,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EstablishGpuChannelAsync,ScreenCaptureKitPickerScreen,ScreenCaptureKitStreamPickerSonoma --disable-features=CalculateNativeWinOcclusion,FontationsLinuxSystemFonts,MacWebContentsOcclusion,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TimeoutHangingVideoCaptureStarts --variations-seed-version\nshaansisodia      3142   0.0  0.2 444001696  37584   ??  S     6:05PM   0:00.35 /private/var/folders/_g/n9v_ywr5173f74ywkzf843vr0000gn/T/AppTranslocation/8250D8C2-2330-4F9B-966E-6F084D223188/d/Visual Studio Code.app/Contents/Frameworks/Code Helper.app/Contents/MacOS/Code Helper --type=utility --utility-sub-type=network.mojom.NetworkService --lang=en-GB --service-sandbox-type=network --user-data-dir=/Users/shaansisodia/Library/Application Support/Code --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --shared-files --field-trial-handle=1718379636,r,3859754853905749740,1360394291426613828,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EstablishGpuChannelAsync,ScreenCaptureKitPickerScreen,ScreenCaptureKitStreamPickerSonoma --disable-features=CalculateNativeWinOcclusion,FontationsLinuxSystemFonts,MacWebContentsOcclusion,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TimeoutHangingVideoCaptureStarts --variations-seed-version --seatbelt-client=32\nshaansisodia      3140   0.0  0.2 443810640  25392   ??  S     6:05PM   0:00.30 /var/folders/_g/n9v_ywr5173f74ywkzf843vr0000gn/T/AppTranslocation/8250D8C2-2330-4F9B-966E-6F084D223188/d/Visual Studio Code.app/Contents/Frameworks/Electron Framework.framework/Helpers/chrome_crashpad_handler --no-rate-limit --monitor-self-annotation=ptype=crashpad-handler --database=/Users/shaansisodia/Library/Application Support/Code/Crashpad --url=appcenter://code?aid=de75e3cc-e22f-4f42-a03f-1409c21d8af8&uid=a6b7d545-6c7b-4d86-ad47-d895088dd8d9&iid=a6b7d545-6c7b-4d86-ad47-d895088dd8d9&sid=a6b7d545-6c7b-4d86-ad47-d895088dd8d9 --annotation=_companyName=Microsoft --annotation=_productName=VSCode --annotation=_version=1.103.1 --annotation=plat=OS X --annotation=prod=Electron --annotation=ver=37.2.3 --handshake-fd=20\nshaansisodia     99249   0.0  0.0 410219232    944   ??  Ss    5:37PM   0:00.01 /bin/zsh -c -l source /Users/shaansisodia/.claude/shell-snapshots/snapshot-zsh-1755532324138-3kcs20.sh && eval 'export PATH=\"$HOME/.bun/bin:$PATH\" && cd /Users/shaansisodia/DEV/claude-code-hooks-multi-agent-observability && ./scripts/start-system.sh' \\< /dev/null && pwd -P >| /var/folders/_g/n9v_ywr5173f74ywkzf843vr0000gn/T/claude-854c-cwd\nshaansisodia       698   0.0  0.1 426954000  13904   ??  S     2:19AM   0:00.78 /System/Library/PrivateFrameworks/FamilyCircle.framework/Versions/A/Resources/familycircled",
+      "stderr": "",
+      "interrupted": false,
+      "isImage": false
+    }
+  },
+  {
+    "session_id": "cdd0d374-1f12-428f-958f-15ae54075c4f",
+    "transcript_path": "/Users/shaansisodia/.claude/projects/-Users-shaansisodia-DEV/cdd0d374-1f12-428f-958f-15ae54075c4f.jsonl",
+    "cwd": "/Users/shaansisodia/DEV",
+    "hook_event_name": "PostToolUse",
+    "tool_name": "Bash",
+    "tool_input": {
+      "command": "lsof -i :5173 -i :4000 | head -10",
+      "description": "Check what services are listening on ports 5173 and 4000"
+    },
+    "tool_response": {
+      "stdout": "COMMAND     PID         USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME\nBrave\\x20   928 shaansisodia   54u  IPv6 0x90d35a3b8b1acbd3      0t0  TCP localhost:54473->localhost:terabase (CLOSE_WAIT)\nBrave\\x20   928 shaansisodia   62u  IPv6 0x450dd9894fadf4c4      0t0  TCP localhost:54474->localhost:terabase (CLOSE_WAIT)\nBrave\\x20   928 shaansisodia   63u  IPv6 0x2a93435e6f64fab8      0t0  TCP localhost:54491->localhost:terabase (ESTABLISHED)\nBrave\\x20   928 shaansisodia   65u  IPv6 0xd0ee94ed07beaeb5      0t0  TCP localhost:54490->localhost:5173 (ESTABLISHED)\nbun       99274 shaansisodia   22u  IPv6 0x25e0fbbf45525d0f      0t0  TCP *:terabase (LISTEN)\nbun       99274 shaansisodia   23u  IPv6 0x2c9a5dde5e2dfe9c      0t0  TCP localhost:terabase->localhost:54491 (ESTABLISHED)\nnode      99289 shaansisodia   29u  IPv6 0xe5dac44d5964d40c      0t0  TCP localhost:5173 (LISTEN)\nnode      99289 shaansisodia   30u  IPv6 0x183a0ea75edc9902      0t0  TCP localhost:5173->localhost:54490 (ESTABLISHED)",
+      "stderr": "",
+      "interrupted": false,
+      "isImage": false
+    }
+  },
+  {
+    "session_id": "cdd0d374-1f12-428f-958f-15ae54075c4f",
+    "transcript_path": "/Users/shaansisodia/.claude/projects/-Users-shaansisodia-DEV/cdd0d374-1f12-428f-958f-15ae54075c4f.jsonl",
+    "cwd": "/Users/shaansisodia/DEV",
+    "hook_event_name": "PostToolUse",
+    "tool_name": "LS",
+    "tool_input": {
+      "path": "/Users/shaansisodia/DEV/claude-code-hooks-multi-agent-observability"
+    },
+    "tool_response": "- /Users/shaansisodia/DEV/\n  - claude-code-hooks-multi-agent-observability/\n    - AGENTS.md\n    - CLAUDE.md\n    - GEMINI.md\n    - README.md\n    - ai_docs/\n      - README.md\n      - claude-code-hooks.md\n    - apps/\n      - client/\n        - README.md\n        - bun.lock\n        - index.html\n        - node_modules/\n        - package.json\n        - postcss.config.js\n        - public/\n          - vite.svg\n        - src/\n          - App.vue\n          - assets/\n            - vue.svg\n          - components/\n            - ChatTranscript.vue\n            - ChatTranscriptModal.vue\n            - EventRow.vue\n            - EventTimeline.vue\n            - FilterPanel.vue\n            - HelloWorld.vue\n            - LivePulseChart.vue\n            - StickScrollButton.vue\n            - ThemeManager.vue\n            - ThemePreview.vue\n          - composables/\n            - useChartData.ts\n            - useEventColors.ts\n            - useEventEmojis.ts\n            - useMediaQuery.ts\n            - useThemes.ts\n            - useWebSocket.ts\n          - main.ts\n          - style.css\n          - styles/\n            - main.css\n            - themes.css\n          - types.ts\n          - types/\n            - theme.ts\n          - utils/\n            - chartRenderer.ts\n          - vite-env.d.ts\n        - tailwind.config.js\n        - tsconfig.app.json\n        - tsconfig.json\n        - tsconfig.node.json\n        - vite.config.ts\n      - demo-cc-agent/\n        - README.md\n      - server/\n        - CLAUDE.md\n        - README.md\n        - bun.lock\n        - events.db\n        - events.db-shm\n        - events.db-wal\n        - index.ts\n        - node_modules/\n        - package.json\n        - src/\n          - db.ts\n          - index.ts\n          - theme.ts\n          - types.ts\n        - tsconfig.json\n    - images/\n      - AgentDataFlowV2.gif\n      - AgentDataFlowV2_compressed.mp4\n      - app.png\n    - logs/\n      - 90471910-cb19-4c6a-8cc4-61b76ed44459/\n        - post_tool_use.json\n        - pre_tool_use.json\n    - scripts/\n      - reset-system.sh\n      - start-system.sh\n      - test-system.sh\n"
+  }
+]

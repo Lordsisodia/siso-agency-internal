@@ -1,0 +1,9 @@
+[
+  {
+    "session_id": "722b8d01-2359-4f80-88aa-9e0201340ad8",
+    "transcript_path": "/Users/shaansisodia/.claude/projects/-Users-shaansisodia-DEV/722b8d01-2359-4f80-88aa-9e0201340ad8.jsonl",
+    "cwd": "/Users/shaansisodia/DEV",
+    "hook_event_name": "UserPromptSubmit",
+    "prompt": "do the last tasks"
+  }
+]

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claudia Lambda Demo - Test Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: opacity 0.3s;
+            margin: 5px;
+        }
+        
+        button:hover {
+            opacity: 0.9;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .response {
+            margin-top: 15px;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        
+        .success { background: #10b981; color: white; }
+        .error { background: #ef4444; color: white; }
+        .loading { background: #f59e0b; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Claudia Lambda Demo - Test Interface</h1>
+        
+        <div class="grid">
+            <!-- API Info -->
+            <div class="card">
+                <h2>📋 API Information</h2>
+                <button onclick="testEndpoint('/')">Get API Info</button>
+                <div id="info-response" class="response"></div>
+            </div>
+            
+            <!-- Hello World -->
+            <div class="card">
+                <h2>👋 Hello Endpoints</h2>
+                <button onclick="testEndpoint('/hello')">Simple Hello</button>
+                <input type="text" id="name" placeholder="Enter your name">
+                <button onclick="testHelloName()">Personalized Hello</button>
+                <div id="hello-response" class="response"></div>
+            </div>
+            
+            <!-- Calculator -->
+            <div class="card">
+                <h2>🧮 Calculator</h2>
+                <input type="number" id="num1" placeholder="First number" value="10">
+                <input type="number" id="num2" placeholder="Second number" value="5">
+                <select id="operation">
+                    <option value="add">Add</option>
+                    <option value="subtract">Subtract</option>
+                    <option value="multiply">Multiply</option>
+                    <option value="divide">Divide</option>
+                </select>
+                <button onclick="calculate()">Calculate</button>
+                <div id="calc-response" class="response"></div>
+            </div>
+            
+            <!-- Users -->
+            <div class="card">
+                <h2>👥 Users</h2>
+                <button onclick="testEndpoint('/users')">Get Users</button>
+                <div id="users-response" class="response"></div>
+            </div>
+            
+            <!-- Random Data -->
+            <div class="card">
+                <h2>🎲 Random Data</h2>
+                <button onclick="testEndpoint('/random')">Generate Random</button>
+                <div id="random-response" class="response"></div>
+            </div>
+            
+            <!-- Error Test -->
+            <div class="card">
+                <h2>⚠️ Error Handling</h2>
+                <button onclick="testEndpoint('/error')">Trigger Error</button>
+                <div id="error-response" class="response"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const API_URL = 'http://localhost:3333';
+        
+        async function testEndpoint(endpoint) {
+            const responseId = endpoint.substring(1) || 'info';
+            const responseDiv = document.getElementById(`${responseId}-response`);
+            
+            try {
+                responseDiv.innerHTML = '<span class="status loading">Loading...</span>';
+                const response = await fetch(`${API_URL}${endpoint}`);
+                const data = await response.json();
+                
+                responseDiv.innerHTML = `<span class="status ${response.ok ? 'success' : 'error'}">
+                    ${response.ok ? 'Success' : 'Error'} - ${response.status}
+                </span>\n\n${JSON.stringify(data, null, 2)}`;
+            } catch (error) {
+                responseDiv.innerHTML = `<span class="status error">Network Error</span>\n\n${error.message}`;
+            }
+        }
+        
+        async function testHelloName() {
+            const name = document.getElementById('name').value || 'Anonymous';
+            const responseDiv = document.getElementById('hello-response');
+            
+            try {
+                responseDiv.innerHTML = '<span class="status loading">Loading...</span>';
+                const response = await fetch(`${API_URL}/hello/${encodeURIComponent(name)}`);
+                const data = await response.json();
+                
+                responseDiv.innerHTML = `<span class="status success">Success - 200</span>\n\n${JSON.stringify(data, null, 2)}`;
+            } catch (error) {
+                responseDiv.innerHTML = `<span class="status error">Network Error</span>\n\n${error.message}`;
+            }
+        }
+        
+        async function calculate() {
+            const responseDiv = document.getElementById('calc-response');
+            
+            const payload = {
+                a: parseFloat(document.getElementById('num1').value),
+                b: parseFloat(document.getElementById('num2').value),
+                operation: document.getElementById('operation').value
+            };
+            
+            try {
+                responseDiv.innerHTML = '<span class="status loading">Loading...</span>';
+                const response = await fetch(`${API_URL}/calculate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+                
+                responseDiv.innerHTML = `<span class="status success">Success - 200</span>\n\n${JSON.stringify(data, null, 2)}`;
+            } catch (error) {
+                responseDiv.innerHTML = `<span class="status error">Network Error</span>\n\n${error.message}`;
+            }
+        }
+        
+        // Test the API on load
+        window.onload = () => {
+            console.log('Testing API connection...');
+            testEndpoint('/');
+        };
+    </script>
+</body>
+</html>

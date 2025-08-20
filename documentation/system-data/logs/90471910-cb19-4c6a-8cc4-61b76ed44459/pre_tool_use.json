@@ -1,0 +1,45 @@
+[
+  {
+    "session_id": "90471910-cb19-4c6a-8cc4-61b76ed44459",
+    "transcript_path": "/Users/shaansisodia/.claude/projects/-Users-shaansisodia-DEV/90471910-cb19-4c6a-8cc4-61b76ed44459.jsonl",
+    "cwd": "/Users/shaansisodia/DEV",
+    "hook_event_name": "PreToolUse",
+    "tool_name": "Bash",
+    "tool_input": {
+      "command": "ps aux | grep -E \"(claude|code)\" | grep -v grep",
+      "description": "Check for running Claude Code processes"
+    }
+  },
+  {
+    "session_id": "90471910-cb19-4c6a-8cc4-61b76ed44459",
+    "transcript_path": "/Users/shaansisodia/.claude/projects/-Users-shaansisodia-DEV/90471910-cb19-4c6a-8cc4-61b76ed44459.jsonl",
+    "cwd": "/Users/shaansisodia/DEV",
+    "hook_event_name": "PreToolUse",
+    "tool_name": "LS",
+    "tool_input": {
+      "path": "/Users/shaansisodia/DEV"
+    }
+  },
+  {
+    "session_id": "90471910-cb19-4c6a-8cc4-61b76ed44459",
+    "transcript_path": "/Users/shaansisodia/.claude/projects/-Users-shaansisodia-DEV/90471910-cb19-4c6a-8cc4-61b76ed44459.jsonl",
+    "cwd": "/Users/shaansisodia/DEV",
+    "hook_event_name": "PreToolUse",
+    "tool_name": "Bash",
+    "tool_input": {
+      "command": "lsof -p 99289 | head -20",
+      "description": "Check what project the Vite process is running"
+    }
+  },
+  {
+    "session_id": "90471910-cb19-4c6a-8cc4-61b76ed44459",
+    "transcript_path": "/Users/shaansisodia/.claude/projects/-Users-shaansisodia-DEV/90471910-cb19-4c6a-8cc4-61b76ed44459.jsonl",
+    "cwd": "/Users/shaansisodia/DEV",
+    "hook_event_name": "PreToolUse",
+    "tool_name": "Bash",
+    "tool_input": {
+      "command": "cd /Users/shaansisodia/DEV/claude-code-hooks-multi-agent-observability && pwd && ls -la",
+      "description": "Check the project directory and status"
+    }
+  }
+]
