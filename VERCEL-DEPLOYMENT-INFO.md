@@ -30,7 +30,20 @@
 - Output Directory: `dist`
 - Auto-deploy from GitHub: Connected to master branch
 
+## Manual Deployment Webhook
+**Deploy Hook URL**: https://api.vercel.com/v1/integrations/deploy/prj_BbJiyT0aFCXZTZG5gwj5J3UBwqMk/QKWupAfp3A
+
+### Usage:
+```bash
+# Trigger manual deployment via webhook
+curl -X POST https://api.vercel.com/v1/integrations/deploy/prj_BbJiyT0aFCXZTZG5gwj5J3UBwqMk/QKWupAfp3A
+
+# Or use npm script (add to package.json):
+npm run deploy:vercel
+```
+
 ## Notes
-- Latest changes (commit b59d859 - Real Data Analytics & UI Optimizations) need to be deployed
+- Latest changes (commit 2857204 - Eisenhower Matrix + Real Data Analytics) deployed
 - Project has PWA support with fullscreen mode
 - Service worker disabled for preventing cache issues
+- Auto-deploy webhook available for manual triggers when needed
