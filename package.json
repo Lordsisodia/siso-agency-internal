@@ -9,6 +9,7 @@
     "build:dev": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "deploy:vercel": "curl -X POST https://api.vercel.com/v1/integrations/deploy/prj_BbJiyT0aFCXZTZG5gwj5J3UBwqMk/QKWupAfp3A",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build"
