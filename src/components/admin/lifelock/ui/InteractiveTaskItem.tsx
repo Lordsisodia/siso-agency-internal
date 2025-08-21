@@ -38,8 +38,9 @@ export const InteractiveTaskItem: React.FC<InteractiveTaskItemProps> = ({
       <button
         onClick={handleClick}
         className={cn(
-          "flex items-center space-x-3 w-full text-left p-2 rounded-lg transition-all duration-200",
-          "hover:bg-orange-500/10",
+          "flex items-center space-x-3 w-full text-left p-3 rounded-lg transition-all duration-200",
+          "hover:bg-orange-500/10 hover:shadow-sm hover:border hover:border-orange-500/20",
+          "bg-gradient-to-r from-transparent via-gray-800/20 to-transparent",
           task.completed && "opacity-75"
         )}
       >
@@ -58,8 +59,8 @@ export const InteractiveTaskItem: React.FC<InteractiveTaskItemProps> = ({
             ) : (
               <motion.div
                 key="uncompleted"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ duration: 0.1 }}
               >
                 <Circle className="h-5 w-5 text-gray-400" />
               </motion.div>
@@ -83,8 +84,8 @@ export const InteractiveTaskItem: React.FC<InteractiveTaskItemProps> = ({
         </div>
         
         <span className={cn(
-          'text-sm transition-all duration-200',
-          task.completed ? 'line-through text-gray-500' : 'text-gray-300'
+          'text-base transition-all duration-200 font-medium leading-relaxed',
+          task.completed ? 'line-through text-gray-400' : 'text-gray-200'
         )}>
           {task.title}
         </span>

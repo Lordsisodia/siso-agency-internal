@@ -86,76 +86,69 @@ export const MobileWeekView: React.FC<MobileWeekViewProps> = ({
           {/* Background effects */}
           <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 via-transparent to-yellow-500/5 opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
           
-          <CardHeader className="p-3 pb-2">
+          <CardHeader className="p-4 pb-2">
             <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-semibold text-sm text-white">
-                  {format(card.date, 'EEE')}
-                </h3>
-                <p className="text-xs text-gray-400">
-                  {format(card.date, 'MMM d')}
-                </p>
-              </div>
-              <div className="flex items-center space-x-1">
-                {/* Completion Ring */}
-                <CompletionRing 
-                  percentage={completionRate} 
-                  size="small" 
-                  showPercentage={false}
-                />
+              <div className="flex items-center space-x-3">
+                <div>
+                  <h3 className="font-bold text-lg text-white">
+                    {format(card.date, 'EEE')}
+                  </h3>
+                  <p className="text-sm text-gray-300 font-medium">
+                    {format(card.date, 'MMM d')}
+                  </p>
+                </div>
                 {isToday && (
-                  <Badge variant="secondary" className="text-xs px-2 py-0.5 bg-orange-500/20 text-orange-300 border-orange-500/40">
+                  <Badge variant="secondary" className="text-sm px-3 py-1 bg-orange-500/20 text-orange-300 border-orange-500/40 font-semibold">
                     Today
                   </Badge>
                 )}
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="text-right">
+                  <div className="text-lg font-bold text-white">{Math.round(completionRate)}%</div>
+                  <div className="text-xs text-gray-400">{completedTasks}/{totalTasks} tasks</div>
+                </div>
                 {card.completed ? (
-                  <CheckCircle2 className="h-4 w-4 text-green-500" />
+                  <CheckCircle2 className="h-6 w-6 text-emerald-400" />
                 ) : (
-                  <Circle className="h-4 w-4 text-gray-400" />
+                  <Circle className="h-6 w-6 text-gray-400" />
                 )}
               </div>
             </div>
           </CardHeader>
 
-          <CardContent className="p-3 pt-0">
-            <div className="space-y-2">
-              {/* Progress */}
-              <div className="flex justify-between text-xs text-gray-400 mb-1">
-                <span>{completedTasks}/{totalTasks}</span>
-                <span>{Math.round(completionRate)}%</span>
-              </div>
-              
-              <div className="w-full bg-black/40 backdrop-blur-sm rounded-full h-2 shadow-inner border border-orange-500/20">
+          <CardContent className="p-4 pt-0">
+            <div className="space-y-3">
+              {/* Enhanced Progress Bar */}
+              <div className="w-full bg-gray-800/60 backdrop-blur-sm rounded-full h-3 shadow-inner border border-orange-400/30">
                 <div 
-                  className="bg-gradient-to-r from-orange-500 via-yellow-400 to-green-500 h-2 rounded-full transition-all duration-700 relative overflow-hidden"
+                  className="bg-gradient-to-r from-orange-400 via-amber-300 to-emerald-400 h-3 rounded-full transition-all duration-700 relative overflow-hidden shadow-lg"
                   style={{ width: `${completionRate}%` }}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent animate-pulse"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-white/25 to-transparent"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-white/10"></div>
                 </div>
               </div>
 
-              {/* Task Preview */}
-              <div className="space-y-1">
-                {card.tasks.slice(0, 2).map((task) => (
-                  <div key={task.id} className="flex items-center space-x-1 text-xs">
-                    {task.completed ? (
-                      <CheckCircle2 className="h-2 w-2 text-green-500 flex-shrink-0" />
-                    ) : (
-                      <Circle className="h-2 w-2 text-gray-400 flex-shrink-0" />
-                    )}
-                    <span className={cn(
-                      'truncate text-xs',
-                      task.completed ? 'line-through text-gray-500' : 'text-gray-300'
-                    )}>
-                      {task.title}
-                    </span>
+              {/* Task Preview - Full Width */}
+              <div className="space-y-2">
+                {card.tasks.map((task) => (
+                  <div key={task.id} className="flex items-center justify-between p-2 bg-gray-800/30 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      {task.completed ? (
+                        <CheckCircle2 className="h-4 w-4 text-emerald-400 flex-shrink-0" />
+                      ) : (
+                        <Circle className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                      )}
+                      <span className={cn(
+                        'text-sm font-medium',
+                        task.completed ? 'line-through text-gray-400' : 'text-gray-200'
+                      )}>
+                        {task.title}
+                      </span>
+                    </div>
                   </div>
                 ))}
-                {card.tasks.length > 2 && (
-                  <div className="text-xs text-gray-500 ml-3">
-                    +{card.tasks.length - 2} more
-                  </div>
-                )}
               </div>
             </div>
           </CardContent>
@@ -243,8 +236,8 @@ export const MobileWeekView: React.FC<MobileWeekViewProps> = ({
               </div>
             </div>
 
-            {/* Week Cards Grid */}
-            <div className="grid grid-cols-2 gap-2">
+            {/* Week Cards Grid - Full Width Mobile */}
+            <div className="grid grid-cols-1 gap-3">
               {weekCards.map((card, index) => (
                 <MobileWeekCard key={card.id} card={card} index={index} />
               ))}

@@ -19,9 +19,11 @@ const Index = () => {
           // Check admin status directly to avoid hook dependency issues
           const isAdmin = await checkIsAdmin();
           
-          // If the user is an admin, redirect to the admin clients page  
+          // If the user is an admin, redirect to preferred page (default: Life Lock today's page)  
           if (isAdmin) {
-            navigate('/admin/clients', { replace: true });
+            // Check if user has a preferred admin page stored
+            const preferredAdminPage = localStorage.getItem('preferredAdminPage') || '/admin/life-lock/day';
+            navigate(preferredAdminPage, { replace: true });
           } else {
             navigate('/home', { replace: true });
           }

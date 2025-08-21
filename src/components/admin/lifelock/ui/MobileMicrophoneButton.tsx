@@ -7,11 +7,13 @@ import { voiceService } from '@/services/voiceService';
 
 interface MobileMicrophoneButtonProps {
   onVoiceCommand?: (command: string) => void;
+  disabled?: boolean;
   className?: string;
 }
 
 export const MobileMicrophoneButton: React.FC<MobileMicrophoneButtonProps> = ({
   onVoiceCommand,
+  disabled = false,
   className
 }) => {
   const [isListening, setIsListening] = useState(false);
@@ -35,6 +37,8 @@ export const MobileMicrophoneButton: React.FC<MobileMicrophoneButtonProps> = ({
   }, [isListening]);
 
   const handleVoiceToggle = async () => {
+    if (disabled) return;
+    
     if (isListening) {
       voiceService.stopListening();
       setIsListening(false);
@@ -81,9 +85,9 @@ export const MobileMicrophoneButton: React.FC<MobileMicrophoneButtonProps> = ({
 
   return (
     <>
-      {/* Mobile-only microphone button at top center */}
+      {/* Mobile-only microphone button in bottom right */}
       <div className={cn(
-        'fixed top-4 left-1/2 transform -translate-x-1/2 z-40 block sm:hidden',
+        'fixed bottom-8 right-6 z-40 block sm:hidden',
         className
       )}>
         <motion.div
@@ -92,11 +96,14 @@ export const MobileMicrophoneButton: React.FC<MobileMicrophoneButtonProps> = ({
         >
           <Button
             onClick={handleVoiceToggle}
+            disabled={disabled}
             className={cn(
-              'relative h-12 w-12 rounded-full shadow-lg transition-all duration-300',
+              'relative h-14 w-14 rounded-full shadow-2xl transition-all duration-300 border-2',
               isListening 
-                ? 'bg-red-500 hover:bg-red-600 animate-pulse' 
-                : 'bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600'
+                ? 'bg-red-500 hover:bg-red-600 animate-pulse border-red-300/50 shadow-red-500/50' 
+                : disabled
+                ? 'bg-gray-600 border-gray-500/50 cursor-not-allowed'
+                : 'bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 border-orange-300/50 shadow-orange-500/50'
             )}
           >
             <AnimatePresence mode="wait">

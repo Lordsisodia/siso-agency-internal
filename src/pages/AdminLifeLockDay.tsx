@@ -60,6 +60,8 @@ import {
 } from '@/components/admin/lifelock/ui';
 import { MobileTaskItem, MobileSwipeCard } from '@/components/admin/lifelock/ui/MobileSwipeCard';
 import { BottomNavigation } from '@/components/admin/lifelock/ui/BottomNavigation';
+import { LoadingAnimation } from '@/components/admin/lifelock/ui/LoadingAnimation';
+import { generateRealisticTasksForDate, convertToLifeLockRoutine } from '@/services/sharedTaskDataService';
 
 // ... (keeping all the existing interfaces and state management logic)
 
@@ -90,7 +92,8 @@ const AdminLifeLockDay: React.FC = () => {
     { id: '2', title: 'Get Blood Flowing (5 min)', completed: false, description: 'Max rep push-ups (Target PB: 30).', logField: 'Log reps: ____' },
     { id: '3', title: 'Hydrate (5 min)', completed: false, description: 'Drink 500 ml water to start the day.' },
     { id: '4', title: 'Supplements & Pre-Workout (5 min)', completed: false, description: 'Take omega-3, multivitamin, ashwagandha, and pre-workout.' },
-    { id: '5', title: 'Shower & Brush Teeth (25 min)', completed: false, description: 'Cold shower to wake up.' },
+    { id: '5', title: 'Shower (20 min)', completed: false, description: 'Cold shower to wake up and energize.' },
+    { id: '5b', title: 'Brush Teeth (5 min)', completed: false, description: 'Fresh oral hygiene for the day.' },
     { id: '6', title: 'Review & Plan Day (15 min)', completed: false, description: 'Go through tasks, prioritize, and allocate time slots.' },
     { id: '7', title: 'Meditation (2 min)', completed: false, description: 'Meditate to set an innovative mindset for creating business value.' }
   ];
@@ -106,6 +109,9 @@ const AdminLifeLockDay: React.FC = () => {
   // Deep Focus Work Tasks - Load from Enhanced Task Service
   const [deepFocusTasks, setDeepFocusTasks] = useState<EnhancedTask[]>([]);
   const [isLoadingTasks, setIsLoadingTasks] = useState(true);
+
+  // Custom Task Input State
+  const [customTaskInput, setCustomTaskInput] = useState('');
 
   // Task Detail Modal State
   const [selectedTask, setSelectedTask] = useState<EnhancedTask | null>(null);
@@ -224,6 +230,46 @@ const AdminLifeLockDay: React.FC = () => {
       const notification = document.createElement('div');
       notification.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg z-50';
       notification.textContent = '❌ Failed to import tasks';
+      document.body.appendChild(notification);
+      setTimeout(() => notification.remove(), 3000);
+    }
+  };
+
+  // Handle adding custom deep focus task
+  const handleAddCustomTask = async () => {
+    if (!customTaskInput.trim()) return;
+
+    try {
+      // Create a new task using the Enhanced Task Service
+      const newTask = await EnhancedTaskService.createTask({
+        title: customTaskInput.trim(),
+        description: 'Custom deep focus task',
+        work_type: 'deep_focus',
+        focus_level: 'high',
+        priority: 'medium',
+        due_date: format(currentDate, 'yyyy-MM-dd'),
+        estimated_duration: 60 // Default 1 hour
+      });
+
+      // Add to current deep focus tasks
+      setDeepFocusTasks(prev => [...prev, newTask]);
+      
+      // Clear input
+      setCustomTaskInput('');
+      
+      // Show success notification
+      const notification = document.createElement('div');
+      notification.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+      notification.textContent = `✅ Custom task "${customTaskInput.trim()}" added successfully!`;
+      document.body.appendChild(notification);
+      setTimeout(() => notification.remove(), 3000);
+    } catch (error) {
+      console.error('Failed to add custom task:', error);
+      
+      // Show error notification
+      const notification = document.createElement('div');
+      notification.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+      notification.textContent = '❌ Failed to add custom task';
       document.body.appendChild(notification);
       setTimeout(() => notification.remove(), 3000);
     }
@@ -420,7 +466,13 @@ const AdminLifeLockDay: React.FC = () => {
       timeoutId = setTimeout(() => {
         if (isMounted) {
           console.error('AdminLifeLockDay: Data loading timed out after 10 seconds');
-          setDailyRoutineData(null);
+          console.log('AdminLifeLockDay: Using fallback generated data after timeout');
+          
+          // Generate fallback data on timeout
+          const generatedCard = generateRealisticTasksForDate(currentDate);
+          const fallbackRoutine = convertToLifeLockRoutine(generatedCard);
+          setDailyRoutineData(fallbackRoutine);
+          
           setDailyWorkoutData(null);
           setDailyHealthData(null);
           setDailyHabitsData(null);
@@ -440,8 +492,16 @@ const AdminLifeLockDay: React.FC = () => {
         
         console.log('AdminLifeLockDay: Loaded LifeLock data successfully:', data);
         
-        // Set data even if some parts are null - the component can handle it
-        setDailyRoutineData(data.routine);
+        // Use real data if available, otherwise fallback to generated data
+        if (data.routine) {
+          setDailyRoutineData(data.routine);
+        } else {
+          // Generate fallback routine data using shared service
+          const generatedCard = generateRealisticTasksForDate(currentDate);
+          const fallbackRoutine = convertToLifeLockRoutine(generatedCard);
+          setDailyRoutineData(fallbackRoutine);
+        }
+        
         setDailyWorkoutData(data.workout);
         setDailyHealthData(data.health);
         setDailyHabitsData(data.habits);
@@ -452,8 +512,13 @@ const AdminLifeLockDay: React.FC = () => {
         clearTimeout(timeoutId);
         
         if (isMounted) {
-          // Set null data to allow component to render with default values
-          setDailyRoutineData(null);
+          // Generate fallback data when there's an error
+          console.log('AdminLifeLockDay: Using fallback generated data');
+          const generatedCard = generateRealisticTasksForDate(currentDate);
+          const fallbackRoutine = convertToLifeLockRoutine(generatedCard);
+          setDailyRoutineData(fallbackRoutine);
+          
+          // Set other data to null for now
           setDailyWorkoutData(null);
           setDailyHealthData(null);
           setDailyHabitsData(null);
@@ -762,9 +827,7 @@ const AdminLifeLockDay: React.FC = () => {
   if (isLoadingLifeLockData) {
     return (
       <AdminLayout>
-        <div className="min-h-screen w-full bg-gray-900 flex items-center justify-center">
-          <div className="text-white text-lg">Loading your LifeLock data...</div>
-        </div>
+        <LoadingAnimation message="Loading your LifeLock data..." />
       </AdminLayout>
     );
   }
@@ -1012,6 +1075,35 @@ const AdminLifeLockDay: React.FC = () => {
                         </div>
                       }
                     >
+                      {/* Custom Task Input Section */}
+                      <div className="bg-gray-900/50 border border-gray-700/50 rounded-lg p-4 mb-4">
+                        <div className="flex items-center space-x-2 mb-3">
+                          <Plus className="h-4 w-4 text-orange-400" />
+                          <h4 className="text-sm font-medium text-white">Add Custom Task</h4>
+                        </div>
+                        <div className="flex space-x-2">
+                          <Input
+                            placeholder="Enter your custom deep focus task..."
+                            className="flex-1 bg-black/40 border-gray-600 text-white placeholder-gray-400 text-sm"
+                            value={customTaskInput}
+                            onChange={(e) => setCustomTaskInput(e.target.value)}
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter' && customTaskInput.trim()) {
+                                handleAddCustomTask();
+                              }
+                            }}
+                          />
+                          <Button
+                            size="sm"
+                            onClick={handleAddCustomTask}
+                            disabled={!customTaskInput.trim()}
+                            className="bg-orange-500 hover:bg-orange-600 text-white px-3"
+                          >
+                            <Plus className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
+                      
                       {isLoadingTasks ? (
                         <div className="flex items-center justify-center py-8">
                           <div className="text-gray-400">Loading today's tasks...</div>
