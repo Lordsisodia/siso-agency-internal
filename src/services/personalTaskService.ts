@@ -8,7 +8,7 @@ export interface PersonalTask {
   title: string;
   description?: string;
   workType: 'deep' | 'light';
-  priority: 'urgent' | 'high' | 'medium' | 'low';
+  priority: 'critical' | 'urgent' | 'high' | 'medium' | 'low';
   completed: boolean;
   originalDate: string; // YYYY-MM-DD when task was first created
   currentDate: string;   // YYYY-MM-DD which day it's currently assigned to
@@ -283,6 +283,29 @@ export class PersonalTaskService {
       rolledOverTasks,
       completionRate: tasksInRange.length > 0 ? (completedTasks / tasksInRange.length) * 100 : 0
     };
+  }
+
+  /**
+   * Replace tasks for a specific date with a new task list (used by Eisenhower Matrix organizer)
+   */
+  public static replaceTasks(newTasks: PersonalTask[], targetDate: Date): void {
+    const targetDateStr = format(targetDate, 'yyyy-MM-dd');
+    const allTasks = this.getAllTasks();
+    
+    // Remove existing tasks for the target date
+    const otherDateTasks = allTasks.filter(task => task.currentDate !== targetDateStr);
+    
+    // Add the new tasks with correct date assignment
+    const updatedTasks = newTasks.map(task => ({
+      ...task,
+      currentDate: targetDateStr
+    }));
+    
+    // Combine and save
+    const finalTasks = [...otherDateTasks, ...updatedTasks];
+    this.saveAllTasks(finalTasks);
+    
+    console.log(`🔄 [PERSONAL TASKS] Replaced ${newTasks.length} tasks for ${targetDateStr}`);
   }
 
   /**
