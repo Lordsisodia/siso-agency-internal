@@ -44,11 +44,11 @@ export const SyncStatusWidget: React.FC = () => {
   };
 
   const handleEnableAI = async () => {
-    const success = await HybridTaskService.enableAIFeatures();
+    const success = await HybridTaskService.enableAIFeatures('prisma');
     if (success) {
-      alert('🤖 AI features enabled! You can now use Eisenhower Matrix organization.');
+      alert('🤖 AI features enabled with Prisma! Zero cold starts + Eisenhower Matrix organization.');
     } else {
-      alert('Failed to enable AI features. Ensure Neon is configured properly.');
+      alert('Failed to enable AI features. Ensure Prisma is configured properly.');
     }
   };
 
@@ -122,7 +122,7 @@ export const SyncStatusWidget: React.FC = () => {
               disabled={status.syncInProgress}
               className="w-full px-3 py-1.5 text-sm bg-purple-500 text-white rounded hover:bg-purple-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
             >
-              🤖 Enable AI Features
+              ⚡ Enable AI (Prisma)
             </button>
           </div>
 
