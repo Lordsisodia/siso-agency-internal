@@ -60,7 +60,6 @@ import {
   DailyTrackerSectionGroup
 } from '@/components/admin/lifelock/ui';
 import { MobileTaskItem, MobileSwipeCard } from '@/components/admin/lifelock/ui/MobileSwipeCard';
-import { BottomNavigation } from '@/components/admin/lifelock/ui/BottomNavigation';
 import { LoadingAnimation } from '@/components/admin/lifelock/ui/LoadingAnimation';
 import { generateRealisticTasksForDate, convertToLifeLockRoutine } from '@/services/sharedTaskDataService';
 
@@ -126,15 +125,40 @@ const AdminLifeLockDay: React.FC = () => {
       if (!isMounted) return;
       
       setIsLoadingTasks(true);
-      console.log('Loading enhanced tasks for date:', dateKey);
+      console.log('Loading personal tasks for date:', dateKey);
       
       try {
-        const tasks = await EnhancedTaskService.getDeepFocusTasksForDate(currentDate);
+        // Use personal task service instead of enhanced task service
+        const personalCard = personalTaskService.getTasksForDate(currentDate);
+        const personalTasks = personalCard.tasks;
+        
+        // Convert personal tasks to enhanced task format for compatibility with existing UI
+        const enhancedTasks = personalTasks.map(task => ({
+          id: task.id,
+          title: task.title,
+          description: task.description || '',
+          category: task.workType === 'deep' ? 'deep_focus' : 'light_focus',
+          priority: task.priority,
+          status: task.completed ? 'completed' : 'active',
+          work_type: task.workType === 'deep' ? 'deep_focus' : 'light_focus',
+          focus_level: task.workType === 'deep' ? 4 : 2,
+          energy_level: task.priority === 'critical' || task.priority === 'urgent' ? 'high' : 'medium',
+          estimated_duration: task.estimatedDuration || 60,
+          due_date: format(currentDate, 'yyyy-MM-dd'),
+          effort_points: task.workType === 'deep' ? 8 : 3,
+          lifelock_sync: true,
+          auto_schedule: false,
+          flow_state_potential: task.workType === 'deep' ? 4 : 2,
+          context_switching_cost: 10,
+          completed_at: task.completedAt,
+          created_at: task.createdAt,
+          updated_at: task.createdAt
+        }));
         
         if (!isMounted) return;
         
-        console.log('Loaded enhanced tasks successfully:', tasks);
-        setDeepFocusTasks(tasks);
+        console.log('Loaded personal tasks successfully:', enhancedTasks);
+        setDeepFocusTasks(enhancedTasks);
       } catch (error) {
         console.error('Failed to load enhanced tasks:', error);
         if (isMounted) {
@@ -158,29 +182,46 @@ const AdminLifeLockDay: React.FC = () => {
     };
   }, [dateKey]);
 
-  // Update task completion with enhanced analytics
+  // Update task completion using personal task service
   const handleTaskToggle = async (taskId: string, completed: boolean) => {
     try {
-      const task = deepFocusTasks.find(t => t.id === taskId);
-      const analytics = task ? {
-        planned_duration: task.estimated_duration,
-        actual_duration: task.actual_duration,
-        focus_quality: 8, // Could be input from user
-        energy_level_start: 7,
-        energy_level_end: 6,
-        distractions_count: 0
-      } : undefined;
-
-      const success = await EnhancedTaskService.updateTaskCompletion(taskId, completed, analytics);
+      console.log('Toggling task:', taskId, 'to completed:', completed);
+      
+      // Use personal task service to toggle the task
+      const success = personalTaskService.toggleTask(taskId);
+      
       if (success) {
-        setDeepFocusTasks(prev => 
-          prev.map(task => 
-            task.id === taskId ? { ...task, status: completed ? 'done' : 'pending' } : task
-          )
-        );
+        console.log('Task toggled successfully in personal service');
         
-        // Sync with LifeLock after task completion
-        await EnhancedTaskService.syncTasksToLifeLock(currentDate);
+        // Reload tasks to reflect the change
+        const personalCard = personalTaskService.getTasksForDate(currentDate);
+        const personalTasks = personalCard.tasks;
+        
+        // Convert personal tasks to enhanced task format for compatibility with existing UI
+        const enhancedTasks = personalTasks.map(task => ({
+          id: task.id,
+          title: task.title,
+          description: task.description || '',
+          category: task.workType === 'deep' ? 'deep_focus' : 'light_focus',
+          priority: task.priority,
+          status: task.completed ? 'completed' : 'active',
+          work_type: task.workType === 'deep' ? 'deep_focus' : 'light_focus',
+          focus_level: task.workType === 'deep' ? 4 : 2,
+          energy_level: task.priority === 'critical' || task.priority === 'urgent' ? 'high' : 'medium',
+          estimated_duration: task.estimatedDuration || 60,
+          due_date: format(currentDate, 'yyyy-MM-dd'),
+          effort_points: task.workType === 'deep' ? 8 : 3,
+          lifelock_sync: true,
+          auto_schedule: false,
+          flow_state_potential: task.workType === 'deep' ? 4 : 2,
+          context_switching_cost: 10,
+          completed_at: task.completedAt,
+          created_at: task.createdAt,
+          updated_at: task.createdAt
+        }));
+        
+        // Update local state
+        setDeepFocusTasks(enhancedTasks);
       }
     } catch (error) {
       console.error('Failed to update enhanced task:', error);
@@ -253,31 +294,34 @@ const AdminLifeLockDay: React.FC = () => {
       // Add to personal task service
       personalTaskService.addTasks([newTaskData], currentDate);
 
-      // Refresh the task list by re-fetching tasks for current date
+      // Refresh all tasks by re-fetching tasks for current date
       const refreshedTasks = personalTaskService.getTasksForDate(currentDate);
-      const deepTasks = refreshedTasks.tasks.filter(task => task.workType === 'deep');
+      const allTasks = refreshedTasks.tasks;
       
-      // Convert personal tasks to enhanced tasks format for compatibility
-      const enhancedDeepTasks = deepTasks.map(task => ({
+      // Convert all personal tasks to enhanced tasks format for compatibility
+      const enhancedTasks = allTasks.map(task => ({
         id: task.id,
         title: task.title,
         description: task.description || '',
-        category: 'deep_focus' as const,
+        category: task.workType === 'deep' ? 'deep_focus' as const : 'light_focus' as const,
         priority: task.priority,
         status: task.completed ? 'completed' : 'active',
-        work_type: 'deep_focus' as const,
-        focus_level: 4,
-        energy_level: 'high' as const,
-        estimated_duration: task.estimatedDuration,
+        work_type: task.workType === 'deep' ? 'deep_focus' as const : 'light_focus' as const,
+        focus_level: task.workType === 'deep' ? 4 : 2,
+        energy_level: task.priority === 'critical' || task.priority === 'urgent' ? 'high' as const : 'medium' as const,
+        estimated_duration: task.estimatedDuration || 60,
         due_date: format(currentDate, 'yyyy-MM-dd'),
-        effort_points: 8,
+        effort_points: task.workType === 'deep' ? 8 : 3,
         lifelock_sync: true,
         auto_schedule: false,
-        flow_state_potential: 4,
-        context_switching_cost: 10
+        flow_state_potential: task.workType === 'deep' ? 4 : 2,
+        context_switching_cost: 10,
+        completed_at: task.completedAt,
+        created_at: task.createdAt,
+        updated_at: task.createdAt
       }));
       
-      setDeepFocusTasks(enhancedDeepTasks);
+      setDeepFocusTasks(enhancedTasks);
       
       // Clear input
       setCustomTaskInput('');
@@ -2099,16 +2143,6 @@ const AdminLifeLockDay: React.FC = () => {
         onTasksUpdate={handleAITasksUpdate}
       />
 
-      {/* Bottom Navigation for Mobile */}
-      <BottomNavigation
-        onHomeClick={() => navigate('/admin/life-lock')}
-        onTasksClick={() => console.log('Tasks view')}
-        onVoiceClick={handleVoiceInput}
-        onStatsClick={() => console.log('Stats view')}
-        onMenuClick={() => console.log('Menu')}
-        onQuickAddClick={() => console.log('Quick add task')}
-        isListening={isListening}
-      />
 
       {/* Task Detail Modal */}
       <Dialog open={showTaskModal} onOpenChange={setShowTaskModal}>
