@@ -209,6 +209,39 @@ const AdminLifeLockDay: React.FC = () => {
     setWakeUpTime(e.target.value);
   };
 
+  // Daily motivational quotes system
+  const getDailyQuote = () => {
+    const quotes = [
+      // Andrew Tate Quotes
+      "The most dangerous person is the one who listens, thinks and observes. - Andrew Tate",
+      "Your mind must be stronger than your feelings. - Andrew Tate", 
+      "Success isn't just about what you accomplish, it's about what you inspire others to do. - Andrew Tate",
+      "The temporary satisfaction of quitting is never worth the eternal regret of giving up. - Andrew Tate",
+      "You are exactly where you deserve to be. Change who you are and you will change how you live. - Andrew Tate",
+      "Depression is not real. You feel sad, you move on. - Andrew Tate",
+      "The matrix has attacked me. But they misunderstand, you cannot kill an idea. - Andrew Tate",
+      
+      // Socrates Quotes  
+      "The only true wisdom is in knowing you know nothing. - Socrates",
+      "An unexamined life is not worth living. - Socrates",
+      "The secret of happiness is not found in seeking more, but in developing the capacity to enjoy less. - Socrates",
+      "He who is not contented with what he has, would not be contented with what he would like to have. - Socrates",
+      "Strong minds discuss ideas, average minds discuss events, weak minds discuss people. - Socrates",
+      "The way to gain a good reputation is to endeavor to be what you desire to appear. - Socrates",
+      "Wisdom begins in wonder. - Socrates",
+      "I cannot teach anybody anything. I can only make them think. - Socrates",
+      "Be kind, for everyone you meet is fighting a hard battle. - Socrates",
+      "The hour of departure has arrived, and we go our separate ways, I to die, and you to live. - Socrates"
+    ];
+    
+    // Use date as seed for consistent daily quote
+    const today = new Date();
+    const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24));
+    const quoteIndex = dayOfYear % quotes.length;
+    
+    return quotes[quoteIndex];
+  };
+
   // Load enhanced tasks from Supabase on mount and date change
   useEffect(() => {
     let isMounted = true;
@@ -1227,15 +1260,10 @@ const AdminLifeLockDay: React.FC = () => {
                           </div>
                           <DailyTrackerDivider color="yellow" />
                           <div>
-                            <h3 className="font-bold text-yellow-300 mb-1.5 sm:mb-2 text-sm sm:text-base">Peak Performance Protocol</h3>
-                            <ul className="text-gray-200 text-xs sm:text-sm space-y-0.5 sm:space-y-1">
-                              <li>🧠 <strong>Single-tasking:</strong> One focus window, zero context switching</li>
-                              <li>📱 <strong>Tool discipline:</strong> Work tools only (Notion, IDE, design apps)</li>
-                              <li>⚡ <strong>Action bias:</strong> &lt;5 seconds between decisions and execution</li>
-                              <li>🚫 <strong>Zero cognitive toxins:</strong> No substances that impair clarity</li>
-                              <li>🎯 <strong>Flow triggers:</strong> Clear goals + immediate feedback + challenge/skill balance</li>
-                              <li>⏰ <strong>Time boxing:</strong> 90-min deep work blocks with 15-min recovery</li>
-                            </ul>
+                            <h3 className="font-bold text-yellow-300 mb-1.5 sm:mb-2 text-sm sm:text-base">Daily Wisdom</h3>
+                            <blockquote className="text-gray-200 text-xs sm:text-sm italic leading-relaxed border-l-2 border-yellow-400 pl-3">
+                              "{getDailyQuote()}"
+                            </blockquote>
                           </div>
                         </div>
                       </>
