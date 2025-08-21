@@ -39,3 +39,5 @@ temp/
 # Tauri
 src-tauri/target/
 .vercel
+
+/generated/prisma

@@ -1,7 +1,10 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
+import { ClerkHybridTaskService } from './services/clerkHybridTaskService';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Toaster } from '@/components/ui/toaster';
+import { ClerkProvider } from './components/ClerkProvider';
+import { ClerkAuthGuard } from './components/auth/ClerkAuthGuard';
 import { AuthGuard } from './components/auth/AuthGuard';
 import { PageLoader } from './components/ui/PageLoader';
 
@@ -137,8 +140,22 @@ function ErrorFallback({error, resetErrorBoundary}: {error: Error, resetErrorBou
 }
 
 function App() {
+  // Initialize Clerk hybrid service on app startup
+  useEffect(() => {
+    const initializeClerkHybridService = async () => {
+      try {
+        await ClerkHybridTaskService.initialize();
+        console.log('✅ [APP] Automatic Clerk hybrid service initialization complete');
+      } catch (error) {
+        console.error('❌ [APP] Clerk hybrid service initialization failed:', error);
+      }
+    };
+    
+    initializeClerkHybridService();
+  }, []);
+  
   return (
-    <>
+    <ClerkProvider>
       <Toaster />
       <ErrorBoundary 
         FallbackComponent={ErrorFallback}
@@ -226,11 +243,11 @@ function App() {
           <Route path="/admin/payments" element={<AuthGuard adminOnly={true}><AdminPayments /></AuthGuard>} />
           <Route path="/admin/daily-planner" element={<AuthGuard adminOnly={true}><AdminDailyPlanner /></AuthGuard>} />
           */}
-          <Route path="/admin/life-lock" element={<AuthGuard adminOnly={true}><AdminLifeLock /></AuthGuard>} />
-          <Route path="/admin/life-lock/day" element={<AuthGuard adminOnly={true}><AdminLifeLockDay /></AuthGuard>} />
-          <Route path="/admin/tasks" element={<AuthGuard adminOnly={true}><AdminTasks /></AuthGuard>} />
-          <Route path="/admin/tasks/:memberId" element={<AuthGuard adminOnly={true}><TeamMemberTasksPage /></AuthGuard>} />
-          <Route path="/admin/settings" element={<AuthGuard adminOnly={true}><AdminSettings /></AuthGuard>} />
+          <Route path="/admin/life-lock" element={<ClerkAuthGuard><AdminLifeLock /></ClerkAuthGuard>} />
+          <Route path="/admin/life-lock/day" element={<ClerkAuthGuard><AdminLifeLockDay /></ClerkAuthGuard>} />
+          <Route path="/admin/tasks" element={<ClerkAuthGuard><AdminTasks /></ClerkAuthGuard>} />
+          <Route path="/admin/tasks/:memberId" element={<ClerkAuthGuard><TeamMemberTasksPage /></ClerkAuthGuard>} />
+          <Route path="/admin/settings" element={<ClerkAuthGuard><AdminSettings /></ClerkAuthGuard>} />
           {/* Plans routes - archived
           <Route path="/admin/plans/create" element={<AuthGuard adminOnly={true}><AdminPlans /></AuthGuard>} />
           <Route path="/admin/plans/:planId/edit" element={<AuthGuard adminOnly={true}><AdminPlans /></AuthGuard>} />
@@ -326,7 +343,7 @@ function App() {
           </Routes>
         </Suspense>
       </ErrorBoundary>
-    </>
+    </ClerkProvider>
   );
 }
 

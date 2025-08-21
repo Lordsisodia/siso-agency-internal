@@ -70,9 +70,9 @@ const getColorClasses = (color: string) => {
       checkbox: 'border-orange-500 data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500'
     },
     yellow: {
-      border: 'border-transparent hover:border-white',
-      bg: 'bg-yellow-500/10',
-      text: 'text-yellow-300',
+      border: 'border-yellow-600/30 hover:border-yellow-500/50',
+      bg: 'bg-yellow-900/20',
+      text: 'text-yellow-200',
       checkbox: 'border-yellow-500 data-[state=checked]:bg-yellow-500 data-[state=checked]:border-yellow-500'
     },
     green: {
@@ -154,19 +154,22 @@ export const MobileSwipeCard: React.FC<MobileSwipeCardProps> = ({
   const handleDragEnd = (event: any, info: PanInfo) => {
     const offset = info.offset.x;
     const velocity = info.velocity.x;
-
-    if (offset > swipeThreshold || velocity > 500) {
+    const distance = Math.abs(offset);
+    const velocityThreshold = 1000; // Increased velocity threshold
+    
+    // Only trigger actions with significant intent (higher threshold + velocity)
+    if ((offset > swipeThreshold && velocity > 300) || velocity > velocityThreshold) {
       // Swipe right - complete task
       onSwipeComplete?.();
       setSwipeDirection(null);
       x.set(0);
-    } else if (offset < -swipeThreshold || velocity < -500) {
-      // Swipe left - edit task
+    } else if ((offset < -swipeThreshold && velocity < -300) || velocity < -velocityThreshold) {
+      // Swipe left - edit task  
       onSwipeEdit?.();
       setSwipeDirection(null);
       x.set(0);
     } else {
-      // Return to center
+      // Return to center with spring animation
       setSwipeDirection(null);
       x.set(0);
     }
@@ -174,9 +177,13 @@ export const MobileSwipeCard: React.FC<MobileSwipeCardProps> = ({
 
   const handleDrag = (event: any, info: PanInfo) => {
     const offset = info.offset.x;
-    if (offset > 50) {
+    const dragDistance = Math.abs(offset);
+    const minDragThreshold = 80; // Increased minimum drag distance
+    
+    // Only show swipe direction if user has dragged far enough with intent
+    if (offset > minDragThreshold) {
       setSwipeDirection('right');
-    } else if (offset < -50) {
+    } else if (offset < -minDragThreshold) {
       setSwipeDirection('left');
     } else {
       setSwipeDirection(null);
@@ -208,12 +215,16 @@ export const MobileSwipeCard: React.FC<MobileSwipeCardProps> = ({
     <div className="relative overflow-hidden">
       <motion.div
         drag="x"
-        dragConstraints={{ left: -200, right: 200 }}
-        dragElastic={0.1}
+        dragConstraints={{ left: -150, right: 150 }}
+        dragElastic={0.05}
+        dragMomentum={false}
+        whileDrag={{ scale: 0.98 }}
         onDrag={handleDrag}
         onDragEnd={handleDragEnd}
         className={cn(
-          'relative bg-gradient-to-r from-gray-800/60 to-gray-900/40 backdrop-blur-sm rounded-lg border border-gray-700/50 touch-pan-y',
+          'relative rounded-lg border touch-pan-y',
+          getColorClasses(color).bg,
+          getColorClasses(color).border,
           className
         )}
         style={{ x, opacity }}
@@ -516,7 +527,8 @@ export const MobileTaskItem: React.FC<MobileTaskItemProps> = ({
       className={className}
     >
       <div className={cn(
-        'bg-gradient-to-r from-gray-800/60 to-gray-900/40 backdrop-blur-sm rounded-lg border transition-colors',
+        'rounded-lg border transition-colors',
+        getColorClasses(color).bg,
         getColorClasses(color).border,
         task.completed && 'border-green-500/50 bg-green-500/10'
       )}>

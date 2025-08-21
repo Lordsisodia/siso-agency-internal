@@ -2,6 +2,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 
 // Enhanced task interfaces for LifeLock integration
+export type FocusIntensity = 1 | 2 | 3 | 4;
+export type TaskContext = 'coding' | 'writing' | 'design' | 'research' | 'planning' | 'communication' | 'learning' | 'creative';
+
 export interface EnhancedTask {
   id: string;
   title: string;
@@ -11,6 +14,8 @@ export interface EnhancedTask {
   status: string;
   work_type: 'deep_focus' | 'light_focus' | 'admin' | 'creative' | 'meeting' | 'review';
   focus_level: number; // 1-5
+  focus_intensity?: FocusIntensity; // 1-4 (Light, Medium, Deep, Ultra-deep)
+  task_context?: TaskContext; // Context for smart grouping
   energy_level: 'low' | 'medium' | 'high';
   estimated_duration?: number; // minutes
   actual_duration?: number; // minutes
