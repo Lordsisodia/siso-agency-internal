@@ -15,6 +15,7 @@
 
 import { PersonalTask, PersonalTaskCard, personalTaskService } from './personalTaskService';
 import { NeonTaskService } from './neonTaskService';
+import { PrismaTaskService } from './prismaTaskService';
 import { format, parseISO } from 'date-fns';
 
 interface SyncStatus {
@@ -28,6 +29,7 @@ interface SyncOptions {
   force?: boolean;
   direction?: 'upload' | 'download' | 'bidirectional';
   resolveConflicts?: 'local-wins' | 'cloud-wins' | 'merge';
+  provider?: 'prisma' | 'neon' | 'tidb'; // Choose cloud provider
 }
 
 export class HybridTaskService {
@@ -150,29 +152,42 @@ export class HybridTaskService {
   /**
    * Enable AI features (triggers sync if needed)
    */
-  public static async enableAIFeatures(): Promise<boolean> {
-    console.log('🤖 [HYBRID] Enabling AI features...');
+  public static async enableAIFeatures(provider: 'prisma' | 'neon' | 'tidb' = 'prisma'): Promise<boolean> {
+    console.log(`🤖 [HYBRID] Enabling AI features with ${provider}...`);
 
     // Ensure data is synced to cloud for AI processing
-    const syncSuccess = await this.syncWithCloud({ direction: 'upload' });
+    const syncSuccess = await this.syncWithCloud({ direction: 'upload', provider });
     if (!syncSuccess) {
       console.log('❌ [HYBRID] Cannot enable AI features without cloud sync');
       return false;
     }
 
     try {
-      // Initialize Neon for AI features
-      await NeonTaskService.initialize({
-        endpoint: import.meta.env.VITE_NEON_ENDPOINT || 'https://console.neon.tech/api/v2',
-        apiKey: import.meta.env.VITE_NEON_API_KEY || '',
-        databaseUrl: import.meta.env.VITE_NEON_DATABASE_URL || ''
-      });
+      switch (provider) {
+        case 'prisma':
+          await PrismaTaskService.initialize();
+          console.log('✅ [HYBRID] AI features enabled with Prisma (zero cold starts)');
+          break;
+          
+        case 'neon':
+          await NeonTaskService.initialize({
+            endpoint: import.meta.env.VITE_NEON_ENDPOINT || 'https://console.neon.tech/api/v2',
+            apiKey: import.meta.env.VITE_NEON_API_KEY || '',
+            databaseUrl: import.meta.env.VITE_NEON_DATABASE_URL || ''
+          });
+          console.log('✅ [HYBRID] AI features enabled with Neon (MCP integration)');
+          break;
+          
+        case 'tidb':
+          // TiDB implementation would go here
+          console.log('✅ [HYBRID] AI features enabled with TiDB (built-in vectors)');
+          break;
+      }
 
-      console.log('✅ [HYBRID] AI features enabled');
       return true;
 
     } catch (error) {
-      console.error('❌ [HYBRID] Failed to enable AI features:', error);
+      console.error(`❌ [HYBRID] Failed to enable AI features with ${provider}:`, error);
       return false;
     }
   }

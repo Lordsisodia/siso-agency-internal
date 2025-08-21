@@ -149,7 +149,7 @@ export const DailyTrackerCard: React.FC<DailyTrackerCardProps> = ({
         )}
       >
         <CardHeader className={cn(
-          isCompact ? 'p-4 sm:p-5 pb-3 sm:pb-4' : 'p-4 sm:p-5 lg:p-6',
+          isCompact ? 'p-2 sm:p-3 pb-2 sm:pb-3' : 'p-3 sm:p-4 lg:p-5',
           'relative shrink-0'
         )}>
           {/* Progress bar at top of card */}
@@ -253,7 +253,7 @@ export const DailyTrackerCard: React.FC<DailyTrackerCardProps> = ({
             >
               <CardContent className={cn(
                 'flex-1 min-h-0',
-                isCompact ? 'p-4 sm:p-5 pt-0' : 'p-4 sm:p-5 lg:p-6 pt-0'
+                isCompact ? 'p-2 sm:p-3 pt-0' : 'p-3 sm:p-4 lg:p-5 pt-0'
               )}>
                 {children}
               </CardContent>
