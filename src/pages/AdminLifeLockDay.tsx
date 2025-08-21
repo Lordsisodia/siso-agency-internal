@@ -86,16 +86,59 @@ const AdminLifeLockDay: React.FC = () => {
   const [dailyHabitsData, setDailyHabitsData] = useState<DailyHabits | null>(null);
   const [dailyReflectionsData, setDailyReflectionsData] = useState<DailyReflections | null>(null);
 
-  // Derived state from LifeLock data with fallbacks
+  // Derived state from LifeLock data with fallbacks - Enhanced Morning Routine
   const morningRoutine = dailyRoutineData?.items || [
-    { id: '1', title: 'Wake Up', completed: false, description: 'Start the day before midday to maximize productivity.' },
-    { id: '2', title: 'Get Blood Flowing (5 min)', completed: false, description: 'Max rep push-ups (Target PB: 30).', logField: 'Log reps: ____' },
-    { id: '3', title: 'Hydrate (5 min)', completed: false, description: 'Drink 500 ml water to start the day.' },
-    { id: '4', title: 'Supplements & Pre-Workout (5 min)', completed: false, description: 'Take omega-3, multivitamin, ashwagandha, and pre-workout.' },
-    { id: '5', title: 'Shower (20 min)', completed: false, description: 'Cold shower to wake up and energize.' },
-    { id: '5b', title: 'Brush Teeth (5 min)', completed: false, description: 'Fresh oral hygiene for the day.' },
-    { id: '6', title: 'Review & Plan Day (15 min)', completed: false, description: 'Go through tasks, prioritize, and allocate time slots.' },
-    { id: '7', title: 'Meditation (2 min)', completed: false, description: 'Meditate to set an innovative mindset for creating business value.' }
+    { 
+      id: '1', 
+      title: `Wake Up ${wakeUpTimeConfirmed ? `✓ ${wakeUpTime}` : '⏰'}`, 
+      completed: wakeUpTimeConfirmed, 
+      description: 'Track your wake-up time to build consistent sleep patterns.',
+      logField: 'Wake-up time tracking',
+      customComponent: true // Special component for wake-up time
+    },
+    { 
+      id: '2', 
+      title: 'Activate Body (5 min)', 
+      completed: false, 
+      description: 'Max rep push-ups to spike energy and testosterone (Target: 30+ reps).', 
+      logField: 'Log reps: ____' 
+    },
+    { 
+      id: '3', 
+      title: 'Hydrate System (2 min)', 
+      completed: false, 
+      description: 'Drink 500ml+ water to kickstart metabolism and brain function.' 
+    },
+    { 
+      id: '4', 
+      title: 'Fuel Stack (3 min)', 
+      completed: false, 
+      description: 'Omega-3, multivitamin, ashwagandha for cognitive enhancement + pre-workout if training.' 
+    },
+    { 
+      id: '5', 
+      title: 'Cold Exposure (15 min)', 
+      completed: false, 
+      description: 'Cold shower for alertness, immune boost, and mental resilience.' 
+    },
+    { 
+      id: '5b', 
+      title: 'Fresh Start (3 min)', 
+      completed: false, 
+      description: 'Brush teeth + quick grooming for psychological readiness.' 
+    },
+    { 
+      id: '6', 
+      title: 'Strategic Planning (10 min)', 
+      completed: false, 
+      description: 'Review priorities, time-block deep work, identify breakthrough opportunities.' 
+    },
+    { 
+      id: '7', 
+      title: 'Flow State Priming (5 min)', 
+      completed: false, 
+      description: 'Meditation + intention setting for maximum cognitive performance and business impact.' 
+    }
   ];
   
   const setMorningRoutine = (items: any[]) => {
@@ -116,6 +159,55 @@ const AdminLifeLockDay: React.FC = () => {
   // Task Detail Modal State
   const [selectedTask, setSelectedTask] = useState<EnhancedTask | null>(null);
   const [showTaskModal, setShowTaskModal] = useState(false);
+
+  // Wake-up time tracking state
+  const [wakeUpTime, setWakeUpTime] = useState<string>('');
+  const [wakeUpTimeConfirmed, setWakeUpTimeConfirmed] = useState<boolean>(false);
+  const [isEditingWakeUpTime, setIsEditingWakeUpTime] = useState<boolean>(false);
+
+  // Auto-populate wake-up time on component mount
+  useEffect(() => {
+    const savedWakeUpTime = localStorage.getItem(`wakeup-${dateKey}`);
+    const savedConfirmed = localStorage.getItem(`wakeup-confirmed-${dateKey}`);
+    
+    if (savedWakeUpTime && savedConfirmed === 'true') {
+      setWakeUpTime(savedWakeUpTime);
+      setWakeUpTimeConfirmed(true);
+    } else if (!savedWakeUpTime) {
+      // Auto-populate with current time if not set
+      const now = new Date();
+      const timeString = now.toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: true 
+      });
+      setWakeUpTime(timeString);
+      setWakeUpTimeConfirmed(false);
+    }
+  }, [dateKey]);
+
+  // Wake-up time handlers
+  const handleConfirmWakeUpTime = () => {
+    setWakeUpTimeConfirmed(true);
+    setIsEditingWakeUpTime(false);
+    localStorage.setItem(`wakeup-${dateKey}`, wakeUpTime);
+    localStorage.setItem(`wakeup-confirmed-${dateKey}`, 'true');
+    
+    // Mark wake up as completed in morning routine
+    const updatedRoutine = morningRoutine.map(item => 
+      item.id === '1' ? { ...item, completed: true } : item
+    );
+    setMorningRoutine(updatedRoutine);
+  };
+
+  const handleEditWakeUpTime = () => {
+    setIsEditingWakeUpTime(true);
+    setWakeUpTimeConfirmed(false);
+  };
+
+  const handleWakeUpTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setWakeUpTime(e.target.value);
+  };
 
   // Load enhanced tasks from Supabase on mount and date change
   useEffect(() => {
@@ -647,8 +739,10 @@ const AdminLifeLockDay: React.FC = () => {
       }
     }
 
-    // Deep focus task commands
-    if (lowercaseCmd.includes('deep focus') || lowercaseCmd.includes('focus task')) {
+    // Deep focus task commands - Enhanced with AI processing
+    if (lowercaseCmd.includes('deep focus') || lowercaseCmd.includes('focus task') || 
+        lowercaseCmd.includes('add') && (lowercaseCmd.includes('task') || lowercaseCmd.includes('work'))) {
+      
       if (lowercaseCmd.includes('delete all') || lowercaseCmd.includes('clear all')) {
         // Clear deep focus tasks would need special handling with Supabase
         return "Deep focus tasks cleared! 🧠";
@@ -660,6 +754,84 @@ const AdminLifeLockDay: React.FC = () => {
           }
         }
         return "Deep focus tasks completed! 🎯";
+      }
+      
+      // Enhanced task creation using AI processor
+      if (lowercaseCmd.includes('add') || lowercaseCmd.includes('create') || lowercaseCmd.includes('new')) {
+        try {
+          // Import the voice task processor
+          const { lifeLockVoiceTaskProcessor } = await import('@/services/lifeLockVoiceTaskProcessor');
+          
+          // Process the command with AI
+          const result = await lifeLockVoiceTaskProcessor.processThoughtDump(command);
+          
+          if (result.success && result.deepTasks.length > 0) {
+            // Convert to enhanced task format and add to deep focus tasks
+            for (const task of result.deepTasks) {
+              const enhancedTask = {
+                id: task.id,
+                title: task.title,
+                description: task.description || `AI-generated task from: "${command}"`,
+                category: 'deep_focus' as const,
+                priority: task.priority === 'urgent' ? 'critical' as const : 
+                         task.priority === 'high' ? 'high' as const :
+                         task.priority === 'low' ? 'low' as const : 'medium' as const,
+                status: 'todo',
+                work_type: 'deep_focus' as const,
+                focus_level: 4,
+                energy_level: 'high' as const,
+                estimated_duration: task.estimatedDuration || 90,
+                flow_state_potential: 4,
+                effort_points: 5,
+                lifelock_sync: true,
+                auto_schedule: false,
+                context_switching_cost: 10,
+                due_date: format(currentDate, 'yyyy-MM-dd'),
+                tags: task.tags || ['voice-created'],
+                subtasks: task.subtasks?.map(st => ({
+                  id: st.id,
+                  title: st.title,
+                  completed: st.completed,
+                  estimated_duration: 30
+                })) || []
+              };
+              
+              // Add to current tasks
+              setDeepFocusTasks(prev => [...prev, enhancedTask]);
+              
+              // Save to database via Enhanced Task Service
+              try {
+                await EnhancedTaskService.createEnhancedTask(enhancedTask);
+              } catch (dbError) {
+                console.error('Failed to save task to database:', dbError);
+              }
+            }
+            
+            return `✅ Created ${result.deepTasks.length} deep focus task${result.deepTasks.length > 1 ? 's' : ''}: ${result.deepTasks.map(t => t.title).join(', ')}`;
+          } else if (result.lightTasks.length > 0) {
+            // Add light tasks to light focus section
+            const newLightTasks = [...lightFocusTasks];
+            for (let i = 0; i < newLightTasks.length && result.lightTasks.length > 0; i++) {
+              if (!newLightTasks[i].title) {
+                const lightTask = result.lightTasks.shift();
+                if (lightTask) {
+                  newLightTasks[i] = {
+                    id: newLightTasks[i].id,
+                    title: lightTask.title,
+                    completed: false
+                  };
+                }
+              }
+            }
+            setLightFocusTasks(newLightTasks);
+            return `✅ Added ${result.lightTasks.length} light focus task${result.lightTasks.length > 1 ? 's' : ''}`;
+          } else {
+            return "❌ No valid tasks could be extracted from your command. Try being more specific.";
+          }
+        } catch (error) {
+          console.error('Failed to process voice command with AI:', error);
+          return "❌ Failed to process your task request. Please try again.";
+        }
       }
     }
 
@@ -1055,11 +1227,14 @@ const AdminLifeLockDay: React.FC = () => {
                           </div>
                           <DailyTrackerDivider color="yellow" />
                           <div>
-                            <h3 className="font-bold text-yellow-300 mb-1.5 sm:mb-2 text-sm sm:text-base">Flow State Rules</h3>
+                            <h3 className="font-bold text-yellow-300 mb-1.5 sm:mb-2 text-sm sm:text-base">Peak Performance Protocol</h3>
                             <ul className="text-gray-200 text-xs sm:text-sm space-y-0.5 sm:space-y-1">
-                              <li>• No use of apps other than Notion.</li>
-                              <li>• No vapes or drugs (including weed).</li>
-                              <li>• No more than 5 seconds until the next action.</li>
+                              <li>🧠 <strong>Single-tasking:</strong> One focus window, zero context switching</li>
+                              <li>📱 <strong>Tool discipline:</strong> Work tools only (Notion, IDE, design apps)</li>
+                              <li>⚡ <strong>Action bias:</strong> &lt;5 seconds between decisions and execution</li>
+                              <li>🚫 <strong>Zero cognitive toxins:</strong> No substances that impair clarity</li>
+                              <li>🎯 <strong>Flow triggers:</strong> Clear goals + immediate feedback + challenge/skill balance</li>
+                              <li>⏰ <strong>Time boxing:</strong> 90-min deep work blocks with 15-min recovery</li>
                             </ul>
                           </div>
                         </div>
@@ -1070,38 +1245,169 @@ const AdminLifeLockDay: React.FC = () => {
                     <div className="block sm:hidden">
                       <div className="space-y-2">
                         {morningRoutine.map((item) => (
-                          <MobileSwipeCard
-                            key={item.id}
-                            task={{
-                              id: item.id,
-                              title: item.title,
-                              completed: item.completed,
-                              description: item.description,
-                              logField: item.logField
-                            }}
-                            onSwipeComplete={() => toggleItem(morningRoutine, setMorningRoutine, item.id)}
-                            onUpdate={(field, value) => updateItemField(morningRoutine, setMorningRoutine, item.id, field, value)}
-                            color="yellow"
-                          />
+                          item.id === '1' ? (
+                            // Custom Wake-Up Time Component
+                            <div key={item.id} className="bg-yellow-900/20 border border-yellow-600/30 rounded-lg p-4">
+                              <div className="flex items-center justify-between mb-2">
+                                <h3 className="text-yellow-200 font-medium">🌅 Wake Up Time</h3>
+                                <div className="text-xs text-yellow-300">
+                                  {wakeUpTimeConfirmed ? '✅ Logged' : '⏰ Track'}
+                                </div>
+                              </div>
+                              
+                              <div className="flex items-center space-x-3">
+                                {isEditingWakeUpTime || !wakeUpTimeConfirmed ? (
+                                  <>
+                                    <input
+                                      type="time"
+                                      value={wakeUpTime.replace(/AM|PM/i, '').trim()}
+                                      onChange={(e) => {
+                                        const time = new Date(`1970-01-01T${e.target.value}`);
+                                        const timeString = time.toLocaleTimeString('en-US', { 
+                                          hour: '2-digit', 
+                                          minute: '2-digit',
+                                          hour12: true 
+                                        });
+                                        setWakeUpTime(timeString);
+                                      }}
+                                      className="bg-yellow-800/30 border border-yellow-600/50 rounded px-2 py-1 text-yellow-100 text-sm"
+                                    />
+                                    <button
+                                      onClick={handleConfirmWakeUpTime}
+                                      className="bg-yellow-600 hover:bg-yellow-500 text-white px-3 py-1 rounded text-sm font-medium transition-colors"
+                                    >
+                                      Confirm
+                                    </button>
+                                  </>
+                                ) : (
+                                  <>
+                                    <div className="text-yellow-100 font-medium">{wakeUpTime}</div>
+                                    <button
+                                      onClick={handleEditWakeUpTime}
+                                      className="text-yellow-300 hover:text-yellow-200 text-sm underline"
+                                    >
+                                      Edit
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                              
+                              <p className="text-yellow-200/80 text-xs mt-2">
+                                {item.description}
+                              </p>
+                            </div>
+                          ) : (
+                            <MobileSwipeCard
+                              key={item.id}
+                              task={{
+                                id: item.id,
+                                title: item.title,
+                                completed: item.completed,
+                                description: item.description,
+                                logField: item.logField
+                              }}
+                              onSwipeComplete={() => toggleItem(morningRoutine, setMorningRoutine, item.id)}
+                              onUpdate={(field, value) => updateItemField(morningRoutine, setMorningRoutine, item.id, field, value)}
+                              color="yellow"
+                            />
+                          )
                         ))}
                       </div>
                     </div>
                     
                     {/* Desktop Task List */}
                     <div className="hidden sm:block">
-                      <DailyTrackerTaskList
-                        tasks={morningRoutine.map(item => ({
-                          id: item.id,
-                          title: item.title,
-                          completed: item.completed,
-                          description: item.description,
-                          logField: item.logField
-                        }))}
-                        onToggle={(id) => toggleItem(morningRoutine, setMorningRoutine, id)}
-                        onUpdate={(id, field, value) => updateItemField(morningRoutine, setMorningRoutine, id, field, value)}
-                        color="yellow"
-                        variant="default"
-                      />
+                      <div className="space-y-3">
+                        {morningRoutine.map((item) => (
+                          item.id === '1' ? (
+                            // Custom Wake-Up Time Component - Desktop
+                            <div key={item.id} className="bg-yellow-900/20 border border-yellow-600/30 rounded-lg p-4">
+                              <div className="flex items-center justify-between mb-3">
+                                <div className="flex items-center space-x-3">
+                                  <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
+                                  <h3 className="text-yellow-200 font-medium">🌅 Wake Up Time Tracking</h3>
+                                </div>
+                                <div className="text-sm text-yellow-300">
+                                  {wakeUpTimeConfirmed ? '✅ Confirmed' : '⏰ Set Time'}
+                                </div>
+                              </div>
+                              
+                              <div className="flex items-center space-x-4 mb-3">
+                                {isEditingWakeUpTime || !wakeUpTimeConfirmed ? (
+                                  <>
+                                    <input
+                                      type="time"
+                                      value={wakeUpTime.replace(/AM|PM/i, '').trim()}
+                                      onChange={(e) => {
+                                        const time = new Date(`1970-01-01T${e.target.value}`);
+                                        const timeString = time.toLocaleTimeString('en-US', { 
+                                          hour: '2-digit', 
+                                          minute: '2-digit',
+                                          hour12: true 
+                                        });
+                                        setWakeUpTime(timeString);
+                                      }}
+                                      className="bg-yellow-800/30 border border-yellow-600/50 rounded px-3 py-2 text-yellow-100"
+                                    />
+                                    <button
+                                      onClick={handleConfirmWakeUpTime}
+                                      className="bg-yellow-600 hover:bg-yellow-500 text-white px-4 py-2 rounded font-medium transition-colors"
+                                    >
+                                      Confirm Wake Up Time
+                                    </button>
+                                  </>
+                                ) : (
+                                  <>
+                                    <div className="text-yellow-100 font-semibold text-lg">{wakeUpTime}</div>
+                                    <button
+                                      onClick={handleEditWakeUpTime}
+                                      className="text-yellow-300 hover:text-yellow-200 underline"
+                                    >
+                                      Edit Time
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                              
+                              <p className="text-yellow-200/80 text-sm">
+                                {item.description}
+                              </p>
+                            </div>
+                          ) : (
+                            // Regular task item
+                            <div key={item.id} className="flex items-center space-x-3 p-3 bg-gray-800/40 rounded-lg border border-yellow-600/20">
+                              <button
+                                onClick={() => toggleItem(morningRoutine, setMorningRoutine, item.id)}
+                                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
+                                  item.completed 
+                                    ? 'bg-yellow-500 border-yellow-500' 
+                                    : 'border-yellow-400 hover:border-yellow-300'
+                                }`}
+                              >
+                                {item.completed && (
+                                  <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                  </svg>
+                                )}
+                              </button>
+                              
+                              <div className="flex-1">
+                                <h4 className={`font-medium ${item.completed ? 'line-through text-yellow-400/60' : 'text-yellow-200'}`}>
+                                  {item.title}
+                                </h4>
+                                <p className="text-yellow-200/70 text-sm mt-1">
+                                  {item.description}
+                                </p>
+                                {item.logField && (
+                                  <div className="text-yellow-300/80 text-xs mt-2">
+                                    {item.logField}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )
+                        ))}
+                      </div>
                     </div>
                   </DailyTrackerCard>
                 )
