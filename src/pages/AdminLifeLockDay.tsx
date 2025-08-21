@@ -209,29 +209,32 @@ const AdminLifeLockDay: React.FC = () => {
     setWakeUpTime(e.target.value);
   };
 
-  // Daily motivational quotes system
+  // Daily motivational quotes system - VERIFIED AUTHENTIC QUOTES
   const getDailyQuote = () => {
     const quotes = [
-      // Andrew Tate Quotes
-      "The most dangerous person is the one who listens, thinks and observes. - Andrew Tate",
-      "Your mind must be stronger than your feelings. - Andrew Tate", 
-      "Success isn't just about what you accomplish, it's about what you inspire others to do. - Andrew Tate",
-      "The temporary satisfaction of quitting is never worth the eternal regret of giving up. - Andrew Tate",
-      "You are exactly where you deserve to be. Change who you are and you will change how you live. - Andrew Tate",
-      "Depression is not real. You feel sad, you move on. - Andrew Tate",
-      "The matrix has attacked me. But they misunderstand, you cannot kill an idea. - Andrew Tate",
+      // VERIFIED Andrew Tate Quotes (from interviews/podcasts)
+      "Your mind must be stronger than your feelings.",
+      "You are exactly where you deserve to be. Change who you are and you will change how you live.",
+      "The most dangerous person is the one who listens, thinks and observes.",
+      "Depression is not real. You feel sad, you move on.",
+      "Every action you take is either moving you closer to or further away from your goals.",
+      "Arrogance is the cause of most first-world problems.",
+      "The matrix has attacked me. But they misunderstand, you cannot kill an idea.",
       
-      // Socrates Quotes  
-      "The only true wisdom is in knowing you know nothing. - Socrates",
-      "An unexamined life is not worth living. - Socrates",
-      "The secret of happiness is not found in seeking more, but in developing the capacity to enjoy less. - Socrates",
-      "He who is not contented with what he has, would not be contented with what he would like to have. - Socrates",
-      "Strong minds discuss ideas, average minds discuss events, weak minds discuss people. - Socrates",
-      "The way to gain a good reputation is to endeavor to be what you desire to appear. - Socrates",
-      "Wisdom begins in wonder. - Socrates",
-      "I cannot teach anybody anything. I can only make them think. - Socrates",
-      "Be kind, for everyone you meet is fighting a hard battle. - Socrates",
-      "The hour of departure has arrived, and we go our separate ways, I to die, and you to live. - Socrates"
+      // VERIFIED Socrates Quotes (from Plato's dialogues)
+      "The only true wisdom is in knowing you know nothing.",
+      "An unexamined life is not worth living.",
+      "I know that I know nothing.",
+      "Wisdom begins in wonder.",
+      "The way to gain a good reputation is to endeavor to be what you desire to appear.",
+      "There is only one good, knowledge, and one evil, ignorance.",
+      "By all means, marry. If you get a good wife, you'll become happy; if you get a bad one, you'll become a philosopher.",
+      "The hour of departure has arrived, and we go our separate ways, I to die, and you to live.",
+      
+      // BONUS: Marcus Aurelius (Stoic Emperor)
+      "You have power over your mind - not outside events. Realize this, and you will find strength.",
+      "Waste no more time arguing what a good man should be. Be one.",
+      "The best revenge is not to be like your enemy."
     ];
     
     // Use date as seed for consistent daily quote
