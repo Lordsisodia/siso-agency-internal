@@ -1,13 +1,15 @@
 /**
- * AI-Powered Daily Time Boxing Modal
- * Shows entire day timeline with AI-assigned task blocks
+ * Enhanced AI-Powered Daily Time Boxing Modal
+ * Complete 24-hour calendar view with smart task scheduling
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Clock, 
   Brain, 
@@ -22,369 +24,532 @@ import {
   Sparkles,
   TrendingUp,
   Calendar,
-  RefreshCw
+  RefreshCw,
+  Settings,
+  CheckCircle2,
+  Play,
+  Save,
+  Loader2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { format, addMinutes, parseISO } from 'date-fns';
-import { personalTaskService } from '@/services/personalTaskService';
-import { eisenhowerMatrixOrganizer } from '@/services/eisenhowerMatrixOrganizer';
+import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-
-interface TimeBlock {
-  id: string;
-  title: string;
-  startTime: string;
-  endTime: string;
-  duration: number; // minutes
-  category: 'morning' | 'deep-work' | 'light-work' | 'break' | 'workout' | 'evening' | 'buffer';
-  priority: 'critical' | 'high' | 'medium' | 'low';
-  taskId?: string;
-  aiReasoning?: string;
-  energyLevel: 'high' | 'medium' | 'low';
-  estimatedFocus: number; // 1-10 scale
-}
+import { 
+  EnhancedTimeBlock, 
+  WorkSchedulePreferences, 
+  DaySchedule,
+  CalendarViewSettings 
+} from '@/types/timeblock.types';
+import { enhancedTimeBlockService } from '@/services/enhancedTimeBlockService';
+import { EnhancedTimeBoxCalendar } from './ui/EnhancedTimeBoxCalendar';
+import { DailyRoutineItem } from '@/services/lifeLockService';
+import { EnhancedTask } from '@/services/enhancedTaskService';
 
 interface AITimeBoxModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   date: Date;
   wakeUpTime?: string;
+  
+  // Task data from all sections
+  morningTasks: DailyRoutineItem[];
+  deepTasks: EnhancedTask[];
+  lightTasks: any[];
+  workoutTasks: any[];
+  healthTasks: any[];
+  
+  // Callbacks
+  onScheduleApply?: (schedule: DaySchedule) => void;
+  onTaskComplete?: (taskId: string, section: string) => void;
 }
 
 export const AITimeBoxModal: React.FC<AITimeBoxModalProps> = ({
   open,
   onOpenChange,
   date,
-  wakeUpTime = '07:00'
+  wakeUpTime = '07:00',
+  morningTasks = [],
+  deepTasks = [],
+  lightTasks = [],
+  workoutTasks = [],
+  healthTasks = [],
+  onScheduleApply,
+  onTaskComplete
 }) => {
-  const [timeBlocks, setTimeBlocks] = useState<TimeBlock[]>([]);
+  const [schedule, setSchedule] = useState<DaySchedule | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [selectedBlock, setSelectedBlock] = useState<TimeBlock | null>(null);
-  const [optimizationMode, setOptimizationMode] = useState<'productivity' | 'balance' | 'energy'>('productivity');
+  const [activeTab, setActiveTab] = useState<'calendar' | 'preferences'>('calendar');
+  const [selectedBlock, setSelectedBlock] = useState<EnhancedTimeBlock | null>(null);
+  
+  // User preferences for scheduling
+  const [preferences, setPreferences] = useState<WorkSchedulePreferences>({
+    wakeUpTime: wakeUpTime,
+    sleepTime: '23:00',
+    workStartTime: '09:00',
+    workEndTime: '17:00',
+    lunchTime: '12:30',
+    lunchDuration: 60,
+    deepWorkPeakTimes: [
+      { start: '09:00', end: '11:00' },
+      { start: '14:00', end: '16:00' }
+    ],
+    lightWorkWindows: [
+      { start: '11:00', end: '12:30' },
+      { start: '16:00', end: '17:00' }
+    ],
+    breakFrequency: 90,
+    breakDuration: 15,
+    workoutPreferredTime: '18:00',
+    workoutDuration: 60,
+    workoutFlexibility: 'flexible',
+    morningRoutineDuration: 60,
+    eveningRoutineDuration: 45,
+    transitionBuffer: 5,
+    energyProfile: {
+      type: 'early-bird',
+      peakHours: [
+        { start: '08:00', end: '12:00' },
+        { start: '14:00', end: '17:00' }
+      ],
+      lowEnergyHours: [
+        { start: '13:00', end: '14:00' },
+        { start: '20:00', end: '23:00' }
+      ]
+    },
+    focusBlocks: [
+      {
+        category: 'deep-focus',
+        preferredTimes: [
+          { start: '09:00', end: '11:00' },
+          { start: '14:00', end: '16:00' }
+        ],
+        minimumDuration: 60,
+        maximumDuration: 180,
+        canInterrupt: false
+      }
+    ],
+    blockedTimeSlots: []
+  });
 
-  // Generate AI-optimized time blocks
-  const generateTimeBlocks = async () => {
+  // Calendar view settings
+  const [calendarSettings, setCalendarSettings] = useState<CalendarViewSettings>({
+    hourRange: { start: 6, end: 23 },
+    timeSlotInterval: 30,
+    showWeekends: true,
+    showBuffers: true,
+    showAlternatives: false,
+    compactMode: false,
+    showCategoryColors: true,
+    showEnergyLevels: true,
+    showProgress: true,
+    allowDragDrop: true,
+    allowInlineEdit: true,
+    autoOptimize: false
+  });
+
+  // Generate optimal schedule
+  const generateSchedule = async () => {
     setIsGenerating(true);
     
     try {
-      // Get tasks for the day
-      const taskCard = personalTaskService.getTasksForDate(date);
-      const tasks = taskCard.tasks;
-      
-      // Analyze with Eisenhower Matrix
-      const matrixResult = await eisenhowerMatrixOrganizer.organizeTasks(date);
-      
-      // Generate time blocks based on AI analysis
-      const blocks = await AITimeBoxGenerator.generateOptimalSchedule({
-        tasks: matrixResult,
-        wakeUpTime,
-        optimizationMode,
-        date
+      console.log('🧠 Generating schedule with data:', {
+        date: format(date, 'yyyy-MM-dd'),
+        morningTasks: morningTasks.length,
+        deepTasks: deepTasks.length,
+        lightTasks: lightTasks.length,
+        workoutTasks: workoutTasks.length,
+        healthTasks: healthTasks.length
       });
+
+      const generatedSchedule = await enhancedTimeBlockService.generateOptimalSchedule({
+        date,
+        preferences,
+        morningTasks,
+        deepTasks,
+        lightTasks,
+        workoutTasks,
+        healthTasks
+      });
+
+      setSchedule(generatedSchedule);
+      console.log('✅ Schedule generated successfully');
       
-      setTimeBlocks(blocks);
     } catch (error) {
-      console.error('Error generating time blocks:', error);
-      // Fallback to template schedule
-      setTimeBlocks(generateFallbackSchedule());
+      console.error('❌ Failed to generate schedule:', error);
     } finally {
       setIsGenerating(false);
     }
   };
 
-  // Generate fallback schedule if AI fails
-  const generateFallbackSchedule = (): TimeBlock[] => {
-    const startTime = wakeUpTime;
-    const blocks: TimeBlock[] = [];
+  // Handle block completion
+  const handleBlockComplete = (blockId: string) => {
+    if (!schedule) return;
     
-    // Template schedule
-    const schedule = [
-      { title: 'Morning Routine', duration: 60, category: 'morning' as const, priority: 'high' as const },
-      { title: 'Deep Work Block 1', duration: 90, category: 'deep-work' as const, priority: 'critical' as const },
-      { title: 'Coffee Break', duration: 15, category: 'break' as const, priority: 'low' as const },
-      { title: 'Light Tasks', duration: 60, category: 'light-work' as const, priority: 'medium' as const },
-      { title: 'Lunch Break', duration: 45, category: 'break' as const, priority: 'low' as const },
-      { title: 'Deep Work Block 2', duration: 90, category: 'deep-work' as const, priority: 'high' as const },
-      { title: 'Admin & Email', duration: 45, category: 'light-work' as const, priority: 'medium' as const },
-      { title: 'Workout', duration: 60, category: 'workout' as const, priority: 'high' as const },
-      { title: 'Evening Routine', duration: 45, category: 'evening' as const, priority: 'medium' as const }
-    ];
+    const block = schedule.timeBlocks.find(b => b.id === blockId);
+    if (!block) return;
+
+    // Update the block completion status
+    const newStatus = block.completionStatus === 'completed' ? 'pending' : 'completed';
+    enhancedTimeBlockService.updateBlockCompletion(
+      blockId, 
+      newStatus, 
+      newStatus === 'completed' ? format(new Date(), 'HH:mm') : undefined
+    );
+
+    // Update local state
+    const updatedBlocks = schedule.timeBlocks.map(b => 
+      b.id === blockId 
+        ? { ...b, completionStatus: newStatus }
+        : b
+    );
     
-    let currentTime = parseISO(`${format(date, 'yyyy-MM-dd')}T${startTime}:00`);
-    
-    schedule.forEach((item, index) => {
-      const startTimeStr = format(currentTime, 'HH:mm');
-      const endTime = addMinutes(currentTime, item.duration);
-      const endTimeStr = format(endTime, 'HH:mm');
-      
-      blocks.push({
-        id: `block_${index}`,
-        title: item.title,
-        startTime: startTimeStr,
-        endTime: endTimeStr,
-        duration: item.duration,
-        category: item.category,
-        priority: item.priority,
-        energyLevel: getEnergyLevel(startTimeStr),
-        estimatedFocus: getFocusLevel(item.category),
-        aiReasoning: `Scheduled based on ${item.category} optimization`
-      });
-      
-      currentTime = endTime;
+    setSchedule({
+      ...schedule,
+      timeBlocks: updatedBlocks
     });
-    
-    return blocks;
+
+    // Notify parent about task completion
+    if (block.sourceTaskIds.length > 0 && onTaskComplete) {
+      onTaskComplete(block.sourceTaskIds[0], block.sourceSection);
+    }
   };
 
-  // Calculate energy level based on time
-  const getEnergyLevel = (time: string): 'high' | 'medium' | 'low' => {
-    const hour = parseInt(time.split(':')[0]);
-    if (hour >= 8 && hour <= 11) return 'high'; // Morning peak
-    if (hour >= 14 && hour <= 16) return 'high'; // Afternoon peak
-    if (hour >= 12 && hour <= 13) return 'low'; // Lunch dip
-    if (hour >= 20) return 'low'; // Evening
-    return 'medium';
+  // Handle block click
+  const handleBlockClick = (block: EnhancedTimeBlock) => {
+    setSelectedBlock(selectedBlock?.id === block.id ? null : block);
   };
 
-  // Calculate focus level based on activity
-  const getFocusLevel = (category: TimeBlock['category']): number => {
-    const focusMap = {
-      'deep-work': 9,
-      'light-work': 6,
-      'morning': 7,
-      'workout': 8,
-      'break': 3,
-      'evening': 5,
-      'buffer': 4
-    };
-    return focusMap[category];
+  // Apply schedule
+  const handleApplySchedule = () => {
+    if (schedule && onScheduleApply) {
+      onScheduleApply(schedule);
+    }
+    onOpenChange(false);
   };
 
-  // Get category styling
-  const getCategoryStyle = (category: TimeBlock['category']) => {
-    const styles = {
-      'morning': 'bg-amber-50 border-amber-200 text-amber-800',
-      'deep-work': 'bg-blue-50 border-blue-200 text-blue-800',
-      'light-work': 'bg-green-50 border-green-200 text-green-800',
-      'break': 'bg-gray-50 border-gray-200 text-gray-600',
-      'workout': 'bg-red-50 border-red-200 text-red-800',
-      'evening': 'bg-purple-50 border-purple-200 text-purple-800',
-      'buffer': 'bg-orange-50 border-orange-200 text-orange-600'
-    };
-    return styles[category];
+  // Update preferences
+  const updatePreferences = (updates: Partial<WorkSchedulePreferences>) => {
+    setPreferences(prev => ({ ...prev, ...updates }));
   };
 
-  // Get category icon
-  const getCategoryIcon = (category: TimeBlock['category']) => {
-    const icons = {
-      'morning': Sun,
-      'deep-work': Brain,
-      'light-work': Zap,
-      'break': Coffee,
-      'workout': Dumbbell,
-      'evening': Moon,
-      'buffer': Timer
-    };
-    return icons[category];
-  };
+  // Generate schedule when modal opens or preferences change
+  useEffect(() => {
+    if (open && (morningTasks.length > 0 || deepTasks.length > 0 || lightTasks.length > 0)) {
+      generateSchedule();
+    }
+  }, [open, date, preferences.wakeUpTime, preferences.workStartTime, preferences.workEndTime]);
 
-  // Calculate total stats
+  // Calculate schedule stats
   const stats = useMemo(() => {
-    const totalMinutes = timeBlocks.reduce((sum, block) => sum + block.duration, 0);
-    const deepWorkMinutes = timeBlocks
-      .filter(b => b.category === 'deep-work')
-      .reduce((sum, block) => sum + block.duration, 0);
-    const breakMinutes = timeBlocks
-      .filter(b => b.category === 'break')
-      .reduce((sum, block) => sum + block.duration, 0);
+    if (!schedule) return null;
+    
+    const blocks = schedule.timeBlocks;
+    const workBlocks = blocks.filter(b => ['deep-focus', 'light-focus'].includes(b.category));
     
     return {
-      totalHours: Math.round(totalMinutes / 60 * 10) / 10,
-      deepWorkHours: Math.round(deepWorkMinutes / 60 * 10) / 10,
-      breakHours: Math.round(breakMinutes / 60 * 10) / 10,
-      averageFocus: Math.round(timeBlocks.reduce((sum, b) => sum + b.estimatedFocus, 0) / timeBlocks.length)
+      totalBlocks: blocks.length,
+      workBlocks: workBlocks.length,
+      totalWorkTime: Math.round(schedule.totalWorkTime / 60 * 10) / 10,
+      totalFocusTime: Math.round(schedule.totalFocusTime / 60 * 10) / 10,
+      efficiency: Math.round(schedule.scheduleEfficiency),
+      energyUtilization: Math.round(schedule.energyUtilization)
     };
-  }, [timeBlocks]);
-
-  // Generate schedule on modal open
-  useEffect(() => {
-    if (open) {
-      generateTimeBlocks();
-    }
-  }, [open, date, wakeUpTime, optimizationMode]);
+  }, [schedule]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl h-[90vh] flex flex-col">
+      <DialogContent className="max-w-7xl h-[90vh] flex flex-col">
         <DialogHeader className="flex-shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Brain className="h-5 w-5 text-blue-600" />
+              <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
+                <Brain className="h-5 w-5 text-white" />
               </div>
               <div>
                 <DialogTitle className="text-xl font-bold">
-                  AI Time Boxing
+                  Enhanced AI Time Boxing
                 </DialogTitle>
-                <p className="text-sm text-gray-600">
-                  {format(date, 'EEEE, MMMM d, yyyy')} • {stats.totalHours}h scheduled
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {format(date, 'EEEE, MMMM d, yyyy')} • Intelligent task scheduling
                 </p>
               </div>
             </div>
+            
             <div className="flex items-center gap-2">
+              {stats && (
+                <div className="flex items-center gap-4 text-sm">
+                  <Badge variant="outline" className="gap-1">
+                    <Brain className="h-3 w-3" />
+                    {stats.totalFocusTime}h focus
+                  </Badge>
+                  <Badge variant="outline" className="gap-1">
+                    <TrendingUp className="h-3 w-3" />
+                    {stats.efficiency}% efficient
+                  </Badge>
+                </div>
+              )}
+              
               <Button
                 variant="outline"
                 size="sm"
-                onClick={generateTimeBlocks}
+                onClick={generateSchedule}
                 disabled={isGenerating}
                 className="gap-2"
               >
-                <RefreshCw className={cn("h-4 w-4", isGenerating && "animate-spin")} />
+                {isGenerating ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-4 w-4" />
+                )}
                 {isGenerating ? 'Optimizing...' : 'Regenerate'}
               </Button>
             </div>
           </div>
-          
-          {/* Optimization Mode Selector */}
-          <div className="flex gap-2 mt-4">
-            {(['productivity', 'balance', 'energy'] as const).map((mode) => (
-              <Button
-                key={mode}
-                variant={optimizationMode === mode ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setOptimizationMode(mode)}
-                className="capitalize"
-              >
-                {mode}
-              </Button>
-            ))}
-          </div>
-          
-          {/* Quick Stats */}
-          <div className="grid grid-cols-4 gap-4 mt-4 p-4 bg-gray-50 rounded-lg">
-            <div className="text-center">
-              <div className="font-semibold text-blue-600">{stats.deepWorkHours}h</div>
-              <div className="text-xs text-gray-600">Deep Work</div>
-            </div>
-            <div className="text-center">
-              <div className="font-semibold text-green-600">{stats.breakHours}h</div>
-              <div className="text-xs text-gray-600">Breaks</div>
-            </div>
-            <div className="text-center">
-              <div className="font-semibold text-purple-600">{stats.averageFocus}/10</div>
-              <div className="text-xs text-gray-600">Avg Focus</div>
-            </div>
-            <div className="text-center">
-              <div className="font-semibold text-orange-600">{timeBlocks.length}</div>
-              <div className="text-xs text-gray-600">Time Blocks</div>
-            </div>
-          </div>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 pr-4">
-          <AnimatePresence>
-            {isGenerating ? (
-              <motion.div
-                key="loading"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="flex items-center justify-center h-64"
-              >
-                <div className="text-center">
-                  <Brain className="h-8 w-8 text-blue-600 animate-pulse mx-auto mb-3" />
-                  <p className="text-gray-600">AI is optimizing your day...</p>
+        {/* Main Content */}
+        <div className="flex-1 min-h-0">
+          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)}>
+            <TabsList className="w-full mb-4">
+              <TabsTrigger value="calendar" className="flex-1 gap-2">
+                <Calendar className="h-4 w-4" />
+                Schedule View
+              </TabsTrigger>
+              <TabsTrigger value="preferences" className="flex-1 gap-2">
+                <Settings className="h-4 w-4" />
+                Preferences
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="calendar" className="h-full mt-0">
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 h-full">
+                {/* Main Calendar */}
+                <div className="lg:col-span-3">
+                  <EnhancedTimeBoxCalendar
+                    schedule={schedule}
+                    onBlockClick={handleBlockClick}
+                    onBlockComplete={handleBlockComplete}
+                    onOptimizeSchedule={generateSchedule}
+                    settings={calendarSettings}
+                    className="h-full"
+                  />
                 </div>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="timeline"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="space-y-2"
-              >
-                {timeBlocks.map((block, index) => {
-                  const Icon = getCategoryIcon(block.category);
-                  
-                  return (
-                    <motion.div
-                      key={block.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                      className={cn(
-                        "border-l-4 border rounded-lg p-4 cursor-pointer transition-all hover:shadow-md",
-                        getCategoryStyle(block.category),
-                        selectedBlock?.id === block.id && "ring-2 ring-blue-500"
-                      )}
-                      onClick={() => setSelectedBlock(selectedBlock?.id === block.id ? null : block)}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <Icon className="h-5 w-5" />
-                          <div>
-                            <div className="font-semibold">{block.title}</div>
-                            <div className="text-sm opacity-75">
-                              {block.startTime} - {block.endTime} ({block.duration}min)
-                            </div>
-                          </div>
+
+                {/* Side Panel */}
+                <div className="space-y-4">
+                  {/* Schedule Stats */}
+                  {stats && (
+                    <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
+                      <h4 className="font-semibold mb-3 flex items-center gap-2">
+                        <TrendingUp className="h-4 w-4" />
+                        Schedule Analysis
+                      </h4>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span>Total Blocks:</span>
+                          <Badge>{stats.totalBlocks}</Badge>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="secondary" className="text-xs">
-                            Energy: {block.energyLevel}
+                        <div className="flex justify-between">
+                          <span>Work Time:</span>
+                          <Badge variant="outline">{stats.totalWorkTime}h</Badge>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Focus Time:</span>
+                          <Badge variant="outline">{stats.totalFocusTime}h</Badge>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Efficiency:</span>
+                          <Badge 
+                            variant={stats.efficiency >= 80 ? "default" : "secondary"}
+                          >
+                            {stats.efficiency}%
                           </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            Focus: {block.estimatedFocus}/10
-                          </Badge>
-                          <ChevronRight className={cn(
-                            "h-4 w-4 transition-transform",
-                            selectedBlock?.id === block.id && "rotate-90"
-                          )} />
                         </div>
                       </div>
-                      
-                      {/* Expanded Details */}
-                      <AnimatePresence>
-                        {selectedBlock?.id === block.id && (
-                          <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: 'auto', opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            className="mt-3 pt-3 border-t border-black/10"
-                          >
-                            {block.aiReasoning && (
-                              <div className="flex gap-2 mb-2">
-                                <Sparkles className="h-4 w-4 text-blue-500 flex-shrink-0 mt-0.5" />
-                                <p className="text-sm">{block.aiReasoning}</p>
-                              </div>
-                            )}
-                            <div className="flex gap-4 text-sm">
-                              <div>Priority: <Badge className="ml-1">{block.priority}</Badge></div>
-                              <div>Category: <Badge variant="outline" className="ml-1">{block.category}</Badge></div>
-                            </div>
-                          </motion.div>
+                    </div>
+                  )}
+
+                  {/* Selected Block Details */}
+                  {selectedBlock && (
+                    <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
+                      <h4 className="font-semibold mb-3">Block Details</h4>
+                      <div className="space-y-2 text-sm">
+                        <div>
+                          <span className="font-medium">{selectedBlock.title}</span>
+                        </div>
+                        <div className="text-gray-600 dark:text-gray-400">
+                          {selectedBlock.startTime} - {selectedBlock.endTime}
+                        </div>
+                        <div className="flex gap-2">
+                          <Badge style={{ backgroundColor: `${selectedBlock.color}20`, color: selectedBlock.color }}>
+                            {selectedBlock.category}
+                          </Badge>
+                          <Badge variant="outline">
+                            {selectedBlock.priority}
+                          </Badge>
+                        </div>
+                        {selectedBlock.description && (
+                          <p className="text-gray-600 dark:text-gray-400">
+                            {selectedBlock.description}
+                          </p>
                         )}
-                      </AnimatePresence>
-                    </motion.div>
-                  );
-                })}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </ScrollArea>
+                        {selectedBlock.aiReasoning && (
+                          <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded text-xs">
+                            <div className="flex items-center gap-1 mb-1">
+                              <Sparkles className="h-3 w-3 text-blue-500" />
+                              <span className="font-medium">AI Insight</span>
+                            </div>
+                            <p className="text-blue-700 dark:text-blue-300">
+                              {selectedBlock.aiReasoning}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="preferences" className="h-full mt-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-full overflow-y-auto">
+                {/* Basic Schedule */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">Basic Schedule</h3>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label htmlFor="wakeUpTime">Wake Up Time</Label>
+                      <Input
+                        id="wakeUpTime"
+                        type="time"
+                        value={preferences.wakeUpTime}
+                        onChange={(e) => updatePreferences({ wakeUpTime: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="sleepTime">Sleep Time</Label>
+                      <Input
+                        id="sleepTime"
+                        type="time"
+                        value={preferences.sleepTime}
+                        onChange={(e) => updatePreferences({ sleepTime: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label htmlFor="workStartTime">Work Start</Label>
+                      <Input
+                        id="workStartTime"
+                        type="time"
+                        value={preferences.workStartTime}
+                        onChange={(e) => updatePreferences({ workStartTime: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="workEndTime">Work End</Label>
+                      <Input
+                        id="workEndTime"
+                        type="time"
+                        value={preferences.workEndTime}
+                        onChange={(e) => updatePreferences({ workEndTime: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label htmlFor="lunchTime">Lunch Time</Label>
+                      <Input
+                        id="lunchTime"
+                        type="time"
+                        value={preferences.lunchTime}
+                        onChange={(e) => updatePreferences({ lunchTime: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="workoutTime">Workout Time</Label>
+                      <Input
+                        id="workoutTime"
+                        type="time"
+                        value={preferences.workoutPreferredTime}
+                        onChange={(e) => updatePreferences({ workoutPreferredTime: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Peak Times */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">Energy & Focus</h3>
+                  
+                  <div>
+                    <Label>Energy Profile</Label>
+                    <div className="grid grid-cols-2 gap-2 mt-2">
+                      {['early-bird', 'night-owl', 'steady', 'bimodal'].map((type) => (
+                        <Button
+                          key={type}
+                          variant={preferences.energyProfile.type === type ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => updatePreferences({
+                            energyProfile: { ...preferences.energyProfile, type: type as any }
+                          })}
+                          className="capitalize"
+                        >
+                          {type.replace('-', ' ')}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label htmlFor="breakFrequency">Break Every (min)</Label>
+                      <Input
+                        id="breakFrequency"
+                        type="number"
+                        value={preferences.breakFrequency}
+                        onChange={(e) => updatePreferences({ breakFrequency: parseInt(e.target.value) })}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="breakDuration">Break Duration (min)</Label>
+                      <Input
+                        id="breakDuration"
+                        type="number"
+                        value={preferences.breakDuration}
+                        onChange={(e) => updatePreferences({ breakDuration: parseInt(e.target.value) })}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
 
         {/* Footer Actions */}
         <div className="flex-shrink-0 flex items-center justify-between pt-4 border-t">
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <TrendingUp className="h-4 w-4" />
-            Optimized for {optimizationMode} mode
+          <div className="text-sm text-gray-600 dark:text-gray-400">
+            {schedule ? (
+              `${schedule.timeBlocks.length} blocks scheduled • ${stats?.efficiency}% efficiency`
+            ) : (
+              'Configure your preferences and generate an optimal schedule'
+            )}
           </div>
+          
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => onOpenChange(false)}>
-              Close
+              Cancel
             </Button>
-            <Button className="gap-2">
-              <Target className="h-4 w-4" />
+            <Button 
+              onClick={handleApplySchedule}
+              disabled={!schedule}
+              className="gap-2"
+            >
+              <Save className="h-4 w-4" />
               Apply Schedule
             </Button>
           </div>
@@ -393,81 +558,3 @@ export const AITimeBoxModal: React.FC<AITimeBoxModalProps> = ({
     </Dialog>
   );
 };
-
-/**
- * AI Time Box Generator - The brain behind optimal scheduling
- */
-class AITimeBoxGenerator {
-  static async generateOptimalSchedule(params: {
-    tasks: any;
-    wakeUpTime: string;
-    optimizationMode: 'productivity' | 'balance' | 'energy';
-    date: Date;
-  }): Promise<TimeBlock[]> {
-    
-    // Simulate AI processing delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    const { tasks, wakeUpTime, optimizationMode } = params;
-    const blocks: TimeBlock[] = [];
-    
-    // Start with wake-up time
-    let currentTime = parseISO(`${format(params.date, 'yyyy-MM-dd')}T${wakeUpTime}:00`);
-    
-    // Morning routine (always first)
-    const morningBlock: TimeBlock = {
-      id: 'morning_routine',
-      title: 'Morning Routine & Planning',
-      startTime: format(currentTime, 'HH:mm'),
-      endTime: format(addMinutes(currentTime, 60), 'HH:mm'),
-      duration: 60,
-      category: 'morning',
-      priority: 'high',
-      energyLevel: 'high',
-      estimatedFocus: 7,
-      aiReasoning: 'Starting with routine sets positive momentum for the day'
-    };
-    blocks.push(morningBlock);
-    currentTime = addMinutes(currentTime, 60);
-    
-    // Schedule critical tasks during peak energy (9-11 AM)
-    if (tasks.doFirst.length > 0) {
-      const criticalBlock: TimeBlock = {
-        id: 'critical_tasks',
-        title: `Critical Tasks (${tasks.doFirst.length} items)`,
-        startTime: format(currentTime, 'HH:mm'),
-        endTime: format(addMinutes(currentTime, 120), 'HH:mm'),
-        duration: 120,
-        category: 'deep-work',
-        priority: 'critical',
-        energyLevel: 'high',
-        estimatedFocus: 9,
-        aiReasoning: 'Peak morning energy allocated to most important tasks'
-      };
-      blocks.push(criticalBlock);
-      currentTime = addMinutes(currentTime, 120);
-    }
-    
-    // Coffee break
-    const coffeeBlock: TimeBlock = {
-      id: 'coffee_break',
-      title: 'Coffee & Quick Break',
-      startTime: format(currentTime, 'HH:mm'),
-      endTime: format(addMinutes(currentTime, 15), 'HH:mm'),
-      duration: 15,
-      category: 'break',
-      priority: 'low',
-      energyLevel: 'medium',
-      estimatedFocus: 3,
-      aiReasoning: 'Strategic break to maintain high performance'
-    };
-    blocks.push(coffeeBlock);
-    currentTime = addMinutes(currentTime, 15);
-    
-    // Continue with the rest of the schedule...
-    // This is a simplified version - full AI would analyze energy patterns,
-    // task dependencies, personal preferences, etc.
-    
-    return blocks;
-  }
-}

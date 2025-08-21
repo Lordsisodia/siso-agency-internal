@@ -18,6 +18,7 @@ export const Sidebar = ({ onExpandedChange, onMobileMenuChange }: SidebarProps) 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showNavigation, setShowNavigation] = useState(true);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isToggling, setIsToggling] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
@@ -116,8 +117,17 @@ export const Sidebar = ({ onExpandedChange, onMobileMenuChange }: SidebarProps) 
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            setIsMobileMenuOpen(!isMobileMenuOpen);
+            
+            // Prevent double-clicks
+            if (isToggling) return;
+            
+            setIsToggling(true);
+            setIsMobileMenuOpen(prev => !prev);
+            
+            // Reset toggle lock after animation
+            setTimeout(() => setIsToggling(false), 200);
           }}
+          disabled={isToggling}
         >
           <AnimatePresence mode="wait" initial={false}>
             <motion.div

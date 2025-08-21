@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { InteractiveTaskItem } from './InteractiveTaskItem';
 import { toggleTaskForDate } from '@/services/sharedTaskDataService';
+import { CustomTaskInput } from './CustomTaskInput';
 
 interface TaskCard {
   id: string;
@@ -34,6 +35,7 @@ interface MobileTodayCardProps {
   onViewDetails: (card: TaskCard) => void;
   onQuickAdd: () => void;
   onTaskToggle?: (taskId: string) => void;
+  onCustomTaskAdd?: (task: { title: string; priority: 'low' | 'medium' | 'high' }) => void;
   className?: string;
 }
 
@@ -42,6 +44,7 @@ export const MobileTodayCard: React.FC<MobileTodayCardProps> = ({
   onViewDetails,
   onQuickAdd,
   onTaskToggle,
+  onCustomTaskAdd,
   className
 }) => {
   const completedTasks = card.tasks.filter(task => task.completed).length;
@@ -169,6 +172,14 @@ export const MobileTodayCard: React.FC<MobileTodayCardProps> = ({
               </p>
             </motion.div>
           </div>
+
+          {/* Custom Task Input */}
+          {onCustomTaskAdd && (
+            <CustomTaskInput 
+              onAddTask={onCustomTaskAdd}
+              className="mb-4"
+            />
+          )}
 
           {/* Task Preview or Empty State */}
           <div className="mb-6">

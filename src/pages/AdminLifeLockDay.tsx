@@ -39,14 +39,16 @@ import {
   X,
   Timer,
   Sparkles,
-  Gamepad2
+  Gamepad2,
+  Flame,
+  Trophy
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format, addDays, subDays, parseISO } from 'date-fns';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { TodayTasksService, TodayTask } from '@/services/todayTasksService';
 import { LifeLockService, DailyRoutine, DailyWorkout, DailyHealth, DailyHabits, DailyReflections } from '@/services/lifeLockService';
-import { EnhancedTaskService, EnhancedTask } from '@/services/enhancedTaskService';
+import { EnhancedTaskService, EnhancedTask, SubTask } from '@/services/enhancedTaskService';
 import { personalTaskService } from '@/services/personalTaskService';
 import { voiceService } from '@/services/voiceService';
 import DailyTrackerAIAssistant from '@/components/admin/lifelock/DailyTrackerAIAssistant';
@@ -64,10 +66,16 @@ import {
 } from '@/components/admin/lifelock/ui';
 import { MobileTaskItem, MobileSwipeCard } from '@/components/admin/lifelock/ui/MobileSwipeCard';
 import { LoadingAnimation } from '@/components/admin/lifelock/ui/LoadingAnimation';
+import { CollapsibleTaskCard } from '@/components/admin/lifelock/ui/CollapsibleTaskCard';
+import { FlowStatsDashboard } from '@/components/admin/lifelock/ui/FlowStatsDashboard';
 import { generateRealisticTasksForDate, convertToLifeLockRoutine } from '@/services/sharedTaskDataService';
 import { GamificationDashboard } from '@/components/admin/lifelock/GamificationDashboard';
 import { AITimeBoxModal } from '@/components/admin/lifelock/AITimeBoxModal';
 import { gamificationService } from '@/services/gamificationService';
+import { BottomNavigation, BottomNavTab } from '@/components/admin/lifelock/BottomNavigation';
+import { TimeBlockView } from '@/components/admin/lifelock/views/TimeBlockView';
+import { StatsView } from '@/components/admin/lifelock/views/StatsView';
+import { EnhancedAIChatView } from '@/components/admin/lifelock/views/EnhancedAIChatView';
 
 // ... (keeping all the existing interfaces and state management logic)
 
@@ -84,6 +92,9 @@ const AdminLifeLockDay: React.FC = () => {
     [currentDate]
   );
 
+  // Bottom Navigation State
+  const [activeTab, setActiveTab] = useState<BottomNavTab>('tasks');
+
   // State for all LifeLock data
   const [isLoadingLifeLockData, setIsLoadingLifeLockData] = useState(true);
   const [dailyRoutineData, setDailyRoutineData] = useState<DailyRoutine | null>(null);
@@ -96,6 +107,45 @@ const AdminLifeLockDay: React.FC = () => {
   const [wakeUpTime, setWakeUpTime] = useState<string>('');
   const [wakeUpTimeConfirmed, setWakeUpTimeConfirmed] = useState<boolean>(false);
   const [isEditingWakeUpTime, setIsEditingWakeUpTime] = useState<boolean>(false);
+
+  // Collapsible subtasks state
+  const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set(['2', '3', '4', '5'])); // Default all expanded
+
+  // Collapsible main sections state
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['morning-routine', 'work-sessions', 'light-focus', 'workout', 'health'])); // Default all expanded
+
+  // Toggle subtasks visibility
+  const toggleTaskExpansion = (taskId: string) => {
+    setExpandedTasks(prev => {
+      const newExpanded = new Set(prev);
+      if (newExpanded.has(taskId)) {
+        newExpanded.delete(taskId);
+      } else {
+        newExpanded.add(taskId);
+      }
+      return newExpanded;
+    });
+  };
+
+  // Toggle main sections visibility
+  const toggleSectionExpansion = (sectionId: string) => {
+    setExpandedSections(prev => {
+      const newExpanded = new Set(prev);
+      if (newExpanded.has(sectionId)) {
+        newExpanded.delete(sectionId);
+      } else {
+        newExpanded.add(sectionId);
+      }
+      return newExpanded;
+    });
+  };
+
+  // Get subtask progress for display
+  const getSubtaskProgress = (subtasks: any[]) => {
+    if (!subtasks || subtasks.length === 0) return { completed: 0, total: 0 };
+    const completed = subtasks.filter(st => st.completed).length;
+    return { completed, total: subtasks.length };
+  };
 
   // Derived state from LifeLock data with fallbacks - Enhanced Morning Routine
   const morningRoutine = (dailyRoutineData?.items || [
@@ -121,39 +171,37 @@ const AdminLifeLockDay: React.FC = () => {
     },
     { 
       id: '3', 
-      title: 'Hydrate System (2 min)', 
+      title: 'Freshen Up', 
       completed: false, 
-      description: 'Drink 500ml+ water to kickstart metabolism and brain function.' 
+      description: 'Complete personal hygiene and grooming routine for psychological and physical readiness.',
+      subtasks: [
+        { id: '3a', title: 'Shit', completed: false, target: 'Complete', logged: '' },
+        { id: '3b', title: 'Shower', completed: false, target: 'Cold shower', logged: '' },
+        { id: '3c', title: 'Brush Teeth', completed: false, target: 'Clean', logged: '' }
+      ]
     },
     { 
       id: '4', 
-      title: 'Fuel Stack (3 min)', 
+      title: 'Powerup Mind', 
       completed: false, 
-      description: 'Omega-3, multivitamin, ashwagandha for cognitive enhancement + pre-workout if training.' 
+      description: 'Fuel your body and mind for optimal cognitive performance and focus.',
+      subtasks: [
+        { id: '4a', title: 'Supplements', completed: false, target: 'Omega-3, multivitamin, ashwagandha', logged: '' },
+        { id: '4b', title: 'Drink Water', completed: false, target: '500ml+', logged: '' },
+        { id: '4c', title: 'Meditate', completed: false, target: '2-5 min', logged: '' }
+      ]
     },
     { 
       id: '5', 
-      title: 'Cold Exposure (15 min)', 
+      title: 'Review & Plan Day', 
       completed: false, 
-      description: 'Cold shower for alertness, immune boost, and mental resilience.' 
-    },
-    { 
-      id: '5b', 
-      title: 'Fresh Start (3 min)', 
-      completed: false, 
-      description: 'Brush teeth + quick grooming for psychological readiness.' 
-    },
-    { 
-      id: '6', 
-      title: 'Strategic Planning (10 min)', 
-      completed: false, 
-      description: 'Review priorities, time-block deep work, identify breakthrough opportunities.' 
-    },
-    { 
-      id: '7', 
-      title: 'Flow State Priming (5 min)', 
-      completed: false, 
-      description: 'Meditation + intention setting for maximum cognitive performance and business impact.' 
+      description: 'Strategic daily planning to organize priorities and optimize time allocation.',
+      subtasks: [
+        { id: '5a', title: 'Thought Dump Context to Legacy AI', completed: false, target: 'Brain dump', logged: '' },
+        { id: '5b', title: 'Plot All Deep Work Tasks', completed: false, target: 'Prioritize', logged: '' },
+        { id: '5c', title: 'Plot All Light Work Tasks', completed: false, target: 'Schedule', logged: '' },
+        { id: '5d', title: 'Organize Timebox', completed: false, target: 'Block time', logged: '' }
+      ]
     }
   ]).map(item => {
     // Ensure "Activate Body" task always has subtasks
@@ -167,8 +215,118 @@ const AdminLifeLockDay: React.FC = () => {
         ]
       };
     }
+    // Transform old "Hydrate System" to "Freshen Up" with subtasks
+    if (item.id === '3' && (item.title?.includes('Hydrate') || item.title?.includes('hydrate'))) {
+      return {
+        ...item,
+        title: 'Freshen Up',
+        description: 'Complete personal hygiene and grooming routine for psychological and physical readiness.',
+        subtasks: [
+          { id: '3a', title: 'Shit', completed: false, target: 'Complete', logged: '' },
+          { id: '3b', title: 'Shower', completed: false, target: 'Cold shower', logged: '' },
+          { id: '3c', title: 'Brush Teeth', completed: false, target: 'Clean', logged: '' }
+        ]
+      };
+    }
+    
+    // Ensure "Freshen Up" task always has subtasks (if already named correctly)
+    if (item.id === '3' && (!item.subtasks || item.subtasks.length === 0)) {
+      return {
+        ...item,
+        subtasks: [
+          { id: '3a', title: 'Shit', completed: false, target: 'Complete', logged: '' },
+          { id: '3b', title: 'Shower', completed: false, target: 'Cold shower', logged: '' },
+          { id: '3c', title: 'Brush Teeth', completed: false, target: 'Clean', logged: '' }
+        ]
+      };
+    }
+    
+    // Transform old "Hydrate System" or "Fuel Stack" to "Powerup Mind" with subtasks
+    if ((item.id === '4' || item.id === '5') && (item.title?.includes('Hydrate') || item.title?.includes('Fuel') || item.title?.includes('hydrate') || item.title?.includes('fuel') || item.title?.includes('Supplement'))) {
+      return {
+        ...item,
+        id: '4', // Ensure consistent ID
+        title: 'Powerup Mind',
+        description: 'Fuel your body and mind for optimal cognitive performance and focus.',
+        subtasks: [
+          { id: '4a', title: 'Supplements', completed: false, target: 'Omega-3, multivitamin, ashwagandha', logged: '' },
+          { id: '4b', title: 'Drink Water', completed: false, target: '500ml+', logged: '' },
+          { id: '4c', title: 'Meditate', completed: false, target: '2-5 min', logged: '' }
+        ]
+      };
+    }
+    
+    // Ensure "Powerup Mind" task always has subtasks (if already named correctly)
+    if (item.id === '4' && (!item.subtasks || item.subtasks.length === 0)) {
+      return {
+        ...item,
+        subtasks: [
+          { id: '4a', title: 'Supplements', completed: false, target: 'Omega-3, multivitamin, ashwagandha', logged: '' },
+          { id: '4b', title: 'Drink Water', completed: false, target: '500ml+', logged: '' },
+          { id: '4c', title: 'Meditate', completed: false, target: '2-5 min', logged: '' }
+        ]
+      };
+    }
+    
+    // Force transform any task that looks like the old supplement/hydrate tasks
+    if ((item.title?.toLowerCase().includes('supplement') || item.title?.toLowerCase().includes('pre-workout') || item.title?.toLowerCase().includes('stack')) && !item.subtasks) {
+      return {
+        ...item,
+        id: '4',
+        title: 'Powerup Mind',
+        description: 'Fuel your body and mind for optimal cognitive performance and focus.',
+        subtasks: [
+          { id: '4a', title: 'Supplements', completed: false, target: 'Omega-3, multivitamin, ashwagandha', logged: '' },
+          { id: '4b', title: 'Drink Water', completed: false, target: '500ml+', logged: '' },
+          { id: '4c', title: 'Meditate', completed: false, target: '2-5 min', logged: '' }
+        ]
+      };
+    }
+    
+    // Remove duplicate tasks that are now covered by subtasks
+    if (item.title?.toLowerCase().includes('shower') && item.title?.toLowerCase().includes('brush')) {
+      return null; // Remove shower & brush teeth task (covered by Freshen Up subtasks)
+    }
+    
+    if (item.title?.toLowerCase().includes('meditation') && !item.subtasks) {
+      return null; // Remove standalone meditation task (covered by Powerup Mind subtasks)
+    }
+    
+    // Transform old "Strategic Planning" or "Review & Plan Day" to include subtasks
+    if ((item.title?.toLowerCase().includes('strategic') || 
+         item.title?.toLowerCase().includes('planning') || 
+         item.title?.toLowerCase().includes('review') || 
+         item.title?.toLowerCase().includes('plan')) && 
+        (!item.subtasks || item.subtasks.length === 0)) {
+      return {
+        ...item,
+        id: '5', // Ensure consistent ID
+        title: 'Review & Plan Day',
+        description: 'Strategic daily planning to organize priorities and optimize time allocation.',
+        subtasks: [
+          { id: '5a', title: 'Thought Dump Context to Legacy AI', completed: false, target: 'Brain dump', logged: '' },
+          { id: '5b', title: 'Plot All Deep Work Tasks', completed: false, target: 'Prioritize', logged: '' },
+          { id: '5c', title: 'Plot All Light Work Tasks', completed: false, target: 'Schedule', logged: '' },
+          { id: '5d', title: 'Organize Timebox', completed: false, target: 'Block time', logged: '' }
+        ]
+      };
+    }
+    
+    // Ensure "Review & Plan Day" task always has subtasks (if already named correctly)
+    if (item.id === '5' && (!item.subtasks || item.subtasks.length === 0)) {
+      return {
+        ...item,
+        subtasks: [
+          { id: '5a', title: 'Thought Dump Context to Legacy AI', completed: false, target: 'Brain dump', logged: '' },
+          { id: '5b', title: 'Plot All Deep Work Tasks', completed: false, target: 'Prioritize', logged: '' },
+          { id: '5c', title: 'Plot All Light Work Tasks', completed: false, target: 'Schedule', logged: '' },
+          { id: '5d', title: 'Organize Timebox', completed: false, target: 'Block time', logged: '' }
+        ]
+      };
+    }
+    
     return item;
-  });
+  }).filter(Boolean); // Remove null items
   
   const setMorningRoutine = (items: any[]) => {
     if (dailyRoutineData) {
@@ -381,6 +539,79 @@ const AdminLifeLockDay: React.FC = () => {
       }
     } catch (error) {
       console.error('Failed to update enhanced task:', error);
+    }
+  };
+
+  // Subtask management functions
+  const handleSubtaskToggle = async (taskId: string, subtaskId: string, completed: boolean) => {
+    try {
+      setDeepFocusTasks(prevTasks => 
+        prevTasks.map(task => {
+          if (task.id === taskId) {
+            const updatedSubtasks = (task.subtasks || []).map(subtask =>
+              subtask.id === subtaskId ? { ...subtask, completed } : subtask
+            );
+            return { ...task, subtasks: updatedSubtasks };
+          }
+          return task;
+        })
+      );
+    } catch (error) {
+      console.error('Failed to toggle subtask:', error);
+    }
+  };
+
+  const handleAddSubtask = async (taskId: string, subtaskTitle: string) => {
+    try {
+      const newSubtask: SubTask = {
+        id: `subtask_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        title: subtaskTitle,
+        completed: false,
+        estimated_duration: 30
+      };
+
+      setDeepFocusTasks(prevTasks => 
+        prevTasks.map(task => {
+          if (task.id === taskId) {
+            const updatedSubtasks = [...(task.subtasks || []), newSubtask];
+            return { ...task, subtasks: updatedSubtasks };
+          }
+          return task;
+        })
+      );
+    } catch (error) {
+      console.error('Failed to add subtask:', error);
+    }
+  };
+
+  const handleDeleteSubtask = async (taskId: string, subtaskId: string) => {
+    try {
+      setDeepFocusTasks(prevTasks => 
+        prevTasks.map(task => {
+          if (task.id === taskId) {
+            const updatedSubtasks = (task.subtasks || []).filter(subtask => subtask.id !== subtaskId);
+            return { ...task, subtasks: updatedSubtasks };
+          }
+          return task;
+        })
+      );
+    } catch (error) {
+      console.error('Failed to delete subtask:', error);
+    }
+  };
+
+  const handleTaskUpdate = async (taskId: string, updates: Partial<EnhancedTask>) => {
+    try {
+      setDeepFocusTasks(prevTasks => 
+        prevTasks.map(task => {
+          if (task.id === taskId) {
+            return { ...task, ...updates };
+          }
+          return task;
+        })
+      );
+    } catch (error) {
+      console.error('Failed to update task:', error);
     }
   };
 
@@ -1097,7 +1328,27 @@ const AdminLifeLockDay: React.FC = () => {
   // Calculate progress for each section
   const morningRoutineProgress = (morningRoutine.filter(item => item.completed).length / morningRoutine.length) * 100;
   const deepFocusProgress = deepFocusTasks.length > 0 
-    ? (deepFocusTasks.filter(task => task.status === 'done').length / deepFocusTasks.length) * 100 
+    ? (() => {
+        // Calculate progress considering both main tasks and subtasks
+        let totalItems = 0;
+        let completedItems = 0;
+        
+        deepFocusTasks.forEach(task => {
+          const hasSubtasks = task.subtasks && task.subtasks.length > 0;
+          
+          if (hasSubtasks) {
+            // Count subtasks instead of main task
+            totalItems += task.subtasks!.length;
+            completedItems += task.subtasks!.filter(st => st.completed).length;
+          } else {
+            // Count main task if no subtasks
+            totalItems += 1;
+            if (task.status === 'done') completedItems += 1;
+          }
+        });
+        
+        return totalItems > 0 ? (completedItems / totalItems) * 100 : 0;
+      })()
     : 0;
   const lightFocusProgress = (lightFocusTasks.filter(task => task.completed && task.title).length / lightFocusTasks.filter(task => task.title).length) * 100 || 0;
   const workoutProgress = (workoutItems.filter(item => item.completed).length / workoutItems.length) * 100;
@@ -1105,7 +1356,29 @@ const AdminLifeLockDay: React.FC = () => {
 
   const progressSections = [
     { id: 'morning', label: 'Morning Routine', completed: morningRoutine.filter(i => i.completed).length, total: morningRoutine.length, color: 'warning' as const },
-    { id: 'deepFocus', label: 'Deep Focus', completed: deepFocusTasks.filter(t => t.status === 'done').length, total: deepFocusTasks.length, color: 'default' as const },
+    { id: 'deepFocus', label: 'Deep Focus', completed: (() => {
+      let completed = 0;
+      deepFocusTasks.forEach(task => {
+        const hasSubtasks = task.subtasks && task.subtasks.length > 0;
+        if (hasSubtasks) {
+          completed += task.subtasks!.filter(st => st.completed).length;
+        } else if (task.status === 'done') {
+          completed += 1;
+        }
+      });
+      return completed;
+    })(), total: (() => {
+      let total = 0;
+      deepFocusTasks.forEach(task => {
+        const hasSubtasks = task.subtasks && task.subtasks.length > 0;
+        if (hasSubtasks) {
+          total += task.subtasks!.length;
+        } else {
+          total += 1;
+        }
+      });
+      return total;
+    })(), color: 'default' as const },
     { id: 'lightFocus', label: 'Light Focus', completed: lightFocusTasks.filter(t => t.completed && t.title).length, total: lightFocusTasks.filter(t => t.title).length, color: 'success' as const },
     { id: 'workout', label: 'Workout', completed: workoutItems.filter(i => i.completed).length, total: workoutItems.length, color: 'danger' as const },
     { id: 'health', label: 'Health', completed: healthItems.filter(i => i.completed).length, total: healthItems.length, color: 'default' as const }
@@ -1166,7 +1439,7 @@ const AdminLifeLockDay: React.FC = () => {
   return (
     <AdminLayout>
       <div className="min-h-screen w-full bg-gray-900">
-        <div className="max-w-7xl mx-auto p-2 sm:p-3 md:p-4 lg:p-6 space-y-3 sm:space-y-4 pb-20 sm:pb-6">
+        <div className="max-w-7xl mx-auto p-2 sm:p-3 md:p-4 lg:p-6 space-y-3 sm:space-y-4 pb-24 sm:pb-24">
           
           {/* Header Section - Enhanced for Mobile */}
           <DailyTrackerSection noPadding>
@@ -1184,31 +1457,8 @@ const AdminLifeLockDay: React.FC = () => {
                   <span className="sm:hidden">Back</span>
                 </Button>
                 
-                {/* Action Buttons - Desktop Only */}
-                <div className="hidden sm:flex items-center gap-2">
-                  {/* AI Time Boxing Button */}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowTimeBoxModal(true)}
-                    className="px-3 py-2 bg-blue-600 text-white border-blue-600 hover:bg-blue-700 transition-all"
-                  >
-                    <Timer className="h-4 w-4 mr-1" />
-                    <span>Time Box</span>
-                  </Button>
-                  
-                  {/* Gamification Button */}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowGamificationModal(true)}
-                    className="px-3 py-2 bg-purple-600 text-white border-purple-600 hover:bg-purple-700 transition-all"
-                  >
-                    <Gamepad2 className="h-4 w-4 mr-1" />
-                    <span>XP</span>
-                  </Button>
-                  
-                  {/* Voice Button */}
+                {/* Voice Button Only */}
+                <div className="hidden sm:block">
                   <Button
                     variant="outline"
                     size="sm"
@@ -1232,84 +1482,107 @@ const AdminLifeLockDay: React.FC = () => {
                     )}
                   </Button>
                 </div>
-                
-                {/* Mobile Action Buttons */}
-                <div className="flex sm:hidden items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowTimeBoxModal(true)}
-                    className="px-2 py-1 bg-blue-600 text-white border-blue-600 text-xs"
-                  >
-                    <Timer className="h-3 w-3" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowGamificationModal(true)}
-                    className="px-2 py-1 bg-purple-600 text-white border-purple-600 text-xs"
-                  >
-                    <Gamepad2 className="h-3 w-3" />
-                  </Button>
-                </div>
               </div>
               
-              {/* Enhanced Date Navigation */}
-              <div className="flex items-center justify-center gap-2 sm:gap-3 bg-gray-800/50 rounded-lg p-2 sm:p-3">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => navigateDay('prev')}
-                  className="text-gray-300 hover:text-white hover:bg-gray-700 p-2 sm:p-3 rounded-full"
-                  aria-label="Previous day"
-                >
-                  <ChevronLeft className="h-5 w-5" />
-                </Button>
-                
-                <div className="flex-1 text-center">
-                  <div className="text-white font-semibold text-sm sm:text-base">
-                    {format(currentDate, 'EEEE')}
+              {/* Combined Date Navigation & XP Dashboard */}
+              <div className="bg-gradient-to-r from-gray-800 to-gray-700 border border-gray-600 rounded-lg p-3">
+                <div className="flex items-center justify-between">
+                  {/* Left: Previous Button & Level */}
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => navigateDay('prev')}
+                      className="text-gray-300 hover:text-white hover:bg-gray-700 p-2 rounded-full"
+                      aria-label="Previous day"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                      {gamificationService.getLevelInfo().level}
+                    </div>
                   </div>
-                  <div className="text-gray-400 text-xs sm:text-sm">
-                    {format(currentDate, 'MMMM d, yyyy')}
+
+                  {/* Center: Date Display */}
+                  <div className="text-center flex-1">
+                    <div className="text-white font-semibold text-lg">
+                      {format(currentDate, 'EEEE')}
+                    </div>
+                    <div className="text-gray-300 text-sm">
+                      {format(currentDate, 'MMM d, yyyy')}
+                    </div>
+                  </div>
+
+                  {/* Right: Stats & Next Button */}
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
+                      <div className="text-center">
+                        <div className="flex items-center gap-1 text-orange-400">
+                          <Flame className="h-3.5 w-3.5" />
+                          <span className="font-medium text-sm">{gamificationService.getUserProgress().currentStreak}</span>
+                        </div>
+                        <div className="text-xs text-gray-400">streak</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="flex items-center gap-1 text-yellow-400">
+                          <Trophy className="h-3.5 w-3.5" />
+                          <span className="font-medium text-sm">{gamificationService.getUserProgress().achievements.filter(a => a.unlocked).length}</span>
+                        </div>
+                        <div className="text-xs text-gray-400">badges</div>
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => navigateDay('next')}
+                      className="text-gray-300 hover:text-white hover:bg-gray-700 p-2 rounded-full"
+                      aria-label="Next day"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
                 
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => navigateDay('next')}
-                  className="text-gray-300 hover:text-white hover:bg-gray-700 p-2 sm:p-3 rounded-full"
-                  aria-label="Next day"
-                >
-                  <ChevronRight className="h-5 w-5" />
-                </Button>
+                {/* XP Progress Bar - Full Width Below */}
+                <div className="mt-3 pt-3 border-t border-gray-600">
+                  <div className="flex items-center justify-between text-sm text-white mb-1">
+                    <span>{gamificationService.getUserProgress().dailyXP} XP today</span>
+                    <span className="text-gray-400">Level {gamificationService.getLevelInfo().level}</span>
+                  </div>
+                  <div className="w-full h-2 bg-gray-600 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300"
+                      style={{ width: `${gamificationService.getLevelInfo().progress}%` }}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </DailyTrackerSection>
 
-          {/* Voice Transcript Display */}
-          {voiceTranscript && (
-            <div className="mb-4 p-3 bg-yellow-900/20 border border-yellow-700/50 rounded-lg">
-              <p className="text-yellow-200 text-sm">
-                <span className="font-semibold">Listening:</span> {voiceTranscript}
-              </p>
-            </div>
-          )}
+          {/* Conditional Content Based on Active Tab */}
+          {activeTab === 'tasks' && (
+            <>
+              {/* Voice Transcript Display */}
+              {voiceTranscript && (
+                <div className="mb-4 p-3 bg-yellow-900/20 border border-yellow-700/50 rounded-lg">
+                  <p className="text-yellow-200 text-sm">
+                    <span className="font-semibold">Listening:</span> {voiceTranscript}
+                  </p>
+                </div>
+              )}
 
-          {/* Page Title and Progress Summary - Mobile Optimized */}
-          <DailyTrackerSection className="mb-4 sm:mb-6">
-            <div className="space-y-4">
-              
-              {/* Desktop Progress Summary */}
-              <div className="hidden sm:block">
-                <DailyTrackerProgressSummary sections={progressSections} />
-              </div>
-            </div>
-          </DailyTrackerSection>
+              {/* Page Title and Progress Summary - Mobile Optimized */}
+              <DailyTrackerSection className="mb-4 sm:mb-6">
+                <div className="space-y-4">
+                  
+                  {/* Desktop Progress Summary */}
+                  <div className="hidden sm:block">
+                    <DailyTrackerProgressSummary sections={progressSections} />
+                  </div>
+                </div>
+              </DailyTrackerSection>
 
-          {/* Compact Gamification Display */}
-          <GamificationDashboard compact className="mb-3" />
 
           {/* Main Content Grid - Optimized Layout */}
           <DailyTrackerGrid
@@ -1411,67 +1684,138 @@ const AdminLifeLockDay: React.FC = () => {
                             </div>
                           ) : (
                             <div key={item.id}>
-                              <MobileSwipeCard
-                                task={{
-                                  id: item.id,
-                                  title: item.title,
-                                  completed: item.completed,
-                                  description: item.description,
-                                  logField: item.logField
-                                }}
-                                onSwipeComplete={() => toggleItem(morningRoutine, setMorningRoutine, item.id)}
-                                onUpdate={(field, value) => updateItemField(morningRoutine, setMorningRoutine, item.id, field, value)}
-                                color="yellow"
-                              />
+                              {/* Enhanced task card with toggle for subtasks */}
+                              {item.subtasks && item.subtasks.length > 0 ? (
+                                <div className="bg-yellow-900/20 rounded-lg border border-yellow-600/30 p-3">
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center space-x-3 flex-1">
+                                      <button
+                                        onClick={() => toggleItem(morningRoutine, setMorningRoutine, item.id)}
+                                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
+                                          item.completed 
+                                            ? 'bg-yellow-500 border-yellow-500' 
+                                            : 'border-yellow-400 hover:border-yellow-300'
+                                        }`}
+                                      >
+                                        {item.completed && (
+                                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                          </svg>
+                                        )}
+                                      </button>
+                                      
+                                      <div className="flex-1">
+                                        <h4 className={`font-medium ${item.completed ? 'line-through text-yellow-400/60' : 'text-yellow-200'}`}>
+                                          {item.title}
+                                        </h4>
+                                        <p className="text-yellow-200/70 text-sm mt-1">
+                                          {item.description}
+                                        </p>
+                                      </div>
+                                    </div>
+                                    
+                                    <div className="flex items-center space-x-2">
+                                      {/* Progress indicator */}
+                                      <div className="text-xs text-yellow-400/80 bg-yellow-900/30 px-2 py-1 rounded">
+                                        {(() => {
+                                          const progress = getSubtaskProgress(item.subtasks);
+                                          return `${progress.completed}/${progress.total}`;
+                                        })()}
+                                      </div>
+                                      
+                                      {/* Toggle button */}
+                                      <button
+                                        onClick={() => toggleTaskExpansion(item.id)}
+                                        className="text-yellow-400 hover:text-yellow-300 p-1"
+                                      >
+                                        <svg className={`w-4 h-4 transition-transform ${expandedTasks.has(item.id) ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              ) : (
+                                <MobileSwipeCard
+                                  task={{
+                                    id: item.id,
+                                    title: item.title,
+                                    completed: item.completed,
+                                    description: item.description,
+                                    logField: item.logField
+                                  }}
+                                  onSwipeComplete={() => toggleItem(morningRoutine, setMorningRoutine, item.id)}
+                                  onUpdate={(field, value) => updateItemField(morningRoutine, setMorningRoutine, item.id, field, value)}
+                                  color="yellow"
+                                />
+                              )}
                               
-                              {/* Subtasks for Activate Body */}
-                              {item.subtasks && item.subtasks.length > 0 && (
-                                <div className="ml-4 mt-2 space-y-1">
+                              {/* Connected Subtasks - Mobile */}
+                              {item.subtasks && item.subtasks.length > 0 && expandedTasks.has(item.id) && (
+                                <div className="mt-3 border-l-2 border-yellow-500/40 ml-5">
                                   {item.subtasks.map((subtask: any) => (
-                                    <div key={subtask.id} className="flex items-center space-x-2 p-2 bg-yellow-800/20 rounded-lg border border-yellow-600/20">
-                                      <input
-                                        type="checkbox"
-                                        checked={subtask.completed}
-                                        onChange={() => {
-                                          const updatedRoutine = morningRoutine.map(routineItem => 
-                                            routineItem.id === item.id 
-                                              ? {
-                                                  ...routineItem,
-                                                  subtasks: routineItem.subtasks?.map((st: any) => 
-                                                    st.id === subtask.id ? { ...st, completed: !st.completed } : st
-                                                  )
-                                                }
-                                              : routineItem
-                                          );
-                                          setMorningRoutine(updatedRoutine);
-                                        }}
-                                        className="w-4 h-4 text-yellow-500 rounded"
-                                      />
-                                      <span className={`text-sm flex-1 ${subtask.completed ? 'line-through text-yellow-300/60' : 'text-yellow-200'}`}>
-                                        {subtask.title}
-                                      </span>
-                                      <span className="text-xs text-yellow-400">
-                                        {subtask.target}
-                                      </span>
-                                      <input
-                                        type="text"
-                                        placeholder="reps"
-                                        value={subtask.logged || ''}
-                                        onChange={(e) => {
-                                          const updatedRoutine = morningRoutine.map(routineItem => 
-                                            routineItem.id === item.id 
-                                              ? {
-                                                  ...routineItem,
-                                                  subtasks: routineItem.subtasks?.map((st: any) => 
-                                                    st.id === subtask.id ? { ...st, logged: e.target.value } : st
-                                                  )
-                                                }
-                                              : routineItem
-                                          );
-                                          setMorningRoutine(updatedRoutine);
-                                        }}
-                                        className="w-16 px-2 py-1 text-xs bg-yellow-700/30 border border-yellow-600/40 rounded text-yellow-100"
-                                      />
+                                    <div key={subtask.id} className="relative pl-4 pb-2">
+                                      {/* Connection Line */}
+                                      <div className="absolute left-0 top-3 w-3 h-0.5 bg-yellow-500/40"></div>
+                                      
+                                      {/* Subtask Content */}
+                                      <div className="flex items-center space-x-2 p-3 bg-gradient-to-r from-yellow-900/30 to-yellow-800/15 rounded-lg border border-yellow-600/30 shadow-sm">
+                                        <button
+                                          onClick={() => {
+                                            const updatedRoutine = morningRoutine.map(routineItem => 
+                                              routineItem.id === item.id 
+                                                ? {
+                                                    ...routineItem,
+                                                    subtasks: routineItem.subtasks?.map((st: any) => 
+                                                      st.id === subtask.id ? { ...st, completed: !st.completed } : st
+                                                    )
+                                                  }
+                                                : routineItem
+                                            );
+                                            setMorningRoutine(updatedRoutine);
+                                          }}
+                                          className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all ${
+                                            subtask.completed 
+                                              ? 'bg-yellow-500 border-yellow-500 shadow-sm' 
+                                              : 'border-yellow-400/60 hover:border-yellow-400'
+                                          }`}
+                                        >
+                                          {subtask.completed && (
+                                            <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                            </svg>
+                                          )}
+                                        </button>
+                                        
+                                        <span className={`text-sm font-medium flex-1 ${subtask.completed ? 'line-through text-yellow-300/50' : 'text-yellow-100'}`}>
+                                          {subtask.title}
+                                        </span>
+                                        
+                                        <div className="flex items-center space-x-2">
+                                          <span className="text-xs text-yellow-400/80 bg-yellow-900/30 px-2 py-1 rounded-md">
+                                            {subtask.target}
+                                          </span>
+                                          <input
+                                            type="text"
+                                            placeholder="0"
+                                            value={subtask.logged || ''}
+                                            onChange={(e) => {
+                                              const updatedRoutine = morningRoutine.map(routineItem => 
+                                                routineItem.id === item.id 
+                                                  ? {
+                                                      ...routineItem,
+                                                      subtasks: routineItem.subtasks?.map((st: any) => 
+                                                        st.id === subtask.id ? { ...st, logged: e.target.value } : st
+                                                      )
+                                                    }
+                                                  : routineItem
+                                              );
+                                              setMorningRoutine(updatedRoutine);
+                                            }}
+                                            className="w-12 px-2 py-1 text-xs bg-yellow-700/25 border border-yellow-600/40 rounded text-yellow-100 text-center focus:outline-none focus:border-yellow-500/60"
+                                          />
+                                        </div>
+                                      </div>
                                     </div>
                                   ))}
                                 </div>
@@ -1543,7 +1887,7 @@ const AdminLifeLockDay: React.FC = () => {
                           ) : (
                             // Regular task item with subtasks support
                             <div key={item.id} className="space-y-2">
-                              <div className="flex items-center space-x-3 p-3 bg-gray-800/40 rounded-lg border border-yellow-600/20">
+                              <div className="flex items-center space-x-3 p-3 bg-yellow-900/20 rounded-lg border border-yellow-600/30">
                                 <button
                                   onClick={() => toggleItem(morningRoutine, setMorningRoutine, item.id)}
                                   className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
@@ -1572,56 +1916,98 @@ const AdminLifeLockDay: React.FC = () => {
                                     </div>
                                   )}
                                 </div>
+                                
+                                {/* Toggle and progress for tasks with subtasks */}
+                                {item.subtasks && item.subtasks.length > 0 && (
+                                  <div className="flex items-center space-x-3">
+                                    {/* Progress indicator */}
+                                    <div className="text-sm text-yellow-400/80 bg-yellow-900/30 px-3 py-1 rounded">
+                                      {(() => {
+                                        const progress = getSubtaskProgress(item.subtasks);
+                                        return `${progress.completed}/${progress.total}`;
+                                      })()}
+                                    </div>
+                                    
+                                    {/* Toggle button */}
+                                    <button
+                                      onClick={() => toggleTaskExpansion(item.id)}
+                                      className="text-yellow-400 hover:text-yellow-300 p-1 transition-colors"
+                                    >
+                                      <svg className={`w-5 h-5 transition-transform ${expandedTasks.has(item.id) ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                      </svg>
+                                    </button>
+                                  </div>
+                                )}
                               </div>
                               
-                              {/* Desktop Subtasks */}
-                              {item.subtasks && item.subtasks.length > 0 && (
-                                <div className="ml-8 space-y-2">
+                              {/* Connected Subtasks - Desktop */}
+                              {item.subtasks && item.subtasks.length > 0 && expandedTasks.has(item.id) && (
+                                <div className="mt-4 border-l-2 border-yellow-500/40 ml-6">
                                   {item.subtasks.map((subtask: any) => (
-                                    <div key={subtask.id} className="flex items-center space-x-3 p-2 bg-yellow-800/20 rounded-lg border border-yellow-600/20">
-                                      <input
-                                        type="checkbox"
-                                        checked={subtask.completed}
-                                        onChange={() => {
-                                          const updatedRoutine = morningRoutine.map(routineItem => 
-                                            routineItem.id === item.id 
-                                              ? {
-                                                  ...routineItem,
-                                                  subtasks: routineItem.subtasks?.map((st: any) => 
-                                                    st.id === subtask.id ? { ...st, completed: !st.completed } : st
-                                                  )
-                                                }
-                                              : routineItem
-                                          );
-                                          setMorningRoutine(updatedRoutine);
-                                        }}
-                                        className="w-4 h-4 text-yellow-500 rounded"
-                                      />
-                                      <span className={`font-medium flex-1 ${subtask.completed ? 'line-through text-yellow-300/60' : 'text-yellow-200'}`}>
-                                        {subtask.title}
-                                      </span>
-                                      <span className="text-sm text-yellow-400 min-w-[60px] text-right">
-                                        {subtask.target}
-                                      </span>
-                                      <input
-                                        type="text"
-                                        placeholder="reps"
-                                        value={subtask.logged || ''}
-                                        onChange={(e) => {
-                                          const updatedRoutine = morningRoutine.map(routineItem => 
-                                            routineItem.id === item.id 
-                                              ? {
-                                                  ...routineItem,
-                                                  subtasks: routineItem.subtasks?.map((st: any) => 
-                                                    st.id === subtask.id ? { ...st, logged: e.target.value } : st
-                                                  )
-                                                }
-                                              : routineItem
-                                          );
-                                          setMorningRoutine(updatedRoutine);
-                                        }}
-                                        className="w-20 px-2 py-1 text-sm bg-yellow-700/30 border border-yellow-600/40 rounded text-yellow-100"
-                                      />
+                                    <div key={subtask.id} className="relative pl-6 pb-3">
+                                      {/* Connection Line */}
+                                      <div className="absolute left-0 top-4 w-4 h-0.5 bg-yellow-500/40"></div>
+                                      
+                                      {/* Subtask Content */}
+                                      <div className="flex items-center space-x-4 p-4 bg-gradient-to-r from-yellow-900/25 to-yellow-800/10 rounded-lg border border-yellow-600/30 shadow-sm">
+                                        <button
+                                          onClick={() => {
+                                            const updatedRoutine = morningRoutine.map(routineItem => 
+                                              routineItem.id === item.id 
+                                                ? {
+                                                    ...routineItem,
+                                                    subtasks: routineItem.subtasks?.map((st: any) => 
+                                                      st.id === subtask.id ? { ...st, completed: !st.completed } : st
+                                                    )
+                                                  }
+                                                : routineItem
+                                            );
+                                            setMorningRoutine(updatedRoutine);
+                                          }}
+                                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                                            subtask.completed 
+                                              ? 'bg-yellow-500 border-yellow-500 shadow-sm' 
+                                              : 'border-yellow-400/60 hover:border-yellow-400'
+                                          }`}
+                                        >
+                                          {subtask.completed && (
+                                            <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                            </svg>
+                                          )}
+                                        </button>
+                                        
+                                        <div className="flex-1 flex items-center justify-between">
+                                          <span className={`font-medium text-base ${subtask.completed ? 'line-through text-yellow-300/50' : 'text-yellow-100'}`}>
+                                            {subtask.title}
+                                          </span>
+                                          <div className="flex items-center space-x-3">
+                                            <span className="text-sm text-yellow-400/80 bg-yellow-900/25 px-3 py-1.5 rounded-md font-medium">
+                                              {subtask.target}
+                                            </span>
+                                            <input
+                                              type="text"
+                                              placeholder="0"
+                                              value={subtask.logged || ''}
+                                              onChange={(e) => {
+                                                const updatedRoutine = morningRoutine.map(routineItem => 
+                                                  routineItem.id === item.id 
+                                                    ? {
+                                                        ...routineItem,
+                                                        subtasks: routineItem.subtasks?.map((st: any) => 
+                                                          st.id === subtask.id ? { ...st, logged: e.target.value } : st
+                                                        )
+                                                      }
+                                                    : routineItem
+                                                );
+                                                setMorningRoutine(updatedRoutine);
+                                              }}
+                                              className="w-16 px-3 py-1.5 text-sm bg-yellow-700/20 border border-yellow-600/40 rounded text-yellow-100 text-center focus:outline-none focus:border-yellow-500/60 focus:ring-1 focus:ring-yellow-500/30"
+                                            />
+                                          </div>
+                                        </div>
+                                      </div>
                                     </div>
                                   ))}
                                 </div>
@@ -1649,8 +2035,37 @@ const AdminLifeLockDay: React.FC = () => {
                       color="orange"
                       isCompact={true}
                       progress={deepFocusProgress}
+                      isCollapsible={true}
+                      showCollapseWhenComplete={true}
+                      completedTasksCount={(() => {
+                        let completed = 0;
+                        deepFocusTasks.forEach(task => {
+                          const hasSubtasks = task.subtasks && task.subtasks.length > 0;
+                          if (hasSubtasks) {
+                            completed += task.subtasks!.filter(st => st.completed).length;
+                          } else if (task.status === 'done') {
+                            completed += 1;
+                          }
+                        });
+                        return completed;
+                      })()}
+                      totalTasksCount={(() => {
+                        let total = 0;
+                        deepFocusTasks.forEach(task => {
+                          const hasSubtasks = task.subtasks && task.subtasks.length > 0;
+                          if (hasSubtasks) {
+                            total += task.subtasks!.length;
+                          } else {
+                            total += 1;
+                          }
+                        });
+                        return total;
+                      })()}
                       headerContent={
                         <div className="space-y-3">
+                          {/* Flow Stats Dashboard */}
+                          <FlowStatsDashboard className="mb-3" />
+                          
                           <div>
                             <label className="text-white font-medium text-xs sm:text-sm block mb-1">Total Work Hours Logged:</label>
                             <Input
@@ -1708,59 +2123,25 @@ const AdminLifeLockDay: React.FC = () => {
                         </div>
                       ) : (
                         <>
-                          {/* Mobile Swipe Task List */}
-                          <div className="block sm:hidden">
-                            <div className="space-y-2">
-                              {deepFocusTasks.length > 0 ? (
-                                deepFocusTasks.map((task) => (
-                                  <MobileSwipeCard
-                                    key={task.id}
-                                    task={{
-                                      id: task.id,
-                                      title: task.title,
-                                      completed: task.status === 'done',
-                                      description: task.description,
-                                      priority: task.priority,
-                                      category: task.category,
-                                      estimatedDuration: task.estimated_duration
-                                    }}
-                                    onSwipeComplete={() => handleTaskToggle(task.id, task.status !== 'done')}
-                                    onSwipeEdit={() => handleTaskClick(task)}
-                                    color="orange"
-                                    showPriority={true}
-                                    showDuration={true}
-                                  />
-                                ))
-                              ) : (
-                                <div className="text-center py-8 text-gray-400 text-sm">
-                                  No tasks found for today. Tasks will appear here when created in the task management system.
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                          
-                          {/* Desktop Task List */}
-                          <div className="hidden sm:block">
-                            <DailyTrackerTaskList
-                              tasks={deepFocusTasks.map(task => ({
-                                id: task.id,
-                                title: task.title,
-                                completed: task.status === 'done',
-                                priority: task.priority,
-                                category: task.category,
-                                description: task.description,
-                                dueDate: task.due_date,
-                                workType: task.work_type,
-                                focusLevel: task.focus_level,
-                                estimatedDuration: task.estimated_duration,
-                                effortPoints: task.effort_points
-                              }))}
-                              onToggle={(id) => handleTaskToggle(id, deepFocusTasks.find(t => t.id === id)?.status !== 'done')}
-                              onClick={(task) => handleTaskClick(deepFocusTasks.find(t => t.id === task.id)!)}
-                              color="orange"
-                              variant="default"
-                              emptyMessage="No tasks found for today. Tasks will appear here when created in the task management system."
-                            />
+                          {/* Collapsible Task Cards with Subtasks */}
+                          <div className="space-y-3">
+                            {deepFocusTasks.length > 0 ? (
+                              deepFocusTasks.map((task) => (
+                                <CollapsibleTaskCard
+                                  key={task.id}
+                                  task={task}
+                                  onTaskToggle={(taskId, completed) => handleTaskToggle(taskId, completed)}
+                                  onSubtaskToggle={handleSubtaskToggle}
+                                  onAddSubtask={handleAddSubtask}
+                                  onDeleteSubtask={handleDeleteSubtask}
+                                  onTaskUpdate={handleTaskUpdate}
+                                />
+                              ))
+                            ) : (
+                              <div className="text-center py-8 text-gray-400 text-sm">
+                                No tasks found for today. Tasks will appear here when created in the task management system.
+                              </div>
+                            )}
                           </div>
                         </>
                       )}
@@ -1775,6 +2156,10 @@ const AdminLifeLockDay: React.FC = () => {
                       color="green"
                       isCompact={true}
                       progress={lightFocusProgress}
+                      isCollapsible={true}
+                      showCollapseWhenComplete={true}
+                      completedTasksCount={lightFocusTasks.filter(t => t.completed && t.title).length}
+                      totalTasksCount={lightFocusTasks.filter(t => t.title).length}
                       headerContent={
                         <div className="space-y-2">
                           <div className="flex items-center justify-between gap-2">
@@ -2249,6 +2634,8 @@ const AdminLifeLockDay: React.FC = () => {
                     icon={Moon}
                     color="indigo"
                     isCompact={true}
+                    isCollapsible={true}
+                    showCollapseWhenComplete={false}
                   >
                     <div className="space-y-6">
                       {/* Top Row - Reflection Cards Side by Side (Desktop) */}
@@ -2653,6 +3040,31 @@ const AdminLifeLockDay: React.FC = () => {
               }
             ]}
           />
+            </>
+          )}
+
+          {/* TimeBlock View */}
+          {activeTab === 'timeblock' && (
+            <TimeBlockView 
+              currentDate={currentDate} 
+              onOpenTimeBoxModal={() => setShowTimeBoxModal(true)}
+              morningTasks={morningRoutine}
+              deepTasks={deepFocusTasks}
+              lightTasks={lightFocusTasks}
+              workoutTasks={workoutItems}
+              healthTasks={healthItems}
+            />
+          )}
+
+          {/* Statistics View */}
+          {activeTab === 'stats' && (
+            <StatsView currentDate={currentDate} />
+          )}
+
+          {/* Enhanced AI Chat View with Legacy AI */}
+          {activeTab === 'chat' && (
+            <EnhancedAIChatView currentDate={currentDate} />
+          )}
           
         </div>
       </div>
@@ -2864,6 +3276,11 @@ const AdminLifeLockDay: React.FC = () => {
         onOpenChange={setShowTimeBoxModal}
         date={currentDate}
         wakeUpTime={wakeUpTime}
+        morningTasks={morningRoutine}
+        deepTasks={deepFocusTasks}
+        lightTasks={lightFocusTasks}
+        workoutTasks={workoutItems}
+        healthTasks={healthItems}
       />
 
       {/* Gamification Dashboard Modal */}
@@ -2880,6 +3297,12 @@ const AdminLifeLockDay: React.FC = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Bottom Navigation */}
+      <BottomNavigation 
+        activeTab={activeTab} 
+        onTabChange={setActiveTab} 
+      />
     </AdminLayout>
   );
 };

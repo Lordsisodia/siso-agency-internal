@@ -121,14 +121,18 @@ export const DailyTrackerCard: React.FC<DailyTrackerCardProps> = ({
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
   
   // Check if section should show as collapsible
-  const shouldShowCollapsible = isCollapsible && (
-    !showCollapseWhenComplete || 
-    (showCollapseWhenComplete && completedTasksCount === totalTasksCount && totalTasksCount > 0)
-  );
+  const shouldShowCollapsible = isCollapsible;
   
   const handleToggleCollapse = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsCollapsed(!isCollapsed);
+  };
+
+  const handleTitleClick = (e: React.MouseEvent) => {
+    if (shouldShowCollapsible) {
+      e.stopPropagation();
+      setIsCollapsed(!isCollapsed);
+    }
   };
 
   return (
@@ -164,11 +168,15 @@ export const DailyTrackerCard: React.FC<DailyTrackerCardProps> = ({
 
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
-              <CardTitle className={cn(
-                'flex items-center gap-2 flex-wrap',
-                colors.title,
-                isCompact ? 'text-base sm:text-lg' : 'text-lg sm:text-xl'
-              )}>
+              <CardTitle 
+                className={cn(
+                  'flex items-center gap-2 flex-wrap transition-colors duration-200',
+                  colors.title,
+                  isCompact ? 'text-base sm:text-lg' : 'text-lg sm:text-xl',
+                  shouldShowCollapsible && 'cursor-pointer hover:opacity-80 select-none'
+                )}
+                onClick={handleTitleClick}
+              >
                 <Icon className={cn(
                   colors.icon,
                   isCompact ? 'h-4 w-4 sm:h-5 sm:w-5' : 'h-5 w-5 sm:h-6 sm:w-6'
@@ -177,6 +185,17 @@ export const DailyTrackerCard: React.FC<DailyTrackerCardProps> = ({
                 <span className="font-semibold truncate">{title}</span>
                 {shouldShowCollapsible && completedTasksCount === totalTasksCount && totalTasksCount > 0 && (
                   <Check className="h-4 w-4 text-green-500 ml-1" />
+                )}
+                
+                {/* Inline collapse indicator */}
+                {shouldShowCollapsible && (
+                  <div className="ml-auto flex items-center gap-1">
+                    {isCollapsed ? (
+                      <ChevronDown className="h-5 w-5 opacity-80 hover:opacity-100 transition-opacity" />
+                    ) : (
+                      <ChevronUp className="h-5 w-5 opacity-80 hover:opacity-100 transition-opacity" />
+                    )}
+                  </div>
                 )}
               </CardTitle>
               
@@ -191,9 +210,47 @@ export const DailyTrackerCard: React.FC<DailyTrackerCardProps> = ({
               
               {/* Collapsed state summary */}
               {isCollapsed && shouldShowCollapsible && (
-                <div className="mt-2 text-sm text-gray-400">
-                  {completedTasksCount}/{totalTasksCount} tasks completed ✓
-                </div>
+                <motion.div 
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-3 space-y-2"
+                >
+                  {/* Progress summary with visual bar */}
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm text-gray-300 font-medium">
+                      {completedTasksCount}/{totalTasksCount} tasks completed
+                    </div>
+                    {completedTasksCount === totalTasksCount && totalTasksCount > 0 && (
+                      <div className="flex items-center gap-1 text-xs text-green-400 bg-green-500/20 px-2 py-1 rounded-full border border-green-500/30">
+                        <Check className="h-3 w-3" />
+                        <span>Complete</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Mini progress bar */}
+                  <div className="w-full bg-gray-700/50 rounded-full h-2">
+                    <div 
+                      className={cn('h-2 rounded-full transition-all duration-500', colors.progress)}
+                      style={{ width: `${totalTasksCount > 0 ? (completedTasksCount / totalTasksCount) * 100 : 0}%` }}
+                    />
+                  </div>
+                  
+                  {/* Additional info when not complete */}
+                  {completedTasksCount < totalTasksCount && (
+                    <div className="text-xs text-gray-500">
+                      {totalTasksCount - completedTasksCount} tasks remaining
+                    </div>
+                  )}
+                  
+                  {/* Time indicator if available */}
+                  {progress !== undefined && (
+                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <div className="w-2 h-2 rounded-full bg-current opacity-50" />
+                      <span>Overall progress: {Math.round(progress)}%</span>
+                    </div>
+                  )}
+                </motion.div>
               )}
             </div>
 
@@ -208,26 +265,6 @@ export const DailyTrackerCard: React.FC<DailyTrackerCardProps> = ({
                 >
                   {badge.label}
                 </Badge>
-              )}
-              
-              {/* Collapse button - only show on mobile */}
-              {shouldShowCollapsible && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleToggleCollapse}
-                  className={cn(
-                    'h-8 w-8 p-0 md:hidden',
-                    colors.icon,
-                    'hover:bg-gray-700/50'
-                  )}
-                >
-                  {isCollapsed ? (
-                    <ChevronDown className="h-4 w-4" />
-                  ) : (
-                    <ChevronUp className="h-4 w-4" />
-                  )}
-                </Button>
               )}
             </div>
           </div>

@@ -24,9 +24,9 @@ import { MobileWeekView } from '@/components/admin/lifelock/ui/MobileWeekView';
 import { StatisticalWeekView } from '@/components/admin/lifelock/ui/StatisticalWeekView';
 import { FloatingActionButton } from '@/components/admin/lifelock/ui/FloatingActionButton';
 import { MobileMicrophoneButton } from '@/components/admin/lifelock/ui/MobileMicrophoneButton';
-import { useAdminCheck } from '@/hooks/useAdminCheck';
-import { PersonalTaskCard } from '@/services/personalTaskService';
-import { hybridTaskService } from '@/services/hybridTaskService';
+import { useClerkUser } from '@/components/ClerkProvider';
+import { PersonalTaskCard, personalTaskService } from '@/services/personalTaskService';
+import { ClerkHybridTaskService } from '@/services/clerkHybridTaskService';
 import { lifeLockVoiceTaskProcessor, ThoughtDumpResult } from '@/services/lifeLockVoiceTaskProcessor';
 import { ThoughtDumpResults } from '@/components/admin/lifelock/ui/ThoughtDumpResults';
 import { eisenhowerMatrixOrganizer, EisenhowerMatrixResult } from '@/services/eisenhowerMatrixOrganizer';
@@ -47,22 +47,35 @@ interface TaskCard {
 
 const AdminLifeLock: React.FC = () => {
   const navigate = useNavigate();
-  const { isAdmin, isLoading: adminLoading } = useAdminCheck();
+  const { user, isSignedIn, isLoaded } = useClerkUser();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [selectedYear, setSelectedYear] = useState(getYear(new Date()));
   const [view, setView] = useState<'week' | 'month'>('week');
   const [refreshTrigger, setRefreshTrigger] = useState(0); // To trigger re-render when tasks change
   
-  // Clear all caches on component mount to force fresh data
+  // Initialize hybrid service and clear caches on component mount
   useEffect(() => {
-    if ('caches' in window) {
-      caches.keys().then((cacheNames) => {
-        cacheNames.forEach((cacheName) => {
-          caches.delete(cacheName);
+    const initializeApp = async () => {
+      // Initialize hybrid service with automatic migration
+      try {
+        await ClerkHybridTaskService.initialize();
+        console.log('✅ [APP] Hybrid service initialized with auto-migration');
+      } catch (error) {
+        console.error('❌ [APP] Hybrid service initialization failed:', error);
+      }
+      
+      // Clear caches for fresh data
+      if ('caches' in window) {
+        caches.keys().then((cacheNames) => {
+          cacheNames.forEach((cacheName) => {
+            caches.delete(cacheName);
+          });
         });
-      });
-    }
+      }
+    };
+    
+    initializeApp();
   }, []);
   const [isProcessingVoice, setIsProcessingVoice] = useState(false);
   const [lastThoughtDumpResult, setLastThoughtDumpResult] = useState<ThoughtDumpResult | null>(null);
@@ -106,7 +119,11 @@ const AdminLifeLock: React.FC = () => {
         const personalTasks = [...result.deepTasks, ...result.lightTasks].map(task => 
           personalTaskService.convertLifeLockTaskToPersonal(task)
         );
-        hybridTaskService.addTasks(personalTasks);
+        if (user) {
+          for (const task of personalTasks) {
+            await ClerkHybridTaskService.addTask(user, task);
+          }
+        }
         
         // Trigger refresh to show new tasks
         setRefreshTrigger(prev => prev + 1);
@@ -135,14 +152,16 @@ const AdminLifeLock: React.FC = () => {
   ];
 
   // Task toggle handler with personal task service
-  const handleTaskToggle = (taskId: string) => {
-    hybridTaskService.toggleTask(taskId);
+  const handleTaskToggle = async (taskId: string) => {
+    if (user) {
+      await ClerkHybridTaskService.updateTask(user, taskId, { completed: true });
+    }
     console.log('Personal task toggled:', taskId);
     setRefreshTrigger(prev => prev + 1); // Trigger re-render
   };
 
   // Quick add handler for creating simple tasks
-  const handleQuickAdd = () => {
+  const handleQuickAdd = async () => {
     const taskName = prompt('Enter task name:');
     if (taskName && taskName.trim()) {
       const newTask = {
@@ -152,10 +171,28 @@ const AdminLifeLock: React.FC = () => {
         description: 'Quick task added manually'
       };
       
-      hybridTaskService.addTasks([newTask]);
+      if (user) {
+        await ClerkHybridTaskService.addTask(user, newTask);
+      }
       console.log('Quick task added:', taskName);
       setRefreshTrigger(prev => prev + 1); // Trigger re-render
     }
+  };
+
+  // Custom task add handler for CustomTaskInput component
+  const handleCustomTaskAdd = async (task: { title: string; priority: 'low' | 'medium' | 'high' }) => {
+    const newTask = {
+      title: task.title,
+      workType: 'light' as const,
+      priority: task.priority,
+      description: 'Custom task added by user'
+    };
+    
+    if (user) {
+      await ClerkHybridTaskService.addTask(user, newTask);
+    }
+    console.log('Custom task added:', task.title, 'Priority:', task.priority);
+    setRefreshTrigger(prev => prev + 1); // Trigger re-render
   };
 
   // Eisenhower Matrix handlers
@@ -210,26 +247,40 @@ const AdminLifeLock: React.FC = () => {
     await handleOrganizeTasks();
   };
 
-  // Personal task data with automatic rollover
-  // useMemo to regenerate when refreshTrigger changes
-  const todayCard = React.useMemo(() => {
-    const personalCard = hybridTaskService.getTasksForDate(new Date());
-    // Convert PersonalTaskCard to TaskCard format for compatibility
-    return {
-      id: personalCard.id,
-      date: personalCard.date,
-      title: personalCard.title,
-      completed: personalCard.completed,
-      tasks: personalCard.tasks.map(task => ({
-        id: task.id,
-        title: task.title,
-        completed: task.completed,
-        description: task.description,
-        logField: task.workType === 'deep' ? 'Deep Focus Session' : 'Quick Task',
-        logValue: task.completedAt ? `Completed: ${new Date(task.completedAt).toLocaleTimeString()}` : undefined
-      }))
+  // Personal task data with automatic rollover  
+  const [todayCard, setTodayCard] = useState<any>({
+    id: 'loading',
+    date: new Date(),
+    title: 'Loading...',
+    completed: false,
+    tasks: []
+  });
+  
+  useEffect(() => {
+    const loadTodayCard = async () => {
+      if (user) {
+        const personalCard = await ClerkHybridTaskService.getTasksForDate(user, new Date());
+        // Convert PersonalTaskCard to TaskCard format for compatibility
+        const cardData = {
+          id: personalCard.id,
+          date: personalCard.date,
+          title: personalCard.title,
+          completed: personalCard.completed,
+          tasks: personalCard.tasks.map(task => ({
+            id: task.id,
+            title: task.title,
+            completed: task.completed,
+            description: task.description,
+            logField: task.workType === 'deep' ? 'Deep Focus Session' : 'Quick Task',
+            logValue: task.completedAt ? `Completed: ${new Date(task.completedAt).toLocaleTimeString()}` : undefined
+          }))
+        };
+        setTodayCard(cardData);
+      }
     };
-  }, [refreshTrigger]);
+    
+    loadTodayCard();
+  }, [user, refreshTrigger]);
 
   // Get week's date range
   const weekStart = startOfWeek(currentDate);
@@ -238,7 +289,9 @@ const AdminLifeLock: React.FC = () => {
   const weekCards = React.useMemo(() => {
     const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
     return weekDays.map(date => {
-      const personalCard = hybridTaskService.getTasksForDate(date);
+      // Use sync version since this is just for display
+      // For now, use fallback data for week view (will be updated to async loading)
+      const personalCard = personalTaskService.getTasksForDate(date);
       // Convert PersonalTaskCard to TaskCard format for compatibility
       return {
         id: personalCard.id,
@@ -426,7 +479,7 @@ const AdminLifeLock: React.FC = () => {
   };
 
   // Handle loading state
-  if (adminLoading) {
+  if (!isLoaded || !user) {
     return (
       <AdminLayout>
         <div className="flex items-center justify-center h-screen">
@@ -437,7 +490,8 @@ const AdminLifeLock: React.FC = () => {
   }
 
   // Handle non-admin access
-  if (!isAdmin) {
+  // Clerk handles auth, no additional admin check needed
+  if (false) {
     navigate('/login');
     return null;
   }
@@ -471,6 +525,7 @@ const AdminLifeLock: React.FC = () => {
           onViewDetails={handleCardClick}
           onQuickAdd={handleQuickAdd}
           onTaskToggle={handleTaskToggle}
+          onCustomTaskAdd={handleCustomTaskAdd}
           className="mb-6"
         />
 
@@ -702,7 +757,7 @@ const AdminLifeLock: React.FC = () => {
             <Button 
               className="relative overflow-hidden bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white px-8 sm:px-10 py-4 sm:py-5 text-sm sm:text-base font-semibold rounded-2xl shadow-lg hover:shadow-purple-500/30 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleOrganizeTasks}
-              disabled={isAnalyzingTasks || todayCard.tasks.length === 0}
+              disabled={isAnalyzingTasks || !todayCard || todayCard.tasks.length === 0}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
               {isAnalyzingTasks ? (
