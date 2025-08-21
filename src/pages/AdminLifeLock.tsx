@@ -13,7 +13,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Filter,
-  Plus
+  Plus,
+  Target
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, addWeeks, subWeeks, startOfMonth, endOfMonth, addMonths, subMonths, getYear, eachWeekOfInterval, getWeek } from 'date-fns';
@@ -24,11 +25,13 @@ import { StatisticalWeekView } from '@/components/admin/lifelock/ui/StatisticalW
 import { FloatingActionButton } from '@/components/admin/lifelock/ui/FloatingActionButton';
 import { MobileMicrophoneButton } from '@/components/admin/lifelock/ui/MobileMicrophoneButton';
 import { useAdminCheck } from '@/hooks/useAdminCheck';
-import { personalTaskService, PersonalTaskCard } from '@/services/personalTaskService';
+import { PersonalTaskCard } from '@/services/personalTaskService';
+import { hybridTaskService } from '@/services/hybridTaskService';
 import { lifeLockVoiceTaskProcessor, ThoughtDumpResult } from '@/services/lifeLockVoiceTaskProcessor';
 import { ThoughtDumpResults } from '@/components/admin/lifelock/ui/ThoughtDumpResults';
 import { eisenhowerMatrixOrganizer, EisenhowerMatrixResult } from '@/services/eisenhowerMatrixOrganizer';
 import { EisenhowerMatrixModal } from '@/components/admin/lifelock/ui/EisenhowerMatrixModal';
+import SyncStatusWidget from '@/components/SyncStatusWidget';
 
 interface TaskCard {
   id: string;
@@ -103,7 +106,7 @@ const AdminLifeLock: React.FC = () => {
         const personalTasks = [...result.deepTasks, ...result.lightTasks].map(task => 
           personalTaskService.convertLifeLockTaskToPersonal(task)
         );
-        personalTaskService.addTasks(personalTasks);
+        hybridTaskService.addTasks(personalTasks);
         
         // Trigger refresh to show new tasks
         setRefreshTrigger(prev => prev + 1);
@@ -133,7 +136,7 @@ const AdminLifeLock: React.FC = () => {
 
   // Task toggle handler with personal task service
   const handleTaskToggle = (taskId: string) => {
-    personalTaskService.toggleTask(taskId);
+    hybridTaskService.toggleTask(taskId);
     console.log('Personal task toggled:', taskId);
     setRefreshTrigger(prev => prev + 1); // Trigger re-render
   };
@@ -149,7 +152,7 @@ const AdminLifeLock: React.FC = () => {
         description: 'Quick task added manually'
       };
       
-      personalTaskService.addTasks([newTask]);
+      hybridTaskService.addTasks([newTask]);
       console.log('Quick task added:', taskName);
       setRefreshTrigger(prev => prev + 1); // Trigger re-render
     }
@@ -210,7 +213,7 @@ const AdminLifeLock: React.FC = () => {
   // Personal task data with automatic rollover
   // useMemo to regenerate when refreshTrigger changes
   const todayCard = React.useMemo(() => {
-    const personalCard = personalTaskService.getTasksForDate(new Date());
+    const personalCard = hybridTaskService.getTasksForDate(new Date());
     // Convert PersonalTaskCard to TaskCard format for compatibility
     return {
       id: personalCard.id,
@@ -235,7 +238,7 @@ const AdminLifeLock: React.FC = () => {
   const weekCards = React.useMemo(() => {
     const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
     return weekDays.map(date => {
-      const personalCard = personalTaskService.getTasksForDate(date);
+      const personalCard = hybridTaskService.getTasksForDate(date);
       // Convert PersonalTaskCard to TaskCard format for compatibility
       return {
         id: personalCard.id,
@@ -764,6 +767,9 @@ const AdminLifeLock: React.FC = () => {
         onReanalyze={handleReanalyze}
         isLoading={isAnalyzingTasks}
       />
+
+      {/* Hybrid Sync Status Widget */}
+      <SyncStatusWidget />
     </AdminLayout>
   );
 };
