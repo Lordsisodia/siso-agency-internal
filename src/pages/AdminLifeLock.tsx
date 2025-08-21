@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/admin/layout/AdminLayout';
 import { AdminPageTitle } from '@/components/admin/layout/AdminPageTitle';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -20,9 +20,13 @@ import { format, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, addWeeks,
 import { useNavigate } from 'react-router-dom';
 import { MobileTodayCard } from '@/components/admin/lifelock/ui/MobileTodayCard';
 import { MobileWeekView } from '@/components/admin/lifelock/ui/MobileWeekView';
+import { StatisticalWeekView } from '@/components/admin/lifelock/ui/StatisticalWeekView';
 import { FloatingActionButton } from '@/components/admin/lifelock/ui/FloatingActionButton';
 import { MobileMicrophoneButton } from '@/components/admin/lifelock/ui/MobileMicrophoneButton';
 import { useAdminCheck } from '@/hooks/useAdminCheck';
+import { personalTaskService, PersonalTaskCard } from '@/services/personalTaskService';
+import { lifeLockVoiceTaskProcessor, ThoughtDumpResult } from '@/services/lifeLockVoiceTaskProcessor';
+import { ThoughtDumpResults } from '@/components/admin/lifelock/ui/ThoughtDumpResults';
 
 interface TaskCard {
   id: string;
@@ -43,22 +47,70 @@ const AdminLifeLock: React.FC = () => {
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [selectedYear, setSelectedYear] = useState(getYear(new Date()));
   const [view, setView] = useState<'week' | 'month'>('week');
+  const [refreshTrigger, setRefreshTrigger] = useState(0); // To trigger re-render when tasks change
+  
+  // Clear all caches on component mount to force fresh data
+  useEffect(() => {
+    if ('caches' in window) {
+      caches.keys().then((cacheNames) => {
+        cacheNames.forEach((cacheName) => {
+          caches.delete(cacheName);
+        });
+      });
+    }
+  }, []);
+  const [isProcessingVoice, setIsProcessingVoice] = useState(false);
+  const [lastThoughtDumpResult, setLastThoughtDumpResult] = useState<ThoughtDumpResult | null>(null);
 
-  // Voice command handler
-  const handleVoiceCommand = (command: string) => {
+  // Enhanced voice command handler with intelligent thought dump processing
+  const handleVoiceCommand = async (command: string) => {
     console.log('🎤 Voice command received:', command);
     const lowerCommand = command.toLowerCase();
     
+    // Check for navigation commands first
     if (lowerCommand.includes('today') || lowerCommand.includes('day view')) {
       navigate('/admin/life-lock/day');
+      return;
     } else if (lowerCommand.includes('week') || lowerCommand.includes('week view')) {
       setView('week');
+      return;
     } else if (lowerCommand.includes('month') || lowerCommand.includes('month view')) {
       setView('month');
-    } else if (lowerCommand.includes('add task') || lowerCommand.includes('new task')) {
-      console.log('Voice: Add task command recognized');
-    } else {
-      console.log('Voice command not recognized. Available commands: today, week, month, add task');
+      return;
+    }
+    
+    // Everything else is treated as a thought dump for task creation
+    console.log('🧠 Processing as thought dump...');
+    setIsProcessingVoice(true);
+    
+    try {
+      const result = await lifeLockVoiceTaskProcessor.processThoughtDump(command);
+      setLastThoughtDumpResult(result);
+      
+      if (result.success) {
+        console.log(`✅ Thought dump processed: ${result.totalTasks} tasks created`);
+        console.log(`🔥 Deep tasks: ${result.deepTasks.length}`);
+        console.log(`⚡ Light tasks: ${result.lightTasks.length}`);
+        
+        // Add thought dump results to personal task system
+        const personalTasks = [...result.deepTasks, ...result.lightTasks].map(task => 
+          personalTaskService.convertLifeLockTaskToPersonal(task)
+        );
+        personalTaskService.addTasks(personalTasks);
+        
+        // Trigger refresh to show new tasks
+        setRefreshTrigger(prev => prev + 1);
+        
+        // Show success feedback - will display the results modal
+      } else {
+        console.error('❌ Thought dump processing failed:', result.message);
+        alert('Failed to process your thought dump. Please try again.');
+      }
+    } catch (error) {
+      console.error('❌ Voice processing error:', error);
+      alert('Error processing your voice input. Please try again.');
+    } finally {
+      setIsProcessingVoice(false);
     }
   };
 
@@ -72,34 +124,76 @@ const AdminLifeLock: React.FC = () => {
     'July', 'August', 'September', 'October', 'November', 'December'
   ];
 
-  // Sample data - in real app this would come from your backend
-  const generateSampleTasks = (date: Date): TaskCard => {
-    const isToday = isSameDay(date, new Date());
-    const isPast = date < new Date() && !isToday;
-    const dayOfWeek = date.getDay();
-    
-    return {
-      id: format(date, 'yyyy-MM-dd'),
-      date,
-      title: format(date, 'EEEE, MMM d'),
-      completed: isPast ? Math.random() > 0.2 : Math.random() > 0.3, // Past days more likely completed
-      tasks: [
-        { id: '1', title: 'Morning routine', completed: isPast ? Math.random() > 0.2 : Math.random() > 0.4 },
-        { id: '2', title: 'Work tasks', completed: isPast ? Math.random() > 0.3 : Math.random() > 0.5 },
-        { id: '3', title: 'Exercise', completed: isPast ? Math.random() > 0.4 : Math.random() > 0.6 },
-        { id: '4', title: 'Evening review', completed: isPast ? Math.random() > 0.1 : Math.random() > 0.3 },
-      ].slice(0, isToday ? 4 : Math.floor(Math.random() * 4) + 1)
-    };
+  // Task toggle handler with personal task service
+  const handleTaskToggle = (taskId: string) => {
+    personalTaskService.toggleTask(taskId);
+    console.log('Personal task toggled:', taskId);
+    setRefreshTrigger(prev => prev + 1); // Trigger re-render
   };
 
-  // Get today's tasks
-  const todayCard = generateSampleTasks(new Date());
+  // Quick add handler for creating simple tasks
+  const handleQuickAdd = () => {
+    const taskName = prompt('Enter task name:');
+    if (taskName && taskName.trim()) {
+      const newTask = {
+        title: taskName.trim(),
+        workType: 'light' as const,
+        priority: 'medium' as const,
+        description: 'Quick task added manually'
+      };
+      
+      personalTaskService.addTasks([newTask]);
+      console.log('Quick task added:', taskName);
+      setRefreshTrigger(prev => prev + 1); // Trigger re-render
+    }
+  };
 
-  // Get week's tasks
+  // Personal task data with automatic rollover
+  // useMemo to regenerate when refreshTrigger changes
+  const todayCard = React.useMemo(() => {
+    const personalCard = personalTaskService.getTasksForDate(new Date());
+    // Convert PersonalTaskCard to TaskCard format for compatibility
+    return {
+      id: personalCard.id,
+      date: personalCard.date,
+      title: personalCard.title,
+      completed: personalCard.completed,
+      tasks: personalCard.tasks.map(task => ({
+        id: task.id,
+        title: task.title,
+        completed: task.completed,
+        description: task.description,
+        logField: task.workType === 'deep' ? 'Deep Focus Session' : 'Quick Task',
+        logValue: task.completedAt ? `Completed: ${new Date(task.completedAt).toLocaleTimeString()}` : undefined
+      }))
+    };
+  }, [refreshTrigger]);
+
+  // Get week's date range
   const weekStart = startOfWeek(currentDate);
   const weekEnd = endOfWeek(currentDate);
-  const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
-  const weekCards = weekDays.map(generateSampleTasks);
+  
+  const weekCards = React.useMemo(() => {
+    const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
+    return weekDays.map(date => {
+      const personalCard = personalTaskService.getTasksForDate(date);
+      // Convert PersonalTaskCard to TaskCard format for compatibility
+      return {
+        id: personalCard.id,
+        date: personalCard.date,
+        title: personalCard.title,
+        completed: personalCard.completed,
+        tasks: personalCard.tasks.map(task => ({
+          id: task.id,
+          title: task.title,
+          completed: task.completed,
+          description: task.description,
+          logField: task.workType === 'deep' ? 'Deep Focus Session' : 'Quick Task',
+          logValue: task.completedAt ? `Completed: ${new Date(task.completedAt).toLocaleTimeString()}` : undefined
+        }))
+      };
+    });
+  }, [weekStart, weekEnd, refreshTrigger]);
 
   // Get month's tasks organized in calendar format
   const monthStart = startOfMonth(selectedMonth);
@@ -155,7 +249,7 @@ const AdminLifeLock: React.FC = () => {
     const completionRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
     const cardSizes = {
-      small: 'p-3 sm:p-4 min-h-[120px] sm:min-h-[140px]',
+      small: 'p-2 sm:p-4 min-h-[80px] sm:min-h-[140px]',
       medium: 'p-4 sm:p-5 min-h-[160px] sm:min-h-[180px]',
       large: 'p-5 sm:p-6 md:p-8 min-h-[200px] sm:min-h-[240px]'
     };
@@ -169,33 +263,35 @@ const AdminLifeLock: React.FC = () => {
       >
         <Card className={`
           ${cardSizes[size]}
-          ${card.completed && isPast ? 'border-green-400/70 bg-gradient-to-br from-green-900/30 via-black/50 to-green-900/20 border-2 shadow-lg shadow-green-500/10' : 
-            card.completed ? 'border-green-400/60 bg-gradient-to-br from-green-900/25 via-black/40 to-green-900/15 shadow-md shadow-green-500/8' : 
-            'bg-gradient-to-br from-black/70 via-gray-900/40 to-black/60 border-orange-500/20'}
-          ${isToday ? 'ring-2 ring-orange-500/80 border-orange-500/70 shadow-xl shadow-orange-500/25' : ''}
-          ${!isCurrentMonth ? 'opacity-30' : ''}
-          hover:shadow-2xl hover:shadow-orange-500/20 hover:scale-[1.03] hover:border-orange-500/50 hover:ring-1 hover:ring-orange-500/30 transition-all duration-500 text-white cursor-pointer backdrop-blur-lg relative overflow-hidden group
+          ${card.completed && isPast ? 'border-emerald-400/60 bg-gradient-to-br from-emerald-900/30 via-gray-900/50 to-emerald-900/20 border-2 shadow-lg shadow-emerald-500/15' : 
+            card.completed ? 'border-emerald-400/50 bg-gradient-to-br from-emerald-900/25 via-gray-900/40 to-emerald-900/15 shadow-md shadow-emerald-500/10' : 
+            'bg-gradient-to-br from-gray-900/80 via-gray-800/60 to-gray-900/80 border-orange-400/30'}
+          ${isToday ? 'ring-2 ring-orange-400/80 border-orange-400/70 shadow-xl shadow-orange-500/30' : ''}
+          ${!isCurrentMonth ? 'opacity-40' : ''}
+          hover:shadow-2xl hover:shadow-orange-500/25 hover:scale-[1.05] hover:border-orange-400/60 hover:ring-1 hover:ring-orange-400/40 transition-all duration-300 text-white cursor-pointer backdrop-blur-xl relative overflow-hidden group
         `}>
-          {/* Glassmorphism overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 via-transparent to-yellow-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-orange-500/3 via-yellow-500/3 to-orange-500/3 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 blur-sm"></div>
+          {/* Enhanced glassmorphism overlay */}
+          <div className="absolute inset-0 bg-gradient-to-br from-orange-500/8 via-transparent to-amber-500/8 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/8 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-400"></div>
+          <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-orange-400/30 to-transparent"></div>
           
-          <CardHeader className="pb-1 sm:pb-2 relative z-10">
+          <CardHeader className={`${size === 'small' ? 'pb-1 p-2' : 'pb-1 sm:pb-2'} relative z-10`}>
             <div className="flex items-center justify-between">
-              <h3 className={`font-semibold ${
+              <h3 className={`font-bold text-gray-200 ${
                 size === 'large' 
                   ? 'text-sm sm:text-base md:text-lg' 
                   : size === 'medium'
                   ? 'text-xs sm:text-sm'
-                  : 'text-xs'
+                  : 'text-lg sm:text-xs'
               }`}>
                 {size === 'small' ? format(card.date, 'd') : card.title}
               </h3>
-              {card.completed ? (
-                <CheckCircle2 className={`${size === 'small' ? 'h-3 w-3 sm:h-4 sm:w-4' : 'h-4 w-4 sm:h-5 sm:w-5'} text-green-600`} />
-              ) : (
-                <Circle className={`${size === 'small' ? 'h-3 w-3 sm:h-4 sm:w-4' : 'h-4 w-4 sm:h-5 sm:w-5'} text-gray-400`} />
+              {size !== 'small' && (
+                card.completed ? (
+                  <CheckCircle2 className={`${size === 'small' ? 'h-3 w-3 sm:h-4 sm:w-4' : 'h-4 w-4 sm:h-5 sm:w-5'} text-emerald-400`} />
+                ) : (
+                  <Circle className={`${size === 'small' ? 'h-3 w-3 sm:h-4 sm:w-4' : 'h-4 w-4 sm:h-5 sm:w-5'} text-gray-300`} />
+                )
               )}
             </div>
             {isToday && size !== 'small' && (
@@ -204,32 +300,37 @@ const AdminLifeLock: React.FC = () => {
               </Badge>
             )}
           </CardHeader>
-          <CardContent className={`${size === 'small' ? 'p-2' : ''} relative z-10`}>
+          <CardContent className={`${size === 'small' ? 'p-2 pt-0' : ''} relative z-10`}>
             <div className={`space-y-1 ${size === 'small' ? 'sm:space-y-2' : 'space-y-2'}`}>
               {size !== 'small' && (
                 <>
-                  <div className="flex justify-between text-xs text-gray-400">
+                  <div className="flex justify-between text-xs text-gray-300 font-medium">
                     <span>{completedTasks}/{totalTasks} tasks</span>
                     <span>{Math.round(completionRate)}%</span>
                   </div>
-                  <div className="w-full bg-black/40 backdrop-blur-sm rounded-full h-2 sm:h-3 shadow-inner border border-orange-500/20">
+                  <div className="w-full bg-gray-800/60 backdrop-blur-sm rounded-full h-2 sm:h-3 shadow-inner border border-orange-400/30">
                     <div 
-                      className="bg-gradient-to-r from-orange-500 via-yellow-400 to-green-500 h-2 sm:h-3 rounded-full transition-all duration-700 shadow-lg shadow-orange-500/30 relative overflow-hidden"
+                      className="bg-gradient-to-r from-orange-400 via-amber-300 to-emerald-400 h-2 sm:h-3 rounded-full transition-all duration-700 shadow-lg shadow-orange-500/25 relative overflow-hidden"
                       style={{ width: `${completionRate}%` }}
                     >
-                      <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent animate-pulse"></div>
+                      <div className="absolute inset-0 bg-gradient-to-r from-white/25 to-transparent"></div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-white/10"></div>
                     </div>
                   </div>
                 </>
               )}
               {size === 'small' && (
-                <div className="flex items-center justify-center">
-                  <div className="w-full bg-black/40 backdrop-blur-sm rounded-full h-2 shadow-inner border border-orange-500/20">
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs text-gray-300 font-medium">
+                    <span>{completedTasks}/{totalTasks}</span>
+                    <span>{Math.round(completionRate)}%</span>
+                  </div>
+                  <div className="w-full bg-gray-800/60 backdrop-blur-sm rounded-full h-2 shadow-inner border border-orange-400/30">
                     <div 
-                      className="bg-gradient-to-r from-orange-500 via-yellow-400 to-green-500 h-2 rounded-full transition-all duration-700 shadow-lg shadow-orange-500/20 relative overflow-hidden"
+                      className="bg-gradient-to-r from-orange-400 via-amber-300 to-emerald-400 h-2 rounded-full transition-all duration-700 shadow-lg shadow-orange-500/25 relative overflow-hidden"
                       style={{ width: `${completionRate}%` }}
                     >
-                      <div className="absolute inset-0 bg-gradient-to-r from-white/15 to-transparent animate-pulse"></div>
+                      <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent"></div>
                     </div>
                   </div>
                 </div>
@@ -239,17 +340,17 @@ const AdminLifeLock: React.FC = () => {
                   {card.tasks.slice(0, 3).map((task) => (
                     <div key={task.id} className="flex items-center space-x-2 text-xs">
                       {task.completed ? (
-                        <CheckCircle2 className="h-3 w-3 text-green-600 flex-shrink-0" />
+                        <CheckCircle2 className="h-3 w-3 text-emerald-400 flex-shrink-0" />
                       ) : (
-                        <Circle className="h-3 w-3 text-gray-400 flex-shrink-0" />
+                        <Circle className="h-3 w-3 text-gray-300 flex-shrink-0" />
                       )}
-                      <span className={`truncate ${task.completed ? 'line-through text-gray-500' : 'text-gray-300'}`}>
+                      <span className={`truncate font-medium ${task.completed ? 'line-through text-gray-400' : 'text-gray-200'}`}>
                         {task.title}
                       </span>
                     </div>
                   ))}
                   {card.tasks.length > 3 && (
-                    <div className="text-xs text-gray-500 ml-5">
+                    <div className="text-xs text-gray-400 ml-5 font-medium">
                       +{card.tasks.length - 3} more tasks
                     </div>
                   )}
@@ -283,17 +384,31 @@ const AdminLifeLock: React.FC = () => {
     <AdminLayout>
       <div className="min-h-screen w-full bg-gradient-to-br from-black via-gray-900 to-black">
         <div className="p-4 sm:p-6 md:p-6 space-y-4 sm:space-y-6 md:space-y-8">
-        <AdminPageTitle
-          icon={Lock}
-          title="Life Lock"
-          subtitle="Track your daily progress with a Notion-style task overview"
-        />
+        {/* Life Lock Header */}
+        <div className="relative mb-8 overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900/90 via-gray-800/80 to-gray-900/90 border border-orange-400/20 p-6 backdrop-blur-xl">
+          <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 via-transparent to-amber-500/5"></div>
+          <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-orange-400/40 to-transparent"></div>
+          <div className="relative z-10 flex items-center space-x-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-orange-500 via-orange-400 to-amber-500 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/30 border border-orange-300/20">
+              <Lock className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-400 via-amber-300 to-orange-500 bg-clip-text text-transparent">
+                Life Lock
+              </h1>
+              <p className="text-gray-300 text-base font-medium">
+                Daily progress tracking system
+              </p>
+            </div>
+          </div>
+        </div>
 
         {/* Today's Progress - Mobile Compact View */}
         <MobileTodayCard
           card={todayCard}
           onViewDetails={handleCardClick}
-          onQuickAdd={() => console.log('Quick add task')}
+          onQuickAdd={handleQuickAdd}
+          onTaskToggle={handleTaskToggle}
           className="mb-6"
         />
 
@@ -329,8 +444,8 @@ const AdminLifeLock: React.FC = () => {
           </div>
         </section>
 
-        {/* This Week - Mobile Optimized View */}
-        <MobileWeekView
+        {/* This Week - Mobile Statistical View v3.0 - FORCE REFRESH */}
+        <StatisticalWeekView
           weekCards={weekCards}
           weekStart={weekStart}
           weekEnd={weekEnd}
@@ -384,104 +499,128 @@ const AdminLifeLock: React.FC = () => {
           </div>
         </section>
 
-        {/* Monthly Overview - Enhanced Layout */}
+        {/* Monthly Progress - Simple Overview */}
         <section className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/3 to-orange-500/3 rounded-2xl blur-sm"></div>
-          <div className="relative bg-black/40 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-yellow-500/15 shadow-lg shadow-yellow-500/5">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 space-y-3 sm:space-y-0">
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-blue-500/5 rounded-2xl blur-sm"></div>
+          <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-purple-500/20 shadow-lg shadow-purple-500/10">
+            <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-xl sm:text-2xl font-bold text-white mb-1">
-                  <Calendar className="h-5 w-5 sm:h-6 sm:w-6 mr-2 text-yellow-400 inline" />
-                  Monthly Overview
+                  Monthly Progress
                 </h2>
-                <p className="text-yellow-200/80 text-sm font-medium">
-                  {format(selectedMonth, 'MMMM yyyy')}
+                <p className="text-purple-200/80 text-sm font-medium">
+                  {format(selectedMonth, 'MMMM yyyy')} • Day {format(new Date(), 'd')} of {format(new Date(), 'dd')}
                 </p>
               </div>
+            </div>
+            
+            {/* Monthly Progress Dots */}
+            <div className="grid grid-cols-7 sm:grid-cols-10 lg:grid-cols-15 gap-2 mb-4">
+              {Array.from({ length: 31 }, (_, i) => {
+                const day = i + 1;
+                const dayDate = new Date(selectedYear, selectedMonth.getMonth(), day);
+                const isToday = day === new Date().getDate() && selectedMonth.getMonth() === new Date().getMonth();
+                const isPast = dayDate < new Date() && !isToday;
+                const isCurrentMonth = dayDate.getMonth() === selectedMonth.getMonth();
+                
+                if (!isCurrentMonth) return null;
+                
+                const completionRate = isPast ? Math.random() * 100 : isToday ? 50 : 0;
+                
+                return (
+                  <div key={day} className="flex flex-col items-center space-y-1">
+                    <div className="text-xs text-gray-400 font-medium">{day}</div>
+                    <div 
+                      className={`w-3 h-3 rounded-full border transition-all duration-200 ${
+                        isToday 
+                          ? 'border-orange-400 bg-orange-400/50 shadow-md shadow-orange-500/30' 
+                          : completionRate >= 80 
+                            ? 'border-emerald-400 bg-emerald-400/80' 
+                            : completionRate >= 50 
+                              ? 'border-amber-400 bg-amber-400/80' 
+                              : completionRate > 0 
+                                ? 'border-orange-400 bg-orange-400/60' 
+                                : 'border-gray-600 bg-gray-800/60'
+                      }`}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+            
+            {/* Legend */}
+            <div className="flex items-center justify-center space-x-6 text-xs text-gray-400">
               <div className="flex items-center space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="bg-black/50 border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/20 hover:border-yellow-500/50 hover:text-yellow-200 px-3 py-2 transition-all duration-300"
-                  onClick={() => navigateMonth('prev')}
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="bg-black/50 border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/20 hover:border-yellow-500/50 hover:text-yellow-200 px-3 py-2 transition-all duration-300"
-                  onClick={() => navigateMonth('next')}
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
+                <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
+                <span>Excellent</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 rounded-full bg-amber-400"></div>
+                <span>Good</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 rounded-full bg-orange-400"></div>
+                <span>Started</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 rounded-full bg-orange-400/50 border border-orange-400"></div>
+                <span>Today</span>
               </div>
             </div>
-          
-            {/* Month and Year Filters */}
-            <div className="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-4 mb-4 sm:mb-6">
-              <div className="flex items-center space-x-2">
-                <label className="text-xs sm:text-sm font-medium text-yellow-300">Month:</label>
-                <Select value={selectedMonth.getMonth().toString()} onValueChange={handleMonthChange}>
-                  <SelectTrigger className="w-[120px] sm:w-[140px] bg-black/60 border-yellow-500/30 text-white text-sm hover:border-yellow-500/50 transition-colors">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-black/90 border-yellow-500/30 backdrop-blur-sm">
-                    {months.map((month, index) => (
-                      <SelectItem key={index} value={index.toString()} className="text-white hover:bg-yellow-500/20 text-sm">
-                        {month}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+          </div>
+        </section>
+
+        {/* Priority Tasks */}
+        <section className="relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-red-500/5 to-pink-500/5 rounded-2xl blur-sm"></div>
+          <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-red-500/20 shadow-lg shadow-red-500/10">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-xl sm:text-2xl font-bold text-white mb-1">
+                  Priority Tasks
+                </h2>
+                <p className="text-red-200/80 text-sm font-medium">
+                  Focus on what matters most
+                </p>
               </div>
-              <div className="flex items-center space-x-2">
-                <label className="text-xs sm:text-sm font-medium text-yellow-300">Year:</label>
-                <Select value={selectedYear.toString()} onValueChange={handleYearChange}>
-                  <SelectTrigger className="w-[80px] sm:w-[100px] bg-black/60 border-yellow-500/30 text-white text-sm hover:border-yellow-500/50 transition-colors">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-black/90 border-yellow-500/30 backdrop-blur-sm">
-                    {availableYears.map((year) => (
-                      <SelectItem key={year} value={year.toString()} className="text-white hover:bg-yellow-500/20 text-sm">
-                        {year}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              <Button
+                size="sm"
+                className="bg-red-500/20 border border-red-400/50 text-red-300 hover:bg-red-500/30 hover:border-red-400/70 px-4 py-2"
+                onClick={() => console.log('Edit priorities')}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Priority
+              </Button>
             </div>
-            {/* Calendar Grid */}
-            <div className="bg-black/30 backdrop-blur-sm rounded-lg p-2 sm:p-3 md:p-4 border border-yellow-500/10">
-              {/* Day Headers */}
-              <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-2 sm:mb-3 md:mb-4">
-                {dayLabels.map((day, index) => (
-                  <div key={day} className="text-center text-xs sm:text-sm font-semibold text-yellow-300 py-1 sm:py-2">
-                    <span className="hidden sm:inline">{day}</span>
-                    <span className="sm:hidden">{dayLabelsMobile[index]}</span>
+            
+            {/* Priority Task Cards */}
+            <div className="space-y-3">
+              {[
+                { id: '1', title: 'Complete quarterly review', priority: 'high', dueDate: 'Today', completed: false },
+                { id: '2', title: 'Finish client presentation', priority: 'high', dueDate: 'Tomorrow', completed: false },
+                { id: '3', title: 'Review team feedback', priority: 'medium', dueDate: 'This week', completed: true },
+              ].map((task) => (
+                <div key={task.id} className="flex items-center justify-between p-4 bg-gray-800/40 rounded-lg border border-gray-700/50 hover:border-red-400/30 transition-all duration-200">
+                  <div className="flex items-center space-x-3">
+                    <div className={`w-3 h-3 rounded-full ${
+                      task.priority === 'high' ? 'bg-red-400' : task.priority === 'medium' ? 'bg-amber-400' : 'bg-blue-400'
+                    }`} />
+                    <div>
+                      <h3 className={`font-medium ${task.completed ? 'line-through text-gray-500' : 'text-gray-200'}`}>
+                        {task.title}
+                      </h3>
+                      <p className="text-xs text-gray-400">{task.dueDate}</p>
+                    </div>
                   </div>
-                ))}
-              </div>
-              
-              {/* Calendar Weeks */}
-              <div className="space-y-1 sm:space-y-2">
-                {calendarWeeks.map((week, weekIndex) => (
-                  <div key={weekIndex} className="grid grid-cols-7 gap-1 sm:gap-2">
-                    {week.map((day) => {
-                      const card = generateSampleTasks(day);
-                      const isCurrentMonth = day.getMonth() === selectedMonth.getMonth();
-                      return (
-                        <TaskCardComponent 
-                          key={card.id} 
-                          card={card} 
-                          size="small" 
-                          isCurrentMonth={isCurrentMonth}
-                        />
-                      );
-                    })}
+                  <div className="flex items-center space-x-2">
+                    {task.completed ? (
+                      <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+                    ) : (
+                      <Circle className="h-5 w-5 text-gray-400" />
+                    )}
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           </div>
         </section>
@@ -510,17 +649,25 @@ const AdminLifeLock: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile Microphone Button - Top Center - Temporarily disabled for debugging */}
-      {/* <MobileMicrophoneButton onVoiceCommand={handleVoiceCommand} /> */}
-
-      {/* Floating Action Button for Mobile */}
-      <FloatingActionButton
-        onQuickAdd={() => console.log('Quick add task')}
-        onVoiceInput={handleVoiceCommand}
-        onTodayView={() => navigate('/admin/life-lock/day')}
-        onQuickTimer={() => console.log('Quick timer')}
-        onQuickPhoto={() => console.log('Quick photo')}
+      {/* Mobile Microphone Button - Top Center */}
+      <MobileMicrophoneButton 
+        onVoiceCommand={handleVoiceCommand}
+        disabled={isProcessingVoice}
       />
+
+      {/* Floating Action Button removed - using microphone button instead */}
+
+      {/* Thought Dump Results Modal */}
+      {lastThoughtDumpResult && (
+        <ThoughtDumpResults
+          result={lastThoughtDumpResult}
+          onClose={() => setLastThoughtDumpResult(null)}
+          onAddToSchedule={() => {
+            // Tasks were already added when voice processing completed
+            setRefreshTrigger(prev => prev + 1);
+          }}
+        />
+      )}
     </AdminLayout>
   );
 };

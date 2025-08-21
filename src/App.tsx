@@ -149,8 +149,9 @@ function App() {
           {/* Test route for diagnosis */}
           <Route path="/test" element={<TestPage />} />
           
-          {/* Public routes */}
-          <Route path="/" element={<Index />} />
+          {/* Public routes - redirect root to LifeLock */}
+          <Route path="/" element={<Navigate to="/admin/life-lock" replace />} />
+          <Route path="/index" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/admin-login" element={<AdminAutoLogin />} />
           <Route path="/portfolio" element={<PublicPortfolio />} />
