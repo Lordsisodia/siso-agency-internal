@@ -8,7 +8,8 @@
  * - Quadrant 4: Not Urgent + Not Important (Eliminate)
  */
 
-import { personalTaskService, PersonalTask } from './personalTaskService';
+import { PersonalTask } from './personalTaskService';
+import { hybridTaskService } from './hybridTaskService';
 
 export type EisenhowerQuadrant = 'do-first' | 'schedule' | 'delegate' | 'eliminate';
 
@@ -52,7 +53,7 @@ export class EisenhowerMatrixOrganizer {
     console.log('🎯 [EISENHOWER MATRIX] Starting task analysis for date:', date);
     
     // Get all tasks for the specified date
-    const taskCard = personalTaskService.getTasksForDate(date);
+    const taskCard = hybridTaskService.getTasksForDate(date);
     const tasks = taskCard.tasks;
     
     if (tasks.length === 0) {
@@ -483,7 +484,7 @@ export class EisenhowerMatrixOrganizer {
     })) as PersonalTask[];
     
     // Replace tasks in personal task service
-    personalTaskService.replaceTasks(updatedTasks, date);
+    hybridTaskService.replaceTasks(updatedTasks, date);
     
     console.log('✅ [EISENHOWER MATRIX] Task order applied successfully!');
   }
@@ -529,7 +530,7 @@ export class EisenhowerMatrixOrganizer {
    * Get a quick preview of task organization without full analysis
    */
   public static getQuickPreview(date: Date = new Date()): { taskCount: number; estimatedQuadrants: Record<EisenhowerQuadrant, number> } {
-    const taskCard = personalTaskService.getTasksForDate(date);
+    const taskCard = hybridTaskService.getTasksForDate(date);
     const tasks = taskCard.tasks;
     
     // Quick heuristic estimation without full AI analysis
