@@ -27,6 +27,8 @@ import { useAdminCheck } from '@/hooks/useAdminCheck';
 import { personalTaskService, PersonalTaskCard } from '@/services/personalTaskService';
 import { lifeLockVoiceTaskProcessor, ThoughtDumpResult } from '@/services/lifeLockVoiceTaskProcessor';
 import { ThoughtDumpResults } from '@/components/admin/lifelock/ui/ThoughtDumpResults';
+import { eisenhowerMatrixOrganizer, EisenhowerMatrixResult } from '@/services/eisenhowerMatrixOrganizer';
+import { EisenhowerMatrixModal } from '@/components/admin/lifelock/ui/EisenhowerMatrixModal';
 
 interface TaskCard {
   id: string;
@@ -61,6 +63,11 @@ const AdminLifeLock: React.FC = () => {
   }, []);
   const [isProcessingVoice, setIsProcessingVoice] = useState(false);
   const [lastThoughtDumpResult, setLastThoughtDumpResult] = useState<ThoughtDumpResult | null>(null);
+  
+  // Eisenhower Matrix state
+  const [showEisenhowerModal, setShowEisenhowerModal] = useState(false);
+  const [eisenhowerResult, setEisenhowerResult] = useState<EisenhowerMatrixResult | null>(null);
+  const [isAnalyzingTasks, setIsAnalyzingTasks] = useState(false);
 
   // Enhanced voice command handler with intelligent thought dump processing
   const handleVoiceCommand = async (command: string) => {
@@ -146,6 +153,58 @@ const AdminLifeLock: React.FC = () => {
       console.log('Quick task added:', taskName);
       setRefreshTrigger(prev => prev + 1); // Trigger re-render
     }
+  };
+
+  // Eisenhower Matrix handlers
+  const handleOrganizeTasks = async () => {
+    console.log('🎯 Starting Eisenhower Matrix analysis...');
+    setIsAnalyzingTasks(true);
+    
+    try {
+      const result = await eisenhowerMatrixOrganizer.organizeTasks(currentDate);
+      setEisenhowerResult(result);
+      setShowEisenhowerModal(true);
+      
+      console.log('✅ Eisenhower Matrix analysis complete:', {
+        doFirst: result.doFirst.length,
+        schedule: result.schedule.length,
+        delegate: result.delegate.length,
+        eliminate: result.eliminate.length
+      });
+      
+    } catch (error) {
+      console.error('❌ Failed to analyze tasks:', error);
+      alert('Failed to analyze tasks. Please try again.');
+    } finally {
+      setIsAnalyzingTasks(false);
+    }
+  };
+
+  const handleApplyOrganization = async () => {
+    if (!eisenhowerResult) return;
+    
+    console.log('🔄 Applying Eisenhower Matrix organization...');
+    
+    try {
+      await eisenhowerMatrixOrganizer.applyOrganizedOrder(eisenhowerResult, currentDate);
+      setRefreshTrigger(prev => prev + 1); // Trigger UI refresh
+      setShowEisenhowerModal(false);
+      setEisenhowerResult(null);
+      
+      console.log('✅ Task organization applied successfully!');
+      
+      // Show success feedback
+      alert(`Tasks organized successfully! ${eisenhowerResult.summary.doFirstCount} critical tasks prioritized.`);
+      
+    } catch (error) {
+      console.error('❌ Failed to apply organization:', error);
+      alert('Failed to apply task organization. Please try again.');
+    }
+  };
+
+  const handleReanalyze = async () => {
+    setEisenhowerResult(null);
+    await handleOrganizeTasks();
   };
 
   // Personal task data with automatic rollover
@@ -630,12 +689,36 @@ const AdminLifeLock: React.FC = () => {
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
             <Button 
               className="relative overflow-hidden bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white px-8 sm:px-10 py-4 sm:py-5 text-sm sm:text-base font-semibold rounded-2xl shadow-lg hover:shadow-orange-500/30 transition-all duration-300 transform hover:scale-105"
-              onClick={() => console.log('Add new task')}
+              onClick={handleQuickAdd}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
               <Plus className="h-5 w-5 sm:h-6 sm:w-6 mr-2" />
               Add New Task
             </Button>
+            
+            <Button 
+              className="relative overflow-hidden bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white px-8 sm:px-10 py-4 sm:py-5 text-sm sm:text-base font-semibold rounded-2xl shadow-lg hover:shadow-purple-500/30 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={handleOrganizeTasks}
+              disabled={isAnalyzingTasks || todayCard.tasks.length === 0}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+              {isAnalyzingTasks ? (
+                <>
+                  <motion.div 
+                    className="h-5 w-5 sm:h-6 sm:w-6 mr-2 border-2 border-white border-t-transparent rounded-full" 
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  />
+                  Analyzing...
+                </>
+              ) : (
+                <>
+                  <Target className="h-5 w-5 sm:h-6 sm:w-6 mr-2" />
+                  Organize Tasks
+                </>
+              )}
+            </Button>
+            
             <Button 
               variant="outline"
               className="border-orange-500/30 text-orange-300 hover:bg-orange-500/20 hover:border-orange-500/50 hover:text-white bg-black/30 backdrop-blur-sm px-8 sm:px-10 py-4 sm:py-5 text-sm sm:text-base font-semibold rounded-2xl transition-all duration-300 transform hover:scale-105"
@@ -668,6 +751,19 @@ const AdminLifeLock: React.FC = () => {
           }}
         />
       )}
+
+      {/* Eisenhower Matrix Modal */}
+      <EisenhowerMatrixModal
+        isOpen={showEisenhowerModal}
+        onClose={() => {
+          setShowEisenhowerModal(false);
+          setEisenhowerResult(null);
+        }}
+        result={eisenhowerResult}
+        onApplyOrganization={handleApplyOrganization}
+        onReanalyze={handleReanalyze}
+        isLoading={isAnalyzingTasks}
+      />
     </AdminLayout>
   );
 };

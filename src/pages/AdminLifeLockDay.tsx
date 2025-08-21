@@ -44,6 +44,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { TodayTasksService, TodayTask } from '@/services/todayTasksService';
 import { LifeLockService, DailyRoutine, DailyWorkout, DailyHealth, DailyHabits, DailyReflections } from '@/services/lifeLockService';
 import { EnhancedTaskService, EnhancedTask } from '@/services/enhancedTaskService';
+import { personalTaskService } from '@/services/personalTaskService';
 import { voiceService } from '@/services/voiceService';
 import DailyTrackerAIAssistant from '@/components/admin/lifelock/DailyTrackerAIAssistant';
 import { TaskSelector } from '@/components/admin/lifelock/TaskSelector';
@@ -240,19 +241,43 @@ const AdminLifeLockDay: React.FC = () => {
     if (!customTaskInput.trim()) return;
 
     try {
-      // Create a new task using the Enhanced Task Service
-      const newTask = await EnhancedTaskService.createTask({
+      // Create a new task using the Personal Task Service (updated system)
+      const newTaskData = {
         title: customTaskInput.trim(),
         description: 'Custom deep focus task',
-        work_type: 'deep_focus',
-        focus_level: 'high',
-        priority: 'medium',
-        due_date: format(currentDate, 'yyyy-MM-dd'),
-        estimated_duration: 60 // Default 1 hour
-      });
+        workType: 'deep' as const,
+        priority: 'medium' as const,
+        estimatedDuration: 60
+      };
 
-      // Add to current deep focus tasks
-      setDeepFocusTasks(prev => [...prev, newTask]);
+      // Add to personal task service
+      personalTaskService.addTasks([newTaskData], currentDate);
+
+      // Refresh the task list by re-fetching tasks for current date
+      const refreshedTasks = personalTaskService.getTasksForDate(currentDate);
+      const deepTasks = refreshedTasks.tasks.filter(task => task.workType === 'deep');
+      
+      // Convert personal tasks to enhanced tasks format for compatibility
+      const enhancedDeepTasks = deepTasks.map(task => ({
+        id: task.id,
+        title: task.title,
+        description: task.description || '',
+        category: 'deep_focus' as const,
+        priority: task.priority,
+        status: task.completed ? 'completed' : 'active',
+        work_type: 'deep_focus' as const,
+        focus_level: 4,
+        energy_level: 'high' as const,
+        estimated_duration: task.estimatedDuration,
+        due_date: format(currentDate, 'yyyy-MM-dd'),
+        effort_points: 8,
+        lifelock_sync: true,
+        auto_schedule: false,
+        flow_state_potential: 4,
+        context_switching_cost: 10
+      }));
+      
+      setDeepFocusTasks(enhancedDeepTasks);
       
       // Clear input
       setCustomTaskInput('');
