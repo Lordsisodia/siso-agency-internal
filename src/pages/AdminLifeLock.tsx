@@ -22,7 +22,6 @@ import { useNavigate } from 'react-router-dom';
 import { MobileTodayCard } from '@/components/admin/lifelock/ui/MobileTodayCard';
 import { MobileWeekView } from '@/components/admin/lifelock/ui/MobileWeekView';
 import { StatisticalWeekView } from '@/components/admin/lifelock/ui/StatisticalWeekView';
-import { FloatingActionButton } from '@/components/admin/lifelock/ui/FloatingActionButton';
 import { MobileMicrophoneButton } from '@/components/admin/lifelock/ui/MobileMicrophoneButton';
 import { useClerkUser } from '@/components/ClerkProvider';
 import { PersonalTaskCard, personalTaskService } from '@/services/personalTaskService';
@@ -31,6 +30,7 @@ import { lifeLockVoiceTaskProcessor, ThoughtDumpResult } from '@/services/lifeLo
 import { ThoughtDumpResults } from '@/components/admin/lifelock/ui/ThoughtDumpResults';
 import { eisenhowerMatrixOrganizer, EisenhowerMatrixResult } from '@/services/eisenhowerMatrixOrganizer';
 import { EisenhowerMatrixModal } from '@/components/admin/lifelock/ui/EisenhowerMatrixModal';
+import { SystemTestingDashboard } from '@/components/admin/lifelock/ui/SystemTestingDashboard';
 import SyncStatusWidget from '@/components/SyncStatusWidget';
 
 interface TaskCard {
@@ -498,7 +498,7 @@ const AdminLifeLock: React.FC = () => {
 
   return (
     <AdminLayout>
-      <div className="min-h-screen w-full bg-gradient-to-br from-black via-gray-900 to-black">
+      <div className="min-h-screen w-full bg-gradient-to-br from-black via-gray-900 to-black pb-96">
         <div className="p-4 sm:p-6 md:p-6 space-y-4 sm:space-y-6 md:space-y-8">
         {/* Life Lock Header */}
         <div className="relative mb-8 overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900/90 via-gray-800/80 to-gray-900/90 border border-orange-400/20 p-6 backdrop-blur-xl">
@@ -822,6 +822,18 @@ const AdminLifeLock: React.FC = () => {
         onReanalyze={handleReanalyze}
         isLoading={isAnalyzingTasks}
       />
+
+      {/* System Testing Dashboard - Dev Tool */}
+      <div className="fixed bottom-4 right-4 z-50">
+        <details className="bg-gray-900 border border-orange-400/20 rounded-lg shadow-xl">
+          <summary className="p-3 cursor-pointer text-orange-400 font-medium">
+            🧪 System Test
+          </summary>
+          <div className="p-4 w-96 max-h-96 overflow-y-auto">
+            <SystemTestingDashboard />
+          </div>
+        </details>
+      </div>
 
       {/* Hybrid Sync Status Widget */}
       <SyncStatusWidget />
