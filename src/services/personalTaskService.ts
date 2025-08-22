@@ -41,12 +41,67 @@ export class PersonalTaskService {
   private static readonly MAX_ROLLOVER_DAYS = 7; // Don't roll over tasks older than 7 days
 
   /**
-   * Get all stored personal tasks
+   * Get all stored personal tasks with MOBILE-SAFE recovery
    */
   private static getAllTasks(): PersonalTask[] {
     try {
+      // Try main storage first
       const stored = localStorage.getItem(this.STORAGE_KEY);
-      return stored ? JSON.parse(stored) : [];
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          return parsed;
+        }
+      }
+
+      // MOBILE-SAFE: Try backup locations if main failed
+      console.log('⚠️ [PERSONAL TASKS] Main storage empty, checking backups...');
+      
+      const backupKeys = [
+        'siso-tasks-backup-1',
+        'siso-tasks-backup-2',
+        'siso-emergency-tasks',
+        `${this.STORAGE_KEY}-${new Date().toISOString().split('T')[0]}`, // Today's backup
+        `${this.STORAGE_KEY}-${new Date(Date.now() - 86400000).toISOString().split('T')[0]}` // Yesterday's backup
+      ];
+
+      for (const key of backupKeys) {
+        try {
+          const backup = localStorage.getItem(key);
+          if (backup) {
+            const parsed = JSON.parse(backup);
+            const tasks = parsed.tasks || (Array.isArray(parsed) ? parsed : []);
+            if (Array.isArray(tasks) && tasks.length > 0) {
+              console.log(`✅ [PERSONAL TASKS] Recovered ${tasks.length} tasks from backup: ${key}`);
+              // Immediately re-save to main storage
+              localStorage.setItem(this.STORAGE_KEY, JSON.stringify(tasks));
+              return tasks;
+            }
+          }
+        } catch (e) {
+          continue;
+        }
+      }
+
+      // Try sessionStorage as last resort
+      try {
+        const sessionData = sessionStorage.getItem(this.STORAGE_KEY);
+        if (sessionData) {
+          const parsed = JSON.parse(sessionData);
+          const tasks = parsed.tasks || (Array.isArray(parsed) ? parsed : []);
+          if (Array.isArray(tasks) && tasks.length > 0) {
+            console.log(`✅ [PERSONAL TASKS] Recovered ${tasks.length} tasks from sessionStorage`);
+            // Re-save to main storage
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(tasks));
+            return tasks;
+          }
+        }
+      } catch (e) {
+        // Final fallback failed
+      }
+
+      console.log('❌ [PERSONAL TASKS] No tasks found in any storage location');
+      return [];
     } catch (error) {
       console.error('❌ [PERSONAL TASKS] Error loading tasks:', error);
       return [];
@@ -54,12 +109,52 @@ export class PersonalTaskService {
   }
 
   /**
-   * Save all personal tasks
+   * Save all personal tasks with MOBILE-SAFE redundancy
    */
   private static saveAllTasks(tasks: PersonalTask[]): void {
     try {
+      // Original save
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(tasks));
-      console.log(`💾 [PERSONAL TASKS] Saved ${tasks.length} tasks`);
+      
+      // MOBILE-SAFE: Multiple backup locations to prevent iOS data loss
+      const backupKeys = [
+        'siso-tasks-backup-1',
+        'siso-tasks-backup-2',
+        'siso-emergency-tasks'
+      ];
+      
+      const taskData = {
+        tasks,
+        savedAt: new Date().toISOString(),
+        device: navigator.userAgent,
+        version: '2.0'
+      };
+
+      // Save to multiple localStorage keys
+      backupKeys.forEach(key => {
+        try {
+          localStorage.setItem(key, JSON.stringify(taskData));
+        } catch (e) {
+          // Continue with other backups
+        }
+      });
+
+      // Save to sessionStorage as additional backup
+      try {
+        sessionStorage.setItem(this.STORAGE_KEY, JSON.stringify(taskData));
+      } catch (e) {
+        // Continue
+      }
+
+      // Date-specific backup
+      const dateKey = `${this.STORAGE_KEY}-${new Date().toISOString().split('T')[0]}`;
+      try {
+        localStorage.setItem(dateKey, JSON.stringify(taskData));
+      } catch (e) {
+        // Continue
+      }
+      
+      console.log(`💾 [PERSONAL TASKS] Saved ${tasks.length} tasks with mobile-safe redundancy`);
     } catch (error) {
       console.error('❌ [PERSONAL TASKS] Error saving tasks:', error);
     }
