@@ -1,5 +1,5 @@
 import React from 'react';
-import { PartnershipIntegrationTest } from '@/components/partnership/PartnershipIntegrationTest';
+import { PartnershipIntegrationTest } from '@/ai-first/features/partnerships/components/PartnershipIntegrationTest';
 
 export default function TestPage() {
   return (

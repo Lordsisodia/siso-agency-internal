@@ -8,7 +8,7 @@ import { useOnboardingAuth } from '@/hooks/useOnboardingAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { SisoIcon } from '@/components/ui/icons/SisoIcon';
 import { BusinessDataInput } from '@/components/app-plan/BusinessDataForm';
-import { appPlanAgent } from '@/services/appPlanAgent';
+import { appPlanAgent } from '@/ai-first/core/ai.service';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';

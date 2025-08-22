@@ -18,7 +18,7 @@ import {
   Brain
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { appPlanAgent } from '@/services/appPlanAgent';
+import { appPlanAgent } from '@/ai-first/core/ai.service';
 import { GeneratedAppPlan } from '@/types/appPlan.types';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';

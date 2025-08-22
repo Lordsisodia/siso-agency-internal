@@ -1,18 +1,18 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { lazy, Suspense, useEffect } from 'react';
-import { ClerkHybridTaskService } from './services/clerkHybridTaskService';
+import { ClerkHybridTaskService } from '@/ai-first/core/auth.service';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Toaster } from '@/components/ui/toaster';
 import { ClerkProvider } from './components/ClerkProvider';
-import { ClerkAuthGuard } from './components/auth/ClerkAuthGuard';
-import { AuthGuard } from './components/auth/AuthGuard';
+import { ClerkAuthGuard } from '@/ai-first/features/auth/components/ClerkAuthGuard';
+import { AuthGuard } from '@/ai-first/features/auth/components/AuthGuard';
 import { PageLoader } from './components/ui/PageLoader';
 
 // Critical pages loaded immediately (landing, auth, home)
 import Index from './pages/Index';
 import Auth from './pages/Auth';
 import Home from './pages/Home';
-import { AdminAutoLogin } from './components/auth/AdminAutoLogin';
+import { AdminAutoLogin } from '@/ai-first/features/auth/components/AdminAutoLogin';
 
 // Lazy load all other pages for super-fast initial load
 const TestPage = lazy(() => import('./pages/TestPage'));
@@ -94,9 +94,9 @@ const PartnerLogin = lazy(() => import('./pages/auth/PartnerLogin'));
 const PartnerRegister = lazy(() => import('./pages/auth/PartnerRegister'));
 const PartnerPasswordReset = lazy(() => import('./pages/auth/PartnerPasswordReset'));
 const PartnerDashboard = lazy(() => import('./pages/dashboard/PartnerDashboard'));
-const PartnerAuthGuard = lazy(() => import('./components/auth/PartnerAuthGuard').then(m => ({ default: m.PartnerAuthGuard })));
-const PartnerLeaderboard = lazy(() => import('./components/dashboard/PartnerLeaderboard').then(m => ({ default: m.PartnerLeaderboard })));
-const ComingSoonSection = lazy(() => import('./components/dashboard/ComingSoonSection').then(m => ({ default: m.ComingSoonSection })));
+const PartnerAuthGuard = lazy(() => import('@/ai-first/features/auth/components/PartnerAuthGuard').then(m => ({ default: m.PartnerAuthGuard })));
+const PartnerLeaderboard = lazy(() => import('@/ai-first/features/dashboard/components/PartnerLeaderboard').then(m => ({ default: m.PartnerLeaderboard })));
+const ComingSoonSection = lazy(() => import('@/ai-first/features/dashboard/components/ComingSoonSection').then(m => ({ default: m.ComingSoonSection })));
 const EducationHub = lazy(() => import('./pages/dashboard/EducationHub'));
 const TrainingHub = lazy(() => import('./pages/dashboard/TrainingHub'));
 const ReferralsManagement = lazy(() => import('./pages/dashboard/ReferralsManagement'));
@@ -243,8 +243,10 @@ function App() {
           <Route path="/admin/payments" element={<AuthGuard adminOnly={true}><AdminPayments /></AuthGuard>} />
           <Route path="/admin/daily-planner" element={<AuthGuard adminOnly={true}><AdminDailyPlanner /></AuthGuard>} />
           */}
+          <Route path="/admin/lifelock" element={<ClerkAuthGuard><AdminLifeLock /></ClerkAuthGuard>} />
           <Route path="/admin/life-lock" element={<ClerkAuthGuard><AdminLifeLock /></ClerkAuthGuard>} />
-          <Route path="/admin/life-lock/day" element={<ClerkAuthGuard><AdminLifeLockDay /></ClerkAuthGuard>} />
+          <Route path="/admin/lifelock/day/:date" element={<ClerkAuthGuard><AdminLifeLockDay /></ClerkAuthGuard>} />
+          <Route path="/admin/life-lock/day/:date" element={<ClerkAuthGuard><AdminLifeLockDay /></ClerkAuthGuard>} />
           <Route path="/admin/tasks" element={<ClerkAuthGuard><AdminTasks /></ClerkAuthGuard>} />
           <Route path="/admin/tasks/:memberId" element={<ClerkAuthGuard><TeamMemberTasksPage /></ClerkAuthGuard>} />
           <Route path="/admin/settings" element={<ClerkAuthGuard><AdminSettings /></ClerkAuthGuard>} />

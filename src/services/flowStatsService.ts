@@ -1,4 +1,4 @@
-import { FlowSession, FlowStats, TaskContext, FocusIntensity } from '@/components/admin/lifelock/ui/FlowStateTimer';
+import { FlowSession, FlowStats, TaskContext, FocusIntensity } from '@/ai-first/features/tasks/ui/FlowStateTimer';
 
 export class FlowStatsService {
   private static readonly STORAGE_KEY = 'lifelock-flow-stats';
