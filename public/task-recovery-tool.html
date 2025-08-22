@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SISO Task Recovery Tool</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 24px;
+        }
+        .section {
+            margin-bottom: 24px;
+            padding: 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+        .found-data {
+            background: #e8f5e8;
+            border-color: #4caf50;
+        }
+        .no-data {
+            background: #fff3e0;
+            border-color: #ff9800;
+        }
+        button {
+            background: #2196f3;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 12px;
+            margin-bottom: 12px;
+        }
+        button:hover {
+            background: #1976d2;
+        }
+        .task-item {
+            padding: 8px;
+            margin: 8px 0;
+            background: #f9f9f9;
+            border-radius: 6px;
+        }
+        .task-title {
+            font-weight: bold;
+            color: #333;
+        }
+        .task-meta {
+            font-size: 14px;
+            color: #666;
+            margin-top: 4px;
+        }
+        pre {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 SISO Task Recovery Tool</h1>
+        <p><strong>Help recover your lost focus tasks and feedback from last night</strong></p>
+        
+        <div class="section">
+            <h3>Step 1: Check Browser Storage</h3>
+            <button onclick="checkAllStorage()">🔍 Scan All Storage</button>
+            <button onclick="checkSpecificKeys()">📱 Check Task Keys</button>
+            <button onclick="exportAllData()">💾 Export All Data</button>
+            <div id="storage-results"></div>
+        </div>
+
+        <div class="section">
+            <h3>Step 2: Browser Cache & History</h3>
+            <button onclick="checkSessionStorage()">🧠 Check Session Storage</button>
+            <button onclick="showRecoveryTips()">💡 Show Recovery Tips</button>
+            <div id="cache-results"></div>
+        </div>
+
+        <div class="section">
+            <h3>Step 3: Export & Backup</h3>
+            <button onclick="createBackup()">📦 Create Backup</button>
+            <button onclick="restoreFromBackup()">🔄 Restore Backup</button>
+            <div id="backup-results"></div>
+        </div>
+    </div>
+
+    <script>
+        function checkAllStorage() {
+            const results = document.getElementById('storage-results');
+            let html = '<h4>🔍 All LocalStorage Keys:</h4>';
+            let foundTasks = false;
+
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                const value = localStorage.getItem(key);
+                
+                if (key.toLowerCase().includes('task') || 
+                    key.toLowerCase().includes('focus') || 
+                    key.toLowerCase().includes('life') ||
+                    key.toLowerCase().includes('siso')) {
+                    
+                    foundTasks = true;
+                    html += `<div class="task-item found-data">`;
+                    html += `<div class="task-title">🔑 ${key}</div>`;
+                    
+                    try {
+                        const parsed = JSON.parse(value);
+                        if (Array.isArray(parsed)) {
+                            html += `<div class="task-meta">Array with ${parsed.length} items</div>`;
+                            parsed.forEach((item, index) => {
+                                if (item && typeof item === 'object' && item.title) {
+                                    html += `<div style="margin-left: 20px;">📝 ${item.title} ${item.completed ? '✅' : '❌'}</div>`;
+                                    if (item.description) {
+                                        html += `<div style="margin-left: 40px; color: #666; font-size: 12px;">${item.description.substring(0, 100)}</div>`;
+                                    }
+                                }
+                            });
+                        } else if (parsed.title) {
+                            html += `<div class="task-meta">Task: ${parsed.title}</div>`;
+                        } else {
+                            html += `<div class="task-meta">Object data</div>`;
+                        }
+                    } catch (e) {
+                        html += `<div class="task-meta">Raw data (${value.length} chars): ${value.substring(0, 100)}...</div>`;
+                    }
+                    html += `</div>`;
+                }
+            }
+
+            if (!foundTasks) {
+                html += '<div class="no-data">❌ No task-related data found in localStorage</div>';
+            }
+
+            results.innerHTML = html;
+        }
+
+        function checkSpecificKeys() {
+            const taskKeys = [
+                'lifelock-personal-tasks',
+                'siso-tasks',
+                'personal-tasks',
+                'focus-tasks',
+                'deep-focus-tasks',
+                'daily-tasks',
+                'tasks-' + new Date().toISOString().split('T')[0],
+                'tasks-2025-01-08',
+                'tasks-2025-01-09',
+                'clerk-user-tasks'
+            ];
+
+            let html = '<h4>🎯 Checking Specific Task Keys:</h4>';
+            let foundAny = false;
+
+            taskKeys.forEach(key => {
+                const data = localStorage.getItem(key);
+                if (data) {
+                    foundAny = true;
+                    html += `<div class="task-item found-data">`;
+                    html += `<div class="task-title">✅ Found: ${key}</div>`;
+                    try {
+                        const parsed = JSON.parse(data);
+                        if (Array.isArray(parsed)) {
+                            html += `<div class="task-meta">${parsed.length} tasks found</div>`;
+                            parsed.forEach(task => {
+                                if (task.title) {
+                                    html += `<div style="margin-left: 20px;">• ${task.title}</div>`;
+                                }
+                            });
+                        }
+                    } catch (e) {
+                        html += `<div class="task-meta">Raw data: ${data.substring(0, 200)}</div>`;
+                    }
+                    html += `</div>`;
+                } else {
+                    html += `<div style="color: #999; margin: 4px 0;">❌ ${key}</div>`;
+                }
+            });
+
+            if (!foundAny) {
+                html += '<div class="no-data">❌ None of the expected task keys found</div>';
+                html += '<p><strong>This means your tasks might have been:</strong></p>';
+                html += '<ul><li>Saved under a different key name</li><li>Not saved due to authentication issue</li><li>Cleared by browser/app</li></ul>';
+            }
+
+            document.getElementById('storage-results').innerHTML = html;
+        }
+
+        function checkSessionStorage() {
+            let html = '<h4>🧠 SessionStorage Check:</h4>';
+            let foundAny = false;
+
+            for (let i = 0; i < sessionStorage.length; i++) {
+                const key = sessionStorage.key(i);
+                const value = sessionStorage.getItem(key);
+                
+                if (key.toLowerCase().includes('task') || 
+                    key.toLowerCase().includes('focus') || 
+                    key.toLowerCase().includes('form')) {
+                    foundAny = true;
+                    html += `<div class="task-item found-data">`;
+                    html += `<div class="task-title">📝 ${key}</div>`;
+                    html += `<div class="task-meta">${value.substring(0, 200)}</div>`;
+                    html += `</div>`;
+                }
+            }
+
+            if (!foundAny) {
+                html += '<div class="no-data">❌ No task data in session storage</div>';
+            }
+
+            document.getElementById('cache-results').innerHTML = html;
+        }
+
+        function exportAllData() {
+            const allData = {};
+            
+            // Export localStorage
+            allData.localStorage = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                allData.localStorage[key] = localStorage.getItem(key);
+            }
+            
+            // Export sessionStorage  
+            allData.sessionStorage = {};
+            for (let i = 0; i < sessionStorage.length; i++) {
+                const key = sessionStorage.key(i);
+                allData.sessionStorage[key] = sessionStorage.getItem(key);
+            }
+
+            const dataStr = JSON.stringify(allData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `siso-task-recovery-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            document.getElementById('backup-results').innerHTML = 
+                '<div class="found-data">✅ Data exported! Check your Downloads folder</div>';
+        }
+
+        function showRecoveryTips() {
+            const html = `
+                <div class="found-data">
+                    <h4>💡 Recovery Tips:</h4>
+                    <ol>
+                        <li><strong>Browser History:</strong> Press Ctrl+H, search for "siso-internal"</li>
+                        <li><strong>Form Recovery:</strong> Check if browser saved form data</li>
+                        <li><strong>Network Tab:</strong> F12 → Network → look for failed POST requests</li>
+                        <li><strong>Different Device:</strong> Check if you used different device/browser</li>
+                        <li><strong>Incognito Mode:</strong> Data is lost when incognito closes</li>
+                    </ol>
+                </div>
+            `;
+            document.getElementById('cache-results').innerHTML = html;
+        }
+
+        function createBackup() {
+            checkAllStorage();
+            exportAllData();
+        }
+
+        // Auto-run on page load
+        window.onload = function() {
+            checkSpecificKeys();
+        };
+    </script>
+</body>
+</html>
