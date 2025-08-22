@@ -58,7 +58,8 @@ export class EnhancedTimeBlockService {
     const scheduledBlocks = await this.scheduleWithEnergyOptimization(
       potentialBlocks,
       fixedBlocks,
-      preferences
+      preferences,
+      date
     );
     
     // Step 4: Fill remaining time with flexible tasks
@@ -307,7 +308,8 @@ export class EnhancedTimeBlockService {
   private async scheduleWithEnergyOptimization(
     potentialBlocks: EnhancedTimeBlock[],
     fixedBlocks: EnhancedTimeBlock[],
-    preferences: WorkSchedulePreferences
+    preferences: WorkSchedulePreferences,
+    date: Date
   ): Promise<EnhancedTimeBlock[]> {
     
     const scheduledBlocks = [...fixedBlocks];
@@ -324,13 +326,15 @@ export class EnhancedTimeBlockService {
 
     // Schedule morning routine first (right after wake up)
     const morningBlocks = remainingBlocks.filter(b => b.category === 'morning-routine');
-    let currentTime = parseISO(`${format(new Date(), 'yyyy-MM-dd')}T${preferences.wakeUpTime}:00`);
+    let currentTime = parseISO(`${format(date, 'yyyy-MM-dd')}T${preferences.wakeUpTime}:00`);
     
     for (const block of morningBlocks) {
       block.startTime = format(currentTime, 'HH:mm');
       block.endTime = format(addMinutes(currentTime, block.duration), 'HH:mm');
       scheduledBlocks.push(block);
-      currentTime = addMinutes(currentTime, block.duration + preferences.transitionBuffer);
+      // Add smart buffer time based on task transition type
+      const bufferTime = this.calculateTransitionBuffer(block, morningBlocks[morningBlocks.indexOf(block) + 1]);
+      currentTime = addMinutes(currentTime, block.duration + bufferTime);
     }
 
     // Schedule high-energy tasks during peak times
@@ -556,13 +560,54 @@ export class EnhancedTimeBlockService {
     return categoryDefaults[category] || 30;
   }
 
+  /**
+   * Calculate smart transition buffer between tasks
+   */
+  private calculateTransitionBuffer(currentBlock: EnhancedTimeBlock, nextBlock?: EnhancedTimeBlock): number {
+    if (!nextBlock) return 10; // End of sequence buffer
+    
+    // Different task types need different transition times
+    const transitionMap: Record<string, Record<string, number>> = {
+      'morning-routine': { 'deep-focus': 15, 'light-focus': 10, 'workout': 20, 'health': 5 },
+      'deep-focus': { 'deep-focus': 5, 'light-focus': 10, 'break': 0, 'meal': 15 },
+      'light-focus': { 'deep-focus': 15, 'light-focus': 5, 'break': 0, 'meal': 10 },
+      'workout': { 'any': 30 }, // Always need shower/change time
+      'meal': { 'any': 10 },
+      'break': { 'any': 0 }
+    };
+    
+    const currentCategory = currentBlock.category;
+    const nextCategory = nextBlock.category;
+    
+    // Check specific transition
+    if (transitionMap[currentCategory]?.[nextCategory]) {
+      return transitionMap[currentCategory][nextCategory];
+    }
+    
+    // Check 'any' fallback
+    if (transitionMap[currentCategory]?.['any']) {
+      return transitionMap[currentCategory]['any'];
+    }
+    
+    // Default buffer based on energy level changes
+    if (currentBlock.energyRequirement === 'high' && nextBlock.energyRequirement === 'low') {
+      return 15; // Need decompression time
+    }
+    
+    if (currentBlock.energyRequirement === 'low' && nextBlock.energyRequirement === 'high') {
+      return 10; // Need preparation time
+    }
+    
+    return 5; // Default minimal buffer
+  }
+
   private getCategoryColor(category: TimeBlockCategory): string {
     const colorMap: Record<TimeBlockCategory, string> = {
-      'morning-routine': '#F59E0B',  // Amber
-      'deep-focus': '#3B82F6',      // Blue
-      'light-focus': '#10B981',     // Green
-      'workout': '#EF4444',         // Red
-      'health': '#EC4899',          // Pink
+      'morning-routine': '#F59E0B',  // Keep yellow as requested
+      'deep-focus': '#7C3AED',      // Purple for deep work
+      'light-focus': '#3B82F6',     // Blue for light work
+      'workout': '#EF4444',         // Red for workout
+      'health': '#10B981',          // Green for health
       'break': '#6B7280',           // Gray
       'meal': '#8B5CF6',            // Purple
       'commute': '#F97316',         // Orange
