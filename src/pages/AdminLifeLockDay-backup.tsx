@@ -27,9 +27,9 @@ import {
 import { motion } from 'framer-motion';
 import { format, addDays, subDays, parseISO } from 'date-fns';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { TodayTasksService, TodayTask } from '@/services/todayTasksService';
+import { TodayTasksService, TodayTask } from '@/ai-first/core/task.service';
 import { voiceService } from '@/services/voiceService';
-import DailyTrackerAIAssistant from '@/components/admin/lifelock/DailyTrackerAIAssistant';
+import DailyTrackerAIAssistant from '@/ai-first/features/tasks/components/DailyTrackerAIAssistant';
 import {
   DailyTrackerCard,
   DailyTrackerGrid,
@@ -39,7 +39,7 @@ import {
   DailyTrackerTaskItem,
   DailyTrackerTaskList,
   DailyTrackerDivider
-} from '@/components/admin/lifelock/ui';
+} from '@/ai-first/features/tasks/components/ui';
 
 interface TaskItem {
   id: string;

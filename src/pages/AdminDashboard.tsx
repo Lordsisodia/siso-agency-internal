@@ -1,10 +1,10 @@
 
 import { AdminLayout } from '@/components/admin/layout/AdminLayout';
-import { StatsOverview } from '@/components/admin/dashboard/StatsOverview';
-import { QuickActions } from '@/components/admin/dashboard/QuickActions';
-import { ClientsList } from '@/components/admin/dashboard/ClientsList';
-import { AdminTasks } from '@/components/admin/dashboard/AdminTasks';
-import { AdminStats } from '@/components/admin/dashboard/AdminStats';
+import { StatsOverview } from '@/ai-first/features/dashboard/components/StatsOverview';
+import { QuickActions } from '@/ai-first/features/dashboard/components/QuickActions';
+import { ClientsList } from '@/ai-first/features/dashboard/components/ClientsList';
+import { AdminTasks } from '@/ai-first/features/dashboard/components/AdminTasks';
+import { AdminStats } from '@/ai-first/features/dashboard/components/AdminStats';
 import { useAdminCheck } from '@/hooks/useAdminCheck';
 import { Loader2, Users, Target } from 'lucide-react';
 import { useEffect, useState, lazy, Suspense } from 'react';
@@ -15,7 +15,7 @@ import { AdminPageTitle } from '@/components/admin/layout/AdminPageTitle';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 // Lazy load heavy components
-const ProjectBasedTaskDashboard = lazy(() => import('@/components/admin/dashboard/ProjectBasedTaskDashboard').then(m => ({ default: m.ProjectBasedTaskDashboard })));
+const ProjectBasedTaskDashboard = lazy(() => import('@/ai-first/features/dashboard/components/ProjectBasedTaskDashboard').then(m => ({ default: m.ProjectBasedTaskDashboard })));
 const AdvancedNormalizedIncidentReport = lazy(() => import('@/components/ui/advanced-normalized-incident-report'));
 
 export default function AdminDashboard() {

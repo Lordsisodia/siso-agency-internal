@@ -1,0 +1,37 @@
+
+/* Plan tier styling */
+.tier-card {
+  transition: all 0.3s ease;
+  transform-origin: center;
+}
+
+.tier-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.tier-card.active {
+  border-color: rgba(var(--siso-orange), 0.5);
+  background-color: rgba(var(--siso-orange), 0.08);
+}
+
+.price-slider .slider-track {
+  height: 6px;
+  background: linear-gradient(to right, #F97316, #E11D48);
+  border-radius: 6px;
+}
+
+.price-slider .slider-thumb {
+  width: 18px;
+  height: 18px;
+  background: white;
+  border: 2px solid #E11D48;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.price-slider .slider-thumb:hover {
+  transform: scale(1.1);
+}

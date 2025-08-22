@@ -1,5 +1,5 @@
 import React from "react";
-import { MobileClaudeCodeInterface } from "@/components/claudia/MobileClaudeCodeInterface";
+import { MobileClaudeCodeInterface } from "@/ai-first/features/claudia/components/MobileClaudeCodeInterface";
 
 /**
  * Claude Code Mobile Page

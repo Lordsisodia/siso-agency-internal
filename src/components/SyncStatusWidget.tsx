@@ -3,9 +3,9 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { HybridTaskService, HybridUsageTracker } from '../services/hybridTaskService';
+import { HybridTaskService, HybridUsageTracker } from '@/ai-first/core/task.service';
 import { DataMigration, MigrationResult } from '../services/dataMigration';
-import { RealPrismaTaskService } from '../services/realPrismaTaskService';
+import { RealPrismaTaskService } from '@/ai-first/core/task.service';
 
 interface SyncStatus {
   lastSync: Date | null;

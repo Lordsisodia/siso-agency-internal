@@ -14,6 +14,11 @@ export default defineConfig(({ mode }) => ({
     hmr: {
       overlay: false // Disable overlay for faster updates
     },
+    headers: {
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    },
     fs: {
       strict: false, // Allow serving files from outside root
       // Exclude problematic directories from dependency scanning

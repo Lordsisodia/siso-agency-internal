@@ -6,7 +6,7 @@ import { Plus, Users, FileText, Calendar, Settings, BarChart3 } from "lucide-rea
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { RealUsageDashboard } from "@/components/claudia/RealUsageDashboard";
+import { RealUsageDashboard } from "@/ai-first/features/claudia/components/RealUsageDashboard";
 
 export const QuickActions = React.memo(function QuickActions() {
   const navigate = useNavigate();
