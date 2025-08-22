@@ -104,14 +104,29 @@ export const EnhancedTimeBoxCalendar: React.FC<EnhancedTimeBoxCalendarProps> = (
 
   // Calculate time block position and height
   const calculateBlockPosition = (block: EnhancedTimeBlock) => {
+    const hourHeight = 64; // h-16 = 64px per hour
+    
+    // Parse start time
     const startHour = parseInt(block.startTime.split(':')[0]);
     const startMinute = parseInt(block.startTime.split(':')[1]);
-    const totalStartMinutes = (startHour - settings.hourRange.start) * 60 + startMinute;
     
-    const top = (totalStartMinutes / settings.timeSlotInterval) * (60 / settings.timeSlotInterval) * 16; // 16px per 30min slot
-    const height = (block.duration / settings.timeSlotInterval) * (60 / settings.timeSlotInterval) * 16;
+    // Parse end time to calculate actual duration
+    const endHour = parseInt(block.endTime.split(':')[0]);
+    const endMinute = parseInt(block.endTime.split(':')[1]);
     
-    return { top: Math.max(0, top), height: Math.max(32, height) };
+    // Calculate position from the start of our hour range
+    const startFromRangeStart = (startHour - settings.hourRange.start) * 60 + startMinute;
+    const endFromRangeStart = (endHour - settings.hourRange.start) * 60 + endMinute;
+    
+    // Convert to pixels (64px per hour = 64/60 = 1.0667px per minute)
+    const pixelsPerMinute = hourHeight / 60;
+    const top = startFromRangeStart * pixelsPerMinute;
+    const height = (endFromRangeStart - startFromRangeStart) * pixelsPerMinute;
+    
+    return { 
+      top: Math.max(0, top), 
+      height: Math.max(20, height) // Minimum 20px height for visibility
+    };
   };
 
   // Get current time indicator position
@@ -243,76 +258,14 @@ export const EnhancedTimeBoxCalendar: React.FC<EnhancedTimeBoxCalendarProps> = (
   return (
     <TooltipProvider>
       <Card className={cn("h-full flex flex-col", className)}>
-        {/* Calendar Header */}
-        <CardHeader className="flex-shrink-0 pb-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
-                <Calendar className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold">
-                  {format(schedule.date, 'EEEE, MMMM d')}
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {schedule.timeBlocks.length} blocks scheduled
-                </p>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              {stats && (
-                <div className="flex items-center gap-4 text-sm">
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-2 bg-green-500 rounded-full" />
-                    <span>{stats.completed}/{stats.total}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Brain className="h-3 w-3 text-blue-500" />
-                    <span>{stats.focusHours}h</span>
-                  </div>
-                </div>
-              )}
-              
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onOptimizeSchedule}
-                className="gap-2"
-              >
-                <TrendingUp className="h-4 w-4" />
-                Optimize
-              </Button>
-            </div>
-          </div>
-
-          {/* Progress Bar */}
-          {stats && (
-            <div className="mt-4">
-              <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
-                <span>Daily Progress</span>
-                <span>{Math.round(stats.completionRate)}%</span>
-              </div>
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <motion.div
-                  className="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${stats.completionRate}%` }}
-                  transition={{ duration: 0.5 }}
-                />
-              </div>
-            </div>
-          )}
-        </CardHeader>
-
-        {/* Calendar Grid */}
+        {/* Calendar Grid - Full height timeline */}
         <div className="flex-1 min-h-0 flex">
           {/* Time Labels */}
-          <div className="w-16 flex-shrink-0 border-r border-gray-200 dark:border-gray-700">
+          <div className="w-16 flex-shrink-0 border-r border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50">
             <div className="space-y-0">
               {hours.map(hour => (
-                <div key={hour} className="h-16 flex items-start justify-end pr-2 pt-1">
-                  <span className="text-xs text-gray-500 font-medium">
+                <div key={hour} className="h-16 flex items-start justify-end pr-3 pt-2">
+                  <span className="text-xs text-gray-600 dark:text-gray-400 font-semibold">
                     {format(new Date().setHours(hour, 0), 'HH:mm')}
                   </span>
                 </div>
@@ -324,8 +277,21 @@ export const EnhancedTimeBoxCalendar: React.FC<EnhancedTimeBoxCalendarProps> = (
           <ScrollArea className="flex-1">
             <div ref={calendarRef} className="relative min-h-full">
               {/* Hour Grid Lines */}
-              {hours.map(hour => (
-                <div key={hour} className="h-16 border-b border-gray-100 dark:border-gray-800" />
+              {hours.map((hour, index) => (
+                <div 
+                  key={hour} 
+                  className={cn(
+                    "h-16 border-b",
+                    index % 2 === 0 
+                      ? "border-gray-200 dark:border-gray-700" 
+                      : "border-gray-100 dark:border-gray-800"
+                  )}
+                  style={{
+                    background: index % 2 === 0 
+                      ? 'transparent' 
+                      : 'rgba(0,0,0,0.01)'
+                  }}
+                />
               ))}
 
               {/* Current Time Indicator */}
@@ -359,37 +325,41 @@ export const EnhancedTimeBoxCalendar: React.FC<EnhancedTimeBoxCalendarProps> = (
                       <motion.div
                         key={block.id}
                         className={cn(
-                          "absolute left-2 right-2 rounded-lg border cursor-pointer z-10",
-                          "transition-all duration-200 hover:shadow-md",
-                          isSelected && "ring-2 ring-blue-500 z-20",
+                          "absolute left-3 right-3 rounded-lg border-2 cursor-pointer z-10",
+                          "transition-all duration-200 hover:shadow-lg hover:shadow-black/10",
+                          "backdrop-blur-sm mb-1",
+                          isSelected && "ring-2 ring-blue-500 z-20 shadow-lg",
                           isDragged && "opacity-50 z-30",
-                          block.completionStatus === 'completed' && "opacity-75"
+                          block.completionStatus === 'completed' && "opacity-80"
                         )}
                         style={{ 
                           top: `${top}px`, 
                           height: `${height}px`,
-                          backgroundColor: `${block.color}20`,
+                          background: `linear-gradient(135deg, ${block.color}45, ${block.color}35)`,
                           borderColor: block.color,
-                          minHeight: '40px'
+                          minHeight: '48px',
+                          boxShadow: `0 2px 8px ${block.color}15`
                         }}
                         onClick={() => handleBlockClick(block)}
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
-                        whileHover={{ scale: settings.allowDragDrop ? 1.02 : 1 }}
+                        whileHover={{ 
+                          scale: settings.allowDragDrop ? 1.01 : 1,
+                          boxShadow: `0 4px 16px ${block.color}25`
+                        }}
                         whileTap={{ scale: 0.98 }}
                       >
-                        <div className="p-2 h-full flex flex-col">
+                        <div className="p-4 h-full flex flex-col">
                           {/* Block Header */}
                           <div className="flex items-center justify-between mb-1">
-                            <div className="flex items-center gap-1 min-w-0">
+                            <div className="flex items-center gap-2 min-w-0">
                               <Icon 
-                                className="h-3 w-3 flex-shrink-0" 
+                                className="h-4 w-4 flex-shrink-0" 
                                 style={{ color: block.color }}
                               />
                               <span 
-                                className="text-xs font-medium truncate"
-                                style={{ color: block.color }}
+                                className="text-sm font-semibold truncate text-gray-800 dark:text-gray-100"
                               >
                                 {block.title}
                               </span>
@@ -403,11 +373,12 @@ export const EnhancedTimeBoxCalendar: React.FC<EnhancedTimeBoxCalendarProps> = (
                                     handleBlockComplete(block);
                                   }}
                                   className={cn(
-                                    "flex-shrink-0 hover:scale-110 transition-transform",
+                                    "flex-shrink-0 hover:scale-110 transition-all duration-200",
+                                    "rounded-full p-1 hover:bg-white/20",
                                     getStatusColor(block.completionStatus)
                                   )}
                                 >
-                                  <StatusIcon className="h-4 w-4" />
+                                  <StatusIcon className="h-5 w-5" />
                                 </button>
                               </TooltipTrigger>
                               <TooltipContent>
@@ -419,23 +390,30 @@ export const EnhancedTimeBoxCalendar: React.FC<EnhancedTimeBoxCalendarProps> = (
                           </div>
 
                           {/* Time and Duration */}
-                          <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                            {block.startTime} - {block.endTime} ({block.duration}m)
+                          <div className="text-xs text-gray-600 dark:text-gray-400 mb-2 font-medium">
+                            {block.startTime} - {block.endTime} • {block.duration}m
                           </div>
 
                           {/* Tags and Priority */}
                           {height > 60 && (
-                            <div className="flex items-center gap-1 flex-wrap">
+                            <div className="flex items-center gap-2 flex-wrap">
                               <Badge 
-                                variant="outline" 
-                                className="text-xs px-1 py-0"
-                                style={{ borderColor: block.color, color: block.color }}
+                                variant="secondary" 
+                                className="text-xs px-2 py-1 font-medium"
+                                style={{ 
+                                  backgroundColor: `${block.color}25`,
+                                  color: block.color,
+                                  border: `1px solid ${block.color}50`
+                                }}
                               >
                                 {block.priority}
                               </Badge>
                               
                               {block.energyRequirement === 'high' && (
-                                <Badge variant="secondary" className="text-xs px-1 py-0">
+                                <Badge 
+                                  variant="secondary" 
+                                  className="text-xs px-2 py-1 bg-orange-100 text-orange-700 border-orange-200"
+                                >
                                   ⚡ High Energy
                                 </Badge>
                               )}
