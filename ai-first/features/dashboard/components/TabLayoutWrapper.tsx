@@ -8,6 +8,7 @@ import {
   Zap, 
   Calendar, 
   Moon, 
+  Heart,
   Bot,
   ChevronLeft,
   ChevronRight,
@@ -50,18 +51,25 @@ const tabs: Tab[] = [
     color: 'from-purple-500 to-pink-500'
   },
   {
+    id: 'wellness',
+    name: 'Wellness',
+    icon: Heart,
+    timeRelevance: [6, 7, 8, 12, 18, 19],
+    color: 'from-green-500 to-emerald-500'
+  },
+  {
+    id: 'ai-chat',
+    name: 'AI Chat',
+    icon: Bot,
+    timeRelevance: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
+    color: 'from-cyan-500 to-teal-500'
+  },
+  {
     id: 'checkout',
     name: 'Checkout',
     icon: Moon,
     timeRelevance: [18, 19, 20, 21],
     color: 'from-indigo-500 to-blue-600'
-  },
-  {
-    id: 'ai',
-    name: 'AI Chat',
-    icon: Bot,
-    timeRelevance: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
-    color: 'from-cyan-500 to-teal-500'
   }
 ];
 
@@ -165,61 +173,65 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
   const isToday = format(selectedDate, 'yyyy-MM-dd') === format(today, 'yyyy-MM-dd');
 
   return (
-    <div className="flex flex-col h-screen w-full bg-gradient-to-br from-black via-gray-900 to-black overflow-hidden">
-      {/* Day Navigation Header */}
-      <div className="flex-shrink-0 bg-gradient-to-r from-gray-900/95 via-gray-800/90 to-gray-900/95 backdrop-blur-xl border-b border-orange-400/20 px-4 py-4">
+    <div className="flex flex-col h-screen w-full overflow-hidden">
+      {/* Compact Day Navigation Header */}
+      <div className="flex-shrink-0 bg-gradient-to-br from-black via-gray-900 to-black px-3 py-2">
         <div className="flex items-center justify-between">
-          {/* Left: Back Button */}
-          <div className="flex items-center space-x-2 min-w-0 flex-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/admin/lifelock')}
-              className="text-gray-300 hover:text-white hover:bg-gray-700/50 px-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
+          {/* Left: Back to LifeLock */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/admin/lifelock')}
+            className="text-gray-400 hover:text-white hover:bg-white/10 px-2 py-1 rounded-lg transition-all duration-200 text-xs"
+          >
+            <ArrowLeft className="h-3 w-3 mr-1" />
+            LifeLock
+          </Button>
+
+          {/* Center: Compact Date Card */}
+          <div className="flex items-center bg-white/10 backdrop-blur-xl border border-white/20 rounded-lg px-3 py-1.5 shadow-lg">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => navigateDay('prev')}
-              className="text-gray-300 hover:text-white hover:bg-gray-700/50 px-2"
+              className="text-gray-300 hover:text-white hover:bg-white/10 p-1 rounded-md transition-all duration-200"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-3 w-3" />
             </Button>
-          </div>
-
-          {/* Center: Date Display */}
-          <div className="flex flex-col items-center mx-4">
-            <h1 className="text-2xl font-bold text-white tracking-tight">
-              {format(selectedDate, 'EEEE')}
-            </h1>
-            <p className="text-sm text-gray-300 mt-0.5">
-              {format(selectedDate, 'MMMM d, yyyy')}
-            </p>
-            {isToday && (
-              <Badge className="mt-2 bg-orange-500/20 text-orange-300 border-orange-500/40 text-xs px-2 py-0.5">
-                Today
-              </Badge>
-            )}
-          </div>
-
-          {/* Right: Next Button */}
-          <div className="flex items-center justify-end min-w-0 flex-1">
+            
+            <div className="text-center px-3">
+              <div className="flex items-center space-x-2">
+                <h1 className="text-sm font-bold text-white tracking-tight">
+                  {format(selectedDate, 'EEE')}
+                </h1>
+                <p className="text-xs text-gray-300">
+                  {format(selectedDate, 'MMM d')}
+                </p>
+                {isToday && (
+                  <Badge className="bg-yellow-500/20 text-yellow-300 border-yellow-500/40 text-xs px-1.5 py-0.5 rounded-full">
+                    Today
+                  </Badge>
+                )}
+              </div>
+            </div>
+            
             <Button
               variant="ghost"
               size="sm"
               onClick={() => navigateDay('next')}
-              className="text-gray-300 hover:text-white hover:bg-gray-700/50 px-2"
+              className="text-gray-300 hover:text-white hover:bg-white/10 p-1 rounded-md transition-all duration-200"
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-3 w-3" />
             </Button>
           </div>
+
+          {/* Right: Balance space */}
+          <div className="w-16"></div>
         </div>
         
         {isMobile && (
-          <div className="text-center mt-3 text-xs text-gray-400">
-            Swipe left/right to change tabs
+          <div className="text-center mt-1 text-xs text-gray-500">
+            Swipe to change tabs
           </div>
         )}
       </div>
@@ -253,8 +265,8 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
               }}
               className="absolute inset-0 overflow-y-auto overscroll-y-contain"
               style={{ 
-                // Ensure content doesn't overlap bottom nav
-                paddingBottom: isMobile ? '100px' : '20px',
+                // Full height content with minimal bottom padding
+                paddingBottom: isMobile ? '20px' : '20px',
                 // Prevent overscroll that might interfere with touch events
                 overscrollBehavior: 'contain'
               }}
@@ -266,8 +278,9 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
         </motion.div>
       </div>
 
-      {/* Bottom Tab Navigation */}
-      <div className="flex-shrink-0 px-4 py-4 relative z-50 flex justify-center">
+      {/* Bottom Tab Navigation - Transparent Floating */}
+      <div className="absolute bottom-4 left-4 right-4 z-50 flex justify-center pointer-events-none">
+        <div className="pointer-events-auto">
         {/* Mobile: ExpandableTabs Component */}
         {isMobile ? (
           <ExpandableTabs
@@ -277,7 +290,7 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
             }))}
             activeIndex={activeTabIndex}
             activeColor="text-orange-400"
-            className="bg-transparent border-transparent shadow-none"
+            className="bg-white/10 backdrop-blur-md border-white/20 shadow-lg rounded-2xl"
             onChange={(index) => {
               if (index !== null) {
                 handleTabClick(tabs[index].id);
@@ -309,6 +322,7 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
             })}
           </div>
         )}
+        </div>
       </div>
     </div>
   );
