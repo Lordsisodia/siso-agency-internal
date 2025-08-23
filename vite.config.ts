@@ -40,9 +40,10 @@ export default defineConfig(({ mode }) => ({
     keepNames: true
   },
   resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-    }
+    alias: [
+      { find: "@/ai-first", replacement: path.resolve(__dirname, "./ai-first") },
+      { find: "@", replacement: path.resolve(__dirname, "./src") },
+    ]
   },
   build: {
     target: mode === 'production' ? 'es2015' : 'esnext',

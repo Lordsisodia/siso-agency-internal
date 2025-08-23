@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval } from 'date-fns';
 import { useClerkUser } from '@/components/ClerkProvider';
 import { personalTaskService } from '@/ai-first/core/task.service';
-import { ClerkHybridTaskService } from '@/ai-first/core/task.service';
+import { ClerkHybridTaskService } from '@/ai-first/core/auth.service';
 import { lifeLockVoiceTaskProcessor, ThoughtDumpResult } from '@/services/lifeLockVoiceTaskProcessor';
 import { eisenhowerMatrixOrganizer, EisenhowerMatrixResult } from '@/ai-first/core/task.service';
 
@@ -49,9 +49,19 @@ export const useLifeLockData = (selectedDate: Date) => {
   useEffect(() => {
     if (!user) return;
 
+    let isCancelled = false;
+
     const loadDayTasks = async () => {
       try {
+        // Only log once per date change, not on every refresh
+        if (refreshTrigger === 0) {
+          console.log(`📅 Loading tasks for ${format(selectedDate, 'yyyy-MM-dd')}`);
+        }
+
         const dayTasks = await personalTaskService.getTasksForDate(selectedDate);
+        
+        if (isCancelled) return; // Exit early if component unmounted
+        
         // Defensive programming: ensure dayTasks is always an array
         const safeTaskArray = Array.isArray(dayTasks) ? dayTasks : [];
         const taskCard: TaskCard = {
@@ -66,38 +76,64 @@ export const useLifeLockData = (selectedDate: Date) => {
           }))
         };
 
-        setTodayCard(taskCard);
+        if (!isCancelled) {
+          setTodayCard(taskCard);
+        }
 
-        // Load week context
+        // Load week context only if needed (not on every refresh)
         const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 });
         const weekEnd = endOfWeek(selectedDate, { weekStartsOn: 1 });
         const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
 
         const weekTaskCards: TaskCard[] = [];
         for (const day of weekDays) {
-          const weekDayTasks = await personalTaskService.getTasksForDate(day);
-          // Defensive programming: ensure weekDayTasks is always an array
-          const safeWeekTaskArray = Array.isArray(weekDayTasks) ? weekDayTasks : [];
-          weekTaskCards.push({
-            id: format(day, 'yyyy-MM-dd'),
-            date: day,
-            title: format(day, 'EEEE, MMM d'),
-            completed: safeWeekTaskArray.length > 0 ? safeWeekTaskArray.every(task => task.completed) : false,
-            tasks: safeWeekTaskArray.map(task => ({
-              id: task.id,
-              title: task.title,
-              completed: task.completed
-            }))
-          });
+          if (isCancelled) return; // Exit early if component unmounted
+          
+          try {
+            const weekDayTasks = await personalTaskService.getTasksForDate(day);
+            // Defensive programming: ensure weekDayTasks is always an array
+            const safeWeekTaskArray = Array.isArray(weekDayTasks) ? weekDayTasks : [];
+            weekTaskCards.push({
+              id: format(day, 'yyyy-MM-dd'),
+              date: day,
+              title: format(day, 'EEEE, MMM d'),
+              completed: safeWeekTaskArray.length > 0 ? safeWeekTaskArray.every(task => task.completed) : false,
+              tasks: safeWeekTaskArray.map(task => ({
+                id: task.id,
+                title: task.title,
+                completed: task.completed
+              }))
+            });
+          } catch (dayError) {
+            console.error(`Failed to load tasks for ${format(day, 'yyyy-MM-dd')}:`, dayError);
+            // Continue with empty task card to prevent hanging
+            weekTaskCards.push({
+              id: format(day, 'yyyy-MM-dd'),
+              date: day,
+              title: format(day, 'EEEE, MMM d'),
+              completed: false,
+              tasks: []
+            });
+          }
         }
 
-        setWeekCards(weekTaskCards);
+        if (!isCancelled) {
+          setWeekCards(weekTaskCards);
+        }
       } catch (error) {
         console.error('Failed to load day tasks:', error);
+        if (!isCancelled) {
+          setTodayCard(null);
+          setWeekCards([]);
+        }
       }
     };
 
     loadDayTasks();
+
+    return () => {
+      isCancelled = true;
+    };
   }, [user, selectedDate, refreshTrigger]);
 
   // Action handlers

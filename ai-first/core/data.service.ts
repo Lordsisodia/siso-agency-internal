@@ -111,6 +111,30 @@ class ConsolidatedDataService {
 }
 
 export const dataService = new ConsolidatedDataService();
+
+// ===== EXPORTED FUNCTIONS =====
+export function checkIsAdmin(...args: any[]): any {
+  // TODO: Implement checkIsAdmin from consolidated services
+  console.log('⚠️ checkIsAdmin called - needs implementation');
+  return false;
+}
+
+export const safeSupabase = {
+  // TODO: Implement safeSupabase from consolidated services
+  from: (table: string) => ({
+    select: () => ({
+      eq: () => ({
+        order: () => ({ data: [], error: null })
+      })
+    })
+  })
+};
+
+export function safeCast(value: any, type?: any): any {
+  // TODO: Implement safeCast from consolidated services
+  console.log('⚠️ safeCast called - needs implementation');
+  return value;
+}
 export default dataService;
 
 // ===== REACT HOOKS =====

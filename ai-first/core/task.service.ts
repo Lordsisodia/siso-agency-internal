@@ -109,29 +109,8 @@
  * - eisenhowerMatrixOrganizer.ts
  */
 
-import { format, isSameDay, isAfter, isBefore, subDays, parseISO } from 'date-fns';
-import { PersonalTask, PersonalTaskCard, personalTaskService } from '@/ai-first/core/task.service';
-import { RealPrismaTaskService } from './realPrismaTaskService';
-import { DataMigration } from './dataMigration';
-import { supabase } from '@/integrations/supabase/client';
-import { NeonTaskService } from './neonTaskService';
-import { PrismaTaskService } from '@/ai-first/core/task.service';
-import { format, parseISO } from 'date-fns';
-import { PersonalTask, PersonalTaskCard } from '@/ai-first/core/task.service';
-import { format } from 'date-fns';
-import { PrismaClient } from '../integrations/prisma/client';
-import { PersonalTaskCard } from '../types/PersonalTask';
-import { personalTaskService } from '@/ai-first/core/task.service';
-import { getAgentClient } from '@/integrations/supabase/agent-client';
-import { Task } from '@/types/task.types';
-import { Database } from '@/integrations/supabase/types';
-import Groq from 'groq-sdk';
-import { format, addMinutes, parseISO, isAfter, isBefore, differenceInMinutes } from 'date-fns';
-import { EnhancedTimeBlock, WorkSchedulePreferences, DaySchedule, TimeBlockCategory, TaskSection, CompletionStatus, SchedulingConflict, TimeSlot, BlockChange } from '@/types/timeblock.types';
-import { DailyRoutineItem } from '@/services/lifeLockService';
-import { EnhancedTask } from '@/services/enhancedTaskService';
-import { PersonalTask } from '@/ai-first/core/task.service';
-import { hybridTaskService } from '@/ai-first/core/task.service';
+// Consolidated imports - removed duplicates to reduce bundle size and improve performance
+import { format, isSameDay, isAfter, isBefore, subDays, parseISO, addMinutes, differenceInMinutes } from 'date-fns';
 
 export const AI_INTERFACE = {
   purpose: "Unified task management - consolidated from 16 services",
@@ -336,9 +315,40 @@ export type EisenhowerQuadrant = any; // TODO: Implement type from consolidated 
 
 // ===== CONSOLIDATED CLASSES =====
 export class PersonalTaskService {
-  // TODO: Implement class from consolidated services
   constructor() {
     // Consolidated constructor logic
+  }
+
+  async getTasksForDate(date: Date): Promise<any[]> {
+    try {
+      // Logging completely removed to prevent spam
+      // TODO: Implement actual database query
+      // This is a stub implementation to prevent runtime errors
+      return [];
+    } catch (error) {
+      console.error('❌ [TASK-SERVICE] Error loading tasks for date:', error);
+      return [];
+    }
+  }
+
+  async toggleTask(taskId: string): Promise<void> {
+    try {
+      // Logging removed to prevent spam - only show errors
+      // TODO: Implement actual task toggle logic
+      // This is a stub implementation to prevent runtime errors
+    } catch (error) {
+      console.error('❌ [TASK-SERVICE] Error toggling task:', error);
+    }
+  }
+
+  async addTask(title: string, date: Date, priority: 'low' | 'medium' | 'high'): Promise<void> {
+    try {
+      // Logging removed to prevent spam - only show errors
+      // TODO: Implement actual task creation logic
+      // This is a stub implementation to prevent runtime errors
+    } catch (error) {
+      console.error('❌ [TASK-SERVICE] Error adding task:', error);
+    }
   }
 }
 
@@ -460,8 +470,7 @@ export class EisenhowerMatrixOrganizer {
 // ===== MAIN SERVICE CLASS =====
 class ConsolidatedTaskService {
   constructor() {
-    console.log('🚀 Consolidated Task Service initialized');
-    console.log('📋 Consolidated from 16 services: personalTaskService.ts, hybridTaskService.ts, realPrismaTaskService.ts, prismaTaskService.ts, neonTaskService.ts, clerkHybridTaskService.ts, personalTaskCloudService.ts, enhancedTaskService.ts, aiTaskAgent.ts, TaskManagementAgent.ts, ProjectBasedTaskAgent.ts, grokTaskService.ts, todayTasksService.ts, lifeLockService.ts, enhancedTimeBlockService.ts, eisenhowerMatrixOrganizer.ts');
+    // Silent initialization - no logging to prevent spam
   }
 
   // TODO: Implement all task operations here
@@ -469,6 +478,19 @@ class ConsolidatedTaskService {
 }
 
 export const taskService = new ConsolidatedTaskService();
+
+// Export service instances
+export const personalTaskService = new PersonalTaskService();
+export const hybridTaskService = new HybridTaskService();
+export const realPrismaTaskService = new RealPrismaTaskService();
+export const prismaTaskService = new PrismaTaskService();
+export const neonTaskService = new NeonTaskService();
+export const personalTaskCloudService = new PersonalTaskCloudService();
+export const aiTaskAgent = new AITaskAgent();
+export const grokTaskService = new GrokTaskService();
+export const enhancedTimeBlockService = new EnhancedTimeBlockService();
+export const eisenhowerMatrixOrganizer = new EisenhowerMatrixOrganizer();
+
 export default taskService;
 
 // ===== REACT HOOKS =====

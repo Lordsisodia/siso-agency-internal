@@ -7,10 +7,10 @@ import { StatisticalWeekView } from '@/components/admin/lifelock/ui/StatisticalW
 import { MobileMicrophoneButton } from '@/components/admin/lifelock/ui/MobileMicrophoneButton';
 import { useClerkUser } from '@/components/ClerkProvider';
 import { PersonalTaskCard, personalTaskService } from '@/ai-first/core/task.service';
-import { ClerkHybridTaskService } from '@/services/clerkHybridTaskService';
+import { ClerkHybridTaskService } from '@/ai-first/core/auth.service';
 import { lifeLockVoiceTaskProcessor, ThoughtDumpResult } from '@/services/lifeLockVoiceTaskProcessor';
 import { ThoughtDumpResults } from '@/components/admin/lifelock/ui/ThoughtDumpResults';
-import { eisenhowerMatrixOrganizer, EisenhowerMatrixResult } from '@/services/eisenhowerMatrixOrganizer';
+import { eisenhowerMatrixOrganizer, EisenhowerMatrixResult } from '@/ai-first/core/task.service';
 import { EisenhowerMatrixModal } from '@/components/admin/lifelock/ui/EisenhowerMatrixModal';
 import { Lock, Calendar } from 'lucide-react';
 

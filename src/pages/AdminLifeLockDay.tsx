@@ -1,17 +1,21 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { AdminLayout } from '@/components/admin/layout/AdminLayout';
 import { format, addWeeks, subWeeks, getYear } from 'date-fns';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useClerkUser } from '@/components/ClerkProvider';
 import { ThoughtDumpResults } from '@/ai-first/features/tasks/ui/ThoughtDumpResults';
 import { EisenhowerMatrixModal } from '@/ai-first/features/tasks/ui/EisenhowerMatrixModal';
-import { TabLayoutWrapper } from '@/ai-first/features/tasks/components/TabLayoutWrapper';
-import { TodayProgressSection } from '@/ai-first/features/tasks/components/sections/TodayProgressSection';
-import { WeeklyViewSection } from '@/ai-first/features/tasks/components/sections/WeeklyViewSection';
-import { VoiceCommandSection } from '@/ai-first/features/tasks/components/sections/VoiceCommandSection';
-import { PriorityTasksSection } from '@/ai-first/features/tasks/components/sections/PriorityTasksSection';
-import { QuickActionsSection } from '@/ai-first/features/tasks/components/sections/QuickActionsSection';
-import { MonthlyProgressSection } from '@/ai-first/features/tasks/components/sections/MonthlyProgressSection';
+import { TabLayoutWrapper } from '@/ai-first/features/dashboard/components/TabLayoutWrapper';
+import { TodayProgressSection } from '@/ai-first/features/tasks/components/TodayProgressSection';
+import { WeeklyViewSection } from '@/ai-first/features/tasks/components/WeeklyViewSection';
+import { VoiceCommandSection } from '@/ai-first/features/tasks/components/VoiceCommandSection';
+import { PriorityTasksSection } from '@/ai-first/features/tasks/components/PriorityTasksSection';
+import { QuickActionsSection } from '@/ai-first/features/tasks/ui/QuickActionsSection';
+import { MonthlyProgressSection } from '@/ai-first/features/tasks/components/MonthlyProgressSection';
+import { MorningRoutineSection } from '@/ai-first/features/tasks/components/MorningRoutineSection';
+import { DeepFocusWorkSection } from '@/ai-first/features/tasks/components/DeepFocusWorkSection';
+import { LightFocusWorkSection } from '@/ai-first/features/tasks/components/LightFocusWorkSection';
+import { NightlyCheckoutSection } from '@/ai-first/features/tasks/components/NightlyCheckoutSection';
 import { useLifeLockData } from '@/hooks/useLifeLockData';
 
 const AdminLifeLockDay: React.FC = () => {
@@ -19,8 +23,10 @@ const AdminLifeLockDay: React.FC = () => {
   const { date } = useParams<{ date: string }>();
   const { isSignedIn, isLoaded } = useClerkUser();
   
-  // Parse date from URL or default to today
-  const selectedDate = date ? new Date(date) : new Date();
+  // Parse date from URL or default to today - memoized to prevent infinite re-renders
+  const selectedDate = useMemo(() => {
+    return date ? new Date(date) : new Date();
+  }, [date]);
   
   // Use custom hook for all LifeLock data and actions
   const {
@@ -79,7 +85,7 @@ const AdminLifeLockDay: React.FC = () => {
   }
 
   return (
-    <AdminLayout>
+    <div className="min-h-screen w-full bg-gradient-to-br from-black via-gray-900 to-black">
       <TabLayoutWrapper
         selectedDate={selectedDate}
         onDateChange={handleDateChange}
@@ -88,33 +94,20 @@ const AdminLifeLockDay: React.FC = () => {
           switch (activeTab) {
             case 'morning':
               return (
-                <div className="p-4 sm:p-6 space-y-6">
-                  <TodayProgressSection
-                    todayCard={todayCard}
-                    onViewDetails={handleCardClick}
-                    onQuickAdd={handleQuickAdd}
-                    onTaskToggle={handleTaskToggle}
-                    onCustomTaskAdd={handleCustomTaskAdd}
-                  />
-                </div>
+                <MorningRoutineSection
+                  todayCard={todayCard}
+                  onViewDetails={handleCardClick}
+                  onQuickAdd={handleQuickAdd}
+                  onTaskToggle={handleTaskToggle}
+                  onCustomTaskAdd={handleCustomTaskAdd}
+                />
               );
             
-            case 'focus':
+            case 'work':
               return (
                 <div className="p-4 sm:p-6 space-y-6">
-                  <PriorityTasksSection />
-                  <QuickActionsSection
-                    handleQuickAdd={handleQuickAdd}
-                    handleOrganizeTasks={handleOrganizeTasks}
-                    isAnalyzingTasks={isAnalyzingTasks}
-                    todayCard={todayCard}
-                  />
-                </div>
-              );
-            
-            case 'light':
-              return (
-                <div className="p-4 sm:p-6 space-y-6">
+                  <DeepFocusWorkSection selectedDate={selectedDate} />
+                  <LightFocusWorkSection selectedDate={selectedDate} />
                   <QuickActionsSection
                     handleQuickAdd={handleQuickAdd}
                     handleOrganizeTasks={handleOrganizeTasks}
@@ -143,13 +136,7 @@ const AdminLifeLockDay: React.FC = () => {
             case 'checkout':
               return (
                 <div className="p-4 sm:p-6 space-y-6">
-                  <TodayProgressSection
-                    todayCard={todayCard}
-                    onViewDetails={handleCardClick}
-                    onQuickAdd={handleQuickAdd}
-                    onTaskToggle={handleTaskToggle}
-                    onCustomTaskAdd={handleCustomTaskAdd}
-                  />
+                  <NightlyCheckoutSection selectedDate={selectedDate} />
                 </div>
               );
             
@@ -199,7 +186,7 @@ const AdminLifeLockDay: React.FC = () => {
           onReanalyze={handleReanalyze}
         />
       )}
-    </AdminLayout>
+    </div>
   );
 };
 

@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { logger } from "./logger";
 
 /**
  * Safely access a property from an object with a default value if it doesn't exist
@@ -99,4 +100,117 @@ export function castToMockType<K extends keyof MockTypes>(data: any): MockTypes[
  */
 export function castToMockTypeArray<K extends keyof MockTypes>(data: any[]): MockTypes[K][] {
   return data as MockTypes[K][];
+}
+
+/**
+ * Enhanced Error Rate Limiting
+ * Prevents spam errors from flooding the console
+ */
+class ErrorRateLimiter {
+  private errorCounts = new Map<string, { count: number; lastSeen: number }>();
+  private readonly MAX_ERRORS_PER_MINUTE = 5;
+  private readonly CLEANUP_INTERVAL = 60000; // 1 minute
+
+  constructor() {
+    // Clean up old error counts periodically
+    setInterval(() => this.cleanup(), this.CLEANUP_INTERVAL);
+  }
+
+  /**
+   * Check if an error should be logged or suppressed
+   */
+  shouldLog(errorKey: string): boolean {
+    const now = Date.now();
+    const existing = this.errorCounts.get(errorKey);
+
+    if (!existing) {
+      this.errorCounts.set(errorKey, { count: 1, lastSeen: now });
+      return true;
+    }
+
+    // Reset count if it's been more than a minute
+    if (now - existing.lastSeen > this.CLEANUP_INTERVAL) {
+      this.errorCounts.set(errorKey, { count: 1, lastSeen: now });
+      return true;
+    }
+
+    existing.count++;
+    existing.lastSeen = now;
+
+    return existing.count <= this.MAX_ERRORS_PER_MINUTE;
+  }
+
+  /**
+   * Clean up old error entries
+   */
+  private cleanup() {
+    const now = Date.now();
+    for (const [key, data] of this.errorCounts.entries()) {
+      if (now - data.lastSeen > this.CLEANUP_INTERVAL) {
+        this.errorCounts.delete(key);
+      }
+    }
+  }
+}
+
+// Global rate limiter instance
+const errorRateLimiter = new ErrorRateLimiter();
+
+/**
+ * Rate-limited error logging
+ * Prevents the same error from spamming the console
+ */
+export function rateLimitedError(errorKey: string, message: string, ...args: any[]) {
+  if (errorRateLimiter.shouldLog(errorKey)) {
+    logger.error(message, ...args);
+  } else {
+    // Log once that we're suppressing errors
+    if (errorRateLimiter.shouldLog(`suppressed-${errorKey}`)) {
+      logger.warn(`🚫 Suppressing repeated error: ${errorKey} (rate limited)`);
+    }
+  }
+}
+
+/**
+ * Rate-limited warning logging
+ */
+export function rateLimitedWarn(warnKey: string, message: string, ...args: any[]) {
+  if (errorRateLimiter.shouldLog(warnKey)) {
+    logger.warn(message, ...args);
+  }
+}
+
+/**
+ * Safe function execution with error suppression
+ * Prevents functions from crashing and spamming errors
+ */
+export function safeExecute<T>(
+  fn: () => T, 
+  defaultValue: T, 
+  errorKey?: string
+): T {
+  try {
+    return fn();
+  } catch (error) {
+    const key = errorKey || `safe-execute-${error instanceof Error ? error.name : 'unknown'}`;
+    rateLimitedError(key, `Safe execution failed: ${error}`, error);
+    return defaultValue;
+  }
+}
+
+/**
+ * Safe async function execution
+ */
+export async function safeExecuteAsync<T>(
+  fn: () => Promise<T>, 
+  defaultValue: T, 
+  errorKey?: string
+): Promise<T> {
+  try {
+    return await fn();
+  } catch (error) {
+    const key = errorKey || `safe-execute-async-${error instanceof Error ? error.name : 'unknown'}`;
+    rateLimitedError(key, `Safe async execution failed: ${error}`, error);
+    return defaultValue;
+  }
 }

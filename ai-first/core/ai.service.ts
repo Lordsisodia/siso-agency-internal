@@ -342,6 +342,16 @@ class ConsolidatedAIService {
 }
 
 export const aiService = new ConsolidatedAIService();
+
+// Export service instances
+export const legacyAIService = new LegacyAIService();
+export const groqLegacyAI = new GroqLegacyAIService();
+export const dailyTrackerAI = new DailyTrackerAI();
+export const aiTaskAgent = new AITaskAgent();
+export const intelligentAgentCore = new IntelligentAgentCore();
+export const multiStagePromptSystem = new MultiStagePromptSystem();
+export const appPlanAgent = new AppPlanAgent();
+
 export default aiService;
 
 // ===== REACT HOOKS =====

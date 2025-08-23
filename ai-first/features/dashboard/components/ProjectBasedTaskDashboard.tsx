@@ -24,12 +24,13 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuthSession } from '@/hooks/useAuthSession';
-import ProjectBasedTaskAgent, { 
+import { 
+  ProjectBasedTaskAgent,
   ProjectTaskSummary, 
   WorkTypeTaskSummary, 
   ProjectConfig, 
   WorkTypeConfig 
-} from '@/services/ProjectBasedTaskAgent';
+} from '@/ai-first/core/task.service';
 // Removed framer-motion import for performance
 
 export function ProjectBasedTaskDashboard() {

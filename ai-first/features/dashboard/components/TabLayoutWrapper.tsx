@@ -1,6 +1,6 @@
 import React, { useState, ReactNode } from 'react';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { format, addDays, subDays } from 'date-fns';
 import { 
   Sunrise, 
@@ -10,10 +10,12 @@ import {
   Moon, 
   Bot,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  ArrowLeft
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { ExpandableTabs } from '@/components/ui/expandable-tabs';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -34,18 +36,11 @@ const tabs: Tab[] = [
     color: 'from-orange-500 to-yellow-500'
   },
   {
-    id: 'focus',
-    name: 'Deep Focus',
-    icon: Target,
-    timeRelevance: [9, 10, 11, 14, 15, 16],
-    color: 'from-blue-500 to-purple-500'
-  },
-  {
-    id: 'light',
-    name: 'Light Work',
+    id: 'work',
+    name: 'Work',
     icon: Zap,
-    timeRelevance: [11, 12, 13, 16, 17],
-    color: 'from-green-500 to-emerald-500'
+    timeRelevance: [9, 10, 11, 12, 13, 14, 15, 16, 17],
+    color: 'from-blue-500 to-green-500'
   },
   {
     id: 'timebox',
@@ -82,6 +77,7 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
   children 
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
   
   // Get smart default tab based on time of day
@@ -134,8 +130,8 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
 
   // Swipe gesture handling for tab navigation
   const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    const swipeThreshold = 80; // Reduced threshold for easier swiping
-    const swipeVelocityThreshold = 400; // Reduced velocity threshold
+    const swipeThreshold = 60; // More sensitive threshold for easier swiping
+    const swipeVelocityThreshold = 300; // More sensitive velocity threshold
     
     if (Math.abs(info.offset.x) > swipeThreshold || Math.abs(info.velocity.x) > swipeVelocityThreshold) {
       if (info.offset.x > 0) {
@@ -169,45 +165,60 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
   const isToday = format(selectedDate, 'yyyy-MM-dd') === format(today, 'yyyy-MM-dd');
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-black via-gray-900 to-black">
+    <div className="flex flex-col h-screen w-full bg-gradient-to-br from-black via-gray-900 to-black overflow-hidden">
       {/* Day Navigation Header */}
-      <div className="flex-shrink-0 bg-gradient-to-r from-gray-900/95 via-gray-800/90 to-gray-900/95 backdrop-blur-xl border-b border-orange-400/20 px-4 py-3">
+      <div className="flex-shrink-0 bg-gradient-to-r from-gray-900/95 via-gray-800/90 to-gray-900/95 backdrop-blur-xl border-b border-orange-400/20 px-4 py-4">
         <div className="flex items-center justify-between">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigateDay('prev')}
-            className="text-gray-300 hover:text-white"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </Button>
+          {/* Left: Back Button */}
+          <div className="flex items-center space-x-2 min-w-0 flex-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/admin/lifelock')}
+              className="text-gray-300 hover:text-white hover:bg-gray-700/50 px-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigateDay('prev')}
+              className="text-gray-300 hover:text-white hover:bg-gray-700/50 px-2"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+          </div>
 
-          <div className="flex flex-col items-center">
-            <h1 className="text-xl font-bold text-white">
+          {/* Center: Date Display */}
+          <div className="flex flex-col items-center mx-4">
+            <h1 className="text-2xl font-bold text-white tracking-tight">
               {format(selectedDate, 'EEEE')}
             </h1>
-            <p className="text-sm text-gray-300">
+            <p className="text-sm text-gray-300 mt-0.5">
               {format(selectedDate, 'MMMM d, yyyy')}
             </p>
             {isToday && (
-              <Badge className="mt-1 bg-orange-500/20 text-orange-300 border-orange-500/40 text-xs">
+              <Badge className="mt-2 bg-orange-500/20 text-orange-300 border-orange-500/40 text-xs px-2 py-0.5">
                 Today
               </Badge>
             )}
           </div>
 
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigateDay('next')}
-            className="text-gray-300 hover:text-white"
-          >
-            <ChevronRight className="h-5 w-5" />
-          </Button>
+          {/* Right: Next Button */}
+          <div className="flex items-center justify-end min-w-0 flex-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigateDay('next')}
+              className="text-gray-300 hover:text-white hover:bg-gray-700/50 px-2"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
         
         {isMobile && (
-          <div className="text-center mt-2 text-xs text-gray-500">
+          <div className="text-center mt-3 text-xs text-gray-400">
             Swipe left/right to change tabs
           </div>
         )}
@@ -222,7 +233,11 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
           dragMomentum={false}
           whileDrag={{ scale: 0.98 }}
           onDragEnd={handleDragEnd}
-          className="h-full touch-pan-y"
+          className="h-full touch-pan-y relative z-10"
+          style={{ 
+            // Prevent content from interfering with bottom navigation
+            paddingBottom: isMobile ? '0px' : '0px' 
+          }}
         >
           <AnimatePresence mode="wait" custom={activeTabIndex}>
             <motion.div
@@ -236,7 +251,13 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
                 x: { type: "spring", stiffness: 300, damping: 30 },
                 opacity: { duration: 0.2 },
               }}
-              className="absolute inset-0 overflow-y-auto"
+              className="absolute inset-0 overflow-y-auto overscroll-y-contain"
+              style={{ 
+                // Ensure content doesn't overlap bottom nav
+                paddingBottom: isMobile ? '100px' : '20px',
+                // Prevent overscroll that might interfere with touch events
+                overscrollBehavior: 'contain'
+              }}
             >
               {/* Render tab content via children function */}
               {children(activeTabId)}
@@ -246,38 +267,23 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
       </div>
 
       {/* Bottom Tab Navigation */}
-      <div className="flex-shrink-0 bg-gradient-to-r from-gray-900/95 via-gray-800/90 to-gray-900/95 backdrop-blur-xl border-t border-orange-400/20 px-4 py-3">
-        {/* Mobile: Bottom Tab Bar */}
+      <div className="flex-shrink-0 px-4 py-4 relative z-50 flex justify-center">
+        {/* Mobile: ExpandableTabs Component */}
         {isMobile ? (
-          <div className="flex justify-around items-center space-x-1">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <Button
-                  key={tab.id}
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleTabClick(tab.id)}
-                  className={cn(
-                    "flex flex-col items-center space-y-1 px-3 py-2 transition-all duration-200 min-w-0 flex-1",
-                    tab.id === activeTabId 
-                      ? "text-orange-400" 
-                      : "text-gray-400 hover:text-gray-200"
-                  )}
-                >
-                  <div className={cn(
-                    "p-2 rounded-lg transition-all duration-200",
-                    tab.id === activeTabId 
-                      ? `bg-gradient-to-r ${tab.color}` 
-                      : "bg-gray-700/50"
-                  )}>
-                    <Icon className="h-4 w-4 text-white" />
-                  </div>
-                  <span className="text-xs font-medium truncate">{tab.name}</span>
-                </Button>
-              );
-            })}
-          </div>
+          <ExpandableTabs
+            tabs={tabs.map(tab => ({
+              title: tab.name,
+              icon: tab.icon
+            }))}
+            activeIndex={activeTabIndex}
+            activeColor="text-orange-400"
+            className="bg-transparent border-transparent shadow-none"
+            onChange={(index) => {
+              if (index !== null) {
+                handleTabClick(tabs[index].id);
+              }
+            }}
+          />
         ) : (
           /* Desktop: Full Tab Bar */
           <div className="flex space-x-1">

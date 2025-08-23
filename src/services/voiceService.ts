@@ -1,6 +1,8 @@
 // Voice Service for AI Chat
 // Handles speech-to-text and text-to-speech functionality
 
+import { logger } from '@/utils/logger';
+
 export interface VoiceConfig {
   language?: string;
   continuous?: boolean;
@@ -42,11 +44,11 @@ export class VoiceService {
 
   // Check if speech recognition is supported
   public isSpeechRecognitionSupported(): boolean {
-    console.log('🔍 [VOICE AI] Checking speech recognition support...');
-    console.log('🌐 [VOICE AI] User agent:', navigator.userAgent);
-    console.log('🔒 [VOICE AI] Is HTTPS:', window.location.protocol === 'https:');
-    console.log('🏠 [VOICE AI] Is localhost:', window.location.hostname === 'localhost');
-    console.log('🌍 [VOICE AI] Current URL:', window.location.href);
+    logger.debug('🔍 [VOICE AI] Checking speech recognition support...');
+    logger.debug('🌐 [VOICE AI] User agent:', navigator.userAgent);
+    logger.debug('🔒 [VOICE AI] Is HTTPS:', window.location.protocol === 'https:');
+    logger.debug('🏠 [VOICE AI] Is localhost:', window.location.hostname === 'localhost');
+    logger.debug('🌍 [VOICE AI] Current URL:', window.location.href);
     
     // Check for secure context requirement
     const isSecureContext = window.location.protocol === 'https:' || 
@@ -64,25 +66,25 @@ export class VoiceService {
       return false;
     }
     
-    console.log('✅ [VOICE AI] Speech recognition is available');
+    logger.debug('✅ [VOICE AI] Speech recognition is available');
     return true && isSecureContext;
   }
 
   // Check microphone permissions with fallback methods
   public async checkMicrophonePermissions(): Promise<boolean> {
-    console.log('🎤 [VOICE AI] Checking microphone permissions...');
+    logger.debug('🎤 [VOICE AI] Checking microphone permissions...');
     
     // Method 1: Try Permissions API first (most reliable)
     if ('permissions' in navigator) {
       try {
         const permissionStatus = await navigator.permissions.query({ name: 'microphone' as PermissionName });
-        console.log('🔍 [VOICE AI] Permissions API result:', permissionStatus.state);
+        logger.debug('🔍 [VOICE AI] Permissions API result:', permissionStatus.state);
         
         if (permissionStatus.state === 'granted') {
-          console.log('✅ [VOICE AI] Microphone permission already granted via Permissions API');
+          logger.debug('✅ [VOICE AI] Microphone permission already granted via Permissions API');
           return true;
         } else if (permissionStatus.state === 'denied') {
-          console.log('❌ [VOICE AI] Microphone permission explicitly denied');
+          logger.debug('❌ [VOICE AI] Microphone permission explicitly denied');
           return false;
         }
         // If 'prompt', continue to getUserMedia method
@@ -105,12 +107,12 @@ export class VoiceService {
           autoGainControl: true
         } 
       });
-      console.log('✅ [VOICE AI] Microphone access granted via getUserMedia');
+      logger.debug('✅ [VOICE AI] Microphone access granted via getUserMedia');
       
       // Clean up the stream immediately
       stream.getTracks().forEach(track => {
         track.stop();
-        console.log('🛑 [VOICE AI] Cleaned up media track:', track.kind);
+        logger.debug('🛑 [VOICE AI] Cleaned up media track:', track.kind);
       });
       return true;
     } catch (error: any) {
@@ -135,8 +137,8 @@ export class VoiceService {
     onError: (error: string) => void,
     config: VoiceConfig = {}
   ): Promise<void> {
-    console.log('🎤 [VOICE AI] Starting speech recognition...');
-    console.log('🎤 [VOICE AI] Config:', { 
+    logger.debug('🎤 [VOICE AI] Starting speech recognition...');
+    logger.debug('🎤 [VOICE AI] Config:', { 
       language: config.language || 'en-US',
       continuous: config.continuous || false,
       interimResults: config.interimResults || true,
@@ -166,7 +168,7 @@ export class VoiceService {
         console.warn('⚠️ [VOICE AI] Microphone permission check failed, but continuing with SpeechRecognition API...');
         // Don't throw error here - let the SpeechRecognition API handle permission requests
       } else {
-        console.log('✅ [VOICE AI] Microphone permission verified');
+        logger.debug('✅ [VOICE AI] Microphone permission verified');
       }
     } catch (permissionError) {
       console.warn('⚠️ [VOICE AI] Permission check failed, proceeding with SpeechRecognition:', permissionError);
@@ -184,8 +186,8 @@ export class VoiceService {
       // Set up event handlers
       this.recognition.onstart = () => {
         this.isListening = true;
-        console.log('✅ [VOICE AI] Speech recognition started successfully');
-        console.log('🎯 [VOICE AI] Listening state:', this.isListening);
+        logger.debug('✅ [VOICE AI] Speech recognition started successfully');
+        logger.debug('🎯 [VOICE AI] Listening state:', this.isListening);
         resolve();
       };
 
@@ -193,16 +195,16 @@ export class VoiceService {
         let finalTranscript = '';
         let interimTranscript = '';
 
-        console.log('📝 [VOICE AI] Processing speech results...');
-        console.log('📊 [VOICE AI] Results count:', event.results.length);
-        console.log('📍 [VOICE AI] Result index:', event.resultIndex);
+        logger.debug('📝 [VOICE AI] Processing speech results...');
+        logger.debug('📊 [VOICE AI] Results count:', event.results.length);
+        logger.debug('📍 [VOICE AI] Result index:', event.resultIndex);
 
         for (let i = event.resultIndex; i < event.results.length; i++) {
           const transcript = event.results[i][0].transcript;
           const confidence = event.results[i][0].confidence;
           const isFinal = event.results[i].isFinal;
           
-          console.log(`📋 [VOICE AI] Result ${i}:`, {
+          logger.debug(`📋 [VOICE AI] Result ${i}:`, {
             transcript,
             confidence,
             isFinal,
@@ -211,18 +213,18 @@ export class VoiceService {
 
           if (isFinal) {
             finalTranscript += transcript;
-            console.log('✅ [VOICE AI] Final transcript:', finalTranscript);
+            logger.debug('✅ [VOICE AI] Final transcript:', finalTranscript);
           } else {
             interimTranscript += transcript;
-            console.log('⏳ [VOICE AI] Interim transcript:', interimTranscript);
+            logger.debug('⏳ [VOICE AI] Interim transcript:', interimTranscript);
           }
         }
 
         if (finalTranscript) {
-          console.log('🎯 [VOICE AI] Sending final result:', finalTranscript);
+          logger.debug('🎯 [VOICE AI] Sending final result:', finalTranscript);
           onResult(finalTranscript, true);
         } else if (interimTranscript) {
-          console.log('📝 [VOICE AI] Sending interim result:', interimTranscript);
+          logger.debug('📝 [VOICE AI] Sending interim result:', interimTranscript);
           onResult(interimTranscript, false);
         }
       };
@@ -280,13 +282,13 @@ export class VoiceService {
 
       this.recognition.onend = () => {
         this.isListening = false;
-        console.log('🔚 [VOICE AI] Speech recognition ended');
-        console.log('🎯 [VOICE AI] Final listening state:', this.isListening);
+        logger.debug('🔚 [VOICE AI] Speech recognition ended');
+        logger.debug('🎯 [VOICE AI] Final listening state:', this.isListening);
       };
 
       // Start recognition
       try {
-        console.log('🚀 [VOICE AI] Attempting to start recognition...');
+        logger.debug('🚀 [VOICE AI] Attempting to start recognition...');
         this.recognition.start();
       } catch (error) {
         this.isListening = false;
@@ -317,17 +319,17 @@ export class VoiceService {
     onEnd?: () => void,
     onError?: (error: string) => void
   ): Promise<void> {
-    console.log('🔊 [VOICE AI] TTS Request initiated');
-    console.log('📄 [VOICE AI] Text to speak:', text.substring(0, 100) + (text.length > 100 ? '...' : ''));
-    console.log('⚙️ [VOICE AI] TTS Config:', config);
-    console.log('🔑 [VOICE AI] Groq API available:', !!this.groqApiKey);
+    logger.debug('🔊 [VOICE AI] TTS Request initiated');
+    logger.debug('📄 [VOICE AI] Text to speak:', text.substring(0, 100) + (text.length > 100 ? '...' : ''));
+    logger.debug('⚙️ [VOICE AI] TTS Config:', config);
+    logger.debug('🔑 [VOICE AI] Groq API available:', !!this.groqApiKey);
 
     try {
       if (this.groqApiKey && text.length <= 10000) {
-        console.log('🌟 [VOICE AI] Using Groq TTS (Premium)');
+        logger.debug('🌟 [VOICE AI] Using Groq TTS (Premium)');
         await this.speakWithGroqTTS(text, config, onStart, onEnd, onError);
       } else {
-        console.log('🔄 [VOICE AI] Using Web Speech API (Fallback)');
+        logger.debug('🔄 [VOICE AI] Using Web Speech API (Fallback)');
         if (!this.groqApiKey) {
           console.warn('⚠️ [VOICE AI] No Groq API key configured');
         }
@@ -356,8 +358,8 @@ export class VoiceService {
     onEnd?: () => void,
     onError?: (error: string) => void
   ): Promise<void> {
-    console.log('🌟 [VOICE AI] Groq TTS Starting...');
-    console.log('📊 [VOICE AI] Request details:', {
+    logger.debug('🌟 [VOICE AI] Groq TTS Starting...');
+    logger.debug('📊 [VOICE AI] Request details:', {
       textLength: text.length,
       voice: config.voice || 'Fritz-PlayAI',
       model: 'playai-tts',
@@ -370,7 +372,7 @@ export class VoiceService {
 
     try {
       onStart?.();
-      console.log('🚀 [VOICE AI] Calling Groq TTS API...');
+      logger.debug('🚀 [VOICE AI] Calling Groq TTS API...');
 
       const requestBody = {
         model: 'playai-tts',
@@ -379,7 +381,7 @@ export class VoiceService {
         response_format: 'mp3'
       };
 
-      console.log('📝 [VOICE AI] API Request:', requestBody);
+      logger.debug('📝 [VOICE AI] API Request:', requestBody);
 
       const response = await fetch('https://api.groq.com/openai/v1/audio/speech', {
         method: 'POST',
@@ -390,8 +392,8 @@ export class VoiceService {
         body: JSON.stringify(requestBody),
       });
 
-      console.log('📡 [VOICE AI] API Response status:', response.status);
-      console.log('📋 [VOICE AI] Response headers:', Object.fromEntries(response.headers.entries()));
+      logger.debug('📡 [VOICE AI] API Response status:', response.status);
+      logger.debug('📋 [VOICE AI] Response headers:', Object.fromEntries(response.headers.entries()));
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -403,9 +405,9 @@ export class VoiceService {
         throw new Error(`Groq TTS API error: ${response.statusText}`);
       }
 
-      console.log('✅ [VOICE AI] Groq TTS API success');
+      logger.debug('✅ [VOICE AI] Groq TTS API success');
       const audioBlob = await response.blob();
-      console.log('🎵 [VOICE AI] Audio blob created:', {
+      logger.debug('🎵 [VOICE AI] Audio blob created:', {
         size: audioBlob.size,
         type: audioBlob.type
       });
@@ -413,10 +415,10 @@ export class VoiceService {
       const audioUrl = URL.createObjectURL(audioBlob);
       const audio = new Audio(audioUrl);
 
-      console.log('🎧 [VOICE AI] Audio element created, starting playback...');
+      logger.debug('🎧 [VOICE AI] Audio element created, starting playback...');
 
       audio.onended = () => {
-        console.log('🏁 [VOICE AI] Groq TTS playback completed');
+        logger.debug('🏁 [VOICE AI] Groq TTS playback completed');
         URL.revokeObjectURL(audioUrl);
         onEnd?.();
       };
@@ -428,7 +430,7 @@ export class VoiceService {
       };
 
       await audio.play();
-      console.log('▶️ [VOICE AI] Groq TTS playback started successfully');
+      logger.debug('▶️ [VOICE AI] Groq TTS playback started successfully');
 
     } catch (error) {
       console.error('❌ [VOICE AI] Groq TTS Error:', error);
@@ -445,8 +447,8 @@ export class VoiceService {
     onEnd?: () => void,
     onError?: (error: string) => void
   ): Promise<void> {
-    console.log('🔄 [VOICE AI] Web Speech API TTS Starting...');
-    console.log('📊 [VOICE AI] Web API details:', {
+    logger.debug('🔄 [VOICE AI] Web Speech API TTS Starting...');
+    logger.debug('📊 [VOICE AI] Web API details:', {
       textLength: text.length,
       rate: config.rate || 1,
       pitch: config.pitch || 1,
@@ -464,7 +466,7 @@ export class VoiceService {
       }
 
       // Cancel any ongoing speech
-      console.log('🛑 [VOICE AI] Canceling any existing speech...');
+      logger.debug('🛑 [VOICE AI] Canceling any existing speech...');
       this.synthesis.cancel();
 
       const utterance = new SpeechSynthesisUtterance(text);
@@ -474,7 +476,7 @@ export class VoiceService {
       utterance.pitch = config.pitch || 1;
       utterance.volume = config.volume || 1;
 
-      console.log('⚙️ [VOICE AI] Utterance configured:', {
+      logger.debug('⚙️ [VOICE AI] Utterance configured:', {
         rate: utterance.rate,
         pitch: utterance.pitch,
         volume: utterance.volume
@@ -483,13 +485,13 @@ export class VoiceService {
       // Set voice if specified
       if (config.voice) {
         const voices = this.synthesis.getVoices();
-        console.log('🎭 [VOICE AI] Available voices:', voices.length);
+        logger.debug('🎭 [VOICE AI] Available voices:', voices.length);
         const selectedVoice = voices.find(voice => 
           voice.name.includes(config.voice!) || voice.lang.includes(config.voice!)
         );
         if (selectedVoice) {
           utterance.voice = selectedVoice;
-          console.log('✅ [VOICE AI] Voice selected:', {
+          logger.debug('✅ [VOICE AI] Voice selected:', {
             name: selectedVoice.name,
             lang: selectedVoice.lang,
             gender: selectedVoice.gender
@@ -500,12 +502,12 @@ export class VoiceService {
       }
 
       utterance.onstart = () => {
-        console.log('▶️ [VOICE AI] Web Speech API playback started');
+        logger.debug('▶️ [VOICE AI] Web Speech API playback started');
         onStart?.();
       };
 
       utterance.onend = () => {
-        console.log('🏁 [VOICE AI] Web Speech API playback completed');
+        logger.debug('🏁 [VOICE AI] Web Speech API playback completed');
         onEnd?.();
         resolve();
       };
@@ -521,7 +523,7 @@ export class VoiceService {
         reject(new Error(error));
       };
 
-      console.log('🚀 [VOICE AI] Starting Web Speech API synthesis...');
+      logger.debug('🚀 [VOICE AI] Starting Web Speech API synthesis...');
       this.synthesis.speak(utterance);
     });
   }
@@ -552,7 +554,7 @@ export class VoiceService {
 
   // Log detailed permission diagnostics
   private async logPermissionDiagnostics(): Promise<void> {
-    console.log('🔍 [VOICE AI] === PERMISSION DIAGNOSTICS ===');
+    logger.debug('🔍 [VOICE AI] === PERMISSION DIAGNOSTICS ===');
     
     // Check basic browser support
     const diagnostics = {
@@ -565,29 +567,29 @@ export class VoiceService {
       userAgent: navigator.userAgent.substring(0, 100)
     };
     
-    console.log('🌐 [VOICE AI] Browser capabilities:', diagnostics);
+    logger.debug('🌐 [VOICE AI] Browser capabilities:', diagnostics);
     
     // Check permission state if Permissions API is available
     if (navigator.permissions) {
       try {
         const micPermission = await navigator.permissions.query({ name: 'microphone' as PermissionName });
-        console.log('🎤 [VOICE AI] Microphone permission state:', micPermission.state);
+        logger.debug('🎤 [VOICE AI] Microphone permission state:', micPermission.state);
       } catch (error) {
-        console.log('❌ [VOICE AI] Could not query microphone permission:', error);
+        logger.debug('❌ [VOICE AI] Could not query microphone permission:', error);
       }
     }
     
-    console.log('🔍 [VOICE AI] === END DIAGNOSTICS ===');
+    logger.debug('🔍 [VOICE AI] === END DIAGNOSTICS ===');
   }
 
   // Chrome-specific permission bypass
   public async forceChromeMicrophoneAccess(): Promise<boolean> {
-    console.log('🔧 [VOICE AI] Attempting Chrome-specific microphone bypass...');
+    logger.debug('🔧 [VOICE AI] Attempting Chrome-specific microphone bypass...');
     
     // Strategy 1: Multiple rapid getUserMedia calls (Chrome quirk)
     for (let i = 0; i < 3; i++) {
       try {
-        console.log(`🔄 [VOICE AI] Chrome bypass attempt ${i + 1}/3`);
+        logger.debug(`🔄 [VOICE AI] Chrome bypass attempt ${i + 1}/3`);
         const stream = await navigator.mediaDevices.getUserMedia({ 
           audio: {
             autoGainControl: false,
@@ -596,26 +598,26 @@ export class VoiceService {
           }
         });
         stream.getTracks().forEach(track => track.stop());
-        console.log('✅ [VOICE AI] Chrome bypass successful!');
+        logger.debug('✅ [VOICE AI] Chrome bypass successful!');
         return true;
       } catch (error) {
-        console.log(`❌ [VOICE AI] Chrome bypass attempt ${i + 1} failed:`, error);
+        logger.debug(`❌ [VOICE AI] Chrome bypass attempt ${i + 1} failed:`, error);
         await new Promise(resolve => setTimeout(resolve, 100)); // Brief delay
       }
     }
     
     // Strategy 2: Try with video=false explicitly (Chrome requirement)
     try {
-      console.log('🔄 [VOICE AI] Trying Chrome video=false strategy...');
+      logger.debug('🔄 [VOICE AI] Trying Chrome video=false strategy...');
       const stream = await navigator.mediaDevices.getUserMedia({ 
         audio: true,
         video: false
       });
       stream.getTracks().forEach(track => track.stop());
-      console.log('✅ [VOICE AI] Chrome video=false strategy successful!');
+      logger.debug('✅ [VOICE AI] Chrome video=false strategy successful!');
       return true;
     } catch (error) {
-      console.log('❌ [VOICE AI] Chrome video=false strategy failed:', error);
+      logger.debug('❌ [VOICE AI] Chrome video=false strategy failed:', error);
     }
     
     return false;
@@ -623,7 +625,7 @@ export class VoiceService {
 
   // Retry microphone access with different strategies
   public async retryMicrophoneAccess(): Promise<boolean> {
-    console.log('🔄 [VOICE AI] Retrying microphone access...');
+    logger.debug('🔄 [VOICE AI] Retrying microphone access...');
     
     // First try Chrome-specific bypass
     const chromeSuccess = await this.forceChromeMicrophoneAccess();
@@ -633,10 +635,10 @@ export class VoiceService {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       stream.getTracks().forEach(track => track.stop());
-      console.log('✅ [VOICE AI] Retry successful with basic constraints');
+      logger.debug('✅ [VOICE AI] Retry successful with basic constraints');
       return true;
     } catch (error) {
-      console.log('❌ [VOICE AI] Basic retry failed:', error);
+      logger.debug('❌ [VOICE AI] Basic retry failed:', error);
     }
     
     // Strategy 2: Try with different audio constraints
@@ -649,10 +651,10 @@ export class VoiceService {
         } 
       });
       stream.getTracks().forEach(track => track.stop());
-      console.log('✅ [VOICE AI] Retry successful with specific constraints');
+      logger.debug('✅ [VOICE AI] Retry successful with specific constraints');
       return true;
     } catch (error) {
-      console.log('❌ [VOICE AI] Specific constraints retry failed:', error);
+      logger.debug('❌ [VOICE AI] Specific constraints retry failed:', error);
     }
     
     return false;
@@ -660,36 +662,36 @@ export class VoiceService {
 
   // Debug helper for console testing
   public async debugMicrophoneAccess(): Promise<void> {
-    console.log('🔧 [VOICE AI] === MICROPHONE DEBUG TEST ===');
+    logger.debug('🔧 [VOICE AI] === MICROPHONE DEBUG TEST ===');
     
     // Test 1: Check browser capabilities
     await this.logPermissionDiagnostics();
     
     // Test 2: Try permission check
-    console.log('🧪 [VOICE AI] Testing permission check...');
+    logger.debug('🧪 [VOICE AI] Testing permission check...');
     try {
       const hasPermission = await this.checkMicrophonePermissions();
-      console.log('🎤 [VOICE AI] Permission check result:', hasPermission ? 'SUCCESS' : 'FAILED');
+      logger.debug('🎤 [VOICE AI] Permission check result:', hasPermission ? 'SUCCESS' : 'FAILED');
     } catch (error) {
-      console.log('❌ [VOICE AI] Permission check error:', error);
+      logger.debug('❌ [VOICE AI] Permission check error:', error);
     }
     
     // Test 3: Try speech recognition initialization
-    console.log('🧪 [VOICE AI] Testing speech recognition...');
+    logger.debug('🧪 [VOICE AI] Testing speech recognition...');
     const speechSupported = this.isSpeechRecognitionSupported();
-    console.log('🎙️ [VOICE AI] Speech recognition supported:', speechSupported);
+    logger.debug('🎙️ [VOICE AI] Speech recognition supported:', speechSupported);
     
     // Test 4: Try retry mechanism
-    console.log('🧪 [VOICE AI] Testing retry mechanism...');
+    logger.debug('🧪 [VOICE AI] Testing retry mechanism...');
     try {
       const retryResult = await this.retryMicrophoneAccess();
-      console.log('🔄 [VOICE AI] Retry result:', retryResult ? 'SUCCESS' : 'FAILED');
+      logger.debug('🔄 [VOICE AI] Retry result:', retryResult ? 'SUCCESS' : 'FAILED');
     } catch (error) {
-      console.log('❌ [VOICE AI] Retry error:', error);
+      logger.debug('❌ [VOICE AI] Retry error:', error);
     }
     
-    console.log('🔧 [VOICE AI] === DEBUG TEST COMPLETE ===');
-    console.log('📋 [VOICE AI] To run this test, open browser console and run: voiceService.debugMicrophoneAccess()');
+    logger.debug('🔧 [VOICE AI] === DEBUG TEST COMPLETE ===');
+    logger.debug('📋 [VOICE AI] To run this test, open browser console and run: voiceService.debugMicrophoneAccess()');
   }
 
   // Clean up resources
@@ -705,8 +707,8 @@ export const voiceService = new VoiceService();
 // Make voice service available globally for debugging in development
 if (typeof window !== 'undefined' && import.meta.env.DEV) {
   (window as any).voiceService = voiceService;
-  console.log('🔧 [VOICE AI] Voice service available globally as window.voiceService');
-  console.log('🧪 [VOICE AI] Run voiceService.debugMicrophoneAccess() in console to test');
+  logger.debug('🔧 [VOICE AI] Voice service available globally as window.voiceService');
+  logger.debug('🧪 [VOICE AI] Run voiceService.debugMicrophoneAccess() in console to test');
 }
 
 // Type declarations for Web Speech API

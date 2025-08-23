@@ -3,6 +3,8 @@
  * Transforms daily productivity into an engaging game-like experience
  */
 
+import { logger } from '@/utils/logger';
+
 export interface XPActivity {
   id: string;
   name: string;
@@ -369,14 +371,14 @@ export class GamificationService {
    */
   private static triggerLevelUpNotification(level: number): void {
     // Could integrate with toast notifications or custom modal
-    console.log(`🎉 LEVEL UP! You're now level ${level}!`);
+    logger.debug(`🎉 LEVEL UP! You're now level ${level}!`);
   }
 
   /**
    * Trigger achievement notification
    */
   private static triggerAchievementNotification(achievement: Achievement): void {
-    console.log(`🏆 ACHIEVEMENT UNLOCKED: ${achievement.badge} ${achievement.name}!`);
+    logger.debug(`🏆 ACHIEVEMENT UNLOCKED: ${achievement.badge} ${achievement.name}!`);
   }
 
   /**
