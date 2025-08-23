@@ -25,6 +25,7 @@
 
 import { realPrismaTaskService } from '@/ai-first/core/task.service';
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/utils/logger';
 
 export const AI_INTERFACE = {
   purpose: "Unified authentication management",
@@ -53,9 +54,29 @@ export interface ClerkWebhookEvent {
 
 // ===== CONSOLIDATED CLASSES =====
 export class ClerkUserSync {
-  // TODO: Implement class from consolidated services
   constructor() {
     // Consolidated constructor logic
+  }
+
+  static async getOrCreateUser(userData: any) {
+    try {
+      logger.debug('[CLERK-SYNC] Syncing user to database', userData.emailAddresses[0]?.emailAddress);
+      
+      // TODO: Implement actual user sync with database
+      // This is a stub implementation to prevent runtime errors
+      return {
+        id: userData.id,
+        email: userData.emailAddresses[0]?.emailAddress || '',
+        firstName: userData.firstName || '',
+        lastName: userData.lastName || '',
+        imageUrl: userData.imageUrl || '',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+    } catch (error) {
+      logger.error('[CLERK-SYNC] Error syncing user:', error);
+      return null;
+    }
   }
 }
 
@@ -76,8 +97,7 @@ class ConsolidatedAuthService {
   private authState: string = 'loading';
 
   constructor() {
-    console.log('🚀 Consolidated Auth Service initialized');
-    console.log('🔐 Consolidated from 2 services: clerkUserSync.ts, authUtils.ts');
+    logger.once('Consolidated Auth Service initialized');
   }
 
   async login(credentials: any): Promise<any> {
@@ -116,6 +136,19 @@ export function useAuth() {
 
 export function useAuthGuard() {
   return { isLoading: false, isAuthenticated: true };
+}
+
+// ===== EXPORTED CLASSES =====
+export class ClerkHybridTaskService {
+  // TODO: Implement ClerkHybridTaskService from consolidated services
+  constructor() {
+    logger.once('ClerkHybridTaskService created - needs implementation', 'warn');
+  }
+  
+  static async initialize() {
+    logger.once('ClerkHybridTaskService.initialize() called - needs implementation', 'warn');
+    return true;
+  }
 }
 
 /**

@@ -3,7 +3,7 @@
 
 import { SignIn, useUser } from '@clerk/clerk-react';
 import { ReactNode } from 'react';
-import { PageLoader } from '../ui/PageLoader';
+import { PageLoader } from '@/components/ui/PageLoader';
 
 interface ClerkAuthGuardProps {
   children: ReactNode;

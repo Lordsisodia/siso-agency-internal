@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/utils/logger';
 
 export interface ChatMessage {
   id: string;
@@ -59,7 +60,7 @@ export class ChatMemoryService {
       if (existing && existing.length > 0) {
         this.conversationId = existing[0].id;
         this.memoryCache = this.parseConversationHistory(existing[0].conversation_history);
-        console.log('✅ [CHAT MEMORY] Loaded existing conversation:', this.conversationId);
+        logger.debug('✅ [CHAT MEMORY] Loaded existing conversation:', this.conversationId);
       } else {
         // Create new conversation
         const { data: newConversation } = await supabase
@@ -75,7 +76,7 @@ export class ChatMemoryService {
 
         if (newConversation) {
           this.conversationId = newConversation.id;
-          console.log('✅ [CHAT MEMORY] Created new conversation:', this.conversationId);
+          logger.debug('✅ [CHAT MEMORY] Created new conversation:', this.conversationId);
         }
       }
     } catch (error) {
@@ -111,7 +112,7 @@ export class ChatMemoryService {
           })
           .eq('id', this.conversationId);
 
-        console.log('✅ [CHAT MEMORY] Saved message to database');
+        logger.debug('✅ [CHAT MEMORY] Saved message to database');
       } catch (error) {
         console.error('❌ [CHAT MEMORY] Failed to save message:', error);
       }
@@ -151,7 +152,7 @@ export class ChatMemoryService {
           })
           .eq('id', this.conversationId);
 
-        console.log('✅ [CHAT MEMORY] Cleared conversation');
+        logger.debug('✅ [CHAT MEMORY] Cleared conversation');
       } catch (error) {
         console.error('❌ [CHAT MEMORY] Failed to clear conversation:', error);
       }

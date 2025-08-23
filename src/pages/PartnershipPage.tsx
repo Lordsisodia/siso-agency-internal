@@ -12,7 +12,7 @@ import { PartnershipProcess } from '@/ai-first/features/partnerships/components/
 import { PartnershipAIChat } from '@/ai-first/features/partnerships/components/PartnershipAIChat';
 import { PartnershipTraining } from '@/ai-first/features/partnerships/components/PartnershipTraining';
 import Footer from '@/components/Footer';
-import { PartnerRequirements } from '@/ai-first/features/partnerships/components/PartnerRequirements';
+import { PartnerRequirements } from '@/ai-first/features/partnerships/ui/PartnerRequirements';
 
 const PartnershipPage = memo(() => {
   const navigate = useNavigate();

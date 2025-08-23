@@ -39,7 +39,7 @@ import {
   DailyTrackerTaskItem,
   DailyTrackerTaskList,
   DailyTrackerDivider
-} from '@/ai-first/features/tasks/components/ui';
+} from '@/ai-first/shared/types/DailyTrackerCard';
 
 interface TaskItem {
   id: string;

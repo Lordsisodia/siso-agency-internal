@@ -7,6 +7,7 @@ import { ClerkProvider } from './components/ClerkProvider';
 import { ClerkAuthGuard } from '@/ai-first/features/auth/components/ClerkAuthGuard';
 import { AuthGuard } from '@/ai-first/features/auth/components/AuthGuard';
 import { PageLoader } from './components/ui/PageLoader';
+import { logger } from '@/utils/logger';
 
 // Critical pages loaded immediately (landing, auth, home)
 import Index from './pages/Index';
@@ -145,9 +146,9 @@ function App() {
     const initializeClerkHybridService = async () => {
       try {
         await ClerkHybridTaskService.initialize();
-        console.log('✅ [APP] Automatic Clerk hybrid service initialization complete');
+        logger.once('[APP] Automatic Clerk hybrid service initialization complete', 'info');
       } catch (error) {
-        console.error('❌ [APP] Clerk hybrid service initialization failed:', error);
+        logger.error('[APP] Clerk hybrid service initialization failed:', error);
       }
     };
     

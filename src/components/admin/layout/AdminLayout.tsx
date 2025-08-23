@@ -27,7 +27,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     if (isMobile) {
       return 'ml-0'; // Mobile has no margin, sidebar overlays
     }
-    return sidebarExpanded ? 'ml-64' : 'ml-16'; // Desktop: 16rem expanded, 4rem collapsed
+    return 'ml-16'; // Desktop: Always collapsed (4rem width)
   };
 
   return (

@@ -8,6 +8,7 @@ import { AppPlanInput } from '@/types/appPlan.types';
 import { getBusinessOnboardingData } from '@/utils/clientData';
 import { appPlanAgent } from '@/ai-first/core/ai.service';
 import { toast } from '@/hooks/use-toast';
+import { logger } from '@/utils/logger';
 
 export interface AutoTriggerConfig {
   enabled: boolean;
@@ -73,18 +74,18 @@ export class AutoTriggerSystem {
 
     const onboardingData = getBusinessOnboardingData();
     if (!onboardingData) {
-      console.log('AutoTrigger: No onboarding data found');
+      logger.debug('AutoTrigger: No onboarding data found');
       return false;
     }
 
     // Check if plan already exists for this data
     const existingPlan = appPlanAgent.getLatestPlan();
     if (existingPlan && this.isRecentPlan(existingPlan.generatedAt, onboardingData.completedAt)) {
-      console.log('AutoTrigger: Recent plan already exists');
+      logger.debug('AutoTrigger: Recent plan already exists');
       return false;
     }
 
-    console.log('AutoTrigger: Conditions met, starting generation...');
+    logger.debug('AutoTrigger: Conditions met, starting generation...');
     return this.executeAutoGeneration(onboardingData);
   }
 
@@ -297,16 +298,16 @@ export function useAutoTrigger() {
  * Onboarding completion trigger - call this when onboarding finishes
  */
 export async function triggerOnOnboardingComplete(): Promise<void> {
-  console.log('🚀 Onboarding completed - checking auto-trigger conditions...');
+  logger.debug('🚀 Onboarding completed - checking auto-trigger conditions...');
   
   // Small delay to ensure data is saved
   setTimeout(async () => {
     const triggered = await autoTriggerSystem.checkAndTrigger();
     
     if (triggered) {
-      console.log('✅ Auto-trigger executed successfully');
+      logger.debug('✅ Auto-trigger executed successfully');
     } else {
-      console.log('ℹ️ Auto-trigger conditions not met or disabled');
+      logger.debug('ℹ️ Auto-trigger conditions not met or disabled');
     }
   }, 500);
 } 

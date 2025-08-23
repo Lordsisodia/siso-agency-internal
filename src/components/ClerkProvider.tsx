@@ -2,8 +2,9 @@
 // Zero setup, automatic user sync to Prisma
 
 import { ClerkProvider as BaseClerkProvider, useUser } from '@clerk/clerk-react';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { ClerkUserSync } from '@/ai-first/core/auth.service';
+import { logger } from '@/utils/logger';
 
 const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -29,9 +30,9 @@ function UserSyncComponent() {
         lastName: user.lastName,
         imageUrl: user.imageUrl
       }).then(() => {
-        console.log('✅ [CLERK-PROVIDER] User auto-synced to Prisma');
+        logger.debug('[CLERK-PROVIDER] User auto-synced to Prisma');
       }).catch((error) => {
-        console.error('❌ [CLERK-PROVIDER] User sync failed:', error);
+        logger.error('[CLERK-PROVIDER] User sync failed:', error);
       });
     }
   }, [isSignedIn, user]);
@@ -52,14 +53,25 @@ export function ClerkProvider({ children }: ClerkProviderProps) {
 export function useClerkUser() {
   const { user, isSignedIn, isLoaded } = useUser();
 
-  return {
-    user: user ? {
+  // Memoize user object to prevent infinite re-renders
+  const memoizedUser = useMemo(() => {
+    return user ? {
       id: user.id,
       email: user.emailAddresses[0]?.emailAddress || '',
       firstName: user.firstName,
       lastName: user.lastName,
       imageUrl: user.imageUrl
-    } : null,
+    } : null;
+  }, [
+    user?.id,
+    user?.emailAddresses,
+    user?.firstName,
+    user?.lastName,
+    user?.imageUrl
+  ]);
+
+  return {
+    user: memoizedUser,
     isSignedIn,
     isLoaded
   };

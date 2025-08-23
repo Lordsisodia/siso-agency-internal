@@ -1,7 +1,7 @@
 
 import { AdminLayout } from '@/components/admin/layout/AdminLayout';
 import { StatsOverview } from '@/ai-first/features/dashboard/components/StatsOverview';
-import { QuickActions } from '@/ai-first/features/dashboard/components/QuickActions';
+import { QuickActions } from '@/ai-first/features/dashboard/ui/QuickActions';
 import { ClientsList } from '@/ai-first/features/dashboard/components/ClientsList';
 import { AdminTasks } from '@/ai-first/features/dashboard/components/AdminTasks';
 import { AdminStats } from '@/ai-first/features/dashboard/components/AdminStats';
