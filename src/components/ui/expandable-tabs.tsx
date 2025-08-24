@@ -31,13 +31,13 @@ interface ExpandableTabsProps {
 const buttonVariants = {
   initial: {
     gap: 0,
-    paddingLeft: ".5rem",
-    paddingRight: ".5rem",
+    paddingLeft: ".375rem",
+    paddingRight: ".375rem",
   },
   animate: (isSelected: boolean) => ({
     gap: isSelected ? ".5rem" : 0,
-    paddingLeft: isSelected ? "1rem" : ".5rem",
-    paddingRight: isSelected ? "1rem" : ".5rem",
+    paddingLeft: isSelected ? ".75rem" : ".375rem",
+    paddingRight: isSelected ? ".75rem" : ".375rem",
   }),
 };
 
@@ -102,13 +102,13 @@ export function ExpandableTabs({
             onClick={() => handleSelect(index)}
             transition={transition}
             className={cn(
-              "relative flex items-center rounded-xl px-4 py-2 text-sm font-medium transition-colors duration-300",
+              "relative flex items-center rounded-xl px-3 py-2 text-xs font-medium transition-colors duration-300",
               selected === index
                 ? cn("bg-muted", activeColor)
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
             )}
           >
-            <Icon size={20} />
+            <Icon size={16} />
             <AnimatePresence initial={false}>
               {selected === index && (
                 <motion.span

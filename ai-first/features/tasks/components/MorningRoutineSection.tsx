@@ -34,7 +34,8 @@ const defaultMorningRoutine: MorningRoutineItem[] = [
     id: '1', 
     title: 'Wake Up', 
     completed: false, 
-    description: 'Start the day before midday to maximize productivity.',
+    description: 'Start the day before midday to maximize productivity. Track your wake-up time.',
+    logField: 'Wake up time: ____',
     subTasks: []
   },
   { 
@@ -107,6 +108,14 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
   onCustomTaskAdd,
   onViewDetails
 }) => {
+  const [wakeUpTime, setWakeUpTime] = useState<string>(() => {
+    const dateKey = format(new Date(), 'yyyy-MM-dd');
+    const saved = localStorage.getItem(`lifelock-${dateKey}-wakeUpTime`);
+    return saved || '';
+  });
+
+  const [isEditingWakeTime, setIsEditingWakeTime] = useState(false);
+
   const [morningRoutine, setMorningRoutine] = useState<MorningRoutineItem[]>(() => {
     const dateKey = format(new Date(), 'yyyy-MM-dd');
     const saved = localStorage.getItem(`lifelock-${dateKey}-morningRoutine`);
@@ -133,6 +142,24 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
     const dateKey = format(new Date(), 'yyyy-MM-dd');
     localStorage.setItem(`lifelock-${dateKey}-morningRoutine`, JSON.stringify(morningRoutine));
   }, [morningRoutine]);
+
+  // Save wake-up time to localStorage
+  useEffect(() => {
+    const dateKey = format(new Date(), 'yyyy-MM-dd');
+    localStorage.setItem(`lifelock-${dateKey}-wakeUpTime`, wakeUpTime);
+  }, [wakeUpTime]);
+
+  // Get current time in 12-hour format
+  const getCurrentTime = () => {
+    const now = new Date();
+    return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  // Handle setting current time as wake-up time
+  const setCurrentTimeAsWakeUp = () => {
+    setWakeUpTime(getCurrentTime());
+    setIsEditingWakeTime(false);
+  };
 
   const toggleItem = (id: string) => {
     const updatedItems = morningRoutine.map((item: MorningRoutineItem) => {
@@ -256,7 +283,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
             
             <div className="space-y-2 sm:space-y-3">
               {morningRoutine.map((item) => (
-                <div key={item.id} className="bg-yellow-900/10 border border-yellow-700/30 rounded-lg hover:bg-yellow-900/15 transition-colors">
+                <div key={item.id} className="group bg-yellow-900/10 border border-yellow-700/30 rounded-xl hover:bg-yellow-900/15 hover:border-yellow-600/40 transition-all duration-300 hover:shadow-lg hover:shadow-yellow-500/5">
                   {/* Main Task Header */}
                   <div className="flex items-start space-x-2 sm:space-x-3 p-2 sm:p-3">
                     <Checkbox
@@ -268,10 +295,18 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
                       <div className="flex items-center justify-between">
                         <h4 className="text-yellow-100 font-semibold text-sm sm:text-base">{item.title}</h4>
                         {item.subTasks && item.subTasks.length > 0 && (
-                          <div className="bg-yellow-500/20 border border-yellow-400/50 rounded-full px-2 py-1 ml-2">
-                            <span className="text-xs text-yellow-400 font-semibold">
-                              {item.subTasks.filter(sub => sub.completed).length}/{item.subTasks.length}
-                            </span>
+                          <div className="relative">
+                            <div className="bg-gradient-to-r from-yellow-500/20 to-yellow-400/20 border border-yellow-400/40 rounded-full px-3 py-1.5 ml-2 shadow-sm">
+                              <span className="text-xs text-yellow-300 font-semibold tracking-wide">
+                                {item.subTasks.filter(sub => sub.completed).length}/{item.subTasks.length}
+                              </span>
+                            </div>
+                            {/* Progress completion indicator */}
+                            {item.subTasks.filter(sub => sub.completed).length === item.subTasks.length && item.subTasks.length > 0 && (
+                              <div className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full animate-pulse shadow-lg">
+                                <div className="absolute inset-0.5 bg-green-300 rounded-full animate-ping"></div>
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
@@ -280,44 +315,95 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
                       )}
                       {item.logField && (
                         <div className="mt-2">
-                          <Input
-                            placeholder={item.logField}
-                            className="bg-yellow-900/20 border-yellow-700/50 text-yellow-100 text-sm placeholder:text-gray-400 focus:border-yellow-600"
-                          />
-                          <p className="text-xs text-gray-400 mt-1 italic">Log your max reps to track progress toward your 5% weekly increase goal.</p>
+                          {item.id === '1' ? (
+                            // Special wake-up time interface
+                            <div className="space-y-2">
+                              {wakeUpTime ? (
+                                <div className="flex items-center space-x-2">
+                                  <div className="flex items-center space-x-1 bg-yellow-900/20 border border-yellow-700/50 rounded-md px-3 py-2">
+                                    <Clock className="h-4 w-4 text-yellow-400" />
+                                    <span className="text-yellow-100 font-semibold">
+                                      Woke up at: {wakeUpTime}
+                                    </span>
+                                  </div>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => setIsEditingWakeTime(!isEditingWakeTime)}
+                                    className="border-yellow-600 text-yellow-400 hover:bg-yellow-900/20"
+                                  >
+                                    Edit
+                                  </Button>
+                                </div>
+                              ) : null}
+                              
+                              {(!wakeUpTime || isEditingWakeTime) && (
+                                <div className="flex items-center space-x-2">
+                                  <Input
+                                    placeholder="Enter wake-up time (e.g., 7:30 AM)"
+                                    value={wakeUpTime}
+                                    onChange={(e) => setWakeUpTime(e.target.value)}
+                                    className="bg-yellow-900/20 border-yellow-700/50 text-yellow-100 text-sm placeholder:text-gray-400 focus:border-yellow-600 flex-1"
+                                  />
+                                  <Button
+                                    size="sm"
+                                    onClick={setCurrentTimeAsWakeUp}
+                                    className="bg-yellow-600 hover:bg-yellow-700 text-white whitespace-nowrap"
+                                  >
+                                    Use Now ({getCurrentTime()})
+                                  </Button>
+                                </div>
+                              )}
+                              
+                              <p className="text-xs text-gray-400 italic">
+                                Track your wake-up time to build better morning routine habits.
+                              </p>
+                            </div>
+                          ) : (
+                            // Regular log field for other tasks
+                            <>
+                              <Input
+                                placeholder={item.logField}
+                                className="bg-yellow-900/20 border-yellow-700/50 text-yellow-100 text-sm placeholder:text-gray-400 focus:border-yellow-600"
+                              />
+                              <p className="text-xs text-gray-400 mt-1 italic">Log your max reps to track progress toward your 5% weekly increase goal.</p>
+                            </>
+                          )}
                         </div>
                       )}
                     </div>
                   </div>
                   
-                  {/* Sub-tasks - Integrated seamlessly */}
+                  {/* Sub-tasks - Enhanced with better visual hierarchy */}
                   {item.subTasks && item.subTasks.length > 0 && (
-                    <div className="mt-3 ml-6">
-                      <div className="space-y-2">
-                        {item.subTasks.map((subTask) => (
-                          <div
-                            key={subTask.id}
-                            className="flex items-center space-x-3 p-2 hover:bg-yellow-900/20 rounded-md transition-all"
-                          >
+                    <div className="mt-4 ml-8 space-y-3">
+                      {item.subTasks.map((subTask, subIndex) => (
+                        <div
+                          key={subTask.id}
+                          className="group flex items-center space-x-3 p-3 hover:bg-yellow-900/10 rounded-lg transition-all duration-200 hover:scale-[1.01]"
+                        >
+                          {/* Visual connector line */}
+                          <div className="relative">
+                            <div className="absolute -left-4 top-1/2 w-3 h-px bg-yellow-500/30"></div>
                             <Checkbox
                               checked={subTask.completed}
                               onCheckedChange={() => toggleSubTask(item.id, subTask.id)}
-                              className="h-4 w-4 border-yellow-400 data-[state=checked]:bg-yellow-500 data-[state=checked]:border-yellow-500"
+                              className="h-4 w-4 border-yellow-400/70 data-[state=checked]:bg-yellow-500 data-[state=checked]:border-yellow-500 transition-all duration-200 group-hover:border-yellow-400"
                             />
-                            <span className={cn(
-                              "text-sm font-medium transition-colors",
-                              subTask.completed 
-                                ? "text-gray-400 line-through" 
-                                : "text-yellow-50"
-                            )}>
-                              {subTask.title}
-                            </span>
-                            {subTask.completed && (
-                              <CheckCircle2 className="h-3 w-3 text-green-500 ml-auto" />
-                            )}
                           </div>
-                        ))}
-                      </div>
+                          <span className={cn(
+                            "text-sm font-medium transition-all duration-200 flex-1",
+                            subTask.completed 
+                              ? "text-gray-500 line-through" 
+                              : "text-yellow-100/90 group-hover:text-yellow-50"
+                          )}>
+                            {subTask.title}
+                          </span>
+                          {subTask.completed && (
+                            <CheckCircle2 className="h-3.5 w-3.5 text-green-400 animate-in zoom-in-50 duration-200" />
+                          )}
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>

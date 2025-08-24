@@ -15,6 +15,7 @@ import { MonthlyProgressSection } from '@/ai-first/features/tasks/components/Mon
 import { MorningRoutineSection } from '@/ai-first/features/tasks/components/MorningRoutineSection';
 import { DeepFocusWorkSection } from '@/ai-first/features/tasks/components/DeepFocusWorkSection';
 import { LightFocusWorkSection } from '@/ai-first/features/tasks/components/LightFocusWorkSection';
+import { EnhancedLightWorkManager } from '@/components/ui/enhanced-light-work-manager';
 import { NightlyCheckoutSection } from '@/ai-first/features/tasks/components/NightlyCheckoutSection';
 import { useLifeLockData } from '@/hooks/useLifeLockData';
 
@@ -108,7 +109,7 @@ const AdminLifeLock: React.FC = () => {
               return (
                 <div className="p-4 sm:p-6 space-y-6">
                   <DeepFocusWorkSection selectedDate={selectedDate} />
-                  <LightFocusWorkSection selectedDate={selectedDate} />
+                  <EnhancedLightWorkManager selectedDate={selectedDate} />
                   <QuickActionsSection
                     handleQuickAdd={handleQuickAdd}
                     handleOrganizeTasks={handleOrganizeTasks}
