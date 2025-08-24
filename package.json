@@ -8,11 +8,15 @@
     "build": "vite build",
     "build:dev": "vite build",
     "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "test": "vitest",
+    "test:components": "vitest --testNamePattern=\"should mount\"",
     "preview": "vite preview",
     "deploy:vercel": "curl -X POST https://api.vercel.com/v1/integrations/deploy/prj_BbJiyT0aFCXZTZG5gwj5J3UBwqMk/QKWupAfp3A",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
-    "tauri:build": "tauri build"
+    "tauri:build": "tauri build",
+    "prepare": "husky"
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.43.1",
@@ -119,6 +123,8 @@
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
     "eslint-plugin-react-refresh": "^0.4.9",
     "globals": "^15.9.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.5",
     "playwright": "^1.54.2",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.11",

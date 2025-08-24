@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { AdminLayout } from '@/components/admin/layout/AdminLayout';
-import { format, addWeeks, subWeeks, getYear } from 'date-fns';
+import { format, addWeeks, getYear } from 'date-fns';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useClerkUser } from '@/components/ClerkProvider';
 import { ThoughtDumpResults } from '@/ai-first/features/tasks/ui/ThoughtDumpResults';
@@ -16,12 +16,9 @@ import { MorningRoutineSection } from '@/ai-first/features/tasks/components/Morn
 import { DeepFocusWorkSection } from '@/ai-first/features/tasks/components/DeepFocusWorkSection';
 import { LightFocusWorkSection } from '@/ai-first/features/tasks/components/LightFocusWorkSection';
 import { NightlyCheckoutSection } from '@/ai-first/features/tasks/components/NightlyCheckoutSection';
-import { HomeWorkoutSection } from '@/ai-first/features/tasks/components/HomeWorkoutSection';
-import { HealthNonNegotiablesSection } from '@/ai-first/features/tasks/components/HealthNonNegotiablesSection';
-import { TimeboxSection } from '@/ai-first/features/tasks/components/TimeboxSection';
 import { useLifeLockData } from '@/hooks/useLifeLockData';
 
-const AdminLifeLockDay: React.FC = () => {
+const AdminLifeLock: React.FC = () => {
   const navigate = useNavigate();
   const { date } = useParams<{ date: string }>();
   const { isSignedIn, isLoaded } = useClerkUser();
@@ -72,6 +69,7 @@ const AdminLifeLockDay: React.FC = () => {
   };
 
   // Loading and auth guards
+
   if (!isLoaded) {
     return (
       <AdminLayout>
@@ -88,7 +86,7 @@ const AdminLifeLockDay: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-black via-gray-900 to-black">
+    <div className="w-full h-full min-h-screen overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black">
       <TabLayoutWrapper
         selectedDate={selectedDate}
         onDateChange={handleDateChange}
@@ -106,37 +104,45 @@ const AdminLifeLockDay: React.FC = () => {
                 />
               );
             
-            case 'work':
+            case 'focus':
               return (
-                <DeepFocusWorkSection selectedDate={selectedDate} />
+                <div className="p-4 sm:p-6 space-y-6">
+                  <DeepFocusWorkSection selectedDate={selectedDate} />
+                  <LightFocusWorkSection selectedDate={selectedDate} />
+                  <QuickActionsSection
+                    handleQuickAdd={handleQuickAdd}
+                    handleOrganizeTasks={handleOrganizeTasks}
+                    isAnalyzingTasks={isAnalyzingTasks}
+                    todayCard={todayCard}
+                  />
+                </div>
               );
             
-            case 'light-work':
+            case 'light':
               return (
-                <LightFocusWorkSection selectedDate={selectedDate} />
+                <div className="p-4 sm:p-6 space-y-6">
+                  <QuickActionsSection
+                    handleQuickAdd={handleQuickAdd}
+                    handleOrganizeTasks={handleOrganizeTasks}
+                    isAnalyzingTasks={isAnalyzingTasks}
+                    todayCard={todayCard}
+                  />
+                </div>
               );
             
             case 'timebox':
               return (
-                <TimeboxSection selectedDate={selectedDate} />
-              );
-            
-            case 'wellness':
-              return (
-                <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 p-4 pb-24">
-                  <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-white mb-2">
-                      💪 Wellness & Health
-                    </h1>
-                    <p className="text-gray-400 text-sm">
-                      Physical fitness and nutrition tracking for optimal health
-                    </p>
-                  </div>
-                  
-                  <div className="space-y-6">
-                    <HomeWorkoutSection selectedDate={selectedDate} />
-                    <HealthNonNegotiablesSection selectedDate={selectedDate} />
-                  </div>
+                <div className="p-4 sm:p-6 space-y-6">
+                  <WeeklyViewSection
+                    weekCards={weekCards}
+                    weekStart={weekStart}
+                    onCardClick={handleCardClick}
+                    onNavigateWeek={navigateWeek}
+                  />
+                  <MonthlyProgressSection
+                    selectedMonth={selectedDate}
+                    selectedYear={getYear(selectedDate)}
+                  />
                 </div>
               );
             
@@ -147,24 +153,13 @@ const AdminLifeLockDay: React.FC = () => {
                 </div>
               );
             
-            case 'ai-chat':
+            case 'ai':
               return (
-                <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 p-4 pb-24">
-                  <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-white mb-2">
-                      🤖 AI Assistant
-                    </h1>
-                    <p className="text-gray-400 text-sm">
-                      Voice-powered task management and AI assistance
-                    </p>
-                  </div>
-                  
-                  <div className="space-y-6">
-                    <VoiceCommandSection
-                      onVoiceCommand={handleVoiceCommand}
-                      isProcessingVoice={isProcessingVoice}
-                    />
-                  </div>
+                <div className="p-4 sm:p-6 space-y-6">
+                  <VoiceCommandSection
+                    onVoiceCommand={handleVoiceCommand}
+                    isProcessingVoice={isProcessingVoice}
+                  />
                 </div>
               );
             
@@ -208,4 +203,4 @@ const AdminLifeLockDay: React.FC = () => {
   );
 };
 
-export default AdminLifeLockDay;
+export default AdminLifeLock;

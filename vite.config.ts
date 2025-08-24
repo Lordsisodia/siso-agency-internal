@@ -43,6 +43,7 @@ export default defineConfig(({ mode }) => ({
     alias: [
       { find: "@/ai-first", replacement: path.resolve(__dirname, "./ai-first") },
       { find: "@", replacement: path.resolve(__dirname, "./src") },
+      { find: "../../generated/prisma", replacement: path.resolve(__dirname, "./generated/prisma") },
     ]
   },
   build: {

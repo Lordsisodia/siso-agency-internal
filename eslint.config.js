@@ -5,7 +5,17 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: ["dist"] },
+  { 
+    ignores: [
+      "dist", 
+      "node_modules", 
+      ".vite-cache",
+      "build",
+      "coverage",
+      "*.config.js",
+      "vite.config.ts"
+    ] 
+  },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ["**/*.{ts,tsx}"],
@@ -24,6 +34,21 @@ export default tseslint.config(
         { allowConstantExport: true },
       ],
       "@typescript-eslint/no-unused-vars": "off",
+      
+      // 🛡️ React Dependency Safety Rules
+      "@typescript-eslint/no-use-before-define": ["error", { 
+        "functions": false, 
+        "classes": true, 
+        "variables": true,
+        "allowNamedExports": false 
+      }],
+      "react-hooks/rules-of-hooks": "error",
+      "react-hooks/exhaustive-deps": "error",
+      
+      // 🔍 Additional Safety Rules
+      "prefer-const": "error",
+      "@typescript-eslint/no-explicit-any": "warn",
+      "no-console": ["warn", { "allow": ["warn", "error"] }],
     },
   }
 );
