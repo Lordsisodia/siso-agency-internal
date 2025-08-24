@@ -408,9 +408,9 @@ export default function Plan() {
   };
 
   return (
-    <div className="bg-background text-foreground h-full overflow-auto p-2">
+    <div className="bg-transparent text-white h-full overflow-auto p-2">
       <motion.div 
-        className="bg-card border-border rounded-lg border shadow overflow-hidden"
+        className="bg-green-900/10 border-green-700/30 rounded-lg border shadow overflow-hidden"
         initial={{ opacity: 0, y: 10 }}
         animate={{ 
           opacity: 1, 
@@ -440,7 +440,7 @@ export default function Plan() {
                     <motion.div 
                       className="group flex items-center px-3 py-1.5 rounded-md"
                       whileHover={{ 
-                        backgroundColor: "rgba(0,0,0,0.03)",
+                        backgroundColor: "rgba(34, 197, 94, 0.05)",
                         transition: { duration: 0.2 }
                       }}
                     >
@@ -473,7 +473,7 @@ export default function Plan() {
                             ) : task.status === "failed" ? (
                               <CircleX className="h-4.5 w-4.5 text-red-500" />
                             ) : (
-                              <Circle className="text-muted-foreground h-4.5 w-4.5" />
+                              <Circle className="text-gray-300 h-4.5 w-4.5" />
                             )}
                           </motion.div>
                         </AnimatePresence>
@@ -485,7 +485,7 @@ export default function Plan() {
                       >
                         <div className="mr-2 flex-1 truncate">
                           <span
-                            className={`${isCompleted ? "text-muted-foreground line-through" : ""}`}
+                            className={`text-white ${isCompleted ? "text-gray-400 line-through" : ""}`}
                           >
                             {task.title}
                           </span>
@@ -498,7 +498,7 @@ export default function Plan() {
                                 {task.dependencies.map((dep, idx) => (
                                   <motion.span
                                     key={idx}
-                                    className="bg-secondary/40 text-secondary-foreground rounded px-1.5 py-0.5 text-[10px] font-medium shadow-sm"
+                                    className="bg-green-500/20 text-green-300 rounded px-1.5 py-0.5 text-[10px] font-medium shadow-sm"
                                     initial={{ opacity: 0, scale: 0.9 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     transition={{
@@ -521,14 +521,14 @@ export default function Plan() {
                           <motion.span
                             className={`rounded px-1.5 py-0.5 ${
                               task.status === "completed"
-                                ? "bg-green-100 text-green-700"
+                                ? "bg-green-500/20 text-green-300"
                                 : task.status === "in-progress"
-                                  ? "bg-blue-100 text-blue-700"
+                                  ? "bg-blue-500/20 text-blue-300"
                                   : task.status === "need-help"
-                                    ? "bg-yellow-100 text-yellow-700"
+                                    ? "bg-yellow-500/20 text-yellow-300"
                                     : task.status === "failed"
-                                      ? "bg-red-100 text-red-700"
-                                      : "bg-muted text-muted-foreground"
+                                      ? "bg-red-500/20 text-red-300"
+                                      : "bg-gray-500/20 text-white"
                             }`}
                             variants={statusBadgeVariants}
                             initial="initial"
@@ -553,8 +553,8 @@ export default function Plan() {
                           layout
                         >
                           {/* Vertical connecting line aligned with task icon */}
-                          <div className="absolute top-0 bottom-0 left-[20px] border-l-2 border-dashed border-muted-foreground/30" />
-                          <ul className="border-muted mt-1 mr-2 mb-1.5 ml-3 space-y-0.5">
+                          <div className="absolute top-0 bottom-0 left-[20px] border-l-2 border-dashed border-gray-500/50" />
+                          <ul className="mt-1 mr-2 mb-1.5 ml-3 space-y-0.5">
                             {task.subtasks.map((subtask) => {
                               const subtaskKey = `${task.id}-${subtask.id}`;
                               const isSubtaskExpanded = expandedSubtasks[subtaskKey];
@@ -575,7 +575,7 @@ export default function Plan() {
                                   <motion.div 
                                     className="flex flex-1 items-center rounded-md p-1"
                                     whileHover={{ 
-                                      backgroundColor: "rgba(0,0,0,0.03)",
+                                      backgroundColor: "rgba(34, 197, 94, 0.05)",
                                       transition: { duration: 0.2 }
                                     }}
                                     layout
@@ -610,14 +610,14 @@ export default function Plan() {
                                           ) : subtask.status === "failed" ? (
                                             <CircleX className="h-3.5 w-3.5 text-red-500" />
                                           ) : (
-                                            <Circle className="text-muted-foreground h-3.5 w-3.5" />
+                                            <Circle className="text-gray-300 h-3.5 w-3.5" />
                                           )}
                                         </motion.div>
                                       </AnimatePresence>
                                     </motion.div>
 
                                     <span
-                                      className={`cursor-pointer text-sm ${subtask.status === "completed" ? "text-muted-foreground line-through" : ""}`}
+                                      className={`cursor-pointer text-sm text-white ${subtask.status === "completed" ? "text-gray-400 line-through" : ""}`}
                                     >
                                       {subtask.title}
                                     </span>
@@ -626,7 +626,7 @@ export default function Plan() {
                                   <AnimatePresence mode="wait">
                                     {isSubtaskExpanded && (
                                       <motion.div 
-                                        className="text-muted-foreground border-foreground/20 mt-1 ml-1.5 border-l border-dashed pl-5 text-xs overflow-hidden"
+                                        className="text-gray-200 border-gray-600 mt-1 ml-1.5 border-l border-dashed pl-5 text-xs overflow-hidden"
                                         variants={subtaskDetailsVariants}
                                         initial="hidden"
                                         animate="visible"
@@ -636,14 +636,14 @@ export default function Plan() {
                                         <p className="py-1">{subtask.description}</p>
                                         {subtask.tools && subtask.tools.length > 0 && (
                                           <div className="mt-0.5 mb-1 flex flex-wrap items-center gap-1.5">
-                                            <span className="text-muted-foreground font-medium">
+                                            <span className="text-gray-200 font-medium">
                                               MCP Servers:
                                             </span>
                                             <div className="flex flex-wrap gap-1">
                                               {subtask.tools.map((tool, idx) => (
                                                 <motion.span
                                                   key={idx}
-                                                  className="bg-secondary/40 text-secondary-foreground rounded px-1.5 py-0.5 text-[10px] font-medium shadow-sm"
+                                                  className="bg-green-500/20 text-green-300 rounded px-1.5 py-0.5 text-[10px] font-medium shadow-sm"
                                                   initial={{ opacity: 0, y: -5 }}
                                                   animate={{ 
                                                     opacity: 1, 

@@ -3,18 +3,11 @@ import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { format, addDays, subDays } from 'date-fns';
 import { 
-  Sunrise, 
-  Target, 
-  Zap, 
-  Coffee,
-  Calendar, 
-  Moon, 
-  Heart,
-  Bot,
   ChevronLeft,
   ChevronRight,
   ArrowLeft
 } from 'lucide-react';
+import { TAB_CONFIG, TabId, getAllTabIds } from '@/ai-first/core/tab-config';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ExpandableTabs } from '@/components/ui/expandable-tabs';
@@ -22,65 +15,8 @@ import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useLifeLockData } from '@/hooks/useLifeLockData';
 
-interface Tab {
-  id: string;
-  name: string;
-  icon: React.ComponentType<{ className?: string }>;
-  timeRelevance: number[];
-  color: string;
-}
-
-const tabs: Tab[] = [
-  {
-    id: 'morning',
-    name: 'Morning',
-    icon: Sunrise,
-    timeRelevance: [6, 7, 8, 9],
-    color: 'from-orange-500 to-yellow-500'
-  },
-  {
-    id: 'light-work',
-    name: 'Light Work',
-    icon: Coffee,
-    timeRelevance: [9, 10, 11, 12, 13, 14, 15, 16, 17],
-    color: 'from-emerald-500 to-teal-500'
-  },
-  {
-    id: 'work',
-    name: 'Deep Work',
-    icon: Zap,
-    timeRelevance: [9, 10, 11, 12, 13, 14, 15, 16, 17],
-    color: 'from-purple-500 to-purple-600'
-  },
-  {
-    id: 'wellness',
-    name: 'Wellness',
-    icon: Heart,
-    timeRelevance: [6, 7, 8, 12, 18, 19],
-    color: 'from-green-500 to-emerald-500'
-  },
-  {
-    id: 'checkout',
-    name: 'Checkout',
-    icon: Moon,
-    timeRelevance: [18, 19, 20, 21],
-    color: 'from-indigo-500 to-blue-600'
-  },
-  {
-    id: 'timebox',
-    name: 'Time Box',
-    icon: Calendar,
-    timeRelevance: [8, 12, 17],
-    color: 'from-purple-500 to-pink-500'
-  },
-  {
-    id: 'ai-chat',
-    name: 'AI Chat',
-    icon: Bot,
-    timeRelevance: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
-    color: 'from-cyan-500 to-teal-500'
-  }
-];
+// Use centralized tab configuration to prevent routing inconsistencies
+const tabs = Object.values(TAB_CONFIG);
 
 interface TabLayoutWrapperProps {
   selectedDate: Date;
@@ -267,7 +203,7 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
 
   return (
     <div className="flex flex-col h-screen w-full overflow-hidden">
-      {/* Compact Day Navigation Header */}
+      {/* Unified Header Card */}
       <div className="flex-shrink-0 bg-gradient-to-br from-black via-gray-900 to-black px-4 py-3">
         <div className="flex items-center justify-center relative">
           {/* Left: Back Icon Only */}
@@ -280,78 +216,77 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
             <ArrowLeft className="h-4 w-4" />
           </Button>
 
-          {/* Center: Compact Date Card */}
-          <div className="flex items-center bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl px-4 py-2 shadow-lg">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigateDay('prev')}
-              className="text-gray-300 hover:text-white hover:bg-white/10 p-1.5 rounded-md transition-all duration-200"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            
-            <div className="text-center px-4">
-              <div className="flex items-center space-x-3">
-                <h1 className="text-base font-bold text-white tracking-tight">
-                  {format(selectedDate, 'EEE')}
-                </h1>
-                <p className="text-sm text-gray-300">
-                  {format(selectedDate, 'MMM d')}
-                </p>
-                {isToday && (
-                  <Badge className="bg-yellow-500/20 text-yellow-300 border-yellow-500/40 text-xs px-2 py-1 rounded-full">
-                    Today
+          {/* Center: Compact Date + XP Card */}
+          <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl shadow-lg">
+            {/* Single Row: Date Navigation + XP */}
+            <div className="flex items-center justify-between px-4 py-2">
+              {/* Left: Previous Arrow */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigateDay('prev')}
+                className="text-gray-300 hover:text-white hover:bg-white/10 p-1.5 rounded-md transition-all duration-200"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              
+              {/* Center: Date + XP */}
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-3">
+                  <h1 className="text-base font-bold text-white tracking-tight">
+                    {format(selectedDate, 'EEE')}
+                  </h1>
+                  <p className="text-sm text-gray-300">
+                    {format(selectedDate, 'MMM d')}
+                  </p>
+                  {isToday && (
+                    <Badge className="bg-yellow-500/20 text-yellow-300 border-yellow-500/40 text-xs px-2 py-1 rounded-full">
+                      Today
+                    </Badge>
+                  )}
+                </div>
+                
+                {/* XP Display */}
+                <div className="flex items-center space-x-2">
+                  <span className="text-xs font-bold text-purple-300">⚡ {getTotalXP().earnedXP}/{getTotalXP().totalXP}</span>
+                  <Badge className="bg-gradient-to-r from-purple-500/20 to-blue-500/20 text-white border-purple-400/30 text-xs px-2 py-0.5">
+                    L1
                   </Badge>
-                )}
+                </div>
               </div>
+              
+              {/* Right: Next Arrow */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigateDay('next')}
+                className="text-gray-300 hover:text-white hover:bg-white/10 p-1.5 rounded-md transition-all duration-200"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
             </div>
             
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigateDay('next')}
-              className="text-gray-300 hover:text-white hover:bg-white/10 p-1.5 rounded-md transition-all duration-200"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-        
-        {/* XP Bar */}
-        <div className="mt-3 px-4">
-          <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-3">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center space-x-2">
-                <span className="text-xs font-bold text-white/90">⚡ Daily XP</span>
+            {/* Compact Progress Bar */}
+            <div className="px-4 pb-2">
+              <div className="relative w-full bg-gray-800/50 rounded-full h-1.5 overflow-hidden">
+                <motion.div 
+                  className="absolute inset-0 bg-gradient-to-r from-purple-500 via-blue-500 to-cyan-500 rounded-full"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${getTotalXP().percentage}%` }}
+                  transition={{ duration: 1, ease: "easeOut" }}
+                />
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                  animate={{
+                    x: ['-100%', '100%'],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "linear"
+                  }}
+                />
               </div>
-              <div className="flex items-center space-x-3">
-                <span className="text-xs text-white/70">
-                  {getTotalXP().earnedXP} / {getTotalXP().totalXP}
-                </span>
-                <Badge className="bg-gradient-to-r from-purple-500/20 to-blue-500/20 text-white border-purple-400/30 text-xs px-2 py-0.5">
-                  Level 1
-                </Badge>
-              </div>
-            </div>
-            <div className="relative w-full bg-gray-800/50 rounded-full h-2 overflow-hidden">
-              <motion.div 
-                className="absolute inset-0 bg-gradient-to-r from-purple-500 via-blue-500 to-cyan-500 rounded-full"
-                initial={{ width: 0 }}
-                animate={{ width: `${getTotalXP().percentage}%` }}
-                transition={{ duration: 1, ease: "easeOut" }}
-              />
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-                animate={{
-                  x: ['-100%', '100%'],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "linear"
-                }}
-              />
             </div>
           </div>
         </div>

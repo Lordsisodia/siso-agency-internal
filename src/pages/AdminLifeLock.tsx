@@ -17,12 +17,29 @@ import { DeepFocusWorkSection } from '@/ai-first/features/tasks/components/DeepF
 import { LightFocusWorkSection } from '@/ai-first/features/tasks/components/LightFocusWorkSection';
 import { EnhancedLightWorkManager } from '@/components/ui/enhanced-light-work-manager';
 import { NightlyCheckoutSection } from '@/ai-first/features/tasks/components/NightlyCheckoutSection';
+import { HomeWorkoutSection } from '@/ai-first/features/tasks/components/HomeWorkoutSection';
+import { HealthNonNegotiablesSection } from '@/ai-first/features/tasks/components/HealthNonNegotiablesSection';
+import { TimeboxSection } from '@/ai-first/features/tasks/components/TimeboxSection';
 import { useLifeLockData } from '@/hooks/useLifeLockData';
+import { TabId, validateTabHandler, assertExhaustive, isValidTabId } from '@/ai-first/core/tab-config';
 
 const AdminLifeLock: React.FC = () => {
   const navigate = useNavigate();
   const { date } = useParams<{ date: string }>();
   const { isSignedIn, isLoaded } = useClerkUser();
+
+  // DEVELOPMENT VALIDATION: Check that all tabs are handled (only runs once in dev)
+  React.useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      const handledTabs = new Set<string>([
+        'morning', 'light-work', 'work', 'wellness', 'timebox', 'checkout', 'ai-chat'
+      ]);
+      const missingTabs = validateTabHandler(handledTabs);
+      if (missingTabs.length === 0) {
+        console.log('✅ All tabs properly handled in AdminLifeLock.tsx');
+      }
+    }
+  }, []);
   
   // Parse date from URL or default to today - memoized to prevent infinite re-renders
   const selectedDate = useMemo(() => {
@@ -93,7 +110,14 @@ const AdminLifeLock: React.FC = () => {
         onDateChange={handleDateChange}
       >
         {(activeTab) => {
-          switch (activeTab) {
+          // Runtime validation - ensures tab is valid
+          if (!isValidTabId(activeTab)) {
+            console.error(`🚨 Invalid tab ID: ${activeTab}`);
+            return <div className="p-4 text-red-500">Invalid tab: {activeTab}</div>;
+          }
+
+          // TypeScript ensures we handle all cases
+          switch (activeTab as TabId) {
             case 'morning':
               return (
                 <MorningRoutineSection
@@ -131,20 +155,54 @@ const AdminLifeLock: React.FC = () => {
                 </div>
               );
             
-            case 'timebox':
+            case 'light-work':
               return (
                 <div className="p-4 sm:p-6 space-y-6">
-                  <WeeklyViewSection
-                    weekCards={weekCards}
-                    weekStart={weekStart}
-                    onCardClick={handleCardClick}
-                    onNavigateWeek={navigateWeek}
-                  />
-                  <MonthlyProgressSection
-                    selectedMonth={selectedDate}
-                    selectedYear={getYear(selectedDate)}
+                  <LightFocusWorkSection selectedDate={selectedDate} />
+                  <QuickActionsSection
+                    handleQuickAdd={handleQuickAdd}
+                    handleOrganizeTasks={handleOrganizeTasks}
+                    isAnalyzingTasks={isAnalyzingTasks}
+                    todayCard={todayCard}
                   />
                 </div>
+              );
+            
+            case 'work':
+              return (
+                <div className="p-4 sm:p-6 space-y-6">
+                  <DeepFocusWorkSection selectedDate={selectedDate} />
+                  <QuickActionsSection
+                    handleQuickAdd={handleQuickAdd}
+                    handleOrganizeTasks={handleOrganizeTasks}
+                    isAnalyzingTasks={isAnalyzingTasks}
+                    todayCard={todayCard}
+                  />
+                </div>
+              );
+            
+            case 'wellness':
+              return (
+                <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 p-4 pb-24">
+                  <div className="mb-8">
+                    <h1 className="text-3xl font-bold text-white mb-2">
+                      💪 Wellness & Health
+                    </h1>
+                    <p className="text-gray-400 text-sm">
+                      Physical fitness and nutrition tracking for optimal health
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-6">
+                    <HomeWorkoutSection selectedDate={selectedDate} />
+                    <HealthNonNegotiablesSection selectedDate={selectedDate} />
+                  </div>
+                </div>
+              );
+            
+            case 'timebox':
+              return (
+                <TimeboxSection selectedDate={selectedDate} />
               );
             
             case 'checkout':
@@ -154,7 +212,7 @@ const AdminLifeLock: React.FC = () => {
                 </div>
               );
             
-            case 'ai':
+            case 'ai-chat':
               return (
                 <div className="p-4 sm:p-6 space-y-6">
                   <VoiceCommandSection
@@ -165,17 +223,7 @@ const AdminLifeLock: React.FC = () => {
               );
             
             default:
-              return (
-                <div className="p-4 sm:p-6 space-y-6">
-                  <TodayProgressSection
-                    todayCard={todayCard}
-                    onViewDetails={handleCardClick}
-                    onQuickAdd={handleQuickAdd}
-                    onTaskToggle={handleTaskToggle}
-                    onCustomTaskAdd={handleCustomTaskAdd}
-                  />
-                </div>
-              );
+              return assertExhaustive(activeTab);
           }
         }}
       </TabLayoutWrapper>

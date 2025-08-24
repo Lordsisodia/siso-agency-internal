@@ -787,8 +787,8 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                         </div>
                       </motion.div>
                     );
-                  }))
-                  }
+                  })
+                )}
                 </div>
               </div>
             </div>
