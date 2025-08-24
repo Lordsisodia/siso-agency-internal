@@ -408,9 +408,9 @@ export default function Plan() {
   };
 
   return (
-    <div className="bg-transparent text-white h-full overflow-auto p-2">
+    <div className="bg-transparent text-white h-full overflow-auto p-6">
       <motion.div 
-        className="bg-green-900/10 border-green-700/30 rounded-lg border shadow overflow-hidden"
+        className="bg-green-900/10 border-green-700/30 rounded-xl border shadow-lg overflow-hidden w-full max-w-none"
         initial={{ opacity: 0, y: 10 }}
         animate={{ 
           opacity: 1, 
@@ -422,8 +422,8 @@ export default function Plan() {
         }}
       >
         <LayoutGroup>
-          <div className="p-4 overflow-hidden">
-            <ul className="space-y-1 overflow-hidden">
+          <div className="p-8 overflow-hidden">
+            <ul className="space-y-6 overflow-hidden">
               {tasks.map((task, index) => {
                 const isExpanded = expandedTasks.includes(task.id);
                 const isCompleted = task.status === "completed";
@@ -431,14 +431,14 @@ export default function Plan() {
                 return (
                   <motion.li
                     key={task.id}
-                    className={` ${index !== 0 ? "mt-1 pt-2" : ""} `}
+                    className={` ${index !== 0 ? "mt-4 pt-4 border-t border-gray-700/30" : ""} `}
                     initial="hidden"
                     animate="visible"
                     variants={taskVariants}
                   >
                     {/* Task row */}
                     <motion.div 
-                      className="group flex items-center px-3 py-1.5 rounded-md"
+                      className="group flex items-center px-4 py-3 rounded-lg hover:bg-green-900/5 transition-colors duration-200"
                       whileHover={{ 
                         backgroundColor: "rgba(34, 197, 94, 0.05)",
                         transition: { duration: 0.2 }
@@ -491,7 +491,7 @@ export default function Plan() {
                           </span>
                         </div>
 
-                        <div className="flex flex-shrink-0 items-center space-x-2 text-xs">
+                        <div className="flex flex-shrink-0 items-center space-x-3 text-sm">
                           {task.dependencies.length > 0 && (
                             <div className="flex items-center mr-2">
                               <div className="flex flex-wrap gap-1">
@@ -554,7 +554,7 @@ export default function Plan() {
                         >
                           {/* Vertical connecting line aligned with task icon */}
                           <div className="absolute top-0 bottom-0 left-[20px] border-l-2 border-dashed border-gray-500/50" />
-                          <ul className="mt-1 mr-2 mb-1.5 ml-3 space-y-0.5">
+                          <ul className="mt-3 mr-2 mb-3 ml-6 space-y-3">
                             {task.subtasks.map((subtask) => {
                               const subtaskKey = `${task.id}-${subtask.id}`;
                               const isSubtaskExpanded = expandedSubtasks[subtaskKey];
@@ -562,7 +562,7 @@ export default function Plan() {
                               return (
                                 <motion.li
                                   key={subtask.id}
-                                  className="group flex flex-col py-0.5 pl-6"
+                                  className="group flex flex-col py-2 pl-8"
                                   onClick={() =>
                                     toggleSubtaskExpansion(task.id, subtask.id)
                                   }
@@ -573,7 +573,7 @@ export default function Plan() {
                                   layout
                                 >
                                   <motion.div 
-                                    className="flex flex-1 items-center rounded-md p-1"
+                                    className="flex flex-1 items-center rounded-lg p-3 hover:bg-green-900/5 transition-colors duration-200"
                                     whileHover={{ 
                                       backgroundColor: "rgba(34, 197, 94, 0.05)",
                                       transition: { duration: 0.2 }
@@ -617,7 +617,7 @@ export default function Plan() {
                                     </motion.div>
 
                                     <span
-                                      className={`cursor-pointer text-sm text-white ${subtask.status === "completed" ? "text-gray-400 line-through" : ""}`}
+                                      className={`cursor-pointer text-base text-white ${subtask.status === "completed" ? "text-gray-400 line-through" : ""}`}
                                     >
                                       {subtask.title}
                                     </span>
@@ -626,7 +626,7 @@ export default function Plan() {
                                   <AnimatePresence mode="wait">
                                     {isSubtaskExpanded && (
                                       <motion.div 
-                                        className="text-gray-200 border-gray-600 mt-1 ml-1.5 border-l border-dashed pl-5 text-xs overflow-hidden"
+                                        className="text-gray-200 border-gray-600 mt-2 ml-2 border-l border-dashed pl-6 text-sm overflow-hidden"
                                         variants={subtaskDetailsVariants}
                                         initial="hidden"
                                         animate="visible"
