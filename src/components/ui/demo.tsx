@@ -1,10 +1,11 @@
-import * as React from "react"
-import { AIAssistantInterface } from "@/components/ui/ai-assistant-interface"
+"use client";
+
+import Plan from "@/components/ui/agent-plan";
 
 export function Demo() {
   return (
-    <div className="w-screen">
-      <AIAssistantInterface />
+    <div className="flex flex-col p-4 w-full h-full">
+      <Plan />
     </div>
-  )
+  );
 }

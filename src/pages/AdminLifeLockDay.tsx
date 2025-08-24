@@ -108,12 +108,18 @@ const AdminLifeLockDay: React.FC = () => {
             
             case 'work':
               return (
-                <DeepFocusWorkSection selectedDate={selectedDate} />
+                <div style={{ border: '2px solid red', padding: '20px', backgroundColor: 'yellow' }}>
+                  <h1 style={{ color: 'black', fontSize: '24px' }}>DEBUG: Deep Work Section</h1>
+                  <DeepFocusWorkSection selectedDate={selectedDate} />
+                </div>
               );
             
             case 'light-work':
               return (
-                <LightFocusWorkSection selectedDate={selectedDate} />
+                <div style={{ border: '2px solid blue', padding: '20px', backgroundColor: 'lightgreen' }}>
+                  <h1 style={{ color: 'black', fontSize: '24px' }}>DEBUG: Light Work Section</h1>
+                  <LightFocusWorkSection selectedDate={selectedDate} />
+                </div>
               );
             
             case 'timebox':
