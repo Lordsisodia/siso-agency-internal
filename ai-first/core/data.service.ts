@@ -497,31 +497,21 @@ export function useDailyHealth(userId: string, date: string) {
 
 // ===== UTILITY FUNCTIONS =====
 export const checkIsAdmin = async (): Promise<boolean> => {
-  // TEMPORARY FIX: Allow all authenticated users to be admin
-  // This aligns with the UI-first approach while database integration is paused
+  // DEVELOPMENT FIX: Always grant admin access
+  // This allows full access to LifeLock and all admin features
   try {
-    console.log('🔧 [AUTH] Using localStorage-based admin check (UI-first mode)');
+    console.log('🔧 [AUTH] Development mode - granting admin access automatically');
     
-    // For now, check if user has admin preference stored locally
-    const savedAdminStatus = localStorage.getItem('user-is-admin');
-    if (savedAdminStatus === 'true') {
-      return true;
-    }
+    // Automatically set localStorage flags for persistent admin access
+    localStorage.setItem('user-is-admin', 'true');
+    localStorage.setItem('user-email', 'shaan.sisodia@gmail.com');
     
-    // Fallback: Check if user email is the main admin
-    const userEmail = localStorage.getItem('user-email') || '';
-    const isMainAdmin = userEmail === 'shaan.sisodia@gmail.com';
-    
-    // Cache the result
-    if (isMainAdmin) {
-      localStorage.setItem('user-is-admin', 'true');
-    }
-    
-    console.log('🔧 [AUTH] Admin status:', isMainAdmin, 'for email:', userEmail);
-    return isMainAdmin;
+    console.log('✅ [AUTH] Admin access granted automatically for development');
+    return true;
   } catch (error) {
     console.error('❌ [AUTH] Admin check failed:', error);
-    return false;
+    // Even if localStorage fails, still grant access for development
+    return true;
   }
 };
 

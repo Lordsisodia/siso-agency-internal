@@ -18,12 +18,12 @@ import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 // Tab components
-import { MorningRoutineTab } from './tabs/MorningRoutineTab';
-import { DeepFocusTab } from './tabs/DeepFocusTab';
-import { LightWorkTab } from './tabs/LightWorkTab';
-import { TimeBoxTab } from './tabs/TimeBoxTab';
-import { NightlyCheckoutTab } from './tabs/NightlyCheckoutTab';
-import { AIAssistantTab } from './tabs/AIAssistantTab';
+import { MorningRoutineTab } from './MorningRoutineTab';
+import { DeepFocusTab } from './DeepFocusTab';
+import { LightWorkTab } from './LightWorkTab';
+import { TimeBoxTab } from './TimeBoxTab';
+import { NightlyCheckoutTab } from './NightlyCheckoutTab';
+import { AIAssistantTab } from './AIAssistantTab';
 
 export interface TabProps {
   user: any;

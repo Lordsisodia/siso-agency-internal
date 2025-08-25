@@ -367,6 +367,7 @@ model TimeBlock {
 enum WorkType {
   DEEP
   LIGHT
+  MORNING
 }
 
 enum TaskDifficulty {
