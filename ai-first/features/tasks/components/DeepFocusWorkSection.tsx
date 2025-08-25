@@ -1,88 +1,100 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { 
   Brain,
-  CheckCircle2,
-  Clock
+  Plus,
+  Check,
+  Clock,
+  Target,
+  ChevronDown,
+  ChevronRight,
+  X,
+  Edit,
+  Mic,
+  MicOff
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
 import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
 
-interface DeepWorkSubTask {
+// Deep work task management with enhanced functionality
+
+interface Subtask {
   id: string;
   title: string;
   completed: boolean;
 }
 
-interface DeepWorkItem {
+interface ThoughtDump {
+  id: string;
+  content: string;
+  timestamp: Date;
+  duration?: number; // in seconds
+}
+
+interface Task {
   id: string;
   title: string;
   completed: boolean;
-  description?: string;
-  logField?: string;
-  subTasks?: DeepWorkSubTask[];
+  timeEstimate: string;
+  subtasks: Subtask[];
+  thoughtDump?: ThoughtDump;
+  isEditable?: boolean;
 }
 
-const defaultDeepWorkTasks: DeepWorkItem[] = [
+const defaultDeepWorkTasks: Task[] = [
   { 
     id: '1', 
     title: 'Environment Setup (10 min)', 
     completed: false, 
-    description: 'Create optimal environment for deep focus work.',
-    subTasks: [
-      { id: '1a', title: 'Clear workspace', completed: false },
-      { id: '1b', title: 'Close all distractions', completed: false },
-      { id: '1c', title: 'Set phone to Do Not Disturb', completed: false }
+    timeEstimate: '10 min',
+    subtasks: [
+      { id: '1-1', title: 'Clear workspace', completed: false },
+      { id: '1-2', title: 'Close all distractions', completed: false },
+      { id: '1-3', title: 'Set phone to Do Not Disturb', completed: false }
     ]
   },
   { 
     id: '2', 
     title: 'Deep Focus Block 1 (2-4 hours)', 
     completed: false, 
-    description: 'First major deep work session focused on most important task.',
-    logField: 'Log hours worked: ____',
-    subTasks: [
-      { id: '2a', title: 'Identify primary objective', completed: false },
-      { id: '2b', title: 'Work without breaks', completed: false },
-      { id: '2c', title: 'Document progress', completed: false }
+    timeEstimate: '3 hours',
+    subtasks: [
+      { id: '2-1', title: 'Identify primary objective', completed: false },
+      { id: '2-2', title: 'Work without breaks', completed: false },
+      { id: '2-3', title: 'Document progress', completed: false }
     ]
   },
   { 
     id: '3', 
     title: 'Strategic Break (15 min)', 
     completed: false, 
-    description: 'Mindful break to recharge and maintain focus quality.',
-    subTasks: [
-      { id: '3a', title: 'Walk or light movement', completed: false },
-      { id: '3b', title: 'Hydrate', completed: false },
-      { id: '3c', title: 'Avoid digital stimulation', completed: false }
+    timeEstimate: '15 min',
+    subtasks: [
+      { id: '3-1', title: 'Walk or light movement', completed: false },
+      { id: '3-2', title: 'Hydrate', completed: false },
+      { id: '3-3', title: 'Avoid digital stimulation', completed: false }
     ]
   },
   { 
     id: '4', 
     title: 'Deep Focus Block 2 (2-4 hours)', 
     completed: false, 
-    description: 'Second major deep work session for sustained productivity.',
-    logField: 'Log hours worked: ____',
-    subTasks: [
-      { id: '4a', title: 'Resume or switch to next priority', completed: false },
-      { id: '4b', title: 'Maintain flow state', completed: false },
-      { id: '4c', title: 'Achieve significant progress', completed: false }
+    timeEstimate: '3 hours',
+    subtasks: [
+      { id: '4-1', title: 'Resume or switch to next priority', completed: false },
+      { id: '4-2', title: 'Maintain flow state', completed: false },
+      { id: '4-3', title: 'Achieve significant progress', completed: false }
     ]
   },
   { 
     id: '5', 
     title: 'Session Review (10 min)', 
     completed: false, 
-    description: 'Reflect on deep work quality and plan next session.',
-    subTasks: [
-      { id: '5a', title: 'Document accomplishments', completed: false },
-      { id: '5b', title: 'Note areas for improvement', completed: false },
-      { id: '5c', title: 'Plan next deep work session', completed: false }
+    timeEstimate: '10 min',
+    subtasks: [
+      { id: '5-1', title: 'Document accomplishments', completed: false },
+      { id: '5-2', title: 'Note areas for improvement', completed: false },
+      { id: '5-3', title: 'Plan next deep work session', completed: false }
     ]
   }
 ];
