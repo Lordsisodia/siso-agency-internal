@@ -21,7 +21,7 @@ const tabs = Object.values(TAB_CONFIG);
 interface TabLayoutWrapperProps {
   selectedDate: Date;
   onDateChange: (date: Date) => void;
-  children: (activeTab: string) => ReactNode;
+  children: (activeTab: string, navigateDay?: (direction: 'prev' | 'next') => void) => ReactNode;
 }
 
 export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({ 
@@ -321,14 +321,14 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
               }}
               className="absolute inset-0 overflow-y-auto overscroll-y-contain"
               style={{ 
-                // Full height content with minimal bottom padding
-                paddingBottom: isMobile ? '20px' : '20px',
+                // Full height content with more bottom padding for navigation clearance
+                paddingBottom: isMobile ? '120px' : '100px',
                 // Prevent overscroll that might interfere with touch events
                 overscrollBehavior: 'contain'
               }}
             >
               {/* Render tab content via children function */}
-              {children(activeTabId)}
+              {children(activeTabId, navigateDay)}
             </motion.div>
           </AnimatePresence>
         </motion.div>

@@ -37,9 +37,49 @@ class BrowserPrismaClient {
   
   personalTask = {
     findMany: () => Promise.resolve([]),
-    create: () => Promise.resolve({}),
-    update: () => Promise.resolve({}),
+    create: (data: any) => Promise.resolve({
+      id: Math.random().toString(36).substr(2, 9),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      subtasks: [],
+      aiAnalyzed: false,
+      ...data.data
+    }),
+    update: (params: any) => Promise.resolve({ 
+      id: params.where.id,
+      ...params.data,
+      updatedAt: new Date()
+    }),
     delete: () => Promise.resolve({})
+  };
+  
+  personalSubtask = {
+    findMany: () => Promise.resolve([]),
+    create: (data: any) => Promise.resolve({
+      id: Math.random().toString(36).substr(2, 9),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      aiAnalyzed: false,
+      ...data.data
+    }),
+    update: (params: any) => Promise.resolve({ 
+      id: params.where.id,
+      ...params.data,
+      updatedAt: new Date()
+    }),
+    delete: () => Promise.resolve({})
+  };
+  
+  personalContext = {
+    findUnique: () => Promise.resolve(null),
+    upsert: (params: any) => Promise.resolve({
+      id: Math.random().toString(36).substr(2, 9),
+      userId: params.where.userId,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      ...params.create,
+      ...params.update
+    })
   };
 }
 
