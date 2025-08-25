@@ -26,6 +26,16 @@ export const AnimatedDateHeader: React.FC<AnimatedDateHeaderProps> = ({
   onPreviousDate,
   onNextDate
 }) => {
+  // Debug navigation props
+  console.log('🔍 AnimatedDateHeader - Navigation props:', {
+    hasPrevious: !!onPreviousDate,
+    hasNext: !!onNextDate,
+    date: format(selectedDate, 'yyyy-MM-dd')
+  });
+  
+  // Visual debug - if arrows should show, they'll be orange and prominent
+  console.log('🎯 Arrows should be visible:', !!onPreviousDate && !!onNextDate);
+  
   // Smart date display logic
   const dateInfo = useMemo(() => {
     let relativeDay = '';
@@ -90,11 +100,12 @@ export const AnimatedDateHeader: React.FC<AnimatedDateHeaderProps> = ({
           {onPreviousDate && (
             <motion.button
               onClick={onPreviousDate}
-              className="w-10 h-10 bg-gray-700/50 hover:bg-gray-600/50 rounded-full flex items-center justify-center transition-colors group"
-              whileHover={{ scale: 1.05 }}
+              className="w-12 h-12 bg-orange-600/80 hover:bg-orange-500 rounded-full flex items-center justify-center transition-colors group border-2 border-orange-400/50 shadow-lg"
+              whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
+              style={{ zIndex: 10 }}
             >
-              <ChevronLeft className="h-5 w-5 text-gray-300 group-hover:text-white" />
+              <ChevronLeft className="h-6 w-6 text-white font-bold" />
             </motion.button>
           )}
           <motion.div
@@ -142,11 +153,12 @@ export const AnimatedDateHeader: React.FC<AnimatedDateHeaderProps> = ({
           {onNextDate && (
             <motion.button
               onClick={onNextDate}
-              className="w-10 h-10 bg-gray-700/50 hover:bg-gray-600/50 rounded-full flex items-center justify-center transition-colors group order-last"
-              whileHover={{ scale: 1.05 }}
+              className="w-12 h-12 bg-orange-600/80 hover:bg-orange-500 rounded-full flex items-center justify-center transition-colors group border-2 border-orange-400/50 shadow-lg order-last"
+              whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
+              style={{ zIndex: 10 }}
             >
-              <ChevronRight className="h-5 w-5 text-gray-300 group-hover:text-white" />
+              <ChevronRight className="h-6 w-6 text-white font-bold" />
             </motion.button>
           )}
           {/* Streak */}
