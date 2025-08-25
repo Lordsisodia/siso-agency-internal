@@ -14,6 +14,11 @@ export default defineConfig(({ mode }) => ({
     hmr: {
       overlay: false // Disable overlay for faster updates
     },
+    headers: {
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    },
     fs: {
       strict: false, // Allow serving files from outside root
       // Exclude problematic directories from dependency scanning
@@ -35,9 +40,11 @@ export default defineConfig(({ mode }) => ({
     keepNames: true
   },
   resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-    }
+    alias: [
+      { find: "@/ai-first", replacement: path.resolve(__dirname, "./ai-first") },
+      { find: "@", replacement: path.resolve(__dirname, "./src") },
+      { find: "../../generated/prisma", replacement: path.resolve(__dirname, "./generated/prisma") },
+    ]
   },
   build: {
     target: mode === 'production' ? 'es2015' : 'esnext',

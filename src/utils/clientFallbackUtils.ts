@@ -1,5 +1,5 @@
 import { ClientData, ClientsListParams, ClientsListResponse } from '@/types/client.types';
-import { safeSupabase } from './supabaseHelpers';
+import { safeSupabase } from '@/ai-first/core/data.service';
 import { typeHelpers } from './typeHelpers';
 
 /**

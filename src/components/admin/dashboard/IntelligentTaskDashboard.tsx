@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuthSession } from '@/hooks/useAuthSession';
-import TaskManagementAgent, { TaskRecommendation, DailyWorkflowSummary } from '@/services/TaskManagementAgent';
+import TaskManagementAgent, { TaskRecommendation, DailyWorkflowSummary } from '@/ai-first/core/task.service';
 import { motion } from 'framer-motion';
 
 export function IntelligentTaskDashboard() {

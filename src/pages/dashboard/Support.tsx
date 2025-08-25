@@ -27,7 +27,7 @@ import {
   Plus,
   LifeBuoy
 } from 'lucide-react';
-import { PartnershipLayout } from '@/components/partnership/PartnershipLayout';
+import { PartnershipLayout } from '@/ai-first/features/partnerships/components/PartnershipLayout';
 import { DashboardGreetingCard } from '@/components/ui/dashboard-templates';
 import { ResourcesHelpTemplate } from '@/components/ui/dashboard-templates';
 import type { FeaturedArticle, QuickHelpCard, HelpCenterCard, HelpCategory } from '@/components/ui/dashboard-templates';

@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { checkIsAdmin } from '@/utils/supabaseHelpers';
+import { checkIsAdmin } from '@/ai-first/core/data.service';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 

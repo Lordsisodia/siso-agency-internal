@@ -1,7 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { ClientData, ClientsListParams } from '@/types/client.types';
-import { safeSupabase } from './supabaseHelpers';
+import { safeSupabase } from '@/ai-first/core/data.service';
 
 /**
  * Builds a Supabase query for fetching client data based on provided parameters

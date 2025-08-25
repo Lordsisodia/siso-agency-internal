@@ -3,12 +3,12 @@ import React from 'react';
 import { Card, CardContent, CardHeader } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
-import { AdminLayout } from "../components/admin/layout/AdminLayout";
-import { PlansList } from "../components/admin/PlansList";
-import { PlanForm } from "../components/admin/PlanForm";
-import { BulkPlanCreation } from "../components/admin/BulkPlanCreation";
+import { AdminLayout } from "@/ai-first/features/dashboard/components/AdminLayout";
+import { PlansList } from "@/ai-first/features/dashboard/components/PlansList";
+import { PlanForm } from "@/ai-first/features/dashboard/components/PlanForm";
+import { BulkPlanCreation } from "@/ai-first/features/dashboard/components/BulkPlanCreation";
 import { toast } from "sonner";
-import { AdminPageTitle } from "../components/admin/layout/AdminPageTitle";
+import { AdminPageTitle } from "@/ai-first/features/dashboard/pages/AdminPageTitle";
 import { Users } from "lucide-react";
 
 const AdminPlans = () => {

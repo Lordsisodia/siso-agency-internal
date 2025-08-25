@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import { EmailSignInButton } from '@/components/auth/EmailSignInButton';
+import { EmailSignInButton } from '@/ai-first/features/auth/components/EmailSignInButton';
 
 export const GettingStartedSection = () => {
   const [isLoading, setIsLoading] = useState(false);

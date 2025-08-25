@@ -29,7 +29,7 @@ import ProjectBasedTaskAgent, {
   WorkTypeTaskSummary, 
   ProjectConfig, 
   WorkTypeConfig 
-} from '@/services/ProjectBasedTaskAgent';
+} from '@/ai-first/core/task.service';
 // Removed framer-motion import for performance
 
 export function ProjectBasedTaskDashboard() {

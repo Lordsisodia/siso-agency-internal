@@ -15,7 +15,17 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Don't cache anything - pass through all requests
+// Don't cache anything - pass through all requests with error handling
 self.addEventListener('fetch', (event) => {
-  event.respondWith(fetch(event.request));
+  event.respondWith(
+    fetch(event.request).catch((error) => {
+      // Silently fail for now - don't throw unhandled promise rejections
+      console.warn('SW: Fetch failed for', event.request.url, error);
+      // Return a basic response for failed requests
+      return new Response('Service Worker: Network Error', {
+        status: 408,
+        statusText: 'Request Timeout'
+      });
+    })
+  );
 });

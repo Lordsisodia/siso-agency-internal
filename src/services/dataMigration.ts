@@ -4,8 +4,8 @@
  * One-time migration for hybrid architecture setup
  */
 
-import { PersonalTaskService } from './personalTaskService';
-import { RealPrismaTaskService } from './realPrismaTaskService';
+import { PersonalTaskService } from '@/ai-first/core/task.service';
+import { RealPrismaTaskService } from '@/ai-first/core/task.service';
 import { supabase } from '@/integrations/supabase/client';
 
 export interface MigrationResult {

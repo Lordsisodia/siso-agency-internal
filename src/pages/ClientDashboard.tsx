@@ -3,7 +3,7 @@ import React from 'react';
 import { Helmet } from 'react-helmet';
 import { ClientDashboardContent } from '@/components/client/ClientDashboardContent';
 import { ClientDashboardLayout } from '@/components/client/ClientDashboardLayout';
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { ProtectedRoute } from '@/ai-first/features/auth/components/ProtectedRoute';
 
 /**
  * Client dashboard page accessible to all users but showing client content
