@@ -12,7 +12,7 @@ import { TaskAnalysis } from './ai-xp-service';
 const prisma = prismaClient;
 
 // Define types inline for browser compatibility
-type WorkType = 'DEEP' | 'LIGHT';
+type WorkType = 'DEEP' | 'LIGHT' | 'MORNING';
 type Priority = 'CRITICAL' | 'URGENT' | 'HIGH' | 'MEDIUM' | 'LOW';
 type TaskDifficulty = 'TRIVIAL' | 'EASY' | 'MODERATE' | 'HARD' | 'EXPERT';
 
