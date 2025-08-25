@@ -22,7 +22,7 @@ export function useTaskDatabase({ selectedDate }: UseTaskDatabaseProps) {
   const [error, setError] = useState<string | null>(null);
   const [personalContext, setPersonalContext] = useState<PersonalContextData | null>(null);
 
-  const dateString = selectedDate.toISOString().split('T')[0];
+  const dateString = selectedDate?.toISOString()?.split('T')[0] || new Date().toISOString().split('T')[0];
 
   // Load tasks and personal context
   const loadTasks = useCallback(async () => {

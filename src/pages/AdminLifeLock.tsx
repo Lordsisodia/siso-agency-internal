@@ -126,11 +126,7 @@ const AdminLifeLock: React.FC = () => {
             case 'morning':
               return (
                 <MorningRoutineSection
-                  todayCard={todayCard}
-                  onViewDetails={handleCardClick}
-                  onQuickAdd={handleQuickAdd}
-                  onTaskToggle={handleTaskToggle}
-                  onCustomTaskAdd={handleCustomTaskAdd}
+                  selectedDate={selectedDate}
                 />
               );
             
