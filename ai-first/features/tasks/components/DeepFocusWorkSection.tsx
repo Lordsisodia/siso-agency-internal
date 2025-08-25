@@ -10,94 +10,18 @@ import {
   X,
   Edit,
   Mic,
-  MicOff
+  MicOff,
+  CheckCircle2
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
 import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
+import { useTaskDatabase } from '../../../hooks/useTaskDatabase';
 
-// Deep work task management with enhanced functionality
+// Deep work task management with database integration
 
-interface Subtask {
-  id: string;
-  title: string;
-  completed: boolean;
-}
-
-interface ThoughtDump {
-  id: string;
-  content: string;
-  timestamp: Date;
-  duration?: number; // in seconds
-}
-
-interface Task {
-  id: string;
-  title: string;
-  completed: boolean;
-  timeEstimate: string;
-  subtasks: Subtask[];
-  thoughtDump?: ThoughtDump;
-  isEditable?: boolean;
-}
-
-const defaultDeepWorkTasks: Task[] = [
-  { 
-    id: '1', 
-    title: 'Environment Setup (10 min)', 
-    completed: false, 
-    timeEstimate: '10 min',
-    subtasks: [
-      { id: '1-1', title: 'Clear workspace', completed: false },
-      { id: '1-2', title: 'Close all distractions', completed: false },
-      { id: '1-3', title: 'Set phone to Do Not Disturb', completed: false }
-    ]
-  },
-  { 
-    id: '2', 
-    title: 'Deep Focus Block 1 (2-4 hours)', 
-    completed: false, 
-    timeEstimate: '3 hours',
-    subtasks: [
-      { id: '2-1', title: 'Identify primary objective', completed: false },
-      { id: '2-2', title: 'Work without breaks', completed: false },
-      { id: '2-3', title: 'Document progress', completed: false }
-    ]
-  },
-  { 
-    id: '3', 
-    title: 'Strategic Break (15 min)', 
-    completed: false, 
-    timeEstimate: '15 min',
-    subtasks: [
-      { id: '3-1', title: 'Walk or light movement', completed: false },
-      { id: '3-2', title: 'Hydrate', completed: false },
-      { id: '3-3', title: 'Avoid digital stimulation', completed: false }
-    ]
-  },
-  { 
-    id: '4', 
-    title: 'Deep Focus Block 2 (2-4 hours)', 
-    completed: false, 
-    timeEstimate: '3 hours',
-    subtasks: [
-      { id: '4-1', title: 'Resume or switch to next priority', completed: false },
-      { id: '4-2', title: 'Maintain flow state', completed: false },
-      { id: '4-3', title: 'Achieve significant progress', completed: false }
-    ]
-  },
-  { 
-    id: '5', 
-    title: 'Session Review (10 min)', 
-    completed: false, 
-    timeEstimate: '10 min',
-    subtasks: [
-      { id: '5-1', title: 'Document accomplishments', completed: false },
-      { id: '5-2', title: 'Note areas for improvement', completed: false },
-      { id: '5-3', title: 'Plan next deep work session', completed: false }
-    ]
-  }
-];
 
 interface DeepFocusWorkSectionProps {
   selectedDate: Date;
@@ -106,97 +30,116 @@ interface DeepFocusWorkSectionProps {
 export const DeepFocusWorkSection: React.FC<DeepFocusWorkSectionProps> = ({
   selectedDate
 }) => {
-  const [deepWorkTasks, setDeepWorkTasks] = useState<DeepWorkItem[]>(() => {
-    const dateKey = format(selectedDate, 'yyyy-MM-dd');
-    const saved = localStorage.getItem(`lifelock-${dateKey}-deepWorkTasks`);
-    if (saved) {
-      try {
-        const parsedData = JSON.parse(saved);
-        // Check if data has sub-tasks, if not use defaults
-        const hasSubTasks = parsedData.some((item: any) => item.subTasks && item.subTasks.length > 0);
-        if (!hasSubTasks) {
-          console.log('No sub-tasks found in saved data, using defaults with sub-tasks');
-          return defaultDeepWorkTasks;
-        }
-        return parsedData;
-      } catch (e) {
-        console.warn('Failed to parse deep work data, using defaults');
-        return defaultDeepWorkTasks;
-      }
-    }
-    return defaultDeepWorkTasks;
-  });
+  const {
+    tasks: deepWorkTasks,
+    loading,
+    error,
+    createTask,
+    toggleTaskCompletion,
+    toggleSubtaskCompletion,
+    addSubtask,
+    deleteTask
+  } = useTaskDatabase({ selectedDate });
 
-  // Save to localStorage whenever deep work tasks change
+  // Filter for deep work tasks (you can adjust this filter based on your workType system)
+  const deepWorkTasksFiltered = deepWorkTasks.filter(task => 
+    task.workType === 'DEEP' || 
+    task.title.toLowerCase().includes('deep') ||
+    task.title.toLowerCase().includes('focus')
+  );
+
+  // If no deep work tasks exist, create default ones
   useEffect(() => {
-    const dateKey = format(selectedDate, 'yyyy-MM-dd');
-    localStorage.setItem(`lifelock-${dateKey}-deepWorkTasks`, JSON.stringify(deepWorkTasks));
-  }, [deepWorkTasks, selectedDate]);
+    if (deepWorkTasksFiltered.length === 0 && !loading) {
+      const createDefaultTasks = async () => {
+        const defaultTasks = [
+          {
+            title: 'Environment Setup (10 min)',
+            workType: 'DEEP' as const,
+            priority: 'HIGH' as const,
+            currentDate: format(selectedDate, 'yyyy-MM-dd'),
+            timeEstimate: '10 min',
+            estimatedDuration: 10,
+            subtasks: [
+              { title: 'Clear workspace', workType: 'DEEP' as const },
+              { title: 'Close all distractions', workType: 'DEEP' as const },
+              { title: 'Set phone to Do Not Disturb', workType: 'DEEP' as const }
+            ]
+          },
+          {
+            title: 'Deep Focus Block 1 (2-4 hours)',
+            workType: 'DEEP' as const,
+            priority: 'HIGH' as const,
+            currentDate: format(selectedDate, 'yyyy-MM-dd'),
+            timeEstimate: '3 hours',
+            estimatedDuration: 180,
+            subtasks: [
+              { title: 'Identify primary objective', workType: 'DEEP' as const },
+              { title: 'Work without breaks', workType: 'DEEP' as const },
+              { title: 'Document progress', workType: 'DEEP' as const }
+            ]
+          },
+          {
+            title: 'Strategic Break (15 min)',
+            workType: 'DEEP' as const,
+            priority: 'MEDIUM' as const,
+            currentDate: format(selectedDate, 'yyyy-MM-dd'),
+            timeEstimate: '15 min',
+            estimatedDuration: 15,
+            subtasks: [
+              { title: 'Walk or light movement', workType: 'DEEP' as const },
+              { title: 'Hydrate', workType: 'DEEP' as const },
+              { title: 'Avoid digital stimulation', workType: 'DEEP' as const }
+            ]
+          },
+          {
+            title: 'Deep Focus Block 2 (2-4 hours)',
+            workType: 'DEEP' as const,
+            priority: 'HIGH' as const,
+            currentDate: format(selectedDate, 'yyyy-MM-dd'),
+            timeEstimate: '3 hours',
+            estimatedDuration: 180,
+            subtasks: [
+              { title: 'Resume or switch to next priority', workType: 'DEEP' as const },
+              { title: 'Maintain flow state', workType: 'DEEP' as const },
+              { title: 'Achieve significant progress', workType: 'DEEP' as const }
+            ]
+          },
+          {
+            title: 'Session Review (10 min)',
+            workType: 'DEEP' as const,
+            priority: 'MEDIUM' as const,
+            currentDate: format(selectedDate, 'yyyy-MM-dd'),
+            timeEstimate: '10 min',
+            estimatedDuration: 10,
+            subtasks: [
+              { title: 'Document accomplishments', workType: 'DEEP' as const },
+              { title: 'Note areas for improvement', workType: 'DEEP' as const },
+              { title: 'Plan next deep work session', workType: 'DEEP' as const }
+            ]
+          }
+        ];
 
-  const toggleItem = (id: string) => {
-    const updatedItems = deepWorkTasks.map((item: DeepWorkItem) => {
-      if (item.id === id) {
-        if (item.subTasks && item.subTasks.length > 0) {
-          // For items with sub-tasks, toggle all sub-tasks instead of main task
-          const newCompleted = !item.completed;
-          const updatedSubTasks = item.subTasks.map(sub => ({ ...sub, completed: newCompleted }));
-          return { ...item, completed: newCompleted, subTasks: updatedSubTasks };
-        } else {
-          // For items without sub-tasks, toggle the main task
-          return { ...item, completed: !item.completed };
+        for (const task of defaultTasks) {
+          await createTask(task);
         }
-      }
-      return item;
-    });
-    setDeepWorkTasks(updatedItems);
-  };
+      };
 
-  const toggleSubTask = (itemId: string, subTaskId: string) => {
-    const updatedItems = deepWorkTasks.map((item: DeepWorkItem) => {
-      if (item.id === itemId && item.subTasks) {
-        const updatedSubTasks = item.subTasks.map(sub => 
-          sub.id === subTaskId ? { ...sub, completed: !sub.completed } : sub
-        );
-        
-        // Check if all sub-tasks are completed to auto-complete main task
-        const allSubTasksCompleted = updatedSubTasks.every(sub => sub.completed);
-        
-        return { 
-          ...item, 
-          subTasks: updatedSubTasks, 
-          completed: allSubTasksCompleted && updatedSubTasks.length > 0
-        };
-      }
-      return item;
-    });
-    setDeepWorkTasks(updatedItems);
-  };
+      createDefaultTasks();
+    }
+  }, [deepWorkTasksFiltered.length, loading, createTask, selectedDate]);
 
-  const updateItemField = (id: string, field: string, value: string) => {
-    const updatedItems = deepWorkTasks.map((item: DeepWorkItem) => 
-      item.id === id ? { ...item, [field]: value } : item
-    );
-    setDeepWorkTasks(updatedItems);
-  };
-
-  // Reset function to restore all sub-tasks
-  const resetToDefaults = () => {
-    const dateKey = format(selectedDate, 'yyyy-MM-dd');
-    localStorage.removeItem(`lifelock-${dateKey}-deepWorkTasks`);
-    setDeepWorkTasks(defaultDeepWorkTasks);
-    console.log('Reset to defaults with all sub-tasks');
-  };
 
   // Calculate progress based on total sub-tasks completed
   const getTotalProgress = () => {
     let totalTasks = 0;
     let completedTasks = 0;
     
-    deepWorkTasks.forEach(item => {
-      if (item.subTasks && item.subTasks.length > 0) {
+    deepWorkTasksFiltered.forEach(item => {
+      if (item.subtasks && item.subtasks.length > 0) {
         // Count sub-tasks
-        totalTasks += item.subTasks.length;
-        completedTasks += item.subTasks.filter(sub => sub.completed).length;
+        totalTasks += item.subtasks.length;
+        completedTasks += item.subtasks.filter(sub => sub.completed).length;
       } else {
         // Count main task if no sub-tasks
         totalTasks += 1;
@@ -208,6 +151,22 @@ export const DeepFocusWorkSection: React.FC<DeepFocusWorkSectionProps> = ({
   };
   
   const deepWorkProgress = getTotalProgress();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen w-full bg-gray-900 flex items-center justify-center">
+        <div className="text-blue-400">Loading deep work tasks...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen w-full bg-gray-900 flex items-center justify-center">
+        <div className="text-red-400">Error loading tasks: {error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen w-full bg-gray-900">
@@ -242,38 +201,29 @@ export const DeepFocusWorkSection: React.FC<DeepFocusWorkSectionProps> = ({
             <div className="border-t border-blue-600/50 my-3 sm:my-4"></div>
           </CardHeader>
           <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
-            {/* Debug Reset Button - Remove in production */}
-            <div className="mb-4">
-              <button 
-                onClick={resetToDefaults}
-                className="text-xs text-blue-400 hover:text-blue-300 underline"
-              >
-                Reset & Show All Sub-tasks
-              </button>
-            </div>
             
             <div className="space-y-2 sm:space-y-3">
-              {deepWorkTasks.map((item) => (
+              {deepWorkTasksFiltered.map((item) => (
                 <div key={item.id} className="group bg-blue-900/10 border border-blue-700/30 rounded-xl hover:bg-blue-900/15 hover:border-blue-600/40 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5">
                   {/* Main Task Header */}
                   <div className="flex items-start space-x-2 sm:space-x-3 p-2 sm:p-3">
                     <Checkbox
                       checked={item.completed}
-                      onCheckedChange={() => toggleItem(item.id)}
+                      onCheckedChange={() => toggleTaskCompletion(item.id)}
                       className="mt-1 border-blue-600 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
                     />
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
                         <h4 className="text-blue-100 font-semibold text-sm sm:text-base">{item.title}</h4>
-                        {item.subTasks && item.subTasks.length > 0 && (
+                        {item.subtasks && item.subtasks.length > 0 && (
                           <div className="relative">
                             <div className="bg-gradient-to-r from-blue-500/20 to-blue-400/20 border border-blue-400/40 rounded-full px-3 py-1.5 ml-2 shadow-sm">
                               <span className="text-xs text-blue-300 font-semibold tracking-wide">
-                                {item.subTasks.filter(sub => sub.completed).length}/{item.subTasks.length}
+                                {item.subtasks.filter(sub => sub.completed).length}/{item.subtasks.length}
                               </span>
                             </div>
                             {/* Progress completion indicator */}
-                            {item.subTasks.filter(sub => sub.completed).length === item.subTasks.length && item.subTasks.length > 0 && (
+                            {item.subtasks.filter(sub => sub.completed).length === item.subtasks.length && item.subtasks.length > 0 && (
                               <div className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full animate-pulse shadow-lg">
                                 <div className="absolute inset-0.5 bg-green-300 rounded-full animate-ping"></div>
                               </div>
@@ -284,22 +234,13 @@ export const DeepFocusWorkSection: React.FC<DeepFocusWorkSectionProps> = ({
                       {item.description && (
                         <p className="text-gray-300 text-xs sm:text-sm mt-1 leading-relaxed">{item.description}</p>
                       )}
-                      {item.logField && (
-                        <div className="mt-2">
-                          <Input
-                            placeholder={item.logField}
-                            className="bg-blue-900/20 border-blue-700/50 text-blue-100 text-sm placeholder:text-gray-400 focus:border-blue-600"
-                          />
-                          <p className="text-xs text-gray-400 mt-1 italic">Track your deep work hours to measure productivity.</p>
-                        </div>
-                      )}
                     </div>
                   </div>
                   
                   {/* Sub-tasks - Enhanced with better visual hierarchy */}
-                  {item.subTasks && item.subTasks.length > 0 && (
+                  {item.subtasks && item.subtasks.length > 0 && (
                     <div className="mt-4 ml-8 space-y-3">
-                      {item.subTasks.map((subTask, subIndex) => (
+                      {item.subtasks.map((subTask, subIndex) => (
                         <div
                           key={subTask.id}
                           className="group flex items-center space-x-3 p-3 hover:bg-blue-900/10 rounded-lg transition-all duration-200 hover:scale-[1.01]"
@@ -309,7 +250,7 @@ export const DeepFocusWorkSection: React.FC<DeepFocusWorkSectionProps> = ({
                             <div className="absolute -left-4 top-1/2 w-3 h-px bg-blue-500/30"></div>
                             <Checkbox
                               checked={subTask.completed}
-                              onCheckedChange={() => toggleSubTask(item.id, subTask.id)}
+                              onCheckedChange={() => toggleSubtaskCompletion(item.id, subTask.id)}
                               className="h-4 w-4 border-blue-400/70 data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500 transition-all duration-200 group-hover:border-blue-400"
                             />
                           </div>
