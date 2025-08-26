@@ -76,7 +76,9 @@ const AdminLifeLock: React.FC = () => {
   };
 
   const handleDateChange = (newDate: Date) => {
-    navigate(`/admin/lifelock/day/${format(newDate, 'yyyy-MM-dd')}`);
+    // Stay on the same route, just update the date parameter
+    const currentTab = new URLSearchParams(window.location.search).get('tab') || 'morning';
+    navigate(`/admin/lifelock?tab=${currentTab}&date=${format(newDate, 'yyyy-MM-dd')}`);
   };
   
   // Date navigation - arrows navigate between different days
@@ -86,9 +88,10 @@ const AdminLifeLock: React.FC = () => {
   };
 
   const navigateWeek = (direction: 'prev' | 'next') => {
-    // For week navigation within the day view
+    // For week navigation within the same view
     const newDate = direction === 'next' ? addWeeks(selectedDate, 1) : addWeeks(selectedDate, -1);
-    navigate(`/admin/lifelock/day/${format(newDate, 'yyyy-MM-dd')}`);
+    const currentTab = new URLSearchParams(window.location.search).get('tab') || 'morning';
+    navigate(`/admin/lifelock?tab=${currentTab}&date=${format(newDate, 'yyyy-MM-dd')}`);
   };
 
   // Loading and auth guards

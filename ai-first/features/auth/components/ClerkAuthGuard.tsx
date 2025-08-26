@@ -61,6 +61,7 @@ export function ClerkAuthGuard({ children, fallback }: ClerkAuthGuardProps) {
   }
 
   // User is authenticated, show protected content
-  console.log('✅ [CLERK-AUTH] User authenticated:', user?.emailAddresses[0]?.emailAddress);
+  const userEmail = user?.emailAddresses?.[0]?.emailAddress || user?.primaryEmailAddress?.emailAddress || 'Unknown email';
+  console.log('✅ [CLERK-AUTH] User authenticated:', userEmail);
   return <>{children}</>;
 }

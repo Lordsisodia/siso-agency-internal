@@ -74,11 +74,33 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
     personalContext,
     analyzeTaskWithAI,
     analyzeSubtaskWithAI,
-    updatePersonalContext
+    updatePersonalContext,
+    addSubtask,
+    deleteTask
   } = useTaskDatabase({ selectedDate });
 
-  // Filter only light work tasks
-  const tasks = dbTasks.filter(task => task.workType === 'LIGHT');
+  // Filter only light work tasks and transform to expected format
+  const tasks = dbTasks
+    .filter(task => task.workType === 'LIGHT')
+    .map(task => ({
+      ...task,
+      timeEstimate: task.timeEstimate || '20 min', // Default if missing
+      subtasks: task.subtasks.map(subtask => ({
+        ...subtask,
+        xpReward: subtask.xpReward || 0,
+        difficulty: subtask.difficulty || 'easy',
+        aiAnalyzed: subtask.aiAnalyzed || false,
+        priorityRank: subtask.priorityRank || 0,
+        contextualBonus: subtask.contextualBonus || 0
+      })),
+      thoughtDump: undefined, // Not supported in database yet
+      isEditable: false,
+      xpReward: task.xpReward || 0,
+      difficulty: task.difficulty || 'easy',
+      aiAnalyzed: task.aiAnalyzed || false,
+      priorityRank: task.priorityRank || 0,
+      contextualBonus: task.contextualBonus || 0
+    }));
   const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set());
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [editingSubtaskId, setEditingSubtaskId] = useState<string | null>(null);
@@ -107,29 +129,19 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
     setExpandedTasks(newExpanded);
   };
 
-  const saveNewSubtask = (taskId: string) => {
+  const saveNewSubtask = async (taskId: string) => {
     if (!newSubtaskTitle.trim()) {
       setAddingSubtaskToId(null);
       return;
     }
     
-    setTasks(tasks.map(task => {
-      if (task.id === taskId) {
-        const newSubtask: Subtask = {
-          id: `${taskId}-${Date.now()}`,
-          title: newSubtaskTitle.trim(),
-          completed: false
-        };
-        
-        // Auto-analyze subtask with AI after creation
-        setTimeout(() => analyzeSubtaskWithAI(taskId, newSubtask.id), 1500);
-        return { ...task, subtasks: [...task.subtasks, newSubtask] };
-      }
-      return task;
-    }));
-    
-    setAddingSubtaskToId(null);
-    setNewSubtaskTitle('');
+    try {
+      await addSubtask(taskId, newSubtaskTitle.trim());
+      setAddingSubtaskToId(null);
+      setNewSubtaskTitle('');
+    } catch (error) {
+      console.error('Failed to add subtask:', error);
+    }
   };
 
   const cancelAddingSubtask = () => {
@@ -137,8 +149,12 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
     setNewSubtaskTitle('');
   };
 
-  const deleteTask = (taskId: string) => {
-    setTasks(tasks.filter(task => task.id !== taskId));
+  const handleDeleteTask = async (taskId: string) => {
+    try {
+      await deleteTask(taskId);
+    } catch (error) {
+      console.error('Failed to delete task:', error);
+    }
   };
 
   const toggleExpanded = (taskId: string) => {
@@ -162,29 +178,15 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
   };
 
   const saveTaskEdit = (taskId: string) => {
-    if (editTaskTitle.trim()) {
-      setTasks(tasks.map(task => 
-        task.id === taskId ? { ...task, title: editTaskTitle.trim() } : task
-      ));
-    }
+    console.warn('⚠️ Task title editing not yet implemented with database persistence');
+    // TODO: Implement task title editing with database API
     setEditingTaskId(null);
     setEditTaskTitle('');
   };
 
   const saveSubtaskEdit = (taskId: string, subtaskId: string) => {
-    if (editSubtaskTitle.trim()) {
-      setTasks(tasks.map(task => {
-        if (task.id === taskId) {
-          return {
-            ...task,
-            subtasks: task.subtasks.map(subtask =>
-              subtask.id === subtaskId ? { ...subtask, title: editSubtaskTitle.trim() } : subtask
-            )
-          };
-        }
-        return task;
-      }));
-    }
+    console.warn('⚠️ Subtask title editing not yet implemented with database persistence');
+    // TODO: Implement subtask title editing with database API
     setEditingSubtaskId(null);
     setEditSubtaskTitle('');
   };
@@ -235,9 +237,7 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
           duration: 120 // 2 minutes default
         };
         
-        setTasks(tasks.map(task => 
-          task.id === taskId ? { ...task, thoughtDump: newThoughtDump } : task
-        ));
+        console.warn('⚠️ Thought dump feature disabled - not connected to database yet');
       }
       
       // Stop the stream
@@ -255,9 +255,7 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
           timestamp: new Date()
         };
         
-        setTasks(tasks.map(task => 
-          task.id === taskId ? { ...task, thoughtDump: newThoughtDump } : task
-        ));
+        console.warn('⚠️ Thought dump feature disabled - not connected to database yet');
       }
     } finally {
       setRecordingTaskId(null);
@@ -265,9 +263,7 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
   };
 
   const removeThoughtDump = (taskId: string) => {
-    setTasks(tasks.map(task => 
-      task.id === taskId ? { ...task, thoughtDump: undefined } : task
-    ));
+    console.warn('⚠️ Thought dump feature disabled - not connected to database yet');
   };
 
   // Helper function to parse time estimate and return total minutes
@@ -322,96 +318,6 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
     return 15; // Default subtask XP
   };
 
-  // Analyze task with AI and update XP
-  const analyzeTaskWithAI = async (taskId: string) => {
-    const task = tasks.find(t => t.id === taskId);
-    if (!task) return;
-
-    try {
-      console.log(`🤖 Analyzing task: ${task.title}`);
-      const analysis = await aiXPService.analyzeTaskForXP(
-        task.title,
-        undefined, // No description field yet
-        task.timeEstimate,
-        {
-          allTasks: tasks.map(t => ({
-            title: t.title,
-            completed: t.completed,
-            timeEstimate: t.timeEstimate
-          })),
-          completedTasksToday: tasks.filter(t => t.completed).length,
-          sessionType: 'light-work',
-          personalContext: personalContext
-        }
-      );
-
-      // Update task with AI analysis
-      setTasks(prevTasks => prevTasks.map(t => 
-        t.id === taskId ? {
-          ...t,
-          xpReward: analysis.xpReward,
-          difficulty: analysis.difficulty,
-          aiAnalyzed: true,
-          priorityRank: analysis.priorityRank,
-          contextualBonus: analysis.contextualBonus
-        } : t
-      ));
-
-      console.log(`✅ Task analyzed: ${analysis.xpReward} XP (${analysis.difficulty})`);
-      console.log(`🧠 AI Reasoning: ${analysis.reasoning}`);
-    } catch (error) {
-      console.error('❌ Failed to analyze task:', error);
-    }
-  };
-
-  // Analyze subtask with AI and update XP
-  const analyzeSubtaskWithAI = async (taskId: string, subtaskId: string) => {
-    const task = tasks.find(t => t.id === taskId);
-    const subtask = task?.subtasks.find(s => s.id === subtaskId);
-    if (!task || !subtask) return;
-
-    try {
-      console.log(`🤖 Analyzing subtask: ${subtask.title}`);
-      const analysis = await aiXPService.analyzeTaskForXP(
-        subtask.title,
-        undefined,
-        '15 min', // Default subtask time
-        {
-          parentTask: task.title,
-          allTasks: tasks.map(t => ({
-            title: t.title,
-            completed: t.completed,
-            timeEstimate: t.timeEstimate
-          })),
-          completedTasksToday: tasks.filter(t => t.completed).length,
-          sessionType: 'light-work',
-          personalContext: personalContext
-        }
-      );
-
-      // Update subtask with AI analysis
-      setTasks(prevTasks => prevTasks.map(t => 
-        t.id === taskId ? {
-          ...t,
-          subtasks: t.subtasks.map(s => 
-            s.id === subtaskId ? {
-              ...s,
-              xpReward: analysis.xpReward,
-              difficulty: analysis.difficulty,
-              aiAnalyzed: true,
-              priorityRank: analysis.priorityRank,
-              contextualBonus: analysis.contextualBonus
-            } : s
-          )
-        } : t
-      ));
-
-      console.log(`✅ Subtask analyzed: ${analysis.xpReward} XP (${analysis.difficulty})`);
-      console.log(`🧠 AI Reasoning: ${analysis.reasoning}`);
-    } catch (error) {
-      console.error('❌ Failed to analyze subtask:', error);
-    }
-  };
 
   // Calculate total and completed tasks (including subtasks)
   const taskProgress = useMemo(() => {
@@ -713,7 +619,7 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              deleteTask(task.id);
+                              handleDeleteTask(task.id);
                             }}
                             className="p-1 hover:bg-red-900/50 rounded text-gray-400 hover:text-red-400 transition-colors"
                             title="Delete task"
