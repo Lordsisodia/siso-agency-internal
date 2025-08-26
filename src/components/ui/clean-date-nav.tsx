@@ -106,7 +106,7 @@ export const CleanDateNav: React.FC<CleanDateNavProps> = ({
       </div>
 
       {/* Day Completion Progress Bar */}
-      {completionPercentage > 0 && (
+      {completionPercentage >= 0 && (
         <motion.div 
           className="px-4 pb-4"
           initial={{ opacity: 0, y: 10 }}

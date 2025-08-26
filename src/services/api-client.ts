@@ -170,6 +170,27 @@ class APIClient {
   }
 
   /**
+   * Push task to another day
+   */
+  async pushTaskToAnotherDay(taskId: string, pushedToDate?: string) {
+    const response = await fetch(`${this.baseURL}/api/tasks/${taskId}/push`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ pushedToDate })
+    });
+    
+    const result = await response.json();
+    
+    if (!result.success) {
+      throw new Error(result.error || 'Failed to push task to another day');
+    }
+    
+    return result.data;
+  }
+
+  /**
    * Get personal context for user
    */
   async getPersonalContext(userId: string) {

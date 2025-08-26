@@ -393,6 +393,18 @@ export function useTaskDatabase({ selectedDate }: UseTaskDatabaseProps) {
     }
   }, [loadTasks, user?.id]);
 
+  const pushTaskToAnotherDay = useCallback(async (taskId: string, pushedToDate?: string) => {
+    if (!user?.id) return;
+    
+    try {
+      await apiClient.pushTaskToAnotherDay(taskId, pushedToDate);
+      // Reload tasks to get updated data
+      await loadTasks();
+    } catch (err) {
+      console.error('❌ Failed to push task to another day:', err);
+    }
+  }, [loadTasks, user?.id]);
+
   return {
     tasks,
     loading,
@@ -409,6 +421,7 @@ export function useTaskDatabase({ selectedDate }: UseTaskDatabaseProps) {
     addSubtask,
     deleteTask,
     updateTaskTitle,
+    pushTaskToAnotherDay,
     
     // Utils
     reload: loadTasks
