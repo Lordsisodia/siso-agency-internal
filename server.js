@@ -158,14 +158,21 @@ app.post('/api/tasks', async (req, res) => {
 app.patch('/api/tasks/:taskId', async (req, res) => {
   try {
     const { taskId } = req.params;
-    const { completed } = req.body;
+    const { completed, title } = req.body;
+
+    // Build update data object dynamically
+    const updateData = {};
+    if (completed !== undefined) {
+      updateData.completed = completed;
+      updateData.completedAt = completed ? new Date() : null;
+    }
+    if (title !== undefined) {
+      updateData.title = title.trim();
+    }
 
     const updatedTask = await prisma.personalTask.update({
       where: { id: taskId },
-      data: { 
-        completed: completed,
-        completedAt: completed ? new Date() : null
-      },
+      data: updateData,
       include: {
         subtasks: true
       }

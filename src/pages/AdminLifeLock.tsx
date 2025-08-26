@@ -11,7 +11,7 @@ import { WeeklyViewSection } from '@/ai-first/features/tasks/components/WeeklyVi
 import { VoiceCommandSection } from '@/ai-first/features/tasks/components/VoiceCommandSection';
 import { PromptInputBox } from '@/components/ui/ai-prompt-box';
 import { SisoIcon } from '@/components/ui/icons/SisoIcon';
-import { AnimatedDateHeader } from '@/components/ui/animated-date-header-v2';
+import { CleanDateNav } from '@/components/ui/clean-date-nav';
 import { PriorityTasksSection } from '@/ai-first/features/tasks/components/PriorityTasksSection';
 import { QuickActionsSection } from '@/ai-first/features/tasks/ui/QuickActionsSection';
 import { MonthlyProgressSection } from '@/ai-first/features/tasks/components/MonthlyProgressSection';
