@@ -84,6 +84,23 @@ const AdminLifeLock: React.FC = () => {
     setEisenhowerResult
   } = useLifeLockData(selectedDate);
 
+  // Calculate day completion percentage
+  const dayCompletionPercentage = useMemo(() => {
+    if (!todayCard) return 0;
+    
+    // Get all tasks from today card
+    const allTasks = [
+      ...(todayCard.morningTasks || []),
+      ...(todayCard.lightWorkTasks || []),
+      ...(todayCard.deepWorkTasks || [])
+    ];
+    
+    if (allTasks.length === 0) return 0;
+    
+    const completedTasks = allTasks.filter(task => task.completed);
+    return (completedTasks.length / allTasks.length) * 100;
+  }, [todayCard]);
+
   // Navigation handlers
   const handleCardClick = (card: any) => {
     navigate(`/admin/lifelock/day/${format(card.date, 'yyyy-MM-dd')}`);
@@ -152,6 +169,7 @@ const AdminLifeLock: React.FC = () => {
                   {/* Clean Date Navigation */}
                   <CleanDateNav 
                     selectedDate={selectedDate}
+                    completionPercentage={dayCompletionPercentage}
                     className="mb-6"
                     onPreviousDate={() => navigateDay?.('prev')}
                     onNextDate={() => navigateDay?.('next')}
@@ -171,6 +189,7 @@ const AdminLifeLock: React.FC = () => {
                   {/* Clean Date Navigation */}
                   <CleanDateNav 
                     selectedDate={selectedDate}
+                    completionPercentage={dayCompletionPercentage}
                     className="mb-6"
                     onPreviousDate={() => navigateDay?.('prev')}
                     onNextDate={() => navigateDay?.('next')}
@@ -195,6 +214,7 @@ const AdminLifeLock: React.FC = () => {
                   {/* Clean Date Navigation */}
                   <CleanDateNav 
                     selectedDate={selectedDate}
+                    completionPercentage={dayCompletionPercentage}
                     className="mb-6"
                     onPreviousDate={() => navigateDay?.('prev')}
                     onNextDate={() => navigateDay?.('next')}
@@ -217,6 +237,7 @@ const AdminLifeLock: React.FC = () => {
                   {/* Clean Date Navigation */}
                   <CleanDateNav 
                     selectedDate={selectedDate}
+                    completionPercentage={dayCompletionPercentage}
                     className="mb-6"
                     onPreviousDate={() => navigateDay?.('prev')}
                     onNextDate={() => navigateDay?.('next')}
@@ -236,6 +257,7 @@ const AdminLifeLock: React.FC = () => {
                   {/* Clean Date Navigation */}
                   <CleanDateNav 
                     selectedDate={selectedDate}
+                    completionPercentage={dayCompletionPercentage}
                     className="mb-6"
                     onPreviousDate={() => navigateDay?.('prev')}
                     onNextDate={() => navigateDay?.('next')}
@@ -253,6 +275,7 @@ const AdminLifeLock: React.FC = () => {
                   {/* Clean Date Navigation */}
                   <CleanDateNav 
                     selectedDate={selectedDate}
+                    completionPercentage={dayCompletionPercentage}
                     className="mb-6"
                     onPreviousDate={() => navigateDay?.('prev')}
                     onNextDate={() => navigateDay?.('next')}
@@ -271,6 +294,7 @@ const AdminLifeLock: React.FC = () => {
                   {/* Clean Date Navigation */}
                   <CleanDateNav 
                     selectedDate={selectedDate}
+                    completionPercentage={dayCompletionPercentage}
                     className="mb-6"
                     onPreviousDate={() => navigateDay?.('prev')}
                     onNextDate={() => navigateDay?.('next')}
@@ -288,6 +312,7 @@ const AdminLifeLock: React.FC = () => {
                   {/* Clean Date Navigation */}
                   <CleanDateNav 
                     selectedDate={selectedDate}
+                    completionPercentage={dayCompletionPercentage}
                     className="mb-6"
                     onPreviousDate={() => navigateDay?.('prev')}
                     onNextDate={() => navigateDay?.('next')}
@@ -306,6 +331,7 @@ const AdminLifeLock: React.FC = () => {
                   <div className="p-4">
                     <CleanDateNav 
                       selectedDate={selectedDate}
+                      completionPercentage={dayCompletionPercentage}
                       className="mb-6"
                       onPreviousDate={() => navigateDay?.('prev')}
                       onNextDate={() => navigateDay?.('next')}

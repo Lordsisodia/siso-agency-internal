@@ -185,6 +185,31 @@ app.patch('/api/tasks/:taskId', async (req, res) => {
   }
 });
 
+// Create new subtask
+app.post('/api/subtasks', async (req, res) => {
+  try {
+    const { taskId, title, workType } = req.body;
+
+    if (!taskId || !title) {
+      return res.status(400).json({ error: 'taskId and title are required' });
+    }
+
+    const newSubtask = await prisma.personalSubtask.create({
+      data: {
+        taskId: taskId,
+        title: title.trim(),
+        workType: workType || 'LIGHT'
+      }
+    });
+
+    console.log(`✅ Created subtask: ${newSubtask.title} for task ${taskId}`);
+    res.json({ success: true, data: newSubtask });
+  } catch (error) {
+    console.error('Error creating subtask:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Update subtask completion (SAME as test script)
 app.patch('/api/subtasks/:subtaskId', async (req, res) => {
   try {
