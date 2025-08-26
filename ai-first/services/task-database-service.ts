@@ -5,11 +5,21 @@
  * with AI XP analysis integration.
  */
 
-import { prismaClient } from '@/integrations/prisma/client';
 import { TaskAnalysis } from './ai-xp-service';
 
-// Use the prismaClient directly since we're in browser environment
-const prisma = prismaClient;
+// Import real Prisma client for server-side operations
+async function getPrismaClient() {
+  if (typeof window === 'undefined') {
+    // Server-side: use real Prisma client
+    const { PrismaClient } = await import('../../generated/prisma/index.js');
+    return new PrismaClient();
+  } else {
+    // Browser: this shouldn't be called directly, but fallback gracefully
+    console.warn('[PRISMA] Task database service called from browser - operations may not persist');
+    const { prismaClient } = await import('@/integrations/prisma/client');
+    return prismaClient;
+  }
+}
 
 // Define types inline for browser compatibility
 type WorkType = 'DEEP' | 'LIGHT' | 'MORNING';
@@ -103,6 +113,8 @@ class TaskDatabaseService {
    * Get all tasks for a user on a specific date with subtasks
    */
   async getTasksForDate(userId: string, date: string): Promise<TaskWithSubtasks[]> {
+    const prisma = await getPrismaClient();
+    
     try {
       const tasks = await prisma.personalTask.findMany({
         where: {
@@ -121,6 +133,10 @@ class TaskDatabaseService {
     } catch (error) {
       console.error('❌ Failed to fetch tasks:', error);
       throw new Error('Failed to fetch tasks');
+    } finally {
+      if (typeof window === 'undefined' && prisma.$disconnect) {
+        await prisma.$disconnect();
+      }
     }
   }
 
@@ -128,6 +144,8 @@ class TaskDatabaseService {
    * Create a new task with optional subtasks
    */
   async createTask(userId: string, input: CreateTaskInput): Promise<TaskWithSubtasks> {
+    const prisma = await getPrismaClient();
+    
     try {
       const task = await prisma.personalTask.create({
         data: {
@@ -158,6 +176,10 @@ class TaskDatabaseService {
     } catch (error) {
       console.error('❌ Failed to create task:', error);
       throw new Error('Failed to create task');
+    } finally {
+      if (typeof window === 'undefined' && prisma.$disconnect) {
+        await prisma.$disconnect();
+      }
     }
   }
 

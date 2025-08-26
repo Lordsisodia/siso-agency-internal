@@ -125,44 +125,106 @@ const AdminLifeLock: React.FC = () => {
           switch (activeTab as TabId) {
             case 'morning':
               return (
-                <MorningRoutineSection
-                  selectedDate={selectedDate}
-                />
+                <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24">
+                  {/* Clean Animated Header */}
+                  <AnimatedDateHeader 
+                    selectedDate={selectedDate}
+                    earnedXP={100} // TODO: Calculate actual morning XP
+                    potentialXP={50} // TODO: Calculate potential morning XP
+                    currentLevel={2}
+                    streakDays={3} // TODO: Implement morning streak tracking
+                    badgeCount={1} // TODO: Implement morning badge system
+                    className="mb-6"
+                    onPreviousDate={() => navigateDay?.('prev')}
+                    onNextDate={() => navigateDay?.('next')}
+                  />
+                  
+                  <div className="space-y-6">
+                    <MorningRoutineSection
+                      selectedDate={selectedDate}
+                    />
+                  </div>
+                </div>
               );
             
             case 'focus':
               return (
-                <div className="p-4 sm:p-6 space-y-6">
-                  <DeepFocusWorkSection selectedDate={selectedDate} />
-                  <EnhancedLightWorkManager selectedDate={selectedDate} />
-                  <QuickActionsSection
-                    handleQuickAdd={handleQuickAdd}
-                    handleOrganizeTasks={handleOrganizeTasks}
-                    isAnalyzingTasks={isAnalyzingTasks}
-                    todayCard={todayCard}
+                <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24">
+                  {/* Clean Animated Header */}
+                  <AnimatedDateHeader 
+                    selectedDate={selectedDate}
+                    earnedXP={175} // TODO: Calculate actual focus XP
+                    potentialXP={85} // TODO: Calculate potential focus XP
+                    currentLevel={3}
+                    streakDays={7} // TODO: Implement focus streak tracking
+                    badgeCount={4} // TODO: Implement focus badge system
+                    className="mb-6"
+                    onPreviousDate={() => navigateDay?.('prev')}
+                    onNextDate={() => navigateDay?.('next')}
                   />
+                  
+                  <div className="space-y-6">
+                    <DeepFocusWorkSection selectedDate={selectedDate} />
+                    <EnhancedLightWorkManager selectedDate={selectedDate} />
+                    <QuickActionsSection
+                      handleQuickAdd={handleQuickAdd}
+                      handleOrganizeTasks={handleOrganizeTasks}
+                      isAnalyzingTasks={isAnalyzingTasks}
+                      todayCard={todayCard}
+                    />
+                  </div>
                 </div>
               );
             
             case 'light':
               return (
-                <div className="p-4 sm:p-6 space-y-6">
-                  <QuickActionsSection
-                    handleQuickAdd={handleQuickAdd}
-                    handleOrganizeTasks={handleOrganizeTasks}
-                    isAnalyzingTasks={isAnalyzingTasks}
-                    todayCard={todayCard}
+                <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24">
+                  {/* Clean Animated Header */}
+                  <AnimatedDateHeader 
+                    selectedDate={selectedDate}
+                    earnedXP={120} // TODO: Calculate actual light XP
+                    potentialXP={60} // TODO: Calculate potential light XP
+                    currentLevel={2}
+                    streakDays={4} // TODO: Implement light streak tracking
+                    badgeCount={2} // TODO: Implement light badge system
+                    className="mb-6"
+                    onPreviousDate={() => navigateDay?.('prev')}
+                    onNextDate={() => navigateDay?.('next')}
                   />
+                  
+                  <div className="space-y-6">
+                    <QuickActionsSection
+                      handleQuickAdd={handleQuickAdd}
+                      handleOrganizeTasks={handleOrganizeTasks}
+                      isAnalyzingTasks={isAnalyzingTasks}
+                      todayCard={todayCard}
+                    />
+                  </div>
                 </div>
               );
             
             case 'light-work':
               return (
-                <LightFocusWorkSection 
-                  selectedDate={selectedDate}
-                  onPreviousDate={() => navigateDay?.('prev')}
-                  onNextDate={() => navigateDay?.('next')}
-                />
+                <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24">
+                  {/* Clean Animated Header */}
+                  <AnimatedDateHeader 
+                    selectedDate={selectedDate}
+                    earnedXP={140} // TODO: Calculate actual light-work XP
+                    potentialXP={70} // TODO: Calculate potential light-work XP
+                    currentLevel={2}
+                    streakDays={6} // TODO: Implement light-work streak tracking
+                    badgeCount={3} // TODO: Implement light-work badge system
+                    className="mb-6"
+                    onPreviousDate={() => navigateDay?.('prev')}
+                    onNextDate={() => navigateDay?.('next')}
+                  />
+                  
+                  <div className="space-y-6">
+                    <LightFocusWorkSection 
+                      selectedDate={selectedDate}
+                    />
+                  </div>
+                </div>
               );
             
             case 'work':
@@ -257,8 +319,23 @@ const AdminLifeLock: React.FC = () => {
             case 'ai-chat':
               return (
                 <div className="relative h-screen bg-gradient-to-br from-black via-gray-900 to-black overflow-hidden">
+                  {/* Clean Animated Header */}
+                  <div className="p-4">
+                    <AnimatedDateHeader 
+                      selectedDate={selectedDate}
+                      earnedXP={90} // TODO: Calculate actual ai-chat XP
+                      potentialXP={40} // TODO: Calculate potential ai-chat XP
+                      currentLevel={2}
+                      streakDays={2} // TODO: Implement ai-chat streak tracking
+                      badgeCount={1} // TODO: Implement ai-chat badge system
+                      className="mb-6"
+                      onPreviousDate={() => navigateDay?.('prev')}
+                      onNextDate={() => navigateDay?.('next')}
+                    />
+                  </div>
+                  
                   {/* Header with SISO logo and title */}
-                  <div className="p-4 border-b border-gray-800">
+                  <div className="px-4 pb-4">
                     <div className="bg-gray-800/50 rounded-xl p-4 text-center">
                       <div className="flex items-center justify-center gap-3 mb-2">
                         <SisoIcon className="w-8 h-8 text-orange-500" />

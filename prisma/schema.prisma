@@ -22,50 +22,47 @@ model User {
   dailyRoutines      DailyRoutine[]
   dailyWorkouts      DailyWorkout[]
   eisenhowerAnalysis EisenhowerAnalysis[]
+  personalContext    PersonalContext?
   personalTasks      PersonalTask[]
   timeBlocks         TimeBlock[]
   gamification       UserProgress?
   voiceHistory       VoiceProcessingHistory[]
-  personalContext    PersonalContext?
 
   @@map("users")
 }
 
 model PersonalTask {
-  id                 String              @id @default(cuid())
-  userId             String
-  title              String
-  description        String?
-  workType           WorkType
-  priority           Priority
-  completed          Boolean             @default(false)
-  originalDate       String
-  currentDate        String
-  estimatedDuration  Int?
-  timeEstimate       String?             // "30 min", "2 hours", etc.
-  rollovers          Int                 @default(0)
-  tags               String[]
-  category           String?
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  completedAt        DateTime?
-  
-  // AI XP Analysis Fields
-  xpReward           Int?                // AI-calculated XP reward
-  difficulty         TaskDifficulty?     // AI-assessed difficulty
-  aiAnalyzed         Boolean             @default(false)
-  aiReasoning        String?             // AI's reasoning for XP allocation
-  priorityRank       Int?                // 1-5 AI ranking
-  contextualBonus    Int?                // Extra XP based on context
-  complexity         Int?                // 1-10 complexity score
-  learningValue      Int?                // 1-10 learning potential
-  strategicImportance Int?               // 1-10 strategic value
-  confidence         Float?              // 0-1 AI confidence score
-  analyzedAt         DateTime?           // When AI analysis was done
-  
-  eisenhowerAnalysis EisenhowerAnalysis?
-  subtasks           PersonalSubtask[]
-  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                  String              @id @default(cuid())
+  userId              String
+  title               String
+  description         String?
+  workType            WorkType
+  priority            Priority
+  completed           Boolean             @default(false)
+  originalDate        String
+  currentDate         String
+  estimatedDuration   Int?
+  rollovers           Int                 @default(0)
+  tags                String[]
+  category            String?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  completedAt         DateTime?
+  aiAnalyzed          Boolean             @default(false)
+  aiReasoning         String?
+  analyzedAt          DateTime?
+  complexity          Int?
+  confidence          Float?
+  contextualBonus     Int?
+  difficulty          TaskDifficulty?
+  learningValue       Int?
+  priorityRank        Int?
+  strategicImportance Int?
+  timeEstimate        String?
+  xpReward            Int?
+  eisenhowerAnalysis  EisenhowerAnalysis?
+  subtasks            PersonalSubtask[]
+  user                User                @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, currentDate])
   @@index([userId, completed])
@@ -75,29 +72,26 @@ model PersonalTask {
 }
 
 model PersonalSubtask {
-  id        String       @id @default(cuid())
-  taskId    String
-  title     String
-  completed Boolean      @default(false)
-  workType  WorkType
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
-  completedAt DateTime?
-  
-  // AI XP Analysis Fields
-  xpReward           Int?                // AI-calculated XP reward
-  difficulty         TaskDifficulty?     // AI-assessed difficulty
-  aiAnalyzed         Boolean             @default(false)
-  aiReasoning        String?             // AI's reasoning for XP allocation
-  priorityRank       Int?                // 1-5 AI ranking
-  contextualBonus    Int?                // Extra XP based on context
-  complexity         Int?                // 1-10 complexity score
-  learningValue      Int?                // 1-10 learning potential
-  strategicImportance Int?               // 1-10 strategic value
-  confidence         Float?              // 0-1 AI confidence score
-  analyzedAt         DateTime?           // When AI analysis was done
-  
-  task      PersonalTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  id                  String          @id @default(cuid())
+  taskId              String
+  title               String
+  completed           Boolean         @default(false)
+  workType            WorkType
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+  aiAnalyzed          Boolean         @default(false)
+  aiReasoning         String?
+  analyzedAt          DateTime?
+  completedAt         DateTime?
+  complexity          Int?
+  confidence          Float?
+  contextualBonus     Int?
+  difficulty          TaskDifficulty?
+  learningValue       Int?
+  priorityRank        Int?
+  strategicImportance Int?
+  xpReward            Int?
+  task                PersonalTask    @relation(fields: [taskId], references: [id], onDelete: Cascade)
 
   @@index([taskId, completed])
   @@index([taskId, aiAnalyzed])
