@@ -169,6 +169,23 @@ app.patch('/api/tasks/:taskId', async (req, res) => {
     if (title !== undefined) {
       updateData.title = title.trim();
     }
+    
+    // Handle time tracking fields
+    const { 
+      startedAt, 
+      actualDurationMin, 
+      aiTimeEstimateMin, 
+      aiTimeEstimateMax, 
+      aiTimeEstimateML, 
+      timeAccuracy 
+    } = req.body;
+    
+    if (startedAt !== undefined) updateData.startedAt = startedAt ? new Date(startedAt) : null;
+    if (actualDurationMin !== undefined) updateData.actualDurationMin = actualDurationMin;
+    if (aiTimeEstimateMin !== undefined) updateData.aiTimeEstimateMin = aiTimeEstimateMin;
+    if (aiTimeEstimateMax !== undefined) updateData.aiTimeEstimateMax = aiTimeEstimateMax;
+    if (aiTimeEstimateML !== undefined) updateData.aiTimeEstimateML = aiTimeEstimateML;
+    if (timeAccuracy !== undefined) updateData.timeAccuracy = timeAccuracy;
 
     const updatedTask = await prisma.personalTask.update({
       where: { id: taskId },
@@ -208,6 +225,49 @@ app.delete('/api/tasks', async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     console.error('Error deleting task:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get task details (for time tracking)
+app.get('/api/tasks/:taskId/details', async (req, res) => {
+  try {
+    const { taskId } = req.params;
+
+    const task = await prisma.personalTask.findUnique({
+      where: { id: taskId },
+      include: {
+        subtasks: true
+      }
+    });
+
+    if (!task) {
+      return res.status(404).json({ error: 'Task not found' });
+    }
+
+    res.json({ success: true, data: task });
+  } catch (error) {
+    console.error('Error fetching task details:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get subtask details (for time tracking)
+app.get('/api/subtasks/:subtaskId/details', async (req, res) => {
+  try {
+    const { subtaskId } = req.params;
+
+    const subtask = await prisma.personalSubtask.findUnique({
+      where: { id: subtaskId }
+    });
+
+    if (!subtask) {
+      return res.status(404).json({ error: 'Subtask not found' });
+    }
+
+    res.json({ success: true, data: subtask });
+  } catch (error) {
+    console.error('Error fetching subtask details:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -262,18 +322,39 @@ app.post('/api/subtasks', async (req, res) => {
   }
 });
 
-// Update subtask completion (SAME as test script)
+// Update subtask completion and time tracking (ENHANCED)
 app.patch('/api/subtasks/:subtaskId', async (req, res) => {
   try {
     const { subtaskId } = req.params;
     const { completed } = req.body;
 
+    // Build update data object dynamically
+    const updateData = {};
+    if (completed !== undefined) {
+      updateData.completed = completed;
+      updateData.completedAt = completed ? new Date() : null;
+    }
+    
+    // Handle time tracking fields
+    const { 
+      startedAt, 
+      actualDurationMin, 
+      aiTimeEstimateMin, 
+      aiTimeEstimateMax, 
+      aiTimeEstimateML, 
+      timeAccuracy 
+    } = req.body;
+    
+    if (startedAt !== undefined) updateData.startedAt = startedAt ? new Date(startedAt) : null;
+    if (actualDurationMin !== undefined) updateData.actualDurationMin = actualDurationMin;
+    if (aiTimeEstimateMin !== undefined) updateData.aiTimeEstimateMin = aiTimeEstimateMin;
+    if (aiTimeEstimateMax !== undefined) updateData.aiTimeEstimateMax = aiTimeEstimateMax;
+    if (aiTimeEstimateML !== undefined) updateData.aiTimeEstimateML = aiTimeEstimateML;
+    if (timeAccuracy !== undefined) updateData.timeAccuracy = timeAccuracy;
+
     const updatedSubtask = await prisma.personalSubtask.update({
       where: { id: subtaskId },
-      data: { 
-        completed: completed,
-        completedAt: completed ? new Date() : null
-      }
+      data: updateData
     });
 
     res.json({ success: true, data: updatedSubtask });

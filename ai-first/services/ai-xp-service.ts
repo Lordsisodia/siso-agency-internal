@@ -39,6 +39,14 @@ export interface TaskAnalysis {
   confidence: number; // 0-1 scale
   priorityRank?: number; // 1-5 ranking within session context
   contextualBonus?: number; // Extra XP based on session context
+  // Enhanced time estimation
+  timeEstimate?: {
+    min: number; // minimum minutes
+    max: number; // maximum minutes
+    most_likely: number; // most probable time
+    confidence: number; // 0-1 confidence in estimate
+    factors: string[]; // factors affecting time estimate
+  };
 }
 
 export interface XPAllocation {
@@ -90,8 +98,29 @@ Respond in JSON:
   "reasoning": "Detailed explanation of why this XP amount",
   "confidence": 0.9,
   "priorityRank": 4,
-  "contextualBonus": 25
-}`;
+  "contextualBonus": 25,
+  "timeEstimate": {
+    "min": 15,
+    "max": 45,
+    "most_likely": 25,
+    "confidence": 0.8,
+    "factors": ["complexity", "unfamiliarity", "distractions"]
+  }
+}
+
+IMPORTANT CONSTRAINTS:
+- priorityRank: MUST be 1-5 (1=lowest, 5=highest priority)
+- complexity: Scale 1-10
+- learningValue: Scale 1-10  
+- strategicImportance: Scale 1-10
+- confidence: Scale 0.0-1.0
+
+TIME ESTIMATION GUIDELINES:
+- Consider task complexity, user skill level, potential blockers
+- min: optimistic scenario (no interruptions)
+- max: pessimistic scenario (with blockers/distractions)  
+- most_likely: realistic middle estimate
+- factors: list reasons affecting time (complexity, learning curve, etc.)`;
 
   constructor() {
     this.apiKey = import.meta.env.VITE_GROQ_API_KEY || '';
@@ -103,6 +132,7 @@ Respond in JSON:
 
   /**
    * Analyze a task/subtask and determine appropriate XP reward with full page context
+   * Enhanced with historical accuracy feedback for better time estimates
    */
   async analyzeTaskForXP(
     taskTitle: string, 
@@ -111,10 +141,12 @@ Respond in JSON:
     context?: {
       parentTask?: string;
       userLevel?: number;
+      subtasks?: Array<{title: string; completed: boolean; workType: string}>;
       allTasks?: Array<{title: string; completed: boolean; timeEstimate: string}>;
       completedTasksToday?: number;
       sessionType?: 'light-work' | 'deep-work' | 'wellness';
       personalContext?: any;
+      userId?: string;
     }
   ): Promise<TaskAnalysis> {
     try {
@@ -122,7 +154,18 @@ Respond in JSON:
         return this.getFallbackAnalysis(taskTitle, timeEstimate);
       }
 
-      const prompt = this.buildAnalysisPrompt(taskTitle, taskDescription, timeEstimate, context);
+      // Get historical accuracy data for better time estimation
+      let historicalData = null;
+      if (context?.userId) {
+        try {
+          const { timeTrackingService } = await import('./time-tracking-service');
+          historicalData = await timeTrackingService.getHistoricalAccuracy(context.userId);
+        } catch (error) {
+          console.log('📊 Could not fetch historical data, using defaults');
+        }
+      }
+
+      const prompt = this.buildAnalysisPrompt(taskTitle, taskDescription, timeEstimate, context, historicalData);
       
       const messages: GroqMessage[] = [
         { role: 'system', content: this.systemPrompt },
@@ -215,9 +258,20 @@ Respond in JSON:
     title: string, 
     description?: string, 
     timeEstimate?: string,
-    context?: any
+    context?: any,
+    historicalData?: any
   ): string {
     let prompt = `TASK TO ANALYZE: "${title}"\nTime Estimate: ${timeEstimate || 'Unknown'}`;
+    
+    // Add subtasks if available
+    if (context?.subtasks && context.subtasks.length > 0) {
+      prompt += `\n\nSUBTASKS:`;
+      context.subtasks.forEach((subtask: any, index: number) => {
+        const status = subtask.completed ? '✅' : '⭕';
+        prompt += `\n${index + 1}. ${status} ${subtask.title} (${subtask.workType})`;
+      });
+      prompt += `\n\nIMPORTANT: Analyze this as a complete task with ${context.subtasks.length} subtasks. Consider the full scope of work involved across all subtasks when determining XP reward.`;
+    }
     
     // Add meaningful personal context
     if (context?.personalContext) {
@@ -242,7 +296,24 @@ Respond in JSON:
       prompt += `\n\nSESSION CONTEXT: ${completedCount}/${context.allTasks.length} tasks completed`;
     }
     
-    prompt += `\n\nTHINK CAREFULLY: What type of task is this? How valuable is it for this user's specific goals? Calculate appropriate XP reward with detailed reasoning.`;
+    // Add historical accuracy feedback for better time estimation
+    if (historicalData) {
+      prompt += `\n\nHISTORICAL TIME ACCURACY DATA:`;
+      prompt += `\nOverall Estimation Accuracy: ${Math.round(historicalData.averageAccuracy * 100)}%`;
+      prompt += `\nUser Velocity: ~${historicalData.userVelocity} tasks/hour`;
+      
+      if (historicalData.taskTypePatterns) {
+        prompt += `\nWork Type Patterns:`;
+        Object.entries(historicalData.taskTypePatterns).forEach(([type, data]: [string, any]) => {
+          const deviation = data.avgDeviation > 0 ? 'over-estimates' : 'under-estimates';
+          prompt += `\n- ${type} work: ${Math.round(data.accuracy * 100)}% accuracy, typically ${deviation} by ${Math.abs(data.avgDeviation)}min`;
+        });
+      }
+      
+      prompt += `\n\nIMPORTANT: Use this historical data to adjust your time estimates. If user typically over/under-estimates certain work types, factor that in.`;
+    }
+    
+    prompt += `\n\nTHINK CAREFULLY: What type of task is this? How valuable is it for this user's specific goals? Use historical patterns to make accurate time estimates. Calculate appropriate XP reward with detailed reasoning.`;
     
     return prompt;
   }
@@ -312,8 +383,15 @@ Respond in JSON:
         xpReward: parsed.xpReward,
         reasoning: parsed.reasoning || 'AI analysis completed',
         confidence: parsed.confidence || 0.7,
-        priorityRank: parsed.priorityRank || 3,
-        contextualBonus: parsed.contextualBonus || 0
+        priorityRank: Math.min(Math.max(parsed.priorityRank || 3, 1), 5),
+        contextualBonus: parsed.contextualBonus || 0,
+        timeEstimate: parsed.timeEstimate ? {
+          min: Math.max(parsed.timeEstimate.min || 5, 1),
+          max: Math.min(parsed.timeEstimate.max || 60, 240), // Max 4 hours
+          most_likely: parsed.timeEstimate.most_likely || 15,
+          confidence: Math.min(Math.max(parsed.timeEstimate.confidence || 0.7, 0.1), 1.0),
+          factors: Array.isArray(parsed.timeEstimate.factors) ? parsed.timeEstimate.factors : ['complexity']
+        } : undefined
       };
     } catch (error) {
       console.error('Failed to parse AI response:', error);

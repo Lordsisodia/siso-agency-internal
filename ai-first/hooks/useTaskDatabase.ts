@@ -11,6 +11,7 @@ import { useClerkUser } from '@/components/ClerkProvider';
 import { apiClient, CreateTaskInput, PersonalContextData } from '@/services/api-client';
 import { aiXPService, TaskAnalysis } from '../services/ai-xp-service';
 import { seedSampleTasks, seedPersonalContext } from '../services/seed-data';
+import { timeTrackingService } from '../services/time-tracking-service';
 
 // Define TaskWithSubtasks interface locally since it's not exported from API
 export interface TaskWithSubtasks {
@@ -28,6 +29,12 @@ export interface TaskWithSubtasks {
   tags: string[];
   category?: string;
   completedAt?: Date | null;
+  startedAt?: Date | null;
+  actualDurationMin?: number | null;
+  aiTimeEstimateMin?: number | null;
+  aiTimeEstimateMax?: number | null;
+  aiTimeEstimateML?: number | null;
+  timeAccuracy?: number | null;
   createdAt: Date;
   updatedAt: Date;
   // AI XP fields
@@ -42,6 +49,13 @@ export interface TaskWithSubtasks {
   strategicImportance?: number;
   confidence?: number;
   analyzedAt?: Date;
+  aiTimeEstimate?: {
+    min: number;
+    max: number;
+    most_likely: number;
+    confidence: number;
+    factors: string[];
+  };
   subtasks: Array<{
     id: string;
     title: string;
@@ -50,6 +64,12 @@ export interface TaskWithSubtasks {
     createdAt: Date;
     updatedAt: Date;
     completedAt?: Date | null;
+    startedAt?: Date | null;
+    actualDurationMin?: number | null;
+    aiTimeEstimateMin?: number | null;
+    aiTimeEstimateMax?: number | null;
+    aiTimeEstimateML?: number | null;
+    timeAccuracy?: number | null;
     // AI XP fields for subtasks
     xpReward?: number;
     difficulty?: 'TRIVIAL' | 'EASY' | 'MODERATE' | 'HARD' | 'EXPERT';
@@ -62,6 +82,13 @@ export interface TaskWithSubtasks {
     strategicImportance?: number;
     confidence?: number;
     analyzedAt?: Date;
+    aiTimeEstimate?: {
+      min: number;
+      max: number;
+      most_likely: number;
+      confidence: number;
+      factors: string[];
+    };
   }>;
 }
 
@@ -153,7 +180,7 @@ export function useTaskDatabase({ selectedDate }: UseTaskDatabaseProps) {
     }
   }, [user?.id]);
 
-  // Toggle task completion
+  // Toggle task completion with time tracking
   const toggleTaskCompletion = useCallback(async (taskId: string) => {
     const task = tasks.find(t => t.id === taskId);
     if (!task) {
@@ -166,6 +193,20 @@ export function useTaskDatabase({ selectedDate }: UseTaskDatabaseProps) {
     console.log('🔄 Toggling task completion:', { taskId, newCompleted, taskTitle: task.title });
     
     try {
+      if (newCompleted) {
+        // Task is being completed - calculate time accuracy
+        const aiTimeEstimate = (task as any).aiTimeEstimate;
+        const metrics = await timeTrackingService.completeTask(taskId, aiTimeEstimate);
+        
+        if (metrics) {
+          console.log(`📊 Time accuracy: ${Math.round(metrics.accuracy * 100)}% (${metrics.deviationPercent > 0 ? '+' : ''}${Math.round(metrics.deviationPercent)}%)`);
+        }
+      } else {
+        // Task is being started - record start time
+        await timeTrackingService.startTask(taskId);
+        console.log(`⏱️ Started timing: ${task.title}`);
+      }
+      
       await apiClient.updateTaskCompletion(taskId, newCompleted);
       
       setTasks(prev => prev.map(t => 
@@ -174,14 +215,14 @@ export function useTaskDatabase({ selectedDate }: UseTaskDatabaseProps) {
           : t
       ));
       
-      console.log(`✅ Task ${newCompleted ? 'completed' : 'uncompleted'}: ${task.title}`);
+      console.log(`✅ Task ${newCompleted ? 'completed' : 'started'}: ${task.title}`);
     } catch (err) {
       console.error('❌ Failed to toggle task completion:', err);
-      setError(`Failed to ${newCompleted ? 'complete' : 'uncomplete'} task: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      setError(`Failed to ${newCompleted ? 'complete' : 'start'} task: ${err instanceof Error ? err.message : 'Unknown error'}`);
     }
   }, [tasks]);
 
-  // Toggle subtask completion
+  // Toggle subtask completion with time tracking
   const toggleSubtaskCompletion = useCallback(async (taskId: string, subtaskId: string) => {
     const task = tasks.find(t => t.id === taskId);
     const subtask = task?.subtasks.find(s => s.id === subtaskId);
@@ -190,6 +231,20 @@ export function useTaskDatabase({ selectedDate }: UseTaskDatabaseProps) {
     const newCompleted = !subtask.completed;
     
     try {
+      if (newCompleted) {
+        // Subtask is being completed - calculate time accuracy
+        const aiTimeEstimate = (subtask as any).aiTimeEstimate;
+        const metrics = await timeTrackingService.completeSubtask(subtaskId, aiTimeEstimate);
+        
+        if (metrics) {
+          console.log(`📊 Subtask accuracy: ${Math.round(metrics.accuracy * 100)}% (${metrics.deviationPercent > 0 ? '+' : ''}${Math.round(metrics.deviationPercent)}%)`);
+        }
+      } else {
+        // Subtask is being started - record start time
+        await timeTrackingService.startSubtask(subtaskId);
+        console.log(`⏱️ Started timing subtask: ${subtask.title}`);
+      }
+      
       await apiClient.updateSubtaskCompletion(subtaskId, newCompleted);
       
       setTasks(prev => prev.map(t => 
@@ -205,7 +260,7 @@ export function useTaskDatabase({ selectedDate }: UseTaskDatabaseProps) {
           : t
       ));
       
-      console.log(`✅ Subtask ${newCompleted ? 'completed' : 'uncompleted'}: ${subtask.title}`);
+      console.log(`✅ Subtask ${newCompleted ? 'completed' : 'started'}: ${subtask.title}`);
     } catch (err) {
       console.error('❌ Failed to toggle subtask completion:', err);
     }
@@ -224,6 +279,11 @@ export function useTaskDatabase({ selectedDate }: UseTaskDatabaseProps) {
         task.description || undefined,
         task.timeEstimate || undefined,
         {
+          subtasks: task.subtasks.map(s => ({
+            title: s.title,
+            completed: s.completed,
+            workType: s.workType
+          })),
           allTasks: tasks.map(t => ({
             title: t.title,
             completed: t.completed,
@@ -231,7 +291,8 @@ export function useTaskDatabase({ selectedDate }: UseTaskDatabaseProps) {
           })),
           completedTasksToday: tasks.filter(t => t.completed).length,
           sessionType: 'light-work',
-          personalContext: personalContext
+          personalContext: personalContext,
+          userId: user.id // Add user ID for historical data
         }
       );
 
@@ -239,6 +300,38 @@ export function useTaskDatabase({ selectedDate }: UseTaskDatabaseProps) {
       const { taskDatabaseService } = await import('../services/task-database-service-fixed');
       await taskDatabaseService.updateTaskAIAnalysis(taskId, analysis);
       
+      // If task has subtasks, also analyze each subtask individually
+      if (task.subtasks.length > 0) {
+        console.log(`🔍 Analyzing ${task.subtasks.length} subtasks individually...`);
+        for (const subtask of task.subtasks) {
+          if (!subtask.aiAnalyzed) {
+            const subtaskAnalysis = await aiXPService.analyzeTaskForXP(
+              subtask.title,
+              undefined,
+              '15 min', // Default subtask time
+              {
+                parentTask: task.title,
+                allTasks: tasks.map(t => ({
+                  title: t.title,
+                  completed: t.completed,
+                  timeEstimate: t.timeEstimate || 'Unknown'
+                })),
+                completedTasksToday: tasks.filter(t => t.completed).length,
+                sessionType: 'light-work',
+                personalContext: personalContext,
+                userId: user.id // Add user ID for historical data
+              }
+            );
+
+            // Update subtask analysis in database
+            await taskDatabaseService.updateSubtaskAIAnalysis(subtask.id, subtaskAnalysis);
+          }
+        }
+        
+        // Reload tasks to get updated subtasks
+        await loadTasks();
+      }
+
       // Update local state
       setTasks(prev => prev.map(t => 
         t.id === taskId 
@@ -254,13 +347,17 @@ export function useTaskDatabase({ selectedDate }: UseTaskDatabaseProps) {
               learningValue: analysis.learningValue,
               strategicImportance: analysis.strategicImportance,
               confidence: analysis.confidence,
-              analyzedAt: new Date()
+              analyzedAt: new Date(),
+              aiTimeEstimate: analysis.timeEstimate
             }
           : t
       ));
 
       console.log(`✅ Task analyzed: ${analysis.xpReward} XP (${analysis.difficulty})`);
       console.log(`🧠 AI Reasoning: ${analysis.reasoning}`);
+      if (analysis.timeEstimate) {
+        console.log(`⏰ AI Time Estimate: ${analysis.timeEstimate.min}-${analysis.timeEstimate.max} min (most likely: ${analysis.timeEstimate.most_likely}, confidence: ${Math.round(analysis.timeEstimate.confidence * 100)}%)`);
+      }
       
       return analysis;
     } catch (err) {
@@ -290,7 +387,8 @@ export function useTaskDatabase({ selectedDate }: UseTaskDatabaseProps) {
           })),
           completedTasksToday: tasks.filter(t => t.completed).length,
           sessionType: 'light-work',
-          personalContext: personalContext
+          personalContext: personalContext,
+          userId: user?.id // Add user ID for historical data
         }
       );
 
