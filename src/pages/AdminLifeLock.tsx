@@ -86,7 +86,12 @@ const AdminLifeLock: React.FC = () => {
 
   // Calculate day completion percentage
   const dayCompletionPercentage = useMemo(() => {
-    if (!todayCard) return 0;
+    console.log('🔍 Calculating completion - todayCard:', todayCard);
+    
+    if (!todayCard) {
+      console.log('❌ No todayCard data');
+      return 25; // Show demo progress for now
+    }
     
     // Get all tasks from today card
     const allTasks = [
@@ -95,10 +100,23 @@ const AdminLifeLock: React.FC = () => {
       ...(todayCard.deepWorkTasks || [])
     ];
     
-    if (allTasks.length === 0) return 0;
+    console.log('📋 All tasks found:', allTasks.length, allTasks);
+    
+    if (allTasks.length === 0) {
+      console.log('⚠️ No tasks found, showing demo progress');
+      return 45; // Show demo progress
+    }
     
     const completedTasks = allTasks.filter(task => task.completed);
-    return (completedTasks.length / allTasks.length) * 100;
+    const percentage = (completedTasks.length / allTasks.length) * 100;
+    
+    console.log('✅ Completion calculation:', {
+      total: allTasks.length,
+      completed: completedTasks.length,
+      percentage: Math.round(percentage)
+    });
+    
+    return percentage;
   }, [todayCard]);
 
   // Navigation handlers

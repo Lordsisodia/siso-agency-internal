@@ -13,7 +13,8 @@ import {
   MicOff,
   Zap,
   Brain,
-  Settings
+  Settings,
+  Calendar
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { format } from 'date-fns';
@@ -77,11 +78,12 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
     updatePersonalContext,
     addSubtask,
     deleteTask,
-    updateTaskTitle
+    updateTaskTitle,
+    pushTaskToAnotherDay
   } = useTaskDatabase({ selectedDate });
 
   // Filter only light work tasks and transform to expected format
-  const tasks = dbTasks
+  const allTasks = dbTasks
     .filter(task => task.workType === 'LIGHT')
     .map(task => ({
       ...task,
@@ -100,8 +102,16 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
       difficulty: task.difficulty || 'easy',
       aiAnalyzed: task.aiAnalyzed || false,
       priorityRank: task.priorityRank || 0,
-      contextualBonus: task.contextualBonus || 0
+      contextualBonus: task.contextualBonus || 0,
+      isPushed: task.currentDate !== task.originalDate && task.rollovers > 0
     }));
+
+  // Sort tasks: regular tasks first, then pushed tasks at bottom
+  const tasks = allTasks.sort((a, b) => {
+    if (a.isPushed && !b.isPushed) return 1;
+    if (!a.isPushed && b.isPushed) return -1;
+    return 0;
+  });
   const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set());
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [editingSubtaskId, setEditingSubtaskId] = useState<string | null>(null);
@@ -155,6 +165,17 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
       await deleteTask(taskId);
     } catch (error) {
       console.error('Failed to delete task:', error);
+    }
+  };
+
+  const handlePushToAnotherDay = async (taskId: string) => {
+    try {
+      const tomorrow = new Date(selectedDate);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const tomorrowStr = tomorrow.toISOString().split('T')[0];
+      await pushTaskToAnotherDay(taskId, tomorrowStr);
+    } catch (error) {
+      console.error('Failed to push task to another day:', error);
     }
   };
 
@@ -470,7 +491,9 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
                       p-4 rounded-lg border transition-all duration-200
                       ${task.completed 
                         ? 'bg-green-900/20 border-green-700/50 text-green-100' 
-                        : 'bg-gray-800/50 border-gray-700/50 text-gray-100 hover:border-green-600/50 hover:bg-gray-800/70'
+                        : task.isPushed
+                          ? 'bg-blue-900/20 border-blue-700/50 text-blue-100 hover:border-blue-600/50 hover:bg-blue-800/30'
+                          : 'bg-gray-800/50 border-gray-700/50 text-gray-100 hover:border-green-600/50 hover:bg-gray-800/70'
                       }
                     `}
                   >
@@ -621,6 +644,17 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
                               )}
                             </button>
                           )}
+                          
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handlePushToAnotherDay(task.id);
+                            }}
+                            className="p-1 hover:bg-blue-900/50 rounded text-gray-400 hover:text-blue-400 transition-colors"
+                            title="Push to another day"
+                          >
+                            <Calendar className="h-3 w-3" />
+                          </button>
                           
                           <button
                             onClick={(e) => {

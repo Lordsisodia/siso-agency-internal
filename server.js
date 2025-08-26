@@ -185,6 +185,58 @@ app.patch('/api/tasks/:taskId', async (req, res) => {
   }
 });
 
+// Delete task
+app.delete('/api/tasks', async (req, res) => {
+  try {
+    const { taskId } = req.query;
+
+    if (!taskId) {
+      return res.status(400).json({ error: 'taskId is required' });
+    }
+
+    // First delete all subtasks for this task
+    await prisma.personalSubtask.deleteMany({
+      where: { taskId: taskId }
+    });
+
+    // Then delete the task itself
+    await prisma.personalTask.delete({
+      where: { id: taskId }
+    });
+
+    console.log(`✅ Deleted task: ${taskId}`);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting task:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Push task to another day
+app.patch('/api/tasks/:taskId/push', async (req, res) => {
+  try {
+    const { taskId } = req.params;
+    const { pushedToDate } = req.body;
+
+    const updatedTask = await prisma.personalTask.update({
+      where: { id: taskId },
+      data: { 
+        currentDate: pushedToDate || new Date().toISOString().split('T')[0],
+        rollovers: { increment: 1 }
+      },
+      include: {
+        subtasks: true
+      }
+    });
+
+    console.log(`📅 Pushed task to another day: ${updatedTask.title}`);
+    res.json({ success: true, data: updatedTask });
+  } catch (error) {
+    console.error('Error pushing task to another day:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Create new subtask
 app.post('/api/subtasks', async (req, res) => {
   try {
