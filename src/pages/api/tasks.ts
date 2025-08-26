@@ -33,13 +33,17 @@ export default async function handler(req: any, res: any) {
 
       case 'PUT':
         // PUT /api/tasks - Update task
-        const { taskId, completed } = body;
+        const { taskId, completed, title } = body;
         if (!taskId) {
           return res.status(400).json({ error: 'taskId is required' });
         }
         
         if (completed !== undefined) {
           await taskDatabaseService.updateTaskCompletion(taskId, completed);
+        }
+        
+        if (title !== undefined) {
+          await taskDatabaseService.updateTaskTitle(taskId, title);
         }
         
         return res.status(200).json({ success: true });

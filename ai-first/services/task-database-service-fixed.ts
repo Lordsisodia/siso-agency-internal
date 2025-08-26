@@ -208,6 +208,27 @@ class FixedTaskDatabaseService {
   }
 
   /**
+   * Update task title
+   */
+  async updateTaskTitle(taskId: string, title: string): Promise<void> {
+    const prisma = await getPrismaClient();
+    
+    try {
+      await prisma.personalTask.update({
+        where: { id: taskId },
+        data: { title: title.trim() }
+      });
+    } catch (error) {
+      console.error('❌ Failed to update task title:', error);
+      throw new Error('Failed to update task title');
+    } finally {
+      if (typeof window === 'undefined' && prisma.$disconnect) {
+        await prisma.$disconnect();
+      }
+    }
+  }
+
+  /**
    * Update subtask completion status
    */
   async updateSubtaskCompletion(subtaskId: string, completed: boolean): Promise<void> {

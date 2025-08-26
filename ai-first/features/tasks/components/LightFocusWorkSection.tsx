@@ -76,7 +76,8 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
     analyzeSubtaskWithAI,
     updatePersonalContext,
     addSubtask,
-    deleteTask
+    deleteTask,
+    updateTaskTitle
   } = useTaskDatabase({ selectedDate });
 
   // Filter only light work tasks and transform to expected format
@@ -177,9 +178,14 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
     setEditSubtaskTitle(currentTitle);
   };
 
-  const saveTaskEdit = (taskId: string) => {
-    console.warn('⚠️ Task title editing not yet implemented with database persistence');
-    // TODO: Implement task title editing with database API
+  const saveTaskEdit = async (taskId: string) => {
+    if (editTaskTitle.trim()) {
+      try {
+        await updateTaskTitle(taskId, editTaskTitle.trim());
+      } catch (error) {
+        console.error('Failed to update task title:', error);
+      }
+    }
     setEditingTaskId(null);
     setEditTaskTitle('');
   };
