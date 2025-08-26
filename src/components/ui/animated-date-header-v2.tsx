@@ -26,15 +26,17 @@ export const AnimatedDateHeader: React.FC<AnimatedDateHeaderProps> = ({
   onPreviousDate,
   onNextDate
 }) => {
-  // Debug navigation props
-  console.log('🔍 AnimatedDateHeader - Navigation props:', {
-    hasPrevious: !!onPreviousDate,
-    hasNext: !!onNextDate,
-    date: format(selectedDate, 'yyyy-MM-dd')
-  });
-  
-  // Visual debug - if arrows should show, they'll be orange and prominent
-  console.log('🎯 Arrows should be visible:', !!onPreviousDate && !!onNextDate);
+  // Navigation props validation (development only)
+  if (process.env.NODE_ENV === 'development') {
+    // Only log if there's an issue with navigation props
+    if ((!onPreviousDate || !onNextDate) && (onPreviousDate || onNextDate)) {
+      console.warn('⚠️ AnimatedDateHeader - Incomplete navigation props:', {
+        hasPrevious: !!onPreviousDate,
+        hasNext: !!onNextDate,
+        date: format(selectedDate, 'yyyy-MM-dd')
+      });
+    }
+  }
   
   // Smart date display logic
   const dateInfo = useMemo(() => {
