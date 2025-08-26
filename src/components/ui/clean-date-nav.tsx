@@ -5,6 +5,7 @@ import { format, isToday, isTomorrow, isYesterday } from 'date-fns';
 
 interface CleanDateNavProps {
   selectedDate: Date;
+  completionPercentage?: number;
   className?: string;
   onPreviousDate?: () => void;
   onNextDate?: () => void;
@@ -12,6 +13,7 @@ interface CleanDateNavProps {
 
 export const CleanDateNav: React.FC<CleanDateNavProps> = ({
   selectedDate,
+  completionPercentage = 0,
   className = '',
   onPreviousDate,
   onNextDate
@@ -102,6 +104,38 @@ export const CleanDateNav: React.FC<CleanDateNavProps> = ({
           )}
         </div>
       </div>
+
+      {/* Day Completion Progress Bar */}
+      {completionPercentage > 0 && (
+        <motion.div 
+          className="px-4 pb-4"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.4 }}
+        >
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-gray-400">Day Progress</span>
+              <span className="text-xs text-gray-300 font-medium">
+                {Math.round(completionPercentage)}%
+              </span>
+            </div>
+            
+            {/* Progress Bar Container */}
+            <div className="w-full bg-gray-700/40 rounded-full h-2 overflow-hidden">
+              <motion.div
+                className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full relative"
+                initial={{ width: 0 }}
+                animate={{ width: `${completionPercentage}%` }}
+                transition={{ delay: 0.4, duration: 1, ease: "easeOut" }}
+              >
+                {/* Subtle glow effect */}
+                <div className="absolute inset-0 bg-emerald-300/30 blur-sm rounded-full" />
+              </motion.div>
+            </div>
+          </div>
+        </motion.div>
+      )}
     </motion.div>
   );
 };
