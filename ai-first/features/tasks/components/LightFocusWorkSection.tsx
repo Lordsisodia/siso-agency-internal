@@ -112,7 +112,32 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
     if (!a.isPushed && b.isPushed) return -1;
     return 0;
   });
-  const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set());
+
+  // Helper function to load expanded tasks from localStorage
+  const loadExpandedTasks = (): Set<string> => {
+    try {
+      const saved = localStorage.getItem('lightwork-expanded-tasks');
+      if (saved) {
+        const taskIds = JSON.parse(saved);
+        return new Set(taskIds);
+      }
+    } catch (error) {
+      console.error('Failed to load expanded tasks from localStorage:', error);
+    }
+    return new Set();
+  };
+
+  // Helper function to save expanded tasks to localStorage
+  const saveExpandedTasks = (expandedSet: Set<string>) => {
+    try {
+      const taskIds = Array.from(expandedSet);
+      localStorage.setItem('lightwork-expanded-tasks', JSON.stringify(taskIds));
+    } catch (error) {
+      console.error('Failed to save expanded tasks to localStorage:', error);
+    }
+  };
+
+  const [expandedTasks, setExpandedTasks] = useState<Set<string>>(loadExpandedTasks);
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [editingSubtaskId, setEditingSubtaskId] = useState<string | null>(null);
   const [addingSubtaskToId, setAddingSubtaskToId] = useState<string | null>(null);
@@ -138,6 +163,7 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
     const newExpanded = new Set(expandedTasks);
     newExpanded.add(taskId);
     setExpandedTasks(newExpanded);
+    saveExpandedTasks(newExpanded);
   };
 
   const saveNewSubtask = async (taskId: string) => {
@@ -187,6 +213,7 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
       newExpanded.add(taskId);
     }
     setExpandedTasks(newExpanded);
+    saveExpandedTasks(newExpanded);
   };
 
   const startEditingTask = (taskId: string, currentTitle: string) => {
@@ -334,6 +361,26 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
     return totalXP;
   };
 
+  // Calculate average XP per remaining task for strategic insight
+  const getAverageXPPerTask = (): number => {
+    const remainingTasks = tasks.filter(task => !task.completed);
+    if (remainingTasks.length === 0) return 0;
+    
+    // Calculate total XP from both tasks and their incomplete subtasks
+    const totalXP = remainingTasks.reduce((total, task) => {
+      let taskTotal = task.xpReward || getDefaultTaskXP(task);
+      
+      // Add incomplete subtask XP
+      const subtaskXP = task.subtasks
+        .filter(subtask => !subtask.completed)
+        .reduce((subTotal, subtask) => subTotal + (subtask.xpReward || getDefaultSubtaskXP(subtask)), 0);
+      
+      return total + taskTotal + subtaskXP;
+    }, 0);
+    
+    return Math.round(totalXP / remainingTasks.length);
+  };
+
   // Get default XP for tasks without AI analysis
   const getDefaultTaskXP = (task: Task): number => {
     const timeMinutes = parseTimeEstimate(task.timeEstimate);
@@ -343,6 +390,11 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
   // Get default XP for subtasks without AI analysis
   const getDefaultSubtaskXP = (subtask: Subtask): number => {
     return 15; // Default subtask XP
+  };
+
+  // Clamp priority rank to valid range (1-5)
+  const clampPriorityRank = (rank: number): number => {
+    return Math.min(Math.max(rank, 1), 5);
   };
 
 
@@ -458,24 +510,33 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
             
             {/* Session Stats */}
             <div className="mb-6">
-              <div className="grid grid-cols-3 gap-3 text-center">
-                <div className="p-3 bg-gray-800/30 rounded-lg border border-gray-700/30">
-                  <div className="text-xl font-bold text-green-400">
-                    {getTotalRemainingTime()}
+              <div className="grid grid-cols-3 gap-3">
+                <div className="group relative p-4 bg-gradient-to-br from-gray-800/40 to-gray-900/60 rounded-lg border border-gray-700/40 shadow-md hover:shadow-lg transition-all duration-300 hover:border-green-500/30 hover:from-gray-800/50 hover:to-gray-900/70">
+                  <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="relative flex flex-col items-center justify-center text-center h-full">
+                    <div className="text-2xl font-bold text-green-400 leading-tight">
+                      {getTotalRemainingTime()}
+                    </div>
+                    <div className="text-xs font-medium text-gray-300 uppercase tracking-wider mt-1">Time Left</div>
                   </div>
-                  <div className="text-xs text-gray-400 mt-1">Time Left</div>
                 </div>
-                <div className="p-3 bg-gray-800/30 rounded-lg border border-gray-700/30">
-                  <div className="text-xl font-bold text-blue-400">
-                    {tasks.filter(t => !t.completed).length}
+                <div className="group relative p-4 bg-gradient-to-br from-gray-800/40 to-gray-900/60 rounded-lg border border-gray-700/40 shadow-md hover:shadow-lg transition-all duration-300 hover:border-blue-500/30 hover:from-gray-800/50 hover:to-gray-900/70">
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="relative flex flex-col items-center justify-center text-center h-full">
+                    <div className="text-2xl font-bold text-blue-400 leading-tight">
+                      {getAverageXPPerTask()}
+                    </div>
+                    <div className="text-xs font-medium text-gray-300 uppercase tracking-wider mt-1">Avg XP</div>
                   </div>
-                  <div className="text-xs text-gray-400 mt-1">Remaining</div>
                 </div>
-                <div className="p-3 bg-gray-800/30 rounded-lg border border-gray-700/30">
-                  <div className="text-xl font-bold text-yellow-400">
-                    {getExpToEarn()}
+                <div className="group relative p-4 bg-gradient-to-br from-gray-800/40 to-gray-900/60 rounded-lg border border-gray-700/40 shadow-md hover:shadow-lg transition-all duration-300 hover:border-yellow-500/30 hover:from-gray-800/50 hover:to-gray-900/70">
+                  <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="relative flex flex-col items-center justify-center text-center h-full">
+                    <div className="text-2xl font-bold text-yellow-400 leading-tight">
+                      {getExpToEarn()}
+                    </div>
+                    <div className="text-xs font-medium text-gray-300 uppercase tracking-wider mt-1">EXP to Earn</div>
                   </div>
-                  <div className="text-xs text-gray-400 mt-1">EXP to Earn</div>
                 </div>
               </div>
             </div>
@@ -527,18 +588,32 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
                               className="w-full text-base font-medium bg-gray-700/50 border border-green-500 rounded px-3 py-2 text-white focus:outline-none focus:ring-1 focus:ring-green-500"
                             />
                           ) : (
-                            <h3 
-                              className={`text-base font-medium leading-tight cursor-pointer hover:text-green-300 transition-colors ${
-                                task.completed ? 'line-through text-green-300/80' : ''
-                              }`}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                startEditingTask(task.id, task.title);
-                              }}
-                              title="Click to edit"
-                            >
-                              {task.title}
-                            </h3>
+                            <div className="flex items-center gap-2">
+                              <h3 
+                                className={`text-base font-medium leading-tight cursor-pointer hover:text-green-300 transition-colors ${
+                                  task.completed ? 'line-through text-green-300/80' : ''
+                                }`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  startEditingTask(task.id, task.title);
+                                }}
+                                title="Click to edit"
+                              >
+                                {task.title}
+                              </h3>
+                              {task.aiAnalyzed && task.xpReward && (
+                                <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
+                                  task.difficulty === 'expert' ? 'bg-red-900/40 text-red-300' :
+                                  task.difficulty === 'hard' ? 'bg-orange-900/40 text-orange-300' :
+                                  task.difficulty === 'moderate' ? 'bg-yellow-900/40 text-yellow-300' :
+                                  task.difficulty === 'easy' ? 'bg-blue-900/40 text-blue-300' :
+                                  'bg-gray-900/40 text-gray-300'
+                                }`}>
+                                  <Zap className="h-2.5 w-2.5" />
+                                  {task.xpReward}
+                                </div>
+                              )}
+                            </div>
                           )}
                         </div>
                       </div>
@@ -548,31 +623,25 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
                         <div className="flex items-center gap-3 text-xs">
                           <div className="flex items-center gap-1 text-gray-400">
                             <Clock className="h-3 w-3" />
-                            {task.timeEstimate}
-                          </div>
-                          {task.aiAnalyzed && (
-                            <div className="flex items-center gap-1">
-                              <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
-                                task.difficulty === 'expert' ? 'bg-red-900/30 text-red-300' :
-                                task.difficulty === 'hard' ? 'bg-orange-900/30 text-orange-300' :
-                                task.difficulty === 'moderate' ? 'bg-yellow-900/30 text-yellow-300' :
-                                task.difficulty === 'easy' ? 'bg-blue-900/30 text-blue-300' :
-                                'bg-gray-900/30 text-gray-300'
-                              }`}>
-                                <Zap className="h-3 w-3" />
-                                {task.xpReward} XP
+                            <span>{task.timeEstimate}</span>
+                            {task.aiAnalyzed && (task as any).aiTimeEstimate && (
+                              <div className="flex items-center gap-1 text-xs text-blue-300">
+                                <span>•</span>
+                                <span title={`AI Estimate: ${(task as any).aiTimeEstimate.min}-${(task as any).aiTimeEstimate.max} min (${Math.round((task as any).aiTimeEstimate.confidence * 100)}% confidence)`}>
+                                  AI: {(task as any).aiTimeEstimate.most_likely}min
+                                </span>
                               </div>
-                              {task.priorityRank && (
-                                <div className={`flex items-center justify-center w-4 h-4 rounded-full text-xs font-bold ${
-                                  task.priorityRank === 5 ? 'bg-red-500 text-white' :
-                                  task.priorityRank === 4 ? 'bg-orange-500 text-white' :
-                                  task.priorityRank === 3 ? 'bg-yellow-500 text-black' :
-                                  task.priorityRank === 2 ? 'bg-blue-500 text-white' :
-                                  'bg-gray-500 text-white'
-                                }`}>
-                                  {task.priorityRank}
-                                </div>
-                              )}
+                            )}
+                          </div>
+                          {task.aiAnalyzed && task.priorityRank && (
+                            <div className={`flex items-center justify-center w-4 h-4 rounded-full text-xs font-bold ${
+                              clampPriorityRank(task.priorityRank) === 5 ? 'bg-red-500 text-white' :
+                              clampPriorityRank(task.priorityRank) === 4 ? 'bg-orange-500 text-white' :
+                              clampPriorityRank(task.priorityRank) === 3 ? 'bg-yellow-500 text-black' :
+                              clampPriorityRank(task.priorityRank) === 2 ? 'bg-blue-500 text-white' :
+                              'bg-gray-500 text-white'
+                            }`}>
+                              {clampPriorityRank(task.priorityRank)}
                             </div>
                           )}
                         </div>
@@ -735,18 +804,32 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
                                 className="flex-1 text-sm bg-gray-700/50 border border-green-500 rounded px-2 py-1 text-white focus:outline-none focus:ring-1 focus:ring-green-500"
                               />
                             ) : (
-                              <span 
-                                className={`text-sm cursor-pointer hover:text-green-300 transition-colors ${
-                                  subtask.completed ? 'line-through text-gray-400' : ''
-                                }`}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  startEditingSubtask(subtask.id, subtask.title);
-                                }}
-                                title="Click to edit"
-                              >
-                                {subtask.title}
-                              </span>
+                              <div className="flex items-center gap-2 flex-1">
+                                <span 
+                                  className={`text-sm cursor-pointer hover:text-green-300 transition-colors ${
+                                    subtask.completed ? 'line-through text-gray-400' : ''
+                                  }`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    startEditingSubtask(subtask.id, subtask.title);
+                                  }}
+                                  title="Click to edit"
+                                >
+                                  {subtask.title}
+                                </span>
+                                {subtask.aiAnalyzed && subtask.xpReward && (
+                                  <div className={`flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-medium ${
+                                    subtask.difficulty === 'expert' ? 'bg-red-900/40 text-red-300' :
+                                    subtask.difficulty === 'hard' ? 'bg-orange-900/40 text-orange-300' :
+                                    subtask.difficulty === 'moderate' ? 'bg-yellow-900/40 text-yellow-300' :
+                                    subtask.difficulty === 'easy' ? 'bg-blue-900/40 text-blue-300' :
+                                    'bg-gray-900/40 text-gray-300'
+                                  }`}>
+                                    <Zap className="h-2 w-2" />
+                                    {subtask.xpReward}
+                                  </div>
+                                )}
+                              </div>
                             )}
                           </div>
                         ))}

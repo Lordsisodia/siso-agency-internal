@@ -122,15 +122,68 @@ export const CleanDateNav: React.FC<CleanDateNavProps> = ({
             </div>
             
             {/* Progress Bar Container */}
-            <div className="w-full bg-gray-700/40 rounded-full h-2 overflow-hidden">
+            <div className="w-full bg-gray-700/40 rounded-full h-2 overflow-hidden relative">
+              {/* Main Progress Bar with Pulsing Animation */}
               <motion.div
-                className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full relative"
+                className="h-full bg-gradient-to-r from-emerald-500 via-emerald-400 to-emerald-300 rounded-full relative overflow-hidden"
                 initial={{ width: 0 }}
                 animate={{ width: `${completionPercentage}%` }}
-                transition={{ delay: 0.4, duration: 1, ease: "easeOut" }}
+                transition={{ delay: 0.4, duration: 1.2, ease: "easeOut" }}
               >
-                {/* Subtle glow effect */}
-                <div className="absolute inset-0 bg-emerald-300/30 blur-sm rounded-full" />
+                {/* Breathing Glow Layer */}
+                <motion.div 
+                  className="absolute inset-0 bg-emerald-300/40 blur-sm rounded-full"
+                  animate={{ 
+                    opacity: [0.4, 0.8, 0.4],
+                    scale: [1, 1.05, 1]
+                  }}
+                  transition={{ 
+                    duration: 2,
+                    ease: "easeInOut",
+                    repeat: Infinity
+                  }}
+                />
+                
+                {/* Shimmer Wave Effect */}
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent rounded-full"
+                  animate={{ x: ['-100%', '100%'] }}
+                  transition={{
+                    duration: 2.5,
+                    ease: "easeInOut",
+                    repeat: Infinity,
+                    repeatDelay: 1
+                  }}
+                />
+                
+                {/* Pulsing Heart Beat Effect */}
+                <motion.div
+                  className="absolute inset-0 bg-emerald-400/30 rounded-full"
+                  animate={{ 
+                    opacity: [0, 0.6, 0],
+                    scale: [0.98, 1.02, 0.98]
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    ease: "easeInOut",
+                    repeat: Infinity,
+                    times: [0, 0.5, 1]
+                  }}
+                />
+                
+                {/* Outer Glow Ring */}
+                <motion.div
+                  className="absolute -inset-0.5 bg-emerald-400/20 blur-md rounded-full"
+                  animate={{ 
+                    opacity: [0.2, 0.5, 0.2],
+                    scale: [1, 1.1, 1]
+                  }}
+                  transition={{
+                    duration: 3,
+                    ease: "easeInOut",
+                    repeat: Infinity
+                  }}
+                />
               </motion.div>
             </div>
           </div>

@@ -1,17 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Heart } from 'lucide-react';
+import { Heart, Plus, Minus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
-
-interface HealthItem {
-  id: string;
-  title: string;
-  completed: boolean;
-}
 
 interface HealthNonNegotiablesSectionProps {
   selectedDate: Date;
@@ -22,16 +16,6 @@ export const HealthNonNegotiablesSection: React.FC<HealthNonNegotiablesSectionPr
 }) => {
   const dateKey = format(selectedDate, 'yyyy-MM-dd');
   
-  const [healthItems, setHealthItems] = useState<HealthItem[]>(() => {
-    const saved = localStorage.getItem(`lifelock-${dateKey}-healthItems`);
-    return saved ? JSON.parse(saved) : [
-      { id: '1', title: 'Take vitamins/supplements', completed: false },
-      { id: '2', title: 'Drink 2L+ water', completed: false },
-      { id: '3', title: 'No smoking THC', completed: false },
-      { id: '4', title: 'Eat balanced meals', completed: false },
-      { id: '5', title: 'Get 7+ hours sleep', completed: false }
-    ];
-  });
 
   const [meals, setMeals] = useState(() => {
     const saved = localStorage.getItem(`lifelock-${dateKey}-meals`);
@@ -54,9 +38,6 @@ export const HealthNonNegotiablesSection: React.FC<HealthNonNegotiablesSectionPr
   });
 
   // Save to localStorage whenever state changes
-  useEffect(() => {
-    localStorage.setItem(`lifelock-${dateKey}-healthItems`, JSON.stringify(healthItems));
-  }, [healthItems, dateKey]);
 
   useEffect(() => {
     localStorage.setItem(`lifelock-${dateKey}-meals`, JSON.stringify(meals));
@@ -66,14 +47,6 @@ export const HealthNonNegotiablesSection: React.FC<HealthNonNegotiablesSectionPr
     localStorage.setItem(`lifelock-${dateKey}-dailyTotals`, JSON.stringify(dailyTotals));
   }, [dailyTotals, dateKey]);
 
-  const toggleItem = (id: string) => {
-    const updatedItems = healthItems.map((item: HealthItem) => 
-      item.id === id ? { ...item, completed: !item.completed } : item
-    );
-    setHealthItems(updatedItems);
-  };
-
-  const healthProgress = (healthItems.filter(item => item.completed).length / healthItems.length) * 100;
 
   return (
     <motion.div
@@ -85,52 +58,20 @@ export const HealthNonNegotiablesSection: React.FC<HealthNonNegotiablesSectionPr
         <CardHeader>
           <CardTitle className="flex items-center text-pink-400">
             <Heart className="h-5 w-5 mr-2" />
-            💖 Health Non Negotiables
+            💖 Nutrition Tracker
           </CardTitle>
-          
-          {/* Progress Bar */}
-          <div className="mt-4">
-            <div className="flex justify-between text-sm text-pink-300 mb-2">
-              <span>Health Progress</span>
-              <span>{Math.round(healthProgress)}%</span>
-            </div>
-            <div className="w-full bg-pink-900/30 rounded-full h-2">
-              <motion.div 
-                className="bg-gradient-to-r from-pink-400 to-pink-600 h-2 rounded-full"
-                initial={{ width: 0 }}
-                animate={{ width: `${healthProgress}%` }}
-                transition={{ duration: 0.8, ease: 'easeOut' }}
-              />
-            </div>
-          </div>
-          
-          <div className="border-t border-gray-600 my-4"></div>
-          <p className="text-gray-300 text-sm">Main Tasks:</p>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            {healthItems.map((item) => (
-              <div key={item.id} className="flex items-center space-x-3 p-3 bg-gray-700/50 rounded">
-                <Checkbox
-                  checked={item.completed}
-                  onCheckedChange={() => toggleItem(item.id)}
-                />
-                <span className="text-white">{item.title}</span>
-              </div>
-            ))}
-          </div>
-
-          <div className="border-t border-gray-600 my-6"></div>
           
           {/* Daily Calorie & Macro Tracker */}
-          <h3 className="font-semibold text-white mb-4">Daily Calorie & Macro Tracker</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <h3 className="font-semibold text-white mb-5">Daily Calorie & Macro Tracker</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-7">
             <div>
               <label className="text-white text-sm font-medium">Breakfast:</label>
               <Textarea
                 value={meals.breakfast}
                 onChange={(e) => setMeals(prev => ({ ...prev, breakfast: e.target.value }))}
-                className="mt-1 bg-gray-700 border-gray-600 text-white"
+                className="mt-1 bg-pink-900/40 border-pink-600/50 text-white placeholder:text-pink-200/60 focus:border-pink-400 focus:ring-pink-400/20"
                 placeholder="Enter breakfast details..."
               />
             </div>
@@ -139,7 +80,7 @@ export const HealthNonNegotiablesSection: React.FC<HealthNonNegotiablesSectionPr
               <Textarea
                 value={meals.lunch}
                 onChange={(e) => setMeals(prev => ({ ...prev, lunch: e.target.value }))}
-                className="mt-1 bg-gray-700 border-gray-600 text-white"
+                className="mt-1 bg-pink-900/40 border-pink-600/50 text-white placeholder:text-pink-200/60 focus:border-pink-400 focus:ring-pink-400/20"
                 placeholder="Enter lunch details..."
               />
             </div>
@@ -148,7 +89,7 @@ export const HealthNonNegotiablesSection: React.FC<HealthNonNegotiablesSectionPr
               <Textarea
                 value={meals.dinner}
                 onChange={(e) => setMeals(prev => ({ ...prev, dinner: e.target.value }))}
-                className="mt-1 bg-gray-700 border-gray-600 text-white"
+                className="mt-1 bg-pink-900/40 border-pink-600/50 text-white placeholder:text-pink-200/60 focus:border-pink-400 focus:ring-pink-400/20"
                 placeholder="Enter dinner details..."
               />
             </div>
@@ -157,7 +98,7 @@ export const HealthNonNegotiablesSection: React.FC<HealthNonNegotiablesSectionPr
               <Textarea
                 value={meals.snacks}
                 onChange={(e) => setMeals(prev => ({ ...prev, snacks: e.target.value }))}
-                className="mt-1 bg-gray-700 border-gray-600 text-white"
+                className="mt-1 bg-pink-900/40 border-pink-600/50 text-white placeholder:text-pink-200/60 focus:border-pink-400 focus:ring-pink-400/20"
                 placeholder="Enter snack details..."
               />
             </div>
@@ -165,40 +106,96 @@ export const HealthNonNegotiablesSection: React.FC<HealthNonNegotiablesSectionPr
 
           <div className="border-t border-gray-600 my-4"></div>
           
-          <h4 className="font-semibold text-white mb-3">Daily Totals:</h4>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div>
-              <label className="text-white text-sm">Total Calories:</label>
-              <Input
-                value={dailyTotals.calories}
-                onChange={(e) => setDailyTotals(prev => ({ ...prev, calories: e.target.value }))}
-                className="mt-1 bg-gray-700 border-gray-600 text-white"
-              />
-            </div>
-            <div>
-              <label className="text-white text-sm">Total Protein:</label>
-              <Input
-                value={dailyTotals.protein}
-                onChange={(e) => setDailyTotals(prev => ({ ...prev, protein: e.target.value }))}
-                className="mt-1 bg-gray-700 border-gray-600 text-white"
-              />
-            </div>
-            <div>
-              <label className="text-white text-sm">Total Carbs:</label>
-              <Input
-                value={dailyTotals.carbs}
-                onChange={(e) => setDailyTotals(prev => ({ ...prev, carbs: e.target.value }))}
-                className="mt-1 bg-gray-700 border-gray-600 text-white"
-              />
-            </div>
-            <div>
-              <label className="text-white text-sm">Total Fats:</label>
-              <Input
-                value={dailyTotals.fats}
-                onChange={(e) => setDailyTotals(prev => ({ ...prev, fats: e.target.value }))}
-                className="mt-1 bg-gray-700 border-gray-600 text-white"
-              />
-            </div>
+          <h4 className="font-semibold text-white mb-5">Daily Totals:</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[
+              { key: 'calories', label: 'Calories', unit: 'cal', steps: [100, 250, 500] },
+              { key: 'protein', label: 'Protein', unit: 'g', steps: [10, 25, 50] },
+              { key: 'carbs', label: 'Carbs', unit: 'g', steps: [20, 50, 100] },
+              { key: 'fats', label: 'Fats', unit: 'g', steps: [5, 15, 30] }
+            ].map((macro) => (
+              <motion.div 
+                key={macro.key}
+                className="bg-gradient-to-br from-pink-900/15 via-pink-800/10 to-pink-700/5 backdrop-blur-sm border border-pink-700/20 rounded-lg p-3"
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.2 }}
+              >
+                <label className="text-pink-200 text-sm font-medium block mb-2">
+                  {macro.label}:
+                </label>
+                
+                {/* Current Value Display */}
+                <div className="flex items-center justify-center mb-3">
+                  <span className="text-2xl font-bold text-white">
+                    {dailyTotals[macro.key as keyof typeof dailyTotals] || '0'}
+                  </span>
+                  <span className="text-pink-300 text-sm ml-1">{macro.unit}</span>
+                </div>
+                
+                {/* Quick Add Buttons */}
+                <div className="flex gap-2 mb-4">
+                  {macro.steps.map((step) => (
+                    <Button
+                      key={step}
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        const current = parseInt(dailyTotals[macro.key as keyof typeof dailyTotals] || '0');
+                        setDailyTotals(prev => ({ 
+                          ...prev, 
+                          [macro.key]: (current + step).toString()
+                        }));
+                      }}
+                      className="flex-1 h-9 text-sm bg-pink-900/20 border-pink-600/40 text-pink-200 hover:bg-pink-800/30 hover:border-pink-500/60 transition-all duration-200 rounded-md"
+                    >
+                      +{step}
+                    </Button>
+                  ))}
+                </div>
+                
+                {/* Increment/Decrement Controls */}
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      const current = parseInt(dailyTotals[macro.key as keyof typeof dailyTotals] || '0');
+                      if (current > 0) {
+                        setDailyTotals(prev => ({ 
+                          ...prev, 
+                          [macro.key]: Math.max(0, current - 1).toString()
+                        }));
+                      }
+                    }}
+                    className="w-9 h-9 p-0 bg-pink-900/20 border-pink-600/40 text-pink-300 hover:bg-pink-800/30 hover:border-pink-500/60 rounded-md"
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                  
+                  <Input
+                    value={dailyTotals[macro.key as keyof typeof dailyTotals]}
+                    onChange={(e) => setDailyTotals(prev => ({ ...prev, [macro.key]: e.target.value }))}
+                    className="flex-1 h-9 text-center bg-pink-900/40 border-pink-600/50 text-white placeholder:text-pink-200/60 focus:border-pink-400 focus:ring-pink-400/20 rounded-md text-base font-medium"
+                    placeholder="0"
+                  />
+                  
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      const current = parseInt(dailyTotals[macro.key as keyof typeof dailyTotals] || '0');
+                      setDailyTotals(prev => ({ 
+                        ...prev, 
+                        [macro.key]: (current + 1).toString()
+                      }));
+                    }}
+                    className="w-9 h-9 p-0 bg-pink-900/20 border-pink-600/40 text-pink-300 hover:bg-pink-800/30 hover:border-pink-500/60 rounded-md"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </CardContent>
       </Card>
