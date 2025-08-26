@@ -62,17 +62,19 @@ export class ClerkUserSync {
     try {
       logger.debug('[CLERK-SYNC] Syncing user to database', userData.emailAddresses[0]?.emailAddress);
       
-      // TODO: Implement actual user sync with database
-      // This is a stub implementation to prevent runtime errors
-      return {
+      // For now, just return a mock user to prevent blocking the UI
+      // TODO: Implement proper Prisma user creation when server-side setup is complete
+      const mockUser = {
         id: userData.id,
-        email: userData.emailAddresses[0]?.emailAddress || '',
-        firstName: userData.firstName || '',
-        lastName: userData.lastName || '',
-        imageUrl: userData.imageUrl || '',
+        email: userData.emailAddresses[0]?.emailAddress || `${userData.id}@clerk.com`,
+        supabaseId: userData.id,
         createdAt: new Date(),
         updatedAt: new Date()
       };
+      
+      logger.debug('[CLERK-SYNC] Mock user created for development', mockUser.id);
+      return mockUser;
+      
     } catch (error) {
       logger.error('[CLERK-SYNC] Error syncing user:', error);
       return null;

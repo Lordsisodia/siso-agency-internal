@@ -94,20 +94,8 @@ export const AnimatedDateHeader: React.FC<AnimatedDateHeaderProps> = ({
     >
       {/* Top Row */}
       <div className="flex items-center justify-between mb-4">
-        {/* Left: Navigation Arrow + Level Circle + Date */}
+        {/* Left: Level Circle + Date with Navigation */}
         <div className="flex items-center gap-4">
-          {/* Previous Date Button */}
-          {onPreviousDate && (
-            <motion.button
-              onClick={onPreviousDate}
-              className="w-12 h-12 bg-orange-600/80 hover:bg-orange-500 rounded-full flex items-center justify-center transition-colors group border-2 border-orange-400/50 shadow-lg"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              style={{ zIndex: 10 }}
-            >
-              <ChevronLeft className="h-6 w-6 text-white font-bold" />
-            </motion.button>
-          )}
           <motion.div
             className="relative"
             initial={{ scale: 0, rotate: -180 }}
@@ -121,46 +109,60 @@ export const AnimatedDateHeader: React.FC<AnimatedDateHeaderProps> = ({
             <div className="absolute inset-0 bg-orange-400/30 rounded-full blur-md animate-pulse" />
           </motion.div>
           
-          <div>
-            <AnimatePresence mode="wait">
-              <motion.h1
-                key={dateInfo.relativeDay}
-                className="text-2xl font-bold text-white mb-1"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-                transition={{ duration: 0.4 }}
+          <div className="flex items-center gap-3">
+            {/* Previous Date Button - Small and subtle */}
+            {onPreviousDate && (
+              <motion.button
+                onClick={onPreviousDate}
+                className="w-6 h-6 text-gray-400 hover:text-white transition-colors"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
               >
-                {dateInfo.relativeDay}
-              </motion.h1>
-            </AnimatePresence>
+                <ChevronLeft className="h-4 w-4" />
+              </motion.button>
+            )}
             
-            <motion.p
-              className="text-gray-400 text-sm flex items-center gap-1"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-            >
-              <Calendar className="h-3 w-3" />
-              {dateInfo.formattedDate}
-            </motion.p>
+            <div>
+              <AnimatePresence mode="wait">
+                <motion.h1
+                  key={dateInfo.relativeDay}
+                  className="text-2xl font-bold text-white mb-1"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  {dateInfo.relativeDay}
+                </motion.h1>
+              </AnimatePresence>
+              
+              <motion.p
+                className="text-gray-400 text-sm flex items-center gap-1"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+              >
+                <Calendar className="h-3 w-3" />
+                {dateInfo.formattedDate}
+              </motion.p>
+            </div>
+            
+            {/* Next Date Button - Small and subtle */}
+            {onNextDate && (
+              <motion.button
+                onClick={onNextDate}
+                className="w-6 h-6 text-gray-400 hover:text-white transition-colors"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </motion.button>
+            )}
           </div>
         </div>
 
-        {/* Right: Stats + Navigation */}
+        {/* Right: Stats */}
         <div className="flex items-center gap-6">
-          {/* Next Date Button */}
-          {onNextDate && (
-            <motion.button
-              onClick={onNextDate}
-              className="w-12 h-12 bg-orange-600/80 hover:bg-orange-500 rounded-full flex items-center justify-center transition-colors group border-2 border-orange-400/50 shadow-lg order-last"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              style={{ zIndex: 10 }}
-            >
-              <ChevronRight className="h-6 w-6 text-white font-bold" />
-            </motion.button>
-          )}
           {/* Streak */}
           <motion.div
             className="text-center"
@@ -172,7 +174,6 @@ export const AnimatedDateHeader: React.FC<AnimatedDateHeaderProps> = ({
               <Flame className="h-4 w-4" />
               <span className="font-bold">{streakDays}</span>
             </div>
-            <span className="text-xs text-gray-500">streak</span>
           </motion.div>
           
           {/* Badges */}
@@ -186,7 +187,6 @@ export const AnimatedDateHeader: React.FC<AnimatedDateHeaderProps> = ({
               <Trophy className="h-4 w-4" />
               <span className="font-bold">{badgeCount}</span>
             </div>
-            <span className="text-xs text-gray-500">badges</span>
           </motion.div>
         </div>
       </div>

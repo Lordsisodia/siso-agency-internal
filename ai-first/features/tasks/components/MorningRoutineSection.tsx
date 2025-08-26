@@ -36,7 +36,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
   } = useTaskDatabase({ selectedDate });
 
   const [wakeUpTime, setWakeUpTime] = useState<string>(() => {
-    const dateKey = format(selectedDate, 'yyyy-MM-dd');
+    const dateKey = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd');
     const saved = localStorage.getItem(`lifelock-${dateKey}-wakeUpTime`);
     return saved || '';
   });
@@ -53,15 +53,16 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
 
   // If no morning routine tasks exist, create default ones
   useEffect(() => {
-    if (morningRoutineTasks.length === 0 && !loading) {
+    if (morningRoutineTasks.length === 0 && !loading && selectedDate && !isNaN(selectedDate.getTime())) {
       const createDefaultTasks = async () => {
+        const formattedDate = format(selectedDate, 'yyyy-MM-dd');
         const defaultTasks = [
           {
             title: 'Wake Up',
             description: 'Start the day before midday to maximize productivity. Track your wake-up time.',
             workType: 'MORNING' as const,
             priority: 'HIGH' as const,
-            currentDate: format(selectedDate, 'yyyy-MM-dd'),
+            currentDate: formattedDate,
             timeEstimate: '5 min',
             estimatedDuration: 5,
             subtasks: []
@@ -71,7 +72,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
             description: 'Max rep push-ups (Target PB: 30) - Physical activation to wake up the body.',
             workType: 'MORNING' as const,
             priority: 'HIGH' as const,
-            currentDate: format(selectedDate, 'yyyy-MM-dd'),
+            currentDate: formattedDate,
             timeEstimate: '5 min',
             estimatedDuration: 5,
             subtasks: [
@@ -85,7 +86,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
             description: 'Cold shower to wake up - Personal hygiene and cleanliness.',
             workType: 'MORNING' as const,
             priority: 'HIGH' as const,
-            currentDate: format(selectedDate, 'yyyy-MM-dd'),
+            currentDate: formattedDate,
             timeEstimate: '25 min',
             estimatedDuration: 25,
             subtasks: [
@@ -99,7 +100,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
             description: 'Hydrate and fuel the body and mind.',
             workType: 'MORNING' as const,
             priority: 'MEDIUM' as const,
-            currentDate: format(selectedDate, 'yyyy-MM-dd'),
+            currentDate: formattedDate,
             timeEstimate: '5 min',
             estimatedDuration: 5,
             subtasks: [
@@ -113,7 +114,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
             description: 'Go through tasks, prioritize, and allocate time slots.',
             workType: 'MORNING' as const,
             priority: 'HIGH' as const,
-            currentDate: format(selectedDate, 'yyyy-MM-dd'),
+            currentDate: formattedDate,
             timeEstimate: '15 min',
             estimatedDuration: 15,
             subtasks: [
@@ -128,7 +129,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
             description: 'Meditate to set an innovative mindset for creating business value.',
             workType: 'MORNING' as const,
             priority: 'MEDIUM' as const,
-            currentDate: format(selectedDate, 'yyyy-MM-dd'),
+            currentDate: formattedDate,
             timeEstimate: '2 min',
             estimatedDuration: 2,
             subtasks: []
@@ -146,6 +147,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
 
   // Save wake-up time to localStorage
   useEffect(() => {
+    if (!selectedDate || isNaN(selectedDate.getTime())) return;
     const dateKey = format(selectedDate, 'yyyy-MM-dd');
     localStorage.setItem(`lifelock-${dateKey}-wakeUpTime`, wakeUpTime);
   }, [wakeUpTime, selectedDate]);

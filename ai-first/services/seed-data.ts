@@ -4,7 +4,22 @@
  * Creates sample tasks and data for testing the AI XP system
  */
 
-import { taskDatabaseService, CreateTaskInput } from './task-database-service';
+import { apiClient } from '@/services/api-client';
+
+export interface CreateTaskInput {
+  title: string;
+  description?: string;
+  workType: 'DEEP' | 'LIGHT' | 'MORNING';
+  priority: 'CRITICAL' | 'URGENT' | 'HIGH' | 'MEDIUM' | 'LOW';
+  currentDate: string;
+  originalDate?: string;
+  timeEstimate?: string;
+  estimatedDuration?: number;
+  subtasks?: Array<{
+    title: string;
+    workType: 'DEEP' | 'LIGHT' | 'MORNING';
+  }>;
+}
 
 export async function seedSampleTasks(userId: string, date: string) {
   const sampleTasks: CreateTaskInput[] = [
@@ -84,7 +99,10 @@ export async function seedSampleTasks(userId: string, date: string) {
   try {
     const createdTasks = [];
     for (const taskData of sampleTasks) {
-      const task = await taskDatabaseService.createTask(userId, taskData);
+      const task = await apiClient.createTask(userId, {
+        ...taskData,
+        originalDate: taskData.originalDate || taskData.currentDate
+      });
       createdTasks.push(task);
     }
 
@@ -109,7 +127,7 @@ export async function seedPersonalContext(userId: string) {
   };
 
   try {
-    await taskDatabaseService.updatePersonalContext(userId, defaultContext);
+    await apiClient.updatePersonalContext(userId, defaultContext);
     console.log('✅ Successfully seeded personal context');
     return defaultContext;
   } catch (error) {

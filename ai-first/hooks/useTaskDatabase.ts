@@ -7,9 +7,63 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useClerkUser } from '@/components/ClerkProvider';
-import { taskDatabaseService, TaskWithSubtasks, CreateTaskInput, PersonalContextData } from '../services/task-database-service';
+// Use real HTTP API client for database operations
+import { apiClient, CreateTaskInput, PersonalContextData } from '@/services/api-client';
 import { aiXPService, TaskAnalysis } from '../services/ai-xp-service';
 import { seedSampleTasks, seedPersonalContext } from '../services/seed-data';
+
+// Define TaskWithSubtasks interface locally since it's not exported from API
+export interface TaskWithSubtasks {
+  id: string;
+  title: string;
+  description?: string;
+  workType: 'DEEP' | 'LIGHT' | 'MORNING';
+  priority: 'CRITICAL' | 'URGENT' | 'HIGH' | 'MEDIUM' | 'LOW';
+  completed: boolean;
+  currentDate: string;
+  originalDate: string;
+  estimatedDuration?: number;
+  timeEstimate?: string;
+  rollovers: number;
+  tags: string[];
+  category?: string;
+  completedAt?: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+  // AI XP fields
+  xpReward?: number;
+  difficulty?: 'TRIVIAL' | 'EASY' | 'MODERATE' | 'HARD' | 'EXPERT';
+  aiAnalyzed: boolean;
+  aiReasoning?: string;
+  priorityRank?: number;
+  contextualBonus?: number;
+  complexity?: number;
+  learningValue?: number;
+  strategicImportance?: number;
+  confidence?: number;
+  analyzedAt?: Date;
+  subtasks: Array<{
+    id: string;
+    title: string;
+    completed: boolean;
+    workType: 'DEEP' | 'LIGHT' | 'MORNING';
+    createdAt: Date;
+    updatedAt: Date;
+    completedAt?: Date | null;
+    // AI XP fields for subtasks
+    xpReward?: number;
+    difficulty?: 'TRIVIAL' | 'EASY' | 'MODERATE' | 'HARD' | 'EXPERT';
+    aiAnalyzed: boolean;
+    aiReasoning?: string;
+    priorityRank?: number;
+    contextualBonus?: number;
+    complexity?: number;
+    learningValue?: number;
+    strategicImportance?: number;
+    confidence?: number;
+    analyzedAt?: Date;
+  }>;
+}
 
 export interface UseTaskDatabaseProps {
   selectedDate: Date;
@@ -26,15 +80,20 @@ export function useTaskDatabase({ selectedDate }: UseTaskDatabaseProps) {
 
   // Load tasks and personal context
   const loadTasks = useCallback(async () => {
-    if (!isSignedIn || !user?.id) return;
+    if (!isSignedIn || !user?.id) {
+      console.log('🔐 User not authenticated:', { isSignedIn, userId: user?.id });
+      return;
+    }
+    
+    console.log('📊 Loading tasks for user:', user.id);
     
     try {
       setLoading(true);
       setError(null);
       
       const [tasksData, contextData] = await Promise.all([
-        taskDatabaseService.getTasksForDate(user.id, dateString),
-        taskDatabaseService.getPersonalContext(user.id)
+        apiClient.getTasksForDate(user.id, dateString),
+        apiClient.getPersonalContext(user.id)
       ]);
       
       // If no tasks exist and we're in development, seed some sample data
@@ -71,15 +130,25 @@ export function useTaskDatabase({ selectedDate }: UseTaskDatabaseProps) {
 
   // Create new task
   const createTask = useCallback(async (input: CreateTaskInput) => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      console.error('❌ Cannot create task: User not authenticated');
+      setError('Cannot create task: User not authenticated');
+      return;
+    }
+    
+    console.log('➕ Creating task:', { title: input.title, userId: user.id });
     
     try {
-      const newTask = await taskDatabaseService.createTask(user.id, input);
+      const newTask = await apiClient.createTask(user.id, {
+        ...input,
+        originalDate: input.originalDate || input.currentDate
+      });
       setTasks(prev => [...prev, newTask]);
       console.log(`✅ Created task: ${newTask.title}`);
       return newTask;
     } catch (err) {
       console.error('❌ Failed to create task:', err);
+      setError(`Failed to create task: ${err instanceof Error ? err.message : 'Unknown error'}`);
       throw err;
     }
   }, [user?.id]);
@@ -87,12 +156,17 @@ export function useTaskDatabase({ selectedDate }: UseTaskDatabaseProps) {
   // Toggle task completion
   const toggleTaskCompletion = useCallback(async (taskId: string) => {
     const task = tasks.find(t => t.id === taskId);
-    if (!task) return;
+    if (!task) {
+      console.error('❌ Task not found for completion toggle:', taskId);
+      return;
+    }
 
     const newCompleted = !task.completed;
     
+    console.log('🔄 Toggling task completion:', { taskId, newCompleted, taskTitle: task.title });
+    
     try {
-      await taskDatabaseService.updateTaskCompletion(taskId, newCompleted);
+      await apiClient.updateTaskCompletion(taskId, newCompleted);
       
       setTasks(prev => prev.map(t => 
         t.id === taskId 
@@ -103,6 +177,7 @@ export function useTaskDatabase({ selectedDate }: UseTaskDatabaseProps) {
       console.log(`✅ Task ${newCompleted ? 'completed' : 'uncompleted'}: ${task.title}`);
     } catch (err) {
       console.error('❌ Failed to toggle task completion:', err);
+      setError(`Failed to ${newCompleted ? 'complete' : 'uncomplete'} task: ${err instanceof Error ? err.message : 'Unknown error'}`);
     }
   }, [tasks]);
 
@@ -115,7 +190,7 @@ export function useTaskDatabase({ selectedDate }: UseTaskDatabaseProps) {
     const newCompleted = !subtask.completed;
     
     try {
-      await taskDatabaseService.updateSubtaskCompletion(subtaskId, newCompleted);
+      await apiClient.updateSubtaskCompletion(subtaskId, newCompleted);
       
       setTasks(prev => prev.map(t => 
         t.id === taskId 
@@ -160,7 +235,8 @@ export function useTaskDatabase({ selectedDate }: UseTaskDatabaseProps) {
         }
       );
 
-      // Update database with analysis
+      // Update database with analysis - using direct service call for AI data
+      const { taskDatabaseService } = await import('../services/task-database-service-fixed');
       await taskDatabaseService.updateTaskAIAnalysis(taskId, analysis);
       
       // Update local state
@@ -218,7 +294,8 @@ export function useTaskDatabase({ selectedDate }: UseTaskDatabaseProps) {
         }
       );
 
-      // Update database with analysis
+      // Update database with analysis - using direct service call for AI data  
+      const { taskDatabaseService } = await import('../services/task-database-service-fixed');
       await taskDatabaseService.updateSubtaskAIAnalysis(subtaskId, analysis);
       
       // Update local state
@@ -262,7 +339,7 @@ export function useTaskDatabase({ selectedDate }: UseTaskDatabaseProps) {
     if (!user?.id) return;
     
     try {
-      await taskDatabaseService.updatePersonalContext(user.id, context);
+      await apiClient.updatePersonalContext(user.id, context);
       setPersonalContext(context);
       console.log('✅ Personal context updated');
     } catch (err) {
@@ -275,7 +352,7 @@ export function useTaskDatabase({ selectedDate }: UseTaskDatabaseProps) {
     if (!user?.id) return;
     
     try {
-      const newSubtask = await taskDatabaseService.addSubtask(taskId, {
+      const newSubtask = await apiClient.addSubtask(taskId, {
         title,
         workType: 'LIGHT'
       });
@@ -296,7 +373,7 @@ export function useTaskDatabase({ selectedDate }: UseTaskDatabaseProps) {
   // Delete task
   const deleteTask = useCallback(async (taskId: string) => {
     try {
-      await taskDatabaseService.deleteTask(taskId);
+      await apiClient.deleteTask(taskId);
       setTasks(prev => prev.filter(t => t.id !== taskId));
       console.log('✅ Task deleted');
     } catch (err) {
