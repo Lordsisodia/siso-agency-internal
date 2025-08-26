@@ -149,14 +149,9 @@ const AdminLifeLock: React.FC = () => {
             case 'morning':
               return (
                 <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24">
-                  {/* Clean Animated Header */}
-                  <AnimatedDateHeader 
+                  {/* Clean Date Navigation */}
+                  <CleanDateNav 
                     selectedDate={selectedDate}
-                    earnedXP={100} // TODO: Calculate actual morning XP
-                    potentialXP={50} // TODO: Calculate potential morning XP
-                    currentLevel={2}
-                    streakDays={3} // TODO: Implement morning streak tracking
-                    badgeCount={1} // TODO: Implement morning badge system
                     className="mb-6"
                     onPreviousDate={() => navigateDay?.('prev')}
                     onNextDate={() => navigateDay?.('next')}
@@ -173,14 +168,9 @@ const AdminLifeLock: React.FC = () => {
             case 'focus':
               return (
                 <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24">
-                  {/* Clean Animated Header */}
-                  <AnimatedDateHeader 
+                  {/* Clean Date Navigation */}
+                  <CleanDateNav 
                     selectedDate={selectedDate}
-                    earnedXP={175} // TODO: Calculate actual focus XP
-                    potentialXP={85} // TODO: Calculate potential focus XP
-                    currentLevel={3}
-                    streakDays={7} // TODO: Implement focus streak tracking
-                    badgeCount={4} // TODO: Implement focus badge system
                     className="mb-6"
                     onPreviousDate={() => navigateDay?.('prev')}
                     onNextDate={() => navigateDay?.('next')}
@@ -202,14 +192,9 @@ const AdminLifeLock: React.FC = () => {
             case 'light':
               return (
                 <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24">
-                  {/* Clean Animated Header */}
-                  <AnimatedDateHeader 
+                  {/* Clean Date Navigation */}
+                  <CleanDateNav 
                     selectedDate={selectedDate}
-                    earnedXP={120} // TODO: Calculate actual light XP
-                    potentialXP={60} // TODO: Calculate potential light XP
-                    currentLevel={2}
-                    streakDays={4} // TODO: Implement light streak tracking
-                    badgeCount={2} // TODO: Implement light badge system
                     className="mb-6"
                     onPreviousDate={() => navigateDay?.('prev')}
                     onNextDate={() => navigateDay?.('next')}
@@ -229,14 +214,9 @@ const AdminLifeLock: React.FC = () => {
             case 'light-work':
               return (
                 <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24">
-                  {/* Clean Animated Header */}
-                  <AnimatedDateHeader 
+                  {/* Clean Date Navigation */}
+                  <CleanDateNav 
                     selectedDate={selectedDate}
-                    earnedXP={140} // TODO: Calculate actual light-work XP
-                    potentialXP={70} // TODO: Calculate potential light-work XP
-                    currentLevel={2}
-                    streakDays={6} // TODO: Implement light-work streak tracking
-                    badgeCount={3} // TODO: Implement light-work badge system
                     className="mb-6"
                     onPreviousDate={() => navigateDay?.('prev')}
                     onNextDate={() => navigateDay?.('next')}
@@ -253,14 +233,9 @@ const AdminLifeLock: React.FC = () => {
             case 'work':
               return (
                 <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24">
-                  {/* Clean Animated Header */}
-                  <AnimatedDateHeader 
+                  {/* Clean Date Navigation */}
+                  <CleanDateNav 
                     selectedDate={selectedDate}
-                    earnedXP={150} // TODO: Calculate actual work XP
-                    potentialXP={75} // TODO: Calculate potential work XP
-                    currentLevel={2}
-                    streakDays={5} // TODO: Implement work streak tracking
-                    badgeCount={2} // TODO: Implement work badge system
                     className="mb-6"
                     onPreviousDate={() => navigateDay?.('prev')}
                     onNextDate={() => navigateDay?.('next')}
@@ -275,14 +250,9 @@ const AdminLifeLock: React.FC = () => {
             case 'wellness':
               return (
                 <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24">
-                  {/* Clean Animated Header */}
-                  <AnimatedDateHeader 
+                  {/* Clean Date Navigation */}
+                  <CleanDateNav 
                     selectedDate={selectedDate}
-                    earnedXP={125} // TODO: Calculate actual wellness XP
-                    potentialXP={75} // TODO: Calculate potential wellness XP
-                    currentLevel={2}
-                    streakDays={7} // TODO: Implement wellness streak tracking
-                    badgeCount={3} // TODO: Implement wellness badge system
                     className="mb-6"
                     onPreviousDate={() => navigateDay?.('prev')}
                     onNextDate={() => navigateDay?.('next')}
@@ -298,14 +268,9 @@ const AdminLifeLock: React.FC = () => {
             case 'timebox':
               return (
                 <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24">
-                  {/* Clean Animated Header */}
-                  <AnimatedDateHeader 
+                  {/* Clean Date Navigation */}
+                  <CleanDateNav 
                     selectedDate={selectedDate}
-                    earnedXP={200} // TODO: Calculate actual timebox XP
-                    potentialXP={100} // TODO: Calculate potential timebox XP
-                    currentLevel={3}
-                    streakDays={12} // TODO: Implement timebox streak tracking
-                    badgeCount={4} // TODO: Implement timebox badge system
                     className="mb-6"
                     onPreviousDate={() => navigateDay?.('prev')}
                     onNextDate={() => navigateDay?.('next')}
@@ -320,14 +285,9 @@ const AdminLifeLock: React.FC = () => {
             case 'checkout':
               return (
                 <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24">
-                  {/* Clean Animated Header */}
-                  <AnimatedDateHeader 
+                  {/* Clean Date Navigation */}
+                  <CleanDateNav 
                     selectedDate={selectedDate}
-                    earnedXP={180} // TODO: Calculate actual checkout XP
-                    potentialXP={60} // TODO: Calculate potential checkout XP
-                    currentLevel={2}
-                    streakDays={8} // TODO: Implement checkout streak tracking
-                    badgeCount={3} // TODO: Implement checkout badge system
                     className="mb-6"
                     onPreviousDate={() => navigateDay?.('prev')}
                     onNextDate={() => navigateDay?.('next')}
@@ -342,15 +302,10 @@ const AdminLifeLock: React.FC = () => {
             case 'ai-chat':
               return (
                 <div className="relative h-screen bg-gradient-to-br from-black via-gray-900 to-black overflow-hidden">
-                  {/* Clean Animated Header */}
+                  {/* Clean Date Navigation */}
                   <div className="p-4">
-                    <AnimatedDateHeader 
+                    <CleanDateNav 
                       selectedDate={selectedDate}
-                      earnedXP={90} // TODO: Calculate actual ai-chat XP
-                      potentialXP={40} // TODO: Calculate potential ai-chat XP
-                      currentLevel={2}
-                      streakDays={2} // TODO: Implement ai-chat streak tracking
-                      badgeCount={1} // TODO: Implement ai-chat badge system
                       className="mb-6"
                       onPreviousDate={() => navigateDay?.('prev')}
                       onNextDate={() => navigateDay?.('next')}
