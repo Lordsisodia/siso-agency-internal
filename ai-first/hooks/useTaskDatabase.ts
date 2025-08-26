@@ -381,6 +381,18 @@ export function useTaskDatabase({ selectedDate }: UseTaskDatabaseProps) {
     }
   }, []);
 
+  const updateTaskTitle = useCallback(async (taskId: string, title: string) => {
+    if (!user?.id) return;
+    
+    try {
+      await apiClient.updateTaskTitle(taskId, title);
+      // Reload tasks to get updated data
+      await loadTasks();
+    } catch (err) {
+      console.error('❌ Failed to update task title:', err);
+    }
+  }, [loadTasks, user?.id]);
+
   return {
     tasks,
     loading,
@@ -396,6 +408,7 @@ export function useTaskDatabase({ selectedDate }: UseTaskDatabaseProps) {
     updatePersonalContext,
     addSubtask,
     deleteTask,
+    updateTaskTitle,
     
     // Utils
     reload: loadTasks

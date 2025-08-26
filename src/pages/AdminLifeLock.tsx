@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { AdminLayout } from '@/components/admin/layout/AdminLayout';
 import { format, addWeeks, getYear } from 'date-fns';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useClerkUser } from '@/components/ClerkProvider';
 import { ThoughtDumpResults } from '@/ai-first/features/tasks/ui/ThoughtDumpResults';
 import { EisenhowerMatrixModal } from '@/ai-first/features/tasks/ui/EisenhowerMatrixModal';
@@ -29,6 +29,7 @@ import { TabId, validateTabHandler, assertExhaustive, isValidTabId } from '@/ai-
 const AdminLifeLock: React.FC = () => {
   const navigate = useNavigate();
   const { date } = useParams<{ date: string }>();
+  const [searchParams] = useSearchParams();
   const { isSignedIn, isLoaded } = useClerkUser();
 
   // DEVELOPMENT VALIDATION: Check that all tabs are handled (only runs once in dev)
@@ -44,10 +45,23 @@ const AdminLifeLock: React.FC = () => {
     }
   }, []);
   
-  // Parse date from URL or default to today - memoized to prevent infinite re-renders
+  // Parse date from URL params or search params, or default to today
   const selectedDate = useMemo(() => {
-    return date ? new Date(date) : new Date();
-  }, [date]);
+    // First try URL path parameter (for day routes like /admin/lifelock/day/2025-08-26)
+    if (date) {
+      console.log('📅 Using URL path date:', date);
+      return new Date(date);
+    }
+    // Then try search parameter (for main routes like /admin/lifelock?date=2025-08-26)
+    const dateParam = searchParams.get('date');
+    if (dateParam) {
+      console.log('📅 Using search param date:', dateParam);
+      return new Date(dateParam);
+    }
+    // Default to today
+    console.log('📅 Using default date (today)');
+    return new Date();
+  }, [date, searchParams]);
   
   // Use custom hook for all LifeLock data and actions
   const {
@@ -78,7 +92,13 @@ const AdminLifeLock: React.FC = () => {
   const handleDateChange = (newDate: Date) => {
     // Stay on the same route, just update the date parameter
     const currentTab = new URLSearchParams(window.location.search).get('tab') || 'morning';
-    navigate(`/admin/lifelock?tab=${currentTab}&date=${format(newDate, 'yyyy-MM-dd')}`);
+    const newDateStr = format(newDate, 'yyyy-MM-dd');
+    console.log('🔄 Date navigation:', {
+      from: format(selectedDate, 'yyyy-MM-dd'),
+      to: newDateStr,
+      tab: currentTab
+    });
+    navigate(`/admin/lifelock?tab=${currentTab}&date=${newDateStr}`);
   };
   
   // Date navigation - arrows navigate between different days
