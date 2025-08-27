@@ -22,17 +22,18 @@ export default async function handler(req: any, res: any) {
         return res.status(200).json({ success: true, data: context });
 
       case 'PUT':
-        // PUT /api/personal-context - Update personal context
-        const { userId: updateUserId, ...contextData } = body;
+      case 'POST':
+        // PUT/POST /api/personal-context - Update personal context
+        const { userId: updateUserId, contextData } = body;
         if (!updateUserId) {
           return res.status(400).json({ error: 'userId is required' });
         }
         
-        await taskDatabaseService.updatePersonalContext(updateUserId, contextData);
+        await taskDatabaseService.updatePersonalContext(updateUserId, contextData || {});
         return res.status(200).json({ success: true });
 
       default:
-        res.setHeader('Allow', ['GET', 'PUT']);
+        res.setHeader('Allow', ['GET', 'PUT', 'POST']);
         return res.status(405).end(`Method ${method} Not Allowed`);
     }
   } catch (error) {
