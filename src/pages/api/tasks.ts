@@ -23,9 +23,9 @@ export default async function handler(req: any, res: any) {
 
       case 'POST':
         // POST /api/tasks - Create new task
-        const { userId: createUserId, ...taskData } = body;
-        if (!createUserId) {
-          return res.status(400).json({ error: 'userId is required' });
+        const { userId: createUserId, taskData } = body;
+        if (!createUserId || !taskData) {
+          return res.status(400).json({ error: 'userId and taskData are required' });
         }
         
         const newTask = await taskDatabaseService.createTask(createUserId, taskData);
