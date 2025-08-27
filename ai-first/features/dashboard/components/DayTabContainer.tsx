@@ -16,6 +16,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { theme } from '@/styles/theme';
+import { useImplementation } from '@/migration/feature-flags';
 
 // Tab components
 import { MorningRoutineTab } from './MorningRoutineTab';
@@ -223,10 +225,22 @@ export const DayTabContainer: React.FC<DayTabContainerProps> = (props) => {
   const isToday = format(props.selectedDate, 'yyyy-MM-dd') === format(today, 'yyyy-MM-dd');
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-black via-gray-900 to-black">
+    <div className={useImplementation(
+      'useUnifiedThemeSystem',
+      // NEW: Unified theme system
+      `flex flex-col h-screen ${theme.gradients.diagonal.grayToBlack}`,
+      // OLD: Original classes (fallback for safety)
+      'flex flex-col h-screen bg-gradient-to-br from-black via-gray-900 to-black'
+    )}>
       {/* Day Navigation Header */}
       <motion.div 
-        className="flex-shrink-0 bg-gradient-to-r from-gray-900/95 via-gray-800/90 to-gray-900/95 backdrop-blur-xl border-b border-orange-400/20 px-4 py-3"
+        className={useImplementation(
+          'useUnifiedThemeSystem',
+          // NEW: Could extend theme for nav bar pattern
+          'flex-shrink-0 backdrop-blur-xl border-b border-orange-400/20 px-4 py-3 bg-gradient-to-r from-gray-900/95 via-gray-800/90 to-gray-900/95',
+          // OLD: Original classes (fallback for safety)
+          'flex-shrink-0 bg-gradient-to-r from-gray-900/95 via-gray-800/90 to-gray-900/95 backdrop-blur-xl border-b border-orange-400/20 px-4 py-3'
+        )}
         drag={isMobile ? "x" : false}
         dragConstraints={{ left: 0, right: 0 }}
         dragElastic={0.2}
@@ -303,7 +317,13 @@ export const DayTabContainer: React.FC<DayTabContainerProps> = (props) => {
       </div>
 
       {/* Bottom Tab Navigation */}
-      <div className="flex-shrink-0 bg-gradient-to-r from-gray-900/95 via-gray-800/90 to-gray-900/95 backdrop-blur-xl border-t border-orange-400/20 px-4 py-3">
+      <div className={useImplementation(
+        'useUnifiedThemeSystem',
+        // NEW: Reuse same nav bar pattern
+        'flex-shrink-0 backdrop-blur-xl border-t border-orange-400/20 px-4 py-3 bg-gradient-to-r from-gray-900/95 via-gray-800/90 to-gray-900/95',
+        // OLD: Original classes (fallback for safety)
+        'flex-shrink-0 bg-gradient-to-r from-gray-900/95 via-gray-800/90 to-gray-900/95 backdrop-blur-xl border-t border-orange-400/20 px-4 py-3'
+      )}>
         {/* Mobile: Bottom Tab Bar */}
         {isMobile ? (
           <div className="flex justify-around items-center space-x-1">

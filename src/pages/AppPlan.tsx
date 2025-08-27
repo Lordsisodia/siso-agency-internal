@@ -16,6 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { LoadingState } from '@/components/ui/loading-state';
 import { useImplementation } from '@/migration/feature-flags';
+import { theme } from '@/styles/theme';
 
 // Helper functions for enhanced feature display
 function getFeatureDescription(featureName: string, companyName: string, priority: string): string {
@@ -295,7 +296,13 @@ export default function AppPlan() {
   if (isViewingSharedPlan && savedPlan) {
     return (
       <MainLayout>
-        <div className="min-h-screen bg-black">
+        <div className={useImplementation(
+          'useUnifiedThemeSystem',
+          // NEW: Unified theme system
+          `min-h-screen ${theme.backgrounds.solid.black}`,
+          // OLD: Original classes (fallback for safety)
+          'min-h-screen bg-black'
+        )}>
           <div className="container max-w-6xl py-8 space-y-8">
             {/* Header Section */}
             <div className="flex items-center gap-4 mb-8">
@@ -303,7 +310,13 @@ export default function AppPlan() {
                 variant="ghost" 
                 size="icon" 
                 onClick={() => navigate(-1)}
-                className="rounded-full bg-gray-900 hover:bg-gray-800 text-white"
+                className={useImplementation(
+                  'useUnifiedThemeSystem',
+                  // NEW: Use theme backgrounds
+                  `rounded-full text-white ${theme.backgrounds.solid.gray900} hover:${theme.backgrounds.solid.gray800}`,
+                  // OLD: Original classes (fallback for safety)
+                  'rounded-full bg-gray-900 hover:bg-gray-800 text-white'
+                )}
               >
                 <ArrowLeft className="h-5 w-5" />
               </Button>
@@ -323,7 +336,13 @@ export default function AppPlan() {
               {/* Main Features Section */}
               <div className="lg:col-span-3 space-y-8">
                 {/* Executive Summary Section */}
-                <Card className="bg-black border-gray-800 mb-6">
+                <Card className={useImplementation(
+                  'useUnifiedThemeSystem',
+                  // NEW: Use theme backgrounds
+                  `mb-6 ${theme.backgrounds.solid.black} border-gray-800`,
+                  // OLD: Original classes (fallback for safety)
+                  'bg-black border-gray-800 mb-6'
+                )}>
                   <CardHeader>
                     <CardTitle className="text-white text-2xl flex items-center gap-3">
                       <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-lg p-3">
@@ -333,7 +352,13 @@ export default function AppPlan() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="bg-gray-900/50 rounded-lg p-6 border border-gray-700">
+                    <div className={useImplementation(
+                      'useUnifiedThemeSystem',
+                      // NEW: Use theme opacity backgrounds
+                      `rounded-lg p-6 border border-gray-700 ${theme.backgrounds.opacity.gray900Light}`,
+                      // OLD: Original classes (fallback for safety)
+                      'bg-gray-900/50 rounded-lg p-6 border border-gray-700'
+                    )}>
                       <h4 className="text-lg font-semibold text-white mb-3">Understanding {savedPlan.company_name}</h4>
                       <p className="text-gray-300 leading-relaxed mb-4">
                         {savedPlan.company_name} operates in the dynamic sector of {savedPlan.description}. 
