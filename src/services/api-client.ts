@@ -57,7 +57,7 @@ class APIClient {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ userId, taskData })
+      body: JSON.stringify({ userId, ...taskData })
     });
     
     const result = await response.json();
@@ -195,7 +195,7 @@ class APIClient {
    * Get personal context for user
    */
   async getPersonalContext(userId: string) {
-    const response = await fetch(createApiUrl(`/api/personal-context/${userId}`));
+    const response = await fetch(createApiUrl(`/api/personal-context?userId=${userId}`));
     const result = await response.json();
     
     if (!result.success) {
@@ -210,11 +210,11 @@ class APIClient {
    */
   async updatePersonalContext(userId: string, contextData: PersonalContextData) {
     const response = await fetch(createApiUrl('/api/personal-context'), {
-      method: 'POST',
+      method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ userId, contextData })
+      body: JSON.stringify({ userId, ...contextData })
     });
     
     const result = await response.json();
