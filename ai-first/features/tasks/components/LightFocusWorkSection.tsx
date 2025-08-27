@@ -113,31 +113,8 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
     return 0;
   });
 
-  // Helper function to load expanded tasks from localStorage
-  const loadExpandedTasks = (): Set<string> => {
-    try {
-      const saved = localStorage.getItem('lightwork-expanded-tasks');
-      if (saved) {
-        const taskIds = JSON.parse(saved);
-        return new Set(taskIds);
-      }
-    } catch (error) {
-      console.error('Failed to load expanded tasks from localStorage:', error);
-    }
-    return new Set();
-  };
-
-  // Helper function to save expanded tasks to localStorage
-  const saveExpandedTasks = (expandedSet: Set<string>) => {
-    try {
-      const taskIds = Array.from(expandedSet);
-      localStorage.setItem('lightwork-expanded-tasks', JSON.stringify(taskIds));
-    } catch (error) {
-      console.error('Failed to save expanded tasks to localStorage:', error);
-    }
-  };
-
-  const [expandedTasks, setExpandedTasks] = useState<Set<string>>(loadExpandedTasks);
+  // All tasks are always expanded - no need for localStorage management
+  const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set());
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [editingSubtaskId, setEditingSubtaskId] = useState<string | null>(null);
   const [addingSubtaskToId, setAddingSubtaskToId] = useState<string | null>(null);
@@ -159,11 +136,7 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
   const startAddingSubtask = (taskId: string) => {
     setAddingSubtaskToId(taskId);
     setNewSubtaskTitle('');
-    // Auto-expand the task to show subtasks
-    const newExpanded = new Set(expandedTasks);
-    newExpanded.add(taskId);
-    setExpandedTasks(newExpanded);
-    saveExpandedTasks(newExpanded);
+    // Tasks are always expanded, no need to manage expansion
   };
 
   const saveNewSubtask = async (taskId: string) => {
@@ -205,16 +178,10 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
     }
   };
 
-  const toggleExpanded = (taskId: string) => {
-    const newExpanded = new Set(expandedTasks);
-    if (newExpanded.has(taskId)) {
-      newExpanded.delete(taskId);
-    } else {
-      newExpanded.add(taskId);
-    }
-    setExpandedTasks(newExpanded);
-    saveExpandedTasks(newExpanded);
-  };
+  // Remove toggle functionality - tasks are always expanded
+  // const toggleExpanded = (taskId: string) => {
+  //   // No longer needed
+  // };
 
   const startEditingTask = (taskId: string, currentTitle: string) => {
     setEditingTaskId(taskId);
@@ -544,7 +511,7 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
             {/* Task Blocks */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-1">
               {tasks.map((task) => {
-                const isExpanded = expandedTasks.has(task.id);
+                const isExpanded = true; // Always expanded
                 return (
                   <div
                     key={task.id}
@@ -560,7 +527,7 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
                   >
                     {/* Task Header */}
                     <div className="space-y-2">
-                      {/* Main task row */}
+                      {/* Main task row with checkbox, title, and delete button */}
                       <div className="flex items-center gap-3">
                         <button
                           onClick={(e) => {
@@ -588,155 +555,35 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
                               className="w-full text-base font-medium bg-gray-700/50 border border-green-500 rounded px-3 py-2 text-white focus:outline-none focus:ring-1 focus:ring-green-500"
                             />
                           ) : (
-                            <div className="flex items-center gap-2">
-                              <h3 
-                                className={`text-base font-medium leading-tight cursor-pointer hover:text-green-300 transition-colors ${
-                                  task.completed ? 'line-through text-green-300/80' : ''
-                                }`}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  startEditingTask(task.id, task.title);
-                                }}
-                                title="Click to edit"
-                              >
-                                {task.title}
-                              </h3>
-                              {task.aiAnalyzed && task.xpReward && (
-                                <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
-                                  task.difficulty === 'expert' ? 'bg-red-900/40 text-red-300' :
-                                  task.difficulty === 'hard' ? 'bg-orange-900/40 text-orange-300' :
-                                  task.difficulty === 'moderate' ? 'bg-yellow-900/40 text-yellow-300' :
-                                  task.difficulty === 'easy' ? 'bg-blue-900/40 text-blue-300' :
-                                  'bg-gray-900/40 text-gray-300'
-                                }`}>
-                                  <Zap className="h-2.5 w-2.5" />
-                                  {task.xpReward}
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      
-                      {/* Action row */}
-                      <div className="flex items-center justify-between pl-8">
-                        <div className="flex items-center gap-3 text-xs">
-                          <div className="flex items-center gap-1 text-gray-400">
-                            <Clock className="h-3 w-3" />
-                            <span>{task.timeEstimate}</span>
-                            {task.aiAnalyzed && (task as any).aiTimeEstimate && (
-                              <div className="flex items-center gap-1 text-xs text-blue-300">
-                                <span>•</span>
-                                <span title={`AI Estimate: ${(task as any).aiTimeEstimate.min}-${(task as any).aiTimeEstimate.max} min (${Math.round((task as any).aiTimeEstimate.confidence * 100)}% confidence)`}>
-                                  AI: {(task as any).aiTimeEstimate.most_likely}min
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                          {task.aiAnalyzed && task.priorityRank && (
-                            <div className={`flex items-center justify-center w-4 h-4 rounded-full text-xs font-bold ${
-                              clampPriorityRank(task.priorityRank) === 5 ? 'bg-red-500 text-white' :
-                              clampPriorityRank(task.priorityRank) === 4 ? 'bg-orange-500 text-white' :
-                              clampPriorityRank(task.priorityRank) === 3 ? 'bg-yellow-500 text-black' :
-                              clampPriorityRank(task.priorityRank) === 2 ? 'bg-blue-500 text-white' :
-                              'bg-gray-500 text-white'
-                            }`}>
-                              {clampPriorityRank(task.priorityRank)}
-                            </div>
+                            <h3 
+                              className={`text-base font-medium leading-tight cursor-pointer hover:text-green-300 transition-colors ${
+                                task.completed ? 'line-through text-green-300/80' : ''
+                              }`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                startEditingTask(task.id, task.title);
+                              }}
+                              title="Click to edit"
+                            >
+                              {task.title}
+                            </h3>
                           )}
                         </div>
                         
-                        <div className="flex items-center gap-1">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              startAddingSubtask(task.id);
-                            }}
-                            className="p-1 hover:bg-gray-700/50 rounded text-gray-400 hover:text-green-400 transition-colors"
-                            title="Add subtask"
-                          >
-                            <Plus className="h-3 w-3" />
-                          </button>
-                          
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              analyzeTaskWithAI(task.id);
-                            }}
-                            className={`p-1 hover:bg-gray-700/50 rounded transition-colors ${
-                              task.aiAnalyzed 
-                                ? 'text-yellow-400 hover:text-yellow-300' 
-                                : 'text-gray-400 hover:text-yellow-400'
-                            }`}
-                            title={task.aiAnalyzed ? `AI Analyzed: ${task.xpReward} XP (${task.difficulty})` : 'Analyze with AI for smart XP allocation'}
-                          >
-                            {task.aiAnalyzed ? (
-                              <Zap className="h-3 w-3" />
-                            ) : (
-                              <Brain className="h-3 w-3" />
-                            )}
-                          </button>
-                          
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              task.thoughtDump ? removeThoughtDump(task.id) : startThoughtDump(task.id);
-                            }}
-                            className={`p-1 hover:bg-gray-700/50 rounded transition-colors ${
-                              task.thoughtDump 
-                                ? 'text-blue-400 hover:text-blue-300' 
-                                : recordingTaskId === task.id
-                                  ? 'text-red-400 animate-pulse'
-                                  : 'text-gray-400 hover:text-blue-400'
-                            }`}
-                            title={task.thoughtDump ? 'View/Remove thought dump' : 'Add thought dump (2min voice note)'}
-                          >
-                            {recordingTaskId === task.id ? (
-                              <MicOff className="h-3 w-3" />
-                            ) : (
-                              <Mic className="h-3 w-3" />
-                            )}
-                          </button>
-                          
-                          {task.subtasks.length > 0 && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleExpanded(task.id);
-                              }}
-                              className="p-1 hover:bg-gray-700/50 rounded text-gray-400 hover:text-white transition-colors"
-                            >
-                              {isExpanded ? (
-                                <ChevronDown className="h-3 w-3" />
-                              ) : (
-                                <ChevronRight className="h-3 w-3" />
-                              )}
-                            </button>
-                          )}
-                          
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handlePushToAnotherDay(task.id);
-                            }}
-                            className="p-1 hover:bg-blue-900/50 rounded text-gray-400 hover:text-blue-400 transition-colors"
-                            title="Push to another day"
-                          >
-                            <Calendar className="h-3 w-3" />
-                          </button>
-                          
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteTask(task.id);
-                            }}
-                            className="p-1 hover:bg-red-900/50 rounded text-gray-400 hover:text-red-400 transition-colors"
-                            title="Delete task"
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
-                        </div>
+                        {/* Delete button in top right */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteTask(task.id);
+                          }}
+                          className="flex-shrink-0 p-1 hover:bg-red-900/50 rounded text-gray-400 hover:text-red-400 transition-colors"
+                          title="Delete task"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
                       </div>
+                      
+                      
                     </div>
 
                     {/* Thought Dump Display */}
@@ -773,7 +620,7 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
                     )}
 
                     {/* Subtasks */}
-                    {(task.subtasks.length > 0 || addingSubtaskToId === task.id) && isExpanded && (
+                    {isExpanded && (
                       <div className="mt-4 pt-3 border-t border-current/20 space-y-2">
                         {task.subtasks.map((subtask) => (
                           <div
@@ -804,9 +651,9 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
                                 className="flex-1 text-sm bg-gray-700/50 border border-green-500 rounded px-2 py-1 text-white focus:outline-none focus:ring-1 focus:ring-green-500"
                               />
                             ) : (
-                              <div className="flex items-center gap-2 flex-1">
+                              <div className="flex-1">
                                 <span 
-                                  className={`text-sm cursor-pointer hover:text-green-300 transition-colors ${
+                                  className={`text-sm cursor-pointer hover:text-green-300 transition-colors block mb-2 ${
                                     subtask.completed ? 'line-through text-gray-400' : ''
                                   }`}
                                   onClick={(e) => {
@@ -817,16 +664,60 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
                                 >
                                   {subtask.title}
                                 </span>
-                                {subtask.aiAnalyzed && subtask.xpReward && (
-                                  <div className={`flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-medium ${
-                                    subtask.difficulty === 'expert' ? 'bg-red-900/40 text-red-300' :
-                                    subtask.difficulty === 'hard' ? 'bg-orange-900/40 text-orange-300' :
-                                    subtask.difficulty === 'moderate' ? 'bg-yellow-900/40 text-yellow-300' :
-                                    subtask.difficulty === 'easy' ? 'bg-blue-900/40 text-blue-300' :
-                                    'bg-gray-900/40 text-gray-300'
-                                  }`}>
-                                    <Zap className="h-2 w-2" />
-                                    {subtask.xpReward}
+                                
+                                {/* Subtask AI Analysis - Clean bars only */}
+                                {subtask.aiAnalyzed && (
+                                  <div className="mt-1 space-y-1.5 pl-2">
+                                    {subtask.priorityRank && (
+                                      <div>
+                                        <div className="flex items-center justify-between mb-0.5">
+                                          <span className="text-xs text-gray-400">Importance</span>
+                                          <span className="text-xs text-gray-400">{clampPriorityRank(subtask.priorityRank)}/5</span>
+                                        </div>
+                                        <div className="h-1 bg-gray-700/50 rounded-full overflow-hidden">
+                                          <div 
+                                            className={`h-full rounded-full transition-all duration-300 ${
+                                              clampPriorityRank(subtask.priorityRank) === 5 ? 'bg-gradient-to-r from-red-500 to-red-400' :
+                                              clampPriorityRank(subtask.priorityRank) === 4 ? 'bg-gradient-to-r from-orange-500 to-orange-400' :
+                                              clampPriorityRank(subtask.priorityRank) === 3 ? 'bg-gradient-to-r from-yellow-500 to-yellow-400' :
+                                              clampPriorityRank(subtask.priorityRank) === 2 ? 'bg-gradient-to-r from-blue-500 to-blue-400' :
+                                              'bg-gradient-to-r from-gray-500 to-gray-400'
+                                            }`}
+                                            style={{ width: `${(clampPriorityRank(subtask.priorityRank) / 5) * 100}%` }}
+                                          ></div>
+                                        </div>
+                                      </div>
+                                    )}
+                                    
+                                    {(subtask as any).complexity && (
+                                      <div>
+                                        <div className="flex items-center justify-between mb-0.5">
+                                          <span className="text-xs text-gray-400">Complexity</span>
+                                          <span className="text-xs text-gray-400">{Math.round(((subtask as any).complexity / 10) * 5)}/5</span>
+                                        </div>
+                                        <div className="h-1 bg-gray-700/50 rounded-full overflow-hidden">
+                                          <div 
+                                            className="h-full bg-gradient-to-r from-purple-500 to-purple-400 rounded-full transition-all duration-300"
+                                            style={{ width: `${((subtask as any).complexity / 10) * 100}%` }}
+                                          ></div>
+                                        </div>
+                                      </div>
+                                    )}
+                                    
+                                    {(subtask as any).learningValue && (
+                                      <div>
+                                        <div className="flex items-center justify-between mb-0.5">
+                                          <span className="text-xs text-gray-400">Learning</span>
+                                          <span className="text-xs text-gray-400">{Math.round(((subtask as any).learningValue / 10) * 5)}/5</span>
+                                        </div>
+                                        <div className="h-1 bg-gray-700/50 rounded-full overflow-hidden">
+                                          <div 
+                                            className="h-full bg-gradient-to-r from-green-500 to-green-400 rounded-full transition-all duration-300"
+                                            style={{ width: `${((subtask as any).learningValue / 10) * 100}%` }}
+                                          ></div>
+                                        </div>
+                                      </div>
+                                    )}
                                   </div>
                                 )}
                               </div>
@@ -850,23 +741,150 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
                             />
                           </div>
                         )}
+                        
+                        {/* Add Subtask Button - Always visible at bottom of subtasks */}
+                        {addingSubtaskToId !== task.id && (
+                          <div className="pl-6 mt-2">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                startAddingSubtask(task.id);
+                              }}
+                              className="flex items-center gap-1 px-2 py-1 text-xs text-gray-400 hover:text-green-400 hover:bg-gray-700/30 rounded transition-colors"
+                            >
+                              <Plus className="h-3 w-3" />
+                              Add Subtask
+                            </button>
+                          </div>
+                        )}
                       </div>
                     )}
                     
-                    {/* Task Footer */}
-                    {task.subtasks.length > 0 && (
-                      <div className="mt-4 pt-2 border-t border-current/10">
-                        <div className="flex items-center justify-between pl-8">
-                          <div className="flex items-center gap-1 text-xs text-gray-500">
-                            <Target className="h-3 w-3" />
-                            Light Work Session
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            {task.subtasks.filter(s => s.completed).length}/{task.subtasks.length} subtasks done
-                          </div>
+                    {/* Task Footer - Show subtask progress, action icons, and AI analysis bars */}
+                    <div className="mt-4 pt-2 border-t border-current/10">
+                      <div className="flex justify-between items-center mb-3">
+                        <div className="flex items-center gap-3">
+                          {task.subtasks.length > 0 && (
+                            <div className="text-xs text-gray-500">
+                              {task.subtasks.filter(s => s.completed).length}/{task.subtasks.length} subtasks completed
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Action icons in footer */}
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              analyzeTaskWithAI(task.id);
+                            }}
+                            className={`p-1.5 hover:bg-gray-700/50 rounded transition-colors ${
+                              task.aiAnalyzed 
+                                ? 'text-yellow-400 hover:text-yellow-300' 
+                                : 'text-gray-400 hover:text-yellow-400'
+                            }`}
+                            title={task.aiAnalyzed ? `AI Analyzed: ${task.xpReward} XP (${task.difficulty})` : 'Analyze with AI for smart XP allocation'}
+                          >
+                            {task.aiAnalyzed ? (
+                              <Zap className="h-4 w-4" />
+                            ) : (
+                              <Brain className="h-4 w-4" />
+                            )}
+                          </button>
+                          
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              task.thoughtDump ? removeThoughtDump(task.id) : startThoughtDump(task.id);
+                            }}
+                            className={`p-1.5 hover:bg-gray-700/50 rounded transition-colors ${
+                              task.thoughtDump 
+                                ? 'text-blue-400 hover:text-blue-300' 
+                                : recordingTaskId === task.id
+                                  ? 'text-red-400 animate-pulse'
+                                  : 'text-gray-400 hover:text-blue-400'
+                            }`}
+                            title={task.thoughtDump ? 'View/Remove thought dump' : 'Add thought dump (2min voice note)'}
+                          >
+                            {recordingTaskId === task.id ? (
+                              <MicOff className="h-4 w-4" />
+                            ) : (
+                              <Mic className="h-4 w-4" />
+                            )}
+                          </button>
+                          
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handlePushToAnotherDay(task.id);
+                            }}
+                            className="p-1.5 hover:bg-blue-900/50 rounded text-gray-400 hover:text-blue-400 transition-colors"
+                            title="Push to another day"
+                          >
+                            <Calendar className="h-4 w-4" />
+                          </button>
                         </div>
                       </div>
-                    )}
+                      
+                      {/* AI Analysis Bars - Moved to footer */}
+                      {task.aiAnalyzed && (
+                        <div className="space-y-2">
+                          {/* Priority/Importance Bar */}
+                          {task.priorityRank && (
+                            <div>
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="text-xs font-medium text-gray-300">Importance</span>
+                                <span className="text-xs text-gray-400">{clampPriorityRank(task.priorityRank)}/5</span>
+                              </div>
+                              <div className="h-1.5 bg-gray-700/50 rounded-full overflow-hidden">
+                                <div 
+                                  className={`h-full rounded-full transition-all duration-500 ${
+                                    clampPriorityRank(task.priorityRank) === 5 ? 'bg-gradient-to-r from-red-500 to-red-400' :
+                                    clampPriorityRank(task.priorityRank) === 4 ? 'bg-gradient-to-r from-orange-500 to-orange-400' :
+                                    clampPriorityRank(task.priorityRank) === 3 ? 'bg-gradient-to-r from-yellow-500 to-yellow-400' :
+                                    clampPriorityRank(task.priorityRank) === 2 ? 'bg-gradient-to-r from-blue-500 to-blue-400' :
+                                    'bg-gradient-to-r from-gray-500 to-gray-400'
+                                  }`}
+                                  style={{ width: `${(clampPriorityRank(task.priorityRank) / 5) * 100}%` }}
+                                ></div>
+                              </div>
+                            </div>
+                          )}
+                          
+                          {/* Complexity Bar */}
+                          {task.complexity && (
+                            <div>
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="text-xs font-medium text-gray-300">Complexity</span>
+                                <span className="text-xs text-gray-400">{Math.round((task.complexity / 10) * 5)}/5</span>
+                              </div>
+                              <div className="h-1.5 bg-gray-700/50 rounded-full overflow-hidden">
+                                <div 
+                                  className="h-full bg-gradient-to-r from-purple-500 to-purple-400 rounded-full transition-all duration-500"
+                                  style={{ width: `${(task.complexity / 10) * 100}%` }}
+                                ></div>
+                              </div>
+                            </div>
+                          )}
+                          
+                          {/* Learning Value Bar */}
+                          {task.learningValue && (
+                            <div>
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="text-xs font-medium text-gray-300">Learning Value</span>
+                                <span className="text-xs text-gray-400">{Math.round((task.learningValue / 10) * 5)}/5</span>
+                              </div>
+                              <div className="h-1.5 bg-gray-700/50 rounded-full overflow-hidden">
+                                <div 
+                                  className="h-full bg-gradient-to-r from-green-500 to-green-400 rounded-full transition-all duration-500"
+                                  style={{ width: `${(task.learningValue / 10) * 100}%` }}
+                                ></div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 );
               })}

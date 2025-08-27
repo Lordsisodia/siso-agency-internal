@@ -20,6 +20,9 @@ import { HomeWorkoutSection } from '@/ai-first/features/tasks/components/HomeWor
 import { HealthNonNegotiablesSection } from '@/ai-first/features/tasks/components/HealthNonNegotiablesSection';
 import { TimeboxSection } from '@/ai-first/features/tasks/components/TimeboxSection';
 import { useLifeLockData } from '@/hooks/useLifeLockData';
+import { useRefactoredLifeLockData } from '@/refactored/hooks/useRefactoredLifeLockData';
+import { LoadingState } from '@/components/ui/loading-state';
+import { useImplementation } from '@/migration/feature-flags';
 
 const AdminLifeLockDay: React.FC = () => {
   const navigate = useNavigate();
@@ -32,6 +35,15 @@ const AdminLifeLockDay: React.FC = () => {
   }, [date]);
   
   // Use custom hook for all LifeLock data and actions
+  const hookData = useImplementation(
+    'useRefactoredLifeLockHooks',
+    // NEW: Split focused hooks (226 lines → 6 focused hooks)
+    useRefactoredLifeLockData(selectedDate),
+    // OLD: Monolithic hook (fallback for safety)
+    useLifeLockData(selectedDate)
+  );
+
+  // Extract data with safe destructuring
   const {
     todayCard,
     weekCards,
@@ -50,7 +62,7 @@ const AdminLifeLockDay: React.FC = () => {
     setLastThoughtDumpResult,
     setShowEisenhowerModal,
     setEisenhowerResult
-  } = useLifeLockData(selectedDate);
+  } = hookData;
 
   // Navigation handlers
   const handleCardClick = (card: any) => {
@@ -73,7 +85,18 @@ const AdminLifeLockDay: React.FC = () => {
 
   // Loading and auth guards
   if (!isLoaded) {
-    return (
+    return useImplementation(
+      'useUnifiedLoadingState',
+      // NEW: Unified loading state (safer, consistent, reusable)
+      <AdminLayout>
+        <LoadingState 
+          message="Loading LifeLock Day..." 
+          variant="spinner"
+          size="lg"
+          className="h-screen"
+        />
+      </AdminLayout>,
+      // OLD: Original loading state (fallback for safety)
       <AdminLayout>
         <div className="flex items-center justify-center h-screen">
           <div className="text-white">Loading...</div>

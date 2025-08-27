@@ -364,12 +364,133 @@ app.patch('/api/subtasks/:subtaskId', async (req, res) => {
   }
 });
 
+// 🌅 MORNING ROUTINE TRACKING ENDPOINTS
+
+// Get morning routine for a specific date
+app.get('/api/morning-routine', async (req, res) => {
+  try {
+    const { userId, date } = req.query;
+    
+    if (!userId || !date) {
+      return res.status(400).json({ error: 'userId and date are required' });
+    }
+
+    let routine = await prisma.morningRoutineTracking.findUnique({
+      where: { 
+        userId_date: {
+          userId: userId,
+          date: date
+        }
+      }
+    });
+
+    // If no routine exists for this date, create one with all tasks/subtasks false
+    if (!routine) {
+      routine = await prisma.morningRoutineTracking.create({
+        data: {
+          userId,
+          date,
+          // Main tasks
+          wakeUp: false,
+          getBloodFlowing: false,
+          freshenUp: false,
+          powerUpBrain: false,
+          planDay: false,
+          meditation: false,
+          // Subtasks
+          pushups: false,
+          situps: false,
+          pullups: false,
+          bathroom: false,
+          brushTeeth: false,
+          coldShower: false,
+          water: false,
+          supplements: false,
+          preworkout: false,
+          thoughtDump: false,
+          planDeepWork: false,
+          planLightWork: false,
+          setTimebox: false
+        }
+      });
+    }
+
+    res.json({ success: true, data: routine });
+  } catch (error) {
+    console.error('Error fetching morning routine:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Update morning routine habit completion
+app.patch('/api/morning-routine', async (req, res) => {
+  try {
+    const { userId, date, habitName, completed } = req.body;
+    
+    if (!userId || !date || !habitName || typeof completed !== 'boolean') {
+      return res.status(400).json({ error: 'userId, date, habitName, and completed are required' });
+    }
+
+    // Ensure user exists before updating
+    await ensureUserExists(userId);
+
+    // Update the specific habit
+    const updateData = { [habitName]: completed };
+    
+    const routine = await prisma.morningRoutineTracking.upsert({
+      where: { 
+        userId_date: {
+          userId: userId,
+          date: date
+        }
+      },
+      update: updateData,
+      create: {
+        userId,
+        date,
+        // Main tasks
+        wakeUp: false,
+        getBloodFlowing: false,
+        freshenUp: false,
+        powerUpBrain: false,
+        planDay: false,
+        meditation: false,
+        // Subtasks
+        pushups: false,
+        situps: false,
+        pullups: false,
+        bathroom: false,
+        brushTeeth: false,
+        coldShower: false,
+        water: false,
+        supplements: false,
+        preworkout: false,
+        thoughtDump: false,
+        planDeepWork: false,
+        planLightWork: false,
+        setTimebox: false,
+        ...updateData
+      }
+    });
+
+    console.log(`✅ Updated ${habitName} to ${completed} for ${userId} on ${date}`);
+    res.json({ success: true, data: routine });
+  } catch (error) {
+    console.error('Error updating morning routine:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // 👤 PERSONAL CONTEXT ENDPOINTS
 
 // Get personal context
-app.get('/api/personal-context/:userId', async (req, res) => {
+app.get('/api/personal-context', async (req, res) => {
   try {
-    const { userId } = req.params;
+    const { userId } = req.query;
+    
+    if (!userId) {
+      return res.status(400).json({ error: 'userId is required' });
+    }
 
     const context = await prisma.personalContext.findUnique({
       where: { userId }

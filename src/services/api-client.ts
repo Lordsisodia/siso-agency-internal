@@ -225,6 +225,41 @@ class APIClient {
     
     return result.data;
   }
+
+  /**
+   * Get morning routine for a specific date
+   */
+  async getMorningRoutine(userId: string, date: string) {
+    const response = await fetch(createApiUrl(`/api/morning-routine?userId=${userId}&date=${date}`));
+    const result = await response.json();
+    
+    if (!result.success) {
+      throw new Error(result.error || 'Failed to fetch morning routine');
+    }
+    
+    return result.data;
+  }
+
+  /**
+   * Update morning routine habit completion
+   */
+  async updateMorningRoutineHabit(userId: string, date: string, habitName: string, completed: boolean) {
+    const response = await fetch(createApiUrl('/api/morning-routine'), {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ userId, date, habitName, completed })
+    });
+    
+    const result = await response.json();
+    
+    if (!result.success) {
+      throw new Error(result.error || 'Failed to update morning routine habit');
+    }
+    
+    return result.data;
+  }
 }
 
 export const apiClient = new APIClient();

@@ -46,6 +46,8 @@ import { PartnershipLayout } from '@/ai-first/features/partnerships/components/P
 import { DashboardGreetingCard } from '@/components/ui/dashboard-templates';
 import { useUser } from '@/hooks/useUser';
 import { AppPlanMicroChat } from '@/components/dashboard/AppPlanMicroChat';
+import { LoadingState } from '@/components/ui/loading-state';
+import { useImplementation } from '@/migration/feature-flags';
 
 interface DashboardStats {
   totalEarnings: number;
@@ -254,7 +256,16 @@ const PartnerDashboard = () => {
   };
 
   if (isLoading) {
-    return (
+    return useImplementation(
+      'useUnifiedLoadingState',
+      // NEW: Unified loading state (safer, consistent, reusable)
+      <LoadingState 
+        message="Loading partner dashboard..." 
+        variant="spinner"
+        size="lg"
+        className="min-h-screen"
+      />,
+      // OLD: Original loading state (fallback for safety)
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-white">Loading...</div>
       </div>
