@@ -4,7 +4,9 @@ import {
   Clock,
   Calendar,
   CheckCircle2,
-  Circle
+  Circle,
+  Plus,
+  Edit3
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,6 +14,35 @@ import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { TaskDetailModal } from './TaskDetailModal';
+import { TimeBlockFormModal } from './TimeBlockFormModal';
+import { useTimeBlocks } from '@/hooks/useTimeBlocks';
+import { TimeBlockCategory } from '../../../../generated/prisma/index.js';
+
+// Map database categories to UI categories
+const mapCategoryToUI = (dbCategory: TimeBlockCategory): string => {
+  const categoryMap: Record<TimeBlockCategory, string> = {
+    DEEP_WORK: 'deep-work',
+    LIGHT_WORK: 'light-work', 
+    MEETING: 'admin',
+    BREAK: 'wellness',
+    PERSONAL: 'wellness',
+    HEALTH: 'wellness',
+    LEARNING: 'light-work',
+    ADMIN: 'admin'
+  };
+  return categoryMap[dbCategory] || 'admin';
+};
+
+const mapUIToCategory = (uiCategory: string): TimeBlockCategory => {
+  const uiMap: Record<string, TimeBlockCategory> = {
+    'deep-work': 'DEEP_WORK',
+    'light-work': 'LIGHT_WORK',
+    'admin': 'ADMIN',
+    'wellness': 'PERSONAL',
+    'morning': 'PERSONAL'
+  };
+  return uiMap[uiCategory] || 'ADMIN';
+};
 
 // Enhanced task data structure for timeline
 interface TimeboxTask {
@@ -67,112 +98,75 @@ const getCategoryStyles = (category: TimeboxTask['category'], completed: boolean
 
 interface TimeboxSectionProps {
   selectedDate: Date;
+  userId?: string; // Add userId for database operations
 }
 
 const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
-  selectedDate
+  selectedDate,
+  userId = 'demo-user' // Default for demo
 }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedTask, setSelectedTask] = useState<TimeboxTask | null>(null);
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+  const [editingBlock, setEditingBlock] = useState(null);
   
-  // Enhanced task data with improved variety and realistic productivity scheduling
-  const [tasks, setTasks] = useState<TimeboxTask[]>(() => {
-    const dateKey = format(selectedDate, 'yyyy-MM-dd');
-    const savedTasks = localStorage.getItem(`lifelock-${dateKey}-timeline`);
-    
-    const defaultTasks: TimeboxTask[] = [
-    {
-      id: '1',
-      title: '☀️ Morning Routine',
-      startTime: '07:00',
-      endTime: '07:30',
-      duration: 30,
-      category: 'morning',
-      description: 'Meditation, stretching, coffee, and day planning',
-      completed: true,
-      color: 'from-amber-400/90 via-orange-500/80 to-yellow-500/70'
-    },
-    {
-      id: '2', 
-      title: '🧠 Deep Work Block 1',
-      startTime: '08:00',
-      endTime: '11:30',
-      duration: 210,
-      category: 'deep-work',
-      description: 'Core development work - highest priority tasks',
-      completed: false,
-      color: 'from-blue-600/90 via-indigo-600/80 to-purple-600/80'
-    },
-    {
-      id: '3',
-      title: '📧 Admin & Light Work',
-      startTime: '12:00', 
-      endTime: '13:00',
-      duration: 60,
-      category: 'light-work',
-      description: 'Emails, scheduling, quick tasks',
-      completed: true,
-      color: 'from-emerald-500/90 via-green-500/80 to-teal-500/70'
-    },
-    {
-      id: '4',
-      title: '🍽️ Lunch Break',
-      startTime: '13:00',
-      endTime: '13:30', 
-      duration: 30,
-      category: 'wellness',
-      description: 'Mindful eating and rest',
-      completed: false,
-      color: 'from-lime-500/80 via-green-400/70 to-emerald-400/60'
-    },
-    {
-      id: '5', 
-      title: '🔥 Deep Work Block 2',
-      startTime: '14:00',
-      endTime: '16:30',
-      duration: 150,
-      category: 'deep-work',
-      description: 'Focused coding and problem solving',
-      completed: false,
-      color: 'from-violet-600/90 via-purple-600/80 to-indigo-600/80'
-    },
-    {
-      id: '6',
-      title: '💪 Workout Session',
-      startTime: '17:00',
-      endTime: '17:45', 
-      duration: 45,
-      category: 'wellness',
-      description: 'Strength training and cardio',
-      completed: false,
-      color: 'from-teal-600/90 via-cyan-500/80 to-blue-500/70'
-    },
-    {
-      id: '7',
-      title: '🌙 Evening Checkout',
-      startTime: '20:30',
-      endTime: '21:15', 
-      duration: 45,
-      category: 'admin',
-      description: 'Day review, tomorrow planning, and reflection',
-      completed: false,
-      color: 'from-indigo-700/90 via-purple-700/80 to-violet-700/70'
-    },
-    {
-      id: '8',
-      title: '📚 Learning Block',
-      startTime: '19:00',
-      endTime: '20:00', 
-      duration: 60,
-      category: 'light-work',
-      description: 'Reading, courses, or skill development',
-      completed: false,
-      color: 'from-cyan-600/80 via-blue-500/70 to-indigo-500/60'
-    }
-  ];
+  // Use the database-backed hook instead of localStorage
+  const {
+    timeBlocks,
+    isLoading,
+    isCreating,
+    isUpdating,
+    error,
+    conflicts,
+    createTimeBlock,
+    updateTimeBlock,
+    deleteTimeBlock,
+    toggleCompletion,
+    checkConflicts,
+    clearError
+  } = useTimeBlocks({
+    userId,
+    selectedDate,
+    enableOptimisticUpdates: true
+  });
   
-  return savedTasks ? JSON.parse(savedTasks) : defaultTasks;
-});
+  // Convert database time blocks to UI format
+  const tasks = useMemo(() => {
+    return timeBlocks.map(block => {
+      // Calculate duration from start and end times
+      const [startHour, startMin] = block.startTime.split(':').map(Number);
+      const [endHour, endMin] = block.endTime.split(':').map(Number);
+      const duration = (endHour * 60 + endMin) - (startHour * 60 + startMin);
+      
+      const uiCategory = mapCategoryToUI(block.category);
+      
+      // Get color based on category and completion
+      const getColor = (category: string, completed: boolean) => {
+        if (completed) return 'from-green-900/40 via-emerald-900/30 to-green-800/40';
+        
+        const colors: Record<string, string> = {
+          'morning': 'from-amber-400/90 via-orange-500/80 to-yellow-500/70',
+          'deep-work': 'from-blue-600/90 via-indigo-600/80 to-purple-600/80',
+          'light-work': 'from-emerald-500/90 via-green-500/80 to-teal-500/70',
+          'wellness': 'from-teal-600/90 via-cyan-500/80 to-blue-500/70',
+          'admin': 'from-indigo-700/90 via-purple-700/80 to-violet-700/70'
+        };
+        return colors[category] || colors.admin;
+      };
+      
+      return {
+        id: block.id,
+        title: block.title,
+        startTime: block.startTime,
+        endTime: block.endTime,
+        duration,
+        category: uiCategory,
+        description: block.description || '',
+        completed: block.completed,
+        color: getColor(uiCategory, block.completed)
+      } as TimeboxTask;
+    });
+  }, [timeBlocks]);
 
   // Generate hour slots from 6am to 11pm with enhanced formatting
   const timeSlots = useMemo(() => {
@@ -197,11 +191,37 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
     return () => clearInterval(timer);
   }, []);
 
-  // Save tasks to localStorage when they change
-  useEffect(() => {
-    const dateKey = format(selectedDate, 'yyyy-MM-dd');
-    localStorage.setItem(`lifelock-${dateKey}-timeline`, JSON.stringify(tasks));
-  }, [tasks, selectedDate]);
+  // Handle creating a new time block
+  const handleCreateBlock = async (data: any) => {
+    const success = await createTimeBlock({
+      title: data.title,
+      description: data.description,
+      startTime: data.startTime,
+      endTime: data.endTime,
+      category: data.category,
+      notes: data.notes
+    });
+    
+    if (success) {
+      setIsFormModalOpen(false);
+    }
+    return success;
+  };
+  
+  // Handle updating an existing time block
+  const handleUpdateBlock = async (id: string, data: any) => {
+    const success = await updateTimeBlock(id, data);
+    if (success) {
+      setIsFormModalOpen(false);
+      setEditingBlock(null);
+    }
+    return success;
+  };
+  
+  // Handle checking conflicts
+  const handleCheckConflicts = async (startTime: string, endTime: string, excludeId?: string) => {
+    return await checkConflicts(startTime, endTime, excludeId);
+  };
 
   // Enhanced calculation for current time position with improved accuracy
   const getCurrentTimePosition = useCallback(() => {
@@ -268,29 +288,30 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
 
   const currentTimePosition = useMemo(() => getCurrentTimePosition(), [getCurrentTimePosition]);
 
-  // Optimized task completion toggle with error handling
-  const handleToggleComplete = useCallback((taskId: string) => {
+  // Handle task completion toggle with database persistence
+  const handleToggleComplete = useCallback(async (taskId: string) => {
     try {
-      setTasks(prevTasks => {
-        const taskExists = prevTasks.some(task => task.id === taskId);
-        if (!taskExists) {
-          console.warn(`Task with ID ${taskId} not found`);
-          return prevTasks;
-        }
-        
-        return prevTasks.map(task => 
-          task.id === taskId 
-            ? { ...task, completed: !task.completed }
-            : task
-        );
-      });
-      
+      await toggleCompletion(taskId);
       // Close modal after toggling for smoother UX
       setSelectedTask(null);
     } catch (error) {
       console.error('Error toggling task completion:', error);
       // Keep modal open on error so user can retry
     }
+  }, [toggleCompletion]);
+  
+  // Handle editing a time block
+  const handleEditBlock = useCallback((task: TimeboxTask) => {
+    setEditingBlock({
+      id: task.id,
+      title: task.title,
+      description: task.description || '',
+      startTime: task.startTime,
+      endTime: task.endTime,
+      category: mapUIToCategory(task.category),
+      notes: ''
+    });
+    setIsFormModalOpen(true);
   }, []);
 
   // Memoized filtered tasks for performance
@@ -312,6 +333,22 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
       return true;
     });
   }, [tasks]);
+  
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen w-full bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center">
+        <div className="text-center">
+          <motion.div 
+            className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full mx-auto mb-4"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          />
+          <p className="text-purple-300 text-lg">Loading your timeline...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Auto-scroll to current time on page load
   useEffect(() => {
@@ -359,20 +396,63 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                   <p className="text-2xl font-bold text-blue-400">{validTasks.length}</p>
                   <p className="text-xs text-blue-300/80">Total Tasks</p>
                 </div>
+                <div className="w-px h-8 bg-purple-600/50"></div>
+                <motion.div 
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Button
+                    onClick={() => setIsFormModalOpen(true)}
+                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white border-purple-500/40 shadow-lg hover:shadow-purple-500/30"
+                    size="sm"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Block
+                  </Button>
+                </motion.div>
               </div>
             </div>
             
             <div className="border-t border-gradient-to-r from-purple-600/30 via-purple-500/50 to-purple-600/30 my-6"></div>
             
             <div className="bg-gradient-to-r from-purple-900/40 to-indigo-900/40 rounded-xl p-4 border border-purple-600/30">
-              <h3 className="font-bold text-purple-200 mb-3 text-base flex items-center">
-                <span className="w-2 h-2 bg-purple-400 rounded-full mr-3 animate-pulse"></span>
-                Visual Time Management
-              </h3>
-              <p className="text-gray-200 text-sm leading-relaxed">
-                See your entire day at a glance. The <span className="text-red-400 font-semibold">pulsing red line</span> shows your current time, 
-                and color-coded task blocks show your scheduled activities. Click any task to view details or mark it complete.
-              </p>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-bold text-purple-200 text-base flex items-center">
+                  <span className="w-2 h-2 bg-purple-400 rounded-full mr-3 animate-pulse"></span>
+                  Visual Time Management
+                </h3>
+                {error && (
+                  <Button
+                    onClick={clearError}
+                    variant="ghost"
+                    size="sm"
+                    className="text-red-400 hover:text-red-300 hover:bg-red-900/20"
+                  >
+                    Clear Error
+                  </Button>
+                )}
+              </div>
+              {error ? (
+                <p className="text-red-300 text-sm leading-relaxed">
+                  ⚠️ {error}
+                </p>
+              ) : (
+                <p className="text-gray-200 text-sm leading-relaxed">
+                  See your entire day at a glance. The <span className="text-red-400 font-semibold">pulsing red line</span> shows your current time, 
+                  and color-coded task blocks show your scheduled activities. Click any task to view details, <span className="text-blue-400">double-click to edit</span>, or mark it complete.
+                </p>
+              )}
+              {/* Mobile Add Button */}
+              <div className="sm:hidden mt-3">
+                <Button
+                  onClick={() => setIsFormModalOpen(true)}
+                  className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+                  size="sm"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Time Block
+                </Button>
+              </div>
             </div>
           </CardHeader>
           
@@ -632,6 +712,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                           transition: { duration: 0.1 }
                         }}
                         onClick={() => setSelectedTask(task)}
+                        onDoubleClick={() => handleEditBlock(task)}
                         layout
                       >
                         <div className="p-3 h-full flex flex-col justify-between relative overflow-hidden">
@@ -803,6 +884,20 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
         task={selectedTask}
         onClose={() => setSelectedTask(null)}
         onToggleComplete={handleToggleComplete}
+      />
+      
+      {/* Time Block Form Modal */}
+      <TimeBlockFormModal
+        isOpen={isFormModalOpen}
+        onClose={() => {
+          setIsFormModalOpen(false);
+          setEditingBlock(null);
+        }}
+        onSubmit={handleCreateBlock}
+        onUpdate={handleUpdateBlock}
+        existingBlock={editingBlock}
+        conflicts={conflicts}
+        onCheckConflicts={handleCheckConflicts}
       />
     </div>
   );
