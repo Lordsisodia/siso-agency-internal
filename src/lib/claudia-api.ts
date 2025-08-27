@@ -1,3 +1,5 @@
+import { createApiUrl } from '../utils/api-config';
+
 // Check if we're running in Tauri
 const isTauri = () => {
   return typeof window !== 'undefined' && window.__TAURI__ !== undefined;
@@ -61,7 +63,7 @@ const getClaudeCodeUsageStats = async (cmd: string, args?: any): Promise<any> =>
   try {
     console.log('🚀 Connecting to Claude Code usage API for real data...');
     // Try to connect to local Claude Code usage API server
-    let endpoint = 'http://localhost:3001/usage/stats';
+    let endpoint = createApiUrl('/usage/stats');
     
     if (cmd === 'get_usage_by_date_range') {
       const { startDate, endDate } = args || {};
@@ -69,10 +71,10 @@ const getClaudeCodeUsageStats = async (cmd: string, args?: any): Promise<any> =>
         const start = new Date(startDate);
         const end = new Date(endDate);
         const daysDiff = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
-        endpoint = `http://localhost:3001/usage/date-range?days=${daysDiff}`;
+        endpoint = createApiUrl(`/usage/date-range?days=${daysDiff}`);
       }
     } else if (cmd === 'get_session_stats') {
-      endpoint = 'http://localhost:3001/usage/sessions';
+      endpoint = createApiUrl('/usage/sessions');
     }
     
     const response = await fetch(endpoint);

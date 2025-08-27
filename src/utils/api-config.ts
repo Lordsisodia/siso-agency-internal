@@ -1,0 +1,42 @@
+/**
+ * 🌐 API Configuration Utility
+ * 
+ * Centralized configuration for API base URLs
+ * Handles development vs production environment detection
+ */
+
+export function getApiBaseURL(): string {
+  // In production, use relative URLs (Vercel handles routing)
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    
+    // Production/staging environments
+    if (hostname.includes('vercel.app') || hostname !== 'localhost') {
+      return ''; // Use relative URLs for production
+    }
+  }
+  
+  // Development environment
+  return 'http://localhost:3001';
+}
+
+/**
+ * Create full API URL with base URL handling
+ */
+export function createApiUrl(path: string): string {
+  const baseURL = getApiBaseURL();
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  
+  return baseURL ? `${baseURL}${cleanPath}` : cleanPath;
+}
+
+/**
+ * Environment detection utilities
+ */
+export const isProduction = () => {
+  if (typeof window === 'undefined') return false;
+  const hostname = window.location.hostname;
+  return hostname.includes('vercel.app') || hostname !== 'localhost';
+};
+
+export const isDevelopment = () => !isProduction();
