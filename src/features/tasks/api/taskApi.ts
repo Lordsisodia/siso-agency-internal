@@ -5,6 +5,8 @@
 
 import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { calculateTaskProgress } from '@/refactored/utils/taskCardUtils';
+import { isFeatureEnabled } from '@/migration/feature-flags';
 import { 
   Task, 
   CreateTaskRequest, 
@@ -477,16 +479,33 @@ export class TaskAPI {
   }
 
   private calculateProgressPercentage(task: any): number {
-    if (task.completion_percentage !== undefined) {
-      return task.completion_percentage;
+    // Feature flag: Use refactored progress calculation or fallback to original
+    if (isFeatureEnabled('useTaskCardUtils')) {
+      // NEW: Use centralized utility function
+      const taskForCalculation = {
+        id: task.id,
+        title: task.title,
+        completed: task.status === 'completed',
+        subtasks: task.subtasks?.map((st: any) => ({
+          id: st.id,
+          title: st.title,
+          completed: st.status === 'completed'
+        })) || []
+      };
+      return calculateTaskProgress(taskForCalculation).percentage;
+    } else {
+      // OLD: Original calculation logic (fallback)
+      if (task.completion_percentage !== undefined) {
+        return task.completion_percentage;
+      }
+      
+      if (task.subtasks && task.subtasks.length > 0) {
+        const completedSubtasks = task.subtasks.filter((st: any) => st.status === 'completed').length;
+        return Math.round((completedSubtasks / task.subtasks.length) * 100);
+      }
+      
+      return task.status === 'completed' ? 100 : 0;
     }
-    
-    if (task.subtasks && task.subtasks.length > 0) {
-      const completedSubtasks = task.subtasks.filter((st: any) => st.status === 'completed').length;
-      return Math.round((completedSubtasks / task.subtasks.length) * 100);
-    }
-    
-    return task.status === 'completed' ? 100 : 0;
   }
 
   // Cleanup

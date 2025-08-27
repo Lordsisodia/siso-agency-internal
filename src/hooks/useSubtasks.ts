@@ -1,5 +1,7 @@
 
 import { useState } from 'react';
+import { calculateTaskProgress } from '@/refactored/utils/taskCardUtils';
+import { isFeatureEnabled } from '@/migration/feature-flags';
 
 interface Subtask {
   id: string;
@@ -26,8 +28,21 @@ export function useSubtasks(initialSubtasks: Subtask[]) {
   };
 
   const getProgress = () => {
-    const completedSubtasks = subtasks.filter(st => st.completed).length;
-    return subtasks.length > 0 ? (completedSubtasks / subtasks.length) * 100 : 0;
+    // Feature flag: Use refactored progress calculation or fallback to original  
+    if (isFeatureEnabled('useTaskCardUtils')) {
+      // NEW: Use centralized utility function
+      const taskForCalculation = {
+        id: 'subtasks-progress',
+        title: 'Progress Calculation',
+        completed: false,
+        subtasks
+      };
+      return calculateTaskProgress(taskForCalculation).percentage;
+    } else {
+      // OLD: Original calculation logic (fallback)
+      const completedSubtasks = subtasks.filter(st => st.completed).length;
+      return subtasks.length > 0 ? (completedSubtasks / subtasks.length) * 100 : 0;
+    }
   };
 
   return {

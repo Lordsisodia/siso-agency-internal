@@ -20,8 +20,30 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useTaskDatabase } from '../../../hooks/useTaskDatabase';
 
+// REFACTORED IMPORTS
+import { UnifiedTaskCard, TaskCardTask, TaskCardSubtask } from '@/refactored/components/UnifiedTaskCard';
+import { useImplementation } from '@/migration/feature-flags';
+import { LoadingState } from '@/components/ui/loading-state';
+import { ErrorState } from '@/components/ui/error-state';
+
 // Deep work task management with database integration
 
+// Convert database task to TaskCardTask format
+function dbTaskToUnified(dbTask: any): TaskCardTask {
+  return {
+    id: dbTask.id,
+    title: dbTask.title,
+    completed: dbTask.completed,
+    priority: dbTask.priority,
+    status: dbTask.status,
+    timeEstimate: dbTask.timeEstimate || dbTask.estimatedDuration,
+    subtasks: dbTask.subtasks?.map((st: any): TaskCardSubtask => ({
+      id: st.id,
+      title: st.title,
+      completed: st.completed
+    })) || []
+  };
+}
 
 interface DeepFocusWorkSectionProps {
   selectedDate: Date;
@@ -153,7 +175,16 @@ export const DeepFocusWorkSection: React.FC<DeepFocusWorkSectionProps> = ({
   const deepWorkProgress = getTotalProgress();
 
   if (loading) {
-    return (
+    return useImplementation(
+      'useUnifiedLoadingState',
+      // NEW: Unified loading state (safer, consistent, reusable)
+      <LoadingState 
+        message="Loading deep work tasks..." 
+        variant="spinner"
+        size="lg"
+        className="min-h-screen w-full bg-gray-900"
+      />,
+      // OLD: Original loading state (fallback for safety)
       <div className="min-h-screen w-full bg-gray-900 flex items-center justify-center">
         <div className="text-blue-400">Loading deep work tasks...</div>
       </div>
@@ -161,7 +192,16 @@ export const DeepFocusWorkSection: React.FC<DeepFocusWorkSectionProps> = ({
   }
 
   if (error) {
-    return (
+    return useImplementation(
+      'useUnifiedErrorState',
+      // NEW: Unified error state (safer, consistent, reusable)
+      <ErrorState 
+        title="Error Loading Tasks"
+        message={`Could not load deep work tasks: ${error}`}
+        type="loading_error"
+        className="min-h-screen w-full bg-gray-900"
+      />,
+      // OLD: Original error state (fallback for safety)
       <div className="min-h-screen w-full bg-gray-900 flex items-center justify-center">
         <div className="text-red-400">Error loading tasks: {error}</div>
       </div>
@@ -202,76 +242,97 @@ export const DeepFocusWorkSection: React.FC<DeepFocusWorkSectionProps> = ({
           </CardHeader>
           <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
             
-            <div className="space-y-2 sm:space-y-3">
-              {deepWorkTasksFiltered.map((item) => (
-                <div key={item.id} className="group bg-blue-900/10 border border-blue-700/30 rounded-xl hover:bg-blue-900/15 hover:border-blue-600/40 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5">
-                  {/* Main Task Header */}
-                  <div className="flex items-start space-x-2 sm:space-x-3 p-2 sm:p-3">
-                    <Checkbox
-                      checked={item.completed}
-                      onCheckedChange={() => toggleTaskCompletion(item.id)}
-                      className="mt-1 border-blue-600 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
-                    />
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-blue-100 font-semibold text-sm sm:text-base">{item.title}</h4>
-                        {item.subtasks && item.subtasks.length > 0 && (
-                          <div className="relative">
-                            <div className="bg-gradient-to-r from-blue-500/20 to-blue-400/20 border border-blue-400/40 rounded-full px-3 py-1.5 ml-2 shadow-sm">
-                              <span className="text-xs text-blue-300 font-semibold tracking-wide">
-                                {item.subtasks.filter(sub => sub.completed).length}/{item.subtasks.length}
-                              </span>
-                            </div>
-                            {/* Progress completion indicator */}
-                            {item.subtasks.filter(sub => sub.completed).length === item.subtasks.length && item.subtasks.length > 0 && (
-                              <div className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full animate-pulse shadow-lg">
-                                <div className="absolute inset-0.5 bg-green-300 rounded-full animate-ping"></div>
+            {/* REFACTORED: 67 lines of custom task rendering → UnifiedTaskCard */}
+            {useImplementation(
+              'useUnifiedTaskCard',
+              
+              // NEW: Clean, unified task rendering (67 lines saved per section!)
+              <div className="space-y-2 sm:space-y-3">
+                {deepWorkTasksFiltered.map((item) => (
+                  <UnifiedTaskCard
+                    key={item.id}
+                    task={dbTaskToUnified(item)}
+                    theme="work"  // Purple/blue theme for deep work
+                    variant="standard"
+                    showProgress={true}
+                    showTimeEstimate={true}
+                    showSubtasks={true}
+                    animateCompletion={true}
+                    onTaskToggle={(taskId, completed) => toggleTaskCompletion(taskId)}
+                    onSubtaskToggle={(taskId, subtaskId, completed) => toggleSubtaskCompletion(taskId, subtaskId)}
+                    onAddSubtask={(taskId, subtaskTitle) => addSubtask(taskId, subtaskTitle)}
+                  />
+                ))}
+              </div>,
+              
+              // OLD: Original 67-line custom rendering (fallback for safety)
+              <div className="space-y-2 sm:space-y-3">
+                {deepWorkTasksFiltered.map((item) => (
+                  <div key={item.id} className="group bg-blue-900/10 border border-blue-700/30 rounded-xl hover:bg-blue-900/15 hover:border-blue-600/40 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5">
+                    <div className="flex items-start space-x-2 sm:space-x-3 p-2 sm:p-3">
+                      <Checkbox
+                        checked={item.completed}
+                        onCheckedChange={() => toggleTaskCompletion(item.id)}
+                        className="mt-1 border-blue-600 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-blue-100 font-semibold text-sm sm:text-base">{item.title}</h4>
+                          {item.subtasks && item.subtasks.length > 0 && (
+                            <div className="relative">
+                              <div className="bg-gradient-to-r from-blue-500/20 to-blue-400/20 border border-blue-400/40 rounded-full px-3 py-1.5 ml-2 shadow-sm">
+                                <span className="text-xs text-blue-300 font-semibold tracking-wide">
+                                  {item.subtasks.filter(sub => sub.completed).length}/{item.subtasks.length}
+                                </span>
                               </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                      {item.description && (
-                        <p className="text-gray-300 text-xs sm:text-sm mt-1 leading-relaxed">{item.description}</p>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {/* Sub-tasks - Enhanced with better visual hierarchy */}
-                  {item.subtasks && item.subtasks.length > 0 && (
-                    <div className="mt-4 ml-8 space-y-3">
-                      {item.subtasks.map((subTask, subIndex) => (
-                        <div
-                          key={subTask.id}
-                          className="group flex items-center space-x-3 p-3 hover:bg-blue-900/10 rounded-lg transition-all duration-200 hover:scale-[1.01]"
-                        >
-                          {/* Visual connector line */}
-                          <div className="relative">
-                            <div className="absolute -left-4 top-1/2 w-3 h-px bg-blue-500/30"></div>
-                            <Checkbox
-                              checked={subTask.completed}
-                              onCheckedChange={() => toggleSubtaskCompletion(item.id, subTask.id)}
-                              className="h-4 w-4 border-blue-400/70 data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500 transition-all duration-200 group-hover:border-blue-400"
-                            />
-                          </div>
-                          <span className={cn(
-                            "text-sm font-medium transition-all duration-200 flex-1",
-                            subTask.completed 
-                              ? "text-gray-500 line-through" 
-                              : "text-blue-100/90 group-hover:text-blue-50"
-                          )}>
-                            {subTask.title}
-                          </span>
-                          {subTask.completed && (
-                            <CheckCircle2 className="h-3.5 w-3.5 text-green-400 animate-in zoom-in-50 duration-200" />
+                              {item.subtasks.filter(sub => sub.completed).length === item.subtasks.length && item.subtasks.length > 0 && (
+                                <div className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full animate-pulse shadow-lg">
+                                  <div className="absolute inset-0.5 bg-green-300 rounded-full animate-ping"></div>
+                                </div>
+                              )}
+                            </div>
                           )}
                         </div>
-                      ))}
+                        {item.description && (
+                          <p className="text-gray-300 text-xs sm:text-sm mt-1 leading-relaxed">{item.description}</p>
+                        )}
+                      </div>
                     </div>
-                  )}
-                </div>
-              ))}
-            </div>
+                    
+                    {item.subtasks && item.subtasks.length > 0 && (
+                      <div className="mt-4 ml-8 space-y-3">
+                        {item.subtasks.map((subTask, subIndex) => (
+                          <div
+                            key={subTask.id}
+                            className="group flex items-center space-x-3 p-3 hover:bg-blue-900/10 rounded-lg transition-all duration-200 hover:scale-[1.01]"
+                          >
+                            <div className="relative">
+                              <div className="absolute -left-4 top-1/2 w-3 h-px bg-blue-500/30"></div>
+                              <Checkbox
+                                checked={subTask.completed}
+                                onCheckedChange={() => toggleSubtaskCompletion(item.id, subTask.id)}
+                                className="h-4 w-4 border-blue-400/70 data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500 transition-all duration-200 group-hover:border-blue-400"
+                              />
+                            </div>
+                            <span className={cn(
+                              "text-sm font-medium transition-all duration-200 flex-1",
+                              subTask.completed 
+                                ? "text-gray-500 line-through" 
+                                : "text-blue-100/90 group-hover:text-blue-50"
+                            )}>
+                              {subTask.title}
+                            </span>
+                            {subTask.completed && (
+                              <CheckCircle2 className="h-3.5 w-3.5 text-green-400 animate-in zoom-in-50 duration-200" />
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
         

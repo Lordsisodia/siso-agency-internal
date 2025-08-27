@@ -10,23 +10,24 @@ datasource db {
 }
 
 model User {
-  id                 String                   @id @default(cuid())
-  supabaseId         String                   @unique
-  email              String                   @unique
-  createdAt          DateTime                 @default(now())
-  updatedAt          DateTime                 @updatedAt
-  automationTasks    AutomationTask[]
-  dailyHabits        DailyHabits[]
-  dailyHealth        DailyHealth[]
-  dailyReflections   DailyReflections[]
-  dailyRoutines      DailyRoutine[]
-  dailyWorkouts      DailyWorkout[]
-  eisenhowerAnalysis EisenhowerAnalysis[]
-  personalContext    PersonalContext?
-  personalTasks      PersonalTask[]
-  timeBlocks         TimeBlock[]
-  gamification       UserProgress?
-  voiceHistory       VoiceProcessingHistory[]
+  id                     String                     @id @default(cuid())
+  supabaseId             String                     @unique
+  email                  String                     @unique
+  createdAt              DateTime                   @default(now())
+  updatedAt              DateTime                   @updatedAt
+  automationTasks        AutomationTask[]
+  dailyHabits            DailyHabits[]
+  dailyHealth            DailyHealth[]
+  dailyReflections       DailyReflections[]
+  dailyRoutines          DailyRoutine[]
+  dailyWorkouts          DailyWorkout[]
+  eisenhowerAnalysis     EisenhowerAnalysis[]
+  morningRoutineTracking MorningRoutineTracking[]
+  personalContext        PersonalContext?
+  personalTasks          PersonalTask[]
+  timeBlocks             TimeBlock[]
+  gamification           UserProgress?
+  voiceHistory           VoiceProcessingHistory[]
 
   @@map("users")
 }
@@ -425,6 +426,49 @@ enum AutomationStatus {
 enum RoutineType {
   MORNING
   EVENING
+}
+
+model MorningRoutineTracking {
+  id         String   @id @default(cuid())
+  userId     String
+  date       String   // "2025-08-27"
+  
+  // Main tasks
+  wakeUp         Boolean @default(false)
+  getBloodFlowing Boolean @default(false)
+  freshenUp      Boolean @default(false)
+  powerUpBrain   Boolean @default(false)
+  planDay        Boolean @default(false)
+  meditation     Boolean @default(false)
+  
+  // Subtasks for Get Blood Flowing
+  pushups        Boolean @default(false)
+  situps         Boolean @default(false)
+  pullups        Boolean @default(false)
+  
+  // Subtasks for Freshen Up
+  bathroom       Boolean @default(false)
+  brushTeeth     Boolean @default(false)
+  coldShower     Boolean @default(false)
+  
+  // Subtasks for Power Up Brain
+  water          Boolean @default(false)
+  supplements    Boolean @default(false)
+  preworkout     Boolean @default(false)
+  
+  // Subtasks for Plan Day
+  thoughtDump    Boolean @default(false)
+  planDeepWork   Boolean @default(false)
+  planLightWork  Boolean @default(false)
+  setTimebox     Boolean @default(false)
+  
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, date])
+  @@index([userId, date])
+  @@map("morning_routine_tracking")
 }
 
 enum TimeBlockCategory {

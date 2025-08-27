@@ -14,6 +14,8 @@ import { Progress } from '@/components/ui/progress';
 import { getAppPlanByUsername, type SavedAppPlan } from '@/services/appPlanService';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { LoadingState } from '@/components/ui/loading-state';
+import { useImplementation } from '@/migration/feature-flags';
 
 // Helper functions for enhanced feature display
 function getFeatureDescription(featureName: string, companyName: string, priority: string): string {
@@ -232,7 +234,20 @@ export default function AppPlan() {
 
   // Show loading state for shared plans
   if (isViewingSharedPlan && loading) {
-    return (
+    return useImplementation(
+      'useUnifiedLoadingState',
+      // NEW: Unified loading state (safer, consistent, reusable)
+      <MainLayout>
+        <div className="container max-w-5xl py-6 space-y-6">
+          <LoadingState 
+            message="Loading app plan..." 
+            variant="spinner"
+            size="lg"
+            className="min-h-96"
+          />
+        </div>
+      </MainLayout>,
+      // OLD: Original loading state with custom spinner (fallback for safety)
       <MainLayout>
         <div className="container max-w-5xl py-6 space-y-6">
           <div className="flex items-center justify-center min-h-96">

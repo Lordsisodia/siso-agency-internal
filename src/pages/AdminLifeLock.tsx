@@ -24,7 +24,11 @@ import { HomeWorkoutSection } from '@/ai-first/features/tasks/components/HomeWor
 import { HealthNonNegotiablesSection } from '@/ai-first/features/tasks/components/HealthNonNegotiablesSection';
 import { TimeboxSection } from '@/ai-first/features/tasks/components/TimeboxSection';
 import { useLifeLockData } from '@/hooks/useLifeLockData';
+import { useRefactoredLifeLockData } from '@/refactored/hooks/useRefactoredLifeLockData';
 import { TabId, validateTabHandler, assertExhaustive, isValidTabId } from '@/ai-first/core/tab-config';
+import { TabContentRenderer } from '@/refactored/components/TabContentRenderer';
+import { isFeatureEnabled, useImplementation } from '@/migration/feature-flags';
+import { LoadingState } from '@/components/ui/loading-state';
 
 const AdminLifeLock: React.FC = () => {
   const navigate = useNavigate();
@@ -64,6 +68,15 @@ const AdminLifeLock: React.FC = () => {
   }, [date, searchParams]);
   
   // Use custom hook for all LifeLock data and actions
+  const hookData = useImplementation(
+    'useRefactoredLifeLockHooks',
+    // NEW: Split focused hooks (226 lines → 6 focused hooks)
+    useRefactoredLifeLockData(selectedDate),
+    // OLD: Monolithic hook (fallback for safety)
+    useLifeLockData(selectedDate)
+  );
+
+  // Extract data with safe destructuring
   const {
     todayCard,
     weekCards,
@@ -82,7 +95,7 @@ const AdminLifeLock: React.FC = () => {
     setLastThoughtDumpResult,
     setShowEisenhowerModal,
     setEisenhowerResult
-  } = useLifeLockData(selectedDate);
+  } = hookData;
 
   // Calculate day completion percentage
   const dayCompletionPercentage = useMemo(() => {
@@ -152,7 +165,18 @@ const AdminLifeLock: React.FC = () => {
   // Loading and auth guards
 
   if (!isLoaded) {
-    return (
+    return useImplementation(
+      'useUnifiedLoadingState',
+      // NEW: Unified loading state (safer, consistent, reusable)
+      <AdminLayout>
+        <LoadingState 
+          message="Loading LifeLock..." 
+          variant="spinner"
+          size="lg"
+          className="h-screen"
+        />
+      </AdminLayout>,
+      // OLD: Original loading state (fallback for safety)
       <AdminLayout>
         <div className="flex items-center justify-center h-screen">
           <div className="text-white">Loading...</div>
@@ -179,228 +203,218 @@ const AdminLifeLock: React.FC = () => {
             return <div className="p-4 text-red-500">Invalid tab: {activeTab}</div>;
           }
 
-          // TypeScript ensures we handle all cases
-          switch (activeTab as TabId) {
-            case 'morning':
-              return (
-                <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24">
-                  {/* Clean Date Navigation */}
-                  <CleanDateNav 
-                    selectedDate={selectedDate}
-                    completionPercentage={dayCompletionPercentage}
-                    className="mb-6"
-                    onPreviousDate={() => navigateDay?.('prev')}
-                    onNextDate={() => navigateDay?.('next')}
-                  />
-                  
-                  <div className="space-y-6">
-                    <MorningRoutineSection
-                      selectedDate={selectedDate}
-                    />
-                  </div>
-                </div>
-              );
-            
-            case 'focus':
-              return (
-                <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24">
-                  {/* Clean Date Navigation */}
-                  <CleanDateNav 
-                    selectedDate={selectedDate}
-                    completionPercentage={dayCompletionPercentage}
-                    className="mb-6"
-                    onPreviousDate={() => navigateDay?.('prev')}
-                    onNextDate={() => navigateDay?.('next')}
-                  />
-                  
-                  <div className="space-y-6">
-                    <DeepFocusWorkSection selectedDate={selectedDate} />
-                    <EnhancedLightWorkManager selectedDate={selectedDate} />
-                    <QuickActionsSection
-                      handleQuickAdd={handleQuickAdd}
-                      handleOrganizeTasks={handleOrganizeTasks}
-                      isAnalyzingTasks={isAnalyzingTasks}
-                      todayCard={todayCard}
-                    />
-                  </div>
-                </div>
-              );
-            
-            case 'light':
-              return (
-                <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24">
-                  {/* Clean Date Navigation */}
-                  <CleanDateNav 
-                    selectedDate={selectedDate}
-                    completionPercentage={dayCompletionPercentage}
-                    className="mb-6"
-                    onPreviousDate={() => navigateDay?.('prev')}
-                    onNextDate={() => navigateDay?.('next')}
-                  />
-                  
-                  <div className="space-y-6">
-                    <QuickActionsSection
-                      handleQuickAdd={handleQuickAdd}
-                      handleOrganizeTasks={handleOrganizeTasks}
-                      isAnalyzingTasks={isAnalyzingTasks}
-                      todayCard={todayCard}
-                    />
-                  </div>
-                </div>
-              );
-            
-            case 'light-work':
-              return (
-                <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24">
-                  {/* Clean Date Navigation */}
-                  <CleanDateNav 
-                    selectedDate={selectedDate}
-                    completionPercentage={dayCompletionPercentage}
-                    className="mb-6"
-                    onPreviousDate={() => navigateDay?.('prev')}
-                    onNextDate={() => navigateDay?.('next')}
-                  />
-                  
-                  <div className="space-y-6">
-                    <LightFocusWorkSection 
-                      selectedDate={selectedDate}
-                    />
-                  </div>
-                </div>
-              );
-            
-            case 'work':
-              return (
-                <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24">
-                  {/* Clean Date Navigation */}
-                  <CleanDateNav 
-                    selectedDate={selectedDate}
-                    completionPercentage={dayCompletionPercentage}
-                    className="mb-6"
-                    onPreviousDate={() => navigateDay?.('prev')}
-                    onNextDate={() => navigateDay?.('next')}
-                  />
-                  
-                  <div className="space-y-6">
-                    <DeepFocusWorkSection selectedDate={selectedDate} />
-                  </div>
-                </div>
-              );
-            
-            case 'wellness':
-              return (
-                <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24">
-                  {/* Clean Date Navigation */}
-                  <CleanDateNav 
-                    selectedDate={selectedDate}
-                    completionPercentage={dayCompletionPercentage}
-                    className="mb-6"
-                    onPreviousDate={() => navigateDay?.('prev')}
-                    onNextDate={() => navigateDay?.('next')}
-                  />
-                  
-                  <div className="space-y-6">
-                    <HomeWorkoutSection selectedDate={selectedDate} />
-                    <HealthNonNegotiablesSection selectedDate={selectedDate} />
-                  </div>
-                </div>
-              );
-            
-            case 'timebox':
-              return (
-                <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24">
-                  {/* Clean Date Navigation */}
-                  <CleanDateNav 
-                    selectedDate={selectedDate}
-                    completionPercentage={dayCompletionPercentage}
-                    className="mb-6"
-                    onPreviousDate={() => navigateDay?.('prev')}
-                    onNextDate={() => navigateDay?.('next')}
-                  />
-                  
-                  <div className="space-y-6">
-                    <TimeboxSection selectedDate={selectedDate} />
-                  </div>
-                </div>
-              );
-            
-            case 'checkout':
-              return (
-                <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24">
-                  {/* Clean Date Navigation */}
-                  <CleanDateNav 
-                    selectedDate={selectedDate}
-                    completionPercentage={dayCompletionPercentage}
-                    className="mb-6"
-                    onPreviousDate={() => navigateDay?.('prev')}
-                    onNextDate={() => navigateDay?.('next')}
-                  />
-                  
-                  <div className="space-y-6">
-                    <NightlyCheckoutSection selectedDate={selectedDate} />
-                  </div>
-                </div>
-              );
-            
-            case 'ai-chat':
-              return (
-                <div className="relative h-screen bg-gradient-to-br from-black via-gray-900 to-black overflow-hidden">
-                  {/* Clean Date Navigation */}
-                  <div className="p-4">
-                    <CleanDateNav 
-                      selectedDate={selectedDate}
-                      completionPercentage={dayCompletionPercentage}
-                      className="mb-6"
-                      onPreviousDate={() => navigateDay?.('prev')}
-                      onNextDate={() => navigateDay?.('next')}
-                    />
-                  </div>
-                  
-                  {/* Header with SISO logo and title */}
-                  <div className="px-4 pb-4">
-                    <div className="bg-gray-800/50 rounded-xl p-4 text-center">
-                      <div className="flex items-center justify-center gap-3 mb-2">
-                        <SisoIcon className="w-8 h-8 text-orange-500" />
-                        <h1 className="text-xl font-bold text-white">
-                          AI Chat Assistant
-                        </h1>
-                      </div>
-                      <p className="text-gray-400 text-sm">
-                        Voice and text-powered AI assistant for managing your life and tasks
-                      </p>
-                    </div>
-                  </div>
-                  
-                  {/* Chat messages area - with bottom padding for fixed input */}
-                  <div className="h-full overflow-y-auto p-4 pb-32">
-                    <div className="max-w-4xl mx-auto space-y-4">
-                      {/* Chat messages will go here */}
-                      <div className="text-center text-gray-500 text-sm mt-20">
-                        Start a conversation by typing or using voice commands below
+          // Feature flag: Use refactored TabContentRenderer or fallback to original switch
+          return useImplementation(
+            'useRefactoredAdminLifeLock',
+            // NEW: Configuration-driven rendering (220 lines → 10 lines)
+            <TabContentRenderer
+              activeTab={activeTab}
+              layoutProps={{
+                selectedDate,
+                dayCompletionPercentage,
+                navigateDay,
+                handleQuickAdd,
+                handleOrganizeTasks,
+                handleVoiceCommand,
+                isAnalyzingTasks,
+                isProcessingVoice,
+                todayCard
+              }}
+            />,
+            // OLD: Original 220-line switch statement (fallback for safety)
+            (() => {
+              switch (activeTab as TabId) {
+                case 'morning':
+                  return (
+                    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24">
+                      <CleanDateNav 
+                        selectedDate={selectedDate}
+                        completionPercentage={dayCompletionPercentage}
+                        className="mb-6"
+                        onPreviousDate={() => navigateDay?.('prev')}
+                        onNextDate={() => navigateDay?.('next')}
+                      />
+                      <div className="space-y-6">
+                        <MorningRoutineSection selectedDate={selectedDate} />
                       </div>
                     </div>
-                  </div>
-                  
-                  {/* Fixed input at bottom with gap */}
-                  <div className="fixed bottom-4 left-0 right-0 px-4 z-50">
-                    <div className="max-w-4xl mx-auto">
-                      <div className="bg-black/90 backdrop-blur-md rounded-2xl border border-gray-700/50 p-4 shadow-2xl">
-                        <PromptInputBox
-                          onSend={(message, files) => {
-                            handleVoiceCommand(message);
-                          }}
-                          isLoading={isProcessingVoice}
-                          placeholder="Ask me anything about your tasks, schedule, or life management..."
+                  );
+                
+                case 'focus':
+                  return (
+                    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24">
+                      <CleanDateNav 
+                        selectedDate={selectedDate}
+                        completionPercentage={dayCompletionPercentage}
+                        className="mb-6"
+                        onPreviousDate={() => navigateDay?.('prev')}
+                        onNextDate={() => navigateDay?.('next')}
+                      />
+                      <div className="space-y-6">
+                        <DeepFocusWorkSection selectedDate={selectedDate} />
+                        <QuickActionsSection
+                          handleQuickAdd={handleQuickAdd}
+                          handleOrganizeTasks={handleOrganizeTasks}
+                          isAnalyzingTasks={isAnalyzingTasks}
+                          todayCard={todayCard}
                         />
                       </div>
                     </div>
-                  </div>
-                </div>
-              );
-            
-            default:
-              return assertExhaustive(activeTab);
-          }
+                  );
+                
+                case 'light':
+                  return (
+                    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24">
+                      <CleanDateNav 
+                        selectedDate={selectedDate}
+                        completionPercentage={dayCompletionPercentage}
+                        className="mb-6"
+                        onPreviousDate={() => navigateDay?.('prev')}
+                        onNextDate={() => navigateDay?.('next')}
+                      />
+                      <div className="space-y-6">
+                        <QuickActionsSection
+                          handleQuickAdd={handleQuickAdd}
+                          handleOrganizeTasks={handleOrganizeTasks}
+                          isAnalyzingTasks={isAnalyzingTasks}
+                          todayCard={todayCard}
+                        />
+                      </div>
+                    </div>
+                  );
+                
+                case 'light-work':
+                  return (
+                    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24">
+                      <CleanDateNav 
+                        selectedDate={selectedDate}
+                        completionPercentage={dayCompletionPercentage}
+                        className="mb-6"
+                        onPreviousDate={() => navigateDay?.('prev')}
+                        onNextDate={() => navigateDay?.('next')}
+                      />
+                      <div className="space-y-6">
+                        <LightFocusWorkSection selectedDate={selectedDate} />
+                      </div>
+                    </div>
+                  );
+                
+                case 'work':
+                  return (
+                    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24">
+                      <CleanDateNav 
+                        selectedDate={selectedDate}
+                        completionPercentage={dayCompletionPercentage}
+                        className="mb-6"
+                        onPreviousDate={() => navigateDay?.('prev')}
+                        onNextDate={() => navigateDay?.('next')}
+                      />
+                      <div className="space-y-6">
+                        <DeepFocusWorkSection selectedDate={selectedDate} />
+                      </div>
+                    </div>
+                  );
+                
+                case 'wellness':
+                  return (
+                    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24">
+                      <CleanDateNav 
+                        selectedDate={selectedDate}
+                        completionPercentage={dayCompletionPercentage}
+                        className="mb-6"
+                        onPreviousDate={() => navigateDay?.('prev')}
+                        onNextDate={() => navigateDay?.('next')}
+                      />
+                      <div className="space-y-6">
+                        <HomeWorkoutSection selectedDate={selectedDate} />
+                        <HealthNonNegotiablesSection selectedDate={selectedDate} />
+                      </div>
+                    </div>
+                  );
+                
+                case 'timebox':
+                  return (
+                    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24">
+                      <CleanDateNav 
+                        selectedDate={selectedDate}
+                        completionPercentage={dayCompletionPercentage}
+                        className="mb-6"
+                        onPreviousDate={() => navigateDay?.('prev')}
+                        onNextDate={() => navigateDay?.('next')}
+                      />
+                      <div className="space-y-6">
+                        <TimeboxSection selectedDate={selectedDate} />
+                      </div>
+                    </div>
+                  );
+                
+                case 'checkout':
+                  return (
+                    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24">
+                      <CleanDateNav 
+                        selectedDate={selectedDate}
+                        completionPercentage={dayCompletionPercentage}
+                        className="mb-6"
+                        onPreviousDate={() => navigateDay?.('prev')}
+                        onNextDate={() => navigateDay?.('next')}
+                      />
+                      <div className="space-y-6">
+                        <NightlyCheckoutSection selectedDate={selectedDate} />
+                      </div>
+                    </div>
+                  );
+                
+                case 'ai-chat':
+                  return (
+                    <div className="relative h-screen bg-gradient-to-br from-black via-gray-900 to-black overflow-hidden">
+                      <div className="p-4">
+                        <CleanDateNav 
+                          selectedDate={selectedDate}
+                          completionPercentage={dayCompletionPercentage}
+                          className="mb-6"
+                          onPreviousDate={() => navigateDay?.('prev')}
+                          onNextDate={() => navigateDay?.('next')}
+                        />
+                      </div>
+                      <div className="px-4 pb-4">
+                        <div className="bg-gray-800/50 rounded-xl p-4 text-center">
+                          <div className="flex items-center justify-center gap-3 mb-2">
+                            <SisoIcon className="w-8 h-8 text-orange-500" />
+                            <h1 className="text-xl font-bold text-white">AI Chat Assistant</h1>
+                          </div>
+                          <p className="text-gray-400 text-sm">
+                            Voice and text-powered AI assistant for managing your life and tasks
+                          </p>
+                        </div>
+                      </div>
+                      <div className="h-full overflow-y-auto p-4 pb-32">
+                        <div className="max-w-4xl mx-auto space-y-4">
+                          <div className="text-center text-gray-500 text-sm mt-20">
+                            Start a conversation by typing or using voice commands below
+                          </div>
+                        </div>
+                      </div>
+                      <div className="fixed bottom-4 left-0 right-0 px-4 z-50">
+                        <div className="max-w-4xl mx-auto">
+                          <div className="bg-black/90 backdrop-blur-md rounded-2xl border border-gray-700/50 p-4 shadow-2xl">
+                            <PromptInputBox
+                              onSend={(message, files) => {
+                                handleVoiceCommand(message);
+                              }}
+                              isLoading={isProcessingVoice}
+                              placeholder="Ask me anything about your tasks, schedule, or life management..."
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                
+                default:
+                  return assertExhaustive(activeTab);
+              }
+            })()
+          );
         }}
       </TabLayoutWrapper>
 
