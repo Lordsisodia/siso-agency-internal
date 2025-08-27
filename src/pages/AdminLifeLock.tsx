@@ -29,6 +29,7 @@ import { TabId, validateTabHandler, assertExhaustive, isValidTabId } from '@/ai-
 import { TabContentRenderer } from '@/refactored/components/TabContentRenderer';
 import { isFeatureEnabled, useImplementation } from '@/migration/feature-flags';
 import { LoadingState } from '@/components/ui/loading-state';
+import { theme } from '@/styles/theme';
 
 const AdminLifeLock: React.FC = () => {
   const navigate = useNavigate();
@@ -191,7 +192,13 @@ const AdminLifeLock: React.FC = () => {
   }
 
   return (
-    <div className="w-full h-full min-h-screen overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black">
+    <div className={useImplementation(
+      'useUnifiedThemeSystem',
+      // NEW: Unified theme system (12,000+ CSS classes → centralized theme)
+      `w-full h-full ${theme.themes.layout.page} overflow-hidden`,
+      // OLD: Original classes (fallback for safety)  
+      'w-full h-full min-h-screen overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black'
+    )}>
       <TabLayoutWrapper
         selectedDate={selectedDate}
         onDateChange={handleDateChange}
@@ -226,7 +233,13 @@ const AdminLifeLock: React.FC = () => {
               switch (activeTab as TabId) {
                 case 'morning':
                   return (
-                    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24">
+                    <div className={useImplementation(
+                      'useUnifiedThemeSystem',
+                      // NEW: Unified theme system
+                      `${theme.themes.layout.page} p-4 pb-24`,
+                      // OLD: Original classes (fallback for safety)
+                      'min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24'
+                    )}>
                       <CleanDateNav 
                         selectedDate={selectedDate}
                         completionPercentage={dayCompletionPercentage}
@@ -242,7 +255,13 @@ const AdminLifeLock: React.FC = () => {
                 
                 case 'focus':
                   return (
-                    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24">
+                    <div className={useImplementation(
+                      'useUnifiedThemeSystem',
+                      // NEW: Unified theme system
+                      `${theme.themes.layout.page} p-4 pb-24`,
+                      // OLD: Original classes (fallback for safety)
+                      'min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24'
+                    )}>
                       <CleanDateNav 
                         selectedDate={selectedDate}
                         completionPercentage={dayCompletionPercentage}
@@ -264,7 +283,13 @@ const AdminLifeLock: React.FC = () => {
                 
                 case 'light':
                   return (
-                    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24">
+                    <div className={useImplementation(
+                      'useUnifiedThemeSystem',
+                      // NEW: Unified theme system
+                      `${theme.themes.layout.page} p-4 pb-24`,
+                      // OLD: Original classes (fallback for safety)
+                      'min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24'
+                    )}>
                       <CleanDateNav 
                         selectedDate={selectedDate}
                         completionPercentage={dayCompletionPercentage}
@@ -285,7 +310,13 @@ const AdminLifeLock: React.FC = () => {
                 
                 case 'light-work':
                   return (
-                    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24">
+                    <div className={useImplementation(
+                      'useUnifiedThemeSystem',
+                      // NEW: Unified theme system
+                      `${theme.themes.layout.page} p-4 pb-24`,
+                      // OLD: Original classes (fallback for safety)
+                      'min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24'
+                    )}>
                       <CleanDateNav 
                         selectedDate={selectedDate}
                         completionPercentage={dayCompletionPercentage}
@@ -301,7 +332,13 @@ const AdminLifeLock: React.FC = () => {
                 
                 case 'work':
                   return (
-                    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24">
+                    <div className={useImplementation(
+                      'useUnifiedThemeSystem',
+                      // NEW: Unified theme system
+                      `${theme.themes.layout.page} p-4 pb-24`,
+                      // OLD: Original classes (fallback for safety)
+                      'min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24'
+                    )}>
                       <CleanDateNav 
                         selectedDate={selectedDate}
                         completionPercentage={dayCompletionPercentage}
@@ -317,7 +354,13 @@ const AdminLifeLock: React.FC = () => {
                 
                 case 'wellness':
                   return (
-                    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24">
+                    <div className={useImplementation(
+                      'useUnifiedThemeSystem',
+                      // NEW: Unified theme system
+                      `${theme.themes.layout.page} p-4 pb-24`,
+                      // OLD: Original classes (fallback for safety)
+                      'min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24'
+                    )}>
                       <CleanDateNav 
                         selectedDate={selectedDate}
                         completionPercentage={dayCompletionPercentage}
@@ -334,7 +377,13 @@ const AdminLifeLock: React.FC = () => {
                 
                 case 'timebox':
                   return (
-                    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24">
+                    <div className={useImplementation(
+                      'useUnifiedThemeSystem',
+                      // NEW: Unified theme system
+                      `${theme.themes.layout.page} p-4 pb-24`,
+                      // OLD: Original classes (fallback for safety)
+                      'min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24'
+                    )}>
                       <CleanDateNav 
                         selectedDate={selectedDate}
                         completionPercentage={dayCompletionPercentage}
@@ -350,7 +399,13 @@ const AdminLifeLock: React.FC = () => {
                 
                 case 'checkout':
                   return (
-                    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24">
+                    <div className={useImplementation(
+                      'useUnifiedThemeSystem',
+                      // NEW: Unified theme system
+                      `${theme.themes.layout.page} p-4 pb-24`,
+                      // OLD: Original classes (fallback for safety)
+                      'min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24'
+                    )}>
                       <CleanDateNav 
                         selectedDate={selectedDate}
                         completionPercentage={dayCompletionPercentage}
@@ -366,7 +421,13 @@ const AdminLifeLock: React.FC = () => {
                 
                 case 'ai-chat':
                   return (
-                    <div className="relative h-screen bg-gradient-to-br from-black via-gray-900 to-black overflow-hidden">
+                    <div className={useImplementation(
+                      'useUnifiedThemeSystem',
+                      // NEW: Unified theme system (special case: h-screen instead of min-h-screen)
+                      `relative overflow-hidden ${theme.gradients.diagonal.grayToBlack} h-screen`,
+                      // OLD: Original classes (fallback for safety)
+                      'relative h-screen bg-gradient-to-br from-black via-gray-900 to-black overflow-hidden'
+                    )}>
                       <div className="p-4">
                         <CleanDateNav 
                           selectedDate={selectedDate}

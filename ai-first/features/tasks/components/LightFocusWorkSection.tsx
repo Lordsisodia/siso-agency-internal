@@ -14,13 +14,16 @@ import {
   Zap,
   Brain,
   Settings,
-  Calendar
+  Calendar,
+  Eye
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { format } from 'date-fns';
 import { aiXPService, TaskAnalysis } from '@/ai-first/services/ai-xp-service';
 import { PersonalContextModal } from './PersonalContextModal';
 import { useTaskDatabase } from '@/ai-first/hooks/useTaskDatabase';
+import { theme } from '@/styles/theme';
+import { useImplementation } from '@/migration/feature-flags';
 
 // Simple block-style task management for light work sessions
 
@@ -123,6 +126,7 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
   const [editSubtaskTitle, setEditSubtaskTitle] = useState('');
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   const [showContextModal, setShowContextModal] = useState(false);
+  const [viewingTaskId, setViewingTaskId] = useState<string | null>(null);
 
   const toggleTask = (id: string) => {
     toggleTaskCompletion(id);
@@ -413,7 +417,13 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
   }, [tasks]);
 
   return (
-    <div className="min-h-screen w-full bg-gray-900 relative">
+    <div className={useImplementation(
+      'useUnifiedThemeSystem',
+      // NEW: Unified theme system
+      `min-h-screen w-full relative ${theme.backgrounds.solid.gray900}`,
+      // OLD: Original classes (fallback for safety)
+      'min-h-screen w-full bg-gray-900 relative'
+    )}>
       {/* Progress Line */}
       <div className="absolute left-0 top-0 bottom-0 w-1 bg-green-500/50"></div>
       
@@ -478,7 +488,13 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
             {/* Session Stats */}
             <div className="mb-6">
               <div className="grid grid-cols-3 gap-3">
-                <div className="group relative p-4 bg-gradient-to-br from-gray-800/40 to-gray-900/60 rounded-lg border border-gray-700/40 shadow-md hover:shadow-lg transition-all duration-300 hover:border-green-500/30 hover:from-gray-800/50 hover:to-gray-900/70">
+                <div className={useImplementation(
+                  'useUnifiedThemeSystem',
+                  // NEW: Unified theme system
+                  `group relative p-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:border-green-500/30 ${theme.themes.card.secondary}`,
+                  // OLD: Original classes (fallback for safety)  
+                  'group relative p-4 bg-gradient-to-br from-gray-800/40 to-gray-900/60 rounded-lg border border-gray-700/40 shadow-md hover:shadow-lg transition-all duration-300 hover:border-green-500/30 hover:from-gray-800/50 hover:to-gray-900/70'
+                )}>
                   <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="relative flex flex-col items-center justify-center text-center h-full">
                     <div className="text-2xl font-bold text-green-400 leading-tight">
@@ -487,7 +503,13 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
                     <div className="text-xs font-medium text-gray-300 uppercase tracking-wider mt-1">Time Left</div>
                   </div>
                 </div>
-                <div className="group relative p-4 bg-gradient-to-br from-gray-800/40 to-gray-900/60 rounded-lg border border-gray-700/40 shadow-md hover:shadow-lg transition-all duration-300 hover:border-blue-500/30 hover:from-gray-800/50 hover:to-gray-900/70">
+                <div className={useImplementation(
+                  'useUnifiedThemeSystem',
+                  // NEW: Unified theme system
+                  `group relative p-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:border-blue-500/30 ${theme.themes.card.secondary}`,
+                  // OLD: Original classes (fallback for safety)  
+                  'group relative p-4 bg-gradient-to-br from-gray-800/40 to-gray-900/60 rounded-lg border border-gray-700/40 shadow-md hover:shadow-lg transition-all duration-300 hover:border-blue-500/30 hover:from-gray-800/50 hover:to-gray-900/70'
+                )}>
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="relative flex flex-col items-center justify-center text-center h-full">
                     <div className="text-2xl font-bold text-blue-400 leading-tight">
@@ -496,7 +518,13 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
                     <div className="text-xs font-medium text-gray-300 uppercase tracking-wider mt-1">Avg XP</div>
                   </div>
                 </div>
-                <div className="group relative p-4 bg-gradient-to-br from-gray-800/40 to-gray-900/60 rounded-lg border border-gray-700/40 shadow-md hover:shadow-lg transition-all duration-300 hover:border-yellow-500/30 hover:from-gray-800/50 hover:to-gray-900/70">
+                <div className={useImplementation(
+                  'useUnifiedThemeSystem',
+                  // NEW: Unified theme system
+                  `group relative p-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:border-yellow-500/30 ${theme.themes.card.secondary}`,
+                  // OLD: Original classes (fallback for safety)  
+                  'group relative p-4 bg-gradient-to-br from-gray-800/40 to-gray-900/60 rounded-lg border border-gray-700/40 shadow-md hover:shadow-lg transition-all duration-300 hover:border-yellow-500/30 hover:from-gray-800/50 hover:to-gray-900/70'
+                )}>
                   <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="relative flex flex-col items-center justify-center text-center h-full">
                     <div className="text-2xl font-bold text-yellow-400 leading-tight">
@@ -570,17 +598,30 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
                           )}
                         </div>
                         
-                        {/* Delete button in top right */}
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteTask(task.id);
-                          }}
-                          className="flex-shrink-0 p-1 hover:bg-red-900/50 rounded text-gray-400 hover:text-red-400 transition-colors"
-                          title="Delete task"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
+                        {/* Action buttons in top right */}
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setViewingTaskId(task.id);
+                            }}
+                            className="flex-shrink-0 p-1 hover:bg-blue-900/50 rounded text-gray-400 hover:text-blue-400 transition-colors"
+                            title="View task details"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </button>
+                          
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteTask(task.id);
+                            }}
+                            className="flex-shrink-0 p-1 hover:bg-red-900/50 rounded text-gray-400 hover:text-red-400 transition-colors"
+                            title="Delete task"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
                       </div>
                       
                       
@@ -826,64 +867,6 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
                         </div>
                       </div>
                       
-                      {/* AI Analysis Bars - Moved to footer */}
-                      {task.aiAnalyzed && (
-                        <div className="space-y-2">
-                          {/* Priority/Importance Bar */}
-                          {task.priorityRank && (
-                            <div>
-                              <div className="flex items-center justify-between mb-1">
-                                <span className="text-xs font-medium text-gray-300">Importance</span>
-                                <span className="text-xs text-gray-400">{clampPriorityRank(task.priorityRank)}/5</span>
-                              </div>
-                              <div className="h-1.5 bg-gray-700/50 rounded-full overflow-hidden">
-                                <div 
-                                  className={`h-full rounded-full transition-all duration-500 ${
-                                    clampPriorityRank(task.priorityRank) === 5 ? 'bg-gradient-to-r from-red-500 to-red-400' :
-                                    clampPriorityRank(task.priorityRank) === 4 ? 'bg-gradient-to-r from-orange-500 to-orange-400' :
-                                    clampPriorityRank(task.priorityRank) === 3 ? 'bg-gradient-to-r from-yellow-500 to-yellow-400' :
-                                    clampPriorityRank(task.priorityRank) === 2 ? 'bg-gradient-to-r from-blue-500 to-blue-400' :
-                                    'bg-gradient-to-r from-gray-500 to-gray-400'
-                                  }`}
-                                  style={{ width: `${(clampPriorityRank(task.priorityRank) / 5) * 100}%` }}
-                                ></div>
-                              </div>
-                            </div>
-                          )}
-                          
-                          {/* Complexity Bar */}
-                          {task.complexity && (
-                            <div>
-                              <div className="flex items-center justify-between mb-1">
-                                <span className="text-xs font-medium text-gray-300">Complexity</span>
-                                <span className="text-xs text-gray-400">{Math.round((task.complexity / 10) * 5)}/5</span>
-                              </div>
-                              <div className="h-1.5 bg-gray-700/50 rounded-full overflow-hidden">
-                                <div 
-                                  className="h-full bg-gradient-to-r from-purple-500 to-purple-400 rounded-full transition-all duration-500"
-                                  style={{ width: `${(task.complexity / 10) * 100}%` }}
-                                ></div>
-                              </div>
-                            </div>
-                          )}
-                          
-                          {/* Learning Value Bar */}
-                          {task.learningValue && (
-                            <div>
-                              <div className="flex items-center justify-between mb-1">
-                                <span className="text-xs font-medium text-gray-300">Learning Value</span>
-                                <span className="text-xs text-gray-400">{Math.round((task.learningValue / 10) * 5)}/5</span>
-                              </div>
-                              <div className="h-1.5 bg-gray-700/50 rounded-full overflow-hidden">
-                                <div 
-                                  className="h-full bg-gradient-to-r from-green-500 to-green-400 rounded-full transition-all duration-500"
-                                  style={{ width: `${(task.learningValue / 10) * 100}%` }}
-                                ></div>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
                     </div>
                   </div>
                 );
@@ -935,6 +918,316 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
           console.log('🎯 Personal context updated for AI XP analysis');
         }}
       />
+
+      {/* Enhanced Task Detail Modal */}
+      {viewingTaskId && (
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-start justify-center p-4 pt-8">
+          <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-black border border-gray-600/50 rounded-2xl max-w-5xl w-full max-h-[85vh] overflow-y-auto shadow-2xl">
+            {(() => {
+              const task = tasks.find(t => t.id === viewingTaskId);
+              if (!task) return null;
+              
+              return (
+                <div className="p-8">
+                  {/* Enhanced Header */}
+                  <div className="flex items-start justify-between mb-8">
+                    <div className="flex items-center gap-4">
+                      <button
+                        onClick={() => toggleTask(task.id)}
+                        className="flex-shrink-0 hover:scale-110 transition-transform"
+                      >
+                        {task.completed ? (
+                          <Check className="h-8 w-8 text-green-400" />
+                        ) : (
+                          <div className="h-8 w-8 rounded-full border-3 border-gray-400 hover:border-green-400 transition-colors" />
+                        )}
+                      </button>
+                      <div>
+                        <h1 className="text-3xl font-bold text-white mb-2">{task.title}</h1>
+                        <div className="flex items-center gap-3">
+                          {task.aiAnalyzed && task.xpReward && (
+                            <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/50 rounded-full">
+                              <Zap className="h-5 w-5 text-yellow-400" />
+                              <span className="text-xl font-bold text-yellow-300">{task.xpReward} XP</span>
+                            </div>
+                          )}
+                          {task.difficulty && (
+                            <div className={`px-3 py-1.5 rounded-full text-sm font-semibold border ${
+                              task.difficulty === 'expert' ? 'bg-red-900/40 border-red-600/60 text-red-300' :
+                              task.difficulty === 'hard' ? 'bg-orange-900/40 border-orange-600/60 text-orange-300' :
+                              task.difficulty === 'moderate' ? 'bg-yellow-900/40 border-yellow-600/60 text-yellow-300' :
+                              task.difficulty === 'easy' ? 'bg-blue-900/40 border-blue-600/60 text-blue-300' :
+                              'bg-gray-900/40 border-gray-600/60 text-gray-300'
+                            }`}>
+                              {task.difficulty.toUpperCase()}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setViewingTaskId(null)}
+                      className="p-3 hover:bg-gray-700/50 rounded-xl text-gray-400 hover:text-white transition-colors"
+                    >
+                      <X className="h-8 w-8" />
+                    </button>
+                  </div>
+
+                  {/* Beautiful AI Analysis Section */}
+                  {task.aiAnalyzed && (
+                    <div className="mb-8 p-8 bg-gradient-to-br from-blue-900/30 via-purple-900/20 to-indigo-900/30 border border-blue-600/40 rounded-2xl backdrop-blur-sm">
+                      <div className="flex items-center gap-3 mb-6">
+                        <div className="p-2 bg-blue-500/20 rounded-xl">
+                          <Brain className="h-6 w-6 text-blue-300" />
+                        </div>
+                        <h2 className="text-2xl font-bold text-blue-200">AI Analysis</h2>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-6">
+                        {/* Enhanced Progress Bars */}
+                        {task.priorityRank && (
+                          <div className="bg-gray-800/30 p-6 rounded-xl border border-gray-600/30">
+                            <div className="flex items-center justify-between mb-3">
+                              <span className="text-lg font-semibold text-gray-200">Importance</span>
+                              <span className="text-lg font-bold text-gray-300">{clampPriorityRank(task.priorityRank)}/5</span>
+                            </div>
+                            <div className="h-4 bg-gray-700/50 rounded-full overflow-hidden">
+                              <div 
+                                className={`h-full rounded-full transition-all duration-700 ${
+                                  clampPriorityRank(task.priorityRank) === 5 ? 'bg-gradient-to-r from-red-500 to-red-400' :
+                                  clampPriorityRank(task.priorityRank) === 4 ? 'bg-gradient-to-r from-orange-500 to-orange-400' :
+                                  clampPriorityRank(task.priorityRank) === 3 ? 'bg-gradient-to-r from-yellow-500 to-yellow-400' :
+                                  clampPriorityRank(task.priorityRank) === 2 ? 'bg-gradient-to-r from-blue-500 to-blue-400' :
+                                  'bg-gradient-to-r from-gray-500 to-gray-400'
+                                }`}
+                                style={{ width: `${(clampPriorityRank(task.priorityRank) / 5) * 100}%` }}
+                              ></div>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {task.complexity && (
+                          <div className="bg-gray-800/30 p-6 rounded-xl border border-gray-600/30">
+                            <div className="flex items-center justify-between mb-3">
+                              <span className="text-lg font-semibold text-gray-200">Complexity</span>
+                              <span className="text-lg font-bold text-gray-300">{Math.round((task.complexity / 10) * 5)}/5</span>
+                            </div>
+                            <div className="h-4 bg-gray-700/50 rounded-full overflow-hidden">
+                              <div 
+                                className="h-full bg-gradient-to-r from-purple-500 to-purple-400 rounded-full transition-all duration-700"
+                                style={{ width: `${(task.complexity / 10) * 100}%` }}
+                              ></div>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {task.learningValue && (
+                          <div className="bg-gray-800/30 p-6 rounded-xl border border-gray-600/30">
+                            <div className="flex items-center justify-between mb-3">
+                              <span className="text-lg font-semibold text-gray-200">Learning Value</span>
+                              <span className="text-lg font-bold text-gray-300">{Math.round((task.learningValue / 10) * 5)}/5</span>
+                            </div>
+                            <div className="h-4 bg-gray-700/50 rounded-full overflow-hidden">
+                              <div 
+                                className="h-full bg-gradient-to-r from-green-500 to-green-400 rounded-full transition-all duration-700"
+                                style={{ width: `${(task.learningValue / 10) * 100}%` }}
+                              ></div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* AI Time Estimate */}
+                      {(task as any).aiTimeEstimate && (
+                        <div className="bg-blue-900/20 p-6 rounded-xl border border-blue-600/30">
+                          <h3 className="text-lg font-semibold text-blue-300 mb-3 flex items-center gap-2">
+                            <Clock className="h-5 w-5" />
+                            AI Time Estimate
+                          </h3>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                            <div>
+                              <div className="text-sm text-gray-400 mb-1">Minimum</div>
+                              <div className="text-2xl font-bold text-blue-300">{(task as any).aiTimeEstimate.min}m</div>
+                            </div>
+                            <div className="border-l border-r border-blue-600/30 md:border-l md:border-r-0">
+                              <div className="text-sm text-gray-400 mb-1">Most Likely</div>
+                              <div className="text-3xl font-bold text-blue-200">{(task as any).aiTimeEstimate.most_likely}m</div>
+                            </div>
+                            <div>
+                              <div className="text-sm text-gray-400 mb-1">Maximum</div>
+                              <div className="text-2xl font-bold text-blue-300">{(task as any).aiTimeEstimate.max}m</div>
+                            </div>
+                          </div>
+                          <div className="text-center mt-4 text-sm text-blue-400">
+                            {Math.round((task as any).aiTimeEstimate.confidence * 100)}% confidence level
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Enhanced Subtasks Section */}
+                  <div className="mb-8">
+                    <div className="flex items-center justify-between mb-6">
+                      <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                        <Target className="h-6 w-6 text-green-400" />
+                        Subtasks
+                      </h2>
+                      <div className="text-lg text-gray-300">
+                        {task.subtasks.filter(s => s.completed).length}/{task.subtasks.length} completed
+                      </div>
+                    </div>
+                    
+                    {task.subtasks.length > 0 ? (
+                      <div className="space-y-4">
+                        {task.subtasks.map((subtask, index) => (
+                          <div key={subtask.id} className="group p-6 bg-gradient-to-r from-gray-800/50 to-gray-900/30 border border-gray-600/30 rounded-xl hover:border-green-500/30 transition-all duration-300">
+                            <div className="flex items-center gap-4">
+                              <button
+                                onClick={() => toggleSubtask(task.id, subtask.id)}
+                                className="flex-shrink-0 hover:scale-110 transition-transform"
+                              >
+                                {subtask.completed ? (
+                                  <Check className="h-6 w-6 text-green-400" />
+                                ) : (
+                                  <div className="h-6 w-6 rounded-full border-2 border-gray-400 hover:border-green-400 transition-colors" />
+                                )}
+                              </button>
+                              
+                              <div className="flex-1">
+                                <div className="flex items-center justify-between mb-2">
+                                  <h3 className={`text-lg font-medium ${subtask.completed ? 'line-through text-gray-400' : 'text-white'}`}>
+                                    {index + 1}. {subtask.title}
+                                  </h3>
+                                  <div className="flex items-center gap-3">
+                                    {subtask.aiAnalyzed && subtask.xpReward && (
+                                      <div className="flex items-center gap-1 px-3 py-1 bg-yellow-500/20 border border-yellow-500/40 rounded-full">
+                                        <Zap className="h-3 w-3 text-yellow-400" />
+                                        <span className="text-sm font-bold text-yellow-300">{subtask.xpReward} XP</span>
+                                      </div>
+                                    )}
+                                    {subtask.difficulty && (
+                                      <div className={`px-2 py-1 rounded text-xs font-medium ${
+                                        subtask.difficulty === 'expert' ? 'bg-red-900/30 text-red-300' :
+                                        subtask.difficulty === 'hard' ? 'bg-orange-900/30 text-orange-300' :
+                                        subtask.difficulty === 'moderate' ? 'bg-yellow-900/30 text-yellow-300' :
+                                        subtask.difficulty === 'easy' ? 'bg-blue-900/30 text-blue-300' :
+                                        'bg-gray-900/30 text-gray-300'
+                                      }`}>
+                                        {subtask.difficulty.charAt(0).toUpperCase()}
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                                
+                                {/* Subtask AI Analysis Bars */}
+                                {subtask.aiAnalyzed && (
+                                  <div className="grid grid-cols-3 gap-4 mt-4">
+                                    {subtask.priorityRank && (
+                                      <div>
+                                        <div className="flex items-center justify-between mb-1">
+                                          <span className="text-xs text-gray-400">Importance</span>
+                                          <span className="text-xs text-gray-400">{clampPriorityRank(subtask.priorityRank)}/5</span>
+                                        </div>
+                                        <div className="h-2 bg-gray-700/50 rounded-full overflow-hidden">
+                                          <div 
+                                            className={`h-full rounded-full transition-all duration-500 ${
+                                              clampPriorityRank(subtask.priorityRank) === 5 ? 'bg-gradient-to-r from-red-500 to-red-400' :
+                                              clampPriorityRank(subtask.priorityRank) === 4 ? 'bg-gradient-to-r from-orange-500 to-orange-400' :
+                                              clampPriorityRank(subtask.priorityRank) === 3 ? 'bg-gradient-to-r from-yellow-500 to-yellow-400' :
+                                              clampPriorityRank(subtask.priorityRank) === 2 ? 'bg-gradient-to-r from-blue-500 to-blue-400' :
+                                              'bg-gradient-to-r from-gray-500 to-gray-400'
+                                            }`}
+                                            style={{ width: `${(clampPriorityRank(subtask.priorityRank) / 5) * 100}%` }}
+                                          ></div>
+                                        </div>
+                                      </div>
+                                    )}
+                                    
+                                    {(subtask as any).complexity && (
+                                      <div>
+                                        <div className="flex items-center justify-between mb-1">
+                                          <span className="text-xs text-gray-400">Complexity</span>
+                                          <span className="text-xs text-gray-400">{Math.round(((subtask as any).complexity / 10) * 5)}/5</span>
+                                        </div>
+                                        <div className="h-2 bg-gray-700/50 rounded-full overflow-hidden">
+                                          <div 
+                                            className="h-full bg-gradient-to-r from-purple-500 to-purple-400 rounded-full transition-all duration-500"
+                                            style={{ width: `${((subtask as any).complexity / 10) * 100}%` }}
+                                          ></div>
+                                        </div>
+                                      </div>
+                                    )}
+                                    
+                                    {(subtask as any).learningValue && (
+                                      <div>
+                                        <div className="flex items-center justify-between mb-1">
+                                          <span className="text-xs text-gray-400">Learning</span>
+                                          <span className="text-xs text-gray-400">{Math.round(((subtask as any).learningValue / 10) * 5)}/5</span>
+                                        </div>
+                                        <div className="h-2 bg-gray-700/50 rounded-full overflow-hidden">
+                                          <div 
+                                            className="h-full bg-gradient-to-r from-green-500 to-green-400 rounded-full transition-all duration-500"
+                                            style={{ width: `${((subtask as any).learningValue / 10) * 100}%` }}
+                                          ></div>
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-12 text-gray-400">
+                        <Target className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                        <p className="text-lg">No subtasks yet</p>
+                        <p className="text-sm">Click "Add Subtask" to break this task down</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Enhanced Action Buttons */}
+                  <div className="flex flex-wrap justify-center gap-4 pt-8 border-t border-gray-600/50">
+                    <button
+                      onClick={() => analyzeTaskWithAI(task.id)}
+                      className={`flex items-center gap-3 px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
+                        task.aiAnalyzed 
+                          ? 'bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/50 text-yellow-200 hover:from-yellow-500/30 hover:to-orange-500/30' 
+                          : 'bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/50 text-blue-200 hover:from-blue-500/30 hover:to-purple-500/30'
+                      }`}
+                    >
+                      {task.aiAnalyzed ? <Zap className="h-5 w-5" /> : <Brain className="h-5 w-5" />}
+                      {task.aiAnalyzed ? 'Re-analyze with AI' : 'Analyze with AI'}
+                    </button>
+                    
+                    <button
+                      onClick={() => handlePushToAnotherDay(task.id)}
+                      className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-gray-500/20 to-gray-600/20 border border-gray-500/50 text-gray-200 hover:from-gray-500/30 hover:to-gray-600/30 rounded-xl font-semibold transition-all duration-300"
+                    >
+                      <Calendar className="h-5 w-5" />
+                      Push to Tomorrow
+                    </button>
+                    
+                    <button
+                      onClick={() => {
+                        handleDeleteTask(task.id);
+                        setViewingTaskId(null);
+                      }}
+                      className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-red-500/20 to-red-600/20 border border-red-500/50 text-red-200 hover:from-red-500/30 hover:to-red-600/30 rounded-xl font-semibold transition-all duration-300"
+                    >
+                      <X className="h-5 w-5" />
+                      Delete Task
+                    </button>
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

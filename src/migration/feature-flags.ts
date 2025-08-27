@@ -45,6 +45,7 @@ export interface LifeLockFeatureFlags {
   // UI Component refactoring (SAFEST - just visual components)
   useUnifiedLoadingState: boolean;            // Replace 100+ custom loading divs with LoadingState component
   useUnifiedErrorState: boolean;              // Replace 50+ custom error divs with ErrorState component
+  useUnifiedThemeSystem: boolean;             // Replace 12,000+ duplicate CSS classes with theme system
 }
 
 /**
@@ -86,6 +87,7 @@ export const DEFAULT_FEATURE_FLAGS: LifeLockFeatureFlags = {
   // UI Component refactoring (SAFEST - just visual components)
   useUnifiedLoadingState: false,
   useUnifiedErrorState: false,
+  useUnifiedThemeSystem: false,
 };
 
 /**
@@ -111,6 +113,7 @@ const DEVELOPMENT_OVERRIDES: Partial<LifeLockFeatureFlags> = {
   // ULTRA-SAFE UI COMPONENT REFACTORS (150+ lines saved with zero risk)
   useUnifiedLoadingState: true,           // Replace 100+ loading divs - SAFEST refactor possible
   useUnifiedErrorState: true,             // Replace 50+ error divs - SAFEST refactor possible
+  useUnifiedThemeSystem: true,            // Replace 12,000+ CSS classes - MASSIVE bundle reduction
 };
 
 // Apply development overrides if in development mode

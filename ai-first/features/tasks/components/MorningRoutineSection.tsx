@@ -23,6 +23,7 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useClerkUser } from '@/components/ClerkProvider';
 import { apiClient } from '@/services/api-client';
+import { theme } from '@/styles/theme';
 import { getTasksForSection } from '@/data/task-defaults';
 import { isFeatureEnabled, useImplementation } from '@/migration/feature-flags';
 import { LoadingState } from '@/components/ui/loading-state';
@@ -236,10 +237,22 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
         message="Loading morning routine..." 
         variant="spinner"
         size="lg"
-        className="min-h-screen w-full bg-gray-900"
+        className={useImplementation(
+          'useUnifiedThemeSystem',
+          // NEW: Unified theme system
+          `min-h-screen w-full ${theme.backgrounds.solid.gray900}`,
+          // OLD: Original classes (fallback for safety)
+          'min-h-screen w-full bg-gray-900'
+        )}
       />,
       // OLD: Original loading state (fallback for safety)
-      <div className="min-h-screen w-full bg-gray-900 flex items-center justify-center">
+      <div className={useImplementation(
+        'useUnifiedThemeSystem',
+        // NEW: Unified theme system
+        `min-h-screen w-full flex items-center justify-center ${theme.backgrounds.solid.gray900}`,
+        // OLD: Original classes (fallback for safety)
+        'min-h-screen w-full bg-gray-900 flex items-center justify-center'
+      )}>
         <div className="text-yellow-400">Loading morning routine...</div>
       </div>
     );
@@ -256,14 +269,26 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
         className="min-h-screen w-full bg-gray-900"
       />,
       // OLD: Original error state (fallback for safety)
-      <div className="min-h-screen w-full bg-gray-900 flex items-center justify-center">
+      <div className={useImplementation(
+        'useUnifiedThemeSystem',
+        // NEW: Unified theme system
+        `min-h-screen w-full flex items-center justify-center ${theme.backgrounds.solid.gray900}`,
+        // OLD: Original classes (fallback for safety)
+        'min-h-screen w-full bg-gray-900 flex items-center justify-center'
+      )}>
         <div className="text-red-400">Error loading morning routine: {error}</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen w-full bg-gray-900">
+    <div className={useImplementation(
+      'useUnifiedThemeSystem',
+      // NEW: Unified theme system
+      `min-h-screen w-full ${theme.backgrounds.solid.gray900}`,
+      // OLD: Original classes (fallback for safety)
+      'min-h-screen w-full bg-gray-900'
+    )}>
       <div className="max-w-7xl mx-auto p-3 sm:p-4 md:p-6 lg:p-8 space-y-6">
         
         {/* Morning Routine Card */}

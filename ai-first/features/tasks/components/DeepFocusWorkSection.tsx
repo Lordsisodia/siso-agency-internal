@@ -23,6 +23,7 @@ import { useTaskDatabase } from '../../../hooks/useTaskDatabase';
 // REFACTORED IMPORTS
 import { UnifiedTaskCard, TaskCardTask, TaskCardSubtask } from '@/refactored/components/UnifiedTaskCard';
 import { useImplementation } from '@/migration/feature-flags';
+import { theme } from '@/styles/theme';
 import { LoadingState } from '@/components/ui/loading-state';
 import { ErrorState } from '@/components/ui/error-state';
 
@@ -182,10 +183,22 @@ export const DeepFocusWorkSection: React.FC<DeepFocusWorkSectionProps> = ({
         message="Loading deep work tasks..." 
         variant="spinner"
         size="lg"
-        className="min-h-screen w-full bg-gray-900"
+        className={useImplementation(
+          'useUnifiedThemeSystem',
+          // NEW: Unified theme system
+          `min-h-screen w-full ${theme.backgrounds.solid.gray900}`,
+          // OLD: Original classes (fallback for safety)
+          'min-h-screen w-full bg-gray-900'
+        )}
       />,
       // OLD: Original loading state (fallback for safety)
-      <div className="min-h-screen w-full bg-gray-900 flex items-center justify-center">
+      <div className={useImplementation(
+        'useUnifiedThemeSystem',
+        // NEW: Unified theme system
+        `min-h-screen w-full flex items-center justify-center ${theme.backgrounds.solid.gray900}`,
+        // OLD: Original classes (fallback for safety)
+        'min-h-screen w-full bg-gray-900 flex items-center justify-center'
+      )}>
         <div className="text-blue-400">Loading deep work tasks...</div>
       </div>
     );
@@ -199,17 +212,35 @@ export const DeepFocusWorkSection: React.FC<DeepFocusWorkSectionProps> = ({
         title="Error Loading Tasks"
         message={`Could not load deep work tasks: ${error}`}
         type="loading_error"
-        className="min-h-screen w-full bg-gray-900"
+        className={useImplementation(
+          'useUnifiedThemeSystem',
+          // NEW: Unified theme system
+          `min-h-screen w-full ${theme.backgrounds.solid.gray900}`,
+          // OLD: Original classes (fallback for safety)
+          'min-h-screen w-full bg-gray-900'
+        )}
       />,
       // OLD: Original error state (fallback for safety)
-      <div className="min-h-screen w-full bg-gray-900 flex items-center justify-center">
+      <div className={useImplementation(
+        'useUnifiedThemeSystem',
+        // NEW: Unified theme system
+        `min-h-screen w-full flex items-center justify-center ${theme.backgrounds.solid.gray900}`,
+        // OLD: Original classes (fallback for safety)
+        'min-h-screen w-full bg-gray-900 flex items-center justify-center'
+      )}>
         <div className="text-red-400">Error loading tasks: {error}</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen w-full bg-gray-900">
+    <div className={useImplementation(
+      'useUnifiedThemeSystem',
+      // NEW: Unified theme system
+      `min-h-screen w-full ${theme.backgrounds.solid.gray900}`,
+      // OLD: Original classes (fallback for safety)
+      'min-h-screen w-full bg-gray-900'
+    )}>
       <div className="max-w-7xl mx-auto p-3 sm:p-4 md:p-6 lg:p-8 space-y-6">
         
         {/* Deep Work Card */}
