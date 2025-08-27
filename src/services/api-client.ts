@@ -4,6 +4,8 @@
  * Browser-safe HTTP client for calling our API endpoints
  */
 
+import { createApiUrl } from '../utils/api-config';
+
 export interface CreateTaskInput {
   title: string;
   description?: string;
@@ -31,13 +33,12 @@ export interface PersonalContextData {
 }
 
 class APIClient {
-  private baseURL = 'http://localhost:3001';
 
   /**
    * Get tasks for a user on a specific date
    */
   async getTasksForDate(userId: string, date: string) {
-    const response = await fetch(`${this.baseURL}/api/tasks?userId=${userId}&date=${date}`);
+    const response = await fetch(createApiUrl(`/api/tasks?userId=${userId}&date=${date}`));
     const result = await response.json();
     
     if (!result.success) {
@@ -51,7 +52,7 @@ class APIClient {
    * Create a new task
    */
   async createTask(userId: string, taskData: CreateTaskInput) {
-    const response = await fetch(`${this.baseURL}/api/tasks`, {
+    const response = await fetch(createApiUrl('/api/tasks'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -72,7 +73,7 @@ class APIClient {
    * Update task completion status
    */
   async updateTaskCompletion(taskId: string, completed: boolean) {
-    const response = await fetch(`${this.baseURL}/api/tasks/${taskId}`, {
+    const response = await fetch(createApiUrl(`/api/tasks/${taskId}`), {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json'
@@ -93,7 +94,7 @@ class APIClient {
    * Update task title
    */
   async updateTaskTitle(taskId: string, title: string) {
-    const response = await fetch(`${this.baseURL}/api/tasks/${taskId}`, {
+    const response = await fetch(createApiUrl(`/api/tasks/${taskId}`), {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json'
@@ -114,7 +115,7 @@ class APIClient {
    * Update subtask completion status
    */
   async updateSubtaskCompletion(subtaskId: string, completed: boolean) {
-    const response = await fetch(`${this.baseURL}/api/subtasks/${subtaskId}`, {
+    const response = await fetch(createApiUrl(`/api/subtasks/${subtaskId}`), {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json'
@@ -135,7 +136,7 @@ class APIClient {
    * Add subtask to existing task
    */
   async addSubtask(taskId: string, subtaskData: { title: string; workType: 'DEEP' | 'LIGHT' | 'MORNING' }) {
-    const response = await fetch(`${this.baseURL}/api/subtasks`, {
+    const response = await fetch(createApiUrl('/api/subtasks'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -156,7 +157,7 @@ class APIClient {
    * Delete task
    */
   async deleteTask(taskId: string) {
-    const response = await fetch(`${this.baseURL}/api/tasks?taskId=${taskId}`, {
+    const response = await fetch(createApiUrl(`/api/tasks?taskId=${taskId}`), {
       method: 'DELETE'
     });
     
@@ -173,7 +174,7 @@ class APIClient {
    * Push task to another day
    */
   async pushTaskToAnotherDay(taskId: string, pushedToDate?: string) {
-    const response = await fetch(`${this.baseURL}/api/tasks/${taskId}/push`, {
+    const response = await fetch(createApiUrl(`/api/tasks/${taskId}/push`), {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json'
@@ -194,7 +195,7 @@ class APIClient {
    * Get personal context for user
    */
   async getPersonalContext(userId: string) {
-    const response = await fetch(`${this.baseURL}/api/personal-context/${userId}`);
+    const response = await fetch(createApiUrl(`/api/personal-context/${userId}`));
     const result = await response.json();
     
     if (!result.success) {
@@ -208,7 +209,7 @@ class APIClient {
    * Update personal context for user
    */
   async updatePersonalContext(userId: string, contextData: PersonalContextData) {
-    const response = await fetch(`${this.baseURL}/api/personal-context`, {
+    const response = await fetch(createApiUrl('/api/personal-context'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

@@ -5,6 +5,8 @@
  * Provides feedback loop to improve future AI estimates
  */
 
+import { createApiUrl } from '../../src/utils/api-config';
+
 export interface TimeAccuracyMetrics {
   taskId: string;
   actualDurationMin: number;
@@ -31,7 +33,7 @@ class TimeTrackingService {
   async startTask(taskId: string): Promise<void> {
     try {
       // Update task with start time via our API
-      const response = await fetch(`http://localhost:3001/api/tasks/${taskId}`, {
+      const response = await fetch(createApiUrl(`/api/tasks/${taskId}`), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -54,7 +56,7 @@ class TimeTrackingService {
    */
   async startSubtask(subtaskId: string): Promise<void> {
     try {
-      const response = await fetch(`http://localhost:3001/api/subtasks/${subtaskId}`, {
+      const response = await fetch(createApiUrl(`/api/subtasks/${subtaskId}`), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -83,7 +85,7 @@ class TimeTrackingService {
       const completedAt = new Date();
       
       // Get current task data to find start time
-      const taskResponse = await fetch(`http://localhost:3001/api/tasks/${taskId}/details`);
+      const taskResponse = await fetch(createApiUrl(`/api/tasks/${taskId}/details`));
       let task = null;
       
       if (taskResponse.ok) {
@@ -121,7 +123,7 @@ class TimeTrackingService {
         timeAccuracy: metrics?.accuracy || null
       };
       
-      await fetch(`http://localhost:3001/api/tasks/${taskId}`, {
+      await fetch(createApiUrl(`/api/tasks/${taskId}`), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updateData)
@@ -151,7 +153,7 @@ class TimeTrackingService {
       const completedAt = new Date();
       
       // Similar logic for subtasks
-      const subtaskResponse = await fetch(`http://localhost:3001/api/subtasks/${subtaskId}/details`);
+      const subtaskResponse = await fetch(createApiUrl(`/api/subtasks/${subtaskId}/details`));
       let subtask = null;
       
       if (subtaskResponse.ok) {
@@ -186,7 +188,7 @@ class TimeTrackingService {
         timeAccuracy: metrics?.accuracy || null
       };
       
-      await fetch(`http://localhost:3001/api/subtasks/${subtaskId}`, {
+      await fetch(createApiUrl(`/api/subtasks/${subtaskId}`), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updateData)
@@ -251,7 +253,7 @@ class TimeTrackingService {
    */
   async getAccuracyInsights(userId: string): Promise<AccuracyInsights> {
     try {
-      const response = await fetch(`http://localhost:3001/api/users/${userId}/time-accuracy`);
+      const response = await fetch(createApiUrl(`/api/users/${userId}/time-accuracy`));
       
       if (!response.ok) {
         // Return default insights if API doesn't have the endpoint yet
