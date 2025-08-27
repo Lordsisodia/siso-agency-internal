@@ -273,32 +273,97 @@ export const DeepFocusWorkSection: React.FC<DeepFocusWorkSectionProps> = ({
           </CardHeader>
           <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
             
-            {/* REFACTORED: 67 lines of custom task rendering → UnifiedTaskCard */}
-            {useImplementation(
-              'useUnifiedTaskCard',
-              
-              // NEW: Clean, unified task rendering (67 lines saved per section!)
-              <div className="space-y-2 sm:space-y-3">
-                {deepWorkTasksFiltered.map((item) => (
-                  <UnifiedTaskCard
-                    key={item.id}
-                    task={dbTaskToUnified(item)}
-                    theme="work"  // Purple/blue theme for deep work
-                    variant="standard"
-                    showProgress={true}
-                    showTimeEstimate={true}
-                    showSubtasks={true}
-                    animateCompletion={true}
-                    onTaskToggle={(taskId, completed) => toggleTaskCompletion(taskId)}
-                    onSubtaskToggle={(taskId, subtaskId, completed) => toggleSubtaskCompletion(taskId, subtaskId)}
-                    onAddSubtask={(taskId, subtaskTitle) => addSubtask(taskId, subtaskTitle)}
-                  />
-                ))}
-              </div>,
-              
-              // OLD: Original 67-line custom rendering (fallback for safety)
-              <div className="space-y-2 sm:space-y-3">
-                {deepWorkTasksFiltered.map((item) => (
+            {/* Clean Task Cards - Same design as Light Work page */}
+            <div className="space-y-4">
+              {deepWorkTasksFiltered.map((task) => (
+                <div
+                  key={task.id}
+                  className={`
+                    p-4 rounded-lg border transition-all duration-200
+                    ${task.completed 
+                      ? 'bg-green-900/20 border-green-700/50 text-green-100' 
+                      : 'bg-blue-900/20 border-blue-700/50 text-blue-100 hover:border-blue-600/50 hover:bg-blue-800/30'
+                    }
+                  `}
+                >
+                  {/* Task Header */}
+                  <div className="space-y-2">
+                    {/* Main task row with checkbox, title, and delete button */}
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => toggleTaskCompletion(task.id)}
+                        className="flex-shrink-0 hover:scale-110 transition-transform"
+                      >
+                        {task.completed ? (
+                          <Check className="h-5 w-5 text-green-400" />
+                        ) : (
+                          <div className="h-5 w-5 rounded-full border-2 border-gray-400 hover:border-blue-400 transition-colors" />
+                        )}
+                      </button>
+                      
+                      <div className="flex-1">
+                        <h3 
+                          className={`text-base font-medium leading-tight ${
+                            task.completed ? 'line-through text-green-300/80' : 'text-blue-100'
+                          }`}
+                        >
+                          {task.title}
+                        </h3>
+                      </div>
+                      
+                      {/* Action buttons in top right */}
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => deleteTask(task.id)}
+                          className="flex-shrink-0 p-1 hover:bg-red-900/50 rounded text-gray-400 hover:text-red-400 transition-colors"
+                          title="Delete task"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                  
+                  {/* Subtasks */}
+                  {task.subtasks && task.subtasks.length > 0 && (
+                    <div className="ml-8 space-y-2">
+                      {task.subtasks.map((subtask, index) => (
+                        <div key={subtask.id} className="flex items-center gap-3 p-2 rounded hover:bg-blue-800/20 transition-colors">
+                          <button
+                            onClick={() => toggleSubtaskCompletion(task.id, subtask.id)}
+                            className="flex-shrink-0 hover:scale-110 transition-transform"
+                          >
+                            {subtask.completed ? (
+                              <Check className="h-4 w-4 text-green-400" />
+                            ) : (
+                              <div className="h-4 w-4 rounded-full border-2 border-gray-400 hover:border-blue-400 transition-colors" />
+                            )}
+                          </button>
+                          <span className={`text-sm ${
+                            subtask.completed ? 'line-through text-green-300/80' : 'text-blue-200'
+                          }`}>
+                            {index + 1}. {subtask.title}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Task Footer - Progress and Actions */}
+                  <div className="flex items-center justify-between pt-3 border-t border-blue-600/20">
+                    <div className="flex items-center gap-4 text-sm text-blue-300">
+                      {task.subtasks && task.subtasks.length > 0 && (
+                        <span>
+                          {task.subtasks.filter(s => s.completed).length}/{task.subtasks.length} subtasks
+                        </span>
+                      )}
+                      {task.timeEstimate && (
+                        <span>{task.timeEstimate}</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
                   <div key={item.id} className="group bg-blue-900/10 border border-blue-700/30 rounded-xl hover:bg-blue-900/15 hover:border-blue-600/40 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5">
                     <div className="flex items-start space-x-2 sm:space-x-3 p-2 sm:p-3">
                       <Checkbox
