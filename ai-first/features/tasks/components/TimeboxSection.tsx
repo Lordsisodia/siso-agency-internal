@@ -17,6 +17,8 @@ import { TaskDetailModal } from './TaskDetailModal';
 import { TimeBlockFormModal } from './TimeBlockFormModal';
 import { useTimeBlocks } from '@/hooks/useTimeBlocks';
 import { TimeBlockCategory } from '../../../../generated/prisma/index.js';
+import { theme } from '@/styles/theme';
+import { useImplementation } from '@/migration/feature-flags';
 
 // Map database categories to UI categories
 const mapCategoryToUI = (dbCategory: TimeBlockCategory): string => {
@@ -337,7 +339,13 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
   // Show loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen w-full bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center">
+      <div className={useImplementation(
+        'useUnifiedThemeSystem',
+        // NEW: Unified theme system
+        `min-h-screen w-full flex items-center justify-center ${theme.gradients.diagonal.grayToBlack}`,
+        // OLD: Original classes (fallback for safety)
+        'min-h-screen w-full bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center'
+      )}>
         <div className="text-center">
           <motion.div 
             className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full mx-auto mb-4"
@@ -367,7 +375,13 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
   }, [currentTimePosition, validTasks]); // Trigger when current time or valid tasks change
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-black via-gray-900 to-black">
+    <div className={useImplementation(
+      'useUnifiedThemeSystem',
+      // NEW: Unified theme system
+      `min-h-screen w-full ${theme.gradients.diagonal.grayToBlack}`,
+      // OLD: Original classes (fallback for safety)
+      'min-h-screen w-full bg-gradient-to-br from-black via-gray-900 to-black'
+    )}>
       <div className="max-w-7xl mx-auto p-3 sm:p-4 md:p-6 lg:p-8 space-y-6">
         
         {/* Enhanced Header */}
@@ -415,7 +429,13 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
             
             <div className="border-t border-gradient-to-r from-purple-600/30 via-purple-500/50 to-purple-600/30 my-6"></div>
             
-            <div className="bg-gradient-to-r from-purple-900/40 to-indigo-900/40 rounded-xl p-4 border border-purple-600/30">
+            <div className={useImplementation(
+              'useUnifiedThemeSystem',
+              // NEW: Use theme pattern (could extend theme for purple variants)
+              'rounded-xl p-4 border border-purple-600/30 bg-gradient-to-r from-purple-900/40 to-indigo-900/40',
+              // OLD: Original classes (fallback for safety)
+              'bg-gradient-to-r from-purple-900/40 to-indigo-900/40 rounded-xl p-4 border border-purple-600/30'
+            )}>
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-bold text-purple-200 text-base flex items-center">
                   <span className="w-2 h-2 bg-purple-400 rounded-full mr-3 animate-pulse"></span>
@@ -460,8 +480,20 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
             {/* Enhanced Timeline Container with Scroll Indicators */}
             <div className="relative">
               {/* Scroll fade indicators */}
-              <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-gray-900/80 to-transparent z-30 pointer-events-none rounded-t-2xl" />
-              <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-gray-900/80 to-transparent z-30 pointer-events-none rounded-b-2xl" />
+              <div className={useImplementation(
+                'useUnifiedThemeSystem',
+                // NEW: Use theme utility gradient
+                `absolute top-0 left-0 right-0 h-8 z-30 pointer-events-none rounded-t-2xl ${theme.gradients.utility.fadeDown}`,
+                // OLD: Original classes (fallback for safety)
+                'absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-gray-900/80 to-transparent z-30 pointer-events-none rounded-t-2xl'
+              )} />
+              <div className={useImplementation(
+                'useUnifiedThemeSystem', 
+                // NEW: Use theme utility gradient (inverted fadeDown)
+                'absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-gray-900/80 to-transparent z-30 pointer-events-none rounded-b-2xl',
+                // OLD: Original classes (fallback for safety)
+                'absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-gray-900/80 to-transparent z-30 pointer-events-none rounded-b-2xl'
+              )} />
               
               <div 
                 className="relative bg-gradient-to-b from-gray-900/70 to-gray-800/50 border-2 border-purple-500/30 rounded-2xl overflow-auto max-h-[700px] shadow-inner backdrop-blur-md group hover:border-purple-400/40 transition-all duration-300 hover:shadow-purple-500/10" 

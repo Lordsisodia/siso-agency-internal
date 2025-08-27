@@ -14,6 +14,7 @@
 import React from 'react';
 import { UnifiedTaskCard, TaskCardTask } from '@/refactored/components/UnifiedTaskCard';
 import { useImplementation } from '@/migration/feature-flags';
+import { theme } from '@/styles/theme';
 import { cn } from '@/lib/utils';
 
 // LEGACY IMPORTS (kept for fallback)
@@ -85,7 +86,16 @@ export const MobileTodayCard: React.FC<MobileTodayCardProps> = ({
   // Guard clause for null/undefined card
   if (!card) {
     return (
-      <div className={cn("relative overflow-hidden rounded-2xl border border-gray-800/40 bg-gray-900/40 backdrop-blur-sm p-4", className)}>
+      <div className={cn(
+        useImplementation(
+          'useUnifiedThemeSystem',
+          // NEW: Use theme opacity backgrounds  
+          `relative overflow-hidden rounded-2xl border border-gray-800/40 backdrop-blur-sm p-4 ${theme.backgrounds.opacity.gray800Light}`,
+          // OLD: Original classes (fallback for safety)
+          'relative overflow-hidden rounded-2xl border border-gray-800/40 bg-gray-900/40 backdrop-blur-sm p-4'
+        ),
+        className
+      )}>
         <div className="text-center text-gray-400">
           <div className="animate-pulse">Loading today's tasks...</div>
         </div>
@@ -203,7 +213,13 @@ const OriginalMobileTodayCard: React.FC<MobileTodayCardProps> = ({
         </div>
 
         {totalTasks > 0 && (
-          <div className="w-full bg-gray-800 rounded-full h-2">
+          <div className={useImplementation(
+            'useUnifiedThemeSystem',
+            // NEW: Use theme solid backgrounds
+            `w-full rounded-full h-2 ${theme.backgrounds.solid.gray800}`,
+            // OLD: Original classes (fallback for safety)
+            'w-full bg-gray-800 rounded-full h-2'
+          )}>
             <motion.div
               className="h-2 bg-gradient-to-r from-blue-500 to-blue-400 rounded-full"
               initial={{ width: 0 }}

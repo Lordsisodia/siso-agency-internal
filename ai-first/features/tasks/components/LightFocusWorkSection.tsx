@@ -13,6 +13,8 @@ import {
   MicOff,
   Zap,
   Brain,
+  ArrowLeft,
+  Trash,
   Settings,
   Calendar,
   Eye
@@ -919,18 +921,25 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
         }}
       />
 
-      {/* Enhanced Task Detail Modal */}
+      {/* Task Detail Full Page View - Matching Light Tasks UI Style */}
       {viewingTaskId && (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-start justify-center p-4 pt-8">
-          <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-black border border-gray-600/50 rounded-2xl max-w-5xl w-full max-h-[85vh] overflow-y-auto shadow-2xl">
+        <div 
+          className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-300"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setViewingTaskId(null);
+            }
+          }}
+        >
+          <div className="bg-gradient-to-br from-gray-900/95 to-gray-800/95 backdrop-blur border border-gray-600/50 rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
             {(() => {
               const task = tasks.find(t => t.id === viewingTaskId);
               if (!task) return null;
               
               return (
-                <div className="p-8">
-                  {/* Enhanced Header */}
-                  <div className="flex items-start justify-between mb-8">
+                <div className="p-6">
+                  {/* Compact Header */}
+                  <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-4">
                       <button
                         onClick={() => toggleTask(task.id)}
@@ -942,9 +951,9 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
                           <div className="h-8 w-8 rounded-full border-3 border-gray-400 hover:border-green-400 transition-colors" />
                         )}
                       </button>
-                      <div>
-                        <h1 className="text-3xl font-bold text-white mb-2">{task.title}</h1>
-                        <div className="flex items-center gap-3">
+                      <div className="flex-1">
+                        <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent mb-4 leading-tight">{task.title}</h1>
+                        <div className="flex items-center gap-4 mb-4">
                           {task.aiAnalyzed && task.xpReward && (
                             <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/50 rounded-full">
                               <Zap className="h-5 w-5 text-yellow-400" />
@@ -963,30 +972,69 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
                             </div>
                           )}
                         </div>
+                        
+                        {/* Circular Progress Ring for Task Completion */}
+                        <div className="flex items-center gap-4">
+                          <div className="relative w-16 h-16">
+                            <svg className="w-16 h-16 transform -rotate-90" viewBox="0 0 36 36">
+                              <path
+                                d="m18,2.0845 a 15.9155,15.9155 0 0,1 0,31.831 a 15.9155,15.9155 0 0,1 0,-31.831"
+                                fill="none"
+                                stroke="rgba(75, 85, 99, 0.3)"
+                                strokeWidth="2"
+                              />
+                              <path
+                                d="m18,2.0845 a 15.9155,15.9155 0 0,1 0,31.831 a 15.9155,15.9155 0 0,1 0,-31.831"
+                                fill="none"
+                                stroke={task.completed ? "rgb(34, 197, 94)" : "rgb(59, 130, 246)"}
+                                strokeWidth="2"
+                                strokeDasharray={`${task.completed ? 100 : (task.subtasks.length > 0 ? (task.subtasks.filter(s => s.completed).length / task.subtasks.length) * 100 : 0)}, 100`}
+                                className="transition-all duration-1000 ease-out"
+                                strokeLinecap="round"
+                              />
+                            </svg>
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <span className="text-sm font-bold text-white">
+                                {task.completed ? '✓' : `${task.subtasks.length > 0 ? Math.round((task.subtasks.filter(s => s.completed).length / task.subtasks.length) * 100) : 0}%`}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="text-sm text-gray-400">
+                            <div className="font-medium text-white">Progress</div>
+                            <div>
+                              {task.completed ? 'Complete!' : 
+                               task.subtasks.length > 0 ? `${task.subtasks.filter(s => s.completed).length}/${task.subtasks.length} subtasks` :
+                               'No subtasks yet'}
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                     <button
                       onClick={() => setViewingTaskId(null)}
-                      className="p-3 hover:bg-gray-700/50 rounded-xl text-gray-400 hover:text-white transition-colors"
+                      className="group p-3 hover:bg-red-500/20 rounded-2xl text-gray-400 hover:text-red-400 transition-all duration-300 hover:scale-110 border border-transparent hover:border-red-500/30"
                     >
-                      <X className="h-8 w-8" />
+                      <X className="h-8 w-8 transition-transform group-hover:rotate-90" />
                     </button>
                   </div>
 
-                  {/* Beautiful AI Analysis Section */}
+                  {/* Beautiful AI Analysis Section with Glass Effect */}
                   {task.aiAnalyzed && (
-                    <div className="mb-8 p-8 bg-gradient-to-br from-blue-900/30 via-purple-900/20 to-indigo-900/30 border border-blue-600/40 rounded-2xl backdrop-blur-sm">
-                      <div className="flex items-center gap-3 mb-6">
-                        <div className="p-2 bg-blue-500/20 rounded-xl">
-                          <Brain className="h-6 w-6 text-blue-300" />
+                    <div className="mb-8 p-8 bg-gradient-to-br from-blue-900/20 via-purple-900/15 to-indigo-900/20 border border-blue-500/30 rounded-3xl backdrop-blur-xl shadow-2xl relative overflow-hidden">
+                      {/* Glassmorphism highlight */}
+                      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+                      <div className="flex items-center gap-4 mb-8">
+                        <div className="p-3 bg-gradient-to-br from-blue-500/30 to-purple-500/30 rounded-2xl backdrop-blur-sm border border-blue-400/30 shadow-lg">
+                          <Brain className="h-7 w-7 text-blue-300 animate-pulse" />
                         </div>
-                        <h2 className="text-2xl font-bold text-blue-200">AI Analysis</h2>
+                        <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-transparent">AI Analysis</h2>
+                        <div className="flex-1 h-px bg-gradient-to-r from-blue-500/30 via-purple-500/30 to-transparent"></div>
                       </div>
                       
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-6">
-                        {/* Enhanced Progress Bars */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        {/* Enhanced Progress Cards with Glass Effect */}
                         {task.priorityRank && (
-                          <div className="bg-gray-800/30 p-6 rounded-xl border border-gray-600/30">
+                          <div className="group bg-gray-800/20 backdrop-blur-sm p-6 rounded-2xl border border-gray-500/30 hover:border-red-400/50 transition-all duration-500 hover:bg-gray-700/20 hover:scale-105 hover:shadow-2xl">
                             <div className="flex items-center justify-between mb-3">
                               <span className="text-lg font-semibold text-gray-200">Importance</span>
                               <span className="text-lg font-bold text-gray-300">{clampPriorityRank(task.priorityRank)}/5</span>
@@ -1007,7 +1055,7 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
                         )}
                         
                         {task.complexity && (
-                          <div className="bg-gray-800/30 p-6 rounded-xl border border-gray-600/30">
+                          <div className="group bg-gray-800/20 backdrop-blur-sm p-6 rounded-2xl border border-gray-500/30 hover:border-purple-400/50 transition-all duration-500 hover:bg-gray-700/20 hover:scale-105 hover:shadow-2xl">
                             <div className="flex items-center justify-between mb-3">
                               <span className="text-lg font-semibold text-gray-200">Complexity</span>
                               <span className="text-lg font-bold text-gray-300">{Math.round((task.complexity / 10) * 5)}/5</span>
@@ -1022,7 +1070,7 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
                         )}
                         
                         {task.learningValue && (
-                          <div className="bg-gray-800/30 p-6 rounded-xl border border-gray-600/30">
+                          <div className="group bg-gray-800/20 backdrop-blur-sm p-6 rounded-2xl border border-gray-500/30 hover:border-green-400/50 transition-all duration-500 hover:bg-gray-700/20 hover:scale-105 hover:shadow-2xl">
                             <div className="flex items-center justify-between mb-3">
                               <span className="text-lg font-semibold text-gray-200">Learning Value</span>
                               <span className="text-lg font-bold text-gray-300">{Math.round((task.learningValue / 10) * 5)}/5</span>
@@ -1037,9 +1085,9 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
                         )}
                       </div>
 
-                      {/* AI Time Estimate */}
+                      {/* Enhanced AI Time Estimate */}
                       {(task as any).aiTimeEstimate && (
-                        <div className="bg-blue-900/20 p-6 rounded-xl border border-blue-600/30">
+                        <div className="bg-gradient-to-br from-blue-900/20 to-indigo-900/20 backdrop-blur-sm p-8 rounded-3xl border border-blue-500/40 shadow-2xl hover:shadow-blue-500/20 transition-all duration-500">
                           <h3 className="text-lg font-semibold text-blue-300 mb-3 flex items-center gap-2">
                             <Clock className="h-5 w-5" />
                             AI Time Estimate
@@ -1066,22 +1114,27 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
                     </div>
                   )}
 
-                  {/* Enhanced Subtasks Section */}
-                  <div className="mb-8">
-                    <div className="flex items-center justify-between mb-6">
-                      <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-                        <Target className="h-6 w-6 text-green-400" />
+                  {/* Enhanced Subtasks Section with Better Visual Hierarchy */}
+                  <div className="mb-10 bg-gradient-to-br from-gray-900/30 to-gray-800/20 backdrop-blur-sm rounded-3xl p-8 border border-gray-600/30">
+                    <div className="flex items-center justify-between mb-8">
+                      <h2 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent flex items-center gap-4">
+                        <div className="p-2 bg-gradient-to-br from-green-500/30 to-emerald-500/30 rounded-2xl border border-green-400/30">
+                          <Target className="h-7 w-7 text-green-400" />
+                        </div>
                         Subtasks
                       </h2>
-                      <div className="text-lg text-gray-300">
-                        {task.subtasks.filter(s => s.completed).length}/{task.subtasks.length} completed
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-green-400">
+                          {task.subtasks.filter(s => s.completed).length}/{task.subtasks.length}
+                        </div>
+                        <div className="text-sm text-gray-400">completed</div>
                       </div>
                     </div>
                     
                     {task.subtasks.length > 0 ? (
                       <div className="space-y-4">
                         {task.subtasks.map((subtask, index) => (
-                          <div key={subtask.id} className="group p-6 bg-gradient-to-r from-gray-800/50 to-gray-900/30 border border-gray-600/30 rounded-xl hover:border-green-500/30 transition-all duration-300">
+                          <div key={subtask.id} className="group p-6 bg-gradient-to-r from-gray-800/40 to-gray-900/20 backdrop-blur-sm border border-gray-600/30 rounded-2xl hover:border-green-400/50 transition-all duration-500 hover:scale-[1.02] hover:shadow-xl hover:shadow-green-500/10">
                             <div className="flex items-center gap-4">
                               <button
                                 onClick={() => toggleSubtask(task.id, subtask.id)}
@@ -1189,26 +1242,26 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
                     )}
                   </div>
 
-                  {/* Enhanced Action Buttons */}
-                  <div className="flex flex-wrap justify-center gap-4 pt-8 border-t border-gray-600/50">
+                  {/* Enhanced Action Buttons with Better Micro-interactions */}
+                  <div className="flex flex-wrap justify-center gap-6 pt-10 border-t border-gray-500/50">
                     <button
                       onClick={() => analyzeTaskWithAI(task.id)}
-                      className={`flex items-center gap-3 px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
+                      className={`group flex items-center gap-3 px-8 py-4 rounded-2xl font-bold transition-all duration-500 hover:scale-105 hover:shadow-2xl backdrop-blur-sm ${
                         task.aiAnalyzed 
-                          ? 'bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/50 text-yellow-200 hover:from-yellow-500/30 hover:to-orange-500/30' 
-                          : 'bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/50 text-blue-200 hover:from-blue-500/30 hover:to-purple-500/30'
+                          ? 'bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/40 text-yellow-100 hover:from-yellow-500/40 hover:to-orange-500/40 hover:border-yellow-400/60 hover:shadow-yellow-500/20' 
+                          : 'bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/40 text-blue-100 hover:from-blue-500/40 hover:to-purple-500/40 hover:border-blue-400/60 hover:shadow-blue-500/20'
                       }`}
                     >
-                      {task.aiAnalyzed ? <Zap className="h-5 w-5" /> : <Brain className="h-5 w-5" />}
-                      {task.aiAnalyzed ? 'Re-analyze with AI' : 'Analyze with AI'}
+                      {task.aiAnalyzed ? <Zap className="h-6 w-6 group-hover:animate-pulse" /> : <Brain className="h-6 w-6 group-hover:animate-pulse" />}
+                      <span className="text-lg">{task.aiAnalyzed ? 'Re-analyze with AI' : 'Analyze with AI'}</span>
                     </button>
                     
                     <button
                       onClick={() => handlePushToAnotherDay(task.id)}
-                      className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-gray-500/20 to-gray-600/20 border border-gray-500/50 text-gray-200 hover:from-gray-500/30 hover:to-gray-600/30 rounded-xl font-semibold transition-all duration-300"
+                      className="group flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-indigo-500/20 to-violet-500/20 border border-indigo-500/40 text-indigo-100 hover:from-indigo-500/40 hover:to-violet-500/40 hover:border-indigo-400/60 rounded-2xl font-bold transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-indigo-500/20 backdrop-blur-sm"
                     >
-                      <Calendar className="h-5 w-5" />
-                      Push to Tomorrow
+                      <Calendar className="h-6 w-6 group-hover:rotate-12 transition-transform" />
+                      <span className="text-lg">Push to Tomorrow</span>
                     </button>
                     
                     <button
@@ -1216,15 +1269,16 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
                         handleDeleteTask(task.id);
                         setViewingTaskId(null);
                       }}
-                      className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-red-500/20 to-red-600/20 border border-red-500/50 text-red-200 hover:from-red-500/30 hover:to-red-600/30 rounded-xl font-semibold transition-all duration-300"
+                      className="group flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-red-500/20 to-red-600/20 border border-red-500/40 text-red-100 hover:from-red-500/40 hover:to-red-600/40 hover:border-red-400/60 rounded-2xl font-bold transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-red-500/20 backdrop-blur-sm"
                     >
-                      <X className="h-5 w-5" />
-                      Delete Task
+                      <X className="h-6 w-6 group-hover:rotate-180 transition-transform duration-500" />
+                      <span className="text-lg">Delete Task</span>
                     </button>
                   </div>
                 </div>
               );
             })()}
+            </div>
           </div>
         </div>
       )}

@@ -42,6 +42,8 @@ import { PartnerOnboarding } from '@/components/dashboard/PartnerOnboarding';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { theme } from '@/styles/theme';
+import { useImplementation } from '@/migration/feature-flags';
 import { PartnershipLayout } from '@/ai-first/features/partnerships/components/PartnershipLayout';
 import { DashboardGreetingCard } from '@/components/ui/dashboard-templates';
 import { useUser } from '@/hooks/useUser';
@@ -317,7 +319,13 @@ const PartnerDashboard = () => {
       </div>
       
       <div className="row-2b">
-        <Card className="bg-black/60 backdrop-blur-xl border-orange-500/20 h-full">
+        <Card className={useImplementation(
+          'useUnifiedThemeSystem',
+          // NEW: Use theme opacity backgrounds
+          `backdrop-blur-xl border-orange-500/20 h-full ${theme.backgrounds.opacity.blackHeavy}`,
+          // OLD: Original classes (fallback for safety)
+          'bg-black/60 backdrop-blur-xl border-orange-500/20 h-full'
+        )}>
           <CardContent className="p-4 h-full flex flex-col justify-center">
             <div className="text-center space-y-2">
               <h3 className="text-sm font-semibold text-orange-400">Quick Overview</h3>
@@ -346,7 +354,13 @@ const PartnerDashboard = () => {
         className="row-3-cards"
       >
         {/* Total Earnings */}
-        <Card className="bg-black border-orange-500/20">
+        <Card className={useImplementation(
+          'useUnifiedThemeSystem',
+          // NEW: Use theme solid backgrounds
+          `border-orange-500/20 ${theme.backgrounds.solid.black}`,
+          // OLD: Original classes (fallback for safety)
+          'bg-black border-orange-500/20'
+        )}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-xs sm:text-sm font-medium text-gray-400">Total Earnings</CardTitle>
             <DollarSign className="h-4 w-4 sm:h-5 sm:w-5 text-orange-500" />
@@ -361,7 +375,13 @@ const PartnerDashboard = () => {
         </Card>
 
         {/* Monthly Earnings */}
-        <Card className="bg-black border-orange-500/20">
+        <Card className={useImplementation(
+          'useUnifiedThemeSystem',
+          // NEW: Use theme solid backgrounds
+          `border-orange-500/20 ${theme.backgrounds.solid.black}`,
+          // OLD: Original classes (fallback for safety)
+          'bg-black border-orange-500/20'
+        )}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-xs sm:text-sm font-medium text-gray-400">This Month</CardTitle>
             <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-orange-400" />
@@ -376,7 +396,13 @@ const PartnerDashboard = () => {
         </Card>
 
         {/* Active Referrals */}
-        <Card className="bg-black border-orange-500/20">
+        <Card className={useImplementation(
+          'useUnifiedThemeSystem',
+          // NEW: Use theme solid backgrounds
+          `border-orange-500/20 ${theme.backgrounds.solid.black}`,
+          // OLD: Original classes (fallback for safety)
+          'bg-black border-orange-500/20'
+        )}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-xs sm:text-sm font-medium text-gray-400">Active Referrals</CardTitle>
             <Users className="h-4 w-4 sm:h-5 sm:w-5 text-orange-400" />
@@ -391,7 +417,13 @@ const PartnerDashboard = () => {
         </Card>
 
         {/* Conversion Rate */}
-        <Card className="bg-black border-orange-500/20">
+        <Card className={useImplementation(
+          'useUnifiedThemeSystem',
+          // NEW: Use theme solid backgrounds
+          `border-orange-500/20 ${theme.backgrounds.solid.black}`,
+          // OLD: Original classes (fallback for safety)
+          'bg-black border-orange-500/20'
+        )}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-xs sm:text-sm font-medium text-gray-400">Conversion Rate</CardTitle>
             <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-orange-400" />
