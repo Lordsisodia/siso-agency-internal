@@ -503,6 +503,20 @@ export function useTaskDatabase({ selectedDate }: UseTaskDatabaseProps) {
     }
   }, [loadTasks, user?.id]);
 
+  const deleteSubtask = useCallback(async (subtaskId: string) => {
+    if (!user?.id) return;
+    
+    try {
+      // Delete from database using database service directly
+      const { taskDatabaseService } = await import('@/ai-first/services/task-database-service-fixed');
+      await taskDatabaseService.deleteSubtask(subtaskId);
+      // Reload tasks to get updated data
+      await loadTasks();
+    } catch (err) {
+      console.error('❌ Failed to delete subtask:', err);
+    }
+  }, [loadTasks, user?.id]);
+
   return {
     tasks,
     loading,
@@ -518,6 +532,7 @@ export function useTaskDatabase({ selectedDate }: UseTaskDatabaseProps) {
     updatePersonalContext,
     addSubtask,
     deleteTask,
+    deleteSubtask,
     updateTaskTitle,
     pushTaskToAnotherDay,
     
