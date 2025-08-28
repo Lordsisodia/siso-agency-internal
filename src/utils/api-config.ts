@@ -6,7 +6,11 @@
  */
 
 export function getApiBaseURL(): string {
-  // Use Express server for local development (like the working version)
+  // In production (Vercel), use relative paths
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+    return ''; // Use relative paths on Vercel (/api/...)
+  }
+  // Use Express server for local development
   return 'http://localhost:3001';
 }
 
