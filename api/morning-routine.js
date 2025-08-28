@@ -18,7 +18,7 @@ export default async function handler(req, res) {
 
   try {
     // Import the database service
-    const { taskDatabaseService } = await import('../ai-first/services/task-database-service-fixed.ts');
+    const { taskDatabaseService } = await import('../ai-first/services/task-database-service-fixed.js');
 
     switch (method) {
       case 'GET':
