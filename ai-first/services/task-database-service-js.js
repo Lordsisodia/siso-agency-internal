@@ -2,13 +2,14 @@
  * 📊 Task Database Service - JavaScript ES Module Version
  * 
  * Handles all database operations with proper Prisma client initialization
- * Compatible with Vercel serverless functions
+ * Compatible with Vercel serverless functions using Prisma Accelerate
  */
 
 import { PrismaClient } from '../../generated/prisma/index.js';
+import { withAccelerate } from '@prisma/extension-accelerate';
 
-// Initialize Prisma client
-const prisma = new PrismaClient();
+// Initialize Prisma client with Accelerate extension
+const prisma = new PrismaClient().$extends(withAccelerate());
 
 // Export a service object with all database operations
 export const taskDatabaseService = {
