@@ -11,7 +11,7 @@
  * - Reusability: Other components can use just task data without other concerns
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval } from 'date-fns';
 import { useClerkUser } from '@/components/ClerkProvider';
 import { personalTaskService } from '@/ai-first/core/task.service';
@@ -66,8 +66,8 @@ export const useTaskData = (selectedDate: Date): UseTaskDataReturn => {
   const [todayError, setTodayError] = useState<string | null>(null);
   const [weekError, setWeekError] = useState<string | null>(null);
 
-  // Calculate week start for consistency
-  const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 });
+  // Calculate week start for consistency - memoized to prevent infinite loops
+  const weekStart = useMemo(() => startOfWeek(selectedDate, { weekStartsOn: 1 }), [selectedDate]);
 
   // Load tasks for selected date
   useEffect(() => {
