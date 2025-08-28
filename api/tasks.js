@@ -4,7 +4,7 @@
  * CommonJS version to avoid ES module conflicts
  */
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -17,8 +17,8 @@ module.exports = async function handler(req, res) {
   const { method, query, body } = req;
 
   try {
-    // Import the database service using require (CommonJS)
-    const { taskDatabaseService } = require('../ai-first/services/task-database-service-fixed');
+    // Import the database service using ES modules
+    const { taskDatabaseService } = await import('../ai-first/services/task-database-service-fixed.js');
 
     switch (method) {
       case 'GET':
