@@ -73,12 +73,12 @@ class APIClient {
    * Update task completion status
    */
   async updateTaskCompletion(taskId: string, completed: boolean) {
-    const response = await fetch(createApiUrl(`/api/tasks/${taskId}`), {
-      method: 'PATCH',
+    const response = await fetch(createApiUrl(`/api/tasks`), {
+      method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ completed })
+      body: JSON.stringify({ taskId, completed })
     });
     
     const result = await response.json();
@@ -94,12 +94,12 @@ class APIClient {
    * Update task title
    */
   async updateTaskTitle(taskId: string, title: string) {
-    const response = await fetch(createApiUrl(`/api/tasks/${taskId}`), {
-      method: 'PATCH',
+    const response = await fetch(createApiUrl(`/api/tasks`), {
+      method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ title })
+      body: JSON.stringify({ taskId, title })
     });
     
     const result = await response.json();
