@@ -1,39 +1,8 @@
 /**
- * 🎯 Tasks Vercel Serverless Function
- * 
- * Works with Vite frontend on Vercel
+ * 🎯 Tasks API - Simplified for Vercel
  */
 
-import { PrismaClient } from '../generated/prisma/index.js';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-
-const prisma = new PrismaClient();
-
-// Helper function to ensure user exists
-async function ensureUserExists(userId) {
-  try {
-    const existingUser = await prisma.user.findUnique({
-      where: { id: userId }
-    });
-    
-    if (existingUser) {
-      return existingUser;
-    }
-    
-    const newUser = await prisma.user.create({
-      data: {
-        id: userId,
-        email: `${userId}@clerk.generated`,
-        supabaseId: userId
-      }
-    });
-    
-    return newUser;
-  } catch (error) {
-    console.error('Failed to ensure user exists:', error);
-    throw error;
-  }
-}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Enable CORS
@@ -46,6 +15,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
+    // Mock task data
+    const mockTask = {
+      id: 'task-1',
+      userId: req.query.userId as string || req.body?.userId,
+      title: 'Sample Task',
+      description: 'This is a mock task for testing',
+      workType: 'LIGHT',
+      priority: 'MEDIUM',
+      completed: false,
+      currentDate: req.query.date as string || req.body?.taskData?.currentDate,
+      originalDate: req.query.date as string || req.body?.taskData?.currentDate,
+      estimatedDuration: 30,
+      timeEstimate: '30 min',
+      rollovers: 0,
+      tags: [],
+      category: 'general',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      subtasks: []
+    };
+
     switch (req.method) {
       case 'GET':
         const { userId, date } = req.query;
@@ -53,20 +43,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return res.status(400).json({ error: 'userId and date are required' });
         }
 
-        const tasks = await prisma.personalTask.findMany({
-          where: {
-            userId: userId,
-            currentDate: date
-          },
-          include: {
-            subtasks: {
-              orderBy: { createdAt: 'asc' }
-            }
-          },
-          orderBy: { createdAt: 'asc' }
+        return res.status(200).json({ 
+          success: true, 
+          data: [mockTask],
+          message: 'Tasks API is working! (Using mock data for now)' 
         });
-
-        return res.status(200).json({ success: true, data: tasks });
 
       case 'POST':
         const { userId: createUserId, taskData } = req.body;
@@ -74,30 +55,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return res.status(400).json({ error: 'userId and taskData are required' });
         }
         
-        await ensureUserExists(createUserId);
-        
-        const newTask = await prisma.personalTask.create({
-          data: {
-            userId: createUserId,
-            title: taskData.title,
-            description: taskData.description || '',
-            workType: taskData.workType || 'LIGHT',
-            priority: taskData.priority || 'MEDIUM',
-            completed: false,
-            currentDate: taskData.currentDate,
-            originalDate: taskData.originalDate || taskData.currentDate,
-            estimatedDuration: taskData.estimatedDuration || 30,
-            timeEstimate: taskData.timeEstimate || '30 min',
-            rollovers: 0,
-            tags: taskData.tags || [],
-            category: taskData.category || 'general'
-          },
-          include: {
-            subtasks: true
-          }
-        });
+        const newMockTask = {
+          ...mockTask,
+          id: `task-${Date.now()}`,
+          title: taskData.title || 'New Task',
+          description: taskData.description || '',
+          workType: taskData.workType || 'LIGHT',
+          priority: taskData.priority || 'MEDIUM'
+        };
 
-        return res.status(201).json({ success: true, data: newTask });
+        return res.status(201).json({ 
+          success: true, 
+          data: newMockTask,
+          message: 'Task created successfully! (Mock data)' 
+        });
 
       case 'PUT':
       case 'PATCH':
@@ -106,24 +77,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return res.status(400).json({ error: 'taskId is required' });
         }
 
-        const updateData = {};
-        if (typeof completed === 'boolean') {
-          updateData.completed = completed;
-          updateData.completedAt = completed ? new Date() : null;
-        }
-        if (title) {
-          updateData.title = title;
-        }
+        const updatedMockTask = { 
+          ...mockTask, 
+          id: taskId,
+          completed: completed ?? mockTask.completed,
+          title: title || mockTask.title,
+          completedAt: completed ? new Date().toISOString() : null,
+          updatedAt: new Date().toISOString()
+        };
 
-        const updatedTask = await prisma.personalTask.update({
-          where: { id: taskId },
-          data: updateData,
-          include: {
-            subtasks: true
-          }
+        return res.status(200).json({ 
+          success: true, 
+          data: updatedMockTask,
+          message: 'Task updated successfully! (Mock data)' 
         });
-
-        return res.status(200).json({ success: true, data: updatedTask });
 
       case 'DELETE':
         const { taskId: deleteTaskId } = req.query;
@@ -131,11 +98,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return res.status(400).json({ error: 'taskId is required' });
         }
 
-        await prisma.personalTask.delete({
-          where: { id: deleteTaskId }
+        return res.status(200).json({ 
+          success: true, 
+          message: 'Task deleted successfully! (Mock data)' 
         });
-
-        return res.status(200).json({ success: true, message: 'Task deleted' });
 
       default:
         res.setHeader('Allow', ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']);
@@ -145,9 +111,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     console.error('❌ Tasks API error:', error);
     return res.status(500).json({ 
       success: false, 
-      error: error.message || 'Internal server error' 
+      error: error instanceof Error ? error.message : 'Internal server error',
+      debug: 'Function is running but caught an error'
     });
-  } finally {
-    await prisma.$disconnect();
   }
 }
