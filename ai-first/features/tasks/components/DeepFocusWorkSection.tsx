@@ -11,7 +11,8 @@ import {
   Edit,
   Mic,
   MicOff,
-  CheckCircle2
+  CheckCircle2,
+  Eye
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -309,56 +310,80 @@ export const DeepFocusWorkSection: React.FC<DeepFocusWorkSectionProps> = ({
             <div className="border-t border-blue-600/50 my-3 sm:my-4"></div>
           </CardHeader>
           <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
-            <div className="space-y-4">
-              {deepWorkTasksFiltered.map((task) => (
-                <div
-                  key={task.id}
-                  className={
-                    task.completed 
-                      ? 'p-4 rounded-lg border transition-all duration-200 bg-green-900/20 border-green-700/50 text-green-100' 
-                      : 'p-4 rounded-lg border transition-all duration-200 bg-blue-900/20 border-blue-700/50 text-blue-100 hover:border-blue-600/50 hover:bg-blue-800/30'
-                  }
-                >
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-3">
-                      <button
-                        onClick={() => toggleTaskCompletion(task.id)}
-                        className="flex-shrink-0 hover:scale-110 transition-transform"
-                      >
-                        {task.completed ? (
-                          <Check className="h-5 w-5 text-green-400" />
-                        ) : (
-                          <div className="h-5 w-5 rounded-full border-2 border-gray-400 hover:border-blue-400 transition-colors" />
-                        )}
-                      </button>
-                      
-                      <div className="flex-1">
-                        <h3 
-                          className={`text-base font-medium leading-tight ${
-                            task.completed ? 'line-through text-green-300/80' : 'text-blue-100'
-                          }`}
-                        >
-                          {task.title}
-                        </h3>
-                      </div>
-                      
-                      <div className="flex items-center gap-1">
+            {/* Task Blocks */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-1">
+              {deepWorkTasksFiltered.map((task) => {
+                const isExpanded = true; // Always expanded
+                return (
+                  <div
+                    key={task.id}
+                    className={`
+                      p-4 rounded-lg border transition-all duration-200
+                      ${task.completed 
+                        ? 'bg-green-900/20 border-green-700/50 text-green-100' 
+                        : 'bg-blue-900/20 border-blue-700/50 text-blue-100 hover:border-blue-600/50 hover:bg-blue-800/30'
+                      }
+                    `}
+                  >
+                    {/* Task Header */}
+                    <div className="space-y-2">
+                      {/* Main task row with checkbox, title, and delete button */}
+                      <div className="flex items-center gap-3">
                         <button
-                          onClick={() => deleteTask(task.id)}
-                          className="flex-shrink-0 p-1 hover:bg-red-900/50 rounded text-gray-400 hover:text-red-400 transition-colors"
-                          title="Delete task"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleTaskCompletion(task.id);
+                          }}
+                          className="flex-shrink-0 hover:scale-110 transition-transform"
                         >
-                          <X className="h-4 w-4" />
+                          {task.completed ? (
+                            <Check className="h-5 w-5 text-green-400" />
+                          ) : (
+                            <div className="h-5 w-5 rounded-full border-2 border-gray-400 hover:border-blue-400 transition-colors" />
+                          )}
                         </button>
+                        
+                        <div className="flex-1">
+                          <h3 
+                            className={`text-base font-medium leading-tight cursor-pointer hover:text-blue-200 transition-colors ${
+                              task.completed ? 'line-through text-green-300/80' : ''
+                            }`}
+                            title="Click to edit"
+                          >
+                            {task.title}
+                          </h3>
+                        </div>
+                        
+                        {/* Action buttons in top right */}
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteTask(task.id);
+                            }}
+                            className="flex-shrink-0 p-1 hover:bg-red-900/50 rounded text-gray-400 hover:text-red-400 transition-colors"
+                            title="Delete task"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
                       </div>
+                      
                     </div>
-                  
-                    {((task.subtasks && task.subtasks.length > 0) || addingSubtaskToId === task.id) && (
-                      <div className="ml-8 space-y-2">
-                        {task.subtasks?.map((subtask, index) => (
-                          <div key={subtask.id} className="flex items-center gap-3 p-2 rounded hover:bg-blue-800/20 transition-colors">
+
+                    {/* Subtasks */}
+                    {isExpanded && (
+                      <div className="mt-4 pt-3 border-t border-current/20 space-y-2">
+                        {task.subtasks?.map((subtask) => (
+                          <div
+                            key={subtask.id}
+                            className="flex items-center gap-3 pl-6 py-1 hover:bg-blue-700/30 rounded transition-colors"
+                          >
                             <button
-                              onClick={() => toggleSubtaskCompletion(task.id, subtask.id)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleSubtaskCompletion(task.id, subtask.id);
+                              }}
                               className="flex-shrink-0 hover:scale-110 transition-transform"
                             >
                               {subtask.completed ? (
@@ -368,15 +393,16 @@ export const DeepFocusWorkSection: React.FC<DeepFocusWorkSectionProps> = ({
                               )}
                             </button>
                             <span className={`text-sm ${
-                              subtask.completed ? 'line-through text-green-300/80' : 'text-blue-200'
+                              subtask.completed ? 'line-through text-green-300/80' : 'text-current'
                             }`}>
-                              {index + 1}. {subtask.title}
+                              {subtask.title}
                             </span>
                           </div>
                         ))}
                         
+                        {/* Inline Add Subtask */}
                         {addingSubtaskToId === task.id && (
-                          <div className="flex items-center gap-3 p-2">
+                          <div className="flex items-center gap-3 pl-6 py-1">
                             <div className="h-4 w-4 rounded-full border-2 border-dashed border-blue-400 flex-shrink-0" />
                             <input
                               type="text"
@@ -391,8 +417,9 @@ export const DeepFocusWorkSection: React.FC<DeepFocusWorkSectionProps> = ({
                           </div>
                         )}
                         
+                        {/* Add Subtask Button - Always visible at bottom of subtasks */}
                         {addingSubtaskToId !== task.id && (
-                          <div className="mt-2">
+                          <div className="pl-6 mt-2">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -407,40 +434,32 @@ export const DeepFocusWorkSection: React.FC<DeepFocusWorkSectionProps> = ({
                         )}
                       </div>
                     )}
-                    
-                    {(!task.subtasks || task.subtasks.length === 0) && addingSubtaskToId !== task.id && (
-                      <div className="ml-8 mt-2">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            startAddingSubtask(task.id);
-                          }}
-                          className="flex items-center gap-1 px-2 py-1 text-xs text-gray-400 hover:text-blue-400 hover:bg-blue-700/30 rounded transition-colors"
-                        >
-                          <Plus className="h-3 w-3" />
-                          Add Subtask
-                        </button>
-                      </div>
-                    )}
 
-                    <div className="flex items-center justify-between pt-3 border-t border-blue-600/20">
-                      <div className="flex items-center gap-4 text-sm text-blue-300">
-                        {task.subtasks && task.subtasks.length > 0 && (
-                          <span>
-                            {task.subtasks.filter(s => s.completed).length}/{task.subtasks.length} subtasks
-                          </span>
-                        )}
-                        {task.timeEstimate && (
-                          <span>{task.timeEstimate}</span>
-                        )}
+                    {/* Task Footer */}
+                    <div className="mt-4 pt-3 border-t border-current/20">
+                      <div className="flex items-center justify-between text-xs text-current/70">
+                        <div className="flex items-center gap-3">
+                          {task.subtasks && task.subtasks.length > 0 && (
+                            <span>
+                              {task.subtasks.filter(s => s.completed).length}/{task.subtasks.length} subtasks
+                            </span>
+                          )}
+                          {task.timeEstimate && (
+                            <span className="flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              {task.timeEstimate}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
-            <div className="pt-4 border-t border-blue-600/20">
+            {/* Add New Task Button */}
+            <div className="mt-6 pt-4 border-t border-blue-600/20">
               <button
                 onClick={async () => {
                   const taskTitle = prompt("Enter new deep work task:");
