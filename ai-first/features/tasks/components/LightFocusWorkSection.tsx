@@ -83,6 +83,7 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
     updatePersonalContext,
     addSubtask,
     deleteTask,
+    deleteSubtask,
     updateTaskTitle,
     pushTaskToAnotherDay
   } = useTaskDatabase({ selectedDate });
@@ -668,7 +669,7 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
                         {task.subtasks.map((subtask) => (
                           <div
                             key={subtask.id}
-                            className="flex items-center gap-3 pl-6 py-1 hover:bg-gray-700/30 rounded transition-colors"
+                            className="group flex items-center gap-3 pl-6 py-1 hover:bg-gray-700/30 rounded transition-colors"
                           >
                             <button
                               onClick={(e) => {
@@ -695,18 +696,31 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
                               />
                             ) : (
                               <div className="flex-1">
-                                <span 
-                                  className={`text-sm cursor-pointer hover:text-green-300 transition-colors block mb-2 ${
-                                    subtask.completed ? 'line-through text-gray-400' : ''
-                                  }`}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    startEditingSubtask(subtask.id, subtask.title);
-                                  }}
-                                  title="Click to edit"
-                                >
-                                  {subtask.title}
-                                </span>
+                                <div className="flex items-start justify-between mb-2">
+                                  <span 
+                                    className={`text-sm cursor-pointer hover:text-green-300 transition-colors ${
+                                      subtask.completed ? 'line-through text-gray-400' : ''
+                                    }`}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      startEditingSubtask(subtask.id, subtask.title);
+                                    }}
+                                    title="Click to edit"
+                                  >
+                                    {subtask.title}
+                                  </span>
+                                  {/* Delete button */}
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      deleteSubtask(subtask.id);
+                                    }}
+                                    className="ml-2 text-gray-500 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
+                                    title="Delete subtask"
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </button>
+                                </div>
                                 
                                 {/* Subtask AI Analysis - Clean bars only */}
                                 {subtask.aiAnalyzed && (
