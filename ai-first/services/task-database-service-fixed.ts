@@ -396,6 +396,125 @@ class FixedTaskDatabaseService {
       }
     }
   }
+
+  async getMorningRoutineForDate(userId: string, date: string): Promise<any> {
+    const prisma = await getPrismaClient();
+    
+    try {
+      // Try to find existing morning routine tracking for this date
+      let routine = await prisma.morningRoutineTracking.findUnique({
+        where: { 
+          userId_date: {
+            userId: userId,
+            date: date
+          }
+        }
+      });
+
+      // If no routine exists, create default one
+      if (!routine) {
+        routine = await prisma.morningRoutineTracking.create({
+          data: {
+            userId: userId,
+            date: date,
+            // Default habits - all false initially
+            wakeUpEarly: false,
+            hydration: false,
+            meditation: false,
+            exercise: false,
+            journaling: false,
+            planning: false,
+            reading: false,
+            gratitude: false
+          }
+        });
+      }
+
+      return routine;
+    } catch (error) {
+      console.error('❌ Failed to get morning routine:', error);
+      throw new Error('Failed to get morning routine');
+    } finally {
+      if (typeof window === 'undefined' && prisma.$disconnect) {
+        await prisma.$disconnect();
+      }
+    }
+  }
+
+  async updateMorningRoutineHabit(userId: string, date: string, habitName: string, completed: boolean): Promise<any> {
+    const prisma = await getPrismaClient();
+    
+    try {
+      // Ensure user exists first
+      await this.ensureUserExists(userId);
+
+      // Update the specific habit
+      const updateData = { [habitName]: completed };
+      
+      const routine = await prisma.morningRoutineTracking.upsert({
+        where: {
+          userId_date: {
+            userId: userId,
+            date: date
+          }
+        },
+        update: updateData,
+        create: {
+          userId: userId,
+          date: date,
+          wakeUpEarly: habitName === 'wakeUpEarly' ? completed : false,
+          hydration: habitName === 'hydration' ? completed : false,
+          meditation: habitName === 'meditation' ? completed : false,
+          exercise: habitName === 'exercise' ? completed : false,
+          journaling: habitName === 'journaling' ? completed : false,
+          planning: habitName === 'planning' ? completed : false,
+          reading: habitName === 'reading' ? completed : false,
+          gratitude: habitName === 'gratitude' ? completed : false,
+          ...updateData
+        }
+      });
+
+      return routine;
+    } catch (error) {
+      console.error('❌ Failed to update morning routine habit:', error);
+      throw new Error('Failed to update morning routine habit');
+    } finally {
+      if (typeof window === 'undefined' && prisma.$disconnect) {
+        await prisma.$disconnect();
+      }
+    }
+  }
+
+  private async ensureUserExists(userId: string): Promise<any> {
+    const prisma = await getPrismaClient();
+    
+    try {
+      // Check if user exists
+      const existingUser = await prisma.user.findUnique({
+        where: { id: userId }
+      });
+      
+      if (existingUser) {
+        return existingUser;
+      }
+      
+      // Create user with default email if not exists
+      console.log(`🔧 Auto-creating user: ${userId}`);
+      const newUser = await prisma.user.create({
+        data: {
+          id: userId,
+          email: `${userId}@clerk.generated`,
+          supabaseId: userId
+        }
+      });
+      
+      console.log(`✅ Auto-created user: ${userId}`);
+      return newUser;
+    } catch (error) {
+      console.error('Failed to ensure user exists:', error);
+      throw error;
+    }
+  }
 }
 
 // Export singleton instance
