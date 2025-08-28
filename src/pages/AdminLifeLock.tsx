@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/admin/layout/AdminLayout';
-import { format, addWeeks, getYear } from 'date-fns';
+import { format, addWeeks, getYear, isToday } from 'date-fns';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useClerkUser } from '@/components/ClerkProvider';
 import { ThoughtDumpResults } from '@/ai-first/features/tasks/ui/ThoughtDumpResults';
@@ -98,40 +98,53 @@ const AdminLifeLock: React.FC = () => {
     setEisenhowerResult
   } = hookData;
 
-  // Calculate day completion percentage
+  // State to force real-time updates
+  const [currentTime, setCurrentTime] = useState(new Date());
+  
+  // Update current time every minute
+  useEffect(() => {
+    // Set initial time
+    setCurrentTime(new Date());
+    
+    // Update every minute
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000);
+    
+    // Cleanup timer on unmount
+    return () => {
+      clearInterval(timer);
+    };
+  }, []); // Empty dependency array - run once on mount
+
+  // Calculate day completion percentage based on time progression
   const dayCompletionPercentage = useMemo(() => {
-    console.log('🔍 Calculating completion - todayCard:', todayCard);
+    // Use currentTime state instead of new Date() for real-time updates
+    const now = currentTime;
     
-    if (!todayCard) {
-      console.log('❌ No todayCard data');
-      return 25; // Show demo progress for now
+    // Only show progress if we're viewing today's date
+    if (!isToday(selectedDate)) {
+      return 0;
     }
     
-    // Get all tasks from today card
-    const allTasks = [
-      ...(todayCard.morningTasks || []),
-      ...(todayCard.lightWorkTasks || []),
-      ...(todayCard.deepWorkTasks || [])
-    ];
+    // Calculate how much of the day has passed
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+    const totalMinutesInDay = 24 * 60; // 1440 minutes
+    const currentMinutesElapsed = (currentHour * 60) + currentMinute;
     
-    console.log('📋 All tasks found:', allTasks.length, allTasks);
+    const percentage = (currentMinutesElapsed / totalMinutesInDay) * 100;
     
-    if (allTasks.length === 0) {
-      console.log('⚠️ No tasks found, showing demo progress');
-      return 45; // Show demo progress
-    }
-    
-    const completedTasks = allTasks.filter(task => task.completed);
-    const percentage = (completedTasks.length / allTasks.length) * 100;
-    
-    console.log('✅ Completion calculation:', {
-      total: allTasks.length,
-      completed: completedTasks.length,
+    console.log('⏰ Day progress calculation:', {
+      time: `${currentHour}:${currentMinute.toString().padStart(2, '0')}`,
+      selectedDate: format(selectedDate, 'yyyy-MM-dd'),
+      isToday: isToday(selectedDate),
+      minutesElapsed: currentMinutesElapsed,
       percentage: Math.round(percentage)
     });
     
-    return percentage;
-  }, [todayCard]);
+    return Math.min(percentage, 100); // Cap at 100%
+  }, [selectedDate, currentTime]);
 
   // Navigation handlers
   const handleCardClick = (card: any) => {
