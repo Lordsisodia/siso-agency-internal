@@ -1,5 +1,4 @@
 {
-  "model": "opusplan",
   "permissions": {
     "allow": [
       "Bash(gh auth:*)",
@@ -15,5 +14,7 @@
     ],
     "deny": [],
     "ask": []
-  }
+  },
+  "model": "opusplan",
+  "outputStyle": "siso-ultra-think"
 }
