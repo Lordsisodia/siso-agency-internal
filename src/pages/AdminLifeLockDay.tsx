@@ -176,27 +176,6 @@ const AdminLifeLockDay: React.FC = () => {
                 </div>
               );
             
-            case 'ai-chat':
-              return (
-                <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 p-4 pb-24">
-                  <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-white mb-2">
-                      🤖 AI Assistant
-                    </h1>
-                    <p className="text-gray-400 text-sm">
-                      Voice-powered task management and AI assistance
-                    </p>
-                  </div>
-                  
-                  <div className="space-y-6">
-                    <VoiceCommandSection
-                      onVoiceCommand={handleVoiceCommand}
-                      isProcessingVoice={isProcessingVoice}
-                    />
-                  </div>
-                </div>
-              );
-            
             default:
               return (
                 <div className="p-4 sm:p-6 space-y-6">

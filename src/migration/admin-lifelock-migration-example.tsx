@@ -248,7 +248,7 @@ const DEVELOPMENT_OVERRIDES = {
  * Testing utility to verify all tabs work with refactored system
  */
 export function testAllTabs() {
-  const allTabs: TabId[] = ['morning', 'light-work', 'work', 'wellness', 'timebox', 'checkout', 'ai-chat'];
+  const allTabs: TabId[] = ['morning', 'light-work', 'work', 'wellness', 'timebox', 'checkout'];
   const layoutProps: TabLayoutProps = {
     selectedDate: new Date(),
     dayCompletionPercentage: 50,
