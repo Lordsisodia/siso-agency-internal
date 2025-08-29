@@ -75,86 +75,17 @@ export const DeepFocusWorkSection: React.FC<DeepFocusWorkSectionProps> = ({
     task.title.toLowerCase().includes('focus')
   );
 
-  // If no deep work tasks exist, create default ones
+  // DISABLED: Auto-creation of default tasks (user should control task creation)
+  // If no deep work tasks exist, show empty state instead of auto-creating
+  /*
   useEffect(() => {
     if (deepWorkTasksFiltered.length === 0 && !loading) {
-      const createDefaultTasks = async () => {
-        const defaultTasks = [
-          {
-            title: 'Environment Setup (10 min)',
-            workType: 'DEEP' as const,
-            priority: 'HIGH' as const,
-            currentDate: format(selectedDate, 'yyyy-MM-dd'),
-            timeEstimate: '10 min',
-            estimatedDuration: 10,
-            subtasks: [
-              { title: 'Clear workspace', workType: 'DEEP' as const },
-              { title: 'Close all distractions', workType: 'DEEP' as const },
-              { title: 'Set phone to Do Not Disturb', workType: 'DEEP' as const }
-            ]
-          },
-          {
-            title: 'Deep Focus Block 1 (2-4 hours)',
-            workType: 'DEEP' as const,
-            priority: 'HIGH' as const,
-            currentDate: format(selectedDate, 'yyyy-MM-dd'),
-            timeEstimate: '3 hours',
-            estimatedDuration: 180,
-            subtasks: [
-              { title: 'Identify primary objective', workType: 'DEEP' as const },
-              { title: 'Work without breaks', workType: 'DEEP' as const },
-              { title: 'Document progress', workType: 'DEEP' as const }
-            ]
-          },
-          {
-            title: 'Strategic Break (15 min)',
-            workType: 'DEEP' as const,
-            priority: 'MEDIUM' as const,
-            currentDate: format(selectedDate, 'yyyy-MM-dd'),
-            timeEstimate: '15 min',
-            estimatedDuration: 15,
-            subtasks: [
-              { title: 'Walk or light movement', workType: 'DEEP' as const },
-              { title: 'Hydrate', workType: 'DEEP' as const },
-              { title: 'Avoid digital stimulation', workType: 'DEEP' as const }
-            ]
-          },
-          {
-            title: 'Deep Focus Block 2 (2-4 hours)',
-            workType: 'DEEP' as const,
-            priority: 'HIGH' as const,
-            currentDate: format(selectedDate, 'yyyy-MM-dd'),
-            timeEstimate: '3 hours',
-            estimatedDuration: 180,
-            subtasks: [
-              { title: 'Resume or switch to next priority', workType: 'DEEP' as const },
-              { title: 'Maintain flow state', workType: 'DEEP' as const },
-              { title: 'Achieve significant progress', workType: 'DEEP' as const }
-            ]
-          },
-          {
-            title: 'Session Review (10 min)',
-            workType: 'DEEP' as const,
-            priority: 'MEDIUM' as const,
-            currentDate: format(selectedDate, 'yyyy-MM-dd'),
-            timeEstimate: '10 min',
-            estimatedDuration: 10,
-            subtasks: [
-              { title: 'Document accomplishments', workType: 'DEEP' as const },
-              { title: 'Note areas for improvement', workType: 'DEEP' as const },
-              { title: 'Plan next deep work session', workType: 'DEEP' as const }
-            ]
-          }
-        ];
-
-        for (const task of defaultTasks) {
-          await createTask(task);
-        }
-      };
-
+      // Auto-task creation disabled - user should manually add tasks when needed
+      const createDefaultTasks = async () => { ... };
       createDefaultTasks();
     }
   }, [deepWorkTasksFiltered.length, loading, createTask, selectedDate]);
+  */
 
   // Helper functions for subtask management
   const startAddingSubtask = (taskId: string) => {
