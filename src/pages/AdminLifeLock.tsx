@@ -41,7 +41,7 @@ const AdminLifeLock: React.FC = () => {
   React.useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
       const handledTabs = new Set<string>([
-        'morning', 'light-work', 'work', 'wellness', 'timebox', 'checkout', 'ai-chat'
+        'morning', 'light-work', 'work', 'wellness', 'timebox', 'checkout'
       ]);
       const missingTabs = validateTabHandler(handledTabs);
       if (missingTabs.length === 0) {
@@ -428,58 +428,6 @@ const AdminLifeLock: React.FC = () => {
                       />
                       <div className="space-y-6">
                         <NightlyCheckoutSection selectedDate={selectedDate} />
-                      </div>
-                    </div>
-                  );
-                
-                case 'ai-chat':
-                  return (
-                    <div className={useImplementation(
-                      'useUnifiedThemeSystem',
-                      // NEW: Unified theme system (special case: h-screen instead of min-h-screen)
-                      `relative overflow-hidden ${theme.gradients.diagonal.grayToBlack} h-screen`,
-                      // OLD: Original classes (fallback for safety)
-                      'relative h-screen bg-gradient-to-br from-black via-gray-900 to-black overflow-hidden'
-                    )}>
-                      <div className="p-4">
-                        <CleanDateNav 
-                          selectedDate={selectedDate}
-                          completionPercentage={dayCompletionPercentage}
-                          className="mb-6"
-                          onPreviousDate={() => navigateDay?.('prev')}
-                          onNextDate={() => navigateDay?.('next')}
-                        />
-                      </div>
-                      <div className="px-4 pb-4">
-                        <div className="bg-gray-800/50 rounded-xl p-4 text-center">
-                          <div className="flex items-center justify-center gap-3 mb-2">
-                            <SisoIcon className="w-8 h-8 text-orange-500" />
-                            <h1 className="text-xl font-bold text-white">AI Chat Assistant</h1>
-                          </div>
-                          <p className="text-gray-400 text-sm">
-                            Voice and text-powered AI assistant for managing your life and tasks
-                          </p>
-                        </div>
-                      </div>
-                      <div className="h-full overflow-y-auto p-4 pb-32">
-                        <div className="max-w-4xl mx-auto space-y-4">
-                          <div className="text-center text-gray-500 text-sm mt-20">
-                            Start a conversation by typing or using voice commands below
-                          </div>
-                        </div>
-                      </div>
-                      <div className="fixed bottom-4 left-0 right-0 px-4 z-50">
-                        <div className="max-w-4xl mx-auto">
-                          <div className="bg-black/90 backdrop-blur-md rounded-2xl border border-gray-700/50 p-4 shadow-2xl">
-                            <PromptInputBox
-                              onSend={(message, files) => {
-                                handleVoiceCommand(message);
-                              }}
-                              isLoading={isProcessingVoice}
-                              placeholder="Ask me anything about your tasks, schedule, or life management..."
-                            />
-                          </div>
-                        </div>
                       </div>
                     </div>
                   );

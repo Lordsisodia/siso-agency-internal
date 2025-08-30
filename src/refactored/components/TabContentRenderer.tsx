@@ -14,8 +14,6 @@
 
 import React from 'react';
 import { CleanDateNav } from '@/components/ui/clean-date-nav';
-import { SisoIcon } from '@/components/ui/icons/SisoIcon';
-import { PromptInputBox } from '@/components/ui/ai-prompt-box';
 import { 
   TabId, 
   EnhancedTabConfig, 
@@ -54,70 +52,6 @@ const StandardTabLayout: React.FC<{
   );
 };
 
-/**
- * AI Chat special layout - handles the unique chat interface
- */
-const AiChatLayout: React.FC<{
-  config: EnhancedTabConfig;
-  layoutProps: TabLayoutProps;
-}> = ({ config, layoutProps }) => {
-  const { selectedDate, dayCompletionPercentage, navigateDay, handleVoiceCommand, isProcessingVoice } = layoutProps;
-
-  return (
-    <div className={config.backgroundClass}>
-      {/* Clean Date Navigation */}
-      <div className="p-4">
-        <CleanDateNav 
-          selectedDate={selectedDate}
-          completionPercentage={dayCompletionPercentage}
-          className="mb-6"
-          onPreviousDate={() => navigateDay?.('prev')}
-          onNextDate={() => navigateDay?.('next')}
-        />
-      </div>
-      
-      {/* Header with SISO logo and title */}
-      <div className="px-4 pb-4">
-        <div className="bg-gray-800/50 rounded-xl p-4 text-center">
-          <div className="flex items-center justify-center gap-3 mb-2">
-            <SisoIcon className="w-8 h-8 text-orange-500" />
-            <h1 className="text-xl font-bold text-white">
-              AI Chat Assistant
-            </h1>
-          </div>
-          <p className="text-gray-400 text-sm">
-            Voice and text-powered AI assistant for managing your life and tasks
-          </p>
-        </div>
-      </div>
-      
-      {/* Chat messages area - with bottom padding for fixed input */}
-      <div className="h-full overflow-y-auto p-4 pb-32">
-        <div className="max-w-4xl mx-auto space-y-4">
-          {/* Chat messages will go here */}
-          <div className="text-center text-gray-500 text-sm mt-20">
-            Start a conversation by typing or using voice commands below
-          </div>
-        </div>
-      </div>
-      
-      {/* Fixed input at bottom with gap */}
-      <div className="fixed bottom-4 left-0 right-0 px-4 z-50">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-black/90 backdrop-blur-md rounded-2xl border border-gray-700/50 p-4 shadow-2xl">
-            <PromptInputBox
-              onSend={(message, files) => {
-                handleVoiceCommand?.(message);
-              }}
-              isLoading={isProcessingVoice}
-              placeholder="Ask me anything about your tasks, schedule, or life management..."
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 /**
  * Main Tab Content Renderer
@@ -129,11 +63,6 @@ export const TabContentRenderer: React.FC<{
 }> = ({ activeTab, layoutProps }) => {
   const config = getEnhancedTabConfig(activeTab);
   
-  // Handle AI chat special layout
-  if (activeTab === 'ai-chat') {
-    return <AiChatLayout config={config} layoutProps={layoutProps} />;
-  }
-
   // Handle standard tab layout
   return (
     <StandardTabLayout config={config} layoutProps={layoutProps}>

@@ -5,7 +5,7 @@
  * Tests all API endpoints on the deployed Vercel site
  */
 
-const BASE_URL = 'https://siso-agency-internal.vercel.app'; // Replace with your actual Vercel URL
+const BASE_URL = 'https://siso-internal.vercel.app'; // Your actual Vercel URL
 const TEST_USER_ID = 'user_31c4PuaPdFf9abejhmzrN9kcill'; // From our restored database
 const TEST_DATE = '2025-08-27'; // Date with tasks in our database
 
