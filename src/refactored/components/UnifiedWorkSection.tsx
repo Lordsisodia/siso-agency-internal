@@ -452,14 +452,14 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
           
           <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 pb-24">
             {/* Task Blocks */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-1">
+            <div className="flex flex-col items-center gap-4">
               {sortedTasks.map((task) => {
                 const isExpanded = true; // Always expanded
                 return (
                   <div
                     key={task.id}
                     className={`
-                      p-4 rounded-lg border transition-all duration-200
+                      p-4 rounded-lg border transition-all duration-200 w-full max-w-2xl
                       ${task.completed 
                         ? `${themeConfig.colors.completed}` 
                         : task.isPushed
