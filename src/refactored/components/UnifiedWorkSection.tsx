@@ -16,7 +16,7 @@ import {
   Trash,
   Settings
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+// Card components removed - showing content directly on blue background
 import { format } from 'date-fns';
 import { useImplementation } from '@/migration/feature-flags';
 import { theme } from '@/styles/theme';
@@ -352,10 +352,10 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
       
       <div className="max-w-7xl mx-auto p-3 sm:p-4 md:p-6 lg:p-8 space-y-6">
         
-        {/* Work Section Card */}
-        <Card className={`${themeConfig.colors.bg} ${themeConfig.colors.border}`}>
-          <CardHeader className="p-4 sm:p-6">
-            <CardTitle className={`flex items-center justify-between ${themeConfig.colors.text} text-base sm:text-lg`}>
+        {/* Work Section Content */}
+        <div className="space-y-6">
+          <div className="p-4 sm:p-6">
+            <h2 className={`flex items-center justify-between ${themeConfig.colors.text} text-base sm:text-lg font-semibold`}>
               <div className="flex items-center">
                 <IconComponent className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                 {themeConfig.emoji} {themeConfig.name}
@@ -370,7 +370,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                   AI Context
                 </button>
               )}
-            </CardTitle>
+            </h2>
             <div className={`border-t ${themeConfig.colors.border.replace('border-', 'border-').replace('/50', '/50')} my-4`}></div>
             
             {/* Stats Section (for Light Work) */}
@@ -448,9 +448,9 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
               </div>
             </div>
             <div className={`border-t ${themeConfig.colors.border.replace('border-', 'border-').replace('/50', '/50')} my-3 sm:my-4`}></div>
-          </CardHeader>
+          </div>
           
-          <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 pb-24">
+          <div className="p-4 sm:p-6 pt-0 sm:pt-0 pb-24">
             {/* Task Blocks */}
             <div className="flex flex-col items-center gap-4">
               {sortedTasks.map((task) => {
@@ -763,8 +763,8 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                 Add Task
               </button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
         
       </div>
     </div>
