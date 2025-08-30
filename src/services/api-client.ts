@@ -35,10 +35,18 @@ export interface PersonalContextData {
 class APIClient {
 
   /**
-   * Get tasks for a user on a specific date
+   * Get tasks for a user - by default gets all incomplete tasks (persistent behavior)
+   * Set filterByDate=true to only get tasks for specific date
    */
-  async getTasksForDate(userId: string, date: string) {
-    const response = await fetch(createApiUrl(`/api/tasks?userId=${userId}&date=${date}`));
+  async getTasksForDate(userId: string, date: string, filterByDate: boolean = false) {
+    const params = new URLSearchParams({ userId });
+    
+    if (filterByDate) {
+      params.append('date', date);
+      params.append('filterByDate', 'true');
+    }
+    
+    const response = await fetch(createApiUrl(`/api/tasks?${params.toString()}`));
     const result = await response.json();
     
     if (!result.success) {
