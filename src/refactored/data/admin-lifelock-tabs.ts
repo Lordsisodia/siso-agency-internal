@@ -25,8 +25,6 @@ import { HealthNonNegotiablesSection } from '@/ai-first/features/tasks/component
 import { TimeboxSection } from '@/ai-first/features/tasks/components/TimeboxSection';
 import { NightlyCheckoutSection } from '@/ai-first/features/tasks/components/NightlyCheckoutSection';
 import { QuickActionsSection } from '@/ai-first/features/tasks/ui/QuickActionsSection';
-import { PromptInputBox } from '@/components/ui/ai-prompt-box';
-import { SisoIcon } from '@/components/ui/icons/SisoIcon';
 
 // Import existing tab config
 import { TabId, TAB_CONFIG } from '@/ai-first/core/tab-config';
@@ -154,15 +152,6 @@ export const ENHANCED_TAB_CONFIG: Record<TabId, EnhancedTabConfig> = {
     backgroundClass: 'min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24',
     showDateNav: true,
     components: [NightlyCheckoutSection],
-  },
-  
-  'ai-chat': {
-    ...TAB_CONFIG['ai-chat'],
-    layoutType: 'chat',
-    backgroundClass: 'relative h-screen bg-gradient-to-br from-black via-gray-900 to-black overflow-hidden',
-    showDateNav: true,
-    components: [], // Special layout for AI chat
-    additionalContent: PromptInputBox,
   },
 };
 

@@ -18,7 +18,6 @@ import {
   Heart,
   Calendar, 
   Moon, 
-  Bot,
   LucideIcon
 } from 'lucide-react';
 
@@ -29,8 +28,7 @@ export type TabId =
   | 'work'
   | 'wellness'
   | 'timebox'
-  | 'checkout'
-  | 'ai-chat';
+  | 'checkout';
 
 export interface TabConfig {
   id: TabId;
@@ -100,15 +98,6 @@ export const TAB_CONFIG: Record<TabId, TabConfig> = {
     color: 'from-indigo-500 to-blue-600',
     description: 'Evening review and wrap-up',
     componentPath: 'NightlyCheckoutSection'
-  },
-  'ai-chat': {
-    id: 'ai-chat',
-    name: 'AI Chat',
-    icon: Bot,
-    timeRelevance: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
-    color: 'from-cyan-500 to-teal-500',
-    description: 'AI-powered voice commands and chat',
-    componentPath: 'VoiceCommandSection'
   }
 };
 
