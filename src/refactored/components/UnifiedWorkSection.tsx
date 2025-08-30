@@ -472,7 +472,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                   >
                     {/* Task Header */}
                     <div className="space-y-3">
-                      {/* Title row with checkbox, title, and view/delete buttons */}
+                      {/* Title row with checkbox and title only */}
                       <div className="flex items-center gap-3">
                         <button
                           onClick={(e) => {
@@ -517,43 +517,12 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                             </h3>
                           )}
                         </div>
-                        
-                        {/* Eye and X buttons on the right */}
-                        <div className="flex items-center gap-1">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setViewingTaskId(task.id);
-                            }}
-                            onTouchStart={(e) => {
-                              e.stopPropagation();
-                            }}
-                            className={`flex-shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-${themeConfig.colors.primary}-900/50 rounded text-gray-400 hover:${themeConfig.colors.text} transition-colors -m-1`}
-                            title="View task details"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </button>
-                          
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteTask(task.id);
-                            }}
-                            onTouchStart={(e) => {
-                              e.stopPropagation();
-                            }}
-                            className="flex-shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-red-900/50 rounded text-gray-400 hover:text-red-400 transition-colors -m-1"
-                            title="Delete task"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
-                        </div>
                       </div>
 
-                      {/* First separator line */}
-                      <div className={`border-t ${themeConfig.colors.border} opacity-30`}></div>
+                      {/* First separator line - more visible white */}
+                      <div className="border-t border-white/40"></div>
 
-                      {/* Action icons row */}
+                      {/* Action icons row - including Eye and Delete */}
                       <div className="flex items-center justify-center gap-2 py-2">
                         <button
                           onClick={(e) => {
@@ -612,10 +581,40 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                         >
                           <Calendar className="h-4 w-4" />
                         </button>
+
+                        {/* Eye icon moved here */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setViewingTaskId(task.id);
+                          }}
+                          onTouchStart={(e) => {
+                            e.stopPropagation();
+                          }}
+                          className={`min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-${themeConfig.colors.primary}-900/50 rounded text-gray-400 hover:${themeConfig.colors.text} transition-colors`}
+                          title="View task details"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </button>
+                        
+                        {/* Delete icon moved here */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteTask(task.id);
+                          }}
+                          onTouchStart={(e) => {
+                            e.stopPropagation();
+                          }}
+                          className="min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-red-900/50 rounded text-gray-400 hover:text-red-400 transition-colors"
+                          title="Delete task"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
                       </div>
 
-                      {/* Second separator line */}
-                      <div className={`border-t ${themeConfig.colors.border} opacity-30`}></div>
+                      {/* Second separator line - more visible white */}
+                      <div className="border-t border-white/40"></div>
                     </div>
 
                     {/* Subtasks */}
