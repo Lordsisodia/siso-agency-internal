@@ -521,7 +521,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                       <div className="border-t border-white/40"></div>
 
                       {/* Action icons row - including Eye and Delete */}
-                      <div className="flex items-center justify-center gap-1 py-1">
+                      <div className="flex items-center justify-center gap-1 py-0.5">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
