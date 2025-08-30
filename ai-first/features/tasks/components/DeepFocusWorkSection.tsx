@@ -65,7 +65,8 @@ export const DeepFocusWorkSection: React.FC<DeepFocusWorkSectionProps> = ({
     toggleTaskCompletion,
     toggleSubtaskCompletion,
     addSubtask,
-    deleteTask
+    deleteTask,
+    deleteSubtask
   } = useTaskDatabase({ selectedDate });
 
   // Filter for deep work tasks (you can adjust this filter based on your workType system)
