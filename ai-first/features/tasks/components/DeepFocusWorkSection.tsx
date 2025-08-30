@@ -66,7 +66,10 @@ export const DeepFocusWorkSection: React.FC<DeepFocusWorkSectionProps> = ({
     toggleSubtaskCompletion,
     addSubtask,
     deleteTask,
-    deleteSubtask
+    deleteSubtask,
+    analyzeTaskWithAI,
+    pushTaskToAnotherDay,
+    updateTaskTitle
   } = useTaskDatabase({ selectedDate });
 
   // Filter for deep work tasks (you can adjust this filter based on your workType system)
@@ -261,10 +264,29 @@ export const DeepFocusWorkSection: React.FC<DeepFocusWorkSectionProps> = ({
                       startAddingSubtask(taskId);
                     }
                   }}
-                  showPriority={true} // 🎯 Enable priority badges - this is what you wanted to see!
+                  // 🎯 Core Features
+                  showPriority={true} // Priority badges visible
                   showTimeEstimate={true}
                   showProgress={true}
                   expanded={true} // Always expanded for deep work
+                  
+                  // 🧠 Advanced Deep Work Actions - Restored from old UI
+                  onAIAnalyze={(taskId) => analyzeTaskWithAI(taskId)} // Brain icon
+                  onPushToAnotherDay={(taskId) => {
+                    const tomorrow = new Date(selectedDate);
+                    tomorrow.setDate(tomorrow.getDate() + 1);
+                    const tomorrowStr = tomorrow.toISOString().split('T')[0];
+                    pushTaskToAnotherDay(taskId, tomorrowStr);
+                  }} // Calendar icon
+                  onEditTask={(taskId, newTitle) => updateTaskTitle(taskId, newTitle)} // Edit icon
+                  onVoiceNote={(taskId) => {
+                    // TODO: Implement voice recording functionality
+                    console.log('Voice note for task:', taskId);
+                  }} // Mic icon
+                  onViewDetails={(taskId) => {
+                    // TODO: Implement detailed task view modal
+                    console.log('View details for task:', taskId);
+                  }} // Eye icon
                 />
               ))}
             </div>

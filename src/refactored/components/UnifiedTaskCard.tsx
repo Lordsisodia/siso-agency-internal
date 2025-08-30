@@ -32,6 +32,11 @@ import {
   Clock,
   Target,
   Sparkles,
+  Brain,
+  Calendar,
+  Edit,
+  Mic,
+  Eye,
   LucideIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -87,6 +92,13 @@ export interface TaskCardProps {
   onTaskClick?: (task: TaskCardTask) => void;
   onAddSubtask?: (taskId: string, subtaskTitle: string) => void;
   onDeleteSubtask?: (taskId: string, subtaskId: string) => void;
+  
+  // Advanced Deep Work Actions
+  onAIAnalyze?: (taskId: string) => void;
+  onPushToAnotherDay?: (taskId: string) => void;
+  onEditTask?: (taskId: string, newTitle: string) => void;
+  onVoiceNote?: (taskId: string) => void;
+  onViewDetails?: (taskId: string) => void;
   
   // Loading states
   isToggling?: boolean;
@@ -327,11 +339,76 @@ export const UnifiedTaskCard: React.FC<TaskCardProps> = memo(({
                 </div>
 
                 {/* Action buttons */}
-                <div className="flex items-center space-x-2 ml-2">
+                <div className="flex items-center space-x-1 ml-2">
                   {showProgress && hasSubtasks && (
                     <div className={cn('text-xs px-2 py-1 rounded', themeConfig.badge)}>
                       {completedSubtasks}/{totalSubtasks}
                     </div>
+                  )}
+                  
+                  {/* 🧠 AI Analysis Button */}
+                  {onAIAnalyze && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => onAIAnalyze(task.id)}
+                      className={cn('p-1.5 h-auto', themeConfig.secondary)}
+                      title="Analyze with AI for smart XP allocation"
+                    >
+                      <Brain className="w-4 h-4" />
+                    </Button>
+                  )}
+                  
+                  {/* 📅 Push to Another Day Button */}
+                  {onPushToAnotherDay && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => onPushToAnotherDay(task.id)}
+                      className={cn('p-1.5 h-auto', themeConfig.secondary)}
+                      title="Push to another day"
+                    >
+                      <Calendar className="w-4 h-4" />
+                    </Button>
+                  )}
+                  
+                  {/* ✏️ Edit Task Button */}
+                  {onEditTask && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => onEditTask(task.id, task.title)}
+                      className={cn('p-1.5 h-auto', themeConfig.secondary)}
+                      title="Edit task title"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                  )}
+                  
+                  {/* 🎤 Voice Note Button */}
+                  {onVoiceNote && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => onVoiceNote(task.id)}
+                      className={cn('p-1.5 h-auto', themeConfig.secondary)}
+                      title="Add voice note (2min thought dump)"
+                    >
+                      <Mic className="w-4 h-4" />
+                    </Button>
+                  )}
+                  
+                  {/* 👁️ View Details Button */}
+                  {onViewDetails && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => onViewDetails(task.id)}
+                      className={cn('p-1.5 h-auto', themeConfig.secondary)}
+                      title="View task details"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </Button>
                   )}
                   
                   {(variant === 'collapsible' || hasSubtasks) && (
