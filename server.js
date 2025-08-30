@@ -82,20 +82,30 @@ app.post('/api/users', async (req, res) => {
 
 // 📋 TASK ENDPOINTS
 
-// Get tasks for a specific date (SAME as test script)
+// Get tasks - all incomplete tasks (persist until completed)
 app.get('/api/tasks', async (req, res) => {
   try {
-    const { userId, date } = req.query;
+    const { userId, date, filterByDate } = req.query;
     
-    if (!userId || !date) {
-      return res.status(400).json({ error: 'userId and date are required' });
+    if (!userId) {
+      return res.status(400).json({ error: 'userId is required' });
     }
 
+    // Build where clause - by default get all incomplete tasks (persistent behavior)
+    const whereClause = {
+      userId: userId,
+      completed: false // Only return incomplete tasks
+    };
+
+    // Only filter by date if explicitly requested (for legacy compatibility)
+    if (filterByDate === 'true' && date) {
+      whereClause.currentDate = date;
+    }
+
+    console.log('📊 Query where clause:', JSON.stringify(whereClause, null, 2));
+
     const tasks = await prisma.personalTask.findMany({
-      where: {
-        userId: userId,
-        currentDate: date
-      },
+      where: whereClause,
       include: {
         subtasks: {
           orderBy: { createdAt: 'asc' }
