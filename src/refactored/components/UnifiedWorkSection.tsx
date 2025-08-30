@@ -306,14 +306,14 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
         size="lg"
         className={useImplementation(
           'useUnifiedThemeSystem',
-          `min-h-screen w-full ${theme.backgrounds.solid.gray900}`,
-          'min-h-screen w-full bg-gray-900'
+          `min-h-screen w-full ${themeConfig.colors.bg}`,
+          `min-h-screen w-full ${themeConfig.colors.bg}`
         )}
       />,
       <div className={useImplementation(
         'useUnifiedThemeSystem',
-        `min-h-screen w-full flex items-center justify-center ${theme.backgrounds.solid.gray900}`,
-        'min-h-screen w-full bg-gray-900 flex items-center justify-center'
+        `min-h-screen w-full flex items-center justify-center ${themeConfig.colors.bg}`,
+        `min-h-screen w-full flex items-center justify-center ${themeConfig.colors.bg}`
       )}>
         <div className={themeConfig.colors.text}>Loading {workType.toLowerCase()} work tasks...</div>
       </div>
@@ -329,14 +329,14 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
         type="loading_error"
         className={useImplementation(
           'useUnifiedThemeSystem',
-          `min-h-screen w-full ${theme.backgrounds.solid.gray900}`,
-          'min-h-screen w-full bg-gray-900'
+          `min-h-screen w-full ${themeConfig.colors.bg}`,
+          `min-h-screen w-full ${themeConfig.colors.bg}`
         )}
       />,
       <div className={useImplementation(
         'useUnifiedThemeSystem',
-        `min-h-screen w-full flex items-center justify-center ${theme.backgrounds.solid.gray900}`,
-        'min-h-screen w-full bg-gray-900 flex items-center justify-center'
+        `min-h-screen w-full flex items-center justify-center ${themeConfig.colors.bg}`,
+        `min-h-screen w-full flex items-center justify-center ${themeConfig.colors.bg}`
       )}>
         <div className="text-red-400">Error loading tasks: {error}</div>
       </div>
@@ -346,8 +346,8 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
   return (
     <div className={useImplementation(
       'useUnifiedThemeSystem',
-      `min-h-screen w-full relative ${theme.backgrounds.solid.gray900}`,
-      'min-h-screen w-full bg-gray-900 relative'
+      `min-h-screen w-full relative ${themeConfig.colors.bg}`,
+      `min-h-screen w-full relative ${themeConfig.colors.bg}`
     )}>
       
       <div className="max-w-7xl mx-auto p-3 sm:p-4 md:p-6 lg:p-8 space-y-6">
@@ -450,7 +450,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
             <div className={`border-t ${themeConfig.colors.border.replace('border-', 'border-').replace('/50', '/50')} my-3 sm:my-4`}></div>
           </div>
           
-          <div className="p-4 sm:p-6 pt-0 sm:pt-0 pb-24">
+          <div className="p-4 sm:p-6 pt-0 sm:pt-0 pb-8">
             {/* Task Blocks */}
             <div className="flex flex-col items-center gap-4">
               {sortedTasks.map((task) => {
