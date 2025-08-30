@@ -621,7 +621,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                         {task.subtasks?.map((subtask) => (
                           <div
                             key={subtask.id}
-                            className="group flex items-start gap-3 py-2 px-3 hover:bg-gray-700/30 rounded transition-colors w-full"
+                            className="group flex items-start gap-2 py-2 px-1 hover:bg-gray-700/30 rounded transition-colors w-full"
                           >
                             <button
                               onClick={(e) => {
@@ -631,7 +631,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                               onTouchStart={(e) => {
                                 e.stopPropagation();
                               }}
-                              className="flex-shrink-0 hover:scale-110 transition-transform min-h-[44px] min-w-[44px] flex items-center justify-center -m-2"
+                              className="flex-shrink-0 hover:scale-110 transition-transform min-h-[32px] min-w-[32px] flex items-center justify-center -m-1"
                             >
                               {subtask.completed ? (
                                 <Check className={`h-4 w-4 ${themeConfig.colors.text}`} />
@@ -673,7 +673,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                                     onTouchStart={(e) => {
                                       e.stopPropagation();
                                     }}
-                                    className="ml-2 text-gray-500 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 min-h-[44px] min-w-[44px] flex items-center justify-center -m-2"
+                                    className="ml-1 text-gray-500 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 min-h-[32px] min-w-[32px] flex items-center justify-center -m-1"
                                     title="Delete subtask"
                                   >
                                     <X className="h-3 w-3" />
@@ -686,7 +686,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                         
                         {/* Inline Add Subtask */}
                         {addingSubtaskToId === task.id && (
-                          <div className="flex items-center gap-3 py-2 px-3 w-full">
+                          <div className="flex items-center gap-2 py-2 px-1 w-full">
                             <div className={`h-4 w-4 rounded-full border-2 border-dashed ${themeConfig.colors.border} flex-shrink-0`} />
                             <input
                               type="text"
@@ -703,7 +703,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                         
                         {/* Add Subtask Button - Always visible at bottom of subtasks */}
                         {addingSubtaskToId !== task.id && (
-                          <div className="mt-2 px-3">
+                          <div className="mt-2 px-1">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
