@@ -461,7 +461,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                   <div
                     key={task.id}
                     className={`
-                      p-6 rounded-lg border transition-all duration-200 mx-auto w-full max-w-2xl
+                      p-4 rounded-lg border transition-all duration-200
                       ${task.completed 
                         ? `${themeConfig.colors.completed}` 
                         : task.isPushed
@@ -523,7 +523,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                       <div className="border-t border-white/40"></div>
 
                       {/* Action icons row - including Eye and Delete */}
-                      <div className="flex items-center justify-center gap-3 py-3">
+                      <div className="flex items-center justify-center gap-2 py-1">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -623,7 +623,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                         {task.subtasks?.map((subtask) => (
                           <div
                             key={subtask.id}
-                            className="group flex items-center gap-3 pl-3 py-1 hover:bg-gray-700/30 rounded transition-colors"
+                            className="group flex items-center gap-3 py-1 hover:bg-gray-700/30 rounded transition-colors"
                           >
                             <button
                               onClick={(e) => {
@@ -688,7 +688,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                         
                         {/* Inline Add Subtask */}
                         {addingSubtaskToId === task.id && (
-                          <div className="flex items-center gap-3 pl-3 py-1">
+                          <div className="flex items-center gap-3 py-1">
                             <div className={`h-4 w-4 rounded-full border-2 border-dashed ${themeConfig.colors.border} flex-shrink-0`} />
                             <input
                               type="text"
@@ -705,7 +705,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                         
                         {/* Add Subtask Button - Always visible at bottom of subtasks */}
                         {addingSubtaskToId !== task.id && (
-                          <div className="pl-3 mt-2">
+                          <div className="mt-2">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
