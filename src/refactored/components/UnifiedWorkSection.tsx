@@ -153,7 +153,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
   const IconComponent = themeConfig.icon;
 
   // Filter tasks for current work type
-  const filteredTasks = tasks.filter(task => 
+  const filteredTasks = (tasks || []).filter(task => 
     task.workType === workType || 
     task.title.toLowerCase().includes(workType.toLowerCase()) ||
     task.title.toLowerCase().includes('focus')
