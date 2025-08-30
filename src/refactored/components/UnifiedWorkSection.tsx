@@ -363,7 +363,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
               {showContextModal && (
                 <button
                   onClick={showContextModal}
-                  className="flex items-center gap-1 px-3 py-1.5 text-xs bg-gray-800 hover:bg-gray-700 border border-gray-600 hover:border-blue-500 rounded-lg transition-colors text-gray-300 hover:text-blue-300"
+                  className={`flex items-center gap-1 px-3 py-1.5 text-xs bg-transparent border ${themeConfig.colors.border} hover:border-${themeConfig.colors.primary}-500 rounded-lg transition-colors ${themeConfig.colors.text} hover:${themeConfig.colors.textSecondary}`}
                   title="Configure AI personal context for better XP analysis"
                 >
                   <Settings className="h-3 w-3" />
@@ -381,7 +381,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                     <div className={useImplementation(
                       'useUnifiedThemeSystem',
                       `group relative p-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:border-green-500/30 ${theme.themes.card.secondary}`,
-                      'group relative p-4 bg-gradient-to-br from-gray-800/40 to-gray-900/60 rounded-lg border border-gray-700/40 shadow-md hover:shadow-lg transition-all duration-300 hover:border-green-500/30 hover:from-gray-800/50 hover:to-gray-900/70'
+                      'group relative p-4 bg-transparent rounded-lg border border-green-700/30 shadow-md hover:shadow-lg transition-all duration-300 hover:border-green-500/30 hover:bg-green-900/20'
                     )}>
                       <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                       <div className="relative flex flex-col items-center justify-center text-center h-full">
@@ -396,7 +396,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                     <div className={useImplementation(
                       'useUnifiedThemeSystem',
                       `group relative p-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:border-blue-500/30 ${theme.themes.card.secondary}`,
-                      'group relative p-4 bg-gradient-to-br from-gray-800/40 to-gray-900/60 rounded-lg border border-gray-700/40 shadow-md hover:shadow-lg transition-all duration-300 hover:border-blue-500/30 hover:from-gray-800/50 hover:to-gray-900/70'
+                      'group relative p-4 bg-transparent rounded-lg border border-blue-700/30 shadow-md hover:shadow-lg transition-all duration-300 hover:border-blue-500/30 hover:bg-blue-900/20'
                     )}>
                       <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                       <div className="relative flex flex-col items-center justify-center text-center h-full">
@@ -411,7 +411,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                     <div className={useImplementation(
                       'useUnifiedThemeSystem',
                       `group relative p-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:border-yellow-500/30 ${theme.themes.card.secondary}`,
-                      'group relative p-4 bg-gradient-to-br from-gray-800/40 to-gray-900/60 rounded-lg border border-gray-700/40 shadow-md hover:shadow-lg transition-all duration-300 hover:border-yellow-500/30 hover:from-gray-800/50 hover:to-gray-900/70'
+                      'group relative p-4 bg-transparent rounded-lg border border-yellow-700/30 shadow-md hover:shadow-lg transition-all duration-300 hover:border-yellow-500/30 hover:bg-yellow-900/20'
                     )}>
                       <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                       <div className="relative flex flex-col items-center justify-center text-center h-full">
