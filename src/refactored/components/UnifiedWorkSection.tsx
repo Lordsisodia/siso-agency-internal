@@ -471,8 +471,8 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                     `}
                   >
                     {/* Task Header */}
-                    <div className="space-y-2">
-                      {/* Main task row with checkbox, title, and action buttons */}
+                    <div className="space-y-3">
+                      {/* Title row with checkbox, title, and view/delete buttons */}
                       <div className="flex items-center gap-3">
                         <button
                           onClick={(e) => {
@@ -518,7 +518,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                           )}
                         </div>
                         
-                        {/* Action buttons in top right */}
+                        {/* Eye and X buttons on the right */}
                         <div className="flex items-center gap-1">
                           <button
                             onClick={(e) => {
@@ -549,11 +549,78 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                           </button>
                         </div>
                       </div>
+
+                      {/* First separator line */}
+                      <div className={`border-t ${themeConfig.colors.border} opacity-30`}></div>
+
+                      {/* Action icons row */}
+                      <div className="flex items-center justify-center gap-2 py-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            analyzeTaskWithAI(task.id);
+                          }}
+                          onTouchStart={(e) => {
+                            e.stopPropagation();
+                          }}
+                          className={`min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-gray-700/50 rounded transition-colors ${
+                            task.aiAnalyzed 
+                              ? 'text-yellow-400 hover:text-yellow-300' 
+                              : 'text-gray-400 hover:text-yellow-400'
+                          }`}
+                          title={task.aiAnalyzed ? `AI Analyzed: ${task.xpReward} XP (${task.difficulty})` : 'Analyze with AI for smart XP allocation'}
+                        >
+                          {task.aiAnalyzed ? (
+                            <Zap className="h-4 w-4" />
+                          ) : (
+                            <Brain className="h-4 w-4" />
+                          )}
+                        </button>
+                        
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            startThoughtDump(task.id);
+                          }}
+                          onTouchStart={(e) => {
+                            e.stopPropagation();
+                          }}
+                          className={`min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-gray-700/50 rounded transition-colors ${
+                            recordingTaskId === task.id
+                              ? 'text-red-400 animate-pulse'
+                              : `text-gray-400 hover:${themeConfig.colors.text}`
+                          }`}
+                          title="Add thought dump (2min voice note)"
+                        >
+                          {recordingTaskId === task.id ? (
+                            <MicOff className="h-4 w-4" />
+                          ) : (
+                            <Mic className="h-4 w-4" />
+                          )}
+                        </button>
+                        
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handlePushToAnotherDay(task.id);
+                          }}
+                          onTouchStart={(e) => {
+                            e.stopPropagation();
+                          }}
+                          className={`min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-${themeConfig.colors.primary}-900/50 rounded text-gray-400 hover:${themeConfig.colors.text} transition-colors`}
+                          title="Push to another day"
+                        >
+                          <Calendar className="h-4 w-4" />
+                        </button>
+                      </div>
+
+                      {/* Second separator line */}
+                      <div className={`border-t ${themeConfig.colors.border} opacity-30`}></div>
                     </div>
 
                     {/* Subtasks */}
                     {isExpanded && (
-                      <div className="mt-4 pt-3 border-t border-current/20 space-y-2">
+                      <div className="space-y-2">
                         {task.subtasks?.map((subtask) => (
                           <div
                             key={subtask.id}
@@ -655,79 +722,14 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                       </div>
                     )}
                     
-                    {/* Task Footer - Show subtask progress, action icons */}
-                    <div className="mt-4 pt-2 border-t border-current/10">
-                      <div className="flex justify-between items-center mb-3">
-                        <div className="flex items-center gap-3">
-                          {task.subtasks && task.subtasks.length > 0 && (
-                            <div className="text-xs text-gray-500">
-                              {task.subtasks.filter(s => s.completed).length}/{task.subtasks.length} subtasks completed
-                            </div>
-                          )}
-                        </div>
-                        
-                        {/* Action icons in footer */}
-                        <div className="flex items-center gap-1">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              analyzeTaskWithAI(task.id);
-                            }}
-                            onTouchStart={(e) => {
-                              e.stopPropagation();
-                            }}
-                            className={`min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-gray-700/50 rounded transition-colors ${
-                              task.aiAnalyzed 
-                                ? 'text-yellow-400 hover:text-yellow-300' 
-                                : 'text-gray-400 hover:text-yellow-400'
-                            }`}
-                            title={task.aiAnalyzed ? `AI Analyzed: ${task.xpReward} XP (${task.difficulty})` : 'Analyze with AI for smart XP allocation'}
-                          >
-                            {task.aiAnalyzed ? (
-                              <Zap className="h-4 w-4" />
-                            ) : (
-                              <Brain className="h-4 w-4" />
-                            )}
-                          </button>
-                          
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              startThoughtDump(task.id);
-                            }}
-                            onTouchStart={(e) => {
-                              e.stopPropagation();
-                            }}
-                            className={`min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-gray-700/50 rounded transition-colors ${
-                              recordingTaskId === task.id
-                                ? 'text-red-400 animate-pulse'
-                                : `text-gray-400 hover:${themeConfig.colors.text}`
-                            }`}
-                            title="Add thought dump (2min voice note)"
-                          >
-                            {recordingTaskId === task.id ? (
-                              <MicOff className="h-4 w-4" />
-                            ) : (
-                              <Mic className="h-4 w-4" />
-                            )}
-                          </button>
-                          
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handlePushToAnotherDay(task.id);
-                            }}
-                            onTouchStart={(e) => {
-                              e.stopPropagation();
-                            }}
-                            className={`min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-${themeConfig.colors.primary}-900/50 rounded text-gray-400 hover:${themeConfig.colors.text} transition-colors`}
-                            title="Push to another day"
-                          >
-                            <Calendar className="h-4 w-4" />
-                          </button>
+                    {/* Task Footer - Show subtask progress only */}
+                    {task.subtasks && task.subtasks.length > 0 && (
+                      <div className="mt-4 pt-3 text-center">
+                        <div className="text-xs text-gray-500">
+                          {task.subtasks.filter(s => s.completed).length} out of {task.subtasks.length} subtasks completed
                         </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                 );
               })}
