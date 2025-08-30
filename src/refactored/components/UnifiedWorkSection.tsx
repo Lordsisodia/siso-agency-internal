@@ -349,8 +349,6 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
       `min-h-screen w-full relative ${theme.backgrounds.solid.gray900}`,
       'min-h-screen w-full bg-gray-900 relative'
     )}>
-      {/* Progress Line */}
-      <div className={`absolute left-0 top-0 bottom-0 w-1 ${themeConfig.colors.progressLine}`}></div>
       
       <div className="max-w-7xl mx-auto p-3 sm:p-4 md:p-6 lg:p-8 space-y-6">
         
