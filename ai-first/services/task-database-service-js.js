@@ -30,20 +30,53 @@ export const taskDatabaseService = {
         currentDate: date
       };
       
-      // Add workType filter if provided
-      if (workType) {
-        whereClause.workType = workType;
-      }
+      let tasks = [];
       
-      const tasks = await prisma.personalTask.findMany({
-        where: whereClause,
-        include: {
-          subtasks: {
-            orderBy: { createdAt: 'asc' }
-          }
-        },
-        orderBy: { createdAt: 'asc' }
-      });
+      // Query the correct table based on workType
+      if (workType === 'LIGHT') {
+        tasks = await prisma.lightWorkTask.findMany({
+          where: whereClause,
+          include: {
+            subtasks: {
+              orderBy: { createdAt: 'asc' }
+            }
+          },
+          orderBy: { createdAt: 'asc' }
+        });
+      } else if (workType === 'DEEP') {
+        tasks = await prisma.deepWorkTask.findMany({
+          where: whereClause,
+          include: {
+            subtasks: {
+              orderBy: { createdAt: 'asc' }
+            }
+          },
+          orderBy: { createdAt: 'asc' }
+        });
+      } else {
+        // If no workType specified, get both
+        const lightTasks = await prisma.lightWorkTask.findMany({
+          where: whereClause,
+          include: {
+            subtasks: {
+              orderBy: { createdAt: 'asc' }
+            }
+          },
+          orderBy: { createdAt: 'asc' }
+        });
+        
+        const deepTasks = await prisma.deepWorkTask.findMany({
+          where: whereClause,
+          include: {
+            subtasks: {
+              orderBy: { createdAt: 'asc' }
+            }
+          },
+          orderBy: { createdAt: 'asc' }
+        });
+        
+        tasks = [...lightTasks, ...deepTasks];
+      }
 
       return tasks;
     } catch (error) {
@@ -57,30 +90,60 @@ export const taskDatabaseService = {
    */
   async createTask(input) {
     try {
-      const task = await prisma.personalTask.create({
-        data: {
-          userId: input.userId,
-          title: input.title,
-          description: input.description,
-          workType: input.workType,
-          priority: input.priority,
-          currentDate: input.date,
-          originalDate: input.originalDate || input.date,
-          timeEstimate: input.timeEstimate,
-          estimatedDuration: input.estimatedDuration,
-          subtasks: input.subtasks ? {
-            create: input.subtasks.map(subtask => ({
-              title: subtask.title,
-              workType: subtask.workType
-            }))
-          } : undefined
-        },
-        include: {
-          subtasks: {
-            orderBy: { createdAt: 'asc' }
+      let task;
+      
+      // Route to correct table based on workType
+      if (input.workType === 'LIGHT') {
+        task = await prisma.lightWorkTask.create({
+          data: {
+            userId: input.userId,
+            title: input.title,
+            description: input.description,
+            priority: input.priority,
+            currentDate: input.date,
+            originalDate: input.originalDate || input.date,
+            timeEstimate: input.timeEstimate,
+            estimatedDuration: input.estimatedDuration,
+            subtasks: input.subtasks ? {
+              create: input.subtasks.map(subtask => ({
+                title: subtask.title,
+                workType: subtask.workType
+              }))
+            } : undefined
+          },
+          include: {
+            subtasks: {
+              orderBy: { createdAt: 'asc' }
+            }
           }
-        }
-      });
+        });
+      } else if (input.workType === 'DEEP') {
+        task = await prisma.deepWorkTask.create({
+          data: {
+            userId: input.userId,
+            title: input.title,
+            description: input.description,
+            priority: input.priority,
+            currentDate: input.date,
+            originalDate: input.originalDate || input.date,
+            timeEstimate: input.timeEstimate,
+            estimatedDuration: input.estimatedDuration,
+            subtasks: input.subtasks ? {
+              create: input.subtasks.map(subtask => ({
+                title: subtask.title,
+                workType: subtask.workType
+              }))
+            } : undefined
+          },
+          include: {
+            subtasks: {
+              orderBy: { createdAt: 'asc' }
+            }
+          }
+        });
+      } else {
+        throw new Error(`Invalid workType: ${input.workType}. Must be 'LIGHT' or 'DEEP'`);
+      }
 
       return task;
     } catch (error) {
@@ -92,15 +155,26 @@ export const taskDatabaseService = {
   /**
    * Update task completion status
    */
-  async updateTaskCompletion(taskId, completed) {
+  async updateTaskCompletion(taskId, completed, workType) {
     try {
-      await prisma.personalTask.update({
-        where: { id: taskId },
-        data: { 
-          completed,
-          completedAt: completed ? new Date() : null
-        }
-      });
+      const updateData = { 
+        completed,
+        completedAt: completed ? new Date() : null
+      };
+
+      if (workType === 'LIGHT') {
+        await prisma.lightWorkTask.update({
+          where: { id: taskId },
+          data: updateData
+        });
+      } else if (workType === 'DEEP') {
+        await prisma.deepWorkTask.update({
+          where: { id: taskId },
+          data: updateData
+        });
+      } else {
+        throw new Error(`Invalid workType: ${workType}. Must be 'LIGHT' or 'DEEP'`);
+      }
     } catch (error) {
       console.error('❌ Failed to update task completion:', error);
       throw new Error('Failed to update task completion');
@@ -110,12 +184,23 @@ export const taskDatabaseService = {
   /**
    * Update task title
    */
-  async updateTaskTitle(taskId, title) {
+  async updateTaskTitle(taskId, title, workType) {
     try {
-      await prisma.personalTask.update({
-        where: { id: taskId },
-        data: { title: title.trim() }
-      });
+      const updateData = { title: title.trim() };
+
+      if (workType === 'LIGHT') {
+        await prisma.lightWorkTask.update({
+          where: { id: taskId },
+          data: updateData
+        });
+      } else if (workType === 'DEEP') {
+        await prisma.deepWorkTask.update({
+          where: { id: taskId },
+          data: updateData
+        });
+      } else {
+        throw new Error(`Invalid workType: ${workType}. Must be 'LIGHT' or 'DEEP'`);
+      }
     } catch (error) {
       console.error('❌ Failed to update task title:', error);
       throw new Error('Failed to update task title');
@@ -125,15 +210,26 @@ export const taskDatabaseService = {
   /**
    * Update subtask completion status
    */
-  async updateSubtaskCompletion(subtaskId, completed) {
+  async updateSubtaskCompletion(subtaskId, completed, workType) {
     try {
-      await prisma.personalSubtask.update({
-        where: { id: subtaskId },
-        data: { 
-          completed,
-          completedAt: completed ? new Date() : null
-        }
-      });
+      const updateData = { 
+        completed,
+        completedAt: completed ? new Date() : null
+      };
+
+      if (workType === 'LIGHT') {
+        await prisma.lightWorkSubtask.update({
+          where: { id: subtaskId },
+          data: updateData
+        });
+      } else if (workType === 'DEEP') {
+        await prisma.deepWorkSubtask.update({
+          where: { id: subtaskId },
+          data: updateData
+        });
+      } else {
+        throw new Error(`Invalid workType: ${workType}. Must be 'LIGHT' or 'DEEP'`);
+      }
     } catch (error) {
       console.error('❌ Failed to update subtask completion:', error);
       throw new Error('Failed to update subtask completion');
@@ -179,13 +275,25 @@ export const taskDatabaseService = {
    */
   async addSubtask(taskId, subtaskData) {
     try {
-      return await prisma.personalSubtask.create({
-        data: {
-          taskId,
-          title: subtaskData.title,
-          workType: subtaskData.workType
-        }
-      });
+      if (subtaskData.workType === 'LIGHT') {
+        return await prisma.lightWorkSubtask.create({
+          data: {
+            taskId,
+            title: subtaskData.title,
+            workType: subtaskData.workType
+          }
+        });
+      } else if (subtaskData.workType === 'DEEP') {
+        return await prisma.deepWorkSubtask.create({
+          data: {
+            taskId,
+            title: subtaskData.title,
+            workType: subtaskData.workType
+          }
+        });
+      } else {
+        throw new Error(`Invalid workType: ${subtaskData.workType}. Must be 'LIGHT' or 'DEEP'`);
+      }
     } catch (error) {
       console.error('❌ Failed to add subtask:', error);
       throw new Error('Failed to add subtask');
@@ -195,11 +303,19 @@ export const taskDatabaseService = {
   /**
    * Delete task
    */
-  async deleteTask(taskId) {
+  async deleteTask(taskId, workType) {
     try {
-      await prisma.personalTask.delete({
-        where: { id: taskId }
-      });
+      if (workType === 'LIGHT') {
+        await prisma.lightWorkTask.delete({
+          where: { id: taskId }
+        });
+      } else if (workType === 'DEEP') {
+        await prisma.deepWorkTask.delete({
+          where: { id: taskId }
+        });
+      } else {
+        throw new Error(`Invalid workType: ${workType}. Must be 'LIGHT' or 'DEEP'`);
+      }
     } catch (error) {
       console.error('❌ Failed to delete task:', error);
       throw new Error('Failed to delete task');
