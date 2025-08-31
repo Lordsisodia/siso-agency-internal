@@ -30,7 +30,9 @@ export default async function handler(req, res) {
         
         // Get light work tasks for the specific date
         const tasks = await taskDatabaseService.getTasksForDate(userId, date, 'LIGHT');
-        return res.status(200).json({ success: true, data: tasks });
+        // Add workType to each task for frontend routing
+        const tasksWithWorkType = tasks.map(task => ({ ...task, workType: 'LIGHT' }));
+        return res.status(200).json({ success: true, data: tasksWithWorkType });
 
       case 'POST':
         // POST /api/light-work/tasks - Create new light work task
@@ -60,6 +62,33 @@ export default async function handler(req, res) {
         });
         
         return res.status(201).json({ success: true, data: newTask });
+
+      case 'PUT':
+        // PUT /api/light-work/tasks - Update light work task
+        const { taskId, completed, title: updateTitle } = body;
+        if (!taskId) {
+          return res.status(400).json({ error: 'taskId is required' });
+        }
+        
+        if (completed !== undefined) {
+          await taskDatabaseService.updateTaskCompletion(taskId, completed, 'LIGHT');
+        }
+        
+        if (updateTitle !== undefined) {
+          await taskDatabaseService.updateTaskTitle(taskId, updateTitle, 'LIGHT');
+        }
+        
+        return res.status(200).json({ success: true, message: 'Task updated successfully' });
+
+      case 'DELETE':
+        // DELETE /api/light-work/tasks - Delete light work task
+        const { taskId: deleteTaskId } = body;
+        if (!deleteTaskId) {
+          return res.status(400).json({ error: 'taskId is required' });
+        }
+        
+        await taskDatabaseService.deleteTask(deleteTaskId, 'LIGHT');
+        return res.status(200).json({ success: true, message: 'Task deleted successfully' });
 
       default:
         return res.status(405).json({ error: `Method ${method} Not Allowed` });

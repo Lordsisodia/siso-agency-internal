@@ -46,8 +46,8 @@ export interface UseRefactoredLifeLockDataReturn {
   showEisenhowerModal: boolean;
   
   // Actions (combined from all hooks)
-  handleTaskToggle: (taskId: string) => Promise<void>;
-  handleCustomTaskAdd: (task: { title: string; priority: 'low' | 'medium' | 'high' }) => Promise<void>;
+  handleTaskToggle: (taskOrTaskId: string | { id: string; workType: 'LIGHT' | 'DEEP'; completed: boolean }) => Promise<void>;
+  handleCustomTaskAdd: (task: { title: string; priority: 'low' | 'medium' | 'high'; workType?: 'LIGHT' | 'DEEP' }) => Promise<void>;
   handleVoiceCommand: (command: string) => Promise<void>;
   handleOrganizeTasks: () => Promise<void>;
   handleApplyOrganization: () => void;
@@ -146,6 +146,48 @@ export const useRefactoredLifeLockData = (selectedDate: Date): UseRefactoredLife
     }
   };
 
+  // Task toggle wrapper - supports both legacy (taskId) and new (task object) interfaces
+  const wrappedHandleTaskToggle = async (taskOrTaskId: string | { id: string; workType: 'LIGHT' | 'DEEP'; completed: boolean }) => {
+    if (typeof taskOrTaskId === 'string') {
+      // Legacy mode: find task by ID and construct task object
+      const taskId = taskOrTaskId;
+      let foundTask = null;
+      
+      // Search in todayCard tasks
+      if (todayCard && todayCard.tasks) {
+        foundTask = todayCard.tasks.find(task => task.id === taskId);
+      }
+      
+      if (!foundTask) {
+        // Search in weekCards tasks if not found in today
+        for (const card of weekCards) {
+          if (card.tasks) {
+            foundTask = card.tasks.find(task => task.id === taskId);
+            if (foundTask) break;
+          }
+        }
+      }
+      
+      if (foundTask && 'workType' in foundTask) {
+        // Call with task object that has workType
+        await handleTaskToggle(foundTask as { id: string; workType: 'LIGHT' | 'DEEP'; completed: boolean });
+      } else {
+        console.warn('Task not found or missing workType:', taskId);
+        // Fallback - assume LIGHT work
+        await handleTaskToggle({ id: taskId, workType: 'LIGHT', completed: false });
+      }
+    } else {
+      // New mode: task object provided directly
+      await handleTaskToggle(taskOrTaskId);
+    }
+  };
+
+  // Custom task add wrapper - defaults to LIGHT work if workType not specified
+  const wrappedHandleCustomTaskAdd = async (task: { title: string; priority: 'low' | 'medium' | 'high'; workType?: 'LIGHT' | 'DEEP' }) => {
+    const taskWithWorkType = { ...task, workType: task.workType || 'LIGHT' as 'LIGHT' | 'DEEP' };
+    await handleCustomTaskAdd(taskWithWorkType);
+  };
+
   // Compatibility setters
   const setLastThoughtDumpResult = (result: any) => {
     if (result === null) {
@@ -202,8 +244,8 @@ export const useRefactoredLifeLockData = (selectedDate: Date): UseRefactoredLife
     showEisenhowerModal,
     
     // Actions (same interface as original)
-    handleTaskToggle,
-    handleCustomTaskAdd,
+    handleTaskToggle: wrappedHandleTaskToggle,
+    handleCustomTaskAdd: wrappedHandleCustomTaskAdd,
     handleVoiceCommand,
     handleOrganizeTasks,
     handleApplyOrganization,
