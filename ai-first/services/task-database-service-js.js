@@ -23,13 +23,20 @@ export const taskDatabaseService = {
   /**
    * Get all tasks for a user on a specific date with subtasks
    */
-  async getTasksForDate(userId, date) {
+  async getTasksForDate(userId, date, workType) {
     try {
+      const whereClause = {
+        userId,
+        currentDate: date
+      };
+      
+      // Add workType filter if provided
+      if (workType) {
+        whereClause.workType = workType;
+      }
+      
       const tasks = await prisma.personalTask.findMany({
-        where: {
-          userId,
-          currentDate: date
-        },
+        where: whereClause,
         include: {
           subtasks: {
             orderBy: { createdAt: 'asc' }
@@ -48,17 +55,17 @@ export const taskDatabaseService = {
   /**
    * Create a new task with optional subtasks
    */
-  async createTask(userId, input) {
+  async createTask(input) {
     try {
       const task = await prisma.personalTask.create({
         data: {
-          userId,
+          userId: input.userId,
           title: input.title,
           description: input.description,
           workType: input.workType,
           priority: input.priority,
-          currentDate: input.currentDate,
-          originalDate: input.originalDate || input.currentDate,
+          currentDate: input.date,
+          originalDate: input.originalDate || input.date,
           timeEstimate: input.timeEstimate,
           estimatedDuration: input.estimatedDuration,
           subtasks: input.subtasks ? {
