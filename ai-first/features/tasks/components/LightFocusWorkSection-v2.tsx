@@ -23,6 +23,8 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
     createTask,
     toggleTaskCompletion,
     addSubtask,
+    deleteTask,
+    deleteSubtask,
     refreshTasks
   } = useLightWorkTasks({ selectedDate });
 
@@ -66,8 +68,8 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
       toggleTaskCompletion={handleToggleTaskCompletion}
       toggleSubtaskCompletion={async () => {}} // TODO: Implement
       addSubtask={handleAddSubtask}
-      deleteTask={async () => {}} // TODO: Implement
-      deleteSubtask={async () => {}} // TODO: Implement
+      deleteTask={deleteTask}
+      deleteSubtask={deleteSubtask}
       analyzeTaskWithAI={async () => {}} // TODO: Implement
       pushTaskToAnotherDay={async () => {}} // TODO: Implement
       updateTaskTitle={async () => {}} // TODO: Implement

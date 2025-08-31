@@ -23,6 +23,8 @@ export const DeepFocusWorkSection: React.FC<DeepFocusWorkSectionProps> = ({
     createTask,
     toggleTaskCompletion,
     addSubtask,
+    deleteTask,
+    deleteSubtask,
     refreshTasks
   } = useDeepWorkTasks({ selectedDate });
 
@@ -69,8 +71,8 @@ export const DeepFocusWorkSection: React.FC<DeepFocusWorkSectionProps> = ({
       toggleTaskCompletion={handleToggleTaskCompletion}
       toggleSubtaskCompletion={async () => {}} // TODO: Implement
       addSubtask={handleAddSubtask}
-      deleteTask={async () => {}} // TODO: Implement
-      deleteSubtask={async () => {}} // TODO: Implement
+      deleteTask={deleteTask}
+      deleteSubtask={deleteSubtask}
       analyzeTaskWithAI={async () => {}} // TODO: Implement
       pushTaskToAnotherDay={async () => {}} // TODO: Implement
       updateTaskTitle={async () => {}} // TODO: Implement

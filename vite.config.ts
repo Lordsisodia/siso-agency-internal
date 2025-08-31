@@ -29,6 +29,14 @@ export default defineConfig(({ mode }) => ({
         '**/dist-*/**',
         '**/*.app/**'
       ]
+    },
+    // Proxy API calls to backend server
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        secure: false
+      }
     }
   },
   plugins: [react()],

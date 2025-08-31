@@ -176,7 +176,7 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
     }
   });
   
-  return res.status(200).json({ timeBlocks });
+  return res.status(200).json({ success: true, data: timeBlocks });
 }
 
 // POST /api/timeblocks
@@ -221,7 +221,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     }
   });
   
-  return res.status(201).json({ timeBlock });
+  return res.status(201).json({ success: true, data: timeBlock });
 }
 
 // PUT /api/timeblocks?id=xxx
@@ -280,7 +280,7 @@ async function handlePut(req: NextApiRequest, res: NextApiResponse) {
     data
   });
   
-  return res.status(200).json({ timeBlock: updatedTimeBlock });
+  return res.status(200).json({ success: true, data: updatedTimeBlock });
 }
 
 // DELETE /api/timeblocks?id=xxx
@@ -306,7 +306,10 @@ async function handleDelete(req: NextApiRequest, res: NextApiResponse) {
   });
   
   return res.status(200).json({ 
-    message: 'Time block deleted successfully',
-    deletedId: id
+    success: true,
+    data: { 
+      message: 'Time block deleted successfully',
+      deletedId: id
+    }
   });
 }
