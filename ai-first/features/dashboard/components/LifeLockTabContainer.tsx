@@ -139,6 +139,13 @@ export const LifeLockTabContainer: React.FC<LifeLockTabContainerProps> = (props)
   }, [activeTabId, setSearchParams]);
 
   // Swipe gesture handling
+  const handleDragStart = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    // If user is clearly trying to scroll vertically, don't capture drag
+    if (Math.abs(info.velocity.y) > Math.abs(info.velocity.x)) {
+      return false; // Let native scroll handle it
+    }
+  };
+
   const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     const swipeThreshold = 100;
     const swipeVelocityThreshold = 500;
@@ -198,8 +205,11 @@ export const LifeLockTabContainer: React.FC<LifeLockTabContainerProps> = (props)
           drag={isMobile ? "x" : false}
           dragConstraints={{ left: 0, right: 0 }}
           dragElastic={0.2}
+          dragDirectionLock={true}
+          onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
           className="h-full"
+          style={{ touchAction: 'pan-y' }}
         >
           <AnimatePresence mode="wait" custom={activeTabIndex}>
             <motion.div
