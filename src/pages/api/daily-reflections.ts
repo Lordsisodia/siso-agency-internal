@@ -4,17 +4,56 @@
  * HTTP API for nightly checkout data persistence with proper daily reset logic
  */
 
-import path from 'path';
-import { pathToFileURL } from 'url';
+import { PrismaClient } from '@prisma/client';
+
+// Universal Prisma client - works locally and on Vercel
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
+
+const prisma = globalForPrisma.prisma ?? new PrismaClient();
+
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+
+// Helper function to ensure user exists
+async function ensureUserExists(userId: string) {
+  try {
+    // Check if user exists
+    const existingUser = await prisma.user.findUnique({
+      where: { id: userId }
+    });
+    
+    if (existingUser) {
+      return existingUser;
+    }
+    
+    // Create user with default email if not exists
+    console.log(`🔧 Auto-creating user: ${userId}`);
+    const newUser = await prisma.user.create({
+      data: {
+        id: userId,
+        email: `${userId}@clerk.generated`,
+        supabaseId: userId
+      }
+    });
+    
+    console.log(`✅ Auto-created user: ${userId}`);
+    return newUser;
+  } catch (error) {
+    console.error('Failed to ensure user exists:', error);
+    throw error;
+  }
+}
 
 export default async function handler(req: any, res: any) {
+  // Handle CORS preflight
+  if (req.method === 'OPTIONS') {
+    return res.status(200).json({});
+  }
+
   const { method, query, body } = req;
 
   try {
-    // Dynamic import of database service
-    const servicePath = path.resolve(process.cwd(), 'ai-first/services/task-database-service-js.js');
-    const serviceUrl = pathToFileURL(servicePath).href;
-    const { taskDatabaseService } = await import(serviceUrl + '?t=' + Date.now());
 
     switch (method) {
       case 'GET':
@@ -25,7 +64,15 @@ export default async function handler(req: any, res: any) {
         }
         
         // Get daily reflections for the specific date
-        const reflections = await taskDatabaseService.getDailyReflectionsForDate(userId, date);
+        const reflections = await prisma.dailyReflections.findUnique({
+          where: {
+            userId_date: {
+              userId: userId,
+              date: date
+            }
+          }
+        });
+
         return res.status(200).json({ success: true, data: reflections });
 
       case 'POST':
@@ -47,23 +94,46 @@ export default async function handler(req: any, res: any) {
           return res.status(400).json({ error: 'userId and date are required' });
         }
         
-        const savedReflections = await taskDatabaseService.saveDailyReflections(postUserId, {
-          date: postDate,
-          wentWell: wentWell || [],
-          evenBetterIf: evenBetterIf || [],
-          analysis: analysis || [],
-          patterns: patterns || [],
-          changes: changes || [],
-          overallRating,
-          keyLearnings,
-          tomorrowFocus
+        // Ensure user exists first
+        await ensureUserExists(postUserId);
+
+        // Save daily reflections using correct model name
+        const savedReflections = await prisma.dailyReflections.upsert({
+          where: {
+            userId_date: {
+              userId: postUserId,
+              date: postDate
+            }
+          },
+          update: {
+            wentWell: wentWell,
+            evenBetterIf: evenBetterIf,
+            analysis: analysis,
+            patterns: patterns,
+            changes: changes,
+            overallRating: overallRating,
+            keyLearnings: keyLearnings,
+            tomorrowFocus: tomorrowFocus,
+            updatedAt: new Date()
+          },
+          create: {
+            userId: postUserId,
+            date: postDate,
+            wentWell: wentWell || [],
+            evenBetterIf: evenBetterIf || [],
+            analysis: analysis || [],
+            patterns: patterns || [],
+            changes: changes || [],
+            overallRating: overallRating,
+            keyLearnings: keyLearnings,
+            tomorrowFocus: tomorrowFocus
+          }
         });
         
         return res.status(200).json({ success: true, data: savedReflections });
 
       default:
-        res.setHeader('Allow', ['GET', 'POST']);
-        return res.status(405).end(`Method ${method} Not Allowed`);
+        return res.status(405).json({ error: `Method ${method} Not Allowed` });
     }
   } catch (error) {
     console.error('❌ Daily Reflections API error:', error);
