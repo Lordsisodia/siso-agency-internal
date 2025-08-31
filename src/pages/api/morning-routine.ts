@@ -4,7 +4,7 @@
  * HTTP API for morning routine operations with real database persistence
  */
 
-import { taskDatabaseService } from '@/ai-first/services/task-database-service-fixed';
+import { taskDatabaseService } from '@/ai-first/services/task-database-service-js.js';
 
 export default async function handler(req: any, res: any) {
   const { method, query, body } = req;

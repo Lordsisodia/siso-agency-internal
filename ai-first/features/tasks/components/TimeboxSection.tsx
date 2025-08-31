@@ -8,7 +8,6 @@ import {
   Plus,
   Edit3
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
@@ -383,53 +382,31 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
       // OLD: Original classes (fallback for safety)
       'min-h-screen w-full bg-gradient-to-br from-black via-gray-900 to-black'
     )}>
-      <div className="max-w-7xl mx-auto p-3 sm:p-4 md:p-6 lg:p-8 space-y-6">
+      <div className="w-full">
         
-        {/* Enhanced Header */}
-        <Card className="bg-gradient-to-br from-purple-900/30 via-purple-900/20 to-indigo-900/20 border-purple-700/40 shadow-2xl backdrop-blur-sm">
-          <CardHeader className="p-6 sm:p-8">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <div className="p-2 rounded-xl bg-purple-500/20 border border-purple-400/30 mr-4">
-                  <Calendar className="h-6 w-6 text-purple-300" />
-                </div>
-                <div>
-                  <CardTitle className="text-white text-xl sm:text-2xl font-bold bg-gradient-to-r from-purple-200 to-pink-200 bg-clip-text text-transparent">
-                    Daily Timeline
-                  </CardTitle>
-                  <p className="text-purple-300/80 text-sm mt-1">{format(selectedDate, 'EEEE, MMMM d, yyyy')}</p>
-                </div>
-              </div>
-              {/* Quick stats */}
-              <div className="hidden sm:flex items-center space-x-4">
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-green-400">{validTasks.filter(t => t.completed).length}</p>
-                  <p className="text-xs text-green-300/80">Completed</p>
-                </div>
-                <div className="w-px h-8 bg-purple-600/50"></div>
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-blue-400">{validTasks.length}</p>
-                  <p className="text-xs text-blue-300/80">Total Tasks</p>
-                </div>
-                <div className="w-px h-8 bg-purple-600/50"></div>
-                <motion.div 
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Button
-                    onClick={() => setIsFormModalOpen(true)}
-                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white border-purple-500/40 shadow-lg hover:shadow-purple-500/30"
-                    size="sm"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Block
-                  </Button>
-                </motion.div>
-              </div>
+        {/* Simple Header - Full Width */}
+        <div className="w-full px-4 py-6 border-b border-gray-700/30">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <h1 className="text-white text-2xl font-bold">
+                {format(selectedDate, 'EEEE, MMMM d, yyyy')}
+              </h1>
             </div>
-          </CardHeader>
-          
-          <CardContent className="p-6 sm:p-8 pt-0 sm:pt-0">
+            <div className="flex items-center space-x-4">
+              <Button
+                onClick={() => setIsFormModalOpen(true)}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+                size="sm"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Block
+              </Button>
+            </div>
+          </div>
+        </div>
+        
+        {/* Full Width Timeline */}
+        <div className="w-full">
             {/* Enhanced Timeline Container with Scroll Indicators */}
             <div className="relative">
               {/* Scroll fade indicators */}
@@ -859,8 +836,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
               </div>
             </div>
             </div>
-          </CardContent>
-        </Card>
+        </div>
         
       </div>
 
