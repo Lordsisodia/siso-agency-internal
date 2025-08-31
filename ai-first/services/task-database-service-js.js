@@ -5,7 +5,8 @@
  * Compatible with Vercel serverless functions using Prisma Accelerate
  */
 
-import { PrismaClient } from '@prisma/client';
+// Try the most likely import path for current environment
+import { PrismaClient } from '../../generated/prisma/index.js';
 import { withAccelerate } from '@prisma/extension-accelerate';
 
 // Universal Prisma client - works locally and on Vercel
