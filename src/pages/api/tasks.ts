@@ -5,6 +5,7 @@
  */
 
 import { taskDatabaseService } from '@/ai-first/services/task-database-service-fixed';
+import { auth } from '@clerk/nextjs';
 
 export default async function handler(req: any, res: any) {
   const { method, query, body } = req;
@@ -40,6 +41,110 @@ export default async function handler(req: any, res: any) {
         
         if (completed !== undefined) {
           await taskDatabaseService.updateTaskCompletion(taskId, completed);
+          
+          // Award XP when task is completed (not when uncompleted)
+          if (completed === true) {
+            try {
+              const { userId } = auth();
+              if (userId) {
+                // Get full task data for intelligent XP calculation
+                const taskData = await taskDatabaseService.getTaskById?.(taskId);
+                
+                // Import intelligent XP services
+                const { IntelligentXPService, TaskImportanceDetector } = await import('@/services/intelligentXPService');
+                const { GamificationEngine } = await import('@/services/gamificationSystem');
+                
+                // Get or analyze task importance if not already done
+                let taskAnalysis = taskData?.aiAnalyzed ? {
+                  priority: taskData.priority,
+                  complexity: taskData.complexity || 5,
+                  learningValue: taskData.learningValue || 5,
+                  strategicImportance: taskData.strategicImportance || 5
+                } : TaskImportanceDetector.analyzeImportance(
+                  taskData?.title || 'Task',
+                  taskData?.description
+                );
+                
+                // Get user game stats (TODO: implement getUserGameStats)
+                const userStats = {
+                  totalXP: 0,
+                  level: 1,
+                  currentStreak: 1,
+                  tasksCompletedToday: 1,
+                  userLevel: 1,
+                  activeAchievements: []
+                };
+                
+                // Build intelligent task context
+                const taskContext = {
+                  title: taskData?.title || 'Task',
+                  description: taskData?.description,
+                  priority: taskAnalysis.priority,
+                  workType: taskData?.workType || 'LIGHT',
+                  difficulty: taskData?.difficulty || 'MODERATE',
+                  estimatedDuration: taskData?.estimatedDuration,
+                  complexity: taskAnalysis.complexity,
+                  learningValue: taskAnalysis.learningValue,
+                  strategicImportance: taskAnalysis.strategicImportance,
+                  currentStreak: userStats.currentStreak,
+                  tasksCompletedToday: userStats.tasksCompletedToday,
+                  userLevel: userStats.level,
+                  activeAchievements: [],
+                  timeOfDay: new Date().getHours() < 12 ? 'morning' as const : 
+                            new Date().getHours() < 18 ? 'afternoon' as const : 'evening' as const,
+                  isWeekend: [0, 6].includes(new Date().getDay()),
+                  completedInFocusSession: true
+                };
+                
+                // Calculate intelligent XP
+                const xpCalculation = IntelligentXPService.calculateIntelligentXP(taskContext);
+                
+                console.log('🧠 Intelligent XP calculation:', {
+                  task: taskContext.title,
+                  finalXP: xpCalculation.finalXP,
+                  confidence: xpCalculation.confidenceScore,
+                  breakdown: xpCalculation.breakdown
+                });
+                
+                // Award XP using XP Store service
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/xp-store/award-xp`, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': req.headers.authorization || '',
+                  },
+                  body: JSON.stringify({
+                    source: 'INTELLIGENT_TASK_COMPLETION',
+                    sourceId: taskId,
+                    baseXP: xpCalculation.baseXP,
+                    finalXP: xpCalculation.finalXP,
+                    breakdown: xpCalculation.breakdown,
+                    confidence: xpCalculation.confidenceScore,
+                    multipliers: {
+                      priority: xpCalculation.priorityMultiplier,
+                      complexity: xpCalculation.complexityBonus,
+                      learning: xpCalculation.learningBonus,
+                      strategic: xpCalculation.strategicBonus,
+                      level: xpCalculation.levelMultiplier,
+                      combo: xpCalculation.comboMultiplier
+                    }
+                  })
+                });
+                
+                if (response.ok) {
+                  const result = await response.json();
+                  console.log('✅ Intelligent XP awarded:', result.message);
+                  console.log('🎯 XP breakdown:', xpCalculation.breakdown.join(' | '));
+                  console.log(`🎮 Confidence: ${xpCalculation.confidenceScore}%`);
+                } else {
+                  console.warn('⚠️ Failed to award XP for task completion:', await response.text());
+                }
+              }
+            } catch (xpError) {
+              // Don't fail the task update if XP awarding fails
+              console.error('❌ Intelligent XP award error:', xpError);
+            }
+          }
         }
         
         if (title !== undefined) {

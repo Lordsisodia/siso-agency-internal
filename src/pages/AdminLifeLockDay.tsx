@@ -13,8 +13,8 @@ import { PriorityTasksSection } from '@/ai-first/features/tasks/components/Prior
 import { QuickActionsSection } from '@/ai-first/features/tasks/ui/QuickActionsSection';
 import { MonthlyProgressSection } from '@/ai-first/features/tasks/components/MonthlyProgressSection';
 import { MorningRoutineSection } from '@/ai-first/features/tasks/components/MorningRoutineSection';
-import { DeepFocusWorkSection } from '@/ai-first/features/tasks/components/DeepFocusWorkSection';
-import { LightFocusWorkSection } from '@/ai-first/features/tasks/components/LightFocusWorkSection';
+import { DeepFocusWorkSection } from '@/ai-first/features/tasks/components/DeepFocusWorkSection-v2';
+import { LightFocusWorkSection } from '@/ai-first/features/tasks/components/LightFocusWorkSection-v2';
 import { NightlyCheckoutSection } from '@/ai-first/features/tasks/components/NightlyCheckoutSection';
 import { HomeWorkoutSection } from '@/ai-first/features/tasks/components/HomeWorkoutSection';
 import { HealthNonNegotiablesSection } from '@/ai-first/features/tasks/components/HealthNonNegotiablesSection';

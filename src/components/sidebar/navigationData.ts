@@ -1,7 +1,8 @@
 import { 
   LayoutDashboard, ListTodo, MessageSquare, 
   FileText, HelpCircle, 
-  ClipboardList, CalendarClock, FlaskConical
+  ClipboardList, CalendarClock, FlaskConical,
+  ShoppingCart, Coins, BarChart3, History
 } from 'lucide-react';
 import { MenuSection } from './types';
 
@@ -42,6 +43,33 @@ export const getMenuSections = (): MenuSection[] => {
           href: '/testing',
           icon: FlaskConical,
           label: 'AI Testing'
+        }
+      ]
+    },
+    {
+      type: 'section',
+      title: 'XP Economy',
+      icon: ShoppingCart,
+      items: [
+        {
+          href: '/xp-store',
+          icon: ShoppingCart,
+          label: 'XP Store',
+        },
+        {
+          href: '/xp-store/balance',
+          icon: Coins,
+          label: 'Balance & Earnings',
+        },
+        {
+          href: '/xp-store/analytics',
+          icon: BarChart3,
+          label: 'Spending Analytics',
+        },
+        {
+          href: '/xp-store/history',
+          icon: History,
+          label: 'Purchase History',
         }
       ]
     },

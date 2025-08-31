@@ -28,7 +28,7 @@ import { TabLayoutProps } from '../refactored/data/admin-lifelock-tabs';
 import { TabId, isValidTabId, assertExhaustive } from '@/ai-first/core/tab-config';
 import { CleanDateNav } from '@/components/ui/clean-date-nav';
 import { MorningRoutineSection } from '@/ai-first/features/tasks/components/MorningRoutineSection';
-import { DeepFocusWorkSection } from '@/ai-first/features/tasks/components/DeepFocusWorkSection';
+import { DeepFocusWorkSection } from '@/ai-first/features/tasks/components/DeepFocusWorkSection-v2';
 // ... other imports
 
 /**
