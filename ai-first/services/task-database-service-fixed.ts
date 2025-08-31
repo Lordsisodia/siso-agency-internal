@@ -141,6 +141,45 @@ class FixedTaskDatabaseService {
   }
 
   /**
+   * Get Deep Work tasks for a user on a specific date with subtasks
+   */
+  async getDeepWorkTasksForDate(userId: string, date: string): Promise<TaskWithSubtasks[]> {
+    const prisma = await getPrismaClient();
+    
+    try {
+      console.log(`🔍 getDeepWorkTasksForDate called with userId: ${userId}, date: ${date}`);
+      
+      const tasks = await prisma.personalTask.findMany({
+        where: {
+          userId,
+          currentDate: date,
+          workType: 'DEEP'
+        },
+        include: {
+          subtasks: {
+            orderBy: { createdAt: 'asc' }
+          }
+        },
+        orderBy: { createdAt: 'asc' }
+      });
+
+      console.log(`🧠 Found ${tasks.length} Deep Work tasks for date ${date}:`);
+      tasks.forEach((task, index) => {
+        console.log(`  📋 Task ${index + 1}: "${task.title}" - ${task.subtasks?.length || 0} subtasks`);
+      });
+      
+      return tasks as TaskWithSubtasks[];
+    } catch (error) {
+      console.error('❌ Failed to fetch Deep Work tasks:', error);
+      throw new Error('Failed to fetch Deep Work tasks');
+    } finally {
+      if (typeof window === 'undefined' && prisma.$disconnect) {
+        await prisma.$disconnect();
+      }
+    }
+  }
+
+  /**
    * Create a new task with optional subtasks
    */
   async createTask(userId: string, input: CreateTaskInput): Promise<TaskWithSubtasks> {
