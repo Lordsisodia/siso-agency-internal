@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc"; // Using plugin-react-swc which is already in the project
 import path from "path";
+import { apiRoutesPlugin } from "./vite-api-plugin";
 
 // [Analysis] Implementing granular code splitting for optimal chunk sizes
 // [Plan] Monitor performance impact and adjust splits if needed
@@ -39,7 +40,7 @@ export default defineConfig(({ mode }) => ({
       }
     }
   },
-  plugins: [react()],
+  plugins: [react(), apiRoutesPlugin()],
   
   // M4 Mac Mini Optimizations
   esbuild: {
