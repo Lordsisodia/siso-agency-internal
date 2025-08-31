@@ -14,6 +14,7 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { TaskDetailModal } from './TaskDetailModal';
 import { TimeBlockFormModal } from './TimeBlockFormModal';
+import QuickTaskScheduler from './QuickTaskScheduler';
 import { useTimeBlocks } from '@/hooks/useTimeBlocks';
 import { TimeBlockCategory } from '../../../../generated/prisma/index.js';
 import { theme } from '@/styles/theme';
@@ -109,6 +110,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
   const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedTask, setSelectedTask] = useState<TimeboxTask | null>(null);
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+  const [isQuickSchedulerOpen, setIsQuickSchedulerOpen] = useState(false);
   const [editingBlock, setEditingBlock] = useState(null);
   
   // Use the database-backed hook instead of localStorage
@@ -276,6 +278,25 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
   const handleCheckConflicts = async (startTime: string, endTime: string, excludeId?: string) => {
     return await checkConflicts(startTime, endTime, excludeId);
   };
+
+  // Handle scheduling task from selection modal
+  const handleScheduleTask = async (task: any, timeSlot: any, taskType: 'light' | 'deep') => {
+    const category = taskType === 'deep' ? 'DEEP_WORK' : 'LIGHT_WORK';
+    
+    const success = await createTimeBlock({
+      title: task.title,
+      description: task.description || `Scheduled ${taskType} work task`,
+      startTime: timeSlot.start,
+      endTime: timeSlot.end,
+      category: mapUIToCategory(category),
+      notes: `Linked to ${taskType} work task: ${task.id}`
+    });
+    
+    if (success) {
+      setIsQuickSchedulerOpen(false);
+    }
+    return success;
+  };
   
   // Convert database time blocks to UI format
   const tasks = useMemo(() => {
@@ -392,14 +413,15 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                 {format(selectedDate, 'EEEE, MMMM d, yyyy')}
               </h1>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
               <Button
-                onClick={() => setIsFormModalOpen(true)}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
+                onClick={() => setIsQuickSchedulerOpen(true)}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2"
                 size="sm"
+                title="Add tasks to timebox"
               >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Block
+                <Calendar className="h-4 w-4 mr-2" />
+                Add Tasks
               </Button>
             </div>
           </div>
@@ -426,7 +448,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                       "absolute w-full group/hour hover:bg-purple-500/5 transition-all duration-300 cursor-pointer",
                       slot.isCurrentHour && "bg-purple-500/10 border-l-4 border-purple-400/50"
                     )}
-                    style={{ top: `${(slot.hour - 6) * 80}px`, height: '80px' }}
+                    style={{ top: `${slot.hour * 80}px`, height: '80px' }}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ 
@@ -845,6 +867,18 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
         conflicts={conflicts}
         onCheckConflicts={handleCheckConflicts}
       />
+      
+      {/* Quick Task Scheduler */}
+      {isQuickSchedulerOpen && (
+        <div className="fixed top-4 right-4 w-96 max-w-[90vw] z-50">
+          <QuickTaskScheduler
+            isOpen={isQuickSchedulerOpen}
+            onClose={() => setIsQuickSchedulerOpen(false)}
+            selectedDate={selectedDate}
+            onScheduleTask={handleScheduleTask}
+          />
+        </div>
+      )}
     </div>
   );
 };

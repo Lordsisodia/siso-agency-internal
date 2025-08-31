@@ -6,13 +6,23 @@
 
 import { TaskAnalysis } from './ai-xp-service';
 
+// Universal Prisma client - works locally and on Vercel
+import { PrismaClient } from '@prisma/client';
+
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
+
+const prisma = globalForPrisma.prisma ?? new PrismaClient();
+
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+
 // Import real Prisma client
 async function getPrismaClient() {
   try {
     if (typeof window === 'undefined') {
-      // Server-side: use real Prisma client
-      const { PrismaClient } = await import('../../generated/prisma/index.js');
-      return new PrismaClient();
+      // Server-side: use universal Prisma client
+      return prisma;
     } else {
       // Browser: use the updated browser client that calls real APIs
       const { prismaClient } = await import('@/integrations/prisma/client');

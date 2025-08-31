@@ -151,7 +151,7 @@ export function useTimeBlocks(options: UseTimeBlocksOptions): TimeBlockState & T
       
       optimisticUpdatesRef.current.set(optimisticBlock.id, optimisticBlock);
       updateState({
-        timeBlocks: [...state.timeBlocks, optimisticBlock]
+        timeBlocks: [...(Array.isArray(state.timeBlocks) ? state.timeBlocks : []), optimisticBlock]
       });
     }
     
@@ -195,7 +195,7 @@ export function useTimeBlocks(options: UseTimeBlocksOptions): TimeBlockState & T
         if (enableOptimisticUpdates) {
           optimisticUpdatesRef.current.clear();
           updateState({
-            timeBlocks: state.timeBlocks.filter(block => !block.id.startsWith('temp-'))
+            timeBlocks: (Array.isArray(state.timeBlocks) ? state.timeBlocks : []).filter(block => !block.id.startsWith('temp-'))
           });
         }
         
@@ -211,7 +211,7 @@ export function useTimeBlocks(options: UseTimeBlocksOptions): TimeBlockState & T
       if (enableOptimisticUpdates) {
         optimisticUpdatesRef.current.clear();
         updateState({
-          timeBlocks: state.timeBlocks.filter(block => !block.id.startsWith('temp-'))
+          timeBlocks: (Array.isArray(state.timeBlocks) ? state.timeBlocks : []).filter(block => !block.id.startsWith('temp-'))
         });
       }
       
@@ -229,7 +229,7 @@ export function useTimeBlocks(options: UseTimeBlocksOptions): TimeBlockState & T
     // Optimistic update
     if (enableOptimisticUpdates) {
       updateState({
-        timeBlocks: state.timeBlocks.map(block =>
+        timeBlocks: (Array.isArray(state.timeBlocks) ? state.timeBlocks : []).map(block =>
           block.id === id ? { ...block, ...data, updatedAt: new Date().toISOString() } : block
         )
       });
@@ -287,12 +287,12 @@ export function useTimeBlocks(options: UseTimeBlocksOptions): TimeBlockState & T
     updateState({ isDeleting: true, error: null });
     
     // Store original for potential rollback
-    const originalBlocks = state.timeBlocks;
+    const originalBlocks = Array.isArray(state.timeBlocks) ? state.timeBlocks : [];
     
     // Optimistic update
     if (enableOptimisticUpdates) {
       updateState({
-        timeBlocks: state.timeBlocks.filter(block => block.id !== id)
+        timeBlocks: originalBlocks.filter(block => block.id !== id)
       });
     }
     
@@ -339,7 +339,7 @@ export function useTimeBlocks(options: UseTimeBlocksOptions): TimeBlockState & T
     id: string,
     actualTime?: { start?: string; end?: string }
   ): Promise<boolean> => {
-    const timeBlock = state.timeBlocks.find(block => block.id === id);
+    const timeBlock = (Array.isArray(state.timeBlocks) ? state.timeBlocks : []).find(block => block.id === id);
     if (!timeBlock) return false;
     
     const updateData: UpdateTimeBlockInput = {
@@ -394,14 +394,14 @@ export function useTimeBlocks(options: UseTimeBlocksOptions): TimeBlockState & T
   }, [updateState]);
 
   const getTimeBlockById = useCallback((id: string): TimeBlock | undefined => {
-    return state.timeBlocks.find(block => block.id === id);
+    return (Array.isArray(state.timeBlocks) ? state.timeBlocks : []).find(block => block.id === id);
   }, [state.timeBlocks]);
 
   const getTimeBlocksInRange = useCallback((
     startTime: string,
     endTime: string
   ): TimeBlock[] => {
-    return state.timeBlocks.filter(block =>
+    return (Array.isArray(state.timeBlocks) ? state.timeBlocks : []).filter(block =>
       (block.startTime >= startTime && block.startTime < endTime) ||
       (block.endTime > startTime && block.endTime <= endTime) ||
       (block.startTime <= startTime && block.endTime >= endTime)
