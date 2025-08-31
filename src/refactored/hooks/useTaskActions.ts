@@ -12,14 +12,15 @@
  */
 
 import { useState, useCallback } from 'react';
-import { personalTaskService } from '@/ai-first/core/task.service';
+import { personalTaskService } from '@/services/workTypeApiClient';
+import { useClerkUser } from '@/components/ClerkProvider';
 
 export interface UseTaskActionsReturn {
   // Actions
-  handleTaskToggle: (taskId: string) => Promise<void>;
-  handleTaskAdd: (task: { title: string; priority: 'low' | 'medium' | 'high' }) => Promise<void>;
-  handleTaskDelete: (taskId: string) => Promise<void>;
-  handleTaskUpdate: (taskId: string, updates: { title?: string; priority?: string }) => Promise<void>;
+  handleTaskToggle: (task: { id: string; workType: 'LIGHT' | 'DEEP'; completed: boolean }) => Promise<void>;
+  handleTaskAdd: (task: { title: string; priority: 'low' | 'medium' | 'high'; workType: 'LIGHT' | 'DEEP' }) => Promise<void>;
+  handleTaskDelete: (task: { id: string; workType: 'LIGHT' | 'DEEP' }) => Promise<void>;
+  handleTaskUpdate: (task: { id: string; workType: 'LIGHT' | 'DEEP' }, updates: { title?: string; priority?: string }) => Promise<void>;
   
   // Loading states for actions
   isTogglingTask: boolean;
@@ -40,6 +41,8 @@ export interface UseTaskActionsReturn {
  * Handles all task CRUD operations with loading states and error handling
  */
 export const useTaskActions = (selectedDate: Date, onTaskChange?: () => void): UseTaskActionsReturn => {
+  const { user } = useClerkUser();
+  
   // Loading states for individual actions
   const [isTogglingTask, setIsTogglingTask] = useState(false);
   const [isAddingTask, setIsAddingTask] = useState(false);
@@ -59,12 +62,12 @@ export const useTaskActions = (selectedDate: Date, onTaskChange?: () => void): U
   }, []);
 
   // Handle task toggle
-  const handleTaskToggle = useCallback(async (taskId: string) => {
+  const handleTaskToggle = useCallback(async (task: { id: string; workType: 'LIGHT' | 'DEEP'; completed: boolean }) => {
     setIsTogglingTask(true);
     clearError();
     
     try {
-      await personalTaskService.toggleTask(taskId);
+      await personalTaskService.toggleTask(task.id, task.workType, task.completed);
       setLastAction(`Task toggled successfully`);
       onTaskChange?.(); // Trigger refresh in parent
     } catch (error) {
@@ -76,12 +79,12 @@ export const useTaskActions = (selectedDate: Date, onTaskChange?: () => void): U
   }, [onTaskChange]);
 
   // Handle custom task add
-  const handleTaskAdd = useCallback(async (task: { title: string; priority: 'low' | 'medium' | 'high' }) => {
+  const handleTaskAdd = useCallback(async (task: { title: string; priority: 'low' | 'medium' | 'high'; workType: 'LIGHT' | 'DEEP' }) => {
     setIsAddingTask(true);
     clearError();
     
     try {
-      await personalTaskService.addTask(task.title, selectedDate, task.priority);
+      await personalTaskService.addTask(task.title, selectedDate, task.priority, task.workType, user?.id);
       setLastAction(`Task "${task.title}" added successfully`);
       onTaskChange?.(); // Trigger refresh in parent
     } catch (error) {
@@ -90,15 +93,15 @@ export const useTaskActions = (selectedDate: Date, onTaskChange?: () => void): U
     } finally {
       setIsAddingTask(false);
     }
-  }, [selectedDate, onTaskChange]);
+  }, [selectedDate, onTaskChange, user?.id]);
 
   // Handle task delete
-  const handleTaskDelete = useCallback(async (taskId: string) => {
+  const handleTaskDelete = useCallback(async (task: { id: string; workType: 'LIGHT' | 'DEEP' }) => {
     setIsDeletingTask(true);
     clearError();
     
     try {
-      await personalTaskService.deleteTask(taskId);
+      await personalTaskService.deleteTask(task.id, task.workType);
       setLastAction('Task deleted successfully');
       onTaskChange?.(); // Trigger refresh in parent
     } catch (error) {
@@ -110,12 +113,12 @@ export const useTaskActions = (selectedDate: Date, onTaskChange?: () => void): U
   }, [onTaskChange]);
 
   // Handle task update
-  const handleTaskUpdate = useCallback(async (taskId: string, updates: { title?: string; priority?: string }) => {
+  const handleTaskUpdate = useCallback(async (task: { id: string; workType: 'LIGHT' | 'DEEP' }, updates: { title?: string; priority?: string }) => {
     setIsUpdatingTask(true);
     clearError();
     
     try {
-      await personalTaskService.updateTask(taskId, updates);
+      await personalTaskService.updateTask(task.id, updates, task.workType);
       setLastAction('Task updated successfully');
       onTaskChange?.(); // Trigger refresh in parent
     } catch (error) {

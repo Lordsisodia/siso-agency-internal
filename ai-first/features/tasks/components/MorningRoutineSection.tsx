@@ -22,7 +22,7 @@ import { Input } from '@/components/ui/input';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useClerkUser } from '@/components/ClerkProvider';
-import { apiClient } from '@/services/api-client';
+import { workTypeApiClient } from '@/services/workTypeApiClient';
 import { theme } from '@/styles/theme';
 import { getTasksForSection } from '@/data/task-defaults';
 import { isFeatureEnabled, useImplementation } from '@/migration/feature-flags';
@@ -31,18 +31,19 @@ import { ErrorState } from '@/components/ui/error-state';
 
 
 
+interface MorningRoutineHabit {
+  name: string;
+  completed: boolean;
+}
+
 interface MorningRoutineData {
   id: string;
   userId: string;
   date: string;
-  drinkWater: boolean;
-  exercise: boolean;
-  meditate: boolean;
-  readNews: boolean;
-  reviewGoals: boolean;
-  planDay: boolean;
-  healthCheck: boolean;
-  gratitude: boolean;
+  items: MorningRoutineHabit[];
+  completedCount: number;
+  totalCount: number;
+  completionPercentage: number;
 }
 
 interface MorningRoutineSectionProps {
@@ -153,8 +154,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
       try {
         setLoading(true);
         setError(null);
-        const formattedDate = format(selectedDate, 'yyyy-MM-dd');
-        const data = await apiClient.getMorningRoutine(user.id, formattedDate);
+        const data = await workTypeApiClient.getMorningRoutine(user.id, selectedDate);
         setMorningRoutine(data);
       } catch (error) {
         console.error('Error loading morning routine:', error);
@@ -179,14 +179,15 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
     if (!user?.id || !selectedDate || !morningRoutine) return;
     
     try {
-      const formattedDate = format(selectedDate, 'yyyy-MM-dd');
-      const updatedRoutine = await apiClient.updateMorningRoutineHabit(
+      await workTypeApiClient.updateMorningRoutineHabit(
         user.id, 
-        formattedDate, 
+        selectedDate, 
         habitKey, 
         completed
       );
-      setMorningRoutine(updatedRoutine);
+      // Refresh the morning routine data
+      const updatedData = await workTypeApiClient.getMorningRoutine(user.id, selectedDate);
+      setMorningRoutine(updatedData);
     } catch (error) {
       console.error('Error updating habit:', error);
     }
@@ -207,24 +208,14 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
   // Calculate progress based on completed tasks and subtasks
   const getRoutineProgress = () => {
     if (!morningRoutine) return 0;
-    let totalItems = 0;
-    let completedItems = 0;
-    
-    MORNING_ROUTINE_TASKS.forEach(task => {
-      if (task.subtasks.length > 0) {
-        // Count subtasks
-        totalItems += task.subtasks.length;
-        task.subtasks.forEach(subtask => {
-          if (morningRoutine[subtask.key]) completedItems++;
-        });
-      } else {
-        // Count main task if no subtasks
-        totalItems += 1;
-        if (morningRoutine[task.key]) completedItems++;
-      }
-    });
-    
-    return totalItems > 0 ? (completedItems / totalItems) * 100 : 0;
+    return morningRoutine.completionPercentage || 0;
+  };
+
+  // Helper function to check if a habit is completed
+  const isHabitCompleted = (habitKey: string): boolean => {
+    if (!morningRoutine || !morningRoutine.items) return false;
+    const habit = morningRoutine.items.find(item => item.name === habitKey);
+    return habit?.completed || false;
   };
   
   const morningRoutineProgress = getRoutineProgress();
@@ -342,8 +333,8 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
             <div className="space-y-2 sm:space-y-3">
               {MORNING_ROUTINE_TASKS.map((task) => {
                 const IconComponent = task.icon;
-                const isMainTaskCompleted = morningRoutine?.[task.key] || false;
-                const completedSubtasks = task.subtasks.filter(subtask => morningRoutine?.[subtask.key]).length;
+                const isMainTaskCompleted = isHabitCompleted(task.key);
+                const completedSubtasks = task.subtasks.filter(subtask => isHabitCompleted(subtask.key)).length;
                 
                 return (
                   <div key={task.key} className="group bg-yellow-900/10 border border-yellow-700/30 rounded-xl hover:bg-yellow-900/15 hover:border-yellow-600/40 transition-all duration-300 hover:shadow-lg hover:shadow-yellow-500/5">
@@ -443,20 +434,20 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
                             <div className="relative">
                               <div className="absolute -left-4 top-1/2 w-3 h-px bg-yellow-500/30"></div>
                               <Checkbox
-                                checked={morningRoutine?.[subtask.key] || false}
+                                checked={isHabitCompleted(subtask.key)}
                                 onCheckedChange={(checked) => handleHabitToggle(subtask.key, !!checked)}
                                 className="h-4 w-4 border-yellow-400/70 data-[state=checked]:bg-yellow-500 data-[state=checked]:border-yellow-500 transition-all duration-200 group-hover:border-yellow-400"
                               />
                             </div>
                             <span className={cn(
                               "text-sm font-medium transition-all duration-200 flex-1",
-                              morningRoutine?.[subtask.key]
+                              isHabitCompleted(subtask.key)
                                 ? "text-gray-500 line-through" 
                                 : "text-yellow-100/90 group-hover:text-yellow-50"
                             )}>
                               {subtask.title}
                             </span>
-                            {morningRoutine?.[subtask.key] && (
+                            {isHabitCompleted(subtask.key) && (
                               <CheckCircle2 className="h-3.5 w-3.5 text-green-400 animate-in zoom-in-50 duration-200" />
                             )}
                           </div>

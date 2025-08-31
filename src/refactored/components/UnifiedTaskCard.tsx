@@ -41,6 +41,7 @@ export interface TaskCardTask {
   id: string;
   title: string;
   completed: boolean;
+  workType: 'LIGHT' | 'DEEP';
   priority?: 'low' | 'medium' | 'high' | 'urgent' | 'critical';
   status?: 'pending' | 'in_progress' | 'completed' | 'done' | 'overdue' | 'blocked';
   timeEstimate?: string;
@@ -82,7 +83,7 @@ export interface TaskCardProps {
   animateCompletion?: boolean;
   
   // Interactions
-  onTaskToggle?: (taskId: string, completed: boolean) => void;
+  onTaskToggle?: (task: TaskCardTask) => void;
   onSubtaskToggle?: (taskId: string, subtaskId: string, completed: boolean) => void;
   onTaskClick?: (task: TaskCardTask) => void;
   onAddSubtask?: (taskId: string, subtaskTitle: string) => void;
@@ -221,7 +222,7 @@ export const UnifiedTaskCard: React.FC<TaskCardProps> = memo(({
       setIsAnimating(true);
       setTimeout(() => setIsAnimating(false), 1000);
     }
-    onTaskToggle?.(task.id, !task.completed);
+    onTaskToggle?.(task);
   };
 
   // Handle subtask toggle
