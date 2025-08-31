@@ -328,13 +328,11 @@ export const taskDatabaseService = {
   async getMorningRoutineForDate(userId, date) {
     try {
       // Try to find existing morning routine for this date
-      let routine = await prisma.dailyRoutine.findUnique({
+      let routine = await prisma.dailyRoutine.findFirst({
         where: { 
-          userId_date_routineType: {
-            userId: userId,
-            date: date,
-            routineType: 'MORNING'
-          }
+          userId: userId,
+          date: date,
+          routineType: 'MORNING'
         }
       });
 
@@ -409,11 +407,7 @@ export const taskDatabaseService = {
       // Update the routine
       const updatedRoutine = await prisma.dailyRoutine.update({
         where: {
-          userId_date_routineType: {
-            userId: userId,
-            date: date,
-            routineType: 'MORNING'
-          }
+          id: routine.id
         },
         data: {
           items: updatedItems,
