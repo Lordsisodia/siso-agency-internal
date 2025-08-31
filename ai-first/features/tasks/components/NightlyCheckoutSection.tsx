@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { PromptInputBox } from '@/components/ui/ai-prompt-box';
 import { format } from 'date-fns';
+import { createApiUrl } from '@/utils/api-config';
+import { useAuth } from '@clerk/clerk-react';
 
 interface NightlyCheckoutSectionProps {
   selectedDate: Date;
@@ -15,39 +17,93 @@ interface NightlyCheckoutSectionProps {
 export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
   selectedDate
 }) => {
+  const { userId } = useAuth();
   const dateKey = format(selectedDate, 'yyyy-MM-dd');
   
-  const [bedTime, setBedTime] = useState<string>(() => {
-    const saved = localStorage.getItem(`lifelock-${dateKey}-bedTime`);
-    return saved || '';
-  });
-
+  const [bedTime, setBedTime] = useState<string>('');
   const [isEditingBedTime, setIsEditingBedTime] = useState(false);
   const [isVoiceProcessing, setIsVoiceProcessing] = useState(false);
   const [voiceAnalysisResult, setVoiceAnalysisResult] = useState<any>(null);
   const [showVoicePreview, setShowVoicePreview] = useState(false);
   const [voiceError, setVoiceError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const [nightlyCheckout, setNightlyCheckout] = useState(() => {
-    const saved = localStorage.getItem(`lifelock-${dateKey}-nightlyCheckout`);
-    return saved ? JSON.parse(saved) : {
-      wentWell: ['', '', ''],
-      evenBetterIf: ['', '', '', '', ''],
-      analysis: ['', '', ''],
-      patterns: ['', '', ''],
-      changes: ['', '', '']
-    };
+  const [nightlyCheckout, setNightlyCheckout] = useState({
+    wentWell: ['', '', ''],
+    evenBetterIf: ['', '', '', '', ''],
+    analysis: ['', '', ''],
+    patterns: ['', '', ''],
+    changes: ['', '', ''],
+    overallRating: undefined as number | undefined,
+    keyLearnings: '',
+    tomorrowFocus: ''
   });
 
-  // Save to localStorage whenever state changes
+  // Load data from database on component mount or date change
   useEffect(() => {
-    localStorage.setItem(`lifelock-${dateKey}-nightlyCheckout`, JSON.stringify(nightlyCheckout));
-  }, [nightlyCheckout, dateKey]);
+    if (!userId) return;
+    
+    const loadReflections = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch(
+          createApiUrl(`/api/daily-reflections?userId=${userId}&date=${dateKey}`)
+        );
+        
+        if (response.ok) {
+          const result = await response.json();
+          if (result.success && result.data) {
+            const data = result.data;
+            setNightlyCheckout({
+              wentWell: data.wentWell || ['', '', ''],
+              evenBetterIf: data.evenBetterIf || ['', '', '', '', ''],
+              analysis: data.analysis || ['', '', ''],
+              patterns: data.patterns || ['', '', ''],
+              changes: data.changes || ['', '', ''],
+              overallRating: data.overallRating,
+              keyLearnings: data.keyLearnings || '',
+              tomorrowFocus: data.tomorrowFocus || ''
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load daily reflections:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  // Save bed time to localStorage
+    loadReflections();
+  }, [userId, dateKey]);
+
+  // Save to database with debouncing
   useEffect(() => {
-    localStorage.setItem(`lifelock-${dateKey}-bedTime`, bedTime);
-  }, [bedTime, dateKey]);
+    if (!userId || isLoading) return;
+    
+    const saveTimer = setTimeout(async () => {
+      try {
+        setIsSaving(true);
+        await fetch(createApiUrl('/api/daily-reflections'), {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId,
+            date: dateKey,
+            ...nightlyCheckout
+          }),
+        });
+      } catch (error) {
+        console.error('Failed to save daily reflections:', error);
+      } finally {
+        setIsSaving(false);
+      }
+    }, 1000); // Debounce for 1 second
+
+    return () => clearTimeout(saveTimer);
+  }, [nightlyCheckout, userId, dateKey, isLoading]);
 
   // Get current time in 12-hour format
   const getCurrentTime = () => {
@@ -159,11 +215,15 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
       ...nightlyCheckout.evenBetterIf,
       ...nightlyCheckout.analysis,
       ...nightlyCheckout.patterns,
-      ...nightlyCheckout.changes
+      ...nightlyCheckout.changes,
+      nightlyCheckout.keyLearnings,
+      nightlyCheckout.tomorrowFocus
     ];
   };
 
-  const completedInputs = getAllInputs().filter(input => input.trim() !== '').length;
+  const completedInputs = getAllInputs().filter(input => 
+    typeof input === 'string' ? input.trim() !== '' : input !== undefined
+  ).length;
   const totalInputs = getAllInputs().length;
   const checkoutProgress = totalInputs > 0 ? (completedInputs / totalInputs) * 100 : 0;
 
@@ -184,13 +244,14 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
           <div className="mt-4">
             <div className="flex justify-between text-sm text-indigo-300 mb-2">
               <span>Reflection Progress</span>
-              <span>{Math.round(checkoutProgress)}%</span>
+              <span>{isLoading ? 'Loading...' : `${Math.round(checkoutProgress)}%`}</span>
+              {isSaving && <span className="text-xs text-indigo-400">Saving...</span>}
             </div>
             <div className="w-full bg-indigo-900/30 rounded-full h-2">
               <motion.div 
                 className="bg-gradient-to-r from-indigo-400 to-indigo-600 h-2 rounded-full"
                 initial={{ width: 0 }}
-                animate={{ width: `${checkoutProgress}%` }}
+                animate={{ width: isLoading ? '0%' : `${checkoutProgress}%` }}
                 transition={{ duration: 0.8, ease: 'easeOut' }}
               />
             </div>
@@ -474,6 +535,56 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
                       />
                     ))}
                   </div>
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              className="bg-gradient-to-br from-indigo-900/15 via-indigo-800/10 to-indigo-700/5 backdrop-blur-sm border border-indigo-700/20 rounded-xl p-6"
+            >
+              <h4 className="font-semibold text-white mb-4 text-lg">4. Overall Reflection:</h4>
+              
+              <div className="space-y-6">
+                <div>
+                  <p className="text-indigo-300/70 text-sm mb-4">Rate your overall day (1-10):</p>
+                  <div className="flex space-x-2">
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((rating) => (
+                      <button
+                        key={rating}
+                        onClick={() => setNightlyCheckout(prev => ({ ...prev, overallRating: rating }))}
+                        className={`w-10 h-10 rounded-full border-2 text-sm font-medium transition-all ${
+                          nightlyCheckout.overallRating === rating
+                            ? 'bg-indigo-600 border-indigo-400 text-white'
+                            : 'border-indigo-600/50 text-indigo-300 hover:border-indigo-400 hover:bg-indigo-900/20'
+                        }`}
+                      >
+                        {rating}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-indigo-300/70 text-sm mb-4">Key learning from today:</p>
+                  <Textarea
+                    value={nightlyCheckout.keyLearnings}
+                    onChange={(e) => setNightlyCheckout(prev => ({ ...prev, keyLearnings: e.target.value }))}
+                    className="bg-indigo-900/40 border-indigo-600/50 text-white placeholder:text-indigo-200/60 focus:border-indigo-400 focus:ring-indigo-400/20 rounded-lg min-h-[100px]"
+                    placeholder="What did you learn about yourself or life today?"
+                  />
+                </div>
+
+                <div>
+                  <p className="text-indigo-300/70 text-sm mb-4">Tomorrow's focus:</p>
+                  <Textarea
+                    value={nightlyCheckout.tomorrowFocus}
+                    onChange={(e) => setNightlyCheckout(prev => ({ ...prev, tomorrowFocus: e.target.value }))}
+                    className="bg-indigo-900/40 border-indigo-600/50 text-white placeholder:text-indigo-200/60 focus:border-indigo-400 focus:ring-indigo-400/20 rounded-lg min-h-[100px]"
+                    placeholder="What's your main focus for tomorrow?"
+                  />
                 </div>
               </div>
             </motion.div>

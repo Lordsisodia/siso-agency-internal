@@ -280,6 +280,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
   
   // Convert database time blocks to UI format
   const tasks = useMemo(() => {
+    if (!Array.isArray(timeBlocks)) return [];
     return timeBlocks.map(block => {
       // Calculate duration from start and end times
       const [startHour, startMin] = block.startTime.split(':').map(Number);
@@ -426,54 +427,6 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                 </motion.div>
               </div>
             </div>
-            
-            <div className="border-t border-gradient-to-r from-purple-600/30 via-purple-500/50 to-purple-600/30 my-6"></div>
-            
-            <div className={useImplementation(
-              'useUnifiedThemeSystem',
-              // NEW: Use theme pattern (could extend theme for purple variants)
-              'rounded-xl p-4 border border-purple-600/30 bg-gradient-to-r from-purple-900/40 to-indigo-900/40',
-              // OLD: Original classes (fallback for safety)
-              'bg-gradient-to-r from-purple-900/40 to-indigo-900/40 rounded-xl p-4 border border-purple-600/30'
-            )}>
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-bold text-purple-200 text-base flex items-center">
-                  <span className="w-2 h-2 bg-purple-400 rounded-full mr-3 animate-pulse"></span>
-                  Visual Time Management
-                </h3>
-                {error && (
-                  <Button
-                    onClick={clearError}
-                    variant="ghost"
-                    size="sm"
-                    className="text-red-400 hover:text-red-300 hover:bg-red-900/20"
-                  >
-                    Clear Error
-                  </Button>
-                )}
-              </div>
-              {error ? (
-                <p className="text-red-300 text-sm leading-relaxed">
-                  ⚠️ {error}
-                </p>
-              ) : (
-                <p className="text-gray-200 text-sm leading-relaxed">
-                  See your entire day at a glance. The <span className="text-red-400 font-semibold">pulsing red line</span> shows your current time, 
-                  and color-coded task blocks show your scheduled activities. Click any task to view details, <span className="text-blue-400">double-click to edit</span>, or mark it complete.
-                </p>
-              )}
-              {/* Mobile Add Button */}
-              <div className="sm:hidden mt-3">
-                <Button
-                  onClick={() => setIsFormModalOpen(true)}
-                  className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
-                  size="sm"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Time Block
-                </Button>
-              </div>
-            </div>
           </CardHeader>
           
           <CardContent className="p-6 sm:p-8 pt-0 sm:pt-0">
@@ -553,7 +506,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                         </span>
                         {slot.hour === new Date().getHours() && (
                           <motion.div
-                            className="absolute -top-1 -right-1 w-2 h-2 bg-red-400 rounded-full"
+                            className="absolute -top-1 -right-1 w-2 h-2 bg-blue-400 rounded-full"
                             animate={{
                               scale: [1, 1.3, 1],
                               opacity: [1, 0.7, 1]
@@ -604,14 +557,14 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                       damping: 20
                     }}
                   >
-                    {/* Animated red line with pulse effect */}
+                    {/* Animated blue line with pulse effect */}
                     <motion.div 
                       className="flex-1 relative"
                       animate={{ 
                         boxShadow: [
-                          "0 0 10px rgba(239, 68, 68, 0.5)",
-                          "0 0 20px rgba(239, 68, 68, 0.8)",
-                          "0 0 10px rgba(239, 68, 68, 0.5)"
+                          "0 0 10px rgba(59, 130, 246, 0.5)",
+                          "0 0 20px rgba(59, 130, 246, 0.8)",
+                          "0 0 10px rgba(59, 130, 246, 0.5)"
                         ]
                       }}
                       transition={{
@@ -620,10 +573,10 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                         ease: "easeInOut"
                       }}
                     >
-                      <div className="h-0.5 bg-gradient-to-r from-red-400 to-red-500" />
+                      <div className="h-0.5 bg-gradient-to-r from-blue-400 to-blue-500" />
                       {/* Glowing effect */}
                       <motion.div 
-                        className="absolute inset-0 h-0.5 bg-red-400 blur-sm opacity-60"
+                        className="absolute inset-0 h-0.5 bg-blue-400 blur-sm opacity-60"
                         animate={{ opacity: [0.6, 1, 0.6] }}
                         transition={{ duration: 1.5, repeat: Infinity }}
                       />
@@ -631,13 +584,13 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                     
                     {/* Animated time bubble */}
                     <motion.div 
-                      className="absolute right-4 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-xl border border-red-400/30"
+                      className="absolute right-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-xl border border-blue-400/30"
                       whileHover={{ scale: 1.1 }}
                       animate={{ 
                         boxShadow: [
-                          "0 4px 15px rgba(239, 68, 68, 0.3)",
-                          "0 6px 20px rgba(239, 68, 68, 0.5)",
-                          "0 4px 15px rgba(239, 68, 68, 0.3)"
+                          "0 4px 15px rgba(59, 130, 246, 0.3)",
+                          "0 6px 20px rgba(59, 130, 246, 0.5)",
+                          "0 4px 15px rgba(59, 130, 246, 0.3)"
                         ]
                       }}
                       transition={{
@@ -648,7 +601,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                       {format(currentTime, 'HH:mm')}
                       {/* Pulse dot indicator */}
                       <motion.div
-                        className="absolute -top-1 -right-1 w-2 h-2 bg-red-300 rounded-full"
+                        className="absolute -top-1 -right-1 w-2 h-2 bg-blue-300 rounded-full"
                         animate={{ 
                           scale: [1, 1.5, 1],
                           opacity: [1, 0.5, 1]

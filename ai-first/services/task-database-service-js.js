@@ -327,6 +327,74 @@ export const taskDatabaseService = {
       console.error('Failed to ensure user exists:', error);
       throw error;
     }
+  },
+
+  /**
+   * Get daily reflections for a specific date
+   */
+  async getDailyReflectionsForDate(userId, date) {
+    try {
+      const reflections = await prisma.dailyReflection.findUnique({
+        where: {
+          userId_date: {
+            userId: userId,
+            date: date
+          }
+        }
+      });
+
+      return reflections;
+    } catch (error) {
+      console.error('❌ Failed to get daily reflections:', error);
+      return null;
+    }
+  },
+
+  /**
+   * Save daily reflections for a specific date
+   */
+  async saveDailyReflections(userId, reflectionData) {
+    try {
+      // Ensure user exists first
+      await this.ensureUserExists(userId);
+
+      const reflections = await prisma.dailyReflection.upsert({
+        where: {
+          userId_date: {
+            userId: userId,
+            date: reflectionData.date
+          }
+        },
+        update: {
+          wentWell: reflectionData.wentWell,
+          evenBetterIf: reflectionData.evenBetterIf,
+          analysis: reflectionData.analysis,
+          patterns: reflectionData.patterns,
+          changes: reflectionData.changes,
+          overallRating: reflectionData.overallRating,
+          keyLearnings: reflectionData.keyLearnings,
+          tomorrowFocus: reflectionData.tomorrowFocus,
+          updatedAt: new Date()
+        },
+        create: {
+          userId: userId,
+          date: reflectionData.date,
+          wentWell: reflectionData.wentWell || [],
+          evenBetterIf: reflectionData.evenBetterIf || [],
+          analysis: reflectionData.analysis || [],
+          patterns: reflectionData.patterns || [],
+          changes: reflectionData.changes || [],
+          overallRating: reflectionData.overallRating,
+          keyLearnings: reflectionData.keyLearnings,
+          tomorrowFocus: reflectionData.tomorrowFocus
+        }
+      });
+
+      return reflections;
+    } catch (error) {
+      console.error('❌ Failed to save daily reflections:', error);
+      throw new Error('Failed to save daily reflections');
+    }
   }
 };
 
