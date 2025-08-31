@@ -3,7 +3,7 @@
   "buildCommand": "npm run prisma:generate && npm run build",
   "functions": {
     "api/**/*.js": {
-      "runtime": "nodejs18.x"
+      "runtime": "@vercel/node@3.0.7"
     }
   },
   "env": {
