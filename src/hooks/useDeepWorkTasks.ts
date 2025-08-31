@@ -199,6 +199,63 @@ export function useDeepWorkTasks({ selectedDate }: UseDeepWorkTasksProps) {
     }
   }, [loadTasks]);
 
+  // Delete task
+  const deleteTask = useCallback(async (taskId: string) => {
+    try {
+      const response = await fetch(`/api/deep-work/tasks/${taskId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      if (result.success) {
+        console.log(`✅ Deleted Deep Work task: ${taskId}`);
+        setTasks(prev => prev.filter(task => task.id !== taskId));
+        return result.data;
+      } else {
+        throw new Error(result.error || 'Failed to delete task');
+      }
+    } catch (error) {
+      console.error('❌ Error deleting deep work task:', error);
+      setError(error instanceof Error ? error.message : 'Failed to delete task');
+      return null;
+    }
+  }, []);
+
+  // Delete subtask
+  const deleteSubtask = useCallback(async (subtaskId: string) => {
+    try {
+      const response = await fetch(`/api/deep-work/subtasks/${subtaskId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      if (result.success) {
+        console.log(`✅ Deleted Deep Work subtask: ${subtaskId}`);
+        // Reload tasks to get updated data
+        await loadTasks();
+        return result.data;
+      } else {
+        throw new Error(result.error || 'Failed to delete subtask');
+      }
+    } catch (error) {
+      console.error('❌ Error deleting deep work subtask:', error);
+      setError(error instanceof Error ? error.message : 'Failed to delete subtask');
+      return null;
+    }
+  }, [loadTasks]);
+
   // Load tasks when dependencies change
   useEffect(() => {
     loadTasks();
@@ -211,6 +268,8 @@ export function useDeepWorkTasks({ selectedDate }: UseDeepWorkTasksProps) {
     createTask,
     toggleTaskCompletion,
     addSubtask,
+    deleteTask,
+    deleteSubtask,
     refreshTasks: loadTasks
   };
 }
