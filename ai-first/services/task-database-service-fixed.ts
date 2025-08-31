@@ -292,6 +292,30 @@ class FixedTaskDatabaseService {
   }
 
   /**
+   * Update subtask due date
+   */
+  async updateSubtaskDueDate(subtaskId: string, dueDate: string | null): Promise<void> {
+    const prisma = await getPrismaClient();
+    
+    try {
+      await prisma.personalSubtask.update({
+        where: { id: subtaskId },
+        data: { 
+          dueDate: dueDate
+        }
+      });
+      console.log(`📅 Updated subtask due date: ${subtaskId} -> ${dueDate}`);
+    } catch (error) {
+      console.error('❌ Failed to update subtask due date:', error);
+      throw new Error('Failed to update subtask due date');
+    } finally {
+      if (typeof window === 'undefined' && prisma.$disconnect) {
+        await prisma.$disconnect();
+      }
+    }
+  }
+
+  /**
    * Get personal context for user
    */
   async getPersonalContext(userId: string): Promise<PersonalContextData | null> {

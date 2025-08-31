@@ -34,13 +34,22 @@ export default async function handler(req: any, res: any) {
         return res.status(201).json({ success: true, data: newSubtask });
 
       case 'PUT':
-        // PUT /api/deep-work/tasks/:id/subtasks - Update subtask completion
-        const { subtaskId, completed } = body;
+        // PUT /api/deep-work/tasks/:id/subtasks - Update subtask (completion, due date, etc.)
+        const { subtaskId, completed, dueDate } = body;
         if (!subtaskId) {
           return res.status(400).json({ error: 'subtaskId is required' });
         }
         
-        await taskDatabaseService.updateSubtaskCompletion(subtaskId, completed);
+        // Handle completion update
+        if (completed !== undefined) {
+          await taskDatabaseService.updateSubtaskCompletion(subtaskId, completed);
+        }
+        
+        // Handle due date update
+        if (dueDate !== undefined) {
+          await taskDatabaseService.updateSubtaskDueDate(subtaskId, dueDate);
+        }
+        
         return res.status(200).json({ success: true });
 
       case 'DELETE':
