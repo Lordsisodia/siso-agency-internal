@@ -5,11 +5,16 @@
  * Compatible with Vercel serverless functions using Prisma Accelerate
  */
 
-import { PrismaClient } from '../../generated/prisma/index.js';
+import { PrismaClient } from '@prisma/client';
 import { withAccelerate } from '@prisma/extension-accelerate';
 
-// Initialize Prisma client with Accelerate extension
-const prisma = new PrismaClient().$extends(withAccelerate());
+// Universal Prisma client - works locally and on Vercel
+const globalForPrisma = globalThis;
+if (!globalForPrisma.prisma) {
+  globalForPrisma.prisma = new PrismaClient().$extends(withAccelerate());
+}
+
+const prisma = globalForPrisma.prisma;
 
 // Export a service object with all database operations
 export const taskDatabaseService = {
