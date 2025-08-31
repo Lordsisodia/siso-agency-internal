@@ -296,6 +296,147 @@ app.post('/api/deep-work/tasks/:taskId/subtasks', async (req, res) => {
   }
 });
 
+// Update Deep Work subtask (due date, completion, etc.)
+app.put('/api/deep-work/subtasks/:subtaskId', async (req, res) => {
+  try {
+    const { subtaskId } = req.params;
+    const { completed, dueDate } = req.body;
+    
+    console.log(`📝 Updating Deep Work subtask: ${subtaskId}`, { completed, dueDate });
+    
+    const updateData = {};
+    
+    // Handle completion update
+    if (completed !== undefined) {
+      updateData.completed = completed;
+      updateData.completedAt = completed ? new Date() : null;
+    }
+    
+    // Handle due date update
+    if (dueDate !== undefined) {
+      updateData.dueDate = dueDate;
+    }
+    
+    const updatedSubtask = await prisma.deepWorkSubtask.update({
+      where: { id: subtaskId },
+      data: updateData
+    });
+    
+    console.log(`✅ Updated Deep Work subtask: ${subtaskId}`);
+    res.json({ success: true, data: updatedSubtask });
+  } catch (error) {
+    console.error('❌ Error updating deep work subtask:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ===== DELETE ENDPOINTS =====
+
+// Delete Light Work task
+app.delete('/api/light-work/tasks/:taskId', async (req, res) => {
+  try {
+    const { taskId } = req.params;
+    
+    console.log(`🗑️ Deleting Light Work task: ${taskId}`);
+    
+    // Delete the task (subtasks will be deleted via cascade)
+    const deletedTask = await prisma.lightWorkTask.delete({
+      where: { id: taskId },
+      include: { subtasks: true }
+    });
+    
+    console.log(`✅ Deleted Light Work task: ${deletedTask.title} (${deletedTask.subtasks.length} subtasks)`);
+    res.json({ success: true, data: deletedTask });
+  } catch (error) {
+    console.error('❌ Error deleting light work task:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Delete Deep Work task
+app.delete('/api/deep-work/tasks/:taskId', async (req, res) => {
+  try {
+    const { taskId } = req.params;
+    
+    console.log(`🗑️ Deleting Deep Work task: ${taskId}`);
+    
+    // Delete the task (subtasks will be deleted via cascade)
+    const deletedTask = await prisma.deepWorkTask.delete({
+      where: { id: taskId },
+      include: { subtasks: true }
+    });
+    
+    console.log(`✅ Deleted Deep Work task: ${deletedTask.title} (${deletedTask.subtasks.length} subtasks)`);
+    res.json({ success: true, data: deletedTask });
+  } catch (error) {
+    console.error('❌ Error deleting deep work task:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Delete Light Work subtask
+app.delete('/api/light-work/subtasks/:subtaskId', async (req, res) => {
+  try {
+    const { subtaskId } = req.params;
+    
+    console.log(`🗑️ Deleting Light Work subtask: ${subtaskId}`);
+    
+    const deletedSubtask = await prisma.lightWorkSubtask.delete({
+      where: { id: subtaskId }
+    });
+    
+    console.log(`✅ Deleted Light Work subtask: ${deletedSubtask.title}`);
+    res.json({ success: true, data: deletedSubtask });
+  } catch (error) {
+    console.error('❌ Error deleting light work subtask:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Delete Deep Work subtask
+app.delete('/api/deep-work/subtasks/:subtaskId', async (req, res) => {
+  try {
+    const { subtaskId } = req.params;
+    
+    console.log(`🗑️ Deleting Deep Work subtask: ${subtaskId}`);
+    
+    const deletedSubtask = await prisma.deepWorkSubtask.delete({
+      where: { id: subtaskId }
+    });
+    
+    console.log(`✅ Deleted Deep Work subtask: ${deletedSubtask.title}`);
+    res.json({ success: true, data: deletedSubtask });
+  } catch (error) {
+    console.error('❌ Error deleting deep work subtask:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ===== MORNING ROUTINE ENDPOINT =====
+// Get morning routine data for a user
+app.get('/api/morning-routine', async (req, res) => {
+  try {
+    const { userId, date } = req.query;
+    
+    console.log(`🌅 Loading morning routine for user: ${userId}, date: ${date}`);
+    
+    // For now, return empty morning routine data
+    // This can be expanded later with actual morning routine logic
+    const morningRoutine = {
+      tasks: [],
+      completed: false,
+      startTime: null,
+      endTime: null
+    };
+    
+    console.log(`✅ Morning routine loaded for ${userId}`);
+    res.json({ success: true, data: morningRoutine });
+  } catch (error) {
+    console.error('❌ Error fetching morning routine:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // ===== MIGRATION ENDPOINT =====
 // Temporary endpoint to migrate old PersonalTask data
 app.post('/api/migrate/personal-tasks', async (req, res) => {
