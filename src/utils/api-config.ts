@@ -10,8 +10,8 @@ export function getApiBaseURL(): string {
   if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
     return ''; // Use relative paths on Vercel (/api/...)
   }
-  // Use Express server for local development
-  return 'http://localhost:3001';
+  // Use Vite dev server for local development
+  return 'http://localhost:5174';
 }
 
 /**
