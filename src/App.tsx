@@ -22,6 +22,9 @@ const Profile = lazy(() => import('./pages/Profile'));
 // MCP Testing Components
 const MCPTestingDashboard = lazy(() => import('./components/mcp/MCPTestingDashboard'));
 const MCPWorkflowVisualizer = lazy(() => import('./components/mcp/MCPWorkflowVisualizer'));
+
+// XP Store Components
+const XPStorePage = lazy(() => import('./pages/XPStorePage'));
 const OnboardingSocial = lazy(() => import('./pages/onboarding/social'));
 const OnboardingChat = lazy(() => import('./pages/OnboardingChat'));
 const ThankYou = lazy(() => import('./pages/ThankYou'));
@@ -274,6 +277,10 @@ function App() {
           
           {/* Protected Dashboard Routes */}
           <Route path="/home" element={<AuthGuard><Home /></AuthGuard>} />
+          
+          {/* XP Store Routes */}
+          <Route path="/xp-store" element={<AuthGuard><XPStorePage /></AuthGuard>} />
+          <Route path="/xp-store/:section" element={<AuthGuard><XPStorePage /></AuthGuard>} />
           
           {/* Protected Project Routes */}
           <Route path="/projects" element={<AuthGuard><ProjectsAndTasksPage /></AuthGuard>} />

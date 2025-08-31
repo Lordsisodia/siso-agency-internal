@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Brain,
   Coffee,
@@ -16,7 +16,7 @@ import {
   Trash,
   Settings
 } from 'lucide-react';
-// Card components removed - showing content directly on blue background
+import { Card, CardContent } from '@/components/ui/card';
 import { format } from 'date-fns';
 import { useImplementation } from '@/migration/feature-flags';
 import { theme } from '@/styles/theme';
@@ -31,7 +31,7 @@ export const WORK_THEMES = {
     emoji: '☕',
     colors: {
       primary: 'green',
-      bg: 'bg-green-900/20',
+      bg: 'bg-gray-900',
       border: 'border-green-700/50',
       text: 'text-green-400',
       textSecondary: 'text-green-300',
@@ -63,7 +63,7 @@ export const WORK_THEMES = {
     emoji: '🧠',
     colors: {
       primary: 'blue',
-      bg: 'bg-blue-900/20',
+      bg: 'bg-gray-900',
       border: 'border-blue-700/50',
       text: 'text-blue-400',
       textSecondary: 'text-blue-300',
@@ -152,12 +152,33 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
   const themeConfig = WORK_THEMES[workType];
   const IconComponent = themeConfig.icon;
 
+  // Set body background to dark theme (ensures consistent background across entire page)
+  useEffect(() => {
+    document.body.className = 'bg-gray-900 min-h-screen';
+    document.documentElement.className = 'bg-gray-900';
+    
+    // Cleanup on unmount
+    return () => {
+      document.body.className = '';
+      document.documentElement.className = '';
+    };
+  }, [workType]);
+
   // Filter tasks for current work type
-  const filteredTasks = (tasks || []).filter(task => 
-    task.workType === workType || 
-    task.title.toLowerCase().includes(workType.toLowerCase()) ||
-    task.title.toLowerCase().includes('focus')
-  );
+  const filteredTasks = (tasks || []).filter(task => {
+    if (workType === 'DEEP') {
+      // For Deep Work: show DEEP tasks AND any existing tasks (backwards compatibility)
+      // This ensures user's existing tasks continue to appear in Deep Work section
+      return task.workType === 'DEEP' || 
+             task.workType === 'LIGHT' ||  // Show existing LIGHT tasks in Deep Work too
+             task.title.toLowerCase().includes('deep') ||
+             task.title.toLowerCase().includes('focus');
+    } else {
+      // For Light Work: only show LIGHT tasks
+      return task.workType === 'LIGHT' || 
+             task.title.toLowerCase().includes('light');
+    }
+  });
 
   // Sort tasks: regular tasks first, then pushed tasks at bottom
   const sortedTasks = filteredTasks.sort((a, b) => {
@@ -304,17 +325,9 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
         message={`Loading ${workType.toLowerCase()} work tasks...`}
         variant="spinner"
         size="lg"
-        className={useImplementation(
-          'useUnifiedThemeSystem',
-          `min-h-screen w-full ${themeConfig.colors.bg}`,
-          `min-h-screen w-full ${themeConfig.colors.bg}`
-        )}
+        className="min-h-screen w-full"
       />,
-      <div className={useImplementation(
-        'useUnifiedThemeSystem',
-        `min-h-screen w-full flex items-center justify-center ${themeConfig.colors.bg}`,
-        `min-h-screen w-full flex items-center justify-center ${themeConfig.colors.bg}`
-      )}>
+      <div className="min-h-screen w-full flex items-center justify-center">
         <div className={themeConfig.colors.text}>Loading {workType.toLowerCase()} work tasks...</div>
       </div>
     );
@@ -326,35 +339,23 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
       <ErrorState 
         title="Error Loading Tasks"
         message={`Could not load ${workType.toLowerCase()} work tasks: ${error}`}
-        type="loading_error"
-        className={useImplementation(
-          'useUnifiedThemeSystem',
-          `min-h-screen w-full ${themeConfig.colors.bg}`,
-          `min-h-screen w-full ${themeConfig.colors.bg}`
-        )}
+        type="network"
+        className="min-h-screen w-full"
       />,
-      <div className={useImplementation(
-        'useUnifiedThemeSystem',
-        `min-h-screen w-full flex items-center justify-center ${themeConfig.colors.bg}`,
-        `min-h-screen w-full flex items-center justify-center ${themeConfig.colors.bg}`
-      )}>
+      <div className="min-h-screen w-full flex items-center justify-center">
         <div className="text-red-400">Error loading tasks: {error}</div>
       </div>
     );
   }
 
   return (
-    <div className={useImplementation(
-      'useUnifiedThemeSystem',
-      `min-h-screen w-full relative ${themeConfig.colors.bg}`,
-      `min-h-screen w-full relative ${themeConfig.colors.bg}`
-    )}>
+    <div className="min-h-screen w-full relative">
       
-      <div className="max-w-7xl mx-auto p-3 sm:p-4 md:p-6 lg:p-8 space-y-6">
+      <div className="w-full max-w-none p-2 sm:p-3 md:p-4 lg:p-6 space-y-6">
         
         {/* Work Section Content */}
-        <div className="space-y-6">
-          <div className="p-4 sm:p-6">
+        <Card className={`w-full ${workType === 'DEEP' ? 'bg-blue-900/30 border-blue-700/50' : 'bg-green-900/30 border-green-700/50'}`}>
+          <CardContent className="p-3 sm:p-4 md:p-6">
             <h2 className={`flex items-center justify-between ${themeConfig.colors.text} text-base sm:text-lg font-semibold`}>
               <div className="flex items-center">
                 <IconComponent className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
@@ -448,9 +449,8 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
               </div>
             </div>
             <div className={`border-t ${themeConfig.colors.border.replace('border-', 'border-').replace('/50', '/50')} my-3 sm:my-4`}></div>
-          </div>
-          
-          <div className="p-4 sm:p-6 pt-0 sm:pt-0 pb-8">
+            
+            <div className="pt-4">
             {/* Task Blocks */}
             <div className="flex flex-col items-center gap-4">
               {sortedTasks.map((task) => {
@@ -459,7 +459,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                   <div
                     key={task.id}
                     className={`
-                      p-4 rounded-lg border transition-all duration-200 w-full max-w-2xl
+                      p-4 rounded-lg border transition-all duration-200 w-full
                       ${task.completed 
                         ? `${themeConfig.colors.completed}` 
                         : task.isPushed
@@ -469,7 +469,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                     `}
                   >
                     {/* Task Header */}
-                    <div className="space-y-3">
+                    <div className="space-y-2">
                       {/* Title row with checkbox and title only */}
                       <div className="flex items-center gap-3">
                         <button
@@ -480,7 +480,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                           onTouchStart={(e) => {
                             e.stopPropagation();
                           }}
-                          className="flex-shrink-0 hover:scale-110 transition-transform min-h-[44px] min-w-[44px] flex items-center justify-center -m-2"
+                          className="flex-shrink-0 hover:scale-110 transition-transform min-h-[32px] min-w-[32px] flex items-center justify-center -m-2"
                         >
                           {task.completed ? (
                             <Check className={`h-5 w-5 ${themeConfig.colors.text}`} />
@@ -518,10 +518,10 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                       </div>
 
                       {/* First separator line - more visible white */}
-                      <div className="border-t border-white/40"></div>
+                      <div className="border-t-2 border-white/40"></div>
 
                       {/* Action icons row - including Eye and Delete */}
-                      <div className="flex items-center justify-center gap-1 py-0.5">
+                      <div className="flex items-center justify-center gap-1">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -530,7 +530,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                           onTouchStart={(e) => {
                             e.stopPropagation();
                           }}
-                          className={`min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-gray-700/50 rounded transition-colors ${
+                          className={`min-h-[32px] min-w-[32px] flex items-center justify-center hover:bg-gray-700/50 rounded transition-colors ${
                             task.aiAnalyzed 
                               ? 'text-yellow-400 hover:text-yellow-300' 
                               : 'text-gray-400 hover:text-yellow-400'
@@ -552,7 +552,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                           onTouchStart={(e) => {
                             e.stopPropagation();
                           }}
-                          className={`min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-gray-700/50 rounded transition-colors ${
+                          className={`min-h-[32px] min-w-[32px] flex items-center justify-center hover:bg-gray-700/50 rounded transition-colors ${
                             recordingTaskId === task.id
                               ? 'text-red-400 animate-pulse'
                               : `text-gray-400 hover:${themeConfig.colors.text}`
@@ -574,7 +574,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                           onTouchStart={(e) => {
                             e.stopPropagation();
                           }}
-                          className={`min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-${themeConfig.colors.primary}-900/50 rounded text-gray-400 hover:${themeConfig.colors.text} transition-colors`}
+                          className={`min-h-[32px] min-w-[32px] flex items-center justify-center hover:bg-${themeConfig.colors.primary}-900/50 rounded text-gray-400 hover:${themeConfig.colors.text} transition-colors`}
                           title="Push to another day"
                         >
                           <Calendar className="h-4 w-4" />
@@ -589,7 +589,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                           onTouchStart={(e) => {
                             e.stopPropagation();
                           }}
-                          className={`min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-${themeConfig.colors.primary}-900/50 rounded text-gray-400 hover:${themeConfig.colors.text} transition-colors`}
+                          className={`min-h-[32px] min-w-[32px] flex items-center justify-center hover:bg-${themeConfig.colors.primary}-900/50 rounded text-gray-400 hover:${themeConfig.colors.text} transition-colors`}
                           title="View task details"
                         >
                           <Eye className="h-4 w-4" />
@@ -604,7 +604,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                           onTouchStart={(e) => {
                             e.stopPropagation();
                           }}
-                          className="min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-red-900/50 rounded text-gray-400 hover:text-red-400 transition-colors"
+                          className="min-h-[32px] min-w-[32px] flex items-center justify-center hover:bg-red-900/50 rounded text-gray-400 hover:text-red-400 transition-colors"
                           title="Delete task"
                         >
                           <X className="h-4 w-4" />
@@ -612,16 +612,16 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                       </div>
 
                       {/* Second separator line - more visible white */}
-                      <div className="border-t border-white/40"></div>
+                      <div className="border-t-2 border-white/40"></div>
                     </div>
 
                     {/* Subtasks */}
                     {isExpanded && (
-                      <div className="space-y-3 px-2">
+                      <div className="space-y-3 px-1">
                         {task.subtasks?.map((subtask) => (
                           <div
                             key={subtask.id}
-                            className="group flex items-start gap-2 py-2 px-1 hover:bg-gray-700/30 rounded transition-colors w-full"
+                            className="group flex items-start gap-2 py-3 px-4 hover:bg-gray-700/20 rounded-lg transition-all duration-200 w-full border-b border-gradient-to-r from-transparent via-white/10 to-transparent"
                           >
                             <button
                               onClick={(e) => {
@@ -631,12 +631,12 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                               onTouchStart={(e) => {
                                 e.stopPropagation();
                               }}
-                              className="flex-shrink-0 hover:scale-110 transition-transform min-h-[32px] min-w-[32px] flex items-center justify-center -m-1"
+                              className="flex-shrink-0 hover:scale-110 transition-transform min-h-[32px] min-w-[32px] flex items-center justify-center mt-0.5 hover:bg-gray-600/30 rounded-full"
                             >
                               {subtask.completed ? (
-                                <Check className={`h-4 w-4 ${themeConfig.colors.text}`} />
+                                <Check className={`h-5 w-5 ${themeConfig.colors.text}`} />
                               ) : (
-                                <div className={`h-4 w-4 rounded-full border-2 border-gray-400 hover:${themeConfig.colors.border} transition-colors`} />
+                                <div className={`h-5 w-5 rounded-full border-2 border-gray-300 hover:${themeConfig.colors.border} hover:border-opacity-80 transition-all duration-200`} />
                               )}
                             </button>
                             {editingSubtaskId === subtask.id ? (
@@ -650,11 +650,12 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                                 className={`flex-1 text-sm bg-gray-700/50 border ${themeConfig.colors.input} rounded px-2 py-1 text-white focus:outline-none focus:ring-1 min-h-[44px]`}
                               />
                             ) : (
-                              <div className="flex-1">
-                                <div className="flex items-start justify-between mb-2 w-full">
+                              <div className="flex-1 min-w-0 pr-2 relative">
+                                {/* Title row - full width */}
+                                <div className="w-full mb-3">
                                   <span 
-                                    className={`flex-1 text-sm cursor-pointer hover:${themeConfig.colors.textSecondary} transition-colors leading-relaxed ${
-                                      subtask.completed ? 'line-through text-gray-400' : ''
+                                    className={`block text-sm font-medium cursor-pointer hover:${themeConfig.colors.textSecondary} transition-colors leading-relaxed break-words ${
+                                      subtask.completed ? 'line-through text-gray-400' : 'text-white'
                                     }`}
                                     onClick={(e) => {
                                       e.stopPropagation();
@@ -664,7 +665,141 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                                   >
                                     {subtask.title}
                                   </span>
-                                  {/* Delete button */}
+                                </div>
+                                
+                                {/* Bottom row: Due date, Priority, and Delete button */}
+                                <div className="flex items-center justify-between">
+                                  {/* Left side: Due date and Priority */}
+                                  <div className="flex items-center gap-3">
+                                    {/* Due date indicator */}
+                                    <button
+                                      onClick={async (e) => {
+                                        e.stopPropagation();
+                                        
+                                        // Simple date picker options
+                                        const today = new Date().toISOString().split('T')[0];
+                                        const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+                                        const nextWeek = new Date(Date.now() + 604800000).toISOString().split('T')[0];
+                                        
+                                        const options = [
+                                          { label: 'Today', value: today },
+                                          { label: 'Tomorrow', value: tomorrow },
+                                          { label: 'Next Week', value: nextWeek },
+                                          { label: 'Custom Date', value: 'custom' },
+                                          { label: 'Remove Date', value: null }
+                                        ];
+                                        
+                                        const choice = prompt(
+                                          'Select due date:\n' + 
+                                          options.map((opt, i) => `${i + 1}. ${opt.label}`).join('\n') +
+                                          '\n\nEnter number (1-5):'
+                                        );
+                                        
+                                        if (choice && choice >= 1 && choice <= 5) {
+                                          const selectedOption = options[choice - 1];
+                                          let dueDate = selectedOption.value;
+                                          
+                                          if (dueDate === 'custom') {
+                                            dueDate = prompt('Enter date (YYYY-MM-DD):');
+                                            if (!dueDate || !/^\d{4}-\d{2}-\d{2}$/.test(dueDate)) {
+                                              alert('Invalid date format. Please use YYYY-MM-DD');
+                                              return;
+                                            }
+                                          }
+                                          
+                                          try {
+                                            console.log(`Updating due date for subtask ${subtask.id} to:`, dueDate);
+                                            
+                                            const response = await fetch('/api/subtasks/update-date', {
+                                              method: 'POST',
+                                              headers: { 'Content-Type': 'application/json' },
+                                              body: JSON.stringify({ 
+                                                subtaskId: subtask.id, 
+                                                dueDate: dueDate 
+                                              })
+                                            });
+                                            
+                                            if (!response.ok) {
+                                              throw new Error('Failed to update due date');
+                                            }
+                                            
+                                            console.log(`✅ Due date updated to ${dueDate || 'No due date'}`);
+                                            
+                                            // Refresh to show changes
+                                            window.location.reload();
+                                            
+                                          } catch (error) {
+                                            console.error('Failed to update due date:', error);
+                                            alert('Failed to update due date. Please try again.');
+                                          }
+                                        }
+                                      }}
+                                      className={`text-xs font-normal cursor-pointer hover:opacity-80 transition-opacity ${
+                                        subtask.dueDate ? (
+                                          new Date(subtask.dueDate) < new Date() ? 'text-red-400 font-medium' : // Overdue
+                                          new Date(subtask.dueDate).toDateString() === new Date().toDateString() ? 'text-yellow-400 font-medium' : // Due today
+                                          'text-gray-300' // Normal
+                                        ) : 'text-gray-500'
+                                      }`}
+                                      title="Click to set due date"
+                                    >
+                                      {subtask.dueDate ? (
+                                        new Date(subtask.dueDate) < new Date() ? '🔴 Overdue' :
+                                        new Date(subtask.dueDate).toDateString() === new Date().toDateString() ? '🟡 Due Today' :
+                                        `📅 Due ${new Date(subtask.dueDate).toLocaleDateString()}`
+                                      ) : '⏰ No due date'}
+                                    </button>
+                                    
+                                    {/* Priority button */}
+                                    <button
+                                      onClick={async (e) => {
+                                        e.stopPropagation();
+                                        // Cycle through priorities: High -> Med -> Low -> High
+                                        const priorities = ['High', 'Med', 'Low'];
+                                        const currentIndex = priorities.indexOf(subtask.priority || 'Low');
+                                        const nextIndex = (currentIndex + 1) % priorities.length;
+                                        const newPriority = priorities[nextIndex];
+                                        
+                                        try {
+                                          console.log(`Updating priority from ${subtask.priority || 'Low'} to ${newPriority}`);
+                                          
+                                          const response = await fetch('/api/subtasks/update-priority', {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ 
+                                              subtaskId: subtask.id, 
+                                              priority: newPriority 
+                                            })
+                                          });
+                                          
+                                          if (!response.ok) {
+                                            throw new Error('Failed to update priority');
+                                          }
+                                          
+                                          // Force a re-render by updating the task data
+                                          // This will be handled by the parent component's state management
+                                          console.log(`✅ Priority updated to ${newPriority}`);
+                                          
+                                          // Optionally trigger a refresh of task data
+                                          window.location.reload(); // Quick solution - in production we'd use proper state management
+                                          
+                                        } catch (error) {
+                                          console.error('Failed to update priority:', error);
+                                          alert('Failed to update priority. Please try again.');
+                                        }
+                                      }}
+                                      className={`px-3 py-1.5 text-xs font-medium rounded-md border transition-all duration-200 hover:scale-105 hover:shadow-sm ${
+                                        subtask.priority === 'High' ? 'text-red-300 border-red-400/60 bg-red-900/30 hover:bg-red-900/40' :
+                                        subtask.priority === 'Med' ? 'text-yellow-300 border-yellow-400/60 bg-yellow-900/30 hover:bg-yellow-900/40' :
+                                        'text-gray-300 border-gray-400/60 bg-gray-800/50 hover:bg-gray-700/50'
+                                      }`}
+                                      title="Click to cycle priority: High → Med → Low"
+                                    >
+                                      {subtask.priority || 'Low'}
+                                    </button>
+                                  </div>
+                                  
+                                  {/* Right side: Delete button */}
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
@@ -673,12 +808,15 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                                     onTouchStart={(e) => {
                                       e.stopPropagation();
                                     }}
-                                    className="ml-1 text-gray-500 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 min-h-[32px] min-w-[32px] flex items-center justify-center -m-1"
+                                    className="text-gray-500 hover:text-red-400 hover:bg-red-900/20 transition-all duration-200 opacity-0 group-hover:opacity-100 min-h-[24px] min-w-[24px] flex items-center justify-center rounded-md"
                                     title="Delete subtask"
                                   >
                                     <X className="h-3 w-3" />
                                   </button>
                                 </div>
+                                
+                                {/* Enhanced separator line with gradient effect */}
+                                <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
                               </div>
                             )}
                           </div>
@@ -686,7 +824,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                         
                         {/* Inline Add Subtask */}
                         {addingSubtaskToId === task.id && (
-                          <div className="flex items-center gap-2 py-2 px-1 w-full">
+                          <div className="flex items-center gap-1 py-2 px-0 w-full">
                             <div className={`h-4 w-4 rounded-full border-2 border-dashed ${themeConfig.colors.border} flex-shrink-0`} />
                             <input
                               type="text"
@@ -696,7 +834,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                               onBlur={() => saveNewSubtask(task.id)}
                               placeholder="Enter subtask..."
                               autoFocus
-                              className={`flex-1 text-sm bg-gray-700/50 border ${themeConfig.colors.input} rounded px-2 py-1 text-white placeholder-gray-400 focus:outline-none focus:ring-1 min-h-[44px]`}
+                              className={`flex-1 min-w-0 text-sm bg-gray-700/50 border ${themeConfig.colors.input} rounded px-2 py-1 text-white placeholder-gray-400 focus:outline-none focus:ring-1 min-h-[44px]`}
                             />
                           </div>
                         )}
@@ -721,9 +859,12 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                     
                     {/* Task Footer - Show subtask progress only */}
                     {task.subtasks && task.subtasks.length > 0 && (
-                      <div className="mt-4 pt-3 text-center">
-                        <div className="text-xs text-gray-500">
-                          {task.subtasks.filter(s => s.completed).length} out of {task.subtasks.length} subtasks completed
+                      <div className="mt-4 pt-3">
+                        <div className="border-t-2 border-white/40 mb-3"></div>
+                        <div className="text-center">
+                          <div className="text-xs text-gray-500">
+                            {task.subtasks.filter(s => s.completed).length} out of {task.subtasks.length} subtasks completed
+                          </div>
                         </div>
                       </div>
                     )}
@@ -763,8 +904,9 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                 Add Task
               </button>
             </div>
-          </div>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
         
       </div>
     </div>

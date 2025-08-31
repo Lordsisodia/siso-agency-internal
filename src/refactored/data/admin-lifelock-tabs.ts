@@ -17,8 +17,8 @@ import { LucideIcon } from 'lucide-react';
 
 // Import tab components
 import { MorningRoutineSection } from '@/ai-first/features/tasks/components/MorningRoutineSection';
-import { DeepFocusWorkSection } from '@/ai-first/features/tasks/components/DeepFocusWorkSection';
-import { LightFocusWorkSection } from '@/ai-first/features/tasks/components/LightFocusWorkSection';
+import { DeepFocusWorkSection } from '@/ai-first/features/tasks/components/DeepFocusWorkSection-v2';
+import { LightFocusWorkSection } from '@/ai-first/features/tasks/components/LightFocusWorkSection-v2';
 import { EnhancedLightWorkManager } from '@/components/ui/enhanced-light-work-manager';
 import { HomeWorkoutSection } from '@/ai-first/features/tasks/components/HomeWorkoutSection';
 import { HealthNonNegotiablesSection } from '@/ai-first/features/tasks/components/HealthNonNegotiablesSection';
