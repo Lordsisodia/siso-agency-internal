@@ -327,42 +327,50 @@ export const taskDatabaseService = {
    */
   async getMorningRoutineForDate(userId, date) {
     try {
-      // Try to find existing morning routine tracking for this date
-      let routine = await prisma.morningRoutineTracking.findUnique({
+      // Try to find existing morning routine for this date
+      let routine = await prisma.dailyRoutine.findUnique({
         where: { 
-          userId_date: {
+          userId_date_routineType: {
             userId: userId,
-            date: date
+            date: date,
+            routineType: 'MORNING'
           }
         }
       });
 
       // If no routine exists, create default one
       if (!routine) {
-        routine = await prisma.morningRoutineTracking.create({
+        const defaultHabits = [
+          { name: 'wakeUp', completed: false },
+          { name: 'getBloodFlowing', completed: false },
+          { name: 'freshenUp', completed: false },
+          { name: 'powerUpBrain', completed: false },
+          { name: 'planDay', completed: false },
+          { name: 'meditation', completed: false },
+          { name: 'pushups', completed: false },
+          { name: 'situps', completed: false },
+          { name: 'pullups', completed: false },
+          { name: 'bathroom', completed: false },
+          { name: 'brushTeeth', completed: false },
+          { name: 'coldShower', completed: false },
+          { name: 'water', completed: false },
+          { name: 'supplements', completed: false },
+          { name: 'preworkout', completed: false },
+          { name: 'thoughtDump', completed: false },
+          { name: 'planDeepWork', completed: false },
+          { name: 'planLightWork', completed: false },
+          { name: 'setTimebox', completed: false }
+        ];
+
+        routine = await prisma.dailyRoutine.create({
           data: {
             userId: userId,
             date: date,
-            // Default habits - all false initially
-            wakeUp: false,
-            getBloodFlowing: false,
-            freshenUp: false,
-            powerUpBrain: false,
-            planDay: false,
-            meditation: false,
-            pushups: false,
-            situps: false,
-            pullups: false,
-            bathroom: false,
-            brushTeeth: false,
-            coldShower: false,
-            water: false,
-            supplements: false,
-            preworkout: false,
-            thoughtDump: false,
-            planDeepWork: false,
-            planLightWork: false,
-            setTimebox: false
+            routineType: 'MORNING',
+            items: defaultHabits,
+            totalCount: defaultHabits.length,
+            completedCount: 0,
+            completionPercentage: 0
           }
         });
       }
@@ -382,44 +390,40 @@ export const taskDatabaseService = {
       // Ensure user exists first
       await this.ensureUserExists(userId);
 
-      // Update the specific habit
-      const updateData = { [habitName]: completed };
+      // Get existing routine or create default
+      let routine = await this.getMorningRoutineForDate(userId, date);
       
-      const routine = await prisma.morningRoutineTracking.upsert({
+      // Parse current items and update the specific habit
+      const items = Array.isArray(routine.items) ? routine.items : [];
+      const updatedItems = items.map(item => 
+        item.name === habitName 
+          ? { ...item, completed }
+          : item
+      );
+      
+      // Calculate completion stats
+      const completedCount = updatedItems.filter(item => item.completed).length;
+      const totalCount = updatedItems.length;
+      const completionPercentage = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+      
+      // Update the routine
+      const updatedRoutine = await prisma.dailyRoutine.update({
         where: {
-          userId_date: {
+          userId_date_routineType: {
             userId: userId,
-            date: date
+            date: date,
+            routineType: 'MORNING'
           }
         },
-        update: updateData,
-        create: {
-          userId: userId,
-          date: date,
-          wakeUp: habitName === 'wakeUp' ? completed : false,
-          getBloodFlowing: habitName === 'getBloodFlowing' ? completed : false,
-          freshenUp: habitName === 'freshenUp' ? completed : false,
-          powerUpBrain: habitName === 'powerUpBrain' ? completed : false,
-          planDay: habitName === 'planDay' ? completed : false,
-          meditation: habitName === 'meditation' ? completed : false,
-          pushups: habitName === 'pushups' ? completed : false,
-          situps: habitName === 'situps' ? completed : false,
-          pullups: habitName === 'pullups' ? completed : false,
-          bathroom: habitName === 'bathroom' ? completed : false,
-          brushTeeth: habitName === 'brushTeeth' ? completed : false,
-          coldShower: habitName === 'coldShower' ? completed : false,
-          water: habitName === 'water' ? completed : false,
-          supplements: habitName === 'supplements' ? completed : false,
-          preworkout: habitName === 'preworkout' ? completed : false,
-          thoughtDump: habitName === 'thoughtDump' ? completed : false,
-          planDeepWork: habitName === 'planDeepWork' ? completed : false,
-          planLightWork: habitName === 'planLightWork' ? completed : false,
-          setTimebox: habitName === 'setTimebox' ? completed : false,
-          ...updateData
+        data: {
+          items: updatedItems,
+          completedCount,
+          totalCount,
+          completionPercentage
         }
       });
 
-      return routine;
+      return updatedRoutine;
     } catch (error) {
       console.error('❌ Failed to update morning routine habit:', error);
       throw new Error('Failed to update morning routine habit');
