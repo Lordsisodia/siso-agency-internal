@@ -4,12 +4,18 @@
  * HTTP API for morning routine operations with real database persistence
  */
 
-import { taskDatabaseService } from '@/ai-first/services/task-database-service-js.js';
+import path from 'path';
+import { pathToFileURL } from 'url';
 
 export default async function handler(req: any, res: any) {
   const { method, query, body } = req;
 
   try {
+    // Dynamic import of database service
+    const servicePath = path.resolve(process.cwd(), 'ai-first/services/task-database-service-js.js');
+    const serviceUrl = pathToFileURL(servicePath).href;
+    const { taskDatabaseService } = await import(serviceUrl + '?t=' + Date.now());
+
     switch (method) {
       case 'GET':
         // GET /api/morning-routine?userId=xxx&date=2025-08-26
