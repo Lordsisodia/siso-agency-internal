@@ -292,41 +292,77 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                             onCalendarToggle={setCalendarSubtaskId}
                             onDeleteSubtask={deleteSubtask}
                           >
-                            {/* Calendar Popup */}
-                            <div className="calendar-popup absolute top-full left-0 mt-1 z-50 bg-gray-800 border border-gray-600 rounded-lg shadow-xl p-4 min-w-[280px]">
-                              <div className="mb-3">
-                                <h3 className="text-sm font-medium text-white mb-2">Set Due Date</h3>
-                                <CustomCalendar
-                                  subtask={subtask}
-                                  onDateSelect={async (date) => {
-                                    try {
-                                      const dateString = date ? date.toISOString().split('T')[0] : null;
-                                      
-                                      const response = await fetch('/api/subtasks/update-date', {
-                                        method: 'POST',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({ 
-                                          subtaskId: subtask.id, 
-                                          dueDate: dateString 
-                                        })
-                                      });
-                                      
-                                      if (!response.ok) {
-                                        throw new Error('Failed to update due date');
-                                      }
-                                      
-                                      setCalendarSubtaskId(null);
-                                      window.location.reload();
-                                      
-                                    } catch (error) {
-                                      console.error('Failed to update due date:', error);
-                                      alert('Failed to update due date. Please try again.');
-                                    }
-                                  }}
-                                  onClose={() => setCalendarSubtaskId(null)}
-                                />
+                            {/* Mobile-Optimized Calendar Modal with Backdrop */}
+                            {calendarSubtaskId === subtask.id && (
+                              <div 
+                                className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+                                style={{
+                                  backgroundColor: 'rgba(0, 0, 0, 0.75)',
+                                  backdropFilter: 'blur(4px)',
+                                }}
+                                onClick={(e) => {
+                                  if (e.target === e.currentTarget) {
+                                    setCalendarSubtaskId(null);
+                                  }
+                                }}
+                              >
+                                <div 
+                                  className="bg-gray-800 border border-gray-600 rounded-lg shadow-2xl p-6 w-full max-w-sm mx-auto"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <div className="mb-4">
+                                    <div className="flex items-center justify-between mb-3">
+                                      <h3 className="text-lg font-medium text-white">Set Due Date</h3>
+                                      <button
+                                        onClick={() => setCalendarSubtaskId(null)}
+                                        className="text-gray-400 hover:text-white transition-colors p-1"
+                                      >
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                      </button>
+                                    </div>
+                                    <p className="text-sm text-gray-300 mb-4">{subtask.title}</p>
+                                    <CustomCalendar
+                                      subtask={subtask}
+                                      onDateSelect={async (date) => {
+                                        try {
+                                          // Format date as ISO-8601 DateTime for Prisma
+                                          const dateString = date ? `${date.toISOString().split('T')[0]}T23:59:59.000Z` : null;
+                                          
+                                          // Use the correct Deep Work subtasks endpoint
+                                          const response = await fetch(`/api/deep-work/subtasks/${subtask.id}`, {
+                                            method: 'PUT',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ 
+                                              dueDate: dateString 
+                                            })
+                                          });
+                                          
+                                          if (!response.ok) {
+                                            throw new Error('Failed to update due date');
+                                          }
+                                          
+                                          setCalendarSubtaskId(null);
+                                          // Show success feedback
+                                          console.log('✅ Due date updated successfully');
+                                          
+                                          // Instead of full reload, just refresh the tasks
+                                          if (typeof loadTasks === 'function') {
+                                            loadTasks();
+                                          }
+                                          
+                                        } catch (error) {
+                                          console.error('Failed to update due date:', error);
+                                          alert('Failed to update due date. Please try again.');
+                                        }
+                                      }}
+                                      onClose={() => setCalendarSubtaskId(null)}
+                                    />
+                                  </div>
+                                </div>
                               </div>
-                            </div>
+                            )}
                           </SubtaskItem>
                         ))}
                         

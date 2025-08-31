@@ -44,7 +44,7 @@ export const TaskHeader: React.FC<TaskHeaderProps> = ({
 }) => {
   return (
     <div className="flex items-center gap-3 min-h-[44px]">
-      {/* Left: Checkbox */}
+      {/* Left: Checkbox - Mobile Optimized */}
       <button
         onClick={(e) => {
           e.stopPropagation();
@@ -53,12 +53,16 @@ export const TaskHeader: React.FC<TaskHeaderProps> = ({
         onTouchStart={(e) => {
           e.stopPropagation();
         }}
-        className="flex-shrink-0 hover:scale-110 transition-transform min-h-[44px] min-w-[44px] flex items-center justify-center"
+        className="flex-shrink-0 hover:scale-105 active:scale-95 transition-all duration-150 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-gray-700/30 active:bg-gray-600/40 touch-manipulation"
+        style={{ touchAction: 'manipulation' }}
+        aria-label={task.completed ? "Mark task as incomplete" : "Mark task as complete"}
+        role="checkbox"
+        aria-checked={task.completed}
       >
         {task.completed ? (
-          <Check className={`h-5 w-5 ${themeConfig.colors.text}`} />
+          <Check className={`h-7 w-7 ${themeConfig.colors.text} drop-shadow-sm`} />
         ) : (
-          <div className={`h-5 w-5 rounded-full border-2 border-gray-400 hover:${themeConfig.colors.border} transition-colors`} />
+          <div className={`h-7 w-7 rounded-full border-3 border-gray-400 hover:${themeConfig.colors.border} hover:border-opacity-90 transition-all duration-200 bg-gray-800/20 hover:bg-gray-700/30`} />
         )}
       </button>
       

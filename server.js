@@ -437,6 +437,56 @@ app.get('/api/morning-routine', async (req, res) => {
   }
 });
 
+// ===== TIMEBLOCKS ENDPOINT =====
+// Get timeblocks data for a user
+app.get('/api/timeblocks', async (req, res) => {
+  try {
+    const { userId, date } = req.query;
+    
+    console.log(`⏰ Loading timeblocks for user: ${userId}, date: ${date}`);
+    
+    if (!userId || !date) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'userId and date are required' 
+      });
+    }
+    
+    // For now, return empty timeblocks array
+    // TODO: Implement actual timeblock retrieval from database
+    const timeBlocks = [];
+    
+    console.log(`✅ Timeblocks loaded for ${userId}: ${timeBlocks.length} blocks`);
+    res.json({ success: true, data: timeBlocks });
+  } catch (error) {
+    console.error('❌ Error fetching timeblocks:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Create new timeblock
+app.post('/api/timeblocks', async (req, res) => {
+  try {
+    const timeBlockData = req.body;
+    
+    console.log(`📝 Creating timeblock:`, timeBlockData);
+    
+    // TODO: Implement actual timeblock creation
+    const newTimeBlock = {
+      id: `tb_${Date.now()}`,
+      ...timeBlockData,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    console.log(`✅ Created timeblock: ${newTimeBlock.id}`);
+    res.json({ success: true, data: newTimeBlock });
+  } catch (error) {
+    console.error('❌ Error creating timeblock:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // ===== MIGRATION ENDPOINT =====
 // Temporary endpoint to migrate old PersonalTask data
 app.post('/api/migrate/personal-tasks', async (req, res) => {

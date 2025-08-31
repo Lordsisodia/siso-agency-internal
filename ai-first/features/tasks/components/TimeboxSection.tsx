@@ -132,44 +132,6 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
     enableOptimisticUpdates: true
   });
   
-  // Convert database time blocks to UI format
-  const tasks = useMemo(() => {
-    return timeBlocks.map(block => {
-      // Calculate duration from start and end times
-      const [startHour, startMin] = block.startTime.split(':').map(Number);
-      const [endHour, endMin] = block.endTime.split(':').map(Number);
-      const duration = (endHour * 60 + endMin) - (startHour * 60 + startMin);
-      
-      const uiCategory = mapCategoryToUI(block.category);
-      
-      // Get color based on category and completion
-      const getColor = (category: string, completed: boolean) => {
-        if (completed) return 'from-green-900/40 via-emerald-900/30 to-green-800/40';
-        
-        const colors: Record<string, string> = {
-          'morning': 'from-amber-400/90 via-orange-500/80 to-yellow-500/70',
-          'deep-work': 'from-blue-600/90 via-indigo-600/80 to-purple-600/80',
-          'light-work': 'from-emerald-500/90 via-green-500/80 to-teal-500/70',
-          'wellness': 'from-teal-600/90 via-cyan-500/80 to-blue-500/70',
-          'admin': 'from-indigo-700/90 via-purple-700/80 to-violet-700/70'
-        };
-        return colors[category] || colors.admin;
-      };
-      
-      return {
-        id: block.id,
-        title: block.title,
-        startTime: block.startTime,
-        endTime: block.endTime,
-        duration,
-        category: uiCategory,
-        description: block.description || '',
-        completed: block.completed,
-        color: getColor(uiCategory, block.completed)
-      } as TimeboxTask;
-    });
-  }, [timeBlocks]);
-
   // Generate hour slots from 6am to 11pm with enhanced formatting
   const timeSlots = useMemo(() => {
     const slots = [];
@@ -192,38 +154,6 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
 
     return () => clearInterval(timer);
   }, []);
-
-  // Handle creating a new time block
-  const handleCreateBlock = async (data: any) => {
-    const success = await createTimeBlock({
-      title: data.title,
-      description: data.description,
-      startTime: data.startTime,
-      endTime: data.endTime,
-      category: data.category,
-      notes: data.notes
-    });
-    
-    if (success) {
-      setIsFormModalOpen(false);
-    }
-    return success;
-  };
-  
-  // Handle updating an existing time block
-  const handleUpdateBlock = async (id: string, data: any) => {
-    const success = await updateTimeBlock(id, data);
-    if (success) {
-      setIsFormModalOpen(false);
-      setEditingBlock(null);
-    }
-    return success;
-  };
-  
-  // Handle checking conflicts
-  const handleCheckConflicts = async (startTime: string, endTime: string, excludeId?: string) => {
-    return await checkConflicts(startTime, endTime, excludeId);
-  };
 
   // Enhanced calculation for current time position with improved accuracy
   const getCurrentTimePosition = useCallback(() => {
@@ -316,6 +246,92 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
     setIsFormModalOpen(true);
   }, []);
 
+  // Handle creating a new time block
+  const handleCreateBlock = async (data: any) => {
+    const success = await createTimeBlock({
+      title: data.title,
+      description: data.description,
+      startTime: data.startTime,
+      endTime: data.endTime,
+      category: data.category,
+      notes: data.notes
+    });
+    
+    if (success) {
+      setIsFormModalOpen(false);
+    }
+    return success;
+  };
+  
+  // Handle updating an existing time block
+  const handleUpdateBlock = async (id: string, data: any) => {
+    const success = await updateTimeBlock(id, data);
+    if (success) {
+      setIsFormModalOpen(false);
+      setEditingBlock(null);
+    }
+    return success;
+  };
+  
+  // Handle checking conflicts
+  const handleCheckConflicts = async (startTime: string, endTime: string, excludeId?: string) => {
+    return await checkConflicts(startTime, endTime, excludeId);
+  };
+  
+  // Convert database time blocks to UI format
+  const tasks = useMemo(() => {
+    return timeBlocks.map(block => {
+      // Calculate duration from start and end times
+      const [startHour, startMin] = block.startTime.split(':').map(Number);
+      const [endHour, endMin] = block.endTime.split(':').map(Number);
+      const duration = (endHour * 60 + endMin) - (startHour * 60 + startMin);
+      
+      const uiCategory = mapCategoryToUI(block.category);
+      
+      // Get color based on category and completion
+      const getColor = (category: string, completed: boolean) => {
+        if (completed) return 'from-green-900/40 via-emerald-900/30 to-green-800/40';
+        
+        const colors: Record<string, string> = {
+          'morning': 'from-amber-400/90 via-orange-500/80 to-yellow-500/70',
+          'deep-work': 'from-blue-600/90 via-indigo-600/80 to-purple-600/80',
+          'light-work': 'from-emerald-500/90 via-green-500/80 to-teal-500/70',
+          'wellness': 'from-teal-600/90 via-cyan-500/80 to-blue-500/70',
+          'admin': 'from-indigo-700/90 via-purple-700/80 to-violet-700/70'
+        };
+        return colors[category] || colors.admin;
+      };
+      
+      return {
+        id: block.id,
+        title: block.title,
+        startTime: block.startTime,
+        endTime: block.endTime,
+        duration,
+        category: uiCategory,
+        description: block.description || '',
+        completed: block.completed,
+        color: getColor(uiCategory, block.completed)
+      } as TimeboxTask;
+    });
+  }, [timeBlocks]);
+
+  // Auto-scroll to current time on page load
+  useEffect(() => {
+    const timelineContainer = document.querySelector('[data-timeline-container]');
+    if (timelineContainer && currentTimePosition >= 0) {
+      const scrollToPosition = Math.max(0, currentTimePosition - 200); // Offset to center current time
+      
+      // Smooth scroll to current time with delay to allow animations to complete
+      setTimeout(() => {
+        timelineContainer.scrollTo({
+          top: scrollToPosition,
+          behavior: 'smooth'
+        });
+      }, 800); // Wait for stagger animations to complete
+    }
+  }, [currentTimePosition, tasks]); // Trigger when current time or tasks change
+
   // Memoized filtered tasks for performance
   const validTasks = useMemo(() => {
     return tasks.filter(task => {
@@ -357,22 +373,6 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
       </div>
     );
   }
-
-  // Auto-scroll to current time on page load
-  useEffect(() => {
-    const timelineContainer = document.querySelector('[data-timeline-container]');
-    if (timelineContainer && currentTimePosition >= 0) {
-      const scrollToPosition = Math.max(0, currentTimePosition - 200); // Offset to center current time
-      
-      // Smooth scroll to current time with delay to allow animations to complete
-      setTimeout(() => {
-        timelineContainer.scrollTo({
-          top: scrollToPosition,
-          behavior: 'smooth'
-        });
-      }, 800); // Wait for stagger animations to complete
-    }
-  }, [currentTimePosition, validTasks]); // Trigger when current time or valid tasks change
 
   return (
     <div className={useImplementation(

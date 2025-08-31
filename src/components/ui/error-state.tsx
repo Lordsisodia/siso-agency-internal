@@ -198,9 +198,9 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
   fullPage = false,
   icon: CustomIcon
 }) => {
-  const config = ERROR_CONFIGS[type];
-  const sizeConfig = SIZE_CONFIGS[size];
-  const defaultMessage = DEFAULT_MESSAGES[type];
+  const config = ERROR_CONFIGS[type] || ERROR_CONFIGS.generic;
+  const sizeConfig = SIZE_CONFIGS[size] || SIZE_CONFIGS.md;
+  const defaultMessage = DEFAULT_MESSAGES[type] || DEFAULT_MESSAGES.generic;
   
   const IconComponent = CustomIcon || config.icon;
   
