@@ -131,10 +131,10 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
     enableOptimisticUpdates: true
   });
   
-  // Generate hour slots from 6am to 11pm with enhanced formatting
+  // Generate hour slots from 12am to 11pm (full 24 hours) with enhanced formatting
   const timeSlots = useMemo(() => {
     const slots = [];
-    for (let hour = 6; hour <= 23; hour++) {
+    for (let hour = 0; hour <= 23; hour++) {
       slots.push({
         hour,
         label: hour === 0 ? '12 AM' : hour <= 12 ? `${hour === 12 ? 12 : hour} ${hour < 12 ? 'AM' : 'PM'}` : `${hour - 12} PM`,
@@ -160,11 +160,11 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
     const hours = now.getHours();
     const minutes = now.getMinutes();
     
-    // Only show if within our timeline range (6am-11pm)
-    if (hours < 6 || hours > 23) return -1;
+    // Always show for full 24-hour timeline (12am-11pm)
+    // Removed range restriction for full day coverage
     
     const PIXELS_PER_MINUTE = 80 / 60; // 1.333px per minute (80px per hour)
-    const totalMinutesFromStart = (hours - 6) * 60 + minutes;
+    const totalMinutesFromStart = hours * 60 + minutes;
     return totalMinutesFromStart * PIXELS_PER_MINUTE;
   }, []);
 
@@ -185,7 +185,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
       const MIN_HEIGHT = 35; // Increased minimum height for readability
       const MAX_HEIGHT = 240; // Maximum height to prevent overly large blocks
       
-      const totalMinutesFromStart = (hours - 6) * 60 + minutes;
+      const totalMinutesFromStart = hours * 60 + minutes;
       const topPosition = Math.max(0, totalMinutesFromStart * PIXELS_PER_MINUTE);
       
       // Calculate height based on duration with improved scaling
@@ -407,31 +407,16 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
         
         {/* Full Width Timeline */}
         <div className="w-full">
-            {/* Enhanced Timeline Container with Scroll Indicators */}
-            <div className="relative">
-              {/* Scroll fade indicators */}
-              <div className={useImplementation(
-                'useUnifiedThemeSystem',
-                // NEW: Use theme utility gradient
-                `absolute top-0 left-0 right-0 h-8 z-30 pointer-events-none rounded-t-2xl ${theme.gradients.utility.fadeDown}`,
-                // OLD: Original classes (fallback for safety)
-                'absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-gray-900/80 to-transparent z-30 pointer-events-none rounded-t-2xl'
-              )} />
-              <div className={useImplementation(
-                'useUnifiedThemeSystem', 
-                // NEW: Use theme utility gradient (inverted fadeDown)
-                'absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-gray-900/80 to-transparent z-30 pointer-events-none rounded-b-2xl',
-                // OLD: Original classes (fallback for safety)
-                'absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-gray-900/80 to-transparent z-30 pointer-events-none rounded-b-2xl'
-              )} />
+            {/* Clean Timeline Container - Full Width */}
+            <div className="relative w-full">
               
               <div 
-                className="relative bg-gradient-to-b from-gray-900/70 to-gray-800/50 border-2 border-purple-500/30 rounded-2xl overflow-auto max-h-[700px] shadow-inner backdrop-blur-md group hover:border-purple-400/40 transition-all duration-300 hover:shadow-purple-500/10" 
+                className="relative w-full bg-gray-900 overflow-auto max-h-[700px]" 
                 data-timeline-container
               >
               
               {/* Enhanced Timeline Grid with improved proportions */}
-              <div className="relative" style={{ height: `${(23 - 6 + 1) * 80}px` }}>
+              <div className="relative" style={{ height: `${(23 - 0 + 1) * 80}px` }}>
                 
                 {/* Enhanced Hour Markers and Labels */}
                 {timeSlots.map((slot, index) => (
