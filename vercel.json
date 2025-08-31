@@ -1,11 +1,6 @@
 {
   "framework": "vite",
   "buildCommand": "npm run prisma:generate && npm run build",
-  "functions": {
-    "api/**/*.js": {
-      "runtime": "@vercel/node"
-    }
-  },
   "env": {
     "PRISMA_CLI_QUERY_ENGINE_TYPE": "binary",
     "PRISMA_CLIENT_ENGINE_TYPE": "binary"
