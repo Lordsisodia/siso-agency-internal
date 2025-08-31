@@ -189,6 +189,63 @@ export function useLightWorkTasks({ selectedDate }: UseLightWorkTasksProps) {
     }
   }, [loadTasks]);
 
+  // Delete task
+  const deleteTask = useCallback(async (taskId: string) => {
+    try {
+      const response = await fetch(`/api/light-work/tasks/${taskId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      if (result.success) {
+        console.log(`✅ Deleted Light Work task: ${taskId}`);
+        setTasks(prev => prev.filter(task => task.id !== taskId));
+        return result.data;
+      } else {
+        throw new Error(result.error || 'Failed to delete task');
+      }
+    } catch (error) {
+      console.error('❌ Error deleting light work task:', error);
+      setError(error instanceof Error ? error.message : 'Failed to delete task');
+      return null;
+    }
+  }, []);
+
+  // Delete subtask
+  const deleteSubtask = useCallback(async (subtaskId: string) => {
+    try {
+      const response = await fetch(`/api/light-work/subtasks/${subtaskId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      if (result.success) {
+        console.log(`✅ Deleted Light Work subtask: ${subtaskId}`);
+        // Reload tasks to get updated data
+        await loadTasks();
+        return result.data;
+      } else {
+        throw new Error(result.error || 'Failed to delete subtask');
+      }
+    } catch (error) {
+      console.error('❌ Error deleting light work subtask:', error);
+      setError(error instanceof Error ? error.message : 'Failed to delete subtask');
+      return null;
+    }
+  }, [loadTasks]);
+
   // Load tasks when dependencies change
   useEffect(() => {
     loadTasks();
@@ -201,6 +258,8 @@ export function useLightWorkTasks({ selectedDate }: UseLightWorkTasksProps) {
     createTask,
     toggleTaskCompletion,
     addSubtask,
+    deleteTask,
+    deleteSubtask,
     refreshTasks: loadTasks
   };
 }

@@ -118,13 +118,13 @@ const THEME_CONFIGS = {
     progress: 'bg-purple-500'
   },
   light: {
-    primary: 'text-green-400',
-    secondary: 'text-green-300',
-    background: 'bg-green-900/10 border-green-700/30',
-    hover: 'hover:bg-green-900/15 hover:border-green-600/40',
-    badge: 'bg-green-500/20 text-green-300 border-green-400/40',
-    checkbox: 'border-green-600 data-[state=checked]:bg-green-600',
-    progress: 'bg-green-500'
+    primary: 'text-emerald-400',
+    secondary: 'text-emerald-300',
+    background: 'bg-emerald-900/10 border-emerald-500/40',
+    hover: 'hover:bg-emerald-800/20 hover:border-emerald-400/50',
+    badge: 'bg-emerald-500/20 text-emerald-300 border-emerald-400/40',
+    checkbox: 'border-emerald-500 data-[state=checked]:bg-emerald-500',
+    progress: 'bg-emerald-500'
   },
   wellness: {
     primary: 'text-emerald-400',
@@ -147,10 +147,10 @@ const THEME_CONFIGS = {
   checkout: {
     primary: 'text-blue-400',
     secondary: 'text-blue-300',
-    background: 'bg-blue-900/10 border-blue-700/30',
-    hover: 'hover:bg-blue-900/15 hover:border-blue-600/40',
+    background: 'bg-blue-900/10 border-blue-500/40',
+    hover: 'hover:bg-blue-800/20 hover:border-blue-400/50',
     badge: 'bg-blue-500/20 text-blue-300 border-blue-400/40',
-    checkbox: 'border-blue-600 data-[state=checked]:bg-blue-600',
+    checkbox: 'border-blue-500 data-[state=checked]:bg-blue-500',
     progress: 'bg-blue-500'
   },
   default: {
