@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Moon, Clock, Mic, Sparkles, CheckCircle } from 'lucide-react';
+import { Moon, Clock, Mic, Sparkles, CheckCircle, Plus, X } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -40,6 +40,23 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
     tomorrowFocus: ''
   });
 
+  // Helper functions for dynamic array management
+  const addWentWellItem = () => {
+    setNightlyCheckout(prev => ({
+      ...prev,
+      wentWell: [...prev.wentWell, '']
+    }));
+  };
+
+  const removeWentWellItem = (index: number) => {
+    if (nightlyCheckout.wentWell.length > 1) {
+      setNightlyCheckout(prev => ({
+        ...prev,
+        wentWell: prev.wentWell.filter((_, i) => i !== index)
+      }));
+    }
+  };
+
   // Load data from database on component mount or date change
   useEffect(() => {
     if (!userId) return;
@@ -56,7 +73,7 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
           if (result.success && result.data) {
             const data = result.data;
             setNightlyCheckout({
-              wentWell: data.wentWell || ['', '', ''],
+              wentWell: data.wentWell && data.wentWell.length > 0 ? data.wentWell : ['', '', ''],
               evenBetterIf: data.evenBetterIf || ['', '', '', '', ''],
               analysis: data.analysis || ['', '', ''],
               patterns: data.patterns || ['', '', ''],
@@ -233,23 +250,23 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.6 }}
     >
-      <Card className="bg-indigo-900/20 border-indigo-700/50">
+      <Card className="bg-purple-900/20 border-purple-700/50">
         <CardHeader>
-          <CardTitle className="flex items-center text-indigo-400">
+          <CardTitle className="flex items-center text-purple-400">
             <Moon className="h-5 w-5 mr-2" />
-            🌙 Nightly Check-Out
+            Nightly Check-Out
           </CardTitle>
           
           {/* Progress Bar */}
           <div className="mt-4">
-            <div className="flex justify-between text-sm text-indigo-300 mb-2">
+            <div className="flex justify-between text-sm text-purple-300 mb-2">
               <span>Reflection Progress</span>
               <span>{isLoading ? 'Loading...' : `${Math.round(checkoutProgress)}%`}</span>
-              {isSaving && <span className="text-xs text-indigo-400">Saving...</span>}
+              {isSaving && <span className="text-xs text-purple-400">Saving...</span>}
             </div>
-            <div className="w-full bg-indigo-900/30 rounded-full h-2">
+            <div className="w-full bg-purple-900/30 rounded-full h-2">
               <motion.div 
-                className="bg-gradient-to-r from-indigo-400 to-indigo-600 h-2 rounded-full"
+                className="bg-gradient-to-r from-purple-400 to-purple-600 h-2 rounded-full"
                 initial={{ width: 0 }}
                 animate={{ width: isLoading ? '0%' : `${checkoutProgress}%` }}
                 transition={{ duration: 0.8, ease: 'easeOut' }}
@@ -263,13 +280,13 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="mb-8 p-6 bg-gradient-to-br from-indigo-900/20 via-indigo-800/15 to-indigo-700/10 backdrop-blur-sm border border-indigo-700/30 rounded-xl"
+            className="mb-8 p-6 bg-gradient-to-br from-purple-900/20 via-purple-800/15 to-purple-700/10 backdrop-blur-sm border border-purple-700/30 rounded-xl"
           >
-            <h4 className="font-semibold text-indigo-300 mb-4 flex items-center text-lg">
+            <h4 className="font-semibold text-purple-300 mb-4 flex items-center text-lg">
               <Sparkles className="h-5 w-5 mr-2" />
               🎤 Voice-Powered Reflection
             </h4>
-            <p className="text-indigo-300/70 text-sm mb-5">
+            <p className="text-purple-300/70 text-sm mb-5">
               Speak naturally about your day and AI will automatically organize your thoughts into the reflection categories below.
             </p>
             
@@ -321,9 +338,9 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="mb-8 p-6 bg-gradient-to-br from-green-900/20 via-green-800/15 to-green-700/10 backdrop-blur-sm border border-green-700/30 rounded-xl"
+              className="mb-8 p-6 bg-gradient-to-br from-purple-900/20 via-purple-800/15 to-purple-700/10 backdrop-blur-sm border border-purple-700/30 rounded-xl"
             >
-              <h4 className="font-semibold text-green-300 mb-4 flex items-center text-lg">
+              <h4 className="font-semibold text-purple-300 mb-4 flex items-center text-lg">
                 <CheckCircle className="h-5 w-5 mr-2" />
                 AI Analysis Results
               </h4>
@@ -331,10 +348,10 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 {voiceAnalysisResult.wentWell.length > 0 && (
                   <div>
-                    <h5 className="text-green-200 font-medium mb-2">What went well:</h5>
+                    <h5 className="text-purple-200 font-medium mb-2">What went well:</h5>
                     <ul className="space-y-1">
                       {voiceAnalysisResult.wentWell.map((item: string, index: number) => (
-                        <li key={index} className="text-green-100/80 text-sm">• {item}</li>
+                        <li key={index} className="text-purple-100/80 text-sm">• {item}</li>
                       ))}
                     </ul>
                   </div>
@@ -342,10 +359,10 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
                 
                 {voiceAnalysisResult.evenBetterIf.length > 0 && (
                   <div>
-                    <h5 className="text-green-200 font-medium mb-2">Could improve:</h5>
+                    <h5 className="text-purple-200 font-medium mb-2">Could improve:</h5>
                     <ul className="space-y-1">
                       {voiceAnalysisResult.evenBetterIf.map((item: string, index: number) => (
-                        <li key={index} className="text-green-100/80 text-sm">• {item}</li>
+                        <li key={index} className="text-purple-100/80 text-sm">• {item}</li>
                       ))}
                     </ul>
                   </div>
@@ -355,7 +372,7 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
               <div className="flex gap-3">
                 <Button
                   onClick={applyVoiceAnalysis}
-                  className="bg-green-600 hover:bg-green-700 text-white"
+                  className="bg-purple-600 hover:bg-purple-700 text-white"
                 >
                   Apply to Reflection
                 </Button>
@@ -365,7 +382,7 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
                     setVoiceAnalysisResult(null);
                   }}
                   variant="outline"
-                  className="border-green-600 text-green-400 hover:bg-green-900/20"
+                  className="border-purple-600 text-purple-400 hover:bg-purple-900/20"
                 >
                   Cancel
                 </Button>
@@ -373,17 +390,17 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
             </motion.div>
           )}
           {/* Bedtime Tracking Section */}
-          <div className="mb-6 p-4 bg-indigo-900/10 border border-indigo-700/30 rounded-xl">
-            <h4 className="font-semibold text-indigo-300 mb-3 flex items-center">
+          <div className="mb-6 p-4 bg-purple-900/10 border border-purple-700/30 rounded-xl">
+            <h4 className="font-semibold text-purple-300 mb-3 flex items-center">
               <Clock className="h-4 w-4 mr-2" />
               Sleep Time Tracker
             </h4>
             
             {bedTime ? (
               <div className="flex items-center space-x-2">
-                <div className="flex items-center space-x-1 bg-indigo-900/20 border border-indigo-700/50 rounded-md px-3 py-2">
-                  <Clock className="h-4 w-4 text-indigo-400" />
-                  <span className="text-indigo-100 font-semibold">
+                <div className="flex items-center space-x-1 bg-purple-900/20 border border-purple-700/50 rounded-md px-3 py-2">
+                  <Clock className="h-4 w-4 text-purple-400" />
+                  <span className="text-purple-100 font-semibold">
                     Going to bed at: {bedTime}
                   </span>
                 </div>
@@ -391,7 +408,7 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
                   size="sm"
                   variant="outline"
                   onClick={() => setIsEditingBedTime(!isEditingBedTime)}
-                  className="border-indigo-600 text-indigo-400 hover:bg-indigo-900/20"
+                  className="border-purple-600 text-purple-400 hover:bg-purple-900/20"
                 >
                   Edit
                 </Button>
@@ -404,12 +421,12 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
                   placeholder="Enter bedtime (e.g., 10:30 PM)"
                   value={bedTime}
                   onChange={(e) => setBedTime(e.target.value)}
-                  className="bg-indigo-900/20 border-indigo-700/50 text-indigo-100 text-sm placeholder:text-gray-400 focus:border-indigo-600 flex-1"
+                  className="bg-orange-900/20 border-orange-700/50 text-orange-100 text-sm placeholder:text-gray-400 focus:border-orange-600 flex-1"
                 />
                 <Button
                   size="sm"
                   onClick={setCurrentTimeAsBedTime}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white whitespace-nowrap"
+                  className="bg-orange-600 hover:bg-orange-700 text-white whitespace-nowrap"
                 >
                   Use Now ({getCurrentTime()})
                 </Button>
@@ -426,23 +443,44 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="bg-gradient-to-br from-indigo-900/15 via-indigo-800/10 to-indigo-700/5 backdrop-blur-sm border border-indigo-700/20 rounded-xl p-6"
+              className="bg-purple-900/20 border-purple-700/50 rounded-xl p-6"
             >
-              <h4 className="font-semibold text-white mb-4 text-lg">1. What went well today?</h4>
-              <p className="text-indigo-300/70 text-sm mb-5">(Write down at least three positive things that happened during the day)</p>
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="font-semibold text-purple-400 text-lg">What went well today?</h4>
+                <Button
+                  onClick={addWentWellItem}
+                  size="sm"
+                  className="bg-purple-600 hover:bg-purple-700 text-white"
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add
+                </Button>
+              </div>
+              
               <div className="space-y-3">
                 {nightlyCheckout.wentWell.map((item: string, index: number) => (
-                  <Input
-                    key={index}
-                    value={item}
-                    onChange={(e) => {
-                      const newArray = [...nightlyCheckout.wentWell];
-                      newArray[index] = e.target.value;
-                      setNightlyCheckout(prev => ({ ...prev, wentWell: newArray }));
-                    }}
-                    className="bg-indigo-900/40 border-indigo-600/50 text-white placeholder:text-indigo-200/60 focus:border-indigo-400 focus:ring-indigo-400/20 rounded-lg"
-                    placeholder={`Positive thing ${index + 1}...`}
-                  />
+                  <div key={index} className="flex items-center space-x-3">
+                    <Input
+                      value={item}
+                      onChange={(e) => {
+                        const newArray = [...nightlyCheckout.wentWell];
+                        newArray[index] = e.target.value;
+                        setNightlyCheckout(prev => ({ ...prev, wentWell: newArray }));
+                      }}
+                      className="bg-purple-900/20 border-purple-700/30 text-white placeholder:text-purple-200/50 focus:border-purple-400 focus:ring-purple-400/20 rounded-lg flex-1"
+                      placeholder="Something positive that happened today..."
+                    />
+                    {nightlyCheckout.wentWell.length > 1 && (
+                      <Button
+                        onClick={() => removeWentWellItem(index)}
+                        size="sm"
+                        variant="ghost"
+                        className="text-purple-400 hover:text-purple-300 hover:bg-purple-900/20 p-2"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
                 ))}
               </div>
             </motion.div>
@@ -451,10 +489,9 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="bg-gradient-to-br from-indigo-900/15 via-indigo-800/10 to-indigo-700/5 backdrop-blur-sm border border-indigo-700/20 rounded-xl p-6"
+              className="bg-purple-900/20 border-purple-700/50 rounded-xl p-6"
             >
-              <h4 className="font-semibold text-white mb-4 text-lg">2. Even better if...</h4>
-              <p className="text-indigo-300/70 text-sm mb-5">(List areas where you could improve or things that could have gone better)</p>
+              <h4 className="font-semibold text-purple-400 mb-4 text-lg">Even better if...</h4>
               <div className="space-y-3">
                 {nightlyCheckout.evenBetterIf.map((item: string, index: number) => (
                   <Input
@@ -465,8 +502,8 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
                       newArray[index] = e.target.value;
                       setNightlyCheckout(prev => ({ ...prev, evenBetterIf: newArray }));
                     }}
-                    className="bg-indigo-900/40 border-indigo-600/50 text-white placeholder:text-indigo-200/60 focus:border-indigo-400 focus:ring-indigo-400/20 rounded-lg"
-                    placeholder={`Improvement area ${index + 1}...`}
+                    className="bg-purple-900/20 border-purple-700/30 text-white placeholder:text-purple-200/50 focus:border-purple-400 focus:ring-purple-400/20 rounded-lg"
+                    placeholder="Something that could have been improved..."
                   />
                 ))}
               </div>
@@ -476,12 +513,12 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="bg-gradient-to-br from-indigo-900/15 via-indigo-800/10 to-indigo-700/5 backdrop-blur-sm border border-indigo-700/20 rounded-xl p-6"
+              className="bg-purple-900/20 border-purple-700/50 rounded-xl p-6"
             >
-              <h4 className="font-semibold text-white mb-4 text-lg">3. Analysis & Improvement:</h4>
+              <h4 className="font-semibold text-purple-400 mb-4 text-lg">Analysis & Improvement</h4>
               <div className="space-y-6">
                 <div>
-                  <p className="text-indigo-300/70 text-sm mb-4">(Reflect on how you can improve in the areas mentioned in "Even better if...")</p>
+                  <p className="text-purple-300/70 text-sm mb-4">Analysis</p>
                   <div className="space-y-3">
                     {nightlyCheckout.analysis.map((item: string, index: number) => (
                       <Textarea
@@ -492,15 +529,15 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
                           newArray[index] = e.target.value;
                           setNightlyCheckout(prev => ({ ...prev, analysis: newArray }));
                         }}
-                        className="bg-indigo-900/40 border-indigo-600/50 text-white placeholder:text-indigo-200/60 focus:border-indigo-400 focus:ring-indigo-400/20 rounded-lg min-h-[80px]"
-                        placeholder={`Analysis point ${index + 1}...`}
+                        className="bg-purple-900/20 border-purple-700/30 text-white placeholder:text-purple-200/50 focus:border-purple-400 focus:ring-purple-400/20 rounded-lg min-h-[80px]"
+                        placeholder="Analyze your day and areas for improvement..."
                       />
                     ))}
                   </div>
                 </div>
                 
                 <div>
-                  <p className="text-indigo-300/70 text-sm mb-4">(Identify any patterns or behaviors that may be preventing you from achieving your goals)</p>
+                  <p className="text-purple-300/70 text-sm mb-4">Patterns</p>
                   <div className="space-y-3">
                     {nightlyCheckout.patterns.map((item: string, index: number) => (
                       <Textarea
@@ -511,15 +548,15 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
                           newArray[index] = e.target.value;
                           setNightlyCheckout(prev => ({ ...prev, patterns: newArray }));
                         }}
-                        className="bg-indigo-900/40 border-indigo-600/50 text-white placeholder:text-indigo-200/60 focus:border-indigo-400 focus:ring-indigo-400/20 rounded-lg min-h-[80px]"
-                        placeholder={`Pattern ${index + 1}...`}
+                        className="bg-purple-900/20 border-purple-700/30 text-white placeholder:text-purple-200/50 focus:border-purple-400 focus:ring-purple-400/20 rounded-lg min-h-[80px]"
+                        placeholder="Identify recurring patterns or behaviors..."
                       />
                     ))}
                   </div>
                 </div>
                 
                 <div>
-                  <p className="text-indigo-300/70 text-sm mb-4">(Consider any changes you can make in your habits or environment to support improvement)</p>
+                  <p className="text-purple-300/70 text-sm mb-4">Changes</p>
                   <div className="space-y-3">
                     {nightlyCheckout.changes.map((item: string, index: number) => (
                       <Textarea
@@ -530,8 +567,8 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
                           newArray[index] = e.target.value;
                           setNightlyCheckout(prev => ({ ...prev, changes: newArray }));
                         }}
-                        className="bg-indigo-900/40 border-indigo-600/50 text-white placeholder:text-indigo-200/60 focus:border-indigo-400 focus:ring-indigo-400/20 rounded-lg min-h-[80px]"
-                        placeholder={`Change ${index + 1}...`}
+                        className="bg-purple-900/20 border-purple-700/30 text-white placeholder:text-purple-200/50 focus:border-purple-400 focus:ring-purple-400/20 rounded-lg min-h-[80px]"
+                        placeholder="What changes will you make to improve..."
                       />
                     ))}
                   </div>
@@ -543,13 +580,13 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
-              className="bg-gradient-to-br from-indigo-900/15 via-indigo-800/10 to-indigo-700/5 backdrop-blur-sm border border-indigo-700/20 rounded-xl p-6"
+              className="bg-purple-900/20 border-purple-700/50 rounded-xl p-6"
             >
-              <h4 className="font-semibold text-white mb-4 text-lg">4. Overall Reflection:</h4>
+              <h4 className="font-semibold text-purple-400 mb-4 text-lg">Overall Reflection</h4>
               
               <div className="space-y-6">
                 <div>
-                  <p className="text-indigo-300/70 text-sm mb-4">Rate your overall day (1-10):</p>
+                  <p className="text-purple-300/70 text-sm mb-4">Rate your overall day (1-10):</p>
                   <div className="flex space-x-2">
                     {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((rating) => (
                       <button
@@ -557,8 +594,8 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
                         onClick={() => setNightlyCheckout(prev => ({ ...prev, overallRating: rating }))}
                         className={`w-10 h-10 rounded-full border-2 text-sm font-medium transition-all ${
                           nightlyCheckout.overallRating === rating
-                            ? 'bg-indigo-600 border-indigo-400 text-white'
-                            : 'border-indigo-600/50 text-indigo-300 hover:border-indigo-400 hover:bg-indigo-900/20'
+                            ? 'bg-purple-600 border-purple-400 text-white'
+                            : 'border-purple-600/50 text-purple-300 hover:border-purple-400 hover:bg-purple-900/20'
                         }`}
                       >
                         {rating}
@@ -568,21 +605,21 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
                 </div>
 
                 <div>
-                  <p className="text-indigo-300/70 text-sm mb-4">Key learning from today:</p>
+                  <p className="text-purple-300/70 text-sm mb-4">Key learning from today:</p>
                   <Textarea
                     value={nightlyCheckout.keyLearnings}
                     onChange={(e) => setNightlyCheckout(prev => ({ ...prev, keyLearnings: e.target.value }))}
-                    className="bg-indigo-900/40 border-indigo-600/50 text-white placeholder:text-indigo-200/60 focus:border-indigo-400 focus:ring-indigo-400/20 rounded-lg min-h-[100px]"
+                    className="bg-purple-900/20 border-purple-700/30 text-white placeholder:text-purple-200/50 focus:border-purple-400 focus:ring-purple-400/20 rounded-lg min-h-[100px]"
                     placeholder="What did you learn about yourself or life today?"
                   />
                 </div>
 
                 <div>
-                  <p className="text-indigo-300/70 text-sm mb-4">Tomorrow's focus:</p>
+                  <p className="text-purple-300/70 text-sm mb-4">Tomorrow's focus:</p>
                   <Textarea
                     value={nightlyCheckout.tomorrowFocus}
                     onChange={(e) => setNightlyCheckout(prev => ({ ...prev, tomorrowFocus: e.target.value }))}
-                    className="bg-indigo-900/40 border-indigo-600/50 text-white placeholder:text-indigo-200/60 focus:border-indigo-400 focus:ring-indigo-400/20 rounded-lg min-h-[100px]"
+                    className="bg-purple-900/20 border-purple-700/30 text-white placeholder:text-purple-200/50 focus:border-purple-400 focus:ring-purple-400/20 rounded-lg min-h-[100px]"
                     placeholder="What's your main focus for tomorrow?"
                   />
                 </div>
