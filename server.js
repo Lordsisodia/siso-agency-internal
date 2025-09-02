@@ -22,15 +22,15 @@ app.use(express.json());
 // Get all light work tasks for a user
 app.get('/api/light-work/tasks', async (req, res) => {
   try {
-    const { userId, date } = req.query;
+    const { userId, date, showAllIncomplete } = req.query;
     
     const whereClause = {
       userId,
       completed: false
     };
     
-    // Add date filter if provided
-    if (date) {
+    // Add date filter if provided (but skip if showAllIncomplete is true)
+    if (date && showAllIncomplete !== 'true') {
       whereClause.currentDate = date;
     }
     
@@ -107,15 +107,15 @@ app.post('/api/light-work/tasks', async (req, res) => {
 // Get all deep work tasks for a user
 app.get('/api/deep-work/tasks', async (req, res) => {
   try {
-    const { userId, date } = req.query;
+    const { userId, date, showAllIncomplete } = req.query;
     
     const whereClause = {
       userId,
       completed: false
     };
     
-    // Add date filter if provided
-    if (date) {
+    // Add date filter if provided (but skip if showAllIncomplete is true)
+    if (date && showAllIncomplete !== 'true') {
       whereClause.currentDate = date;
     }
     

@@ -78,15 +78,15 @@ const QuickTaskScheduler: React.FC<QuickTaskSchedulerProps> = ({
       try {
         const dateStr = format(selectedDate, 'yyyy-MM-dd');
         
-        // Fetch Light Work tasks
-        const lightResponse = await fetch(`http://localhost:3001/api/light-work/tasks?userId=user_31c4PuaPdFf9abejhmzrN9kcill&date=${dateStr}`);
+        // Fetch Light Work tasks (show ALL incomplete tasks regardless of date)
+        const lightResponse = await fetch(`http://localhost:3001/api/light-work/tasks?userId=user_31c4PuaPdFf9abejhmzrN9kcill&showAllIncomplete=true`);
         const lightData = await lightResponse.json();
         if (lightData.success) {
           setLightWorkTasks(lightData.data || []);
         }
         
-        // Fetch Deep Work tasks
-        const deepResponse = await fetch(`http://localhost:3001/api/deep-work/tasks?userId=user_31c4PuaPdFf9abejhmzrN9kcill&date=${dateStr}`);
+        // Fetch Deep Work tasks (show ALL incomplete tasks regardless of date)
+        const deepResponse = await fetch(`http://localhost:3001/api/deep-work/tasks?userId=user_31c4PuaPdFf9abejhmzrN9kcill&showAllIncomplete=true`);
         const deepData = await deepResponse.json();
         if (deepData.success) {
           setDeepWorkTasks(deepData.data || []);
