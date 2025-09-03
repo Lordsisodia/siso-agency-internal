@@ -6,12 +6,8 @@
  */
 
 export function getApiBaseURL(): string {
-  // In production (Vercel), use relative paths
-  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
-    return ''; // Use relative paths on Vercel (/api/...)
-  }
-  // Use Vite dev server for local development
-  return 'http://localhost:5174';
+  // Always use relative paths - Vite proxy handles local development routing
+  return '';
 }
 
 /**

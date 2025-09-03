@@ -71,7 +71,7 @@ export function useDeepWorkTasks({ selectedDate }: UseDeepWorkTasksProps) {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`/api/deep-work/tasks?userId=${user.id}&date=${dateString}`);
+      const response = await fetch(`http://localhost:3001/api/deep-work/tasks?userId=user_31c4PuaPdFf9abejhmzrN9kcill&showAllIncomplete=true`);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
