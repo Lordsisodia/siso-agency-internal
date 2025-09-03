@@ -8,10 +8,8 @@
 import { format } from 'date-fns';
 
 const createApiUrl = (path: string) => {
-  const baseUrl = process.env.NODE_ENV === 'production' 
-    ? 'https://siso-internal.vercel.app'
-    : 'http://localhost:3000';
-  return `${baseUrl}${path}`;
+  // Use relative URLs - works with Vite proxy in development and Vercel in production
+  return path;
 };
 
 export interface Task {

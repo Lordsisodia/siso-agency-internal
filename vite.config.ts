@@ -40,7 +40,11 @@ export default defineConfig(({ mode }) => ({
       }
     }
   },
-  plugins: [react(), apiRoutesPlugin()],
+  plugins: [
+    react(), 
+    // Only use API plugin in production, let proxy handle API calls in development
+    ...(mode === 'production' ? [apiRoutesPlugin()] : [])
+  ],
   
   // M4 Mac Mini Optimizations
   esbuild: {
