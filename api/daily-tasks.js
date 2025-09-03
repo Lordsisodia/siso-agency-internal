@@ -20,6 +20,45 @@ export default async function handler(req, res) {
     // Import the database service
     const { taskDatabaseService } = await import('../ai-first/services/task-database-service-js.js');
 
+    // Handle individual task operations with taskId parameter
+    const { taskId } = query;
+
+    if (taskId) {
+      // Individual task operations: /api/daily-tasks?taskId=123
+      switch (method) {
+        case 'PUT':
+          // PUT /api/daily-tasks?taskId=123 - Update task title/priority or completion
+          const { completed, title, priority } = body;
+          
+          if (completed !== undefined) {
+            // Update completion status (toggle)
+            await taskDatabaseService.updateTaskCompletion(taskId, completed, 'LIGHT');
+            return res.status(200).json({ success: true, message: 'Task completion updated' });
+          } else if (title !== undefined || priority !== undefined) {
+            // Update title or priority
+            const updates = {};
+            if (title !== undefined) updates.title = title;
+            if (priority !== undefined) updates.priority = priority;
+            
+            await taskDatabaseService.updateTask(taskId, updates, 'LIGHT');
+            return res.status(200).json({ success: true, message: 'Task updated' });
+          } else {
+            return res.status(400).json({ error: 'No valid update fields provided' });
+          }
+
+        case 'DELETE':
+          // DELETE /api/daily-tasks?taskId=123 - Delete task
+          const deletedTask = await taskDatabaseService.deleteTask(taskId, 'LIGHT');
+          
+          console.log(`✅ Deleted Daily Task: ${taskId}`);
+          return res.status(200).json({ success: true, data: deletedTask });
+
+        default:
+          return res.status(405).json({ error: `Method ${method} Not Allowed for individual task operations` });
+      }
+    }
+
+    // Collection operations (no taskId)
     switch (method) {
       case 'GET':
         // GET /api/daily-tasks - Get all light work tasks for a user
