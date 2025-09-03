@@ -56,7 +56,7 @@ export class WorkTypeApiClient {
     try {
       // Call both endpoints in parallel
       const [lightResponse, deepResponse] = await Promise.all([
-        fetch(createApiUrl(`/api/daily-tasks?userId=${userId}&date=${dateString}`)),
+        fetch(createApiUrl(`/api/light-work/tasks?userId=${userId}&date=${dateString}`)),
         fetch(createApiUrl(`/api/deep-work/tasks?userId=${userId}&date=${dateString}`))
       ]);
 
@@ -91,7 +91,7 @@ export class WorkTypeApiClient {
     }
     
     try {
-      const endpoint = workType === 'LIGHT' ? '/api/daily-tasks' : '/api/deep-work/tasks';
+      const endpoint = workType === 'LIGHT' ? '/api/light-work/tasks' : '/api/deep-work/tasks';
       
       const response = await fetch(createApiUrl(endpoint), {
         method: 'POST',
@@ -127,7 +127,7 @@ export class WorkTypeApiClient {
     try {
       const endpoint = workType === 'DEEP' 
         ? `/api/deep-work/tasks?taskId=${taskId}` 
-        : `/api/daily-tasks?taskId=${taskId}`;
+        : `/api/light-work/tasks?taskId=${taskId}`;
       
       const response = await fetch(createApiUrl(endpoint), {
         method: 'PUT',
@@ -157,7 +157,7 @@ export class WorkTypeApiClient {
     try {
       const endpoint = workType === 'DEEP' 
         ? `/api/deep-work/tasks?taskId=${taskId}` 
-        : `/api/daily-tasks?taskId=${taskId}`;
+        : `/api/light-work/tasks?taskId=${taskId}`;
       
       const response = await fetch(createApiUrl(endpoint), {
         method: 'DELETE'
@@ -181,7 +181,7 @@ export class WorkTypeApiClient {
     try {
       const endpoint = workType === 'DEEP' 
         ? `/api/deep-work/tasks?taskId=${taskId}` 
-        : `/api/daily-tasks?taskId=${taskId}`;
+        : `/api/light-work/tasks?taskId=${taskId}`;
       
       const response = await fetch(createApiUrl(endpoint), {
         method: 'PUT',
