@@ -20,7 +20,7 @@ app.use(express.json());
 // ===== LIGHT WORK ENDPOINTS =====
 
 // Get all light work tasks for a user
-app.get('/api/light-work/tasks', async (req, res) => {
+app.get('/api/daily-tasks', async (req, res) => {
   try {
     const { userId, date, showAllIncomplete } = req.query;
     
@@ -64,7 +64,7 @@ app.get('/api/light-work/tasks', async (req, res) => {
 });
 
 // Create new light work task
-app.post('/api/light-work/tasks', async (req, res) => {
+app.post('/api/daily-tasks', async (req, res) => {
   try {
     const { userId, taskData } = req.body;
     
@@ -195,7 +195,7 @@ app.post('/api/deep-work/tasks', async (req, res) => {
 // ===== TASK COMPLETION ENDPOINTS =====
 
 // Toggle light work task completion
-app.put('/api/light-work/tasks/:taskId/toggle', async (req, res) => {
+app.put('/api/daily-tasks/:taskId/toggle', async (req, res) => {
   try {
     const { taskId } = req.params;
     
@@ -249,7 +249,7 @@ app.put('/api/deep-work/tasks/:taskId/toggle', async (req, res) => {
 // ===== SUBTASK ENDPOINTS =====
 
 // Add subtask to light work task
-app.post('/api/light-work/tasks/:taskId/subtasks', async (req, res) => {
+app.post('/api/daily-tasks/:taskId/subtasks', async (req, res) => {
   try {
     const { taskId } = req.params;
     const { title, priority } = req.body;
@@ -333,7 +333,7 @@ app.put('/api/deep-work/subtasks/:subtaskId', async (req, res) => {
 // ===== DELETE ENDPOINTS =====
 
 // Delete Light Work task
-app.delete('/api/light-work/tasks/:taskId', async (req, res) => {
+app.delete('/api/daily-tasks/:taskId', async (req, res) => {
   try {
     const { taskId } = req.params;
     
@@ -375,7 +375,7 @@ app.delete('/api/deep-work/tasks/:taskId', async (req, res) => {
 });
 
 // Delete Light Work subtask
-app.delete('/api/light-work/subtasks/:subtaskId', async (req, res) => {
+app.delete('/api/daily-subtasks/:subtaskId', async (req, res) => {
   try {
     const { subtaskId } = req.params;
     
@@ -507,7 +507,7 @@ app.post('/api/migrate/personal-tasks', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 SISO-INTERNAL Server running on port ${PORT}`);
   console.log(`🎯 Features:`);
-  console.log(`   ☕ Light Work API: /api/light-work/tasks`);
+  console.log(`   ☕ Daily Tasks API: /api/daily-tasks`);
   console.log(`   🧠 Deep Work API: /api/deep-work/tasks`);
   console.log(`   👥 Multi-user support: Tazz, Tours, etc.`);
   console.log(`   🔄 Clean separation: No more workType confusion`);
