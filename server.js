@@ -195,7 +195,7 @@ app.post('/api/deep-work/tasks', async (req, res) => {
 // ===== TASK COMPLETION ENDPOINTS =====
 
 // Toggle light work task completion
-app.put('/api/light-work/tasks/:taskId/toggle', async (req, res) => {
+app.put('/api/daily-tasks/:taskId/toggle', async (req, res) => {
   try {
     const { taskId } = req.params;
     
