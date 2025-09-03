@@ -66,7 +66,7 @@ export function useLightWorkTasks({ selectedDate }: UseLightWorkTasksProps) {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`http://localhost:3001/api/light-work/tasks?userId=user_31c4PuaPdFf9abejhmzrN9kcill&showAllIncomplete=true`);
+      const response = await fetch(`http://localhost:3001/api/daily-tasks?userId=user_31c4PuaPdFf9abejhmzrN9kcill&showAllIncomplete=true`);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -93,7 +93,7 @@ export function useLightWorkTasks({ selectedDate }: UseLightWorkTasksProps) {
     if (!user?.id) return null;
 
     try {
-      const response = await fetch('/api/light-work/tasks', {
+      const response = await fetch('/api/daily-tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -129,7 +129,7 @@ export function useLightWorkTasks({ selectedDate }: UseLightWorkTasksProps) {
   // Toggle task completion
   const toggleTaskCompletion = useCallback(async (taskId: string) => {
     try {
-      const response = await fetch(`/api/light-work/tasks/${taskId}/toggle`, {
+      const response = await fetch(`/api/daily-tasks/${taskId}/toggle`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' }
       });
@@ -159,7 +159,7 @@ export function useLightWorkTasks({ selectedDate }: UseLightWorkTasksProps) {
   // Add subtask to task
   const addSubtask = useCallback(async (taskId: string, subtaskTitle: string, priority = 'Med') => {
     try {
-      const response = await fetch(`/api/light-work/tasks/${taskId}/subtasks`, {
+      const response = await fetch(`/api/daily-tasks/${taskId}/subtasks`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -192,7 +192,7 @@ export function useLightWorkTasks({ selectedDate }: UseLightWorkTasksProps) {
   // Delete task
   const deleteTask = useCallback(async (taskId: string) => {
     try {
-      const response = await fetch(`/api/light-work/tasks/${taskId}`, {
+      const response = await fetch(`/api/daily-tasks/${taskId}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' }
       });
@@ -220,7 +220,7 @@ export function useLightWorkTasks({ selectedDate }: UseLightWorkTasksProps) {
   // Delete subtask
   const deleteSubtask = useCallback(async (subtaskId: string) => {
     try {
-      const response = await fetch(`/api/light-work/subtasks/${subtaskId}`, {
+      const response = await fetch(`/api/daily-subtasks/${subtaskId}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' }
       });
