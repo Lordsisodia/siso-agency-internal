@@ -100,10 +100,12 @@ export class WorkTypeApiClient {
         },
         body: JSON.stringify({
           userId,
-          date: dateString,
-          title,
-          priority,
-          estimatedMinutes: 30
+          taskData: {
+            title,
+            priority,
+            currentDate: dateString,
+            estimatedMinutes: 30
+          }
         })
       });
 
@@ -124,8 +126,8 @@ export class WorkTypeApiClient {
   async toggleTask(taskId: string, workType: 'LIGHT' | 'DEEP', currentCompleted?: boolean): Promise<void> {
     try {
       const endpoint = workType === 'DEEP' 
-        ? `/api/deep-work/tasks/${taskId}/toggle` 
-        : `/api/daily-tasks/${taskId}/toggle`;
+        ? `/api/deep-work/tasks?taskId=${taskId}` 
+        : `/api/daily-tasks?taskId=${taskId}`;
       
       const response = await fetch(createApiUrl(endpoint), {
         method: 'PUT',
@@ -154,8 +156,8 @@ export class WorkTypeApiClient {
   async deleteTask(taskId: string, workType: 'LIGHT' | 'DEEP'): Promise<void> {
     try {
       const endpoint = workType === 'DEEP' 
-        ? `/api/deep-work/tasks/${taskId}` 
-        : `/api/daily-tasks/${taskId}`;
+        ? `/api/deep-work/tasks?taskId=${taskId}` 
+        : `/api/daily-tasks?taskId=${taskId}`;
       
       const response = await fetch(createApiUrl(endpoint), {
         method: 'DELETE'
@@ -178,8 +180,8 @@ export class WorkTypeApiClient {
   async updateTask(taskId: string, updates: { title?: string; priority?: string }, workType: 'LIGHT' | 'DEEP'): Promise<void> {
     try {
       const endpoint = workType === 'DEEP' 
-        ? `/api/deep-work/tasks/${taskId}` 
-        : `/api/daily-tasks/${taskId}`;
+        ? `/api/deep-work/tasks?taskId=${taskId}` 
+        : `/api/daily-tasks?taskId=${taskId}`;
       
       const response = await fetch(createApiUrl(endpoint), {
         method: 'PUT',
