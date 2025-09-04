@@ -165,7 +165,7 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
     setActiveTabId(tabId);
   };
 
-  // Swipe gesture handling for tab navigation
+  // Swipe gesture handling for tab navigation (enabled for all devices)
   const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     const swipeThreshold = 60; // More sensitive threshold for easier swiping
     const swipeVelocityThreshold = 300; // More sensitive velocity threshold
@@ -205,10 +205,10 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
     <div className="flex flex-col h-screen w-full overflow-hidden">
       {/* Hidden Header - Now using AnimatedDateHeader in each tab */}
 
-      {/* Tab Content with Swipe Support */}
+      {/* Tab Content with Swipe Support (All Devices) */}
       <div className="flex-1 relative overflow-hidden touch-action-pan-y">
         <motion.div
-          drag={isMobile ? "x" : false}
+          drag="x"
           dragConstraints={{ left: 0, right: 0 }}
           dragElastic={0.3}
           dragMomentum={false}
@@ -250,47 +250,21 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
       {/* Bottom Tab Navigation - Transparent Floating */}
       <div className="absolute bottom-4 left-4 right-4 z-50 flex justify-center pointer-events-none">
         <div className="pointer-events-auto">
-        {/* Mobile: ExpandableTabs Component */}
-        {isMobile ? (
-          <ExpandableTabs
-            tabs={tabs.map(tab => ({
-              title: tab.name,
-              icon: tab.icon
-            }))}
-            activeIndex={activeTabIndex}
-            activeColor="text-orange-400"
-            className="bg-white/10 backdrop-blur-md border-white/20 shadow-lg rounded-2xl"
-            onChange={(index) => {
-              if (index !== null) {
-                handleTabClick(tabs[index].id);
-              }
-            }}
-          />
-        ) : (
-          /* Desktop: Full Tab Bar */
-          <div className="flex space-x-1">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <Button
-                  key={tab.id}
-                  variant={tab.id === activeTabId ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => handleTabClick(tab.id)}
-                  className={cn(
-                    "flex items-center space-x-2 px-4 py-2 transition-all duration-200",
-                    tab.id === activeTabId 
-                      ? `bg-gradient-to-r ${tab.color} text-white shadow-lg` 
-                      : "text-gray-300 hover:text-white hover:bg-gray-700/50"
-                  )}
-                >
-                  <Icon className="h-4 w-4" />
-                  <span>{tab.name}</span>
-                </Button>
-              );
-            })}
-          </div>
-        )}
+        {/* Swipe-Style Interface for All Devices */}
+        <ExpandableTabs
+          tabs={tabs.map(tab => ({
+            title: tab.name,
+            icon: tab.icon
+          }))}
+          activeIndex={activeTabIndex}
+          activeColor="text-orange-400"
+          className="bg-white/10 backdrop-blur-md border-white/20 shadow-lg rounded-2xl"
+          onChange={(index) => {
+            if (index !== null) {
+              handleTabClick(tabs[index].id);
+            }
+          }}
+        />
         </div>
       </div>
     </div>
