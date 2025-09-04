@@ -7,7 +7,7 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { useClerkUser } from './useClerkUser';
-import { useSupabaseClient } from '@/lib/supabase-clerk';
+import { useSupabaseClient, useSupabaseUserId } from '@/lib/supabase-clerk';
 
 export interface LightWorkTask {
   id: string;
@@ -18,6 +18,7 @@ export interface LightWorkTask {
   completed: boolean;
   originalDate: string;
   currentDate: string;
+  taskDate?: string;
   estimatedDuration?: number;
   rollovers: number;
   tags: string[];
@@ -51,6 +52,7 @@ export interface UseLightWorkTasksProps {
 export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksProps) {
   const { user, isSignedIn } = useClerkUser();
   const supabase = useSupabaseClient();
+  const internalUserId = useSupabaseUserId(user?.id || null);
   const [tasks, setTasks] = useState<LightWorkTask[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -59,7 +61,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
 
   // Load light work tasks from Supabase
   const loadTasks = useCallback(async () => {
-    if (!isSignedIn || !user?.id || !supabase) {
+    if (!isSignedIn || !internalUserId || !supabase) {
       setLoading(false);
       return;
     }
@@ -77,9 +79,9 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
           *,
           subtasks:light_work_subtasks(*)
         `)
-        .eq('userId', user.id)
+        .eq('user_id', internalUserId)
         .eq('completed', false)
-        .order('createdAt', { ascending: false });
+        .order('created_at', { ascending: false });
 
       if (tasksError) {
         throw new Error(`Supabase error: ${tasksError.message}`);
@@ -94,7 +96,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
         priority: task.priority,
         completed: task.completed,
         originalDate: task.originalDate,
-        currentDate: task.currentDate,
+        currentDate: task.task_date || task.currentDate,
         estimatedDuration: task.estimatedDuration,
         rollovers: task.rollovers || 0,
         tags: task.tags || [],
@@ -128,11 +130,11 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
     } finally {
       setLoading(false);
     }
-  }, [isSignedIn, user?.id, dateString, supabase]);
+  }, [isSignedIn, internalUserId, dateString, supabase]);
 
   // Create new light work task in Supabase
   const createTask = useCallback(async (taskData: Partial<LightWorkTask>) => {
-    if (!user?.id || !supabase) return null;
+    if (!internalUserId || !supabase) return null;
 
     try {
       console.log('➕ Creating Light Work task in Supabase...');
@@ -140,12 +142,12 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
       const { data, error } = await supabase
         .from('light_work_tasks')
         .insert({
-          userId: user.id,
+          user_id: internalUserId,
           title: taskData.title,
           description: taskData.description,
           priority: taskData.priority || 'MEDIUM',
           originalDate: dateString,
-          currentDate: dateString,
+          task_date: dateString,
           completed: false,
           rollovers: 0,
           tags: taskData.tags || [],
@@ -176,7 +178,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
       setError(error instanceof Error ? error.message : 'Failed to create task in Supabase');
       return null;
     }
-  }, [user?.id, dateString, supabase]);
+  }, [internalUserId, dateString, supabase]);
 
   // Toggle task completion in Supabase
   const toggleTaskCompletion = useCallback(async (taskId: string) => {

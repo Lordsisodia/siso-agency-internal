@@ -7,7 +7,7 @@
 
 import React from 'react';
 import { UnifiedWorkSection } from '@/refactored/components/UnifiedWorkSection';
-import { useLightWorkTasks } from '@/hooks/useLightWorkTasks';
+import { useLightWorkTasksSupabase } from '@/hooks/useLightWorkTasksSupabase';
 
 interface LightFocusWorkSectionProps {
   selectedDate: Date;
@@ -26,7 +26,7 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
     deleteTask,
     deleteSubtask,
     refreshTasks
-  } = useLightWorkTasks({ selectedDate });
+  } = useLightWorkTasksSupabase({ selectedDate });
 
   // Transform data to match UnifiedWorkSection interface
   const transformedTasks = tasks.map(task => ({
