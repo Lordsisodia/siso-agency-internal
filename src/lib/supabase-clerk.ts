@@ -20,55 +20,55 @@ if (!supabaseUrl || !supabaseAnonKey) {
 export const supabaseAnon = createClient(supabaseUrl, supabaseAnonKey);
 
 /**
- * Hook to create authenticated Supabase client using Clerk JWT
+ * Hook to get the internal database user ID from Clerk user ID
  */
-export function useSupabaseClient(): SupabaseClient | null {
-  const { getToken, isSignedIn } = useAuth();
-  const [supabaseClient, setSupabaseClient] = useState<SupabaseClient | null>(null);
+export function useSupabaseUserId(clerkUserId: string | null): string | null {
+  const [internalUserId, setInternalUserId] = useState<string | null>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    const setupSupabaseClient = async () => {
-      if (!isSignedIn) {
-        setSupabaseClient(supabaseAnon);
+    const fetchInternalUserId = async () => {
+      if (!clerkUserId) {
+        setInternalUserId(null);
+        setIsLoaded(true);
         return;
       }
 
       try {
-        // Get Clerk JWT token for Supabase
-        const token = await getToken({ template: 'supabase' });
-        
-        if (!token) {
-          console.warn('No Clerk token available for Supabase');
-          setSupabaseClient(supabaseAnon);
-          return;
+        const { data, error } = await supabaseAnon
+          .from('users')
+          .select('id')
+          .eq('supabase_id', `prisma-user-${clerkUserId}`)
+          .single();
+
+        if (error) {
+          console.error('❌ Error fetching internal user ID:', error);
+          setInternalUserId(null);
+        } else {
+          setInternalUserId(data?.id || null);
+          console.log(`🔗 Mapped Clerk user ${clerkUserId} to internal ID ${data?.id}`);
         }
-
-        // Create authenticated Supabase client
-        const authenticatedClient = createClient(supabaseUrl, supabaseAnonKey, {
-          auth: {
-            autoRefreshToken: false,
-            persistSession: false,
-          },
-          global: {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        });
-
-        setSupabaseClient(authenticatedClient);
-        console.log('🔐 Authenticated Supabase client created');
-
       } catch (error) {
-        console.error('❌ Error creating authenticated Supabase client:', error);
-        setSupabaseClient(supabaseAnon);
+        console.error('❌ Error mapping user IDs:', error);
+        setInternalUserId(null);
+      } finally {
+        setIsLoaded(true);
       }
     };
 
-    setupSupabaseClient();
-  }, [isSignedIn, getToken]);
+    fetchInternalUserId();
+  }, [clerkUserId]);
 
-  return supabaseClient;
+  return isLoaded ? internalUserId : null;
+}
+
+/**
+ * Simple hook to return the anonymous Supabase client
+ * For now, we'll use the existing user management system in the database
+ * until we can properly configure Clerk JWT templates
+ */
+export function useSupabaseClient(): SupabaseClient {
+  return supabaseAnon;
 }
 
 /**

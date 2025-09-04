@@ -7,7 +7,7 @@
 
 import React from 'react';
 import { UnifiedWorkSection } from '@/refactored/components/UnifiedWorkSection';
-import { useDeepWorkTasks } from '@/hooks/useDeepWorkTasks';
+import { useDeepWorkTasksSupabase } from '@/hooks/useDeepWorkTasksSupabase';
 
 interface DeepFocusWorkSectionProps {
   selectedDate: Date;
@@ -26,7 +26,7 @@ export const DeepFocusWorkSection: React.FC<DeepFocusWorkSectionProps> = ({
     deleteTask,
     deleteSubtask,
     refreshTasks
-  } = useDeepWorkTasks({ selectedDate });
+  } = useDeepWorkTasksSupabase({ selectedDate });
 
   // Transform data to match UnifiedWorkSection interface
   const transformedTasks = tasks.map(task => ({
@@ -56,8 +56,8 @@ export const DeepFocusWorkSection: React.FC<DeepFocusWorkSectionProps> = ({
   };
 
   const handleAddSubtask = async (taskId: string, subtaskTitle: string) => {
-    // Deep work subtasks default to high priority and complexity 3
-    return await addSubtask(taskId, subtaskTitle, 'High', 3);
+    // Deep work subtasks default to high priority
+    return await addSubtask(taskId, subtaskTitle, 'HIGH');
   };
 
   return (
