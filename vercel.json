@@ -2,16 +2,9 @@
   "framework": "vite",
   "buildCommand": "npm run build",
   "functions": {
-    "api/*.js": {
-      "runtime": "nodejs18.x"
-    },
-    "api/*/*.js": {
-      "runtime": "nodejs18.x"
+    "api/**/*.js": {
+      "runtime": "@vercel/node@3.0.7"
     }
-  },
-  "env": {
-    "PRISMA_CLI_QUERY_ENGINE_TYPE": "binary",
-    "PRISMA_CLIENT_ENGINE_TYPE": "binary"
   },
   "headers": [
     {
