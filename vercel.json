@@ -1,6 +1,14 @@
 {
   "framework": "vite",
-  "buildCommand": "npm run prisma:generate && npm run build",
+  "buildCommand": "npm run build",
+  "functions": {
+    "api/*.js": {
+      "runtime": "nodejs18.x"
+    },
+    "api/*/*.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
   "env": {
     "PRISMA_CLI_QUERY_ENGINE_TYPE": "binary",
     "PRISMA_CLIENT_ENGINE_TYPE": "binary"
