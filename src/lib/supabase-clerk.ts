@@ -39,7 +39,7 @@ export function useSupabaseUserId(clerkUserId: string | null): string | null {
           .from('users')
           .select('id')
           .eq('supabase_id', `prisma-user-${clerkUserId}`)
-          .single();
+          .maybeSingle();
 
         if (error) {
           console.error('❌ Error fetching internal user ID:', error);
