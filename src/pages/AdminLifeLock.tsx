@@ -15,14 +15,11 @@ import { CleanDateNav } from '@/components/ui/clean-date-nav';
 import { PriorityTasksSection } from '@/ai-first/features/tasks/components/PriorityTasksSection';
 import { QuickActionsSection } from '@/ai-first/features/tasks/ui/QuickActionsSection';
 import { MonthlyProgressSection } from '@/ai-first/features/tasks/components/MonthlyProgressSection';
-import { MorningRoutineSection } from '@/ai-first/features/tasks/components/MorningRoutineSection';
-import { DeepFocusWorkSection } from '@/ai-first/features/tasks/components/DeepFocusWorkSection-v2';
-import { LightFocusWorkSection } from '@/ai-first/features/tasks/components/LightFocusWorkSection-v2';
-import { EnhancedLightWorkManager } from '@/components/ui/enhanced-light-work-manager';
-import { NightlyCheckoutSection } from '@/ai-first/features/tasks/components/NightlyCheckoutSection';
-import { HomeWorkoutSection } from '@/ai-first/features/tasks/components/HomeWorkoutSection';
-import { HealthNonNegotiablesSection } from '@/ai-first/features/tasks/components/HealthNonNegotiablesSection';
-import { TimeboxSection } from '@/ai-first/features/tasks/components/TimeboxSection';
+import { MorningRoutineTab } from '@/ai-first/features/tasks/components/MorningRoutineTab';
+import { LightWorkTab } from '@/ai-first/features/tasks/components/LightWorkTab';
+import { DeepFocusTab } from '@/ai-first/features/tasks/components/DeepFocusTab';
+import { TimeBoxTab } from '@/ai-first/features/tasks/components/TimeBoxTab';
+import { NightlyCheckoutTab } from '@/ai-first/features/tasks/components/NightlyCheckoutTab';
 import { useLifeLockData } from '@/hooks/useLifeLockData';
 import { useRefactoredLifeLockData } from '@/refactored/hooks/useRefactoredLifeLockData';
 import { TabId, validateTabHandler, assertExhaustive, isValidTabId } from '@/ai-first/core/tab-config';
@@ -35,7 +32,7 @@ const AdminLifeLock: React.FC = () => {
   const navigate = useNavigate();
   const { date } = useParams<{ date: string }>();
   const [searchParams] = useSearchParams();
-  const { isSignedIn, isLoaded } = useClerkUser();
+  const { user, isSignedIn, isLoaded } = useClerkUser();
 
   // DEVELOPMENT VALIDATION: Check that all tabs are handled (only runs once in dev)
   React.useEffect(() => {
@@ -50,6 +47,9 @@ const AdminLifeLock: React.FC = () => {
     }
   }, []);
   
+  // Add missing state variables for Tab components
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
   // Parse date from URL params or search params, or default to today
   const selectedDate = useMemo(() => {
     // First try URL path parameter (for day routes like /admin/lifelock/day/2025-08-26)
@@ -223,6 +223,31 @@ const AdminLifeLock: React.FC = () => {
             return <div className="p-4 text-red-500">Invalid tab: {activeTab}</div>;
           }
 
+          // Common props for all tab components
+          const commonTabProps = {
+            user,
+            selectedDate,
+            todayCard,
+            weekCards,
+            refreshTrigger,
+            onRefresh: () => setRefreshTrigger(prev => prev + 1),
+            onTaskToggle: handleTaskToggle,
+            onQuickAdd: handleQuickAdd,
+            onCustomTaskAdd: handleCustomTaskAdd,
+            onVoiceCommand: handleVoiceCommand,
+            onCardClick: handleCardClick,
+            onNavigateWeek: navigateWeek,
+            onOrganizeTasks: handleOrganizeTasks,
+            isProcessingVoice,
+            isAnalyzingTasks,
+            lastThoughtDumpResult,
+            eisenhowerResult,
+            showEisenhowerModal,
+            onCloseEisenhowerModal: () => setShowEisenhowerModal(false),
+            onApplyOrganization: handleApplyOrganization,
+            onReanalyze: handleReanalyze
+          };
+
           // Feature flag: Use refactored TabContentRenderer or fallback to original switch
           return useImplementation(
             'useRefactoredAdminLifeLock',
@@ -245,191 +270,108 @@ const AdminLifeLock: React.FC = () => {
             (() => {
               switch (activeTab as TabId) {
                 case 'morning':
-                  return (
-                    <div className={useImplementation(
-                      'useUnifiedThemeSystem',
-                      // NEW: Unified theme system
-                      `${theme.themes.layout.page} p-4 pb-24`,
-                      // OLD: Original classes (fallback for safety)
-                      'min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24'
-                    )}>
-                      <CleanDateNav 
-                        selectedDate={selectedDate}
-                        completionPercentage={dayCompletionPercentage}
-                        className="mb-6"
-                        onPreviousDate={() => navigateDay?.('prev')}
-                        onNextDate={() => navigateDay?.('next')}
-                      />
-                      <div className="space-y-6">
-                        <MorningRoutineSection selectedDate={selectedDate} />
-                      </div>
-                    </div>
-                  );
+                  return <MorningRoutineTab {...commonTabProps} />;
                 
                 case 'focus':
-                  return (
-                    <div className={useImplementation(
-                      'useUnifiedThemeSystem',
-                      // NEW: Unified theme system
-                      `${theme.themes.layout.page} p-4 pb-24`,
-                      // OLD: Original classes (fallback for safety)
-                      'min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24'
-                    )}>
-                      <CleanDateNav 
-                        selectedDate={selectedDate}
-                        completionPercentage={dayCompletionPercentage}
-                        className="mb-6"
-                        onPreviousDate={() => navigateDay?.('prev')}
-                        onNextDate={() => navigateDay?.('next')}
-                      />
-                      <div className="space-y-6">
-                        <DeepFocusWorkSection selectedDate={selectedDate} />
-                        <QuickActionsSection
-                          handleQuickAdd={handleQuickAdd}
-                          handleOrganizeTasks={handleOrganizeTasks}
-                          isAnalyzingTasks={isAnalyzingTasks}
-                          todayCard={todayCard}
-                        />
-                      </div>
-                    </div>
-                  );
+                case 'work':
+                  return <DeepFocusTab {...commonTabProps} />;
                 
                 case 'light':
                   return (
-                    <div className={useImplementation(
-                      'useUnifiedThemeSystem',
-                      // NEW: Unified theme system
-                      `${theme.themes.layout.page} p-4 pb-24`,
-                      // OLD: Original classes (fallback for safety)
-                      'min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24'
-                    )}>
-                      <CleanDateNav 
-                        selectedDate={selectedDate}
-                        completionPercentage={dayCompletionPercentage}
-                        className="mb-6"
-                        onPreviousDate={() => navigateDay?.('prev')}
-                        onNextDate={() => navigateDay?.('next')}
-                      />
-                      <div className="space-y-6">
-                        <QuickActionsSection
-                          handleQuickAdd={handleQuickAdd}
-                          handleOrganizeTasks={handleOrganizeTasks}
-                          isAnalyzingTasks={isAnalyzingTasks}
-                          todayCard={todayCard}
-                        />
-                      </div>
-                    </div>
+                    <LightWorkTab
+                      user={user}
+                      todayCard={todayCard}
+                      refreshTrigger={refreshTrigger}
+                      onRefresh={() => setRefreshTrigger(prev => prev + 1)}
+                      onTaskToggle={handleTaskToggle}
+                      onQuickAdd={handleQuickAdd}
+                      onCustomTaskAdd={handleCustomTaskAdd}
+                      onCardClick={handleCardClick}
+                    />
                   );
                 
                 case 'light-work':
                   return (
-                    <div className={useImplementation(
-                      'useUnifiedThemeSystem',
-                      // NEW: Unified theme system
-                      `${theme.themes.layout.page} p-4 pb-24`,
-                      // OLD: Original classes (fallback for safety)
-                      'min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24'
-                    )}>
-                      <CleanDateNav 
-                        selectedDate={selectedDate}
-                        completionPercentage={dayCompletionPercentage}
-                        className="mb-6"
-                        onPreviousDate={() => navigateDay?.('prev')}
-                        onNextDate={() => navigateDay?.('next')}
-                      />
-                      <div className="space-y-6">
-                        <LightFocusWorkSection selectedDate={selectedDate} />
-                      </div>
-                    </div>
+                    <LightWorkTab
+                      user={user}
+                      selectedDate={selectedDate}
+                      todayCard={todayCard}
+                      weekCards={weekCards}
+                      refreshTrigger={refreshTrigger}
+                      onRefresh={() => setRefreshTrigger(prev => prev + 1)}
+                      onTaskToggle={handleTaskToggle}
+                      onQuickAdd={handleQuickAdd}
+                      onCustomTaskAdd={handleCustomTaskAdd}
+                      onVoiceCommand={handleVoiceCommand}
+                      onCardClick={handleCardClick}
+                      onNavigateWeek={navigateWeek}
+                      onOrganizeTasks={handleOrganizeTasks}
+                      isProcessingVoice={isProcessingVoice}
+                      isAnalyzingTasks={isAnalyzingTasks}
+                      lastThoughtDumpResult={lastThoughtDumpResult}
+                      eisenhowerResult={eisenhowerResult}
+                      showEisenhowerModal={showEisenhowerModal}
+                      onCloseEisenhowerModal={() => setShowEisenhowerModal(false)}
+                      onApplyOrganization={handleApplyOrganization}
+                      onReanalyze={handleReanalyze}
+                    />
                   );
                 
                 case 'work':
                   return (
-                    <div className={useImplementation(
-                      'useUnifiedThemeSystem',
-                      // NEW: Unified theme system
-                      `${theme.themes.layout.page} p-4 pb-24`,
-                      // OLD: Original classes (fallback for safety)
-                      'min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24'
-                    )}>
-                      <CleanDateNav 
-                        selectedDate={selectedDate}
-                        completionPercentage={dayCompletionPercentage}
-                        className="mb-6"
-                        onPreviousDate={() => navigateDay?.('prev')}
-                        onNextDate={() => navigateDay?.('next')}
-                      />
-                      <div className="space-y-6">
-                        <DeepFocusWorkSection selectedDate={selectedDate} />
-                      </div>
-                    </div>
+                    <DeepFocusTab
+                      user={user}
+                      todayCard={todayCard}
+                      refreshTrigger={refreshTrigger}
+                      onRefresh={() => setRefreshTrigger(prev => prev + 1)}
+                      onTaskToggle={handleTaskToggle}
+                      onQuickAdd={handleQuickAdd}
+                      onCustomTaskAdd={handleCustomTaskAdd}
+                      onCardClick={handleCardClick}
+                    />
                   );
                 
                 case 'wellness':
+                  // Use TimeBoxTab as wellness/health planning interface
                   return (
-                    <div className={useImplementation(
-                      'useUnifiedThemeSystem',
-                      // NEW: Unified theme system
-                      `${theme.themes.layout.page} p-4 pb-24`,
-                      // OLD: Original classes (fallback for safety)
-                      'min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24'
-                    )}>
-                      <CleanDateNav 
-                        selectedDate={selectedDate}
-                        completionPercentage={dayCompletionPercentage}
-                        className="mb-6"
-                        onPreviousDate={() => navigateDay?.('prev')}
-                        onNextDate={() => navigateDay?.('next')}
-                      />
-                      <div className="space-y-6">
-                        <HomeWorkoutSection selectedDate={selectedDate} />
-                        <HealthNonNegotiablesSection selectedDate={selectedDate} />
-                      </div>
-                    </div>
+                    <TimeBoxTab
+                      user={user}
+                      todayCard={todayCard}
+                      refreshTrigger={refreshTrigger}
+                      onRefresh={() => setRefreshTrigger(prev => prev + 1)}
+                      onTaskToggle={handleTaskToggle}
+                      onQuickAdd={handleQuickAdd}
+                      onCustomTaskAdd={handleCustomTaskAdd}
+                      onCardClick={handleCardClick}
+                    />
                   );
                 
                 case 'timebox':
                   return (
-                    <div className={useImplementation(
-                      'useUnifiedThemeSystem',
-                      // NEW: Unified theme system
-                      `${theme.themes.layout.page} p-4 pb-24`,
-                      // OLD: Original classes (fallback for safety)
-                      'min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24'
-                    )}>
-                      <CleanDateNav 
-                        selectedDate={selectedDate}
-                        completionPercentage={dayCompletionPercentage}
-                        className="mb-6"
-                        onPreviousDate={() => navigateDay?.('prev')}
-                        onNextDate={() => navigateDay?.('next')}
-                      />
-                      <div className="space-y-6">
-                        <TimeboxSection selectedDate={selectedDate} />
-                      </div>
-                    </div>
+                    <TimeBoxTab
+                      user={user}
+                      todayCard={todayCard}
+                      refreshTrigger={refreshTrigger}
+                      onRefresh={() => setRefreshTrigger(prev => prev + 1)}
+                      onTaskToggle={handleTaskToggle}
+                      onQuickAdd={handleQuickAdd}
+                      onCustomTaskAdd={handleCustomTaskAdd}
+                      onCardClick={handleCardClick}
+                    />
                   );
                 
                 case 'checkout':
                   return (
-                    <div className={useImplementation(
-                      'useUnifiedThemeSystem',
-                      // NEW: Unified theme system
-                      `${theme.themes.layout.page} p-4 pb-24`,
-                      // OLD: Original classes (fallback for safety)
-                      'min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24'
-                    )}>
-                      <CleanDateNav 
-                        selectedDate={selectedDate}
-                        completionPercentage={dayCompletionPercentage}
-                        className="mb-6"
-                        onPreviousDate={() => navigateDay?.('prev')}
-                        onNextDate={() => navigateDay?.('next')}
-                      />
-                      <div className="space-y-6">
-                        <NightlyCheckoutSection selectedDate={selectedDate} />
-                      </div>
-                    </div>
+                    <NightlyCheckoutTab
+                      user={user}
+                      todayCard={todayCard}
+                      refreshTrigger={refreshTrigger}
+                      onRefresh={() => setRefreshTrigger(prev => prev + 1)}
+                      onTaskToggle={handleTaskToggle}
+                      onQuickAdd={handleQuickAdd}
+                      onCustomTaskAdd={handleCustomTaskAdd}
+                      onCardClick={handleCardClick}
+                    />
                   );
                 
                 default:

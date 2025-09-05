@@ -31,19 +31,12 @@ export default defineConfig(({ mode }) => ({
         '**/*.app/**'
       ]
     },
-    // Proxy API calls to backend server
-    proxy: {
-      '/api': {
-        target: 'http://localhost:3001',
-        changeOrigin: true,
-        secure: false
-      }
-    }
+    // No proxy needed - using Supabase directly
   },
   plugins: [
     react(), 
-    // Only use API plugin in production, let proxy handle API calls in development
-    ...(mode === 'production' ? [apiRoutesPlugin()] : [])
+    // API plugin disabled - using Supabase directly instead of Express
+    // ...(mode === 'production' ? [apiRoutesPlugin()] : [])
   ],
   
   // M4 Mac Mini Optimizations

@@ -1,8 +1,31 @@
 /**
  * ☕ Light Work Tasks API Endpoint - Vercel Serverless Function
  * 
- * HTTP API for Light Work task operations with real database persistence
+ * HTTP API for Light Work task operations with Supabase persistence
  */
+
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://avdgyrepwrvsvwgxrccr.supabase.co';
+const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2ZGd5cmVwd3J2c3Z3Z3hyY2NyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM2MzgwODIsImV4cCI6MjA1OTIxNDA4Mn0.8MZ2etAhQ1pTJnK84uoqAFfUirv_kaoYcmKHhKgLAWU';
+
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+// Helper function to convert Clerk user ID to Supabase UUID
+async function getSupabaseUserId(clerkUserId) {
+  const { data: user, error } = await supabase
+    .from('users')
+    .select('id')
+    .eq('supabase_id', `prisma-user-${clerkUserId}`)
+    .maybeSingle();
+  
+  if (error) {
+    console.error('Error fetching user ID:', error);
+    return null;
+  }
+  
+  return user?.id || null;
+}
 
 export default async function handler(req, res) {
   // Set CORS headers
@@ -17,9 +40,6 @@ export default async function handler(req, res) {
   const { method, query, body } = req;
 
   try {
-    // Import the database service
-    const { taskDatabaseService } = await import('../../ai-first/services/task-database-service-js.js');
-
     switch (method) {
       case 'GET':
         // GET /api/light-work/tasks?userId=xxx&date=2025-08-31
@@ -28,11 +48,26 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'userId and date are required' });
         }
         
-        // Get light work tasks for the specific date
-        const tasks = await taskDatabaseService.getTasksForDate(userId, date, 'LIGHT');
-        // Add workType to each task for frontend routing
-        const tasksWithWorkType = tasks.map(task => ({ ...task, workType: 'LIGHT' }));
-        return res.status(200).json({ success: true, data: tasksWithWorkType });
+        // Convert Clerk ID to Supabase UUID
+        const supabaseUserId = await getSupabaseUserId(userId);
+        if (!supabaseUserId) {
+          return res.status(200).json({ success: true, data: [] });
+        }
+        
+        // Get light work tasks from Supabase
+        const { data: tasks, error } = await supabase
+          .from('light_work_tasks')
+          .select('*')
+          .eq('user_id', supabaseUserId)
+          .eq('task_date', date)
+          .order('created_at', { ascending: false });
+        
+        if (error) {
+          console.error('Supabase error:', error);
+          return res.status(500).json({ error: 'Database error' });
+        }
+        
+        return res.status(200).json({ success: true, data: tasks || [] });
 
       case 'POST':
         // POST /api/light-work/tasks - Create new light work task
@@ -49,17 +84,34 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'userId, date, and title are required' });
         }
 
-        // Create light work task
-        const newTask = await taskDatabaseService.createTask({
-          userId: postUserId,
-          date: postDate,
+        // Convert Clerk ID to Supabase UUID for POST
+        const postSupabaseUserId = await getSupabaseUserId(postUserId);
+        if (!postSupabaseUserId) {
+          return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Create light work task in Supabase
+        const taskData = {
+          user_id: postSupabaseUserId,
           title,
           description: description || '',
-          workType: 'LIGHT',
           priority,
-          estimatedMinutes,
+          estimated_duration: estimatedMinutes,
+          original_date: postDate,
+          task_date: postDate,
           completed: false
-        });
+        };
+
+        const { data: newTask, error: insertError } = await supabase
+          .from('light_work_tasks')
+          .insert(taskData)
+          .select()
+          .single();
+
+        if (insertError) {
+          console.error('Supabase error:', insertError);
+          return res.status(500).json({ error: 'Database error' });
+        }
         
         return res.status(201).json({ success: true, data: newTask });
 
@@ -70,15 +122,30 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'taskId is required' });
         }
         
+        const updateData = {};
         if (completed !== undefined) {
-          await taskDatabaseService.updateTaskCompletion(taskId, completed, 'LIGHT');
+          updateData.completed = completed;
+          if (completed) {
+            updateData.completed_at = new Date().toISOString();
+          }
         }
-        
         if (updateTitle !== undefined) {
-          await taskDatabaseService.updateTaskTitle(taskId, updateTitle, 'LIGHT');
+          updateData.title = updateTitle;
+        }
+
+        const { data: updatedTask, error: updateError } = await supabase
+          .from('light_work_tasks')
+          .update(updateData)
+          .eq('id', taskId)
+          .select()
+          .single();
+
+        if (updateError) {
+          console.error('Supabase error:', updateError);
+          return res.status(500).json({ error: 'Database error' });
         }
         
-        return res.status(200).json({ success: true, message: 'Task updated successfully' });
+        return res.status(200).json({ success: true, data: updatedTask });
 
       case 'DELETE':
         // DELETE /api/light-work/tasks - Delete light work task
@@ -87,7 +154,16 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'taskId is required' });
         }
         
-        await taskDatabaseService.deleteTask(deleteTaskId, 'LIGHT');
+        const { error: deleteError } = await supabase
+          .from('light_work_tasks')
+          .delete()
+          .eq('id', deleteTaskId);
+
+        if (deleteError) {
+          console.error('Supabase error:', deleteError);
+          return res.status(500).json({ error: 'Database error' });
+        }
+        
         return res.status(200).json({ success: true, message: 'Task deleted successfully' });
 
       default:
