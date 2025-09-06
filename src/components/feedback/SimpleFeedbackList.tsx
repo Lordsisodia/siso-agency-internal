@@ -98,12 +98,12 @@ export function SimpleFeedbackList({
   };
 
   return (
-    <Card className={cn("bg-white/95 backdrop-blur-sm border-0 shadow-lg", className)}>
-      <CardHeader className="pb-3">
+    <Card className={cn("bg-white/95 backdrop-blur-sm border-0 shadow-lg rounded-xl", className)}>
+      <CardHeader className="pb-3 px-6 pt-6">
         <CardTitle className="text-lg font-bold text-gray-700">{title}</CardTitle>
       </CardHeader>
       
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 px-6 pb-6">
         {/* Add New Feedback - Simple Input */}
         <div className="flex items-center gap-2">
           <Input
