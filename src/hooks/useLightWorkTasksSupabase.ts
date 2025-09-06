@@ -239,7 +239,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
       const { data, error } = await supabase
         .from('light_work_subtasks')
         .insert({
-          taskId,
+          task_id: taskId,
           title: subtaskTitle,
           text: subtaskTitle,
           completed: false,
@@ -254,15 +254,15 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
 
       const newSubtask: LightWorkSubtask = {
         id: data.id,
-        taskId: data.taskId,
+        taskId: data.task_id,
         title: data.title,
         text: data.text,
         completed: data.completed,
         priority: data.priority,
-        dueDate: data.dueDate,
-        createdAt: data.createdAt,
-        updatedAt: data.updatedAt,
-        completedAt: data.completedAt
+        dueDate: data.due_date,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at,
+        completedAt: data.completed_at
       };
 
       console.log(`✅ Added subtask to task in Supabase: ${taskId}`);
