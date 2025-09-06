@@ -94,6 +94,26 @@ export interface SupabaseDailyReflection {
   updatedAt: string;
 }
 
+export interface SupabaseUserFeedback {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string;
+  category: 'UI_UX' | 'PERFORMANCE' | 'FEATURE_REQUEST' | 'BUG_REPORT' | 'GENERAL' | 'MOBILE' | 'ACCESSIBILITY';
+  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+  feedback_type: 'BUG' | 'SUGGESTION' | 'IMPROVEMENT' | 'COMPLAINT' | 'PRAISE';
+  page?: string;
+  browser_info?: string;
+  device_info?: string;
+  screenshots: string[];
+  status: 'OPEN' | 'REVIEWING' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
+  admin_response?: string;
+  tags: string[];
+  created_at: string;
+  updated_at: string;
+  resolved_at?: string;
+}
+
 // Table names (snake_case for Supabase)
 export const TABLES = {
   LIGHT_WORK_TASKS: 'light_work_tasks',
@@ -101,7 +121,8 @@ export const TABLES = {
   DEEP_WORK_TASKS: 'deep_work_tasks',
   DEEP_WORK_SUBTASKS: 'deep_work_subtasks',
   MORNING_ROUTINE_TASKS: 'morning_routine_tasks',
-  DAILY_REFLECTIONS: 'daily_reflections'
+  DAILY_REFLECTIONS: 'daily_reflections',
+  USER_FEEDBACK: 'user_feedback'
 } as const;
 
 // Health check function
