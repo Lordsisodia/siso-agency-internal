@@ -94,7 +94,19 @@ export const DEFAULT_FEATURE_FLAGS: LifeLockFeatureFlags = {
  * Current active feature flags
  * Modify these values to test refactored code
  */
-let currentFlags: LifeLockFeatureFlags = { ...DEFAULT_FEATURE_FLAGS };
+let currentFlags: LifeLockFeatureFlags = { 
+  ...DEFAULT_FEATURE_FLAGS,
+  // Enable key refactored components for production consistency
+  useRefactoredAdminLifeLock: true,       // Enable TabContentRenderer for consistent UI
+  useRefactoredLifeLockHooks: true,       // Enable refactored hooks
+  useRefactoredTaskCards: true,           // Enable unified task cards
+  useUnifiedTaskCard: true,               // Enable unified task card component
+  useTaskCardUtils: true,                 // Enable task card utilities
+  useUnifiedLoadingState: true,           // Enable unified loading states
+  useUnifiedErrorState: true,             // Enable unified error states
+  useUnifiedThemeSystem: true,            // Enable unified theme system
+  useOptimizedComponents: true,           // Enable performance optimizations
+};
 
 /**
  * Development override flags
