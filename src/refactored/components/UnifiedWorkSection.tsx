@@ -239,7 +239,9 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                         ? `${themeConfig.colors.completed}` 
                         : task.isPushed
                           ? 'bg-purple-900/20 border-purple-700/50 text-purple-100 hover:border-purple-600/50 hover:bg-purple-800/30'
-                          : `bg-gray-800/50 border-gray-700/50 text-gray-100 ${themeConfig.colors.hover}`
+                          : workType === 'DEEP' 
+                            ? `bg-blue-800/50 border-blue-700/50 text-blue-50 ${themeConfig.colors.hover}`
+                            : `bg-emerald-800/50 border-emerald-700/50 text-emerald-50 ${themeConfig.colors.hover}`
                       }
                     `}
                   >
@@ -310,7 +312,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                                 }}
                               >
                                 <div 
-                                  className="bg-gray-800 border border-gray-600 rounded-lg shadow-2xl p-6 w-full max-w-sm mx-auto"
+                                  className={`${workType === 'DEEP' ? 'bg-blue-800' : 'bg-emerald-800'} border ${workType === 'DEEP' ? 'border-blue-600' : 'border-emerald-600'} rounded-lg shadow-2xl p-6 w-full max-w-sm mx-auto`}
                                   onClick={(e) => e.stopPropagation()}
                                 >
                                   <div className="mb-4">
