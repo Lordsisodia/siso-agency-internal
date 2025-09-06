@@ -7,6 +7,7 @@ import { ClerkProvider } from './components/ClerkProvider';
 import { ClerkAuthGuard } from '@/ai-first/features/auth/components/ClerkAuthGuard';
 import { AuthGuard } from '@/ai-first/features/auth/components/AuthGuard';
 import { PageLoader } from './components/ui/PageLoader';
+import { SimpleFeedbackButton } from '@/components/feedback/SimpleFeedbackButton';
 import { logger } from '@/utils/logger';
 
 // Critical pages loaded immediately (landing, auth, home)
@@ -17,6 +18,8 @@ import { AdminAutoLogin } from '@/ai-first/features/auth/components/AdminAutoLog
 
 // Lazy load all other pages for super-fast initial load
 const TestPage = lazy(() => import('./pages/TestPage'));
+const FeedbackTestPage = lazy(() => import('./pages/FeedbackTestPage'));
+const FeedbackDemo = lazy(() => import('./pages/FeedbackDemo'));
 const Profile = lazy(() => import('./pages/Profile'));
 
 // MCP Testing Components
@@ -49,6 +52,7 @@ const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const AdminClients = lazy(() => import('./pages/AdminClients'));
 const AdminTasks = lazy(() => import('./pages/AdminTasks'));
 const AdminPlans = lazy(() => import('./pages/AdminPlans'));
+const AdminFeedback = lazy(() => import('./pages/AdminFeedback'));
 // Archived pages - removed from navigation
 // const AdminOutreach = lazy(() => import('./pages/AdminOutreach'));
 // const AdminTemplates = lazy(() => import('./pages/AdminTemplates'));
@@ -161,6 +165,7 @@ function App() {
   return (
     <ClerkProvider>
       <Toaster />
+      <SimpleFeedbackButton />
       <ErrorBoundary 
         FallbackComponent={ErrorFallback}
         onReset={() => window.location.reload()}
@@ -169,6 +174,8 @@ function App() {
           <Routes>
           {/* Test route for diagnosis */}
           <Route path="/test" element={<TestPage />} />
+          <Route path="/feedback-test" element={<FeedbackTestPage />} />
+          <Route path="/feedback-demo" element={<FeedbackDemo />} />
           
           {/* Public routes - redirect root to LifeLock */}
           <Route path="/" element={<Navigate to="/admin/life-lock" replace />} />
@@ -252,6 +259,7 @@ function App() {
           <Route path="/admin/lifelock/day/:date" element={<ClerkAuthGuard><AdminLifeLockDay /></ClerkAuthGuard>} />
           <Route path="/admin/life-lock/day/:date" element={<ClerkAuthGuard><AdminLifeLockDay /></ClerkAuthGuard>} />
           <Route path="/admin/tasks" element={<ClerkAuthGuard><AdminTasks /></ClerkAuthGuard>} />
+          <Route path="/admin/feedback" element={<ClerkAuthGuard><AdminFeedback /></ClerkAuthGuard>} />
           <Route path="/admin/tasks/:memberId" element={<ClerkAuthGuard><TeamMemberTasksPage /></ClerkAuthGuard>} />
           <Route path="/admin/settings" element={<ClerkAuthGuard><AdminSettings /></ClerkAuthGuard>} />
           {/* Plans routes - archived

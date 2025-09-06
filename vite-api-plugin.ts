@@ -18,7 +18,7 @@ export function apiRoutesPlugin(): Plugin {
             return next();
           }
           
-          const filePath = path.resolve(process.cwd(), `src/pages/api${apiPath}.ts`);
+          const filePath = path.resolve(process.cwd(), `api${apiPath}.js`);
           
           try {
             // Use import() instead of require for proper ESM support
@@ -50,8 +50,16 @@ export function apiRoutesPlugin(): Plugin {
               };
 
               const responseObj = {
-                status: (code: number) => ({ json: (data: any) => res.writeHead(code, { 'Content-Type': 'application/json' }) && res.end(JSON.stringify(data)) }),
-                json: (data: any) => res.writeHead(200, { 'Content-Type': 'application/json' }) && res.end(JSON.stringify(data))
+                setHeader: (name: string, value: string) => res.setHeader(name, value),
+                status: (code: number) => {
+                  res.statusCode = code;
+                  return responseObj;
+                },
+                json: (data: any) => {
+                  res.setHeader('Content-Type', 'application/json');
+                  res.end(JSON.stringify(data));
+                },
+                end: (data?: any) => res.end(data)
               };
 
               await module.default(requestObj, responseObj);

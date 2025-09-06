@@ -35,8 +35,7 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     react(), 
-    // API plugin disabled - using Supabase directly instead of Express
-    // ...(mode === 'production' ? [apiRoutesPlugin()] : [])
+    apiRoutesPlugin() // Re-enable API plugin for development
   ],
   
   // M4 Mac Mini Optimizations
