@@ -377,8 +377,18 @@ export const LightWorkTab: React.FC<TabProps> = ({
                                 {task.dueDate ? format(task.dueDate, 'MMM d') : 'Add date'}
                               </Badge>
                             </PopoverTrigger>
-                            <PopoverContent className="w-auto p-3 bg-gray-800 border-gray-700" align="start">
-                              <div className="space-y-2">
+                            <PopoverContent 
+                              className="w-auto p-3 bg-gray-800 border-gray-700" 
+                              align="start"
+                              onInteractOutside={(e) => {
+                                // Prevent closing when clicking on date picker
+                                const target = e.target as HTMLElement;
+                                if (target?.closest('input[type="date"]') || target?.tagName === 'INPUT') {
+                                  e.preventDefault();
+                                }
+                              }}
+                            >
+                              <div className="space-y-2" onClick={(e) => e.stopPropagation()}>
                                 <div className="text-sm font-medium text-white mb-2">Select Due Date:</div>
                                 <input 
                                   type="date" 
@@ -387,11 +397,19 @@ export const LightWorkTab: React.FC<TabProps> = ({
                                     const selectedDate = e.target.value ? new Date(e.target.value) : undefined;
                                     console.log('🗓️ Date input changed:', selectedDate);
                                     updateTaskDueDate(task.id, selectedDate);
+                                    // Keep popover open for a moment to show the change
+                                    setTimeout(() => {
+                                      // You can close it manually here if needed
+                                    }, 500);
                                   }}
+                                  onClick={(e) => e.stopPropagation()}
                                   className="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white"
                                 />
                                 <button 
-                                  onClick={() => updateTaskDueDate(task.id, undefined)}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    updateTaskDueDate(task.id, undefined);
+                                  }}
                                   className="w-full p-1 bg-red-600 hover:bg-red-700 text-white text-xs rounded"
                                 >
                                   Clear Date
