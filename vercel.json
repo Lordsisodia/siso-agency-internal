@@ -1,5 +1,5 @@
 {
-  "buildCommand": "rm -rf dist node_modules/.vite && npm ci && npm run build",
+  "buildCommand": "rm -rf dist node_modules/.vite && npm ci && echo 'ai-first exists:' && ls -la ai-first && npm run build",
   "outputDirectory": "dist",
   "headers": [
     {
