@@ -377,19 +377,26 @@ export const LightWorkTab: React.FC<TabProps> = ({
                                 {task.dueDate ? format(task.dueDate, 'MMM d') : 'Add date'}
                               </Badge>
                             </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
-                              <Calendar
-                                mode="single"
-                                selected={task.dueDate}
-                                onSelect={(date) => {
-                                  console.log('🗓️ Raw calendar onSelect called:', date);
-                                  updateTaskDueDate(task.id, date);
-                                }}
-                                initialFocus
-                                disabled={false}
-                                fromDate={new Date('2020-01-01')}
-                                toDate={new Date('2030-12-31')}
-                              />
+                            <PopoverContent className="w-auto p-3 bg-gray-800 border-gray-700" align="start">
+                              <div className="space-y-2">
+                                <div className="text-sm font-medium text-white mb-2">Select Due Date:</div>
+                                <input 
+                                  type="date" 
+                                  value={task.dueDate ? format(task.dueDate, 'yyyy-MM-dd') : ''}
+                                  onChange={(e) => {
+                                    const selectedDate = e.target.value ? new Date(e.target.value) : undefined;
+                                    console.log('🗓️ Date input changed:', selectedDate);
+                                    updateTaskDueDate(task.id, selectedDate);
+                                  }}
+                                  className="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white"
+                                />
+                                <button 
+                                  onClick={() => updateTaskDueDate(task.id, undefined)}
+                                  className="w-full p-1 bg-red-600 hover:bg-red-700 text-white text-xs rounded"
+                                >
+                                  Clear Date
+                                </button>
+                              </div>
                             </PopoverContent>
                           </Popover>
                         </div>
