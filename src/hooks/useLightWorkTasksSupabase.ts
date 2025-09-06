@@ -310,6 +310,43 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
     }
   }, [supabase]);
 
+  // Update task due date in Supabase
+  const updateTaskDueDate = useCallback(async (taskId: string, dueDate: Date | null) => {
+    if (!supabase) return null;
+    
+    try {
+      console.log(`📅 Updating task due date in Supabase: ${taskId} -> ${dueDate}`);
+
+      const { data, error } = await supabase
+        .from('light_work_tasks')
+        .update({
+          due_date: dueDate ? dueDate.toISOString().split('T')[0] : null,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', taskId)
+        .select()
+        .single();
+
+      if (error) {
+        throw new Error(`Supabase error: ${error.message}`);
+      }
+
+      console.log(`✅ Updated task due date in Supabase: ${taskId}`);
+      
+      // Update tasks state with new due date
+      setTasks(prev => prev.map(task => 
+        task.id === taskId ? { ...task, dueDate: dueDate?.toISOString().split('T')[0] } : task
+      ));
+      
+      return data;
+
+    } catch (error) {
+      console.error('❌ Error updating task due date in Supabase:', error);
+      setError(error instanceof Error ? error.message : 'Failed to update due date in Supabase');
+      return null;
+    }
+  }, [supabase]);
+
   // Delete subtask from Supabase
   const deleteSubtask = useCallback(async (subtaskId: string) => {
     if (!supabase) return null;
@@ -357,6 +394,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
     addSubtask,
     deleteTask,
     deleteSubtask,
+    updateTaskDueDate,
     refreshTasks: loadTasks
   };
 }
