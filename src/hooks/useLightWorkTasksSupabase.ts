@@ -29,6 +29,7 @@ export interface LightWorkTask {
   startedAt?: string;
   actualDurationMin?: number;
   timeEstimate?: string;
+  dueDate?: string;
   subtasks: LightWorkSubtask[];
 }
 
@@ -107,6 +108,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
         startedAt: task.startedAt,
         actualDurationMin: task.actualDurationMin,
         timeEstimate: task.timeEstimate,
+        dueDate: task.due_date,
         subtasks: task.subtasks?.map((subtask: any) => ({
           id: subtask.id,
           taskId: subtask.taskId,
