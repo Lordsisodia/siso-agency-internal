@@ -363,6 +363,199 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
     }
   }, [supabase]);
 
+  // Toggle subtask completion
+  const toggleSubtaskCompletion = useCallback(async (taskId: string, subtaskId: string) => {
+    if (!supabase) return null;
+    
+    try {
+      console.log(`🔄 Toggling Deep Work subtask completion: ${subtaskId}`);
+      
+      // Find current subtask state
+      const currentTask = tasks.find(t => t.id === taskId);
+      const currentSubtask = currentTask?.subtasks.find(s => s.id === subtaskId);
+      if (!currentSubtask) return null;
+      
+      const newCompleted = !currentSubtask.completed;
+      const now = new Date().toISOString();
+      
+      const { error } = await supabase
+        .from('deep_work_subtasks')
+        .update({
+          completed: newCompleted,
+          completedAt: newCompleted ? now : null,
+          updatedAt: now
+        })
+        .eq('id', subtaskId);
+      
+      if (error) {
+        throw new Error(`Supabase error: ${error.message}`);
+      }
+      
+      console.log(`✅ Toggled Deep Work subtask completion: ${subtaskId} -> ${newCompleted}`);
+      
+      // Update local state
+      setTasks(prev => prev.map(task => 
+        task.id === taskId 
+          ? {
+              ...task,
+              subtasks: task.subtasks.map(subtask => 
+                subtask.id === subtaskId 
+                  ? { ...subtask, completed: newCompleted, completedAt: newCompleted ? now : null }
+                  : subtask
+              )
+            }
+          : task
+      ));
+      
+      return true;
+      
+    } catch (error) {
+      console.error('❌ Error toggling Deep Work subtask completion:', error);
+      setError(error instanceof Error ? error.message : 'Failed to toggle subtask');
+      return null;
+    }
+  }, [tasks, supabase]);
+
+  // Update task title
+  const updateTaskTitle = useCallback(async (taskId: string, newTitle: string) => {
+    if (!supabase) return null;
+    
+    try {
+      console.log(`✏️ Updating Deep Work task title: ${taskId}`);
+      
+      const { error } = await supabase
+        .from('deep_work_tasks')
+        .update({
+          title: newTitle,
+          updatedAt: new Date().toISOString()
+        })
+        .eq('id', taskId);
+      
+      if (error) {
+        throw new Error(`Supabase error: ${error.message}`);
+      }
+      
+      console.log(`✅ Updated Deep Work task title: ${taskId}`);
+      
+      // Update local state
+      setTasks(prev => prev.map(task => 
+        task.id === taskId 
+          ? { ...task, title: newTitle }
+          : task
+      ));
+      
+      return true;
+      
+    } catch (error) {
+      console.error('❌ Error updating Deep Work task title:', error);
+      setError(error instanceof Error ? error.message : 'Failed to update task title');
+      return null;
+    }
+  }, [supabase]);
+
+  // Push task to another day (reschedule)
+  const pushTaskToAnotherDay = useCallback(async (taskId: string, newDate: string) => {
+    if (!supabase) return null;
+    
+    try {
+      console.log(`📅 Rescheduling Deep Work task: ${taskId} to ${newDate}`);
+      
+      const { error } = await supabase
+        .from('deep_work_tasks')
+        .update({
+          task_date: newDate,
+          updatedAt: new Date().toISOString()
+        })
+        .eq('id', taskId);
+      
+      if (error) {
+        throw new Error(`Supabase error: ${error.message}`);
+      }
+      
+      console.log(`✅ Rescheduled Deep Work task: ${taskId} to ${newDate}`);
+      
+      // Update local state
+      setTasks(prev => prev.map(task => 
+        task.id === taskId 
+          ? { ...task, currentDate: newDate, isPushed: true }
+          : task
+      ));
+      
+      return true;
+      
+    } catch (error) {
+      console.error('❌ Error rescheduling Deep Work task:', error);
+      setError(error instanceof Error ? error.message : 'Failed to reschedule task');
+      return null;
+    }
+  }, [supabase]);
+
+  // Update task due date (works on both tasks and subtasks)
+  const updateTaskDueDate = useCallback(async (taskOrSubtaskId: string, dueDate: Date | null) => {
+    if (!supabase) return null;
+    
+    try {
+      console.log(`📅 Updating Deep Work due date in Supabase: ${taskOrSubtaskId}`);
+      
+      // Format date for database
+      const dateString = dueDate ? dueDate.toISOString() : null;
+      
+      // First try updating as a subtask
+      const { error: subtaskError } = await supabase
+        .from('deep_work_subtasks')
+        .update({
+          dueDate: dateString,
+          updatedAt: new Date().toISOString()
+        })
+        .eq('id', taskOrSubtaskId);
+      
+      if (!subtaskError) {
+        console.log(`✅ Updated Deep Work subtask due date: ${taskOrSubtaskId}`);
+        
+        // Update local state
+        setTasks(prev => prev.map(task => ({
+          ...task,
+          subtasks: task.subtasks.map(subtask => 
+            subtask.id === taskOrSubtaskId 
+              ? { ...subtask, dueDate: dateString }
+              : subtask
+          )
+        })));
+        
+        return true;
+      }
+      
+      // If subtask update failed, try updating as a task
+      const { error: taskError } = await supabase
+        .from('deep_work_tasks')
+        .update({
+          due_date: dateString,
+          updatedAt: new Date().toISOString()
+        })
+        .eq('id', taskOrSubtaskId);
+      
+      if (taskError) {
+        throw new Error(`Supabase error: ${taskError.message}`);
+      }
+      
+      console.log(`✅ Updated Deep Work task due date: ${taskOrSubtaskId}`);
+      
+      // Update local state
+      setTasks(prev => prev.map(task => 
+        task.id === taskOrSubtaskId 
+          ? { ...task, dueDate: dateString }
+          : task
+      ));
+      
+      return true;
+      
+    } catch (error) {
+      console.error('❌ Error updating Deep Work due date:', error);
+      setError(error instanceof Error ? error.message : 'Failed to update due date');
+      return null;
+    }
+  }, [supabase]);
+
   // Load tasks when dependencies change
   useEffect(() => {
     loadTasks();
@@ -374,9 +567,13 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
     error,
     createTask,
     toggleTaskCompletion,
+    toggleSubtaskCompletion,
     addSubtask,
     deleteTask,
     deleteSubtask,
+    updateTaskTitle,
+    pushTaskToAnotherDay,
+    updateTaskDueDate,
     refreshTasks: loadTasks
   };
 }

@@ -62,6 +62,8 @@ interface UnifiedWorkSectionProps {
     avgXP?: number;
     expToEarn?: number;
   };
+  // Due date update function
+  updateSubtaskDueDate?: (subtaskId: string, dueDate: Date | null) => Promise<void>;
 }
 
 export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
@@ -81,7 +83,8 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
   updateTaskTitle,
   showContextModal,
   showStats = false,
-  statsData
+  statsData,
+  updateSubtaskDueDate
 }) => {
   // Task editing hook
   const {
@@ -327,30 +330,26 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                                       subtask={subtask}
                                       onDateSelect={async (date) => {
                                         try {
-                                          // Format date as ISO-8601 DateTime for Prisma
-                                          const dateString = date ? `${date.toISOString().split('T')[0]}T23:59:59.000Z` : null;
-                                          
-                                          // Use the correct Deep Work subtasks endpoint
-                                          const response = await fetch(`/api/deep-work/subtasks/${subtask.id}`, {
-                                            method: 'PUT',
-                                            headers: { 'Content-Type': 'application/json' },
-                                            body: JSON.stringify({ 
-                                              dueDate: dateString 
-                                            })
-                                          });
-                                          
-                                          if (!response.ok) {
-                                            throw new Error('Failed to update due date');
+                                          if (updateSubtaskDueDate) {
+                                            await updateSubtaskDueDate(subtask.id, date);
+                                          } else {
+                                            // Fallback to direct API call for Deep Work
+                                            const dateString = date ? `${date.toISOString().split('T')[0]}T23:59:59.000Z` : null;
+                                            const response = await fetch(`/api/deep-work/subtasks/${subtask.id}`, {
+                                              method: 'PUT',
+                                              headers: { 'Content-Type': 'application/json' },
+                                              body: JSON.stringify({ 
+                                                dueDate: dateString 
+                                              })
+                                            });
+                                            
+                                            if (!response.ok) {
+                                              throw new Error('Failed to update due date');
+                                            }
                                           }
                                           
                                           setCalendarSubtaskId(null);
-                                          // Show success feedback
                                           console.log('✅ Due date updated successfully');
-                                          
-                                          // Instead of full reload, just refresh the tasks
-                                          if (typeof loadTasks === 'function') {
-                                            loadTasks();
-                                          }
                                           
                                         } catch (error) {
                                           console.error('Failed to update due date:', error);

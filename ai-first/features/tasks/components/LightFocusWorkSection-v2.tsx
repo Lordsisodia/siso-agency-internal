@@ -22,9 +22,13 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
     error,
     createTask,
     toggleTaskCompletion,
+    toggleSubtaskCompletion,
     addSubtask,
     deleteTask,
     deleteSubtask,
+    updateTaskTitle,
+    pushTaskToAnotherDay,
+    updateTaskDueDate,
     refreshTasks
   } = useLightWorkTasksSupabase({ selectedDate });
 
@@ -66,13 +70,14 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
       error={error}
       createTask={handleCreateTask}
       toggleTaskCompletion={handleToggleTaskCompletion}
-      toggleSubtaskCompletion={async () => {}} // TODO: Implement
+      toggleSubtaskCompletion={toggleSubtaskCompletion}
       addSubtask={handleAddSubtask}
       deleteTask={deleteTask}
       deleteSubtask={deleteSubtask}
-      analyzeTaskWithAI={async () => {}} // TODO: Implement
-      pushTaskToAnotherDay={async () => {}} // TODO: Implement
-      updateTaskTitle={async () => {}} // TODO: Implement
+      analyzeTaskWithAI={async () => {}} // TODO: Implement (AI feature)
+      pushTaskToAnotherDay={pushTaskToAnotherDay}
+      updateTaskTitle={updateTaskTitle}
+      updateSubtaskDueDate={updateTaskDueDate}
     />
   );
 };

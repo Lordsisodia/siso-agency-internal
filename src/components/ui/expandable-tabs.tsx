@@ -64,10 +64,11 @@ export function ExpandableTabs({
     setSelected(activeIndex ?? null);
   }, [activeIndex]);
 
-  useOnClickOutside(outsideClickRef, () => {
-    setSelected(null);
-    onChange?.(null);
-  });
+  // Don't collapse tabs on outside click - keep them expanded based on active page
+  // useOnClickOutside(outsideClickRef, () => {
+  //   setSelected(null);
+  //   onChange?.(null);
+  // });
 
   const handleSelect = (index: number) => {
     setSelected(index);

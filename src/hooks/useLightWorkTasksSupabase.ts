@@ -313,6 +313,133 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
   }, [supabase]);
 
   // Update task due date in Supabase
+  // Toggle subtask completion
+  const toggleSubtaskCompletion = useCallback(async (taskId: string, subtaskId: string) => {
+    if (!supabase) return null;
+    
+    try {
+      console.log(`🔄 Toggling Light Work subtask completion: ${subtaskId}`);
+      
+      // Find current subtask state
+      const currentTask = tasks.find(t => t.id === taskId);
+      const currentSubtask = currentTask?.subtasks.find(s => s.id === subtaskId);
+      if (!currentSubtask) return null;
+      
+      const newCompleted = !currentSubtask.completed;
+      const now = new Date().toISOString();
+      
+      const { error } = await supabase
+        .from('light_work_subtasks')
+        .update({
+          completed: newCompleted,
+          completedAt: newCompleted ? now : null,
+          updatedAt: now
+        })
+        .eq('id', subtaskId);
+      
+      if (error) {
+        throw new Error(`Supabase error: ${error.message}`);
+      }
+      
+      console.log(`✅ Toggled Light Work subtask completion: ${subtaskId} -> ${newCompleted}`);
+      
+      // Update local state
+      setTasks(prev => prev.map(task => 
+        task.id === taskId 
+          ? {
+              ...task,
+              subtasks: task.subtasks.map(subtask => 
+                subtask.id === subtaskId 
+                  ? { ...subtask, completed: newCompleted, completedAt: newCompleted ? now : null }
+                  : subtask
+              )
+            }
+          : task
+      ));
+      
+      return true;
+      
+    } catch (error) {
+      console.error('❌ Error toggling Light Work subtask completion:', error);
+      setError(error instanceof Error ? error.message : 'Failed to toggle subtask');
+      return null;
+    }
+  }, [tasks, supabase]);
+
+  // Update task title
+  const updateTaskTitle = useCallback(async (taskId: string, newTitle: string) => {
+    if (!supabase) return null;
+    
+    try {
+      console.log(`✏️ Updating Light Work task title: ${taskId}`);
+      
+      const { error } = await supabase
+        .from('light_work_tasks')
+        .update({
+          title: newTitle,
+          updatedAt: new Date().toISOString()
+        })
+        .eq('id', taskId);
+      
+      if (error) {
+        throw new Error(`Supabase error: ${error.message}`);
+      }
+      
+      console.log(`✅ Updated Light Work task title: ${taskId}`);
+      
+      // Update local state
+      setTasks(prev => prev.map(task => 
+        task.id === taskId 
+          ? { ...task, title: newTitle }
+          : task
+      ));
+      
+      return true;
+      
+    } catch (error) {
+      console.error('❌ Error updating Light Work task title:', error);
+      setError(error instanceof Error ? error.message : 'Failed to update task title');
+      return null;
+    }
+  }, [supabase]);
+
+  // Push task to another day (reschedule)
+  const pushTaskToAnotherDay = useCallback(async (taskId: string, newDate: string) => {
+    if (!supabase) return null;
+    
+    try {
+      console.log(`📅 Rescheduling Light Work task: ${taskId} to ${newDate}`);
+      
+      const { error } = await supabase
+        .from('light_work_tasks')
+        .update({
+          task_date: newDate,
+          updatedAt: new Date().toISOString()
+        })
+        .eq('id', taskId);
+      
+      if (error) {
+        throw new Error(`Supabase error: ${error.message}`);
+      }
+      
+      console.log(`✅ Rescheduled Light Work task: ${taskId} to ${newDate}`);
+      
+      // Update local state
+      setTasks(prev => prev.map(task => 
+        task.id === taskId 
+          ? { ...task, currentDate: newDate, isPushed: true }
+          : task
+      ));
+      
+      return true;
+      
+    } catch (error) {
+      console.error('❌ Error rescheduling Light Work task:', error);
+      setError(error instanceof Error ? error.message : 'Failed to reschedule task');
+      return null;
+    }
+  }, [supabase]);
+
   const updateTaskDueDate = useCallback(async (taskId: string, dueDate: Date | null) => {
     if (!supabase) return null;
     
@@ -393,9 +520,12 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
     error,
     createTask,
     toggleTaskCompletion,
+    toggleSubtaskCompletion,
     addSubtask,
     deleteTask,
     deleteSubtask,
+    updateTaskTitle,
+    pushTaskToAnotherDay,
     updateTaskDueDate,
     refreshTasks: loadTasks
   };
