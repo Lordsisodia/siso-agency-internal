@@ -19,7 +19,6 @@ import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
-import { useState } from 'react';
 import { TabProps } from '../../../ai-first/features/tasks/DayTabContainer';
 import { useLightWorkTasksSupabase, LightWorkTask } from '../../hooks/useLightWorkTasksSupabase';
 
