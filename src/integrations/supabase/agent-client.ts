@@ -2,9 +2,19 @@
 // This client uses service role key to bypass RLS for agent operations
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
+import { supabase } from './client';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://avdgyrepwrvsvwgxrccr.supabase.co";
-const SUPABASE_SERVICE_ROLE_KEY = import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY;
+// Robust environment variable handling
+const envUrl = import.meta.env.VITE_SUPABASE_URL;
+const envServiceKey = import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY;
+
+const SUPABASE_URL = (envUrl && envUrl.trim() && envUrl !== 'undefined') 
+  ? envUrl.trim() 
+  : "https://avdgyrepwrvsvwgxrccr.supabase.co";
+
+const SUPABASE_SERVICE_ROLE_KEY = (envServiceKey && envServiceKey.trim() && envServiceKey !== 'undefined') 
+  ? envServiceKey.trim() 
+  : null;
 
 // Create a service role client that bypasses RLS for agent operations
 export const agentSupabase = SUPABASE_SERVICE_ROLE_KEY 
@@ -22,7 +32,6 @@ export const getAgentClient = () => {
     return agentSupabase;
   }
   
-  // Import regular client as fallback
-  const { supabase } = require('./client');
+  // Use regular client as fallback
   return supabase;
 };
