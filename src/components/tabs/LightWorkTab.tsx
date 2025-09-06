@@ -64,6 +64,17 @@ export const LightWorkTab: React.FC<TabProps> = ({
   
   // Map Supabase tasks to display format
   const lightTasks = supabaseTasks.map(mapSupabaseTaskToDisplay);
+  
+  // Debug logging
+  React.useEffect(() => {
+    if (lightTasks.length > 0) {
+      console.log('🗓️ First task dueDate debug:', {
+        originalTask: supabaseTasks[0]?.dueDate,
+        mappedTask: lightTasks[0]?.dueDate,
+        isValidDate: lightTasks[0]?.dueDate instanceof Date
+      });
+    }
+  }, [lightTasks, supabaseTasks]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [showCompleted, setShowCompleted] = useState(false);
 
@@ -83,6 +94,7 @@ export const LightWorkTab: React.FC<TabProps> = ({
   };
 
   const updateTaskDueDate = async (taskId: string, dueDate: Date | undefined) => {
+    console.log('🗓️ Calendar date selected:', { taskId, dueDate });
     await updateSupabaseTaskDueDate(taskId, dueDate || null);
   };
 
