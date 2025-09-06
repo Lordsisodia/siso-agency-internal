@@ -381,8 +381,14 @@ export const LightWorkTab: React.FC<TabProps> = ({
                               <Calendar
                                 mode="single"
                                 selected={task.dueDate}
-                                onSelect={(date) => updateTaskDueDate(task.id, date)}
+                                onSelect={(date) => {
+                                  console.log('🗓️ Raw calendar onSelect called:', date);
+                                  updateTaskDueDate(task.id, date);
+                                }}
                                 initialFocus
+                                disabled={false}
+                                fromDate={new Date('2020-01-01')}
+                                toDate={new Date('2030-12-31')}
                               />
                             </PopoverContent>
                           </Popover>
