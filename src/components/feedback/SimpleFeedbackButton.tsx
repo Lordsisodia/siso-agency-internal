@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { SimpleFeedbackList } from './SimpleFeedbackList';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { MessageSquare, X } from 'lucide-react';
 import { feedbackService } from '@/services/feedbackService';
 
@@ -60,6 +61,10 @@ export function SimpleFeedbackButton({ onSubmit }: SimpleFeedbackButtonProps) {
       {/* Simple modal */}
       <Dialog open={showFeedback} onOpenChange={setShowFeedback}>
         <DialogContent className="max-w-md p-0">
+          <VisuallyHidden>
+            <DialogTitle>Quick Feedback</DialogTitle>
+            <DialogDescription>Add feedback items to your list and submit them.</DialogDescription>
+          </VisuallyHidden>
           <div className="relative">
             <Button
               onClick={() => setShowFeedback(false)}
