@@ -27,6 +27,7 @@ import { TabContentRenderer } from '@/refactored/components/TabContentRenderer';
 import { isFeatureEnabled, useImplementation } from '@/migration/feature-flags';
 import { LoadingState } from '@/components/ui/loading-state';
 import { theme } from '@/styles/theme';
+import { SimpleFeedbackButton } from '@/components/feedback/SimpleFeedbackButton';
 
 const AdminLifeLock: React.FC = () => {
   const navigate = useNavigate();
@@ -270,7 +271,16 @@ const AdminLifeLock: React.FC = () => {
             (() => {
               switch (activeTab as TabId) {
                 case 'morning':
-                  return <MorningRoutineTab {...commonTabProps} />;
+                  return (
+                    <div className="h-full flex flex-col">
+                      <div className="flex-1">
+                        <MorningRoutineTab {...commonTabProps} />
+                      </div>
+                      <div className="px-4 pb-4">
+                        <SimpleFeedbackButton />
+                      </div>
+                    </div>
+                  );
                 
                 case 'focus':
                 case 'work':
@@ -381,6 +391,11 @@ const AdminLifeLock: React.FC = () => {
           );
         }}
       </TabLayoutWrapper>
+
+      {/* Feedback Button - positioned at bottom of page, above navigation */}
+      <div className="px-4 pb-4">
+        <SimpleFeedbackButton />
+      </div>
 
       {/* Global Modals */}
       {lastThoughtDumpResult && (

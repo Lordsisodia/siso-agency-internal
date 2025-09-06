@@ -7,7 +7,7 @@ import { ClerkProvider } from './components/ClerkProvider';
 import { ClerkAuthGuard } from '@/ai-first/features/auth/components/ClerkAuthGuard';
 import { AuthGuard } from '@/ai-first/features/auth/components/AuthGuard';
 import { PageLoader } from './components/ui/PageLoader';
-import { SimpleFeedbackButton } from '@/components/feedback/SimpleFeedbackButton';
+
 import { logger } from '@/utils/logger';
 
 // Critical pages loaded immediately (landing, auth, home)
@@ -165,7 +165,6 @@ function App() {
   return (
     <ClerkProvider>
       <Toaster />
-      <SimpleFeedbackButton />
       <ErrorBoundary 
         FallbackComponent={ErrorFallback}
         onReset={() => window.location.reload()}
