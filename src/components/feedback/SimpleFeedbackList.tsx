@@ -112,7 +112,7 @@ export function SimpleFeedbackList({
             value={newFeedbackText}
             onChange={(e) => setNewFeedbackText(e.target.value)}
             onKeyPress={handleKeyPress}
-            className="flex-1 border-0 border-b border-gray-300 rounded-none bg-transparent placeholder:text-gray-500 focus-visible:ring-0 focus-visible:border-gray-600 text-sm"
+            className="flex-1 border-0 border-b border-gray-300 rounded-none bg-transparent placeholder:text-gray-500 focus-visible:ring-0 focus-visible:border-gray-600 text-sm text-black"
           />
           <Button
             onClick={handleAddFeedback}
