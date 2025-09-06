@@ -16,7 +16,7 @@ import { PriorityTasksSection } from '../../ai-first/features/tasks/components/P
 import { QuickActionsSection } from '../../ai-first/features/tasks/ui/QuickActionsSection';
 import { MonthlyProgressSection } from '../../ai-first/features/tasks/components/MonthlyProgressSection';
 import { MorningRoutineTab } from '../../ai-first/features/tasks/components/MorningRoutineTab';
-import { LightWorkTab } from '../../ai-first/features/tasks/components/LightWorkTab';
+import { LightWorkTab } from '@/components/tabs/LightWorkTab';
 import { DeepFocusTab } from '../../ai-first/features/tasks/components/DeepFocusTab';
 import { TimeBoxTab } from '../../ai-first/features/tasks/components/TimeBoxTab';
 import { NightlyCheckoutTab } from '../../ai-first/features/tasks/components/NightlyCheckoutTab';
