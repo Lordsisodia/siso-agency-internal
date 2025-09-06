@@ -10,30 +10,30 @@ import {
   Plus,
   Clock,
   Filter,
-  ArrowRight
+  ArrowRight,
+  Calendar as CalendarIcon
 } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { format } from 'date-fns';
+import { useState } from 'react';
 import { TabProps } from '../../../ai-first/features/tasks/DayTabContainer';
+import { useLightWorkTasksSupabase, LightWorkTask } from '../../hooks/useLightWorkTasksSupabase';
 
-interface LightTask {
-  id: string;
-  title: string;
-  category: 'email' | 'admin' | 'communication' | 'quick' | 'other';
-  estimatedTime: string;
-  completed: boolean;
-  urgent: boolean;
-  createdAt: Date;
-}
-
-const mockLightTasks: LightTask[] = [
-  { id: '1', title: 'Reply to client emails', category: 'email', estimatedTime: '15m', completed: false, urgent: true, createdAt: new Date() },
-  { id: '2', title: 'Update project timeline', category: 'admin', estimatedTime: '10m', completed: false, urgent: false, createdAt: new Date() },
-  { id: '3', title: 'Schedule team meeting', category: 'communication', estimatedTime: '5m', completed: true, urgent: false, createdAt: new Date() },
-  { id: '4', title: 'Review and approve expenses', category: 'admin', estimatedTime: '20m', completed: false, urgent: false, createdAt: new Date() },
-  { id: '5', title: 'Quick code review', category: 'quick', estimatedTime: '15m', completed: false, urgent: true, createdAt: new Date() },
-];
+// Map Supabase task to display format
+const mapSupabaseTaskToDisplay = (task: LightWorkTask) => ({
+  id: task.id,
+  title: task.title,
+  category: 'other' as const,
+  estimatedTime: task.timeEstimate || '15m',
+  completed: task.completed,
+  urgent: task.priority === 'HIGH' || task.priority === 'URGENT',
+  createdAt: new Date(task.createdAt),
+  dueDate: task.dueDate ? new Date(task.dueDate) : undefined
+});
 
 const categoryConfig = {
   email: { name: 'Email', icon: Mail, color: 'from-blue-500 to-blue-600', textColor: 'text-blue-300', bgColor: 'bg-blue-500/20 border-blue-400/50' },
@@ -52,29 +52,39 @@ export const LightWorkTab: React.FC<TabProps> = ({
   onQuickAdd,
   onCustomTaskAdd
 }) => {
-  const [lightTasks, setLightTasks] = useState<LightTask[]>(mockLightTasks);
+  // Use Supabase hook for real data
+  const { 
+    tasks: supabaseTasks, 
+    loading, 
+    error, 
+    createTask, 
+    toggleTaskCompletion, 
+    updateTaskDueDate: updateSupabaseTaskDueDate,
+    deleteTask 
+  } = useLightWorkTasksSupabase({ selectedDate: new Date() });
+  
+  // Map Supabase tasks to display format
+  const lightTasks = supabaseTasks.map(mapSupabaseTaskToDisplay);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [showCompleted, setShowCompleted] = useState(false);
 
-  const toggleTask = (taskId: string) => {
-    setLightTasks(prev => prev.map(task => 
-      task.id === taskId ? { ...task, completed: !task.completed } : task
-    ));
+  const toggleTask = async (taskId: string) => {
+    await toggleTaskCompletion(taskId);
     onTaskToggle?.(taskId);
   };
 
-  const addLightTask = (task: { title: string; priority: 'low' | 'medium' | 'high' }) => {
-    const newTask: LightTask = {
-      id: Date.now().toString(),
+  const addLightTask = async (task: { title: string; priority: 'low' | 'medium' | 'high' }) => {
+    const priorityMap = { low: 'LOW', medium: 'MEDIUM', high: 'HIGH' } as const;
+    await createTask({
       title: task.title,
-      category: 'other',
-      estimatedTime: '15m',
-      completed: false,
-      urgent: task.priority === 'high',
-      createdAt: new Date()
-    };
-    setLightTasks(prev => [newTask, ...prev]);
+      priority: priorityMap[task.priority],
+      timeEstimate: '15m'
+    });
     onCustomTaskAdd?.(task);
+  };
+
+  const updateTaskDueDate = async (taskId: string, dueDate: Date | undefined) => {
+    await updateSupabaseTaskDueDate(taskId, dueDate || null);
   };
 
   const filteredTasks = lightTasks.filter(task => {
@@ -88,6 +98,42 @@ export const LightWorkTab: React.FC<TabProps> = ({
   const totalEstimatedTime = lightTasks
     .filter(t => !t.completed)
     .reduce((acc, task) => acc + parseInt(task.estimatedTime), 0);
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="p-4 space-y-6 bg-gradient-to-br from-black via-gray-900 to-black min-h-full">
+        <div className="text-center space-y-4">
+          <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center shadow-lg mx-auto">
+            <Zap className="h-6 w-6 text-white" />
+          </div>
+          <h1 className="text-2xl font-bold text-white">Light Work</h1>
+          <div className="text-gray-400">Loading tasks...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="p-4 space-y-6 bg-gradient-to-br from-black via-gray-900 to-black min-h-full">
+        <div className="text-center space-y-4">
+          <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-red-600 rounded-full flex items-center justify-center shadow-lg mx-auto">
+            <Zap className="h-6 w-6 text-white" />
+          </div>
+          <h1 className="text-2xl font-bold text-white">Light Work</h1>
+          <div className="text-red-400">Error: {error}</div>
+          <Button 
+            onClick={() => window.location.reload()} 
+            className="bg-red-600 hover:bg-red-700"
+          >
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 space-y-6 bg-gradient-to-br from-black via-gray-900 to-black min-h-full">
@@ -309,6 +355,26 @@ export const LightWorkTab: React.FC<TabProps> = ({
                           <span className="text-xs text-gray-400">
                             {task.estimatedTime}
                           </span>
+                          {/* Due Date Calendar */}
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Badge 
+                                size="sm"
+                                className="bg-blue-500/20 text-blue-400 border-blue-500/30 cursor-pointer hover:bg-blue-500/30 transition-colors flex items-center gap-1"
+                              >
+                                <CalendarIcon className="h-3 w-3" />
+                                {task.dueDate ? format(task.dueDate, 'MMM d') : 'Add date'}
+                              </Badge>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar
+                                mode="single"
+                                selected={task.dueDate}
+                                onSelect={(date) => updateTaskDueDate(task.id, date)}
+                                initialFocus
+                              />
+                            </PopoverContent>
+                          </Popover>
                         </div>
                       </div>
                     </div>
