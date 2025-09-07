@@ -13,9 +13,7 @@ Workflow-organized comprehensive documentation for all project needs
 - **05-PROJECT-PLANNING/**: Roadmaps and feature analysis
 - **06-DEVELOPMENT-HISTORY/**: Project context and completion reports
 - **07-TESTING-QA/**: Testing strategies and QA processes
-- **SISO-VISION/**: Strategic vision integration
 - **ai-docs-cache/**: Cached AI documentation for faster access
-- **docs/**: Original project documentation (preserved)
 
 ### **✨ SISO-VISION/**
 Strategic vision, development history, and directional documentation
