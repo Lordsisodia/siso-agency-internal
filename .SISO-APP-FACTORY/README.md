@@ -4,16 +4,13 @@
 
 ## 📁 **Clean Directory Structure**
 
-### **📚 SISO-DOCS/** - *Complete Documentation System*
-Workflow-organized comprehensive documentation for all project needs
-- **01-QUICK-REFERENCE/**: Daily lookup docs (UI libraries, code standards, quick guides)
-- **02-FEATURE-GUIDES/**: User-facing documentation (siso-life-levels, admin guides)
-- **03-INTEGRATION-SETUP/**: Setup guides (MCP, AI workflows, third-party services)
-- **04-TECHNICAL-ARCHITECTURE/**: System design and APIs
-- **05-PROJECT-PLANNING/**: Roadmaps and feature analysis
-- **06-DEVELOPMENT-HISTORY/**: Project context and completion reports
-- **07-TESTING-QA/**: Testing strategies and QA processes
-- **ai-docs-cache/**: Cached AI documentation for faster access
+### **📚 DOCS/** - *Smart Documentation System*
+Intuitive organization with 160+ documents in 5 main categories
+- **ESSENTIALS/**: Start here - setup guides, code standards, Claude workflows
+- **TECHNICAL/**: Architecture, database, APIs, deployment guides  
+- **FEATURES/**: User features, gamification, admin dashboards
+- **REPORTS/**: Completed work, feedback analysis, testing results
+- **LIBRARY/**: AI component docs, UI system, reference materials
 
 ### **✨ SISO-VISION/**
 Strategic vision, development history, and directional documentation
@@ -66,14 +63,12 @@ This clean factory structure keeps the main project directory focused on active 
 ## 🚀 **Usage Guide**
 
 ### **📚 For Documentation (Primary)**
-**Use SISO-DOCS for all documentation needs** - organized by workflow:
-- **Quick Lookups**: `SISO-DOCS/01-QUICK-REFERENCE/` 
-- **User Help**: `SISO-DOCS/02-FEATURE-GUIDES/`
-- **Setup/Integration**: `SISO-DOCS/03-INTEGRATION-SETUP/`
-- **Technical Info**: `SISO-DOCS/04-TECHNICAL-ARCHITECTURE/`
-- **Planning**: `SISO-DOCS/05-PROJECT-PLANNING/`
-- **Context**: `SISO-DOCS/06-DEVELOPMENT-HISTORY/`
-- **Testing**: `SISO-DOCS/07-TESTING-QA/`
+**Use DOCS for all documentation needs** - organized by intuitive categories:
+- **Start Here**: `DOCS/ESSENTIALS/` - setup, standards, workflows
+- **Technical Deep Dive**: `DOCS/TECHNICAL/` - architecture, database, APIs
+- **Understanding Features**: `DOCS/FEATURES/` - user guides, gamification  
+- **Progress Tracking**: `DOCS/REPORTS/` - completed work, feedback, testing
+- **Reference Materials**: `DOCS/LIBRARY/` - component docs, UI system
 
 ### **📁 For Development Resources**
 Navigate to focused areas based on your task:
@@ -86,8 +81,9 @@ Navigate to focused areas based on your task:
 - **Research/Historical**: `ARCHIVE/` for research and legacy materials
 
 ### **💡 Pro Tips**
-- **Start with SISO-DOCS**: Most comprehensive and workflow-organized
-- **Use SISO-VISION**: For understanding project evolution and decisions
+- **Start with DOCS/INDEX.md**: Smart navigation guide with search tips
+- **New to project**: DOCS/ESSENTIALS/ has everything you need to start
+- **Use SISO-VISION**: For understanding project evolution and decisions  
 - **Check UI-BANK**: For visual assets including screenshots
 - **Reference TOOLS**: For development scripts and utilities
 
@@ -99,9 +95,9 @@ Navigate to focused areas based on your task:
 - **No loose files** in factory root
 
 ### **Efficient Workflows**
-- **Documentation by outcome** in SISO-DOCS
+- **Intuitive documentation** in DOCS with smart navigation
 - **Visual assets** centralized in UI-BANK
-- **Development tools** organized in TOOLS
+- **Development tools** organized in TOOLS  
 - **Historical materials** archived appropriately
 
 ### **Easy Navigation**
