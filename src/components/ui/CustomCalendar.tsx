@@ -111,7 +111,6 @@ export const CustomCalendar: React.FC<CustomCalendarProps> = ({
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              e.stopImmediatePropagation();
               console.log('📅 CustomCalendar: Date clicked:', date.toISOString().split('T')[0]);
               console.log('🔍 Calendar Debug: Event details:', {
                 target: e.target,
@@ -119,6 +118,8 @@ export const CustomCalendar: React.FC<CustomCalendarProps> = ({
                 bubbles: e.bubbles,
                 cancelable: e.cancelable
               });
+              
+              // Call onDateSelect immediately
               onDateSelect(date);
               return false;
             }}
