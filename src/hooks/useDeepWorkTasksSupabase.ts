@@ -556,6 +556,48 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
     }
   }, [supabase]);
 
+  // Update subtask due date in Supabase (dedicated function for subtasks only)
+  const updateSubtaskDueDate = useCallback(async (subtaskId: string, dueDate: Date | null) => {
+    if (!supabase) return null;
+    
+    try {
+      console.log(`📅 Updating Deep Work subtask due date: ${subtaskId} -> ${dueDate}`);
+
+      const dateString = dueDate ? dueDate.toISOString() : null;
+      
+      const { error } = await supabase
+        .from('deep_work_subtasks')
+        .update({
+          dueDate: dateString,
+          updatedAt: new Date().toISOString()
+        })
+        .eq('id', subtaskId);
+      
+      if (error) {
+        throw new Error(`Supabase error: ${error.message}`);
+      }
+
+      console.log(`✅ Updated Deep Work subtask due date: ${subtaskId}`);
+      
+      // Update local state
+      setTasks(prev => prev.map(task => ({
+        ...task,
+        subtasks: task.subtasks.map(subtask => 
+          subtask.id === subtaskId 
+            ? { ...subtask, dueDate: dateString }
+            : subtask
+        )
+      })));
+      
+      return true;
+      
+    } catch (error) {
+      console.error('❌ Error updating Deep Work subtask due date:', error);
+      setError(error instanceof Error ? error.message : 'Failed to update subtask due date');
+      return null;
+    }
+  }, [supabase]);
+
   // Load tasks when dependencies change
   useEffect(() => {
     loadTasks();
@@ -574,6 +616,7 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
     updateTaskTitle,
     pushTaskToAnotherDay,
     updateTaskDueDate,
+    updateSubtaskDueDate,
     refreshTasks: loadTasks
   };
 }

@@ -103,7 +103,12 @@ export const CustomCalendar: React.FC<CustomCalendarProps> = ({
         {days.map(date => (
           <button
             key={date.toISOString()}
-            onClick={() => onDateSelect(date)}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log('📅 CustomCalendar: Date clicked:', date.toISOString().split('T')[0]);
+              onDateSelect(date);
+            }}
             disabled={isPastDate(date)}
             className={`
               w-8 h-8 text-xs rounded-full flex items-center justify-center transition-colors

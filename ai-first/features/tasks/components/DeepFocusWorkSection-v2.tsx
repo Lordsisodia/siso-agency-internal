@@ -29,6 +29,7 @@ export const DeepFocusWorkSection: React.FC<DeepFocusWorkSectionProps> = ({
     updateTaskTitle,
     pushTaskToAnotherDay,
     updateTaskDueDate,
+    updateSubtaskDueDate,
     refreshTasks
   } = useDeepWorkTasksSupabase({ selectedDate });
 
@@ -80,7 +81,7 @@ export const DeepFocusWorkSection: React.FC<DeepFocusWorkSectionProps> = ({
       analyzeTaskWithAI={async () => {}} // TODO: Implement (AI feature)
       pushTaskToAnotherDay={pushTaskToAnotherDay}
       updateTaskTitle={updateTaskTitle}
-      updateSubtaskDueDate={updateTaskDueDate}
+      updateSubtaskDueDate={updateSubtaskDueDate}
     />
   );
 };

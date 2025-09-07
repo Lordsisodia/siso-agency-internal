@@ -29,6 +29,7 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
     updateTaskTitle,
     pushTaskToAnotherDay,
     updateTaskDueDate,
+    updateSubtaskDueDate,
     refreshTasks
   } = useLightWorkTasksSupabase({ selectedDate });
 
@@ -77,7 +78,7 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
       analyzeTaskWithAI={async () => {}} // TODO: Implement (AI feature)
       pushTaskToAnotherDay={pushTaskToAnotherDay}
       updateTaskTitle={updateTaskTitle}
-      updateSubtaskDueDate={updateTaskDueDate}
+      updateSubtaskDueDate={updateSubtaskDueDate}
     />
   );
 };
