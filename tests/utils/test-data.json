@@ -1,0 +1,60 @@
+{
+  "user": {
+    "id": "cmen3bwbc0000sqbpvy1g6jnr",
+    "email": "test@siso.com",
+    "supabaseId": "test-supabase-id-123"
+  },
+  "tasks": [
+    {
+      "id": "cmen3bwqf0006sqbplyizvo23",
+      "title": "Deep Focus: Code review and architecture planning",
+      "description": "Review mobile PWA persistence system and plan database optimization",
+      "workType": "DEEP",
+      "priority": "CRITICAL",
+      "completed": false,
+      "estimatedDuration": 120,
+      "tags": [
+        "development",
+        "architecture",
+        "mobile"
+      ],
+      "createdAt": "2025-08-22T17:14:39.352Z"
+    },
+    {
+      "id": "cmen3bwlh0004sqbp0eqj0ykp",
+      "title": "Light Work: Update social media content calendar",
+      "description": "Plan Instagram and LinkedIn posts for next 2 weeks",
+      "workType": "LIGHT",
+      "priority": "MEDIUM",
+      "completed": false,
+      "estimatedDuration": 30,
+      "tags": [
+        "marketing",
+        "social-media",
+        "content"
+      ],
+      "createdAt": "2025-08-22T17:14:39.173Z"
+    },
+    {
+      "id": "cmen3bwdl0002sqbpfghq507u",
+      "title": "Deep Focus: Review quarterly business metrics",
+      "description": "Analyze Q4 performance data and identify growth opportunities for next quarter",
+      "workType": "DEEP",
+      "priority": "HIGH",
+      "completed": false,
+      "estimatedDuration": 90,
+      "tags": [
+        "business",
+        "analytics",
+        "quarterly-review"
+      ],
+      "createdAt": "2025-08-22T17:14:38.889Z"
+    }
+  ],
+  "summary": {
+    "total": 3,
+    "completed": 1,
+    "pending": 2,
+    "totalEstimatedTime": 240
+  }
+}

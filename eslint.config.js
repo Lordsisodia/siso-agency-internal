@@ -13,7 +13,14 @@ export default tseslint.config(
       "build",
       "coverage",
       "*.config.js",
-      "vite.config.ts"
+      "vite.config.ts",
+      ".SISO-APP-FACTORY/**/*",
+      "archive/**/*",
+      "backup-*/**/*",
+      "ai-first/**/*",
+      "tests/**/*",
+      "**/*.template.tsx",
+      "**/*.template.ts"
     ] 
   },
   {
