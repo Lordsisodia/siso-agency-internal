@@ -1,6 +1,6 @@
 # 🏭 SISO APP FACTORY
 
-**Central development hub for SISO Internal - clean, organized structure for all supporting materials**
+**Central development hub for SISO Internal - clean, organized structure with intuitive development workflow**
 
 ## 📁 **Clean Directory Structure**
 
@@ -18,24 +18,19 @@ Model Context Protocol tools, configurations, and access utilities
 - MCP server configurations and tool definitions
 - Integration patterns and examples
 
-### **🧪 TESTING/**
-Testing resources, frameworks, and test data
-- Test suites and configurations
-- Mock data and testing utilities
-- Performance benchmarks
+### **🛠️ DEV-UTILITIES/**
+Complete development toolkit with scripts and documentation
+- **scripts/**: 43 executable development tools organized by category
+  - Database operations, testing utilities, system maintenance
+  - MCP integration tools, debugging scripts, cleanup utilities
+- **docs/**: Development documentation and testing strategies
+  - QA processes, testing frameworks, development workflows
 
 ### **🎨 UI-BANK/**
 UI components, design systems, and visual materials
 - Reusable component library and design patterns
 - **screenshots/**: Application screenshots and UI documentation
 - Inspiration and reference materials
-
-### **🔧 TOOLS/**
-Development utilities, scripts, and automation tools
-- **dev-scripts/**: Development utility scripts (organized by category)
-- **test-screenshot.js**: Screenshot testing utility
-- **get-feedback-tasks.js**: Feedback task management
-- **supabase-feedback-setup.sql**: Database setup scripts
 
 ### **📝 FEEDBACK/**
 User feedback, bug reports, and improvement suggestions
