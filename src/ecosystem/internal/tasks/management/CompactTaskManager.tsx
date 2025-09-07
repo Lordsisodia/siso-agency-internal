@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/shared/ui/button';
+import { Input } from '@/shared/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
+import { Checkbox } from '@/shared/ui/checkbox';
 import { Plus, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { cn } from '@/lib/utils';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { cn } from '@/shared/lib/utils';
+import { useLocalStorage } from '@/shared/hooks/useLocalStorage';
 
 interface Task {
   id: string;

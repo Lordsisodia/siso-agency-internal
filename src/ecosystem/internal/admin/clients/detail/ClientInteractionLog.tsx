@@ -1,9 +1,9 @@
 
 import React from 'react';
 import { ClientData } from '@/types/client.types';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/shared/ui/card';
+import { Button } from '@/shared/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/shared/ui/avatar';
 import { 
   MessageCircle, Phone, Calendar, FileText, Plus, Filter 
 } from 'lucide-react';
@@ -13,7 +13,7 @@ import {
   SelectItem, 
   SelectTrigger, 
   SelectValue 
-} from '@/components/ui/select';
+} from '@/shared/ui/select';
 
 interface ClientInteractionLogProps {
   client: ClientData;

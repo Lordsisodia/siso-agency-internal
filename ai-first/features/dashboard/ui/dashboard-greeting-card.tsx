@@ -6,9 +6,9 @@
  */
 
 import { motion } from 'framer-motion';
-import { useDayPeriod } from '@/hooks/useDayPeriod';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { useDayPeriod } from '@/shared/hooks/useDayPeriod';
+import { Card, CardContent } from '@/shared/ui/card';
+import { Badge } from '@/shared/ui/badge';
 import { 
   TrendingUp, 
   Award, 

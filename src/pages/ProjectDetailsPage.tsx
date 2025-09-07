@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
-import { AppLayout } from '@/components/layout/AppLayout';
-import { ProjectDetails } from '@/components/projects/ProjectDetails';
+import { AppLayout } from '@/shared/layout/AppLayout';
+import { ProjectDetails } from '@/ecosystem/internal/projects/ProjectDetails';
 
 interface ProjectDetailsPageProps {
   tab?: string;

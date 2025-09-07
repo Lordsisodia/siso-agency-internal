@@ -1,6 +1,6 @@
 import React from 'react';
 import { CheckCircle2, Circle, Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/shared/ui/button';
 
 interface PriorityTasksSectionProps {
   // Add props as needed for priority tasks functionality

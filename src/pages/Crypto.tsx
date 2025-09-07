@@ -1,10 +1,10 @@
 
 import { useEffect, useState } from 'react';
-import { Sidebar } from '@/components/Sidebar';
-import { SidebarProvider } from '@/components/ui/sidebar';
-import { PointsExchange } from '@/components/crypto/PointsExchange';
-import { NFTGallery } from '@/components/crypto/NFTGallery';
-import { useToast } from '@/hooks/use-toast';
+import { Sidebar } from '@/shared/Sidebar';
+import { SidebarProvider } from '@/shared/ui/sidebar';
+import { PointsExchange } from '@/client/crypto/PointsExchange';
+import { NFTGallery } from '@/client/crypto/NFTGallery';
+import { useToast } from '@/shared/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 
 const Crypto = () => {

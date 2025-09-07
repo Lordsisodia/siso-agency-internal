@@ -7,7 +7,7 @@ import {
   TableHead,
   TableBody,
   TableCell
-} from "@/components/ui/table";
+} from "@/shared/ui/table";
 import { CheckCircle, Circle, AlertCircle } from 'lucide-react';
 
 export function TaskTable() {

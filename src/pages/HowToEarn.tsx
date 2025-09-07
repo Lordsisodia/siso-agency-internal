@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AppLayout } from '@/components/layout/AppLayout';
+import { AppLayout } from '@/shared/layout/AppLayout';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { SmartEarningSearch } from '@/components/earn/SmartEarningSearch';
-import { EarningChatAssistant } from '@/components/earn/EarningChatAssistant';
-import { EarnHeader } from '@/components/earn/header/EarnHeader';
-import { SkillTreeContent } from '@/components/earn/content/SkillTreeContent';
+import { SmartEarningSearch } from '@/client/earn/SmartEarningSearch';
+import { EarningChatAssistant } from '@/client/earn/EarningChatAssistant';
+import { EarnHeader } from '@/client/earn/header/EarnHeader';
+import { SkillTreeContent } from '@/client/earn/content/SkillTreeContent';
 import { SkillPath, Skill, UserSkillProgress } from '@/types/skills';
-import { useAuthSession } from '@/hooks/useAuthSession';
-import { MainLayout } from '@/components/layout/MainLayout';
+import { useAuthSession } from '@/shared/hooks/useAuthSession';
+import { MainLayout } from '@/shared/layout/MainLayout';
 import { toast } from 'sonner';
 
 const HowToEarn = () => {

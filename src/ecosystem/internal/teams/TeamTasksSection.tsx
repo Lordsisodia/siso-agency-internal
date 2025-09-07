@@ -1,19 +1,19 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
+import { Button } from '@/shared/ui/button';
+import { Input } from '@/shared/ui/input';
 import { 
   ListTodo, Plus, Search, Filter, Calendar,
   CheckCircle2, Circle, Clock, Ban,
   AlertCircle, ArrowDownUp
 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { Badge } from '@/shared/ui/badge';
 import { 
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuTrigger 
-} from '@/components/ui/dropdown-menu';
+} from '@/shared/ui/dropdown-menu';
 
 interface Task {
   id: string;

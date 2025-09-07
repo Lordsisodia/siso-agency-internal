@@ -1,12 +1,12 @@
-import { AdminLayout } from '@/components/admin/layout/AdminLayout';
-import { AdminPageTitle } from '@/components/admin/layout/AdminPageTitle';
-import { EnhancedTable } from '@/components/ui/enhanced-table';
-import StatsCard from '@/components/dashboard/StatsCard';
+import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
+import { AdminPageTitle } from '@/ecosystem/internal/admin/layout/AdminPageTitle';
+import { EnhancedTable } from '@/shared/ui/enhanced-table';
+import StatsCard from '@/internal/dashboard/StatsCard';
 import CommissionCalculator from '@/ai-first/features/partnerships/components/CommissionCalculator';
-import { RecentActivityCard } from '@/components/dashboard/cards/RecentActivityCard';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { RecentActivityCard } from '@/internal/dashboard/cards/RecentActivityCard';
+import { Card } from '@/shared/ui/card';
+import { Button } from '@/shared/ui/button';
+import { Badge } from '@/shared/ui/badge';
 import { 
   DollarSign, 
   Users, 
@@ -20,7 +20,7 @@ import {
   Plus
 } from 'lucide-react';
 import { useState } from 'react';
-// import { Charts } from '@/components/ui/charts'; // Create this component or use alternative
+// import { Charts } from '@/shared/ui/charts'; // Create this component or use alternative
 
 const AdminPartnershipReferrals = () => {
   const [selectedReferrals, setSelectedReferrals] = useState<string[]>([]);

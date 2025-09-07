@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useClientDetails } from '@/hooks/client';
-import { AdminLayout } from '@/components/admin/layout/AdminLayout';
-import { ClientDetailHeader } from '@/components/admin/clients/detail/ClientDetailHeader';
-import { ClientProjectOverview } from '@/components/admin/clients/detail/ClientProjectOverview';
-import { ClientProjectTimeline } from '@/components/admin/clients/detail/ClientProjectTimeline';
-import { ClientInteractionLog } from '@/components/admin/clients/detail/ClientInteractionLog';
-import { ClientTasksList } from '@/components/admin/clients/detail/ClientTasksList';
-import { ClientFinancialSummary } from '@/components/admin/clients/detail/ClientFinancialSummary';
-import { ClientTeamAssignments } from '@/components/admin/clients/detail/ClientTeamAssignments';
-import { ClientRelatedDocuments } from '@/components/admin/clients/detail/ClientRelatedDocuments';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
+import { useClientDetails } from '@/shared/hooks/client';
+import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
+import { ClientDetailHeader } from '@/ecosystem/internal/admin/clients/detail/ClientDetailHeader';
+import { ClientProjectOverview } from '@/ecosystem/internal/admin/clients/detail/ClientProjectOverview';
+import { ClientProjectTimeline } from '@/ecosystem/internal/admin/clients/detail/ClientProjectTimeline';
+import { ClientInteractionLog } from '@/ecosystem/internal/admin/clients/detail/ClientInteractionLog';
+import { ClientTasksList } from '@/ecosystem/internal/admin/clients/detail/ClientTasksList';
+import { ClientFinancialSummary } from '@/ecosystem/internal/admin/clients/detail/ClientFinancialSummary';
+import { ClientTeamAssignments } from '@/ecosystem/internal/admin/clients/detail/ClientTeamAssignments';
+import { ClientRelatedDocuments } from '@/ecosystem/internal/admin/clients/detail/ClientRelatedDocuments';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
+import { Card, CardContent } from '@/shared/ui/card';
+import { Skeleton } from '@/shared/ui/skeleton';
 import { Loader2 } from 'lucide-react';
 import { 
   Breadcrumb,
@@ -21,9 +21,9 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { ClientDocuments } from '@/components/admin/clients/detail/ClientDocuments';
-import { Timeline } from '@/components/ui/timeline';
+} from "@/shared/ui/breadcrumb";
+import { ClientDocuments } from '@/ecosystem/internal/admin/clients/detail/ClientDocuments';
+import { Timeline } from '@/shared/ui/timeline';
 
 export default function ClientDetailPage() {
   const { clientId } = useParams<{ clientId: string }>();

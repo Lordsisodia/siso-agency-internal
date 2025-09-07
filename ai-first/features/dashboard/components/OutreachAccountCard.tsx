@@ -1,11 +1,11 @@
 
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/shared/ui/card';
+import { Badge } from '@/shared/ui/badge';
+import { Button } from '@/shared/ui/button';
 import { Edit, Instagram, Linkedin } from 'lucide-react';
 import { OutreachAccount } from '@/types/outreach';
-import { formatCompactNumber } from '@/lib/formatters';
+import { formatCompactNumber } from '@/shared/lib/formatters';
 
 interface OutreachAccountCardProps {
   account: OutreachAccount;

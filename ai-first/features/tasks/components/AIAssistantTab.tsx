@@ -12,10 +12,10 @@ import {
   Clock,
   CheckCircle2
 } from 'lucide-react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardHeader } from '@/shared/ui/card';
+import { Button } from '@/shared/ui/button';
+import { Badge } from '@/shared/ui/badge';
+import { Textarea } from '@/shared/ui/textarea';
 import { MobileMicrophoneButton } from '../ui/MobileMicrophoneButton';
 import { ThoughtDumpResults } from '../ui/ThoughtDumpResults';
 import { TabProps } from '../DayTabContainer';

@@ -1,9 +1,9 @@
 
 import React from 'react';
 import { ClientData } from '@/types/client.types';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card';
+import { Button } from '@/shared/ui/button';
+import { Badge } from '@/shared/ui/badge';
 import { 
   FileText, FileCode, FilePlus, FileImage, Link2, Download, ExternalLink, Upload
 } from 'lucide-react';

@@ -1,5 +1,5 @@
 // Simple AdminAutoLogin replacement
-import { useClerkUser } from '@/components/ClerkProvider';
+import { useClerkUser } from '@/shared/ClerkProvider';
 
 interface AdminAutoLoginProps {
   children: React.ReactNode;

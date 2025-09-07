@@ -1,8 +1,8 @@
 import React from 'react';
-import { CleanFeedbackManager } from '@/components/feedback/CleanFeedbackManager';
-import { SimpleFeedbackList } from '@/components/feedback/SimpleFeedbackList';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { CleanFeedbackManager } from '@/internal/feedback/CleanFeedbackManager';
+import { SimpleFeedbackList } from '@/internal/feedback/SimpleFeedbackList';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
+import { Badge } from '@/shared/ui/badge';
 import { feedbackService } from '@/services/feedbackService';
 
 interface FeedbackItem {

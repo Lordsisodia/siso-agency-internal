@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { TaskDetailsSheet } from '@/components/projects/TaskDetailsSheet';
-import { useToast } from '@/hooks/use-toast';
+import { Card } from '@/shared/ui/card';
+import { Button } from '@/shared/ui/button';
+import { Badge } from '@/shared/ui/badge';
+import { TaskDetailsSheet } from '@/ecosystem/internal/projects/TaskDetailsSheet';
+import { useToast } from '@/shared/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuthSession } from '@/hooks/useAuthSession';
+import { useAuthSession } from '@/shared/hooks/useAuthSession';
 import { 
   Loader2, 
   Filter, 
@@ -20,9 +20,9 @@ import {
   List,
   Settings
 } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { UiTask } from '@/components/projects/ActiveTasksView';
+import { Input } from '@/shared/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
+import { UiTask } from '@/ecosystem/internal/projects/ActiveTasksView';
 
 interface MobileTasksViewProps {
   tasks: UiTask[];

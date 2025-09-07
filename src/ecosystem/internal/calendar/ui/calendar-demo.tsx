@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar } from "@/ecosystem/internal/calendar/ui/calendar";
 import { useState } from "react";
 
 function Component() {

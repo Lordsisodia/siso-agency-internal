@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/ui/dialog';
+import { Button } from '@/shared/ui/button';
+import { Badge } from '@/shared/ui/badge';
+import { Card, CardContent, CardHeader } from '@/shared/ui/card';
 import { 
   Zap, 
   Calendar, 
@@ -19,7 +19,7 @@ import {
   RotateCcw
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/lib/utils';
 import { EisenhowerMatrixResult, TaskWithAnalysis, EisenhowerQuadrant } from '@/ai-first/core/task.service';
 
 interface EisenhowerMatrixModalProps {

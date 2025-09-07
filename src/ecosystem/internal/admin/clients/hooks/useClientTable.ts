@@ -1,8 +1,8 @@
 
 import { useState, useRef, useCallback } from 'react';
 import { ClientData, ClientViewPreference } from '@/types/client.types';
-import { useClientsList } from '@/hooks/client';
-import { useToast } from '@/hooks/use-toast';
+import { useClientsList } from '@/shared/hooks/client';
+import { useToast } from '@/shared/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
 export const useClientTable = (

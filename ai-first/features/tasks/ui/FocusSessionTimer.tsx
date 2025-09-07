@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/shared/ui/button';
+import { Badge } from '@/shared/ui/badge';
+import { Card, CardContent } from '@/shared/ui/card';
 import { 
   Play, 
   Pause, 
@@ -19,7 +19,7 @@ import {
   CheckCircle,
   AlertCircle
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/lib/utils';
 import { EnhancedTaskService, DeepWorkSession } from '@/ai-first/core/task.service';
 
 export interface FocusSessionConfig {

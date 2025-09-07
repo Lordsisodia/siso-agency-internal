@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { PartnershipLayout } from '@/ai-first/features/partnerships/components/PartnershipLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
+import { Button } from '@/shared/ui/button';
+import { Badge } from '@/shared/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
 import { 
   Briefcase, 
   Users, 
@@ -20,7 +20,7 @@ import {
   Search,
   Plus
 } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+import { Input } from '@/shared/ui/input';
 
 interface PortfolioProject {
   id: string;

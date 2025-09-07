@@ -3,7 +3,7 @@
  * Implements DatabaseAdapter interface using Supabase client
  */
 
-import { supabase, TABLES } from '@/lib/supabase';
+import { supabase, TABLES } from '@/shared/lib/supabase';
 import type {
   DatabaseAdapter,
   LightWorkTask,

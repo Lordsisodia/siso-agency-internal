@@ -1,8 +1,8 @@
 
 import React from 'react';
-import { AdminLayout } from '@/components/admin/layout/AdminLayout';
+import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
 import { useParams } from 'react-router-dom';
-import { TimelineTaskView } from '@/components/admin/teams/TimelineTaskView';
+import { TimelineTaskView } from '@/ecosystem/internal/teams/TimelineTaskView';
 
 export default function TeamMemberTasksPage() {
   const { memberId } = useParams();

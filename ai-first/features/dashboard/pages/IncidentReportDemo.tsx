@@ -1,5 +1,5 @@
 import React from 'react';
-import AdvancedNormalizedIncidentReport from '@/components/ui/advanced-normalized-incident-report';
+import AdvancedNormalizedIncidentReport from '@/shared/ui/advanced-normalized-incident-report';
 
 function AdvancedNormalizedIncidentReportDemoPage() {
   return (

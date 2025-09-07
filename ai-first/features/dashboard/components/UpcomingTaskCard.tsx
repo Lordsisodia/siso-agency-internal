@@ -1,21 +1,21 @@
 
 import React, { useState } from 'react';
-import { Card } from '@/components/ui/card';
+import { Card } from '@/shared/ui/card';
 import { Task } from '@/types/task.types';
 import { Clock, Calendar, MoreHorizontal } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/lib/utils';
 import { PriorityBadge } from './PriorityBadge';
-import { useTaskDragDrop } from '@/hooks/useTaskDragDrop';
+import { useTaskDragDrop } from '@/shared/hooks/useTaskDragDrop';
 import { TaskDetailDrawer } from './TaskDetailDrawer';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/shared/ui/button';
 import { format } from 'date-fns';
-import { Progress } from '@/components/ui/progress';
+import { Progress } from '@/shared/ui/progress';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '@/shared/ui/dropdown-menu';
 
 interface UpcomingTaskCardProps {
   task: Task;

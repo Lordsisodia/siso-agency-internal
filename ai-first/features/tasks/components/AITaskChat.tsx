@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 // Removed framer-motion for performance optimization
-import { PromptInputBox } from '@/components/ui/ai-prompt-box';
+import { PromptInputBox } from '@/shared/ui/ai-prompt-box';
 import { grokTaskService } from '@/ai-first/core/task.service';
 import { voiceService } from '@/services/voiceService';
 import { aiTaskAgent } from '@/ai-first/core/task.service';

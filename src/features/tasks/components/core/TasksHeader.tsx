@@ -4,16 +4,16 @@
  */
 
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
+import { Button } from '@/shared/ui/button';
+import { Input } from '@/shared/ui/input';
+import { Badge } from '@/shared/ui/badge';
 import { 
   Select, 
   SelectContent, 
   SelectItem, 
   SelectTrigger, 
   SelectValue 
-} from '@/components/ui/select';
+} from '@/shared/ui/select';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -22,9 +22,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   DropdownMenuCheckboxItem
-} from '@/components/ui/dropdown-menu';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Separator } from '@/components/ui/separator';
+} from '@/shared/ui/dropdown-menu';
+import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover';
+import { Separator } from '@/shared/ui/separator';
 import {
   Search,
   Plus,
@@ -47,7 +47,7 @@ import {
   BarChart3,
   Zap
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/lib/utils';
 import { useTasks, useTasksSelection, useTasksFilters, useTasksView } from '../providers/TasksProvider';
 import { TaskViewType, TaskStatus, TaskPriority, TaskCategory } from '../../types/task.types';
 import { TASK_STATUS_CONFIG, TASK_PRIORITY_CONFIG, TASK_CATEGORY_CONFIG } from '../../constants/taskConstants';

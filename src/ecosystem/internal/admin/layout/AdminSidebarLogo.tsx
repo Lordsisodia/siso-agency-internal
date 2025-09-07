@@ -1,6 +1,6 @@
 import React from "react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/ui/tooltip";
+import { cn } from "@/shared/lib/utils";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { cva, type VariantProps } from "class-variance-authority";

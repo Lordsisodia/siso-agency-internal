@@ -1,11 +1,11 @@
 
 import { useState } from 'react';
 import { TodoItem } from '@/types/client.types';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/shared/ui/checkbox';
+import { Button } from '@/shared/ui/button';
+import { Input } from '@/shared/ui/input';
 import { Plus, X, Calendar, User } from 'lucide-react';
-import { formatRelativeTime } from '@/lib/formatters';
+import { formatRelativeTime } from '@/shared/lib/formatters';
 
 interface TodoListProps {
   todos?: TodoItem[];

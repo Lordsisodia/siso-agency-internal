@@ -8,12 +8,12 @@ import {
   ArrowLeft
 } from 'lucide-react';
 import { TAB_CONFIG, TabId, getAllTabIds } from '@/ai-first/core/tab-config';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { ExpandableTabs } from '@/components/ui/expandable-tabs';
-import { cn } from '@/lib/utils';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { useLifeLockData } from '@/hooks/useLifeLockData';
+import { Button } from '@/shared/ui/button';
+import { Badge } from '@/shared/ui/badge';
+import { ExpandableTabs } from '@/shared/ui/expandable-tabs';
+import { cn } from '@/shared/lib/utils';
+import { useIsMobile } from '@/shared/hooks/use-mobile';
+import { useLifeLockData } from '@/ecosystem/internal/lifelock/useLifeLockData';
 
 // Use centralized tab configuration to prevent routing inconsistencies
 const tabs = Object.values(TAB_CONFIG);

@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { PromptInputBox } from '@/components/ui/ai-prompt-box';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
+import { Button } from '@/shared/ui/button';
+import { Badge } from '@/shared/ui/badge';
+import { PromptInputBox } from '@/shared/ui/ai-prompt-box';
 import { format } from 'date-fns';
 import { 
   MessageCircle, 

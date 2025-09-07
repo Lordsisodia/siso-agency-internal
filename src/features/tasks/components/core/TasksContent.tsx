@@ -5,12 +5,12 @@
 
 import React, { Suspense, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/shared/ui/button';
+import { Card, CardContent } from '@/shared/ui/card';
+import { Badge } from '@/shared/ui/badge';
+import { Skeleton } from '@/shared/ui/skeleton';
 import { AlertCircle, RefreshCw, Inbox, Plus } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/lib/utils';
 import { useTasks, useTasksView, useTasksSelection } from '../providers/TasksProvider';
 import { TaskViewType } from '../../types/task.types';
 

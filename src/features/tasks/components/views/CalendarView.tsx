@@ -4,12 +4,12 @@
  */
 
 import React, { useState } from 'react';
-import { Calendar } from '@/components/ui/calendar';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Calendar } from '@/ecosystem/internal/calendar/ui/calendar';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
+import { Badge } from '@/shared/ui/badge';
+import { Button } from '@/shared/ui/button';
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/lib/utils';
 import { Task } from '../../types/task.types';
 import { getPriorityColor, isTaskOverdue } from '../../utils/taskHelpers';
 

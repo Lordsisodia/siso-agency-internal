@@ -1,11 +1,11 @@
 
 import * as React from "react";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/shared/ui/dialog";
+import { Input } from "@/shared/ui/input";
+import { Button } from "@/shared/ui/button";
 import { Loader2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { inviteClientUser } from "@/utils/inviteClientUser";
+import { useToast } from "@/shared/hooks/use-toast";
+import { inviteClientUser } from "@/shared/utils/inviteClientUser";
 
 interface ClientInviteDialogProps {
   open: boolean;

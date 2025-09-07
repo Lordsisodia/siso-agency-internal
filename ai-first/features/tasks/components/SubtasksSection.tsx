@@ -2,7 +2,7 @@
 import React from 'react';
 import { Plus } from 'lucide-react';
 import { SubtaskList } from '../subtasks/SubtaskList';
-import { Separator } from '@/components/ui/separator';
+import { Separator } from '@/shared/ui/separator';
 
 interface Subtask {
   id: string;

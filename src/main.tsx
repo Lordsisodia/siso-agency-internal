@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ErrorBoundary } from 'react-error-boundary'
 import App from './App'
 import './index.css'
-import { ErrorFallback } from './components/ErrorFallback'
+import { ErrorFallback } from '@/shared/ErrorFallback'
 import { checkEnv } from '@/shared/utils/envCheck'
 import { registerServiceWorker } from '@/shared/utils/registerServiceWorker'
 

@@ -1,17 +1,17 @@
 import { useState } from "react";
-import { AppLayout } from "@/components/layout/AppLayout";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { AppLayout } from "@/shared/layout/AppLayout";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
 import { BookOpen, FileText, HelpCircle, User, Search, ArrowRight, Sparkles, MessageCircle, Users } from "lucide-react";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { GettingStartedContent } from "@/components/help/content/GettingStartedContent";
-import { DocumentationContent } from "@/components/help/content/DocumentationContent";
-import { FAQContent } from "@/components/help/content/FAQContent";
-import { ProfileContent } from "@/components/resources/ProfileContent";
-import { ParticlesBackground } from "@/components/resources/ParticlesBackground";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/shared/ui/breadcrumb";
+import { GettingStartedContent } from "@/shared/help/content/GettingStartedContent";
+import { DocumentationContent } from "@/shared/help/content/DocumentationContent";
+import { FAQContent } from "@/shared/help/content/FAQContent";
+import { ProfileContent } from "@/shared/resources/ProfileContent";
+import { ParticlesBackground } from "@/shared/resources/ParticlesBackground";
+import { Button } from "@/shared/ui/button";
+import { Input } from "@/shared/ui/input";
+import { Badge } from "@/shared/ui/badge";
 import { motion } from "framer-motion";
 
 export default function ResourcesPage() {

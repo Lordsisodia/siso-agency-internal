@@ -1,14 +1,14 @@
 
 import { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
-import { Timeline } from '@/components/ui/timeline';
+import { Card } from '@/shared/ui/card';
+import { Timeline } from '@/shared/ui/timeline';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { Progress } from '@/components/ui/progress';
+import { useToast } from '@/shared/hooks/use-toast';
+import { Progress } from '@/shared/ui/progress';
 import { ClientData } from '@/types/client.types';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from '@/shared/ui/skeleton';
 import { ClipboardCheck, Clock } from 'lucide-react';
-import { ClientDashboardLayout } from "@/components/client/ClientDashboardLayout";
+import { ClientDashboardLayout } from "@/client/client/ClientDashboardLayout";
 
 export default function ClientStatusPage() {
   const [client, setClient] = useState<ClientData | null>(null);

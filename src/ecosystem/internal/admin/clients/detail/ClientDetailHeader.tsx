@@ -1,7 +1,7 @@
 import React from 'react';
 import { ClientData } from '@/types/client.types';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Badge } from '@/shared/ui/badge';
+import { Button } from '@/shared/ui/button';
 import { 
   Mail, 
   Phone, 

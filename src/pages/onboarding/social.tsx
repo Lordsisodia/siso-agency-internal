@@ -1,8 +1,8 @@
 
-import { useOnboardingAuth } from '@/hooks/useOnboardingAuth';
-import { SocialLinksForm } from '@/components/onboarding/SocialLinksForm';
-import { Waves } from '@/components/ui/waves-background';
-import { Progress } from '@/components/ui/progress';
+import { useOnboardingAuth } from '@/shared/hooks/useOnboardingAuth';
+import { SocialLinksForm } from '@/internal/onboarding/SocialLinksForm';
+import { Waves } from '@/shared/ui/waves-background';
+import { Progress } from '@/shared/ui/progress';
 
 export default function SocialOnboarding() {
   const { userId, isLoading } = useOnboardingAuth();

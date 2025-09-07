@@ -20,25 +20,25 @@ import {
   Info,
   Target
 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { MessageLoading } from '@/components/ui/message-loading';
-import { CaseStudy } from '@/components/plan/CaseStudy';
-import { WelcomeMessage } from '@/components/plan/WelcomeMessage';
-import { PainPointsModal, PainPointDetailProps } from '@/components/plan/PainPointsModal';
-import { PlanReviewSummary } from '@/components/plan/PlanReviewSummary';
-import { AgencyPainPoints } from '@/components/plan/AgencyPainPoints';
-import { ROICalculator } from '@/components/plan/ROICalculator';
-import { FeatureSection } from '@/components/plan/FeatureSection';
-import { InteractiveCallout } from '@/components/plan/InteractiveCallout';
-import { EnhancedNextSteps } from '@/components/plan/EnhancedNextSteps';
+import { useToast } from '@/shared/hooks/use-toast';
+import { MessageLoading } from '@/shared/ui/message-loading';
+import { CaseStudy } from '@/internal/plan/CaseStudy';
+import { WelcomeMessage } from '@/internal/plan/WelcomeMessage';
+import { PainPointsModal, PainPointDetailProps } from '@/internal/plan/PainPointsModal';
+import { PlanReviewSummary } from '@/internal/plan/PlanReviewSummary';
+import { AgencyPainPoints } from '@/internal/plan/AgencyPainPoints';
+import { ROICalculator } from '@/internal/plan/ROICalculator';
+import { FeatureSection } from '@/internal/plan/FeatureSection';
+import { InteractiveCallout } from '@/internal/plan/InteractiveCallout';
+import { EnhancedNextSteps } from '@/internal/plan/EnhancedNextSteps';
 import { caseStudies } from '@/data/plan/featureData';
-import { ImplementationPlan } from '@/components/plan/ImplementationPlan';
-import { usePlanData, PlanDataType } from '@/hooks/usePlanData';
-import { Button } from '@/components/ui/button';
-import { GradientHeading } from '@/components/ui/gradient-heading';
+import { ImplementationPlan } from '@/internal/plan/ImplementationPlan';
+import { usePlanData, PlanDataType } from '@/shared/hooks/usePlanData';
+import { Button } from '@/shared/ui/button';
+import { GradientHeading } from '@/shared/ui/gradient-heading';
 import { supabase } from '@/integrations/supabase/client';
-import { PlanComments } from '@/components/plan/NewsCardComments';
-import { usePlanViewTracking } from '@/hooks/usePlanViewTracking';
+import { PlanComments } from '@/internal/plan/NewsCardComments';
+import { usePlanViewTracking } from '@/shared/hooks/usePlanViewTracking';
 
 // Mapping of agency-specific URLs to industry types
 const AGENCY_TO_INDUSTRY_MAP: Record<string, string> = {

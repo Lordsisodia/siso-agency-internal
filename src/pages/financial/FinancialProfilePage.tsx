@@ -1,13 +1,13 @@
 
 import { useState } from 'react';
-import { FinancialLayout } from '@/components/layout/FinancialLayout';
-import { useProfileData } from '@/hooks/useProfileData';
-import { ProfileInfo } from '@/components/profile/ProfileInfo';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { FinancialLayout } from '@/shared/layout/FinancialLayout';
+import { useProfileData } from '@/shared/hooks/useProfileData';
+import { ProfileInfo } from '@/internal/profile/ProfileInfo';
+import { Card } from '@/shared/ui/card';
+import { Button } from '@/shared/ui/button';
 import { User, Settings, Bell, Clock } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useToast } from '@/hooks/use-toast';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
+import { useToast } from '@/shared/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
 export default function FinancialProfilePage() {

@@ -1,6 +1,6 @@
 
-import { Pill, PillAvatar, PillAvatarGroup, PillIndicator } from '@/components/ui/pill';
-import { Card } from '@/components/ui/card';
+import { Pill, PillAvatar, PillAvatarGroup, PillIndicator } from '@/shared/ui/pill';
+import { Card } from '@/shared/ui/card';
 
 interface TeamMember {
   name: string;

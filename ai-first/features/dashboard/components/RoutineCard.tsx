@@ -1,10 +1,10 @@
 
 import React from 'react';
-import { Card } from '@/components/ui/card';
+import { Card } from '@/shared/ui/card';
 import { Coffee, Sparkles, CheckCircle2, Clock } from 'lucide-react';
 import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
-import { Progress } from '@/components/ui/progress';
+import { cn } from '@/shared/lib/utils';
+import { Progress } from '@/shared/ui/progress';
 
 interface RoutineCardProps {
   type: 'morning' | 'evening';

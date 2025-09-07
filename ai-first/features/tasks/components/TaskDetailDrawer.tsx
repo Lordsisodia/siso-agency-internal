@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { Task } from '@/types/task.types';
-import { Drawer, DrawerContent, DrawerFooter } from '@/components/ui/drawer';
-import { useTaskOperations } from '@/hooks/useTaskOperations';
-import { useToast } from '@/hooks/use-toast';
+import { Drawer, DrawerContent, DrawerFooter } from '@/shared/ui/drawer';
+import { useTaskOperations } from '@/shared/hooks/useTaskOperations';
+import { useToast } from '@/shared/hooks/use-toast';
 import { TaskContent } from './TaskContent';
 import { TaskMetadata } from './TaskMetadata';
 import { TaskActions } from './TaskActions';
 import { TaskDetailHeader } from './TaskDetailHeader';
 import { SubtasksSection } from './SubtasksSection';
-import { useSubtasks } from '@/hooks/useSubtasks';
+import { useSubtasks } from '@/shared/hooks/useSubtasks';
 import { format } from 'date-fns';
 
 interface TaskDetailDrawerProps {

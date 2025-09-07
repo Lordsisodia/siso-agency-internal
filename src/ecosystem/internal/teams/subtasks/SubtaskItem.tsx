@@ -1,8 +1,8 @@
 
 import React from 'react';
 import { Check, Trash2, Edit2, X } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Input } from '@/components/ui/input';
+import { cn } from '@/shared/lib/utils';
+import { Input } from '@/shared/ui/input';
 
 interface Subtask {
   id: string;

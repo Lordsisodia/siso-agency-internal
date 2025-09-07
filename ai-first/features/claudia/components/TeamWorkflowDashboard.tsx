@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
+import { Button } from "@/shared/ui/button";
+import { Badge } from "@/shared/ui/badge";
+import { Progress } from "@/shared/ui/progress";
 import { 
   Users, 
   Play, 
@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 
 import { SUPERCLAUDE_WORKFLOWS } from '@/types/superclaude';
-import { api as claudiaApi } from '@/lib/claudia-api';
+import { api as claudiaApi } from '@/shared/lib/claudia-api';
 
 interface TeamWorkflowDashboardProps {
   className?: string;

@@ -1,6 +1,6 @@
 
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card } from "@/shared/ui/card";
+import { Button } from "@/shared/ui/button";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 

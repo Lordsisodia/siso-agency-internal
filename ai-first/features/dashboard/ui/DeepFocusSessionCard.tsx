@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
+import { Card, CardContent, CardHeader } from '@/shared/ui/card';
+import { Button } from '@/shared/ui/button';
+import { Badge } from '@/shared/ui/badge';
+import { Progress } from '@/shared/ui/progress';
 import { 
   Play, 
   Pause, 
@@ -25,7 +25,7 @@ import {
   Moon,
   Sun
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { EnhancedTaskService, EnhancedTask } from '@/ai-first/core/task.service';
 import { format } from 'date-fns';

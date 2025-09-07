@@ -1,13 +1,13 @@
-import { AdminLayout } from '@/components/admin/layout/AdminLayout';
-import { AdminPageTitle } from '@/components/admin/layout/AdminPageTitle';
-import StatsCard from '@/components/dashboard/StatsCard';
-// import { Charts } from '@/components/ui/charts'; // Create this component or use alternative
-import { Card } from '@/components/ui/card';
-import { EnhancedTable } from '@/components/ui/enhanced-table';
-import { EnhancedProgressCard } from '@/components/dashboard/EnhancedProgressCard';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
+import { AdminPageTitle } from '@/ecosystem/internal/admin/layout/AdminPageTitle';
+import StatsCard from '@/internal/dashboard/StatsCard';
+// import { Charts } from '@/shared/ui/charts'; // Create this component or use alternative
+import { Card } from '@/shared/ui/card';
+import { EnhancedTable } from '@/shared/ui/enhanced-table';
+import { EnhancedProgressCard } from '@/internal/dashboard/EnhancedProgressCard';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select';
+import { Button } from '@/shared/ui/button';
+import { Badge } from '@/shared/ui/badge';
 import { 
   DollarSign, 
   Users, 
@@ -21,7 +21,7 @@ import {
   Activity
 } from 'lucide-react';
 import { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
 
 const AdminPartnershipStatistics = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('month');

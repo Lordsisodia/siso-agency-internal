@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader } from '@/shared/ui/card';
+import { Button } from '@/shared/ui/button';
+import { Input } from '@/shared/ui/input';
+import { Badge } from '@/shared/ui/badge';
 import { 
   ChevronDown, 
   ChevronUp, 
@@ -13,7 +13,7 @@ import {
   Target,
   Zap
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { EnhancedTask, SubTask, FocusIntensity, TaskContext } from '@/ai-first/core/task.service';
 import { FlowStateTimer, FlowSession } from './FlowStateTimer';

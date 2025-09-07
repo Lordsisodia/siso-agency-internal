@@ -182,7 +182,7 @@ export const HOOK_MIGRATION_GUIDE = `
 ### Option 1: Drop-in Replacement (Safest)
 \`\`\`typescript
 // Replace this:
-import { useLifeLockData } from '@/hooks/useLifeLockData';
+import { useLifeLockData } from '@/shared/hooks/useLifeLockData';
 
 // With this:
 import { useRefactoredLifeLockData } from '@/refactored/hooks/useRefactoredLifeLockData';
@@ -221,12 +221,12 @@ const DEVELOPMENT_OVERRIDES = {
 ### Step 2: Replace Import (Safe)
 \`\`\`typescript
 // OLD:
-import { useLifeLockData } from '@/hooks/useLifeLockData';
+import { useLifeLockData } from '@/shared/hooks/useLifeLockData';
 
 // NEW:
 import { useImplementation } from '@/migration/feature-flags';
 import { useRefactoredLifeLockData } from '@/refactored/hooks/useRefactoredLifeLockData';
-import { useLifeLockData } from '@/hooks/useLifeLockData';
+import { useLifeLockData } from '@/shared/hooks/useLifeLockData';
 
 const data = useImplementation(
   'useRefactoredLifeLockHooks',

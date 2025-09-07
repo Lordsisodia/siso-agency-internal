@@ -1,8 +1,8 @@
 import React from 'react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/lib/utils';
 import { motion } from 'framer-motion';
 import { Check, Circle, Clock, Trophy, TrendingUp } from 'lucide-react';
-import { Progress } from '@/components/ui/progress';
+import { Progress } from '@/shared/ui/progress';
 
 interface DailyTrackerProgressProps {
   value: number;

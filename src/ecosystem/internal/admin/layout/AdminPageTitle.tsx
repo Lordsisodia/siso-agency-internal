@@ -1,8 +1,8 @@
 
 import React from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 import type { LucideIcon } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { Card } from "@/shared/ui/card";
 
 /**
  * Props for the AdminPageTitle.

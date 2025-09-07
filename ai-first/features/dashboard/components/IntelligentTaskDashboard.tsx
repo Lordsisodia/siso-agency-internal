@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card';
+import { Button } from '@/shared/ui/button';
+import { Badge } from '@/shared/ui/badge';
+import { Textarea } from '@/shared/ui/textarea';
+import { Input } from '@/shared/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
 import { 
   Brain, 
   Clock, 
@@ -18,8 +18,8 @@ import {
   Target,
   Lightbulb
 } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
-import { useAuthSession } from '@/hooks/useAuthSession';
+import { useToast } from '@/shared/ui/use-toast';
+import { useAuthSession } from '@/shared/hooks/useAuthSession';
 import TaskManagementAgent, { TaskRecommendation, DailyWorkflowSummary } from '@/services/TaskManagementAgent';
 import { motion } from 'framer-motion';
 

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval } from 'date-fns';
-import { useClerkUser } from '@/components/ClerkProvider';
+import { useClerkUser } from '@/shared/ClerkProvider';
 import { personalTaskService } from '@/ai-first/core/task.service';
 import { ClerkHybridTaskService } from '@/ai-first/core/auth.service';
 import { lifeLockVoiceTaskProcessor, ThoughtDumpResult } from '@/services/lifeLockVoiceTaskProcessor';

@@ -5,10 +5,10 @@
 
 import { useState, useEffect } from 'react';
 import { AppPlanInput } from '@/types/appPlan.types';
-import { getBusinessOnboardingData } from '@/utils/clientData';
+import { getBusinessOnboardingData } from '@/shared/utils/clientData';
 import { appPlanAgent } from '@/ai-first/core/ai.service';
-import { toast } from '@/hooks/use-toast';
-import { logger } from '@/utils/logger';
+import { toast } from '@/shared/hooks/use-toast';
+import { logger } from '@/shared/utils/logger';
 
 export interface AutoTriggerConfig {
   enabled: boolean;

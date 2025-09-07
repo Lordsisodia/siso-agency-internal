@@ -13,11 +13,11 @@
  */
 
 import { useMemo } from 'react';
-import { useTaskData, TaskCard } from './useTaskData';
-import { useTaskActions } from './useTaskActions';
-import { useVoiceProcessing } from './useVoiceProcessing';
-import { useTaskOrganization } from './useTaskOrganization';
-import { useServiceInitialization } from './useServiceInitialization';
+import { useTaskData, TaskCard } from '@/refactored/hooks/useTaskData';
+import { useTaskActions } from '@/refactored/hooks/useTaskActions';
+import { useVoiceProcessing } from '@/refactored/hooks/useVoiceProcessing';
+import { useTaskOrganization } from '@/refactored/hooks/useTaskOrganization';
+import { useServiceInitialization } from '@/refactored/hooks/useServiceInitialization';
 
 // Re-export types for compatibility
 export type { TaskCard };

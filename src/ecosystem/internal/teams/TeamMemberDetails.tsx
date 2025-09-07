@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { 
   Sheet, SheetClose, SheetContent, SheetDescription, 
   SheetHeader, SheetTitle, SheetFooter
-} from '@/components/ui/sheet';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+} from '@/shared/ui/sheet';
+import { Button } from '@/shared/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/shared/ui/avatar';
+import { Separator } from '@/shared/ui/separator';
+import { Badge } from '@/shared/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
 import {
   Mail, Phone, MapPin, Calendar, Clock, MessageSquare,
   FileText, BarChart2, User, Shield, Edit, 
@@ -15,7 +15,7 @@ import {
   MessageCircle, Home, Briefcase
 } from 'lucide-react';
 import { TeamMember } from './TeamMemberList';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { TeamMemberActivity } from './TeamMemberActivity';
 import { TeamMemberTasks } from './TeamMemberTasks';
 import { toast } from 'sonner';

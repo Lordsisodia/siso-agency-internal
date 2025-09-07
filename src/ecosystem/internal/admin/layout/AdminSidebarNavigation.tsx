@@ -1,10 +1,10 @@
 import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/lib/utils';
 import { useEffect, useState } from 'react';
-import { SidebarSection } from '@/components/sidebar/SidebarSection';
-import { NavigationProps } from '@/components/sidebar/types';
-import { getAdminMenuSections } from '@/components/sidebar/adminNavigationData';
+import { SidebarSection } from '@/shared/sidebar/SidebarSection';
+import { NavigationProps } from '@/shared/sidebar/types';
+import { getAdminMenuSections } from '@/ecosystem/internal/admin/navigation/adminNavigationData';
 
 export const AdminSidebarNavigation = ({ collapsed, onItemClick, visible }: NavigationProps) => {
   const location = useLocation();

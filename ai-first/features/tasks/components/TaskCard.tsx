@@ -1,17 +1,17 @@
 
 import React from 'react';
-import { cn } from '@/lib/utils';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
+import { cn } from '@/shared/lib/utils';
+import { Badge } from '@/shared/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/shared/ui/avatar';
+import { Button } from '@/shared/ui/button';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
+} from '@/shared/ui/tooltip';
+import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover';
+import { Calendar } from '@/ecosystem/internal/calendar/ui/calendar';
 import { format } from 'date-fns';
 import { Clock, CheckSquare, AlertTriangle, Calendar as CalendarIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';

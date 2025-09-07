@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
-import { ProjectOnboarding } from '@/components/projects/ProjectOnboarding';
-import { AppLayout } from '@/components/layout/AppLayout';
+import { ProjectOnboarding } from '@/ecosystem/internal/projects/ProjectOnboarding';
+import { AppLayout } from '@/shared/layout/AppLayout';
 
 export default function ProjectOnboardingPage() {
   // Set page title

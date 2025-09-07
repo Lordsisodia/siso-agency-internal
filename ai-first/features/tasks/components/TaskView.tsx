@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card';
 import { TaskBank } from '../tasks/TaskBank';
 import { TeamMemberSelector } from '../tasks/TeamMemberSelector';
 

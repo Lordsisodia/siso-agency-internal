@@ -1,5 +1,5 @@
 import React from 'react';
-import { Input } from '@/components/ui/input';
+import { Input } from '@/shared/ui/input';
 import { ClientData } from '@/types/client.types';
 import { BasicCell } from './table-cells/BasicCell';
 import { StatusCell } from './table-cells/StatusCell';
@@ -109,4 +109,4 @@ export function ClientTableCell({
 }
 
 // Export TableCell separately as it's a different component
-export { TableCell } from '@/components/ui/table';
+export { TableCell } from '@/shared/ui/table';

@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom';
-import { AdminLayout } from '@/components/admin/layout/AdminLayout';
-import { WireframeAdmin } from '@/components/projects/admin/WireframeAdmin';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
+import { WireframeAdmin } from '@/ecosystem/internal/admin/projects/WireframeAdmin';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card';
 
 export default function AdminWireframes() {
   const { projectId } = useParams<{ projectId: string }>();

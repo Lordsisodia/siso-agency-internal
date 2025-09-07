@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/shared/ui/button';
 import { format } from 'date-fns';
 import { Sparkles, Settings, RefreshCw } from 'lucide-react';
 import { EnhancedTimeBoxCalendar } from '../ui/EnhancedTimeBoxCalendar';

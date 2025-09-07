@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/shared/ui/button';
+import { Input } from '@/shared/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
+import { Checkbox } from '@/shared/ui/checkbox';
 import { Plus, X, Clock, ArrowRight, User, FileText, CheckCircle, Smartphone, Target, Settings } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { cn } from '@/lib/utils';
-import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/shared/lib/utils';
+import { useToast } from '@/shared/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { useMainUserProject } from '@/hooks/useUserProjects';
+import { useMainUserProject } from '@/shared/hooks/useUserProjects';
 
 interface RealTaskManagerProps {
   title?: string;

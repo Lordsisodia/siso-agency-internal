@@ -1,10 +1,10 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { Sidebar } from '@/components/Sidebar';
-import { CommunitySearch } from '@/components/community/CommunitySearch';
-import { CommunityMemberCard } from '@/components/community/CommunityMemberCard';
-import { CommunityMemberDetails } from '@/components/community/CommunityMemberDetails';
+import { Sidebar } from '@/shared/Sidebar';
+import { CommunitySearch } from '@/partnership/community/CommunitySearch';
+import { CommunityMemberCard } from '@/partnership/community/CommunityMemberCard';
+import { CommunityMemberDetails } from '@/partnership/community/CommunityMemberDetails';
 import { CommunityMember } from '@/types/community';
 
 export default function Community() {

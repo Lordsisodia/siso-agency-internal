@@ -1,8 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Home, CheckSquare, Mic, BarChart3, Menu } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { ExpandableTabs } from '@/components/ui/expandable-tabs';
+import { cn } from '@/shared/lib/utils';
+import { ExpandableTabs } from '@/shared/ui/expandable-tabs';
 
 interface BottomNavigationProps {
   onHomeClick?: () => void;

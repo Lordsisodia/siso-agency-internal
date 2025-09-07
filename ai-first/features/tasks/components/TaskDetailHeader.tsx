@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
+import { DrawerHeader, DrawerTitle } from '@/shared/ui/drawer';
 
 export function TaskDetailHeader() {
   return (

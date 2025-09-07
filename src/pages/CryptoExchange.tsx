@@ -1,16 +1,16 @@
 import { useEffect, useState } from 'react';
 import { ArrowRightLeft, Loader2, Wifi, Database, History, Filter } from 'lucide-react';
-import { AppLayout } from '@/components/layout/AppLayout';
-import { PointsExchange } from "@/components/crypto/PointsExchange";
-import { NFTGallery } from "@/components/crypto/NFTGallery";
-import { WelcomeNFTStatus } from "@/components/crypto/WelcomeNFTStatus";
-import { useToast } from '@/hooks/use-toast';
-import { Sidebar } from '@/components/Sidebar';
-import { FloatingOrbs } from '@/components/effects/FloatingOrbs';
-import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { AppLayout } from '@/shared/layout/AppLayout';
+import { PointsExchange } from "@/client/crypto/PointsExchange";
+import { NFTGallery } from "@/client/crypto/NFTGallery";
+import { WelcomeNFTStatus } from "@/client/crypto/WelcomeNFTStatus";
+import { useToast } from '@/shared/hooks/use-toast';
+import { Sidebar } from '@/shared/Sidebar';
+import { FloatingOrbs } from '@/shared/effects/FloatingOrbs';
+import { Button } from '@/shared/ui/button';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/shared/ui/sheet';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ScrollArea } from '@/shared/ui/scroll-area';
 
 const NetworkStatus = () => {
   const [isOnline, setIsOnline] = useState(true);

@@ -7,15 +7,15 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useUser } from '@clerk/clerk-react';
-import { useXPStore } from '@/hooks/useXPStore';
-import { XPEconomyDashboard } from '@/components/xp-store/XPEconomyDashboard';
-import { XPStoreBalance } from '@/components/xp-store/XPStoreBalance';
-import { RewardCatalog } from '@/components/xp-store/RewardCatalog';
-import { PurchaseHistory } from '@/components/xp-store/PurchaseHistory';
-import { XPAnalytics } from '@/components/xp-store/XPAnalytics';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { useXPStore } from '@/shared/hooks/useXPStore';
+import { XPEconomyDashboard } from '@/internal/xp-store/XPEconomyDashboard';
+import { XPStoreBalance } from '@/internal/xp-store/XPStoreBalance';
+import { RewardCatalog } from '@/internal/xp-store/RewardCatalog';
+import { PurchaseHistory } from '@/internal/xp-store/PurchaseHistory';
+import { XPAnalytics } from '@/internal/xp-store/XPAnalytics';
+import { Card, CardContent } from '@/shared/ui/card';
+import { Button } from '@/shared/ui/button';
+import { Badge } from '@/shared/ui/badge';
 import { 
   ShoppingCart, 
   Coins, 
@@ -26,7 +26,7 @@ import {
   Target,
   Trophy
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/lib/utils';
 
 const XPStorePage = () => {
   const { section } = useParams<{ section?: string }>();

@@ -1,5 +1,5 @@
 import React from 'react';
-import { AutomationDashboard } from '@/components/automation';
+import { AutomationDashboard } from '@/internal/automation';
 
 export function AutomationPage() {
   return <AutomationDashboard />;

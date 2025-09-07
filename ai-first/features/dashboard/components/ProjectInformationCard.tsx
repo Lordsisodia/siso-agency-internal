@@ -1,5 +1,5 @@
 
-import { AnimatedCard } from "@/components/ui/animated-card";
+import { AnimatedCard } from "@/shared/ui/animated-card";
 
 interface ProjectInformationCardProps {
   projectName: string | null;

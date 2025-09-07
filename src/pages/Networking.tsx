@@ -1,20 +1,20 @@
 
-import { Sidebar } from '@/components/Sidebar';
+import { Sidebar } from '@/shared/Sidebar';
 import { Bot } from 'lucide-react';
 import {
   ExpandableChat,
   ExpandableChatHeader,
   ExpandableChatBody,
   ExpandableChatFooter,
-} from '@/components/ui/expandable-chat';
-import { ChatMessageList } from '@/components/ui/chat-message-list';
-import { ChatBubble, ChatBubbleAvatar, ChatBubbleMessage } from '@/components/ui/chat-bubble';
-import { ChatInput } from '@/components/ui/chat-input';
+} from '@/shared/ui/expandable-chat';
+import { ChatMessageList } from '@/shared/ui/chat-message-list';
+import { ChatBubble, ChatBubbleAvatar, ChatBubbleMessage } from '@/shared/ui/chat-bubble';
+import { ChatInput } from '@/shared/ui/chat-input';
 import { Send, Paperclip, Mic } from 'lucide-react';
-import { NetworkingGrid } from '@/components/networking/NetworkingGrid';
-import { NetworkingHeader } from '@/components/networking/NetworkingHeader';
+import { NetworkingGrid } from '@/partnership/networking/NetworkingGrid';
+import { NetworkingHeader } from '@/partnership/networking/NetworkingHeader';
 import { useState } from 'react';
-import { FloatingOrbs } from '@/components/effects/FloatingOrbs';
+import { FloatingOrbs } from '@/shared/effects/FloatingOrbs';
 
 export default function Networking() {
   const [searchQuery, setSearchQuery] = useState('');

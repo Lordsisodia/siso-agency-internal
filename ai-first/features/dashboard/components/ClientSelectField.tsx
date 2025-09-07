@@ -6,8 +6,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { cn } from "@/lib/utils";
+} from "@/shared/ui/select";
+import { cn } from "@/shared/lib/utils";
 
 interface ClientSelectFieldProps {
   value: string;

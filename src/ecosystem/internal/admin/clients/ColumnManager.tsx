@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/shared/ui/button';
 import { SlidersHorizontal, CheckCircle, Circle, Plus, Pin, PinOff } from 'lucide-react';
 import {
   DropdownMenu,
@@ -9,7 +9,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/shared/ui/dropdown-menu";
 import { ClientColumnPreference } from '@/types/client.types';
 import { ColumnCustomizationModal } from './ColumnCustomizationModal';
 

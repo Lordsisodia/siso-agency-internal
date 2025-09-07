@@ -4,9 +4,9 @@
  */
 
 import React from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { cn } from '@/lib/utils';
+import { Card, CardContent, CardHeader } from '@/shared/ui/card';
+import { Skeleton } from '@/shared/ui/skeleton';
+import { cn } from '@/shared/lib/utils';
 
 interface TasksLoadingFallbackProps {
   variant?: 'list' | 'kanban' | 'calendar' | 'header' | 'filters' | 'sidebar';

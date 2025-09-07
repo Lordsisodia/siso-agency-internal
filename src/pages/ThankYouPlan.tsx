@@ -3,12 +3,12 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { CheckCircle, ArrowRight, Clock, DollarSign, Phone } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { GradientHeading } from '@/components/ui/gradient-heading';
-import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/shared/ui/button';
+import { Input } from '@/shared/ui/input';
+import { GradientHeading } from '@/shared/ui/gradient-heading';
+import { useToast } from '@/shared/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { useOnboardingAuth } from '@/hooks/useOnboardingAuth';
+import { useOnboardingAuth } from '@/shared/hooks/useOnboardingAuth';
 
 const ThankYouPlan = () => {
   const navigate = useNavigate();

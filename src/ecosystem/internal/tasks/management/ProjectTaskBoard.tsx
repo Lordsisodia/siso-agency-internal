@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
+import { Button } from '@/shared/ui/button';
+import { Badge } from '@/shared/ui/badge';
+import { Progress } from '@/shared/ui/progress';
+import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover';
+import { Calendar as CalendarComponent } from '@/ecosystem/internal/calendar/ui/calendar';
 import { Calendar, AlertCircle, CheckCircle, Code, DollarSign, Calendar as CalendarIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/lib/utils';
 import { format } from 'date-fns';
 
 interface ProjectTask {

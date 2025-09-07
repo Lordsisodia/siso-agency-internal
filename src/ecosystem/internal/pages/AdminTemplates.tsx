@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AdminLayout } from '@/components/admin/layout/AdminLayout';
-import { Card } from '@/components/ui/card';
-import { BulkPlanCreation } from '@/components/admin/BulkPlanCreation';
-import { ShareablePlansSection } from '@/components/admin/templates/ShareablePlansSection';
-import { useAdminCheck } from '@/hooks/useAdminCheck';
+import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
+import { Card } from '@/shared/ui/card';
+import { BulkPlanCreation } from '@/ecosystem/internal/admin/dashboard/BulkPlanCreation';
+import { ShareablePlansSection } from '@/ecosystem/internal/admin/templates/ShareablePlansSection';
+import { useAdminCheck } from '@/shared/hooks/useAdminCheck';
 import { Loader2, FileStack, ChevronDown, ChevronUp, Users } from 'lucide-react';
-import { AdminPageTitle } from '@/components/admin/layout/AdminPageTitle';
-import { Button } from '@/components/ui/button';
+import { AdminPageTitle } from '@/ecosystem/internal/admin/layout/AdminPageTitle';
+import { Button } from '@/shared/ui/button';
 
 export default function AdminTemplates() {
   const { isAdmin, isLoading } = useAdminCheck();

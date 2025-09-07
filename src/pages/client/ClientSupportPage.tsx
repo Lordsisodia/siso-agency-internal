@@ -1,12 +1,12 @@
 
 import { useState } from 'react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/hooks/use-toast';
+import { Card } from '@/shared/ui/card';
+import { Button } from '@/shared/ui/button';
+import { Input } from '@/shared/ui/input';
+import { Textarea } from '@/shared/ui/textarea';
+import { useToast } from '@/shared/hooks/use-toast';
 import { Mail, MessageSquare, Phone, HelpCircle, ArrowRight } from 'lucide-react';
-import { ClientDashboardLayout } from "@/components/client/ClientDashboardLayout";
+import { ClientDashboardLayout } from "@/client/client/ClientDashboardLayout";
 
 export default function ClientSupportPage() {
   const [subject, setSubject] = useState('');

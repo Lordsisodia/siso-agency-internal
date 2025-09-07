@@ -1,4 +1,4 @@
-import { GlowEffect } from '@/components/ui/glow-effect';
+import { GlowEffect } from '@/shared/ui/glow-effect';
 import { CreditCard } from 'lucide-react';
 
 interface ExpenseCreditCardProps {

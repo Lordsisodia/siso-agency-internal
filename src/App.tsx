@@ -3,7 +3,7 @@ import { lazy, Suspense, useEffect } from 'react';
 import { ClerkHybridTaskService } from '@/ai-first/core/auth.service';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Toaster } from '@/shared/ui/toaster';
-import { ClerkProvider } from './components/ClerkProvider';
+import { ClerkProvider } from '@/shared/ClerkProvider';
 import { ClerkAuthGuard } from '@/ai-first/features/auth/components/ClerkAuthGuard';
 import { AuthGuard } from '@/ai-first/features/auth/components/AuthGuard';
 import { PageLoader } from '@/shared/ui/PageLoader';
@@ -23,8 +23,8 @@ const FeedbackDemo = lazy(() => import('./pages/FeedbackDemo'));
 const Profile = lazy(() => import('./pages/Profile'));
 
 // MCP Testing Components
-const MCPTestingDashboard = lazy(() => import('./components/mcp/MCPTestingDashboard'));
-const MCPWorkflowVisualizer = lazy(() => import('./components/mcp/MCPWorkflowVisualizer'));
+const MCPTestingDashboard = lazy(() => import('@/shared/mcp/MCPTestingDashboard'));
+const MCPWorkflowVisualizer = lazy(() => import('@/shared/mcp/MCPWorkflowVisualizer'));
 
 // XP Store Components
 const XPStorePage = lazy(() => import('./pages/XPStorePage'));
@@ -81,7 +81,7 @@ const ResourcesPage = lazy(() => import('./pages/resources/ResourcesPage'));
 
 // App Plan & Debug pages
 const AppPlan = lazy(() => import('./pages/AppPlan'));
-const AppPlanTestingDashboard = lazy(() => import('@/components/debug/AppPlanTestingDashboard'));
+const AppPlanTestingDashboard = lazy(() => import('@/shared/debug/AppPlanTestingDashboard'));
 const DebugPage = lazy(() => import('./pages/debug'));
 
 // Financial & Account section - archived
@@ -94,7 +94,7 @@ const UserFlowFeedbackPage = lazy(() => import('./pages/projects/UserFlowFeedbac
 const UserFlowNodesPage = lazy(() => import('./pages/projects/UserFlowNodesPage'));
 const UserFlowCodePage = lazy(() => import('./pages/projects/UserFlowCodePage'));
 const ProjectOnboardingPage = lazy(() => import('./pages/ProjectOnboardingPage'));
-const BusinessOnboarding = lazy(() => import('./components/onboarding/BusinessOnboarding').then(m => ({ default: m.BusinessOnboarding })));
+const BusinessOnboarding = lazy(() => import('@/internal/onboarding/BusinessOnboarding').then(m => ({ default: m.BusinessOnboarding })));
 const PartnershipPage = lazy(() => import('./pages/PartnershipPage'));
 
 // Partner Dashboard & Auth imports - separate bundle

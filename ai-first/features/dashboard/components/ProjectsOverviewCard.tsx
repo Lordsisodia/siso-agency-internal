@@ -1,7 +1,7 @@
 
-import { Card } from "@/components/ui/card";
+import { Card } from "@/shared/ui/card";
 import { Folder, CheckCircle, Clock } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
+import { Progress } from "@/shared/ui/progress";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 

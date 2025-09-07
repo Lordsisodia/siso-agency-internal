@@ -1,12 +1,12 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { ProjectHeader } from '@/components/projects/details/ProjectHeader';
-import { ProjectCardNavigation } from '@/components/projects/details/ProjectCardNavigation';
-import { UserFlowNavigation } from '@/components/projects/userflow/UserFlowNavigation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ProjectHeader } from '@/ecosystem/internal/projects/details/ProjectHeader';
+import { ProjectCardNavigation } from '@/ecosystem/internal/projects/details/ProjectCardNavigation';
+import { UserFlowNavigation } from '@/ecosystem/internal/projects/userflow/UserFlowNavigation';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
+import { Button } from '@/shared/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select';
 import { Download, Copy, Code } from 'lucide-react';
 
 export default function UserFlowCodePage() {

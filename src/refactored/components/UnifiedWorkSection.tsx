@@ -14,27 +14,27 @@ import {
   Trash,
   Settings
 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent } from '@/shared/ui/card';
 import { format } from 'date-fns';
 import { useImplementation } from '@/migration/feature-flags';
 import { theme } from '@/styles/theme';
-import { LoadingState } from '@/components/ui/loading-state';
-import { ErrorState } from '@/components/ui/error-state';
-import { TaskActionButtons } from '@/components/tasks/TaskActionButtons';
-import { TaskSeparator } from '@/components/tasks/TaskSeparator';
-import { TaskProgress } from '@/components/tasks/TaskProgress';
-import { SubtaskMetadata } from '@/components/tasks/SubtaskMetadata';
-import { TaskHeader } from '@/components/tasks/TaskHeader';
-import { SubtaskItem } from '@/components/tasks/SubtaskItem';
-import { AddSubtaskInput } from '@/components/tasks/AddSubtaskInput';
-import { SimpleFeedbackButton } from '@/components/feedback/SimpleFeedbackButton';
-import { useTaskEditing } from '@/hooks/useTaskEditing';
-import { useThoughtDump } from '@/hooks/useThoughtDump';
-import { useTaskFiltering } from '@/hooks/useTaskFiltering';
+import { LoadingState } from '@/shared/ui/loading-state';
+import { ErrorState } from '@/shared/ui/error-state';
+import { TaskActionButtons } from '@/ecosystem/internal/tasks/management/TaskActionButtons';
+import { TaskSeparator } from '@/ecosystem/internal/tasks/management/TaskSeparator';
+import { TaskProgress } from '@/ecosystem/internal/tasks/management/TaskProgress';
+import { SubtaskMetadata } from '@/ecosystem/internal/tasks/management/SubtaskMetadata';
+import { TaskHeader } from '@/ai-first/features/dashboard/components/TaskHeader';
+import { SubtaskItem } from '@/ai-first/features/dashboard/components/SubtaskItem';
+import { AddSubtaskInput } from '@/ecosystem/internal/tasks/management/AddSubtaskInput';
+import { SimpleFeedbackButton } from '@/internal/feedback/SimpleFeedbackButton';
+import { useTaskEditing } from '@/shared/hooks/useTaskEditing';
+import { useThoughtDump } from '@/shared/hooks/useThoughtDump';
+import { useTaskFiltering } from '@/shared/hooks/useTaskFiltering';
 import { WORK_THEMES } from '@/config/work-themes';
-import { CustomCalendar } from '@/components/ui/CustomCalendar';
-import { TaskStatsGrid } from '@/components/tasks/TaskStatsGrid';
-import { WorkProtocolCard } from '@/components/tasks/WorkProtocolCard';
+import { CustomCalendar } from '@/ecosystem/internal/calendar/ui/CustomCalendar';
+import { TaskStatsGrid } from '@/ecosystem/internal/tasks/management/TaskStatsGrid';
+import { WorkProtocolCard } from '@/ecosystem/internal/tasks/management/WorkProtocolCard';
 
 
 export type WorkType = keyof typeof WORK_THEMES;

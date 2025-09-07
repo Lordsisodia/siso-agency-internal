@@ -1,5 +1,5 @@
 
-import { Card } from "@/components/ui/card";
+import { Card } from "@/shared/ui/card";
 import { CheckSquare, Clock, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";

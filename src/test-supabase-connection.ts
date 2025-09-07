@@ -5,7 +5,7 @@
  * Run this in browser console to test the connection
  */
 
-import { supabaseAnon } from '@/lib/supabase-clerk';
+import { supabaseAnon } from '@/shared/lib/supabase-clerk';
 
 export async function testSupabaseConnection() {
   console.log('🧪 Testing Supabase connection...');

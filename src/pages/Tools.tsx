@@ -1,14 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 import { useState, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Tool } from '@/components/tools/types';
-import { AppLayout } from '@/components/layout/AppLayout';
+import { Tool } from '@/internal/tools/types';
+import { AppLayout } from '@/shared/layout/AppLayout';
 import { toast } from 'react-hot-toast';
-import { ToolsPageHeader } from '@/components/tools/ToolsPageHeader';
-import { MainContent } from '@/components/tools/layout/MainContent';
-import { ChatAssistant } from '@/components/tools/layout/ChatAssistant';
-import { enhancedTableQuery, castToMockTypeArray } from '@/utils/errorSuppressions';
-import { Sidebar } from '@/components/Sidebar';
+import { ToolsPageHeader } from '@/internal/tools/ToolsPageHeader';
+import { MainContent } from '@/internal/tools/layout/MainContent';
+import { ChatAssistant } from '@/internal/tools/layout/ChatAssistant';
+import { enhancedTableQuery, castToMockTypeArray } from '@/shared/utils/errorSuppressions';
+import { Sidebar } from '@/shared/Sidebar';
 
 // [Analysis] Tools page with optimized auth handling and memoized filters
 export default function Tools() {

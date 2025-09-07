@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
-import { AdminLayout } from '@/components/admin/layout/AdminLayout';
-import { AdminPageTitle } from '@/components/admin/layout/AdminPageTitle';
+import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
+import { AdminPageTitle } from '@/ecosystem/internal/admin/layout/AdminPageTitle';
 import { Settings } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Separator } from '@/components/ui/separator';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { useToast } from '@/hooks/use-toast';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/shared/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
+import { Separator } from '@/shared/ui/separator';
+import { Button } from '@/shared/ui/button';
+import { Input } from '@/shared/ui/input';
+import { Label } from '@/shared/ui/label';
+import { Switch } from '@/shared/ui/switch';
+import { useToast } from '@/shared/hooks/use-toast';
 import { Loader2, Users, Shield, Bell } from 'lucide-react';
-import { useAuthSession } from '@/hooks/useAuthSession';
+import { useAuthSession } from '@/shared/hooks/useAuthSession';
 
 export default function AdminSettings() {
   const [activeTab, setActiveTab] = useState('general');

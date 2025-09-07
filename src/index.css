@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap') layer(fonts);
-@import './components/ui/animations.css';
+@import './shared/ui/animations.css';
 @import './claudia-styles.css';
 
 @tailwind base;

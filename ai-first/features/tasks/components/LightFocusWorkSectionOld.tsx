@@ -15,8 +15,8 @@ import {
   Brain,
   Settings
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AnimatedDateHeader } from '@/components/ui/animated-date-header-v2';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
+import { AnimatedDateHeader } from '@/shared/ui/animated-date-header-v2';
 import { format } from 'date-fns';
 import { aiXPService, TaskAnalysis } from '@/ai-first/services/ai-xp-service';
 import { PersonalContextModal } from './PersonalContextModal';

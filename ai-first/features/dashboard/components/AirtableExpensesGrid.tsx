@@ -1,19 +1,19 @@
 
 import React, { useState, useEffect } from 'react';
-import { cn } from "@/lib/utils";
-import { FinancialTransaction } from "@/utils/financial";
-import { TableColumn } from "@/hooks/useTableColumns";
+import { cn } from "@/shared/lib/utils";
+import { FinancialTransaction } from "@/shared/utils/financial";
+import { TableColumn } from "@/shared/hooks/useTableColumns";
 import { SpreadsheetExpensesBody } from "./SpreadsheetExpensesBody";
 import { ExpensesTableHeader } from "./ExpensesTableHeader";
 import {
   Table,
   TableHeader,
   TableBody
-} from "@/components/ui/table";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Button } from '@/components/ui/button';
+} from "@/shared/ui/table";
+import { ScrollArea } from "@/shared/ui/scroll-area";
+import { Button } from '@/shared/ui/button';
 import { Plus } from 'lucide-react';
-import { useExpensesSort } from '@/hooks/useExpensesSort';
+import { useExpensesSort } from '@/shared/hooks/useExpensesSort';
 
 interface AirtableExpensesGridProps {
   expenses: FinancialTransaction[];

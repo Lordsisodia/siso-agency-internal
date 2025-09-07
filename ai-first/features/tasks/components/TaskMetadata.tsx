@@ -2,9 +2,9 @@
 import React from 'react';
 import { Task } from '@/types/task.types';
 import { PriorityBadge } from '../PriorityBadge';
-import { Badge } from '@/components/ui/badge';
+import { Badge } from '@/shared/ui/badge';
 import { format, isFuture } from 'date-fns';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/lib/utils';
 import { 
   Check, Clock, Tag, ArrowRight, CalendarIcon,
   RefreshCcw

@@ -28,14 +28,14 @@ import {
   LifeBuoy
 } from 'lucide-react';
 import { PartnershipLayout } from '@/ai-first/features/partnerships/components/PartnershipLayout';
-import { DashboardGreetingCard } from '@/components/ui/dashboard-templates';
-import { ResourcesHelpTemplate } from '@/components/ui/dashboard-templates';
-import type { FeaturedArticle, QuickHelpCard, HelpCenterCard, HelpCategory } from '@/components/ui/dashboard-templates';
-import { AIChatAssistant } from '@/components/support/AIChatAssistant';
-import { SupportTicketForm } from '@/components/support/SupportTicketForm';
-import { SearchSection } from '@/components/support/SearchSection';
-import { AdvancedSearchModal } from '@/components/support/AdvancedSearchModal';
-import { Button } from '@/components/ui/button';
+import { DashboardGreetingCard } from '@/shared/ui/dashboard-templates';
+import { ResourcesHelpTemplate } from '@/shared/ui/dashboard-templates';
+import type { FeaturedArticle, QuickHelpCard, HelpCenterCard, HelpCategory } from '@/shared/ui/dashboard-templates';
+import { AIChatAssistant } from '@/internal/support/AIChatAssistant';
+import { SupportTicketForm } from '@/internal/support/SupportTicketForm';
+import { SearchSection } from '@/internal/support/SearchSection';
+import { AdvancedSearchModal } from '@/internal/support/AdvancedSearchModal';
+import { Button } from '@/shared/ui/button';
 import { 
   featuredArticles, 
   quickHelpCards, 

@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { HelpCircle, Book, MessageSquare, FileText, ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/shared/ui/button';
 import { useNavigate } from 'react-router-dom';
 
 export function HelpSupportCard() {

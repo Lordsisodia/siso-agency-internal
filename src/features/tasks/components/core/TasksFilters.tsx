@@ -4,28 +4,28 @@
  */
 
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Label } from '@/components/ui/label';
+import { Button } from '@/shared/ui/button';
+import { Input } from '@/shared/ui/input';
+import { Badge } from '@/shared/ui/badge';
+import { Label } from '@/shared/ui/label';
 import { 
   Select, 
   SelectContent, 
   SelectItem, 
   SelectTrigger, 
   SelectValue 
-} from '@/components/ui/select';
+} from '@/shared/ui/select';
 import { 
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger
-} from '@/components/ui/accordion';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Separator } from '@/components/ui/separator';
-import { Switch } from '@/components/ui/switch';
-import { ScrollArea } from '@/components/ui/scroll-area';
+} from '@/shared/ui/accordion';
+import { Calendar } from '@/ecosystem/internal/calendar/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover';
+import { Separator } from '@/shared/ui/separator';
+import { Switch } from '@/shared/ui/switch';
+import { ScrollArea } from '@/shared/ui/scroll-area';
 import {
   Filter,
   X,
@@ -39,7 +39,7 @@ import {
   Search,
   Sliders
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/lib/utils';
 import { useTasksFilters, useTasks } from '../providers/TasksProvider';
 import { 
   TaskStatus, 
