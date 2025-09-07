@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
+import { Card } from '@/shared/ui/card';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/shared/hooks/use-toast';
+import { Skeleton } from '@/shared/ui/skeleton';
 import { FileText, Download, FileArchive, FilePlus, Image, File } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Button } from '@/shared/ui/button';
+import { Input } from '@/shared/ui/input';
 import { ClientDocument } from '@/types/client.types';
-import { ClientDashboardLayout } from "@/components/client/ClientDashboardLayout";
+import { ClientDashboardLayout } from "@/client/client/ClientDashboardLayout";
 
 export default function ClientDocumentsPage() {
   const [documents, setDocuments] = useState<ClientDocument[]>([]);

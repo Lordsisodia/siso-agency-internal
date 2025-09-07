@@ -1,8 +1,8 @@
 
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Card } from '@/components/ui/card';
+import { Avatar, AvatarImage, AvatarFallback } from '@/shared/ui/avatar';
+import { Card } from '@/shared/ui/card';
 
 interface TeamMember {
   id: string;

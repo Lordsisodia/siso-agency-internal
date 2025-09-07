@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
+import { Card } from '@/shared/ui/card';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/shared/hooks/use-toast';
+import { Skeleton } from '@/shared/ui/skeleton';
 import { TodoItem, ClientData } from '@/types/client.types';
-import { TodoList } from '@/components/admin/clients/TodoList';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { TodoList } from '@/ecosystem/internal/admin/clients/TodoList';
+import { Badge } from '@/shared/ui/badge';
+import { Button } from '@/shared/ui/button';
 import { CheckCircle, Circle, Clock, FilterIcon } from 'lucide-react';
 import {
   Select,
@@ -16,8 +16,8 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { ClientDashboardLayout } from "@/components/client/ClientDashboardLayout";
+} from "@/shared/ui/select";
+import { ClientDashboardLayout } from "@/client/client/ClientDashboardLayout";
 
 export default function ClientTasksPage() {
   const [client, setClient] = useState<ClientData | null>(null);

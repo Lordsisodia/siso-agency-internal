@@ -1,10 +1,10 @@
 
 import React, { useState } from 'react';
 import { Task } from '@/types/task.types';
-import { Card } from '@/components/ui/card';
-import { useTaskDragDrop } from '@/hooks/useTaskDragDrop';
-import { cn } from '@/lib/utils';
-import { Progress } from '@/components/ui/progress';
+import { Card } from '@/shared/ui/card';
+import { useTaskDragDrop } from '@/shared/hooks/useTaskDragDrop';
+import { cn } from '@/shared/lib/utils';
+import { Progress } from '@/shared/ui/progress';
 import { PriorityBadge } from './PriorityBadge';
 import { TaskDetailDrawer } from './task-detail/TaskDetailDrawer';
 import { GripVertical } from 'lucide-react';

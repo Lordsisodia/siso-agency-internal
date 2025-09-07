@@ -2,12 +2,12 @@ import { useState, useMemo } from 'react';
 import { AirtableClientsTable } from './AirtableClientsTable';
 import { ClientsCardGrid } from './ClientsCardGrid';
 import { ClientViewPreference } from '@/types/client.types';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { useClientsList } from '@/hooks/client';
+import { useLocalStorage } from '@/shared/hooks/useLocalStorage';
+import { useClientsList } from '@/shared/hooks/client';
 import { DashboardStats } from './DashboardStats';
 import { PriorityListing } from './PriorityListing';
 import { ClientsHeader } from './ClientsHeader';
-import { notionSpacing } from '@/lib/design-tokens';
+import { notionSpacing } from '@/shared/lib/design-tokens';
 
 const defaultViewPreference: ClientViewPreference = {
   columns: [

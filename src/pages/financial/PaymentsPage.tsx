@@ -1,30 +1,30 @@
 import { useState, useEffect } from 'react';
-import { FinancialLayout } from '@/components/layout/FinancialLayout';
+import { FinancialLayout } from '@/shared/layout/FinancialLayout';
 import { useQuery } from '@tanstack/react-query';
-import { fetchInvoices, fetchInvoiceById } from '@/utils/financial/invoicesApi';
-import { fetchTransactions, getFinancialSummary } from '@/utils/financial';
-import { TotalCostCard } from '@/components/admin/financials/TotalCostCard';
-import { ExpensesTimeline } from '@/components/admin/financials/ExpensesTimeline';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
+import { fetchInvoices, fetchInvoiceById } from '@/shared/utils/financial/invoicesApi';
+import { fetchTransactions, getFinancialSummary } from '@/shared/utils/financial';
+import { TotalCostCard } from '@/ecosystem/internal/admin/financials/TotalCostCard';
+import { ExpensesTimeline } from '@/ecosystem/internal/admin/financials/ExpensesTimeline';
+import { Card, CardHeader, CardTitle, CardContent } from '@/shared/ui/card';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/shared/ui/tabs';
+import { Badge } from '@/shared/ui/badge';
+import { Alert, AlertDescription } from '@/shared/ui/alert';
+import { Button } from '@/shared/ui/button';
 import { 
   Wallet, FileText, AlertCircle, Download, CreditCard, 
   Clock, DownloadCloud, Filter, ChevronDown, PieChart
 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Progress } from '@/components/ui/progress';
-import { Invoice, FinancialTransaction } from '@/utils/financial/types';
-import { PaymentsSummaryCards } from '@/components/admin/financials/payments/PaymentsSummaryCards';
-import { PaymentsHeader } from '@/components/admin/financials/payments/PaymentsHeader';
-import { PaymentMethodsSection } from '@/components/admin/financials/payments/PaymentMethodsSection';
-import { ExpenseCreditCard } from '@/components/admin/financials/ExpenseCreditCard';
-import { PaymentProgress } from '@/components/admin/financials/payments/PaymentProgress';
-import { InvoiceManagement } from '@/components/admin/financials/payments/InvoiceManagement';
-import { TokenUsageTracker } from '@/components/admin/financials/payments/TokenUsageTracker';
+import { useToast } from '@/shared/hooks/use-toast';
+import { ScrollArea } from '@/shared/ui/scroll-area';
+import { Progress } from '@/shared/ui/progress';
+import { Invoice, FinancialTransaction } from '@/shared/utils/financial/types';
+import { PaymentsSummaryCards } from '@/ecosystem/internal/admin/financials/payments/PaymentsSummaryCards';
+import { PaymentsHeader } from '@/ecosystem/internal/admin/financials/payments/PaymentsHeader';
+import { PaymentMethodsSection } from '@/ecosystem/internal/admin/financials/payments/PaymentMethodsSection';
+import { ExpenseCreditCard } from '@/ecosystem/internal/admin/financials/ExpenseCreditCard';
+import { PaymentProgress } from '@/ecosystem/internal/admin/financials/payments/PaymentProgress';
+import { InvoiceManagement } from '@/ecosystem/internal/admin/financials/payments/InvoiceManagement';
+import { TokenUsageTracker } from '@/ecosystem/internal/admin/financials/payments/TokenUsageTracker';
 
 export default function PaymentsPage() {
   const { toast } = useToast();

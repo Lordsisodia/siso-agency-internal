@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { motion, PanInfo, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, Edit3, ChevronRight, Clock } from 'lucide-react';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { Checkbox } from '@/shared/ui/checkbox';
+import { Badge } from '@/shared/ui/badge';
+import { Input } from '@/shared/ui/input';
+import { Button } from '@/shared/ui/button';
+import { cn } from '@/shared/lib/utils';
 
 interface MobileTaskItemProps {
   task: {

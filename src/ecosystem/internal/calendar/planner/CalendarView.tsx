@@ -1,15 +1,15 @@
 
 import React, { useState, useEffect } from 'react';
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar } from "@/ecosystem/internal/calendar/ui/calendar";
 import { supabase } from '@/integrations/supabase/client';
-import { useTasks } from '@/hooks/useTasks';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { useTasks } from '@/shared/hooks/useTasks';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
+import { Button } from '@/shared/ui/button';
 import { PlusCircle } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { useToast } from '@/components/ui/use-toast';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/ui/dialog';
+import { Input } from '@/shared/ui/input';
+import { useToast } from '@/shared/ui/use-toast';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select';
 
 export function CalendarView() {
   const [date, setDate] = useState<Date | undefined>(new Date());

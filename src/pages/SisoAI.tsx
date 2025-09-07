@@ -1,18 +1,18 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageSquare, Brain, Sparkles, Bot, Wrench, GraduationCap, Network, ChevronDown } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { ChatMessage } from '@/components/chat/ChatMessage';
-import { ChatInput } from '@/components/chat/ChatInput';
-import { useToast } from '@/hooks/use-toast';
+import { ScrollArea } from "@/shared/ui/scroll-area";
+import { ChatMessage } from '@/shared/chat/ChatMessage';
+import { ChatInput } from '@/shared/chat/ChatInput';
+import { useToast } from '@/shared/hooks/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AppLayout } from '@/components/layout/AppLayout';
+import { AppLayout } from '@/shared/layout/AppLayout';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/shared/ui/dropdown-menu";
 
 interface Message {
   role: 'assistant' | 'user';

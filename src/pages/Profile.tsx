@@ -1,15 +1,15 @@
 
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { ProfileHeader } from '@/components/profile/ProfileHeader';
-import { ProfileInfo } from '@/components/profile/ProfileInfo';
-import { PointsHistory } from '@/components/profile/PointsHistory';
-import { ProfileLayout } from '@/components/profile/ProfileLayout';
-import { ProfileSkeleton } from '@/components/profile/ProfileSkeleton';
-import { ProfileMetrics } from '@/components/profile/ProfileMetrics';
-import { ProfileProgress } from '@/components/profile/ProfileProgress';
-import { useProfileData } from '@/hooks/useProfileData';
+import { useToast } from '@/shared/hooks/use-toast';
+import { ProfileHeader } from '@/internal/profile/ProfileHeader';
+import { ProfileInfo } from '@/internal/profile/ProfileInfo';
+import { PointsHistory } from '@/internal/profile/PointsHistory';
+import { ProfileLayout } from '@/internal/profile/ProfileLayout';
+import { ProfileSkeleton } from '@/internal/profile/ProfileSkeleton';
+import { ProfileMetrics } from '@/internal/profile/ProfileMetrics';
+import { ProfileProgress } from '@/internal/profile/ProfileProgress';
+import { useProfileData } from '@/shared/hooks/useProfileData';
 import { SignOutButton } from '@/ai-first/features/auth/components/SignOutButton';
 
 const Profile = () => {

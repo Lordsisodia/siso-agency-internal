@@ -1,7 +1,16 @@
 
 export type TaskCategory = 'main' | 'weekly' | 'daily' | 'siso_app_dev' | 'onboarding_app' | 'instagram';
-export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
-export type TaskStatus = 'pending' | 'in_progress' | 'completed';
+export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent' | 'critical';
+export type TaskStatus = 'pending' | 'in_progress' | 'completed' | 'blocked' | 'overdue';
+export type WorkType = 'deep' | 'light' | 'morning';
+
+export interface Subtask {
+  id: string;
+  title: string;
+  description?: string;
+  status: TaskStatus;
+  workType?: WorkType;
+}
 
 export interface Task {
   id: string;
@@ -9,8 +18,10 @@ export interface Task {
   description?: string;
   status: TaskStatus;
   priority: TaskPriority;
+  workType?: WorkType;
   due_date?: string;
   category: TaskCategory;
+  subtasks?: Subtask[];
   labels?: string[];
   estimated_time?: number;
   assigned_to?: string;
@@ -35,6 +46,7 @@ export interface TaskStats {
     medium: number;
     high: number;
     urgent: number;
+    critical: number;
   };
   byDay: Array<{
     day: string;

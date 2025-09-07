@@ -1,9 +1,9 @@
 import React from 'react';
 import { ClientData } from '@/types/client.types';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/shared/ui/card';
+import { Badge } from '@/shared/ui/badge';
+import { Button } from '@/shared/ui/button';
+import { Progress } from '@/shared/ui/progress';
 import { 
   BarChart, DollarSign, ArrowUpRight, ArrowDownRight, Plus, Download, Filter
 } from 'lucide-react';

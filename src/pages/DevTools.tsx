@@ -1,5 +1,5 @@
 import React from 'react';
-import { AdminLayout } from '@/components/admin/layout/AdminLayout';
+import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
 import { ClaudiaMain } from '@/ai-first/features/claudia/components/ClaudiaMain';
 
 export default function DevTools() {

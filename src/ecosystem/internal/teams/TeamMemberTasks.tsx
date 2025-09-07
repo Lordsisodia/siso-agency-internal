@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { CheckCircle, Circle, Clock, AlertCircle } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { Badge } from '@/shared/ui/badge';
 
 interface Task {
   id: string;

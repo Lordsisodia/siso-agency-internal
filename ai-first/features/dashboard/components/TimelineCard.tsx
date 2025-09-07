@@ -1,6 +1,6 @@
 
-import { AnimatedCard } from "@/components/ui/animated-card";
-import { Button } from "@/components/ui/button";
+import { AnimatedCard } from "@/shared/ui/animated-card";
+import { Button } from "@/shared/ui/button";
 import { ArrowUpRight, Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 

@@ -2,7 +2,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { AdminLayout } from '@/internal/admin/layout/AdminLayout';
 import { format, addWeeks, getYear, isToday } from 'date-fns';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { useClerkUser } from '@/components/ClerkProvider';
+import { useClerkUser } from '@/shared/ClerkProvider';
 import { ThoughtDumpResults } from '@/ai-first/features/tasks/ui/ThoughtDumpResults';
 import { EisenhowerMatrixModal } from '@/ai-first/features/tasks/ui/EisenhowerMatrixModal';
 import { TabLayoutWrapper } from './TabLayoutWrapper';
@@ -16,7 +16,7 @@ import { PriorityTasksSection } from '@/ai-first/features/tasks/components/Prior
 import { QuickActionsSection } from '@/ai-first/features/tasks/ui/QuickActionsSection';
 import { MonthlyProgressSection } from '@/ai-first/features/tasks/components/MonthlyProgressSection';
 import { MorningRoutineTab } from '@/ai-first/features/tasks/components/MorningRoutineTab';
-import { LightWorkTab } from '@/components/tabs/LightWorkTab';
+import { LightWorkTab } from '@/shared/tabs/LightWorkTab';
 import { DeepFocusTab } from '@/ai-first/features/tasks/components/DeepFocusTab';
 import { TimeBoxTab } from '@/ai-first/features/tasks/components/TimeBoxTab';
 import { NightlyCheckoutTab } from '@/ai-first/features/tasks/components/NightlyCheckoutTab';
@@ -27,7 +27,7 @@ import { TabContentRenderer } from '@/refactored/components/TabContentRenderer';
 import { isFeatureEnabled, useImplementation } from '@/migration/feature-flags';
 import { LoadingState } from '@/shared/ui/loading-state';
 import { theme } from '@/styles/theme';
-import { SimpleFeedbackButton } from '@/components/feedback/SimpleFeedbackButton';
+import { SimpleFeedbackButton } from '@/internal/feedback/SimpleFeedbackButton';
 
 const AdminLifeLock: React.FC = () => {
   const navigate = useNavigate();
@@ -324,20 +324,6 @@ const AdminLifeLock: React.FC = () => {
                       onCloseEisenhowerModal={() => setShowEisenhowerModal(false)}
                       onApplyOrganization={handleApplyOrganization}
                       onReanalyze={handleReanalyze}
-                    />
-                  );
-                
-                case 'work':
-                  return (
-                    <DeepFocusTab
-                      user={user}
-                      todayCard={todayCard}
-                      refreshTrigger={refreshTrigger}
-                      onRefresh={() => setRefreshTrigger(prev => prev + 1)}
-                      onTaskToggle={handleTaskToggle}
-                      onQuickAdd={handleQuickAdd}
-                      onCustomTaskAdd={handleCustomTaskAdd}
-                      onCardClick={handleCardClick}
                     />
                   );
                 

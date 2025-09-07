@@ -13,7 +13,7 @@ import {
   GanttFeature,
   GanttMarker,
   GanttTimeline
-} from '@/components/ui/gantt';
+} from '@/shared/ui/gantt';
 
 type TimelineTaskViewProps = {
   memberId: string | undefined;

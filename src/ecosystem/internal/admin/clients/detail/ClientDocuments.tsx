@@ -1,9 +1,9 @@
 
 import React, { useState } from 'react';
 import { ClientData } from '@/types/client.types';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
+import { Button } from '@/shared/ui/button';
+import { Input } from '@/shared/ui/input';
 
 interface PlanLinks {
   app_plan: string;

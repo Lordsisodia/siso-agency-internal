@@ -1,10 +1,10 @@
 
 import React, { useState } from 'react';
-import { Card } from '@/components/ui/card';
+import { Card } from '@/shared/ui/card';
 import { TaskList } from './TaskList';
-import { Chip } from '@/components/ui/chip';
-import { TaskCategory } from '@/hooks/useTasks';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Chip } from '@/shared/ui/chip';
+import { TaskCategory } from '@/shared/hooks/useTasks';
+import { Tabs, TabsList, TabsTrigger } from '@/shared/ui/tabs';
 import { useSearchParams } from 'react-router-dom';
 import { TaskAnalytics } from './TaskAnalytics';
 import { motion } from 'framer-motion';

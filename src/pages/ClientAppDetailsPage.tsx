@@ -1,18 +1,18 @@
 import { useParams, Link } from 'react-router-dom';
-import { AppLayout } from '@/components/layout/AppLayout';
-import { useClientAppDetails } from '@/hooks/useClientAppDetails';
-import { ClientAppHeader } from '@/components/client-app/ClientAppHeader';
-import { ClientAppStats } from '@/components/client-app/ClientAppStats';
-import { ClientAppTimeline } from '@/components/client-app/ClientAppTimeline';
-import { ClientAppFeatures } from '@/components/client-app/ClientAppFeatures';
-import { ClientAppMediaPreview } from '@/components/client-app/ClientAppMediaPreview';
-import { ClientAppCaseStudy } from '@/components/client-app/ClientAppCaseStudy';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ProjectActions } from '@/components/projects/details/ProjectActions';
+import { AppLayout } from '@/shared/layout/AppLayout';
+import { useClientAppDetails } from '@/shared/hooks/useClientAppDetails';
+import { ClientAppHeader } from '@/client/client-app/ClientAppHeader';
+import { ClientAppStats } from '@/client/client-app/ClientAppStats';
+import { ClientAppTimeline } from '@/client/client-app/ClientAppTimeline';
+import { ClientAppFeatures } from '@/client/client-app/ClientAppFeatures';
+import { ClientAppMediaPreview } from '@/client/client-app/ClientAppMediaPreview';
+import { ClientAppCaseStudy } from '@/client/client-app/ClientAppCaseStudy';
+import { Button } from '@/shared/ui/button';
+import { Skeleton } from '@/shared/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
+import { ProjectActions } from '@/ecosystem/internal/projects/details/ProjectActions';
 import { ArrowLeft } from 'lucide-react';
-import { Spotlight } from '@/components/ui/spotlight';
+import { Spotlight } from '@/shared/ui/spotlight';
 
 // Function to get preview data based on client ID
 const getPreviewData = (clientId: string) => {

@@ -1,4 +1,4 @@
-import { Card } from "@/components/ui/card";
+import { Card } from "@/shared/ui/card";
 import { Link } from "react-router-dom";
 import { Network, GraduationCap, Wrench, Users, Bot } from 'lucide-react';
 

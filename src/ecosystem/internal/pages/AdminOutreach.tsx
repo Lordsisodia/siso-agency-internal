@@ -1,28 +1,28 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { AdminLayout } from '@/components/admin/layout/AdminLayout';
-import { AdminPageTitle } from '@/components/admin/layout/AdminPageTitle';
+import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
+import { AdminPageTitle } from '@/ecosystem/internal/admin/layout/AdminPageTitle';
 import { Megaphone } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useInstagramLeads } from '@/hooks/useInstagramLeads';
-import { Button } from '@/components/ui/button';
-import { useOutreachColumnPreferences } from '@/hooks/useOutreachColumnPreferences';
-import { useOutreachAccounts } from '@/hooks/useOutreachAccounts';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/shared/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
+import { useInstagramLeads } from '@/shared/hooks/useInstagramLeads';
+import { Button } from '@/shared/ui/button';
+import { useOutreachColumnPreferences } from '@/shared/hooks/useOutreachColumnPreferences';
+import { useOutreachAccounts } from '@/shared/hooks/useOutreachAccounts';
 import { toast } from "sonner";
 import { UserPlus, BarChart3, Star, Edit, Plus } from 'lucide-react';
-import { INITIAL_COLUMNS } from '@/components/admin/outreach/types';
-import { LeadsTable } from '@/components/admin/outreach/leads/LeadsTable';
-import { LeadsToolbar } from '@/components/admin/outreach/leads/LeadsToolbar';
-import { LeadDetailSheet } from '@/components/admin/outreach/LeadDetailSheet';
-import { LeadsFunnelChart } from '@/components/admin/outreach/LeadsFunnelChart';
-import { OutreachAnalyticsCards } from '@/components/admin/outreach/OutreachAnalyticsCards';
-import { OutreachActivityLog } from '@/components/admin/outreach/OutreachActivityLog';
-import { AccountsGrid } from '@/components/admin/outreach/accounts/AccountsGrid';
-import { AccountManagementDialog } from '@/components/admin/outreach/accounts/AccountManagementDialog';
-import { PlatformFilters } from '@/components/admin/outreach/accounts/PlatformFilters';
-import { IndustryFilter } from '@/components/admin/outreach/accounts/IndustryFilter';
+import { INITIAL_COLUMNS } from '@/ecosystem/internal/admin/outreach/types';
+import { LeadsTable } from '@/ecosystem/internal/admin/outreach/leads/LeadsTable';
+import { LeadsToolbar } from '@/ecosystem/internal/admin/outreach/leads/LeadsToolbar';
+import { LeadDetailSheet } from '@/ecosystem/internal/admin/outreach/LeadDetailSheet';
+import { LeadsFunnelChart } from '@/ecosystem/internal/admin/outreach/LeadsFunnelChart';
+import { OutreachAnalyticsCards } from '@/ecosystem/internal/admin/outreach/OutreachAnalyticsCards';
+import { OutreachActivityLog } from '@/ecosystem/internal/admin/outreach/OutreachActivityLog';
+import { AccountsGrid } from '@/ecosystem/internal/admin/outreach/accounts/AccountsGrid';
+import { AccountManagementDialog } from '@/ecosystem/internal/admin/outreach/accounts/AccountManagementDialog';
+import { PlatformFilters } from '@/ecosystem/internal/admin/outreach/accounts/PlatformFilters';
+import { IndustryFilter } from '@/ecosystem/internal/admin/outreach/accounts/IndustryFilter';
 import type { OutreachAccount } from '@/types/outreach';
-import type { OutreachStats } from '@/components/admin/outreach/types';
+import type { OutreachStats } from '@/ecosystem/internal/admin/outreach/types';
 import {
   Table,
   TableBody,
@@ -30,9 +30,9 @@ import {
   TableHead,
   TableHeader,
   TableRow
-} from '@/components/ui/table';
-import { formatCompactNumber } from '@/lib/formatters';
-import { Badge } from '@/components/ui/badge';
+} from '@/shared/ui/table';
+import { formatCompactNumber } from '@/shared/lib/formatters';
+import { Badge } from '@/shared/ui/badge';
 import { Calendar, CheckCircle, XCircle, FileText } from 'lucide-react';
 
 const AdminOutreach = () => {

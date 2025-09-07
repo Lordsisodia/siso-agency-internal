@@ -1,11 +1,11 @@
 
 import { useEffect } from 'react';
-import { AdminLayout } from '@/components/admin/layout/AdminLayout';
-import { useAdminCheck } from '@/hooks/useAdminCheck';
+import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
+import { useAdminCheck } from '@/shared/hooks/useAdminCheck';
 import { Loader2, Users } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { AdminClientsView } from '@/components/admin/clients/AdminClientsView';
-import { AdminPageTitle } from '@/components/admin/layout/AdminPageTitle';
+import { useToast } from '@/shared/hooks/use-toast';
+import { AdminClientsView } from '@/ecosystem/internal/admin/clients/AdminClientsView';
+import { AdminPageTitle } from '@/ecosystem/internal/admin/layout/AdminPageTitle';
 
 export default function AdminClients() {
   const { isAdmin, isLoading } = useAdminCheck();

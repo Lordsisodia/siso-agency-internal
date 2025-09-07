@@ -1,13 +1,13 @@
 import { motion } from 'framer-motion';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/shared/ui/card';
+import { Button } from '@/shared/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Plus, FolderPlus, GitBranch, Code, Server, Briefcase } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { useMainUserProject } from '@/hooks/useUserProjects';
-import { useClientData } from '@/hooks/useClientData';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/shared/ui/badge';
+import { Progress } from '@/shared/ui/progress';
+import { useMainUserProject } from '@/shared/hooks/useUserProjects';
+import { useClientData } from '@/shared/hooks/useClientData';
+import { Skeleton } from '@/shared/ui/skeleton';
 
 export function MainProjectCard() {
   const navigate = useNavigate();

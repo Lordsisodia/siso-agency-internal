@@ -15,13 +15,13 @@ import {
   BookOpen,
   ExternalLink
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
+import { Button } from '@/shared/ui/button';
+import { Badge } from '@/shared/ui/badge';
 import { PartnershipLayout } from '@/ai-first/features/partnerships/components/PartnershipLayout';
 import { PartnershipReferralsTable } from '@/ai-first/features/partnerships/components/PartnershipReferralsTable';
 import { AirtablePartnersTable } from '@/ai-first/features/partnerships/components/AirtablePartnersTable';
-import { DashboardGreetingCard } from '@/components/ui/dashboard-templates';
+import { DashboardGreetingCard } from '@/shared/ui/dashboard-templates';
 
 export default function Clients() {
   const navigate = useNavigate();

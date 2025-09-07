@@ -1,9 +1,9 @@
 import React from 'react';
 import { ClientData } from '@/types/client.types';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Badge } from '@/shared/ui/badge';
+import { Card, CardContent, CardFooter, CardHeader } from '@/shared/ui/card';
 import { Calendar, ArrowRight, AlertTriangle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/shared/ui/button';
 import { formatDistanceToNow } from 'date-fns';
 
 interface PriorityCardProps {

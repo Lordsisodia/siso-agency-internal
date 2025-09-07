@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { trackUsage } from '@/lib/claudia-api';
+import { trackUsage } from '@/shared/lib/claudia-api';
 
 // Initialize Anthropic client
 // Note: In production, the API key should be handled server-side

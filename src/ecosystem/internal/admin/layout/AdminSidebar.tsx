@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import AdminSidebarLogo from './AdminSidebarLogo';
 import { AdminSidebarNavigation } from './AdminSidebarNavigation';
-import { SidebarFooter } from '@/components/sidebar/SidebarFooter';
+import { SidebarFooter } from '@/shared/sidebar/SidebarFooter';
 import { Menu, X } from 'lucide-react';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { Button } from '@/components/ui/button';
+import { useIsMobile } from '@/shared/hooks/use-mobile';
+import { Button } from '@/shared/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface SidebarProps {

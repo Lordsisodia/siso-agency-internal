@@ -1,7 +1,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
-import { DashboardLayout } from '@/components/dashboard/layout/DashboardLayout';
-import { AppPlanGenerator } from '@/components/app-plan/AppPlanGenerator';
+import { DashboardLayout } from '@/internal/dashboard/layout/DashboardLayout';
+import { AppPlanGenerator } from '@/internal/app-plan/AppPlanGenerator';
 import { motion } from 'framer-motion';
 
 export default function AppPlanPage() {

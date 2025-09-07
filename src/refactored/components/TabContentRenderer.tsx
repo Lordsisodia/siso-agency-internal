@@ -13,14 +13,14 @@
  */
 
 import React from 'react';
-import { CleanDateNav } from '@/components/ui/clean-date-nav';
+import { CleanDateNav } from '@/shared/ui/clean-date-nav';
 import { 
   TabId, 
   EnhancedTabConfig, 
   TabLayoutProps,
   getEnhancedTabConfig,
   isSpecialLayout 
-} from '../data/admin-lifelock-tabs';
+} from '@/ecosystem/internal/lifelock/admin-lifelock-tabs';
 
 /**
  * Standard tab layout wrapper - used by most tabs

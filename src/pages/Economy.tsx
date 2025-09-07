@@ -1,4 +1,4 @@
-import { Card } from "@/components/ui/card";
+import { Card } from "@/shared/ui/card";
 import { Link } from "react-router-dom";
 import { Coins, Trophy, ArrowRightLeft } from 'lucide-react';
 

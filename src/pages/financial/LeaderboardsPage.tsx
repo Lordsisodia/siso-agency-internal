@@ -1,11 +1,11 @@
 
 import React from 'react';
-import { FinancialLayout } from '@/components/layout/FinancialLayout';
+import { FinancialLayout } from '@/shared/layout/FinancialLayout';
 import { useNavigate } from 'react-router-dom';
-import { Spotlight } from '@/components/ui/spotlight';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Spotlight } from '@/shared/ui/spotlight';
+import { Badge } from '@/shared/ui/badge';
+import { Card, CardContent, CardFooter } from '@/shared/ui/card';
+import { Button } from '@/shared/ui/button';
 import { ExternalLink, FolderOpen } from 'lucide-react';
 import { motion } from 'framer-motion';
 

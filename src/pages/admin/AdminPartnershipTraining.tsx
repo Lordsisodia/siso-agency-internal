@@ -1,12 +1,12 @@
-import { AdminLayout } from '@/components/admin/layout/AdminLayout';
-import { AdminPageTitle } from '@/components/admin/layout/AdminPageTitle';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { EnhancedTable } from '@/components/ui/enhanced-table';
-import StatsCard from '@/components/dashboard/StatsCard';
-import { EnhancedProgressCard } from '@/components/dashboard/EnhancedProgressCard';
-import { RecentActivityCard } from '@/components/dashboard/cards/RecentActivityCard';
+import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
+import { AdminPageTitle } from '@/ecosystem/internal/admin/layout/AdminPageTitle';
+import { Card } from '@/shared/ui/card';
+import { Button } from '@/shared/ui/button';
+import { Badge } from '@/shared/ui/badge';
+import { EnhancedTable } from '@/shared/ui/enhanced-table';
+import StatsCard from '@/internal/dashboard/StatsCard';
+import { EnhancedProgressCard } from '@/internal/dashboard/EnhancedProgressCard';
+import { RecentActivityCard } from '@/internal/dashboard/cards/RecentActivityCard';
 import { 
   BookOpen, 
   Users, 
@@ -24,7 +24,7 @@ import {
   Target
 } from 'lucide-react';
 import { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
 
 const AdminPartnershipTraining = () => {
   const [selectedCourses, setSelectedCourses] = useState<string[]>([]);

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { GridBackground } from "@/components/ui/glowing-card";
-import { usePortfolioData } from '@/hooks/usePortfolioData';
-import { adaptPortfolioToLeaderboard } from '@/components/portfolio/PortfolioLeaderboardAdapter';
-import { PortfolioLeaderboardTable } from '@/components/portfolio/PortfolioLeaderboardTable';
-import { ProjectDetailsModal } from '@/components/portfolio/ProjectDetailsModal';
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
+import { Button } from "@/shared/ui/button";
+import { GridBackground } from "@/shared/ui/glowing-card";
+import { usePortfolioData } from '@/shared/hooks/usePortfolioData';
+import { adaptPortfolioToLeaderboard } from '@/client/portfolio/PortfolioLeaderboardAdapter';
+import { PortfolioLeaderboardTable } from '@/client/portfolio/PortfolioLeaderboardTable';
+import { ProjectDetailsModal } from '@/client/portfolio/ProjectDetailsModal';
 import CountUp from 'react-countup';
 
 export default function PublicPortfolio() {

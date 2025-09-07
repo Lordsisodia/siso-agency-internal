@@ -19,7 +19,7 @@ import { LucideIcon } from 'lucide-react';
 import { MorningRoutineSection } from '@/ai-first/features/tasks/components/MorningRoutineSection';
 import { DeepFocusWorkSection } from '@/ai-first/features/tasks/components/DeepFocusWorkSection-v2';
 import { LightFocusWorkSection } from '@/ai-first/features/tasks/components/LightFocusWorkSection-v2';
-import { EnhancedLightWorkManager } from '@/components/ui/enhanced-light-work-manager';
+import { EnhancedLightWorkManager } from '@/shared/ui/enhanced-light-work-manager';
 import { HomeWorkoutSection } from '@/ai-first/features/tasks/components/HomeWorkoutSection';
 import { HealthNonNegotiablesSection } from '@/ai-first/features/tasks/components/HealthNonNegotiablesSection';
 import { TimeboxSection } from '@/ai-first/features/tasks/components/TimeboxSection';

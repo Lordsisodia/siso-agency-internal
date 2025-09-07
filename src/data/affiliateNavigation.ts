@@ -14,7 +14,7 @@ import {
   TrendingUp,
   Target
 } from 'lucide-react';
-import { SidebarConfig, NavigationItem } from '@/components/dashboard/UnifiedSidebar';
+import { SidebarConfig, NavigationItem } from '@/internal/dashboard/UnifiedSidebar';
 
 export const affiliateNavigationItems: NavigationItem[] = [
   {

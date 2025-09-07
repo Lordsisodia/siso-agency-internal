@@ -1,10 +1,10 @@
 import { useParams } from 'react-router-dom';
-import { AdminLayout } from '@/components/admin/layout/AdminLayout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card';
+import { Badge } from '@/shared/ui/badge';
+import { Button } from '@/shared/ui/button';
 import { ArrowDownToLine, Expand, Loader2 } from 'lucide-react';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/shared/ui/use-toast';
 
 export default function AdminUserFlow() {
   const { projectId } = useParams<{ projectId: string }>();

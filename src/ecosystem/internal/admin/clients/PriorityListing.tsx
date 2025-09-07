@@ -1,4 +1,4 @@
-import { useClientsList } from '@/hooks/client';
+import { useClientsList } from '@/shared/hooks/client';
 import { PriorityCard } from './PriorityCard';
 
 interface PriorityListingProps {

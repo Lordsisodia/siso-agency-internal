@@ -1,6 +1,6 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
+import { Badge } from '@/shared/ui/badge';
 import { 
   TrendingUp, 
   Zap, 
@@ -11,7 +11,7 @@ import {
   Award,
   Activity
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/lib/utils';
 import { FlowStatsService } from '@/services/flowStatsService';
 import { FlowStats, FlowSession } from './FlowStateTimer';
 

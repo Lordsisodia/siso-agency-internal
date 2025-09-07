@@ -1,11 +1,11 @@
 
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { SidebarProvider } from '@/components/ui/sidebar';
-import { Sidebar } from '@/components/Sidebar';
-import { Button } from '@/components/ui/button';
+import { SidebarProvider } from '@/shared/ui/sidebar';
+import { Sidebar } from '@/shared/Sidebar';
+import { Button } from '@/shared/ui/button';
 import { AlertTriangle, ChevronLeft } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/shared/hooks/use-toast';
 import { safeSupabase } from '@/ai-first/core/data.service';
 
 const BlogPost = () => {

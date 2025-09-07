@@ -15,19 +15,19 @@ import {
   Activity,
   Heart
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
+import { Button } from '@/shared/ui/button';
+import { Checkbox } from '@/shared/ui/checkbox';
+import { Input } from '@/shared/ui/input';
 import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
-import { useClerkUser } from '@/components/ClerkProvider';
+import { cn } from '@/shared/lib/utils';
+import { useClerkUser } from '@/shared/ClerkProvider';
 import { workTypeApiClient } from '@/services/workTypeApiClient';
 import { theme } from '@/styles/theme';
 import { getTasksForSection } from '@/data/task-defaults';
 import { isFeatureEnabled, useImplementation } from '@/migration/feature-flags';
-import { LoadingState } from '@/components/ui/loading-state';
-import { ErrorState } from '@/components/ui/error-state';
+import { LoadingState } from '@/shared/ui/loading-state';
+import { ErrorState } from '@/shared/ui/error-state';
 
 
 

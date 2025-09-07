@@ -2,16 +2,16 @@ import { memo, useState, useEffect } from 'react';
 import { motion, useScroll, useSpring } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Waves } from '@/components/ui/waves-background';
-import { AgencyPartnershipHeader } from '@/components/ui/agency-partnership-header';
-import { Stats } from '@/components/ui/stats-section-with-text';
+import { Waves } from '@/shared/ui/waves-background';
+import { AgencyPartnershipHeader } from '@/shared/ui/agency-partnership-header';
+import { Stats } from '@/shared/ui/stats-section-with-text';
 import { PartnershipNavigation } from '@/ai-first/features/partnerships/components/PartnershipNavigation';
 import { PartnershipPortfolio } from '@/ai-first/features/partnerships/components/PartnershipPortfolio';
 import { PartnershipBenefits } from '@/ai-first/features/partnerships/components/PartnershipBenefits';
 import { PartnershipProcess } from '@/ai-first/features/partnerships/components/PartnershipProcess';
 import { PartnershipAIChat } from '@/ai-first/features/partnerships/components/PartnershipAIChat';
 import { PartnershipTraining } from '@/ai-first/features/partnerships/components/PartnershipTraining';
-import Footer from '@/components/Footer';
+import Footer from '@/shared/Footer';
 import { PartnerRequirements } from '@/ai-first/features/partnerships/ui/PartnerRequirements';
 
 const PartnershipPage = memo(() => {

@@ -2,8 +2,8 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { CheckCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { GradientHeading } from '@/components/ui/gradient-heading';
+import { Button } from '@/shared/ui/button';
+import { GradientHeading } from '@/shared/ui/gradient-heading';
 
 const ThankYou = () => {
   return (

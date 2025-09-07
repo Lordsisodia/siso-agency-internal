@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/shared/ui/skeleton";
 
 // Skeleton loading component for ClientsTable
 export const ClientsTableSkeleton = () => (

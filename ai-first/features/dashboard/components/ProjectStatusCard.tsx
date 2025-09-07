@@ -1,7 +1,7 @@
 
-import { AnimatedCard } from "@/components/ui/animated-card";
-import { Progress } from "@/components/ui/progress";
-import { Button } from "@/components/ui/button";
+import { AnimatedCard } from "@/shared/ui/animated-card";
+import { Progress } from "@/shared/ui/progress";
+import { Button } from "@/shared/ui/button";
 import { ArrowUpRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 

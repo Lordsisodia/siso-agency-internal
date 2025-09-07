@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader } from '@/shared/ui/card';
+import { Button } from '@/shared/ui/button';
+import { Badge } from '@/shared/ui/badge';
 import { 
   Calendar, 
   ChevronLeft, 
@@ -11,7 +11,7 @@ import {
   Zap,
   TrendingUp
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/lib/utils';
 import { motion, PanInfo, useMotionValue, useTransform } from 'framer-motion';
 import { format, isSameDay } from 'date-fns';
 import { CompletionRing, StreakIndicator, WeekProgressBar } from './WeekViewEnhancements';

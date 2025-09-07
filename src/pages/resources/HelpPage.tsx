@@ -1,11 +1,11 @@
 
-import { AppLayout } from "@/components/layout/AppLayout";
-import { HelpNavigation } from "@/components/help/HelpNavigation";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
+import { AppLayout } from "@/shared/layout/AppLayout";
+import { HelpNavigation } from "@/shared/help/HelpNavigation";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/shared/ui/breadcrumb";
 import { useLocation } from "react-router-dom";
-import { GettingStartedContent } from "@/components/help/content/GettingStartedContent";
-import { DocumentationContent } from "@/components/help/content/DocumentationContent";
-import { FAQContent } from "@/components/help/content/FAQContent";
+import { GettingStartedContent } from "@/shared/help/content/GettingStartedContent";
+import { DocumentationContent } from "@/shared/help/content/DocumentationContent";
+import { FAQContent } from "@/shared/help/content/FAQContent";
 
 export default function HelpPage() {
   const location = useLocation();

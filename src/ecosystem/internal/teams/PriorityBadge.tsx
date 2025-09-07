@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Flame, AlertCircle, ArrowUp, Minus } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/lib/utils';
 import { TaskPriority } from '@/types/task.types';
 
 interface PriorityBadgeProps {

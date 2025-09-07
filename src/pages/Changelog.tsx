@@ -1,11 +1,11 @@
 
 import React from "react";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { TimelineDemo } from "@/components/ui/timeline.demo";
-import { AdminLayout } from "@/components/admin/layout/AdminLayout";
-import { AdminPageTitle } from "@/components/admin/layout/AdminPageTitle";
+import { SidebarProvider } from "@/shared/ui/sidebar";
+import { TimelineDemo } from "@/shared/ui/timeline.demo";
+import { AdminLayout } from "@/ecosystem/internal/admin/layout/AdminLayout";
+import { AdminPageTitle } from "@/ecosystem/internal/admin/layout/AdminPageTitle";
 import { Settings } from "lucide-react";
-import { useAdminCheck } from "@/hooks/useAdminCheck";
+import { useAdminCheck } from "@/shared/hooks/useAdminCheck";
 import { Loader2 } from "lucide-react";
 
 export default function ChangelogPage() {

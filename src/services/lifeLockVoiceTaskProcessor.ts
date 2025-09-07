@@ -3,23 +3,14 @@
 import { aiTaskAgent } from '@/ai-first/core/task.service';
 import { grokTaskService } from '@/ai-first/core/task.service';
 
-export interface LifeLockTask {
-  id: string;
-  title: string;
-  description?: string;
-  workType: 'deep' | 'light';
-  priority: 'urgent' | 'high' | 'medium' | 'low';
+import { Task, Subtask, WorkType, TaskPriority } from '@/types/task.types';
+
+export interface LifeLockTask extends Omit<Task, 'category' | 'created_at'> {
+  workType: WorkType;
   estimatedDuration?: number; // minutes
-  subtasks?: LifeLockSubtask[];
+  subtasks?: Subtask[];
   tags?: string[];
   category?: string;
-}
-
-export interface LifeLockSubtask {
-  id: string;
-  title: string;
-  completed: boolean;
-  workType: 'deep' | 'light';
 }
 
 export interface ThoughtDumpResult {

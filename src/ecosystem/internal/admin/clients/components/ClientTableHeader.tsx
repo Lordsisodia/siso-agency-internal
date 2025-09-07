@@ -1,10 +1,10 @@
 
 import React from 'react';
-import { TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Checkbox } from '@/components/ui/checkbox';
+import { TableHead, TableHeader, TableRow } from '@/shared/ui/table';
+import { Checkbox } from '@/shared/ui/checkbox';
 import { ClientColumnPreference } from '@/types/client.types';
 import { DraggableColumnHeader } from '../DraggableColumnHeader';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/lib/utils';
 
 interface ClientTableHeaderProps {
   visibleColumns: ClientColumnPreference[];

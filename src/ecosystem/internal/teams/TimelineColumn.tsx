@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Task } from '@/types/task.types';
 import { TaskCard } from './TaskCard';
-import { useTimeWindow } from '@/hooks/useTimeWindow';
-import { useCheckInOut } from '@/hooks/useCheckInOut';
+import { useTimeWindow } from '@/shared/hooks/useTimeWindow';
+import { useCheckInOut } from '@/shared/hooks/useCheckInOut';
 import { CheckInOutDialog } from './CheckInOutDialog';
 import { TimelineRuler } from './timeline/TimelineRuler';
 import { TimeIndicator } from './timeline/TimeIndicator';
@@ -11,9 +11,9 @@ import { TaskCreationDialog } from './TaskCreationDialog';
 import { TimelineHeader } from './timeline/TimelineHeader';
 import { TimelineGrid } from './timeline/TimelineGrid';
 import { Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { useTaskDragDrop } from '@/hooks/useTaskDragDrop';
+import { Button } from '@/shared/ui/button';
+import { ScrollArea } from '@/shared/ui/scroll-area';
+import { useTaskDragDrop } from '@/shared/hooks/useTaskDragDrop';
 
 export function TimelineColumn({ tasks }: { tasks: Task[] }) {
   const { currentTime, timelineRef, getCurrentWindow, scrollToCurrentTime } = useTimeWindow();

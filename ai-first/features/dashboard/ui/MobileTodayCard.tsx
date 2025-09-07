@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/shared/ui/card';
+import { Button } from '@/shared/ui/button';
+import { Badge } from '@/shared/ui/badge';
 import { 
   CheckCircle2, 
   Circle, 
@@ -12,7 +12,7 @@ import {
   Clock,
   Target
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/lib/utils';
 import { motion } from 'framer-motion';
 import { InteractiveTaskItem } from './InteractiveTaskItem';
 import { toggleTaskForDate } from '@/services/sharedTaskDataService';

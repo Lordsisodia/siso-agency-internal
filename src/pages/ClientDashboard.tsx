@@ -1,8 +1,8 @@
 
 import React from 'react';
 import { Helmet } from 'react-helmet';
-import { ClientDashboardContent } from '@/components/client/ClientDashboardContent';
-import { ClientDashboardLayout } from '@/components/client/ClientDashboardLayout';
+import { ClientDashboardContent } from '@/client/client/ClientDashboardContent';
+import { ClientDashboardLayout } from '@/client/client/ClientDashboardLayout';
 import { ProtectedRoute } from '@/ai-first/features/auth/components/ProtectedRoute';
 
 /**

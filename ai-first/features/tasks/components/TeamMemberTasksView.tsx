@@ -1,9 +1,9 @@
 
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent } from '@/shared/ui/card';
 import { useParams, useNavigate } from 'react-router-dom';
 import { TaskBank } from './TaskBank';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/shared/ui/button';
 import { ArrowLeft } from 'lucide-react';
 
 export function TeamMemberTasksView() {

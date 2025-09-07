@@ -1,15 +1,15 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card';
+import { Button } from '@/shared/ui/button';
+import { Input } from '@/shared/ui/input';
 import { 
   UserPlus, Search, Filter, MoreHorizontal, CalendarPlus, MessageSquare, 
   Clock, Download, Upload, Columns
 } from 'lucide-react';
 import { TeamMemberList } from './TeamMemberList';
 import { AddTeamMemberDialog } from './AddTeamMemberDialog';
-import { Badge } from '@/components/ui/badge';
+import { Badge } from '@/shared/ui/badge';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -17,7 +17,7 @@ import {
   DropdownMenuLabel, 
   DropdownMenuSeparator, 
   DropdownMenuTrigger 
-} from '@/components/ui/dropdown-menu';
+} from '@/shared/ui/dropdown-menu';
 import { toast } from 'sonner';
 
 export function TeamMembersSection() {

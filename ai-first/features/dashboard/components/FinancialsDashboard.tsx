@@ -1,10 +1,10 @@
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Card, CardHeader, CardTitle, CardContent } from "@/shared/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/shared/ui/tabs";
 import { AreaChart } from "./Charts";
 import { useEffect, useState } from "react";
-import { fetchTransactions, FinancialTransaction } from "@/utils/financial";
+import { fetchTransactions, FinancialTransaction } from "@/shared/utils/financial";
 import { SoftwareExpenseStats } from "./SoftwareExpenseStats";
-import { formatCurrency } from "@/lib/formatters";
+import { formatCurrency } from "@/shared/lib/formatters";
 import { ExpenseCreditCard } from "./ExpenseCreditCard";
 
 export function FinancialsDashboard() {

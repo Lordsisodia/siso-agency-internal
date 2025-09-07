@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AppLayout } from '@/components/layout/AppLayout';
-import { LeaderboardContent } from '@/components/leaderboard/components/LeaderboardContent';
-import { LeaderboardStats } from '@/components/leaderboard/LeaderboardStats';
-import { useLeaderboardData } from '@/components/leaderboard/hooks/useLeaderboardData';
-import { useUser } from '@/hooks/useUser';
-import { Spotlight } from '@/components/ui/spotlight';
-import { LeaderboardEntry } from '@/components/leaderboard/types';
+import { AppLayout } from '@/shared/layout/AppLayout';
+import { LeaderboardContent } from '@/internal/leaderboard/components/LeaderboardContent';
+import { LeaderboardStats } from '@/internal/leaderboard/LeaderboardStats';
+import { useLeaderboardData } from '@/internal/leaderboard/hooks/useLeaderboardData';
+import { useUser } from '@/shared/hooks/useUser';
+import { Spotlight } from '@/shared/ui/spotlight';
+import { LeaderboardEntry } from '@/internal/leaderboard/types';
 
 export default function LeaderboardPage() {
   const { 

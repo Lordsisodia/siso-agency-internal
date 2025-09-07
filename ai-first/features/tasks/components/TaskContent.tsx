@@ -1,8 +1,8 @@
 
 import React from 'react';
 import { Task } from '@/types/task.types';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/shared/ui/input';
+import { Textarea } from '@/shared/ui/textarea';
 import { Edit2, AlignLeft } from 'lucide-react';
 
 interface TaskContentProps {

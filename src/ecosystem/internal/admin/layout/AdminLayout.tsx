@@ -1,7 +1,7 @@
 
 import { ReactNode, useState, useEffect } from 'react';
 import { Sidebar } from './AdminSidebar';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/shared/hooks/use-mobile';
 import { useLocation } from 'react-router-dom';
 
 interface AdminLayoutProps {

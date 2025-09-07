@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import { AppLayout } from '@/components/layout/AppLayout';
+import { AppLayout } from '@/shared/layout/AppLayout';
 import UserFlowPage from './projects/UserFlowPage';
 
 export default function UserFlow() {

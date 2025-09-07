@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { Helmet } from 'react-helmet';
-import { Sidebar } from '@/components/Sidebar';
+import { Sidebar } from '@/shared/Sidebar';
 
 const DailyNews = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);

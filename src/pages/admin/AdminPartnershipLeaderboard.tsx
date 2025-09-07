@@ -1,13 +1,13 @@
-import { AdminLayout } from '@/components/admin/layout/AdminLayout';
-import { AdminPageTitle } from '@/components/admin/layout/AdminPageTitle';
-import { LeaderboardTable } from '@/components/dashboard/LeaderboardTable';
-import { LeaderboardStats } from '@/components/dashboard/LeaderboardStats';
-import { LeaderboardFilters } from '@/components/dashboard/LeaderboardFilters';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
+import { AdminPageTitle } from '@/ecosystem/internal/admin/layout/AdminPageTitle';
+import { LeaderboardTable } from '@/internal/dashboard/LeaderboardTable';
+import { LeaderboardStats } from '@/internal/dashboard/LeaderboardStats';
+import { LeaderboardFilters } from '@/internal/dashboard/LeaderboardFilters';
+import { Card } from '@/shared/ui/card';
+import { Badge } from '@/shared/ui/badge';
 import { Trophy, Medal, Award, Star, TrendingUp, Users } from 'lucide-react';
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/shared/ui/button';
 
 const AdminPartnershipLeaderboard = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('month');

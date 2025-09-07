@@ -1,11 +1,11 @@
 
-import { AppLayout } from '@/components/layout/AppLayout';
+import { AppLayout } from '@/shared/layout/AppLayout';
 import { Helmet } from 'react-helmet';
-import { Waves } from '@/components/ui/waves-background';
-import { FloatingOrbs } from '@/components/effects/FloatingOrbs';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { VercelV0Chat } from "@/components/ui/v0-ai-chat";
-import { WhatsAppIntegration } from '@/components/chat/WhatsAppIntegration';
+import { Waves } from '@/shared/ui/waves-background';
+import { FloatingOrbs } from '@/shared/effects/FloatingOrbs';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/shared/ui/tabs";
+import { VercelV0Chat } from "@/shared/ui/v0-ai-chat";
+import { WhatsAppIntegration } from '@/shared/chat/WhatsAppIntegration';
 
 export default function Communication() {
   return (

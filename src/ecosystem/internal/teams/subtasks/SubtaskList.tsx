@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { SubtaskItem } from './SubtaskItem';
 import { EmptySubtasks } from './EmptySubtasks';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/lib/utils';
 
 interface Subtask {
   id: string;

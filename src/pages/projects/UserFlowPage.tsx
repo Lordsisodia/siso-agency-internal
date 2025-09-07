@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { UserFlowNavigation } from '@/components/projects/userflow/UserFlowNavigation';
-import { UserFlowDiagram } from '@/components/projects/userflow/UserFlowDiagram';
-import { NodeDetailsSidebar } from '@/components/projects/userflow/NodeDetailsSidebar';
-import { UserFlowToolbar } from '@/components/projects/userflow/UserFlowToolbar';
-import { useToast } from '@/components/ui/use-toast';
+import { UserFlowNavigation } from '@/ecosystem/internal/projects/userflow/UserFlowNavigation';
+import { UserFlowDiagram } from '@/ecosystem/internal/projects/userflow/UserFlowDiagram';
+import { NodeDetailsSidebar } from '@/ecosystem/internal/projects/userflow/NodeDetailsSidebar';
+import { UserFlowToolbar } from '@/ecosystem/internal/projects/userflow/UserFlowToolbar';
+import { useToast } from '@/shared/ui/use-toast';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ProjectHeader } from '@/components/projects/details/ProjectHeader';
-import { ProjectCardNavigation } from '@/components/projects/details/ProjectCardNavigation';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { ProjectHeader } from '@/ecosystem/internal/projects/details/ProjectHeader';
+import { ProjectCardNavigation } from '@/ecosystem/internal/projects/details/ProjectCardNavigation';
+import { Card } from '@/shared/ui/card';
+import { Badge } from '@/shared/ui/badge';
 import { Info } from 'lucide-react';
 
 export default function UserFlowPage() {

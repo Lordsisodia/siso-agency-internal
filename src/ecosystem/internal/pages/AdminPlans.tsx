@@ -1,8 +1,8 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader } from "../components/ui/card";
-import { Button } from "../components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import { Card, CardContent, CardHeader } from "@/shared/ui/card";
+import { Button } from "@/shared/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 import { AdminLayout } from "@/ai-first/features/dashboard/components/AdminLayout";
 import { PlansList } from "@/ai-first/features/dashboard/components/PlansList";
 import { PlanForm } from "@/ai-first/features/dashboard/components/PlanForm";

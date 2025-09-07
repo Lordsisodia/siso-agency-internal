@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Flag } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/lib/utils';
 
 interface PriorityBadgeProps {
   priority: string | null | undefined;

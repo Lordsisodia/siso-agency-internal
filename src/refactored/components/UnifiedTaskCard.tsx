@@ -16,11 +16,11 @@
  */
 
 import React, { memo, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
+import { Button } from '@/shared/ui/button';
+import { Badge } from '@/shared/ui/badge';
+import { Checkbox } from '@/shared/ui/checkbox';
+import { Input } from '@/shared/ui/input';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   CheckCircle2, 
@@ -34,21 +34,18 @@ import {
   Sparkles,
   LucideIcon
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/lib/utils';
 
-// Task interfaces
-export interface TaskCardTask {
-  id: string;
-  title: string;
-  completed: boolean;
-  workType: 'LIGHT' | 'DEEP';
-  priority?: 'low' | 'medium' | 'high' | 'urgent' | 'critical';
-  status?: 'pending' | 'in_progress' | 'completed' | 'done' | 'overdue' | 'blocked';
+import { Task, Subtask, WorkType, TaskPriority, TaskStatus } from '@/types/task.types';
+
+// Task interfaces - now extending standardized types
+export interface TaskCardTask extends Task {
+  completed?: boolean; // Computed from status for backward compatibility
   timeEstimate?: string;
-  subtasks?: TaskCardSubtask[];
 }
 
-export interface TaskCardSubtask {
+export interface TaskCardSubtask extends Subtask {
+  completed?: boolean; // Computed from status for backward compatibility
   id: string;
   title: string;
   completed: boolean;

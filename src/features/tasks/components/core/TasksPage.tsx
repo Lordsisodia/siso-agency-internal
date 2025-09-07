@@ -14,7 +14,7 @@ import { TasksSidebar } from './TasksSidebar';
 import { TasksErrorFallback } from './TasksErrorFallback';
 import { TasksLoadingFallback } from './TasksLoadingFallback';
 import { TaskFilters, TaskViewType } from '../../types/task.types';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/lib/utils';
 
 // TasksPage Props
 interface TasksPageProps {

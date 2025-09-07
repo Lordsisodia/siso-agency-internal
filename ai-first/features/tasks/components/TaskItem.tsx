@@ -1,12 +1,12 @@
 
 import React from 'react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/shared/ui/badge';
+import { Button } from '@/shared/ui/button';
+import { Card } from '@/shared/ui/card';
+import { Checkbox } from '@/shared/ui/checkbox';
 import { Calendar, Clock, User, AlertTriangle, AlertCircle, Circle } from 'lucide-react';
 import { format } from 'date-fns';
-import { Task } from '@/hooks/useTasks';
+import { Task } from '@/shared/hooks/useTasks';
 
 interface TaskItemProps {
   task: Task;

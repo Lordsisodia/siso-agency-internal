@@ -8,9 +8,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+} from "@/shared/ui/dropdown-menu";
+import { Button } from '@/shared/ui/button';
+import { Input } from '@/shared/ui/input';
 import { 
   Bookmark, 
   Check, 
@@ -19,7 +19,7 @@ import {
   Trash2 
 } from 'lucide-react';
 import { ClientViewPreference, SavedView } from '@/types/client.types';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/shared/hooks/use-toast';
 
 interface SavedViewsManagerProps {
   currentPreference: ClientViewPreference;

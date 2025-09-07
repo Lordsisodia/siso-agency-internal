@@ -3,14 +3,14 @@ import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { Tool } from '@/components/tools/types';
-import { Sidebar } from '@/components/Sidebar';
-import { ToolHeader } from '@/components/tools/ToolHeader';
-import { ToolActions } from '@/components/tools/ToolActions';
-import { ToolStats } from '@/components/tools/ToolStats';
-import { ToolVideos } from '@/components/tools/ToolVideos';
-import { ToolTags } from '@/components/tools/ToolTags';
-import { enhancedTableQuery, castToMockType, MockTypes } from '@/utils/errorSuppressions';
+import { Tool } from '@/internal/tools/types';
+import { Sidebar } from '@/shared/Sidebar';
+import { ToolHeader } from '@/internal/tools/ToolHeader';
+import { ToolActions } from '@/internal/tools/ToolActions';
+import { ToolStats } from '@/internal/tools/ToolStats';
+import { ToolVideos } from '@/internal/tools/ToolVideos';
+import { ToolTags } from '@/internal/tools/ToolTags';
+import { enhancedTableQuery, castToMockType, MockTypes } from '@/shared/utils/errorSuppressions';
 
 export default function ToolPage() {
   const { id } = useParams();

@@ -1,10 +1,10 @@
 
 import React from 'react';
-import { useTasks, TaskCategory, Task } from '@/hooks/useTasks';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useTasks, TaskCategory, Task } from '@/shared/hooks/useTasks';
+import { Skeleton } from '@/shared/ui/skeleton';
+import { Alert, AlertDescription } from '@/shared/ui/alert';
 import { TaskItem } from './TaskItem';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/shared/ui/use-toast';
 
 interface TaskListProps {
   category: TaskCategory;

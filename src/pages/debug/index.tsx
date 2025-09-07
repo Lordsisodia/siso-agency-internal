@@ -1,7 +1,7 @@
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card';
+import { Badge } from '@/shared/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
 import { 
   Bug, 
   TestTube, 
@@ -12,8 +12,8 @@ import {
   FileText,
   Workflow
 } from 'lucide-react';
-import AppPlanTestingDashboard from '@/components/debug/AppPlanTestingDashboard';
-import { MultiStagePromptTester } from '@/components/debug/MultiStagePromptTester';
+import AppPlanTestingDashboard from '@/shared/debug/AppPlanTestingDashboard';
+import { MultiStagePromptTester } from '@/shared/debug/MultiStagePromptTester';
 
 export default function DebugPage() {
   return (

@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
-import { AdminLayout } from '@/components/admin/layout/AdminLayout';
+import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
 import { format, addWeeks, subWeeks, getYear } from 'date-fns';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useClerkUser } from '@/components/ClerkProvider';
+import { useClerkUser } from '@/shared/ClerkProvider';
 import { ThoughtDumpResults } from '@/ai-first/features/tasks/ui/ThoughtDumpResults';
 import { EisenhowerMatrixModal } from '@/ai-first/features/tasks/ui/EisenhowerMatrixModal';
 import { TabLayoutWrapper } from '@/ai-first/features/dashboard/components/TabLayoutWrapper';
@@ -19,9 +19,9 @@ import { NightlyCheckoutSection } from '@/ai-first/features/tasks/components/Nig
 import { HomeWorkoutSection } from '@/ai-first/features/tasks/components/HomeWorkoutSection';
 import { HealthNonNegotiablesSection } from '@/ai-first/features/tasks/components/HealthNonNegotiablesSection';
 import { TimeboxSection } from '@/ai-first/features/tasks/components/TimeboxSection';
-import { useLifeLockData } from '@/hooks/useLifeLockData';
-import { useRefactoredLifeLockData } from '@/refactored/hooks/useRefactoredLifeLockData';
-import { LoadingState } from '@/components/ui/loading-state';
+import { useLifeLockData } from '@/ecosystem/internal/lifelock/useLifeLockData';
+import { useRefactoredLifeLockData } from '@/ecosystem/internal/lifelock/useRefactoredLifeLockData';
+import { LoadingState } from '@/shared/ui/loading-state';
 import { useImplementation } from '@/migration/feature-flags';
 
 const AdminLifeLockDay: React.FC = () => {

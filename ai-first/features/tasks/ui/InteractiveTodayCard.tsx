@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader } from '@/shared/ui/card';
+import { Button } from '@/shared/ui/button';
+import { Badge } from '@/shared/ui/badge';
 import { 
   CheckCircle2, 
   Circle, 
@@ -35,13 +35,13 @@ import {
   Eye,
   EyeOff
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/lib/utils';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { LifeLockService, DailyRoutine, DailyWorkout, DailyHealth, DailyHabits, DailyReflections } from '@/ai-first/core/task.service';
 import { EnhancedTaskService, EnhancedTask } from '@/ai-first/core/task.service';
 import { format } from 'date-fns';
 import { FocusSessionTimer } from './FocusSessionTimer';
-import SisoDeepFocusPlan from '@/components/ui/siso-deep-focus-plan';
+import SisoDeepFocusPlan from '@/shared/ui/siso-deep-focus-plan';
 import { MilkTracker } from './MilkTracker';
 
 interface TaskCard {

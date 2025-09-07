@@ -1,12 +1,12 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { Card } from '@/components/ui/card';
-import { ProjectHeader } from '@/components/projects/details/ProjectHeader';
-import { ProjectCardNavigation } from '@/components/projects/details/ProjectCardNavigation';
-import { UserFlowNavigation } from '@/components/projects/userflow/UserFlowNavigation';
-import { Table } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Card } from '@/shared/ui/card';
+import { ProjectHeader } from '@/ecosystem/internal/projects/details/ProjectHeader';
+import { ProjectCardNavigation } from '@/ecosystem/internal/projects/details/ProjectCardNavigation';
+import { UserFlowNavigation } from '@/ecosystem/internal/projects/userflow/UserFlowNavigation';
+import { Table } from '@/shared/ui/table';
+import { Button } from '@/shared/ui/button';
+import { Badge } from '@/shared/ui/badge';
 import { 
   Pencil, 
   Trash2, 

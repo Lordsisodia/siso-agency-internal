@@ -1,16 +1,16 @@
 import { useState } from 'react';
-import { MainLayout } from '@/components/layout/MainLayout';
-import { usePortfolioData } from '@/hooks/usePortfolioData';
-import { PortfolioCard } from '@/components/portfolio/PortfolioCard';
-import { PortfolioHero } from '@/components/portfolio/PortfolioHero';
-import { PortfolioFilters } from '@/components/portfolio/PortfolioFilters';
-import { Skeleton } from '@/components/ui/skeleton';
-import { PortfolioDetails } from '@/components/portfolio/PortfolioDetails';
-import { Button } from '@/components/ui/button';
+import { MainLayout } from '@/shared/layout/MainLayout';
+import { usePortfolioData } from '@/shared/hooks/usePortfolioData';
+import { PortfolioCard } from '@/client/portfolio/PortfolioCard';
+import { PortfolioHero } from '@/client/portfolio/PortfolioHero';
+import { PortfolioFilters } from '@/client/portfolio/PortfolioFilters';
+import { Skeleton } from '@/shared/ui/skeleton';
+import { PortfolioDetails } from '@/client/portfolio/PortfolioDetails';
+import { Button } from '@/shared/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { PortfolioItem } from '@/types/portfolio';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AddPortfolioButton } from '@/components/portfolio/AddPortfolioButton';
+import { AddPortfolioButton } from '@/client/portfolio/AddPortfolioButton';
 
 export default function Portfolio() {
   const { items, categories, loading } = usePortfolioData();

@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { ClientColumnPreference } from '@/types/client.types';
-import { cn } from '@/lib/utils';
-import '../../../components/ui/hide-scrollbar.css';
+import { cn } from '@/shared/lib/utils';
+import '@/shared/ui/hide-scrollbar.css';
 
 interface ScrollableTableProps {
   children: React.ReactNode;

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/shared/ui/button';
 import { Trash2, Download } from "lucide-react";
 
 interface BulkActionsBarProps {

@@ -1,6 +1,6 @@
 
-import { InstagramLeadForm } from '@/components/instagram/InstagramLeadForm';
-import { InstagramLeadList } from '@/components/instagram/InstagramLeadList';
+import { InstagramLeadForm } from '@/client/instagram/InstagramLeadForm';
+import { InstagramLeadList } from '@/client/instagram/InstagramLeadList';
 
 export default function InstagramLeads() {
   return (

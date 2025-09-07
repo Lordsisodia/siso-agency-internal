@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Task } from '@/types/task.types';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/shared/ui/button';
 import { Calendar, Check } from 'lucide-react';
 
 interface TaskActionsProps {

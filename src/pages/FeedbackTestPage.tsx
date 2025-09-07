@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { SimpleFeedbackButton } from '@/components/feedback/SimpleFeedbackButton';
+import { SimpleFeedbackButton } from '@/internal/feedback/SimpleFeedbackButton';
 import { feedbackService } from '@/services/feedbackService';
 
 const FeedbackTestPage = () => {

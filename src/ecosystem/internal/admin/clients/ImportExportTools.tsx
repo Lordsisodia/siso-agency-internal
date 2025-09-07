@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/shared/ui/button';
 import { 
   Dialog, 
   DialogContent, 
@@ -8,11 +8,11 @@ import {
   DialogFooter, 
   DialogHeader, 
   DialogTitle 
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
+} from '@/shared/ui/dialog';
+import { Input } from '@/shared/ui/input';
 import { Download, Upload } from 'lucide-react';
 import { ClientData } from '@/types/client.types';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/shared/hooks/use-toast';
 
 interface ImportExportToolsProps {
   clients: ClientData[];

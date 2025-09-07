@@ -1,8 +1,8 @@
 
-import { AppLayout } from '@/components/layout/AppLayout';
-import { Waves } from '@/components/ui/waves-background';
-import { FloatingOrbs } from '@/components/effects/FloatingOrbs';
-import { VercelV0Chat } from "@/components/ui/v0-ai-chat";
+import { AppLayout } from '@/shared/layout/AppLayout';
+import { Waves } from '@/shared/ui/waves-background';
+import { FloatingOrbs } from '@/shared/effects/FloatingOrbs';
+import { VercelV0Chat } from "@/shared/ui/v0-ai-chat";
 
 export default function PlanBuilder() {
   return (

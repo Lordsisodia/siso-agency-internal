@@ -1,10 +1,10 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
+import { Progress } from '@/shared/ui/progress';
+import { Badge } from '@/shared/ui/badge';
+import { Button } from '@/shared/ui/button';
 import { Trophy, Clock, Target, CheckCircle, ArrowRight, Sparkles } from 'lucide-react';
-import { getEnhancedDashboardMetrics, getDashboardGreeting } from '@/utils/dashboardMetrics';
+import { getEnhancedDashboardMetrics, getDashboardGreeting } from '@/shared/utils/dashboardMetrics';
 import { useNavigate } from 'react-router-dom';
 
 export function EnhancedProgressCard() {

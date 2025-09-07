@@ -1,8 +1,8 @@
 
-import { Card } from "@/components/ui/card";
+import { Card } from "@/shared/ui/card";
 import { DollarSign, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
-import { formatCurrency } from "@/lib/formatters";
+import { formatCurrency } from "@/shared/lib/formatters";
 import { useNavigate } from "react-router-dom";
 
 export function RevenueCard() {

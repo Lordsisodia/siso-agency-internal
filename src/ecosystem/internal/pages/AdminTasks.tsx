@@ -1,24 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { AdminLayout } from '@/components/admin/layout/AdminLayout';
+import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
 // Removed framer-motion for performance optimization
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { PromptInputBox } from '@/components/ui/ai-prompt-box';
+import { Button } from '@/shared/ui/button';
+import { Checkbox } from '@/shared/ui/checkbox';
+import { Badge } from '@/shared/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/ui/dialog';
+import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover';
+import { PromptInputBox } from '@/shared/ui/ai-prompt-box';
 import { AITaskChat } from '@/ai-first/features/tasks/components/AITaskChat';
 import { EnhancedTaskItem } from '@/ai-first/features/tasks/components/EnhancedTaskItem';
 import { AdminTaskDetailModal } from '@/ai-first/features/tasks/components/AdminTaskDetailModal';
 import { KanbanBoard } from '@/ai-first/features/tasks/components/KanbanBoard';
 import CalendarView from '@/ai-first/features/tasks/components/CalendarView';
 import { TaskFilterSidebar } from '@/ai-first/features/tasks/components/TaskFilterSidebar';
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/shared/ui/resizable';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuthSession } from '@/hooks/useAuthSession';
-import { useToast } from '@/components/ui/use-toast';
-import { useTasks } from '@/hooks/useTasks';
-import { useTaskOperations } from '@/hooks/useTaskOperations';
+import { useAuthSession } from '@/shared/hooks/useAuthSession';
+import { useToast } from '@/shared/ui/use-toast';
+import { useTasks } from '@/shared/hooks/useTasks';
+import { useTaskOperations } from '@/shared/hooks/useTaskOperations';
 import {
   Calendar,
   Clock,

@@ -1,25 +1,25 @@
 import React, { useState } from 'react';
-import { AdminLayout } from '@/components/admin/layout/AdminLayout';
-import { AdminPageTitle } from '@/components/admin/layout/AdminPageTitle';
+import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
+import { AdminPageTitle } from '@/ecosystem/internal/admin/layout/AdminPageTitle';
 import { UsersIcon } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card';
+import { Button } from '@/shared/ui/button';
 import { 
   Users, ListTodo, MessageCircle, BarChart3, Filter, 
   Settings, Download, Upload, HelpCircle, Plus
 } from 'lucide-react';
-import { TeamMembersSection } from '@/components/admin/teams/TeamMembersSection';
-import { TeamTasksSection } from '@/components/admin/teams/TeamTasksSection';
-import { TeamMessagingSection } from '@/components/admin/teams/TeamMessagingSection';
-import { TeamAnalyticsSection } from '@/components/admin/teams/TeamAnalyticsSection';
+import { TeamMembersSection } from '@/ecosystem/internal/teams/TeamMembersSection';
+import { TeamTasksSection } from '@/ecosystem/internal/teams/TeamTasksSection';
+import { TeamMessagingSection } from '@/ecosystem/internal/teams/TeamMessagingSection';
+import { TeamAnalyticsSection } from '@/ecosystem/internal/teams/TeamAnalyticsSection';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/shared/ui/dropdown-menu";
 import { toast } from "sonner";
 
 export default function AdminTeams() {

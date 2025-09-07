@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Table } from '@/components/ui/table';
+import { Table } from '@/shared/ui/table';
 import { ClientViewPreference } from '@/types/client.types';
 import { ClientAddForm } from './ClientAddForm';
 // import { ClientAnalyticsCards } from './ClientAnalyticsCards'; // Removed import of analytics cards to avoid unused import warning
@@ -10,8 +10,8 @@ import { useClientTable } from './hooks/useClientTable';
 import { ClientTableHeader } from './components/ClientTableHeader';
 import { ClientTableBody } from './components/ClientTableBody';
 import { ClientTablePagination } from './components/ClientTablePagination';
-import { cn } from "@/lib/utils";
-import { tableStyles } from '@/components/ui/table-styles';
+import { cn } from "@/shared/lib/utils";
+import { tableStyles } from '@/shared/ui/table-styles';
 import { BulkActionsBar } from './BulkActionsBar';
 import { ClientsTableSkeleton } from './ClientsTableSkeleton';
 import { DndProvider } from 'react-dnd';

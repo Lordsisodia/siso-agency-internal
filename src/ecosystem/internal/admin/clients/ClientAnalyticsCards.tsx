@@ -1,5 +1,5 @@
 
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/shared/ui/card";
 import { Users, DollarSign, BarChart, UserPlus } from "lucide-react";
 
 interface ClientAnalyticsCardsProps {

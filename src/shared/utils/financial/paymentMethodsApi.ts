@@ -1,6 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/shared/ui/use-toast';
 import { PaymentMethod } from './types';
 
 export async function fetchPaymentMethods(): Promise<PaymentMethod[]> {

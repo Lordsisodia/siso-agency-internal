@@ -1,7 +1,7 @@
 
 import { useRef } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/shared/ui/button';
 import { ArrowUpDown, GripVertical, Pin, PinOff } from 'lucide-react';
 import { ClientColumnPreference } from '@/types/client.types';
 

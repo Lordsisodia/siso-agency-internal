@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { ClientData } from '@/types/client.types';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card';
 import { Check, Clock, AlertCircle } from 'lucide-react';
 
 interface ClientProjectTimelineProps {

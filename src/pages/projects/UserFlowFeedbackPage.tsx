@@ -1,10 +1,10 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { AppLayout } from '@/components/layout/AppLayout';
-import { ProjectHeader } from '@/components/projects/details/ProjectHeader';
-import { ProjectCardNavigation } from '@/components/projects/details/ProjectCardNavigation';
-import { UserFlowNavigation } from '@/components/projects/userflow/UserFlowNavigation';
-import { FeedbackLogPage } from '@/components/projects/userflow/feedback/FeedbackLogPage';
+import { AppLayout } from '@/shared/layout/AppLayout';
+import { ProjectHeader } from '@/ecosystem/internal/projects/details/ProjectHeader';
+import { ProjectCardNavigation } from '@/ecosystem/internal/projects/details/ProjectCardNavigation';
+import { UserFlowNavigation } from '@/ecosystem/internal/projects/userflow/UserFlowNavigation';
+import { FeedbackLogPage } from '@/ecosystem/internal/projects/userflow/feedback/FeedbackLogPage';
 
 export default function UserFlowFeedbackPage() {
   const { projectId = '123' } = useParams<{ projectId: string }>();

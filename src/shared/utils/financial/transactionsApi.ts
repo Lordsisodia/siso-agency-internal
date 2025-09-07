@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "@/shared/ui/use-toast";
 import { FinancialTransaction } from "./types";
 import { transformTransactionData } from "./utils/transactionTransformers";
 

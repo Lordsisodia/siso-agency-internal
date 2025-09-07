@@ -1,14 +1,14 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useClientDetails } from '@/hooks/client';
-import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
+import { useClientDetails } from '@/shared/hooks/client';
+import { Button } from '@/shared/ui/button';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/shared/ui/sheet";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
+import { Separator } from "@/shared/ui/separator";
+import { Avatar, AvatarFallback, AvatarImage } from '@/shared/ui/avatar';
+import { Badge } from '@/shared/ui/badge';
+import { Skeleton } from '@/shared/ui/skeleton';
 import { ClientStatusBadge } from './ClientStatusBadge';
 import { TodoList } from './TodoList';
 import { Calendar, ArrowUpRightSquare, ClipboardList, Mail, MessageSquare } from 'lucide-react';

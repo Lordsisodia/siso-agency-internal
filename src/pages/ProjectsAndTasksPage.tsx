@@ -1,14 +1,14 @@
 import { useEffect } from 'react';
-import { AppLayout } from '@/components/layout/AppLayout';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { AppLayout } from '@/shared/layout/AppLayout';
+import { Card } from '@/shared/ui/card';
+import { Button } from '@/shared/ui/button';
 import { Home, Component, AlertCircle } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ProjectDirectoryCard } from '@/components/projects/ProjectDirectoryCard';
-import { ActiveTasksView } from '@/components/projects/ActiveTasksView';
-import { useProjects } from '@/hooks/useProjects';
-import { useAuthSession } from '@/hooks/useAuthSession';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { ProjectDirectoryCard } from '@/ecosystem/internal/projects/ProjectDirectoryCard';
+import { ActiveTasksView } from '@/ecosystem/internal/projects/ActiveTasksView';
+import { useProjects } from '@/shared/hooks/useProjects';
+import { useAuthSession } from '@/shared/hooks/useAuthSession';
+import { useIsMobile } from '@/shared/hooks/use-mobile';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -16,8 +16,8 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb';
-import { useToast } from '@/hooks/use-toast';
+} from '@/shared/ui/breadcrumb';
+import { useToast } from '@/shared/hooks/use-toast';
 
 export default function ProjectsAndTasksPage() {
   const navigate = useNavigate();

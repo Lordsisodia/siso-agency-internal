@@ -7,13 +7,13 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Label } from "@/components/ui/label";
+} from "@/shared/ui/table";
+import { Checkbox } from "@/shared/ui/checkbox";
+import { Badge } from "@/shared/ui/badge";
+import { Button } from "@/shared/ui/button";
+import { Input } from "@/shared/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/popover";
+import { Label } from "@/shared/ui/label";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -21,7 +21,7 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuLabel,
   DropdownMenuItem
-} from "@/components/ui/dropdown-menu";
+} from "@/shared/ui/dropdown-menu";
 import {
   ChevronDown,
   ChevronFirst,
@@ -46,7 +46,7 @@ import {
   BarChart3,
   CheckCircle
 } from "lucide-react";
-import { useClientsList } from "@/hooks/client";
+import { useClientsList } from "@/shared/hooks/client";
 import {
   ColumnDef,
   flexRender,
@@ -62,15 +62,15 @@ import {
   PaginationState,
   Row
 } from "@tanstack/react-table";
-import { Pagination, PaginationContent, PaginationItem } from "@/components/ui/pagination";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Pagination, PaginationContent, PaginationItem } from "@/shared/ui/pagination";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/shared/ui/alert-dialog";
 import { ClientData } from "@/types/client.types";
-import { cn } from "@/lib/utils";
-import { useToast } from "@/hooks/use-toast";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { cn } from "@/shared/lib/utils";
+import { useToast } from "@/shared/hooks/use-toast";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 
 import { ViewClientCard } from "./ViewClientCard";
-import { Progress } from "@/components/ui/progress";
+import { Progress } from "@/shared/ui/progress";
 
 // Client progress component
 function ClientProgress({ client }: { client: TableClient }) {
@@ -418,7 +418,7 @@ const createColumns = (
   }
 ];
 
-import { AirtableTable } from "@/components/common/AirtableTable";
+import { AirtableTable } from "@/shared/common/AirtableTable";
 
 function RowActions({ 
   row, 

@@ -4,11 +4,11 @@
  */
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
+import { Badge } from '@/shared/ui/badge';
+import { Button } from '@/shared/ui/button';
 import { Plus, MoreHorizontal } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/lib/utils';
 import { Task, TaskStatus } from '../../types/task.types';
 import { TASK_STATUS_CONFIG } from '../../constants/taskConstants';
 import { getStatusColor, getPriorityColor } from '../../utils/taskHelpers';
