@@ -126,6 +126,9 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
 
   // Task filtering hook
   const { filteredAndSortedTasks } = useTaskFiltering({ tasks, workType });
+  
+  // Calendar loading state
+  const [calendarLoading, setCalendarLoading] = useState(false);
 
   // Get theme configuration
   const themeConfig = WORK_THEMES[workType];
@@ -306,7 +309,14 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                                   backdropFilter: 'blur(4px)',
                                 }}
                                 onClick={(e) => {
-                                  if (e.target === e.currentTarget) {
+                                  console.log('🔍 Modal Debug: Backdrop clicked', {
+                                    target: e.target,
+                                    currentTarget: e.currentTarget,
+                                    isBackdrop: e.target === e.currentTarget,
+                                    calendarLoading
+                                  });
+                                  if (e.target === e.currentTarget && !calendarLoading) {
+                                    console.log('🔍 Modal Debug: Closing modal via backdrop');
                                     setCalendarSubtaskId(null);
                                   }
                                 }}
@@ -332,9 +342,14 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                                       subtask={subtask}
                                       onDateSelect={async (date) => {
                                         try {
+                                          console.log('🔍 Modal Debug: Date selection started', { date, subtaskId: subtask.id });
+                                          setCalendarLoading(true);
+                                          
                                           if (updateSubtaskDueDate) {
+                                            console.log('🔍 Modal Debug: Using updateSubtaskDueDate function');
                                             await updateSubtaskDueDate(subtask.id, date);
                                           } else {
+                                            console.log('🔍 Modal Debug: Using fallback API call');
                                             // Fallback to direct API call for Deep Work
                                             const dateString = date ? `${date.toISOString().split('T')[0]}T23:59:59.000Z` : null;
                                             const response = await fetch(`/api/deep-work/subtasks/${subtask.id}`, {
@@ -350,11 +365,13 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                                             }
                                           }
                                           
+                                          console.log('✅ Due date updated successfully, closing modal');
+                                          setCalendarLoading(false);
                                           setCalendarSubtaskId(null);
-                                          console.log('✅ Due date updated successfully');
                                           
                                         } catch (error) {
                                           console.error('Failed to update due date:', error);
+                                          setCalendarLoading(false);
                                           alert('Failed to update due date. Please try again.');
                                         }
                                       }}
