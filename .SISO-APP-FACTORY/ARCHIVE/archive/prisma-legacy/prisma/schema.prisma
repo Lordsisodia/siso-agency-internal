@@ -1,0 +1,606 @@
+// 🎯 SISO-INTERNAL: Clean Database Architecture
+// Separates Light Work and Deep Work into distinct tables
+// Designed for multi-user support (Tazz, Tours, etc.)
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("PRISMA_DATABASE_URL")
+  directUrl = env("DATABASE_URL")
+}
+
+// ===== USER MANAGEMENT =====
+model User {
+  id                     String                   @id @default(cuid())
+  supabaseId             String                   @unique
+  email                  String                   @unique
+  displayName            String?                  // "Tazz", "Tours", etc.
+  role                   UserRole                 @default(USER)
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime                 @updatedAt
+
+  // Work Task Relations - SEPARATED BY TYPE
+  lightWorkTasks         LightWorkTask[]
+  deepWorkTasks          DeepWorkTask[]
+  
+  // Other relations (keeping existing)
+  personalContext        PersonalContext[]
+  automationTasks        AutomationTask[]
+  dailyHabits            DailyHabits[]
+  dailyHealth            DailyHealth[]
+  dailyWorkout           DailyWorkout[]
+  dailyRoutine           DailyRoutine[]
+  dailyReflections       DailyReflections[]
+  timeBlocks             TimeBlock[]
+  userProgress           UserProgress[]
+  xpBalance              XPBalance[]
+  xpPurchases            XPPurchase[]
+  xpEarningLog           XPEarningLog[]
+
+  @@map("users")
+}
+
+enum UserRole {
+  ADMIN
+  USER
+  TEAM_MEMBER
+}
+
+// ===== LIGHT WORK TASKS =====
+// For quick, interruption-friendly tasks (emails, calls, admin)
+model LightWorkTask {
+  id                    String                @id @default(cuid())
+  userId                String
+  user                  User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Core Task Fields
+  title                 String
+  description           String?
+  priority              Priority              @default(MEDIUM)
+  completed             Boolean               @default(false)
+  
+  // Scheduling
+  originalDate          String                // YYYY-MM-DD format
+  currentDate           String                // YYYY-MM-DD format (for rollovers)
+  estimatedDuration     Int?                  // minutes
+  
+  // Tracking
+  rollovers             Int                   @default(0)
+  tags                  String[]              @default([])
+  category              String?
+  
+  // Timestamps
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+  completedAt           DateTime?
+  startedAt             DateTime?
+  
+  // Time Tracking
+  actualDurationMin     Int?
+  timeEstimate          String?               // "15 min", "1 hour", etc.
+  
+  // AI Fields
+  aiAnalyzed            Boolean               @default(false)
+  aiReasoning           String?
+  analyzedAt            DateTime?
+  
+  // XP System
+  xpReward              Int?
+  complexity            Int?
+  confidence            Float?
+  contextualBonus       Float?
+  difficulty            Int?
+  learningValue         Int?
+  priorityRank          Int?
+  strategicImportance   Int?
+  timeAccuracy          Float?
+  
+  // Relations
+  subtasks              LightWorkSubtask[]
+  
+  @@map("light_work_tasks")
+}
+
+model LightWorkSubtask {
+  id                    String                @id @default(cuid())
+  taskId                String
+  task                  LightWorkTask         @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  
+  // Core Fields
+  title                 String
+  text                  String                // Alternative to title
+  completed             Boolean               @default(false)
+  priority              String?               // "High", "Med", "Low"
+  dueDate               DateTime?
+  
+  // Timestamps
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+  completedAt           DateTime?
+  startedAt             DateTime?
+  
+  // Time Tracking
+  actualDurationMin     Int?
+  timeAccuracy          Float?
+  
+  // AI Fields
+  aiAnalyzed            Boolean               @default(false)
+  aiReasoning           String?
+  analyzedAt            DateTime?
+  
+  // XP System
+  xpReward              Int?
+  complexity            Int?
+  confidence            Float?
+  contextualBonus       Float?
+  difficulty            Int?
+  learningValue         Int?
+  priorityRank          Int?
+  strategicImportance   Int?
+  
+  @@map("light_work_subtasks")
+}
+
+// ===== DEEP WORK TASKS =====
+// For focused, no-interruption work blocks (2-4 hours)
+model DeepWorkTask {
+  id                    String                @id @default(cuid())
+  userId                String
+  user                  User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Core Task Fields
+  title                 String
+  description           String?
+  priority              Priority              @default(HIGH)  // Deep work is typically high priority
+  completed             Boolean               @default(false)
+  
+  // Scheduling
+  originalDate          String                // YYYY-MM-DD format
+  currentDate           String                // YYYY-MM-DD format
+  estimatedDuration     Int?                  // minutes (typically 120-240)
+  
+  // Deep Work Specific
+  focusBlocks           Int                   @default(1)     // Number of focus blocks
+  breakDuration         Int                   @default(15)    // Break between blocks
+  interruptionMode      Boolean               @default(false) // Phone/notifications off
+  
+  // Tracking
+  rollovers             Int                   @default(0)
+  tags                  String[]              @default([])
+  category              String?
+  
+  // Timestamps
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+  completedAt           DateTime?
+  startedAt             DateTime?
+  
+  // Time Tracking
+  actualDurationMin     Int?
+  timeEstimate          String?               // "2 hours", "4 hours", etc.
+  
+  // AI Fields
+  aiAnalyzed            Boolean               @default(false)
+  aiReasoning           String?
+  analyzedAt            DateTime?
+  
+  // XP System (typically higher rewards)
+  xpReward              Int?
+  complexity            Int?
+  confidence            Float?
+  contextualBonus       Float?
+  difficulty            Int?
+  learningValue         Int?
+  priorityRank          Int?
+  strategicImportance   Int?
+  timeAccuracy          Float?
+  
+  // Relations
+  subtasks              DeepWorkSubtask[]
+  
+  @@map("deep_work_tasks")
+}
+
+model DeepWorkSubtask {
+  id                    String                @id @default(cuid())
+  taskId                String
+  task                  DeepWorkTask          @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  
+  // Core Fields
+  title                 String
+  text                  String                // Alternative to title
+  completed             Boolean               @default(false)
+  priority              String?               // "High", "Med", "Low"
+  dueDate               DateTime?
+  
+  // Deep Work Specific
+  requiresFocus         Boolean               @default(true)   // Requires deep focus
+  complexityLevel       Int?                  // 1-5 scale
+  
+  // Timestamps
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+  completedAt           DateTime?
+  startedAt             DateTime?
+  
+  // Time Tracking
+  actualDurationMin     Int?
+  timeAccuracy          Float?
+  
+  // AI Fields
+  aiAnalyzed            Boolean               @default(false)
+  aiReasoning           String?
+  analyzedAt            DateTime?
+  
+  // XP System (typically higher rewards)
+  xpReward              Int?
+  complexity            Int?
+  confidence            Float?
+  contextualBonus       Float?
+  difficulty            Int?
+  learningValue         Int?
+  priorityRank          Int?
+  strategicImportance   Int?
+  
+  @@map("deep_work_subtasks")
+}
+
+// ===== SHARED ENUMS =====
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+// ===== EXISTING MODELS (PRESERVED FOR COMPATIBILITY) =====
+
+model AutomationTask {
+  id              String             @id @default(cuid())
+  userId          String
+  name            String
+  description     String?
+  category        AutomationCategory
+  priority        Priority
+  status          AutomationStatus   @default(PENDING)
+  prompt          String
+  allowedTools    Json               @default("[]")
+  estimatedTokens Int                @default(0)
+  actualTokens    Int?
+  executionTimeMs Int?
+  result          String?
+  error           String?
+  metadata        Json               @default("{}")
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  startedAt       DateTime?
+  completedAt     DateTime?
+  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([userId, category])
+  @@map("automation_tasks")
+}
+
+model DailyHabits {
+  id                     String   @id @default(cuid())
+  userId                 String
+  date                   String
+  screenTimeMinutes      Int      @default(0)
+  bullshitContentMinutes Int      @default(0)
+  noWeed                 Boolean  @default(false)
+  noScrolling            Boolean  @default(false)
+  deepWorkHours          Float    @default(0)
+  lightWorkHours         Float    @default(0)
+  habitsData             Json     @default("{}")
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+  user                   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId, date])
+  @@map("daily_habits")
+}
+
+model DailyHealth {
+  id              String   @id @default(cuid())
+  userId          String
+  date            String
+  healthChecklist Json     @default("[]")
+  meals           Json     @default("{}")
+  macros          Json     @default("{}")
+  waterIntakeMl   Int      @default(0)
+  milkIntakeMl    Int      @default(0)
+  sleepHours      Float    @default(0)
+  energyLevel     Int?
+  moodLevel       Int?
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId, date])
+  @@map("daily_health")
+}
+
+model DailyWorkout {
+  id                   String   @id @default(cuid())
+  userId               String
+  date                 String
+  exercises            Json     @default("[]")
+  totalExercises       Int      @default(0)
+  completedExercises   Int      @default(0)
+  completionPercentage Float    @default(0)
+  durationMinutes      Int?
+  notes                String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId, date])
+  @@map("daily_workouts")
+}
+
+model DailyRoutine {
+  id                   String      @id @default(cuid())
+  userId               String
+  date                 String
+  routineType          RoutineType
+  items                Json        @default("[]")
+  completedCount       Int         @default(0)
+  totalCount           Int         @default(0)
+  completionPercentage Float       @default(0)
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
+  user                 User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date, routineType])
+  @@index([userId, date])
+  @@map("daily_routines")
+}
+
+model DailyReflections {
+  id            String   @id @default(cuid())
+  userId        String
+  date          String
+  wentWell      String[]
+  evenBetterIf  String[]
+  analysis      String[]
+  patterns      String[]
+  changes       String[]
+  overallRating Int?
+  keyLearnings  String?
+  tomorrowFocus String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId, date])
+  @@map("daily_reflections")
+}
+
+model TimeBlock {
+  id          String            @id @default(cuid())
+  userId      String
+  date        String
+  startTime   String
+  endTime     String
+  title       String
+  description String?
+  category    TimeBlockCategory
+  completed   Boolean           @default(false)
+  actualStart String?
+  actualEnd   String?
+  notes       String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+  @@index([userId, date, startTime])
+  @@map("time_blocks")
+}
+
+model PersonalContext {
+  id                 String   @id @default(cuid())
+  userId             String
+  currentGoals       String?
+  skillPriorities    String?
+  revenueTargets     String?
+  timeConstraints    String?
+  currentProjects    String?
+  hatedTasks         String?
+  valuedTasks        String?
+  learningObjectives String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("personal_context")
+}
+
+model UserProgress {
+  id            String        @id @default(cuid())
+  userId        String        @unique
+  currentLevel  Int           @default(1)
+  totalXP       Int           @default(0)
+  dailyXP       Int           @default(0)
+  currentStreak Int           @default(0)
+  bestStreak    Int           @default(0)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  achievements  Achievement[]
+  dailyStats    DailyStats[]
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_progress")
+}
+
+model Achievement {
+  id           String              @id @default(cuid())
+  progressId   String
+  name         String
+  description  String
+  badge        String
+  category     AchievementCategory
+  requirement  Int
+  unlocked     Boolean             @default(false)
+  progress     Int                 @default(0)
+  maxProgress  Int
+  unlockedAt   DateTime?
+  createdAt    DateTime            @default(now())
+  userProgress UserProgress        @relation(fields: [progressId], references: [id], onDelete: Cascade)
+
+  @@index([progressId, unlocked])
+  @@map("achievements")
+}
+
+model DailyStats {
+  id                  String       @id @default(cuid())
+  progressId          String
+  date                String
+  totalXP             Int          @default(0)
+  activitiesCompleted Int          @default(0)
+  streakCount         Int          @default(0)
+  level               Int          @default(1)
+  routineXP           Int          @default(0)
+  taskXP              Int          @default(0)
+  healthXP            Int          @default(0)
+  focusXP             Int          @default(0)
+  habitXP             Int          @default(0)
+  createdAt           DateTime     @default(now())
+  userProgress        UserProgress @relation(fields: [progressId], references: [id], onDelete: Cascade)
+
+  @@unique([progressId, date])
+  @@index([progressId, date])
+  @@map("daily_stats")
+}
+
+model XPBalance {
+  id           String       @id @default(cuid())
+  userId       String       @unique
+  currentXP    Int          @default(0)
+  totalEarned  Int          @default(0)
+  totalSpent   Int          @default(0)
+  reserveXP    Int          @default(200)
+  pendingLoans Int          @default(0)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("xp_balance")
+}
+
+model XPPurchase {
+  id                 String           @id @default(cuid())
+  userId             String
+  rewardId           String
+  xpSpent            Int
+  actualPrice        Int
+  purchaseType       String           @default("DIRECT")
+  notes              String?
+  satisfactionRating Int?
+  guiltLevel         Int?
+  wasPlanned         Boolean          @default(false)
+  celebrationLevel   String?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reward             RewardDefinition @relation("RewardPurchases", fields: [rewardId], references: [id])
+
+  @@index([userId, createdAt])
+  @@index([rewardId, createdAt])
+  @@map("xp_purchases")
+}
+
+model XPEarningLog {
+  id          String   @id @default(cuid())
+  userId      String
+  source      String
+  sourceId    String?
+  baseXP      Int
+  finalXP     Int
+  multipliers Json     @default("{}")
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([source, createdAt])
+  @@map("xp_earning_log")
+}
+
+model RewardDefinition {
+  id                 String       @id @default(cuid())
+  category           String
+  name               String
+  description        String
+  basePrice          Int
+  iconEmoji          String
+  isActive           Boolean      @default(true)
+  requiresStreak     Int?
+  maxDailyUse        Int          @default(1)
+  availabilityWindow String?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  purchases          XPPurchase[] @relation("RewardPurchases")
+
+  @@index([category, isActive])
+  @@map("reward_definitions")
+}
+
+// ===== ADDITIONAL ENUMS =====
+enum TaskDifficulty {
+  TRIVIAL
+  EASY
+  MODERATE
+  HARD
+  EXPERT
+}
+
+enum AchievementCategory {
+  STREAK
+  POINTS
+  COMPLETION
+  CONSISTENCY
+}
+
+enum AutomationCategory {
+  DEVELOPMENT
+  TESTING
+  DEPLOYMENT
+  ANALYSIS
+  MAINTENANCE
+}
+
+enum AutomationStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  PAUSED
+}
+
+enum RoutineType {
+  MORNING
+  EVENING
+}
+
+enum TimeBlockCategory {
+  DEEP_WORK
+  LIGHT_WORK
+  MEETING
+  BREAK
+  PERSONAL
+  HEALTH
+  LEARNING
+  ADMIN
+}

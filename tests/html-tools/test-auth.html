@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SISO Auth Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>SISO Auth Test</h1>
+    <div id="status">Testing...</div>
+    <button onclick="login()">Test Login</button>
+    <button onclick="checkSession()">Check Session</button>
+    <pre id="output"></pre>
+
+    <script>
+        const SUPABASE_URL = 'https://avdgyrepwrvsvwgxrccr.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2ZGd5cmVwd3J2c3Z3Z3hyY2NyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM2MzgwODIsImV4cCI6MjA1OTIxNDA4Mn0.8MZ2etAhQ1pTJnK84uoqAFfUirv_kaoYcmKHhKgLAWU';
+        
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        async function login() {
+            const output = document.getElementById('output');
+            output.textContent = 'Attempting login...';
+            
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: 'Fuzeheritage123456789@gmail.com',
+                    password: 'Million2025@SISO'
+                });
+                
+                if (error) {
+                    output.textContent = 'Login error: ' + JSON.stringify(error, null, 2);
+                } else {
+                    output.textContent = 'Login success: ' + JSON.stringify(data, null, 2);
+                }
+            } catch (e) {
+                output.textContent = 'Exception: ' + e.message;
+            }
+        }
+        
+        async function checkSession() {
+            const { data, error } = await supabase.auth.getSession();
+            document.getElementById('output').textContent = JSON.stringify({ data, error }, null, 2);
+        }
+        
+        // Check initial session
+        checkSession();
+    </script>
+</body>
+</html>
