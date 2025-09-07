@@ -509,6 +509,44 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
     }
   }, [supabase]);
 
+  // Update subtask due date in Supabase
+  const updateSubtaskDueDate = useCallback(async (subtaskId: string, dueDate: Date | null) => {
+    if (!supabase) return null;
+    
+    try {
+      console.log(`📅 Updating subtask due date in Supabase: ${subtaskId} -> ${dueDate}`);
+
+      const { error } = await supabase
+        .from('light_work_subtasks')
+        .update({
+          due_date: dueDate ? dueDate.toISOString().split('T')[0] : null,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', subtaskId);
+
+      if (error) {
+        throw new Error(`Supabase error: ${error.message}`);
+      }
+
+      console.log(`✅ Updated subtask due date in Supabase: ${subtaskId}`);
+      
+      // Update tasks state with new subtask due date
+      setTasks(prev => prev.map(task => ({
+        ...task,
+        subtasks: task.subtasks.map(subtask => 
+          subtask.id === subtaskId ? { ...subtask, dueDate: dueDate?.toISOString().split('T')[0] } : subtask
+        )
+      })));
+      
+      return true;
+
+    } catch (error) {
+      console.error('❌ Error updating subtask due date in Supabase:', error);
+      setError(error instanceof Error ? error.message : 'Failed to update subtask due date in Supabase');
+      return null;
+    }
+  }, [supabase]);
+
   // Load tasks when dependencies change
   useEffect(() => {
     loadTasks();
@@ -527,6 +565,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
     updateTaskTitle,
     pushTaskToAnotherDay,
     updateTaskDueDate,
+    updateSubtaskDueDate,
     refreshTasks: loadTasks
   };
 }
