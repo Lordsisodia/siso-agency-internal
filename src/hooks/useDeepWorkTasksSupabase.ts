@@ -117,17 +117,17 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
         timeEstimate: task.timeEstimate,
         subtasks: task.subtasks?.map((subtask: any) => ({
           id: subtask.id,
-          taskId: subtask.taskId,
+          taskId: subtask.task_id,
           title: subtask.title,
           text: subtask.text || subtask.title,
           completed: subtask.completed,
           priority: subtask.priority,
-          dueDate: subtask.dueDate,
-          requiresFocus: subtask.requiresFocus || false,
-          complexityLevel: subtask.complexityLevel || 1,
-          createdAt: subtask.createdAt,
-          updatedAt: subtask.updatedAt,
-          completedAt: subtask.completedAt
+          dueDate: subtask.due_date, // Map snake_case to camelCase
+          requiresFocus: subtask.requires_focus || false,
+          complexityLevel: subtask.complexity_level || 1,
+          createdAt: subtask.created_at,
+          updatedAt: subtask.updated_at,
+          completedAt: subtask.completed_at
         })) || []
       })) || [];
 
