@@ -56,7 +56,7 @@ export const SubtaskItem: React.FC<SubtaskItemProps> = ({
   children
 }) => {
   return (
-    <div className="group flex items-start gap-2 py-3 px-4 hover:bg-gray-700/20 rounded-lg transition-all duration-200 w-full">
+    <div className="group flex items-start gap-3 py-2 px-3 hover:bg-gray-700/20 rounded-lg transition-all duration-200 w-full">
       <button
         onClick={(e) => {
           e.stopPropagation();
@@ -65,16 +65,16 @@ export const SubtaskItem: React.FC<SubtaskItemProps> = ({
         onTouchStart={(e) => {
           e.stopPropagation();
         }}
-        className="flex-shrink-0 hover:scale-105 active:scale-95 transition-all duration-150 min-h-[44px] min-w-[44px] flex items-center justify-center mt-0.5 hover:bg-gray-600/30 active:bg-gray-500/40 rounded-lg touch-manipulation"
+        className="flex-shrink-0 hover:scale-105 active:scale-95 transition-all duration-150 min-h-[32px] min-w-[32px] flex items-center justify-center mt-0.5 hover:bg-gray-600/30 active:bg-gray-500/40 rounded-md touch-manipulation"
         style={{ touchAction: 'manipulation' }}
         aria-label={subtask.completed ? "Mark subtask as incomplete" : "Mark subtask as complete"}
         role="checkbox"
         aria-checked={subtask.completed}
       >
         {subtask.completed ? (
-          <Check className={`h-6 w-6 ${themeConfig.colors.text} drop-shadow-sm`} />
+          <Check className={`h-4 w-4 ${themeConfig.colors.text} drop-shadow-sm`} />
         ) : (
-          <div className={`h-6 w-6 rounded-full border-2 border-gray-300 hover:${themeConfig.colors.border} hover:border-opacity-90 transition-all duration-200 bg-gray-800/10 hover:bg-gray-700/20`} />
+          <div className={`h-4 w-4 rounded-full border-2 border-gray-300 hover:${themeConfig.colors.border} hover:border-opacity-90 transition-all duration-200 bg-gray-800/10 hover:bg-gray-700/20`} />
         )}
       </button>
       {isEditing ? (
@@ -85,14 +85,14 @@ export const SubtaskItem: React.FC<SubtaskItemProps> = ({
           onKeyDown={(e) => onKeyDown(e, 'subtask', taskId, subtask.id)}
           onBlur={() => onSaveEdit(taskId, subtask.id)}
           autoFocus
-          className={`flex-1 text-sm bg-gray-700/50 border ${themeConfig.colors.input} rounded px-2 py-1 text-white focus:outline-none focus:ring-1 min-h-[44px]`}
+          className={`flex-1 text-xs bg-gray-700/50 border ${themeConfig.colors.input} rounded px-2 py-1 text-white focus:outline-none focus:ring-1 min-h-[32px]`}
         />
       ) : (
-        <div className="flex-1 min-w-0 pr-2">
+        <div className="flex-1 min-w-0 pr-1">
           {/* Subtask Title */}
-          <div className="w-full mb-2">
+          <div className="w-full mb-1.5">
             <span 
-              className={`block text-sm font-medium cursor-pointer hover:${themeConfig.colors.textSecondary} transition-colors leading-relaxed break-words ${
+              className={`block text-xs font-normal cursor-pointer hover:${themeConfig.colors.textSecondary} transition-colors leading-relaxed break-words ${
                 subtask.completed ? 'line-through text-gray-400' : 'text-white'
               }`}
               onClick={(e) => {
