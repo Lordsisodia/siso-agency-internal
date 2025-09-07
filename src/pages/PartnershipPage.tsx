@@ -5,14 +5,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { Waves } from '@/shared/ui/waves-background';
 import { AgencyPartnershipHeader } from '@/shared/ui/agency-partnership-header';
 import { Stats } from '@/shared/ui/stats-section-with-text';
-import { PartnershipNavigation } from '@/ai-first/features/partnerships/components/PartnershipNavigation';
-import { PartnershipPortfolio } from '@/ai-first/features/partnerships/components/PartnershipPortfolio';
-import { PartnershipBenefits } from '@/ai-first/features/partnerships/components/PartnershipBenefits';
-import { PartnershipProcess } from '@/ai-first/features/partnerships/components/PartnershipProcess';
-import { PartnershipAIChat } from '@/ai-first/features/partnerships/components/PartnershipAIChat';
-import { PartnershipTraining } from '@/ai-first/features/partnerships/components/PartnershipTraining';
+import { PartnershipNavigation } from '@/ecosystem/partnership/components/PartnershipNavigation';
+import { PartnershipPortfolio } from '@/ecosystem/partnership/components/PartnershipPortfolio';
+import { PartnershipBenefits } from '@/ecosystem/partnership/components/PartnershipBenefits';
+import { PartnershipProcess } from '@/ecosystem/partnership/components/PartnershipProcess';
+import { PartnershipAIChat } from '@/ecosystem/partnership/components/PartnershipAIChat';
+import { PartnershipTraining } from '@/ecosystem/partnership/components/PartnershipTraining';
 import Footer from '@/shared/Footer';
-import { PartnerRequirements } from '@/ai-first/features/partnerships/ui/PartnerRequirements';
+import { PartnerRequirements } from '@/ecosystem/partnership/ui/PartnerRequirements';
 
 const PartnershipPage = memo(() => {
   const navigate = useNavigate();

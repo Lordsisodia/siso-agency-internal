@@ -1,27 +1,26 @@
 /**
  * 🌅 Morning Routine API Endpoint
  * 
- * HTTP API for morning routine operations with real database persistence
+ * HTTP API for morning routine operations with Supabase database persistence
  */
 
-import { PrismaClient } from '@prisma/client';
+import { createClient } from '@supabase/supabase-js';
 
-// Universal Prisma client - works locally and on Vercel
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
-};
+// Supabase client - works with the existing database
+const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://avdgyrepwrvsvwgxrccr.supabase.co';
+const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2ZGd5cmVwd3J2c3Z3Z3hyY2NyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM2MzgwODIsImV4cCI6MjA1OTIxNDA4Mn0.8MZ2etAhQ1pTJnK84uoqAFfUirv_kaoYcmKHhKgLAWU';
 
-const prisma = globalForPrisma.prisma ?? new PrismaClient();
-
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Helper function to ensure user exists
 async function ensureUserExists(userId: string) {
   try {
     // Check if user exists
-    const existingUser = await prisma.user.findUnique({
-      where: { id: userId }
-    });
+    const { data: existingUser } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', userId)
+      .single();
     
     if (existingUser) {
       return existingUser;
@@ -29,13 +28,19 @@ async function ensureUserExists(userId: string) {
     
     // Create user with default email if not exists
     console.log(`🔧 Auto-creating user: ${userId}`);
-    const newUser = await prisma.user.create({
-      data: {
+    const { data: newUser, error } = await supabase
+      .from('users')
+      .insert({
         id: userId,
-        email: `${userId}@clerk.generated`,
-        supabaseId: userId
-      }
-    });
+        email: `${userId}@clerk.generated`
+      })
+      .select()
+      .single();
+    
+    if (error) {
+      console.error('Failed to create user:', error);
+      throw error;
+    }
     
     console.log(`✅ Auto-created user: ${userId}`);
     return newUser;
@@ -62,18 +67,17 @@ export default async function handler(req: any, res: any) {
           return res.status(400).json({ error: 'userId and date are required' });
         }
         
-        // Get morning routine data for the specific date using DailyRoutine model
-        let routine = await prisma.dailyRoutine.findUnique({
-          where: { 
-            userId_date_routineType: {
-              userId: userId,
-              date: date,
-              routineType: 'MORNING'
-            }
-          }
-        });
+        // Get morning routine data for the specific date using Supabase
+        const { data: routine } = await supabase
+          .from('daily_routines')
+          .select('*')
+          .eq('user_id', userId)
+          .eq('date', date)
+          .eq('routine_type', 'MORNING')
+          .single();
 
         // If no routine exists, create default one
+        let finalRoutine = routine;
         if (!routine) {
           // Ensure user exists first
           await ensureUserExists(userId);
@@ -100,20 +104,29 @@ export default async function handler(req: any, res: any) {
             { name: 'setTimebox', completed: false }
           ];
 
-          routine = await prisma.dailyRoutine.create({
-            data: {
-              userId: userId,
+          const { data: newRoutine, error } = await supabase
+            .from('daily_routines')
+            .insert({
+              user_id: userId,
               date: date,
-              routineType: 'MORNING',
+              routine_type: 'MORNING',
               items: defaultMorningRoutineItems,
-              totalCount: defaultMorningRoutineItems.length,
-              completedCount: 0,
-              completionPercentage: 0
-            }
-          });
+              total_count: defaultMorningRoutineItems.length,
+              completed_count: 0,
+              completion_percentage: 0
+            })
+            .select()
+            .single();
+
+          if (error) {
+            console.error('Failed to create routine:', error);
+            throw error;
+          }
+
+          finalRoutine = newRoutine;
         }
 
-        return res.status(200).json({ success: true, data: routine });
+        return res.status(200).json({ success: true, data: finalRoutine });
 
       case 'PATCH':
         // PATCH /api/morning-routine - Update morning routine habit completion
@@ -123,16 +136,15 @@ export default async function handler(req: any, res: any) {
         }
         
         // Get existing routine or create if doesn't exist
-        let existingRoutine = await prisma.dailyRoutine.findUnique({
-          where: { 
-            userId_date_routineType: {
-              userId: patchUserId,
-              date: patchDate,
-              routineType: 'MORNING'
-            }
-          }
-        });
+        const { data: existingRoutine } = await supabase
+          .from('daily_routines')
+          .select('*')
+          .eq('user_id', patchUserId)
+          .eq('date', patchDate)
+          .eq('routine_type', 'MORNING')
+          .single();
         
+        let workingRoutine = existingRoutine;
         if (!existingRoutine) {
           // Ensure user exists and create default routine
           await ensureUserExists(patchUserId);
@@ -149,21 +161,30 @@ export default async function handler(req: any, res: any) {
             { name: 'setTimebox', completed: false }
           ];
           
-          existingRoutine = await prisma.dailyRoutine.create({
-            data: {
-              userId: patchUserId,
+          const { data: newRoutine, error } = await supabase
+            .from('daily_routines')
+            .insert({
+              user_id: patchUserId,
               date: patchDate,
-              routineType: 'MORNING',
+              routine_type: 'MORNING',
               items: defaultItems,
-              totalCount: defaultItems.length,
-              completedCount: 0,
-              completionPercentage: 0
-            }
-          });
+              total_count: defaultItems.length,
+              completed_count: 0,
+              completion_percentage: 0
+            })
+            .select()
+            .single();
+
+          if (error) {
+            console.error('Failed to create routine:', error);
+            throw error;
+          }
+
+          workingRoutine = newRoutine;
         }
         
         // Update the specific habit in the items array
-        const items = existingRoutine.items as Array<{ name: string; completed: boolean }>;
+        const items = workingRoutine.items as Array<{ name: string; completed: boolean }>;
         const habitIndex = items.findIndex(item => item.name === habitName);
         
         if (habitIndex === -1) {
@@ -177,15 +198,22 @@ export default async function handler(req: any, res: any) {
         const completedCount = items.filter(item => item.completed).length;
         const completionPercentage = Math.round((completedCount / items.length) * 100);
         
-        // Update the routine
-        const updatedRoutine = await prisma.dailyRoutine.update({
-          where: { id: existingRoutine.id },
-          data: {
+        // Update the routine using Supabase
+        const { data: updatedRoutine, error } = await supabase
+          .from('daily_routines')
+          .update({
             items: items,
-            completedCount,
-            completionPercentage
-          }
-        });
+            completed_count: completedCount,
+            completion_percentage: completionPercentage
+          })
+          .eq('id', workingRoutine.id)
+          .select()
+          .single();
+
+        if (error) {
+          console.error('Failed to update routine:', error);
+          throw error;
+        }
 
         return res.status(200).json({ success: true, data: updatedRoutine });
 

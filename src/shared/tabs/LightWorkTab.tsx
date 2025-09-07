@@ -17,7 +17,7 @@ import { Card, CardContent, CardHeader } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
 import { Badge } from '@/shared/ui/badge';
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover';
-import { Calendar } from '@/ecosystem/internal/calendar/ui/calendar';
+import { Calendar } from '@/shared/ui/calendar';
 import { format } from 'date-fns';
 import { TabProps } from '../../../ai-first/features/tasks/DayTabContainer';
 import { useLightWorkTasksSupabase, LightWorkTask } from '@/shared/hooks/useLightWorkTasksSupabase';

@@ -1,7 +1,7 @@
 // LifeLock Voice Task Processor
 // Converts thought dumps into organized Deep vs Light work tasks
-import { aiTaskAgent } from '@/ai-first/core/task.service';
-import { grokTaskService } from '@/ai-first/core/task.service';
+import { aiTaskAgent } from '@/core/task.service';
+import { grokTaskService } from '@/core/task.service';
 
 import { Task, Subtask, WorkType, TaskPriority } from '@/types/task.types';
 

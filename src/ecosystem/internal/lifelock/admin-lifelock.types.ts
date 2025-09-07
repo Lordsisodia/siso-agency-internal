@@ -4,7 +4,7 @@
  * Comprehensive type definitions for the switch statement replacement system
  */
 
-import { TabId } from '@/ai-first/core/tab-config';
+import { TabId } from '@/core/tab-config';
 
 /**
  * Props passed to all tab layout components

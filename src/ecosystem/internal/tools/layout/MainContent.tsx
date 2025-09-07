@@ -1,8 +1,8 @@
 
-import { Tool } from '@/internal/tools/types';
-import { ToolsCategories } from '@/internal/tools/ToolsCategories';
-import { ToolsFilters } from '@/internal/tools/ToolsFilters';
-import { ToolsGrid } from '@/internal/tools/ToolsGrid';
+import { Tool } from '../core/types';
+import { ToolsCategories } from '../ui/ToolsCategories';
+import { ToolsFilters } from '../ui/ToolsFilters';
+import { ToolsGrid } from '../views/ToolsGrid';
 import { motion } from 'framer-motion';
 
 interface MainContentProps {

@@ -18,9 +18,9 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
 import { Badge } from '@/shared/ui/badge';
-import { PartnershipLayout } from '@/ai-first/features/partnerships/components/PartnershipLayout';
-import { PartnershipReferralsTable } from '@/ai-first/features/partnerships/components/PartnershipReferralsTable';
-import { AirtablePartnersTable } from '@/ai-first/features/partnerships/components/AirtablePartnersTable';
+import { PartnershipLayout } from '@/ecosystem/partnership/components/PartnershipLayout';
+import { PartnershipReferralsTable } from '@/ecosystem/partnership/components/PartnershipReferralsTable';
+import { AirtablePartnersTable } from '@/ecosystem/partnership/components/AirtablePartnersTable';
 import { DashboardGreetingCard } from '@/shared/ui/dashboard-templates';
 
 export default function Clients() {

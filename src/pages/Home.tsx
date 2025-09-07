@@ -15,7 +15,7 @@ import { HelpSupportCard } from '@/internal/dashboard/HelpSupportCard';
 import { ProjectHeader } from '@/ecosystem/internal/projects/details/ProjectHeader';
 import { ProjectMetricsDashboard } from '@/ecosystem/internal/projects/details/ProjectMetricsDashboard';
 import { ProjectProgressCards } from '@/internal/dashboard/ProjectProgressCards';
-import { RealTaskManager } from '@/ecosystem/internal/tasks/management/RealTaskManager';
+import { RealTaskManager } from '@/ecosystem/internal/tasks/core/RealTaskManager';
 import { useMainUserProject } from '@/shared/hooks/useUserProjects';
 import { AlertCircle } from 'lucide-react';
 import { DataViewer } from '@/shared/debug/DataViewer';

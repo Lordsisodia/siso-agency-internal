@@ -8,8 +8,10 @@
 import { format } from 'date-fns';
 
 const createApiUrl = (path: string) => {
-  // Use relative URLs - works with Vite proxy in development and Vercel in production
-  return path;
+  // In development, use local API server on port 3001
+  // In production, use relative URLs for Vercel deployment
+  const isDev = import.meta.env.DEV;
+  return isDev ? `http://localhost:3001${path}` : path;
 };
 
 export interface Task {

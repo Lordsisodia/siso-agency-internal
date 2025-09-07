@@ -44,7 +44,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { theme } from '@/styles/theme';
 import { useImplementation } from '@/migration/feature-flags';
-import { PartnershipLayout } from '@/ai-first/features/partnerships/components/PartnershipLayout';
+import { PartnershipLayout } from '@/ecosystem/partnership/components/PartnershipLayout';
 import { DashboardGreetingCard } from '@/shared/ui/dashboard-templates';
 import { useUser } from '@/shared/hooks/useUser';
 import { AppPlanMicroChat } from '@/internal/dashboard/AppPlanMicroChat';

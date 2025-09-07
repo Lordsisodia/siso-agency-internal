@@ -19,7 +19,7 @@ import {
   InitialResearchReport,
   RefinedResearchReport,
   AppPlanOutput 
-} from '@/ai-first/core/ai.service';
+} from '@/core/ai.service';
 import { AppPlanInput } from '@/types/appPlan.types';
 
 interface ThreeStageTestResults {

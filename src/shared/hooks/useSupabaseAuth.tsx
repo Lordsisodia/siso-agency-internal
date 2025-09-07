@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/shared/hooks/use-toast';
-import { signOut } from '@/ai-first/core/auth.service';
+import { signOut } from '@/core/auth.service';
 
 export const useSupabaseAuth = () => {
   const [loading, setLoading] = useState(false);

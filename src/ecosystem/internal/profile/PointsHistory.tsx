@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
 import { History, Plus } from 'lucide-react';
-import { safeSupabase } from '@/ai-first/core/data.service';
+import { safeSupabase } from '@/core/data.service';
 
 interface PointsLogEntry {
   id: string;

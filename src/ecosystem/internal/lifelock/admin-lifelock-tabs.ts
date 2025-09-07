@@ -16,18 +16,18 @@ import React from 'react';
 import { LucideIcon } from 'lucide-react';
 
 // Import tab components
-import { MorningRoutineSection } from '@/ai-first/features/tasks/components/MorningRoutineSection';
-import { DeepFocusWorkSection } from '@/ai-first/features/tasks/components/DeepFocusWorkSection-v2';
-import { LightFocusWorkSection } from '@/ai-first/features/tasks/components/LightFocusWorkSection-v2';
+import { MorningRoutineSection } from '@/ecosystem/internal/tasks/sections/MorningRoutineSection';
+import { DeepFocusWorkSection } from '@/ecosystem/internal/tasks/sections/DeepFocusWorkSection-v2';
+import { LightFocusWorkSection } from '@/ecosystem/internal/tasks/sections/LightFocusWorkSection-v2';
 import { EnhancedLightWorkManager } from '@/shared/ui/enhanced-light-work-manager';
-import { HomeWorkoutSection } from '@/ai-first/features/tasks/components/HomeWorkoutSection';
-import { HealthNonNegotiablesSection } from '@/ai-first/features/tasks/components/HealthNonNegotiablesSection';
-import { TimeboxSection } from '@/ai-first/features/tasks/components/TimeboxSection';
-import { NightlyCheckoutSection } from '@/ai-first/features/tasks/components/NightlyCheckoutSection';
-import { QuickActionsSection } from '@/ai-first/features/tasks/ui/QuickActionsSection';
+import { HomeWorkoutSection } from '@/ecosystem/internal/tasks/sections/HomeWorkoutSection';
+import { HealthNonNegotiablesSection } from '@/ecosystem/internal/tasks/sections/HealthNonNegotiablesSection';
+import { TimeboxSection } from '@/ecosystem/internal/tasks/sections/TimeboxSection';
+import { NightlyCheckoutSection } from '@/ecosystem/internal/tasks/sections/NightlyCheckoutSection';
+import { QuickActionsSection } from '@/ecosystem/internal/tasks/sections/QuickActionsSection';
 
 // Import existing tab config
-import { TabId, TAB_CONFIG } from '@/ai-first/core/tab-config';
+import { TabId, TAB_CONFIG } from '@/core/tab-config';
 
 /**
  * Enhanced tab configuration with component mappings and layout variants

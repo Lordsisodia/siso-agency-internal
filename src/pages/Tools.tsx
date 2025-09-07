@@ -1,12 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { useState, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Tool } from '@/internal/tools/types';
+import { Tool } from '@/ecosystem/internal/tools/core/types';
 import { AppLayout } from '@/shared/layout/AppLayout';
 import { toast } from 'react-hot-toast';
-import { ToolsPageHeader } from '@/internal/tools/ToolsPageHeader';
-import { MainContent } from '@/internal/tools/layout/MainContent';
-import { ChatAssistant } from '@/internal/tools/layout/ChatAssistant';
+import { ToolsPageHeader } from '@/ecosystem/internal/tools/ui/ToolsPageHeader';
+import { MainContent } from '@/ecosystem/internal/tools/layout/MainContent';
+import { ChatAssistant } from '@/ecosystem/internal/tools/layout/ChatAssistant';
 import { enhancedTableQuery, castToMockTypeArray } from '@/shared/utils/errorSuppressions';
 import { Sidebar } from '@/shared/Sidebar';
 

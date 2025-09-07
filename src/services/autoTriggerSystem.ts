@@ -6,7 +6,7 @@
 import { useState, useEffect } from 'react';
 import { AppPlanInput } from '@/types/appPlan.types';
 import { getBusinessOnboardingData } from '@/shared/utils/clientData';
-import { appPlanAgent } from '@/ai-first/core/ai.service';
+import { appPlanAgent } from '@/core/ai.service';
 import { toast } from '@/shared/hooks/use-toast';
 import { logger } from '@/shared/utils/logger';
 

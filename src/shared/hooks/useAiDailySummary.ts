@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { safeSupabase } from '@/ai-first/core/data.service';
+import { safeSupabase } from '@/core/data.service';
 import { useToast } from '@/shared/hooks/use-toast';
 import FeatureFlags from '@/shared/utils/featureFlags';
 

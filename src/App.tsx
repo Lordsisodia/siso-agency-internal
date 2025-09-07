@@ -1,11 +1,11 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { lazy, Suspense, useEffect } from 'react';
-import { ClerkHybridTaskService } from '@/ai-first/core/auth.service';
+import { ClerkHybridTaskService } from '@/core/auth.service';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Toaster } from '@/shared/ui/toaster';
 import { ClerkProvider } from '@/shared/ClerkProvider';
-import { ClerkAuthGuard } from '@/ai-first/features/auth/components/ClerkAuthGuard';
-import { AuthGuard } from '@/ai-first/features/auth/components/AuthGuard';
+import { ClerkAuthGuard } from '@/ecosystem/internal/auth/components/ClerkAuthGuard';
+import { AuthGuard } from '@/ecosystem/internal/auth/components/AuthGuard';
 import { PageLoader } from '@/shared/ui/PageLoader';
 
 import { logger } from '@/shared/utils/logger';
@@ -14,7 +14,7 @@ import { logger } from '@/shared/utils/logger';
 import Index from './pages/Index';
 import Auth from './pages/Auth';
 import Home from './pages/Home';
-import { AdminAutoLogin } from '@/ai-first/features/auth/components/AdminAutoLogin';
+import { AdminAutoLogin } from '@/ecosystem/internal/auth/components/AdminAutoLogin';
 
 // Lazy load all other pages for super-fast initial load
 const TestPage = lazy(() => import('./pages/TestPage'));
@@ -102,9 +102,9 @@ const PartnerLogin = lazy(() => import('./pages/auth/PartnerLogin'));
 const PartnerRegister = lazy(() => import('./pages/auth/PartnerRegister'));
 const PartnerPasswordReset = lazy(() => import('./pages/auth/PartnerPasswordReset'));
 const PartnerDashboard = lazy(() => import('./pages/dashboard/PartnerDashboard'));
-const PartnerAuthGuard = lazy(() => import('@/ai-first/features/auth/components/PartnerAuthGuard').then(m => ({ default: m.PartnerAuthGuard })));
-const PartnerLeaderboard = lazy(() => import('@/ai-first/features/dashboard/components/PartnerLeaderboard').then(m => ({ default: m.PartnerLeaderboard })));
-const ComingSoonSection = lazy(() => import('@/ai-first/features/dashboard/components/ComingSoonSection').then(m => ({ default: m.ComingSoonSection })));
+const PartnerAuthGuard = lazy(() => import('@/ecosystem/internal/auth/components/PartnerAuthGuard').then(m => ({ default: m.PartnerAuthGuard })));
+const PartnerLeaderboard = lazy(() => import('@/shared/components/PartnerLeaderboard').then(m => ({ default: m.PartnerLeaderboard })));
+const ComingSoonSection = lazy(() => import('@/ecosystem/internal/dashboard/components/ComingSoonSection').then(m => ({ default: m.ComingSoonSection })));
 const EducationHub = lazy(() => import('./pages/dashboard/EducationHub'));
 const TrainingHub = lazy(() => import('./pages/dashboard/TrainingHub'));
 const ReferralsManagement = lazy(() => import('./pages/dashboard/ReferralsManagement'));

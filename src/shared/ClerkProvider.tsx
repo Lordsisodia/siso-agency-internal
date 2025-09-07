@@ -3,7 +3,7 @@
 
 import { ClerkProvider as BaseClerkProvider, useUser } from '@clerk/clerk-react';
 import { useEffect, useMemo } from 'react';
-import { ClerkUserSync } from '@/ai-first/core/auth.service';
+import { ClerkUserSync } from '@/core/auth.service';
 import { logger } from '@/shared/utils/logger';
 
 const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;

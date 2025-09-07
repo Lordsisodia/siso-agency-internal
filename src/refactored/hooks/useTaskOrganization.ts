@@ -12,7 +12,7 @@
  */
 
 import { useState, useCallback } from 'react';
-import { eisenhowerMatrixOrganizer, EisenhowerMatrixResult } from '@/ai-first/core/task.service';
+import { eisenhowerMatrixOrganizer, EisenhowerMatrixResult } from '@/core/task.service';
 import { TaskCard } from './useTaskData';
 
 export interface UseTaskOrganizationReturn {

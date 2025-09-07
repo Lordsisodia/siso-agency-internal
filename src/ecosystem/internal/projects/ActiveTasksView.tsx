@@ -6,9 +6,9 @@ import {
   KanbanHeader,
   KanbanProvider,
 } from "@/shared/ui/kanban";
-import { TaskCard } from './TaskCard';
+import { TaskCard } from '@/shared/components/TaskCard';
 import { TaskDetailsSheet } from './TaskDetailsSheet';
-import { MobileTasksView } from '@/ecosystem/internal/tasks/management/MobileTasksView';
+import { MobileTasksView } from '@/ecosystem/internal/tasks/views/MobileTasksView';
 import { useToast } from '@/shared/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthSession } from '@/shared/hooks/useAuthSession';

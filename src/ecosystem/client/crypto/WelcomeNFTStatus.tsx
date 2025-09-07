@@ -5,10 +5,10 @@ import { Gift, Loader2, Share2, Twitter } from 'lucide-react';
 import { useToast } from '@/shared/hooks/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Confetti } from '@/shared/ui/confetti';
-import { safeSupabase } from '@/ai-first/core/data.service';
+import { safeSupabase } from '@/core/data.service';
 import { supabase } from '@/integrations/supabase/client';  
 import FeatureFlags from '@/shared/utils/featureFlags';
-import { safeCast } from '@/ai-first/core/data.service';
+import { safeCast } from '@/core/data.service';
 
 interface NFTMetadata {
   name: string;

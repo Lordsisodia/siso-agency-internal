@@ -25,10 +25,10 @@ import {
 import { TabLayoutProps } from '../refactored/data/admin-lifelock-tabs';
 
 // Original imports (keep for fallback)
-import { TabId, isValidTabId, assertExhaustive } from '@/ai-first/core/tab-config';
+import { TabId, isValidTabId, assertExhaustive } from '@/core/tab-config';
 import { CleanDateNav } from '@/shared/ui/clean-date-nav';
-import { MorningRoutineSection } from '@/ai-first/features/tasks/components/MorningRoutineSection';
-import { DeepFocusWorkSection } from '@/ai-first/features/tasks/components/DeepFocusWorkSection-v2';
+import { MorningRoutineSection } from '@/ecosystem/internal/tasks/sections/MorningRoutineSection';
+import { DeepFocusWorkSection } from '@/ecosystem/internal/tasks/sections/DeepFocusWorkSection-v2';
 // ... other imports
 
 /**

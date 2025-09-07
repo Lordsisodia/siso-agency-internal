@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { PartnershipLayout } from '@/ai-first/features/partnerships/components/PartnershipLayout';
+import { PartnershipLayout } from '@/ecosystem/partnership/components/PartnershipLayout';
 import { DashboardGreetingCard } from '@/shared/ui/dashboard-templates';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
