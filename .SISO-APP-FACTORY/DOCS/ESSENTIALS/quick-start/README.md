@@ -1,485 +1,193 @@
-# Radix UI Primitives Documentation
+# 🚀 Quick Start - Get Up & Running
 
-This documentation contains comprehensive information about Radix UI Primitives - low-level UI components focused on accessibility, customization, and developer experience.
+**Environment setup, development server configuration, and onboarding guides for SISO Internal development.**
 
-## Key Features
+## 📁 **Documentation Contents**
 
-### 🎯 **Accessibility-First**
-- Full WAI-ARIA compliance and design patterns
-- Comprehensive keyboard navigation support
-- Screen reader tested and optimized
-- Focus management handled automatically
+This folder contains everything needed to start developing with SISO Internal:
 
-### 🎨 **Unstyled/Headless**
-- Ships without styles - complete design control
-- Compatible with any styling solution
-- Build custom design systems on top
-- Incremental adoption friendly
+- **Environment Setup** - Complete development environment configuration
+- **Local Development** - Development server setup and workflow
+- **Database Setup** - PostgreSQL/SQLite configuration and seeding
+- **Authentication Setup** - JWT and user management configuration
+- **Troubleshooting Guide** - Common issues and solutions
+- **Onboarding Checklist** - New developer onboarding workflow
 
-### 🔧 **Developer Experience**
-- Granular component architecture
-- TypeScript support out of the box
-- Tree-shakeable individual components
-- Consistent API across all primitives
+## 🎯 **Quick Setup**
 
-## Installation
-
-### Full Package (Tree-shakeable)
+### **1. Prerequisites**
 ```bash
-npm install @radix-ui/react-primitives
-# or
-npm install radix-ui
+# Required tools
+node -v    # v18.x or higher
+npm -v     # v9.x or higher
+git --version
 ```
 
-### Individual Primitives (Recommended)
+### **2. Project Setup**
 ```bash
-# Install only what you need
-npm install @radix-ui/react-dialog
-npm install @radix-ui/react-dropdown-menu
-npm install @radix-ui/react-accordion
-npm install @radix-ui/react-tabs
+# Clone and install
+git clone <repository-url>
+cd siso-internal
+npm install
+
+# Environment configuration
+cp .env.example .env.local
+# Edit .env.local with your configurations
 ```
 
-## Core Concepts
-
-### Component Architecture
-Radix provides granular access to each component part for maximum flexibility:
-
-```jsx
-import * as Dialog from '@radix-ui/react-dialog';
-
-const DialogDemo = () => (
-  <Dialog.Root>
-    <Dialog.Trigger asChild>
-      <button>Open Dialog</button>
-    </Dialog.Trigger>
-    <Dialog.Portal>
-      <Dialog.Overlay className="dialog-overlay" />
-      <Dialog.Content className="dialog-content">
-        <Dialog.Title>Dialog Title</Dialog.Title>
-        <Dialog.Description>
-          Dialog description text
-        </Dialog.Description>
-        <Dialog.Close asChild>
-          <button>Close</button>
-        </Dialog.Close>
-      </Dialog.Content>
-    </Dialog.Portal>
-  </Dialog.Root>
-);
+### **3. Database Setup**
+```bash
+# Initialize database
+npm run db:setup
+npm run db:migrate
+npm run db:seed
 ```
 
-### Controlled vs Uncontrolled
-Components are uncontrolled by default but support controlled usage:
-
-```jsx
-// Uncontrolled (default)
-<Dialog.Root>
-  {/* Dialog manages its own state */}
-</Dialog.Root>
-
-// Controlled
-const [open, setOpen] = useState(false);
-
-<Dialog.Root open={open} onOpenChange={setOpen}>
-  {/* You control the dialog state */}
-</Dialog.Root>
+### **4. Development Server**
+```bash
+# Start development servers
+npm run dev        # Frontend (Vite)
+npm run dev:server # Backend (Express)
 ```
 
-## Popular Components
+## 🗄️ **Database Quick Start**
 
-### 🗃️ **Dialog/Modal**
-```jsx
-import * as Dialog from '@radix-ui/react-dialog';
-
-const MyDialog = () => (
-  <Dialog.Root>
-    <Dialog.Trigger asChild>
-      <button>Edit Profile</button>
-    </Dialog.Trigger>
-    <Dialog.Portal>
-      <Dialog.Overlay className="fixed inset-0 bg-black/50" />
-      <Dialog.Content className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-lg">
-        <Dialog.Title className="text-lg font-semibold">
-          Edit Profile
-        </Dialog.Title>
-        <Dialog.Description className="mt-2 text-gray-600">
-          Make changes to your profile here.
-        </Dialog.Description>
-        
-        {/* Form content */}
-        
-        <div className="flex justify-end gap-2 mt-4">
-          <Dialog.Close asChild>
-            <button className="px-4 py-2 bg-gray-200 rounded">
-              Cancel
-            </button>
-          </Dialog.Close>
-          <button className="px-4 py-2 bg-blue-500 text-white rounded">
-            Save
-          </button>
-        </div>
-      </Dialog.Content>
-    </Dialog.Portal>
-  </Dialog.Root>
-);
+### **Development Database (SQLite)**
+```bash
+# Quick local setup
+npm run db:reset    # Reset to clean state
+npm run db:studio   # Open Prisma Studio
 ```
 
-### 📋 **Dropdown Menu**
-```jsx
-import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-
-const MyDropdown = () => (
-  <DropdownMenu.Root>
-    <DropdownMenu.Trigger asChild>
-      <button>Options</button>
-    </DropdownMenu.Trigger>
-    
-    <DropdownMenu.Portal>
-      <DropdownMenu.Content className="bg-white border rounded-lg shadow-lg p-2">
-        <DropdownMenu.Item className="px-2 py-1 hover:bg-gray-100 rounded">
-          Edit
-        </DropdownMenu.Item>
-        <DropdownMenu.Item className="px-2 py-1 hover:bg-gray-100 rounded">
-          Duplicate
-        </DropdownMenu.Item>
-        <DropdownMenu.Separator className="h-px bg-gray-200 my-1" />
-        <DropdownMenu.Item className="px-2 py-1 hover:bg-red-100 text-red-600 rounded">
-          Delete
-        </DropdownMenu.Item>
-      </DropdownMenu.Content>
-    </DropdownMenu.Portal>
-  </DropdownMenu.Root>
-);
+### **Production Database (PostgreSQL)**
+```bash
+# Production setup
+DATABASE_URL="postgresql://user:pass@host:5432/db"
+npm run db:deploy   # Deploy migrations
 ```
 
-### 📁 **Accordion**
-```jsx
-import * as Accordion from '@radix-ui/react-accordion';
+## 🔐 **Authentication Setup**
 
-const MyAccordion = () => (
-  <Accordion.Root type="single" collapsible className="w-full">
-    <Accordion.Item value="item-1" className="border-b">
-      <Accordion.Header>
-        <Accordion.Trigger className="flex w-full items-center justify-between py-4 font-medium">
-          Is it accessible?
-          <ChevronDownIcon className="h-4 w-4 transition-transform" />
-        </Accordion.Trigger>
-      </Accordion.Header>
-      <Accordion.Content className="pb-4 text-gray-600">
-        Yes. It adheres to the WAI-ARIA design pattern.
-      </Accordion.Content>
-    </Accordion.Item>
-  </Accordion.Root>
-);
+### **JWT Configuration**
+```bash
+# Generate JWT secret
+openssl rand -base64 32
+
+# Add to .env.local
+JWT_SECRET="your-generated-secret"
+JWT_EXPIRES_IN="7d"
 ```
 
-### 📑 **Tabs**
-```jsx
-import * as Tabs from '@radix-ui/react-tabs';
+### **User Roles**
+- **Admin**: Full system access
+- **Manager**: Team management access
+- **User**: Standard user access
+- **Guest**: Limited read-only access
 
-const MyTabs = () => (
-  <Tabs.Root defaultValue="account" className="w-full">
-    <Tabs.List className="flex border-b">
-      <Tabs.Trigger 
-        value="account" 
-        className="px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-blue-500"
-      >
-        Account
-      </Tabs.Trigger>
-      <Tabs.Trigger 
-        value="settings" 
-        className="px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-blue-500"
-      >
-        Settings
-      </Tabs.Trigger>
-    </Tabs.List>
-    
-    <Tabs.Content value="account" className="p-4">
-      Account content
-    </Tabs.Content>
-    <Tabs.Content value="settings" className="p-4">
-      Settings content
-    </Tabs.Content>
-  </Tabs.Root>
-);
+## 🧪 **Testing Setup**
+
+### **Test Environment**
+```bash
+# Test database setup
+NODE_ENV=test npm run db:reset
+npm run test:setup
+
+# Run tests
+npm test           # Unit tests
+npm run test:e2e   # End-to-end tests
+npm run test:watch # Watch mode
 ```
 
-## Advanced Features
+## 🚨 **Common Issues**
 
-### 🎨 **Styling with CSS-in-JS**
-```jsx
-import styled from 'styled-components';
-import * as Dialog from '@radix-ui/react-dialog';
+### **Port Conflicts**
+```bash
+# Check port usage
+lsof -i :5173  # Frontend port
+lsof -i :3001  # Backend port
 
-const StyledOverlay = styled(Dialog.Overlay)`
-  background-color: rgba(0, 0, 0, 0.5);
-  position: fixed;
-  inset: 0;
-  animation: overlayShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
-`;
-
-const StyledContent = styled(Dialog.Content)`
-  background-color: white;
-  border-radius: 6px;
-  box-shadow: 0 10px 38px -10px rgba(22, 23, 24, 0.35);
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
-`;
+# Kill process if needed
+kill -9 <PID>
 ```
 
-### 🎯 **Form Integration**
-```jsx
-import * as Form from '@radix-ui/react-form';
-
-const ContactForm = () => (
-  <Form.Root>
-    <Form.Field name="email">
-      <Form.Label>Email</Form.Label>
-      <Form.Control type="email" required />
-      <Form.Message match="valueMissing">
-        Please enter your email
-      </Form.Message>
-      <Form.Message match="typeMismatch">
-        Please provide a valid email
-      </Form.Message>
-    </Form.Field>
-    
-    <Form.Submit>Submit</Form.Submit>
-  </Form.Root>
-);
+### **Database Connection**
+```bash
+# Reset database connection
+npm run db:reset
+rm -rf node_modules/.prisma
+npm run db:generate
 ```
 
-### 🎚️ **Slider Component**
-```jsx
-import * as Slider from '@radix-ui/react-slider';
-
-const VolumeSlider = () => (
-  <Slider.Root
-    className="relative flex items-center select-none touch-none w-full h-5"
-    defaultValue={[50]}
-    max={100}
-    step={1}
-  >
-    <Slider.Track className="bg-gray-200 relative grow rounded-full h-1">
-      <Slider.Range className="absolute bg-blue-500 rounded-full h-full" />
-    </Slider.Track>
-    <Slider.Thumb className="block w-5 h-5 bg-white border-2 border-blue-500 rounded-full" />
-  </Slider.Root>
-);
+### **Environment Variables**
+```bash
+# Verify environment loading
+npm run env:check
 ```
 
-## Accessibility Features
+## ✅ **Onboarding Checklist**
 
-### 🔍 **Built-in Accessibility**
-- **Keyboard Navigation**: Full keyboard support with logical tab order
-- **Screen Reader Support**: Proper ARIA labels and descriptions
-- **Focus Management**: Smart focus trapping and restoration
-- **High Contrast**: Works with Windows High Contrast mode
+### **Development Environment**
+- [ ] Node.js v18+ installed
+- [ ] Git configured with SSH keys
+- [ ] Repository cloned and dependencies installed
+- [ ] Environment variables configured
+- [ ] Database setup and seeded
+- [ ] Development server running successfully
 
-### 🎯 **Accessibility Props**
-```jsx
-<Dialog.Content
-  aria-describedby="dialog-description"
-  aria-labelledby="dialog-title"
->
-  <Dialog.Title id="dialog-title">
-    Confirmation
-  </Dialog.Title>
-  <Dialog.Description id="dialog-description">
-    This action cannot be undone.
-  </Dialog.Description>
-</Dialog.Content>
+### **Code Standards**
+- [ ] ESLint and Prettier configured in IDE
+- [ ] TypeScript setup validated
+- [ ] Pre-commit hooks installed
+- [ ] Code standards documentation reviewed
+
+### **AI Development Setup**
+- [ ] Claude Code CLI installed
+- [ ] MCP servers configured
+- [ ] AI workflow patterns reviewed
+- [ ] Team collaboration patterns understood
+
+### **First Contribution**
+- [ ] Created development branch
+- [ ] Made small test change
+- [ ] Ran test suite successfully
+- [ ] Created pull request
+- [ ] Code review completed
+
+## 🔄 **Development Workflow**
+
+### **Daily Development**
+```bash
+# Start development session
+git pull origin main
+npm run dev
+
+# Create feature branch
+git checkout -b feature/your-feature
+
+# Development cycle
+# 1. Write code
+# 2. Run tests
+# 3. Commit changes
+# 4. Push to remote
+# 5. Create pull request
 ```
 
-## Styling Integration
-
-### 🎨 **Tailwind CSS**
-```jsx
-const StyledDialog = () => (
-  <Dialog.Root>
-    <Dialog.Trigger className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-      Open Dialog
-    </Dialog.Trigger>
-    <Dialog.Portal>
-      <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-50" />
-      <Dialog.Content className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-lg max-w-md w-full mx-4">
-        {/* Content */}
-      </Dialog.Content>
-    </Dialog.Portal>
-  </Dialog.Root>
-);
+### **Code Quality Checks**
+```bash
+# Pre-commit validation
+npm run lint      # ESLint check
+npm run type-check # TypeScript validation
+npm test         # Test suite
+npm run build    # Build validation
 ```
 
-### 🎭 **CSS Modules**
-```jsx
-import styles from './Dialog.module.css';
+## 🔄 **Related Resources**
 
-<Dialog.Content className={styles.content}>
-  <Dialog.Title className={styles.title}>
-    Title
-  </Dialog.Title>
-</Dialog.Content>
-```
+- **Code Standards**: [../code-standards/](../code-standards/)
+- **Claude Workflows**: [../claude-workflow/](../claude-workflow/)
+- **Technical Architecture**: [../../TECHNICAL/](../../TECHNICAL/)
+- **Testing Guide**: [../../REPORTS/testing-results/](../../REPORTS/testing-results/)
 
-```css
-/* Dialog.module.css */
-.content {
-  background: white;
-  padding: 24px;
-  border-radius: 8px;
-  box-shadow: 0 10px 38px -10px rgba(22, 23, 24, 0.35);
-}
+---
 
-.title {
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 16px;
-}
-```
-
-## Complete Component List
-
-### 📋 **Navigation & Layout**
-- Accordion
-- Tabs  
-- Navigation Menu
-- Menubar
-- Toolbar
-
-### 🔘 **Inputs & Controls**
-- Checkbox
-- Radio Group
-- Switch
-- Slider
-- Select
-- Form
-
-### 💭 **Overlays & Feedback**
-- Dialog
-- AlertDialog  
-- Popover
-- Tooltip
-- Toast
-- Progress
-
-### 📝 **Data Display**
-- Avatar
-- Badge
-- Separator
-- AspectRatio
-- ScrollArea
-
-### 🎯 **Utility**
-- Portal
-- Slot
-- Visually Hidden
-- Direction Provider
-
-## Best Practices
-
-### 🏗️ **Component Composition**
-```jsx
-// Create reusable compound components
-const MyCard = {
-  Root: ({ children, ...props }) => (
-    <div className="card" {...props}>
-      {children}
-    </div>
-  ),
-  Header: ({ children }) => (
-    <div className="card-header">
-      {children}
-    </div>
-  ),
-  Content: ({ children }) => (
-    <div className="card-content">
-      {children}
-    </div>
-  )
-};
-
-// Usage
-<MyCard.Root>
-  <MyCard.Header>
-    <h3>Card Title</h3>
-  </MyCard.Header>
-  <MyCard.Content>
-    Card content here
-  </MyCard.Content>
-</MyCard.Root>
-```
-
-### ⚡ **Performance**
-- Use individual component imports for better tree-shaking
-- Leverage the `asChild` prop to avoid extra DOM nodes
-- Consider using `Portal` for better performance with overlays
-
-### 🎨 **Theming**
-```jsx
-// Create a theme context
-const ThemeContext = createContext();
-
-const StyledButton = ({ variant = 'primary', ...props }) => (
-  <button 
-    className={`btn btn-${variant}`}
-    {...props}
-  />
-);
-
-// Usage with Radix
-<Dialog.Trigger asChild>
-  <StyledButton variant="primary">
-    Open Dialog
-  </StyledButton>
-</Dialog.Trigger>
-```
-
-## Migration & Integration
-
-### 🔄 **From Other Libraries**
-Radix primitives can be gradually adopted alongside existing UI libraries:
-
-```jsx
-// Mix with existing components
-import { Button } from 'antd';
-import * as Dialog from '@radix-ui/react-dialog';
-
-<Dialog.Trigger asChild>
-  <Button type="primary">Open Dialog</Button>
-</Dialog.Trigger>
-```
-
-### 📦 **With Design Systems**
-Build your design system on top of Radix primitives:
-
-```jsx
-// Your design system components
-export const Dialog = {
-  Root: Dialog.Root,
-  Trigger: styled(Dialog.Trigger)`
-    /* Your design system styles */
-  `,
-  Content: styled(Dialog.Content)`
-    /* Your design system styles */
-  `
-};
-```
-
-## Community & Resources
-
-- **Official Website**: https://www.radix-ui.com/primitives
-- **GitHub Repository**: https://github.com/radix-ui/primitives  
-- **Discord Community**: Join for questions and discussions
-- **Documentation**: https://www.radix-ui.com/primitives/docs
-- **Examples**: Comprehensive examples for every component
-
-Last Updated: August 2025
-Source: Official Radix UI Documentation + Web Research
-
-## Industry Recognition
-
-Radix UI is recognized as one of the top 3 headless UI libraries in 2025, praised for its comprehensive accessibility implementation, flexible architecture, and strong TypeScript support. It's widely adopted by leading companies for building robust, accessible design systems.
+*Fast Setup | Clear Instructions | Productive Development*

@@ -1,98 +1,43 @@
-# 🎨 UI BANK
+# 🎨 UI Bank - Visual Assets
 
-**UI components, design systems, and inspiration materials for SISO Internal**
+**UI components, design resources, and visual documentation for SISO Internal.**
 
-## 📁 **Structure**
+## 📁 **What's Inside**
 
-### **Inspiration/**
-Design inspiration, references, and mood boards
-- Visual inspiration and design trends
-- Color palette explorations
-- Typography and layout examples
-- Interactive pattern references
+- **Component Library** - Reusable React components and patterns
+- **Design System** - Visual guidelines and design tokens
+- **Screenshots** - Application interface documentation
+- **Icons & Assets** - SVG icons, images, and visual resources
+- **Prototypes** - Design mockups and interaction prototypes
+- **Style Guides** - Brand guidelines and visual standards
 
-## 🎯 **Purpose**
+## 🎯 **Visual Resources**
 
-Central repository for UI/UX resources:
-- **Component Library**: Reusable React components
-- **Design System**: Consistent design patterns and guidelines
-- **Inspiration**: Visual references and design trends
-- **Patterns**: Proven UI patterns and interactions
+### **🧩 Components**
+- Layout components and containers
+- Form elements and input controls
+- Navigation and menu systems
+- Data display and visualization
+- Interactive elements and buttons
 
-## 🎨 **Design System** (To be organized)
+### **📱 Screenshots**
+- Current application interface captures
+- Mobile and desktop view documentation
+- Feature showcase and demonstrations
+- Before/after design comparisons
 
-```
-UI-BANK/
-├── components/       # Reusable React components
-├── design-tokens/    # Colors, typography, spacing
-├── patterns/         # Common UI patterns
-├── layouts/          # Page and section layouts
-├── animations/       # Motion design and transitions
-├── icons/           # Icon library and custom icons
-├── themes/          # Dark/light theme configurations
-└── Inspiration/     # Design references and mood boards
-```
+### **🎨 Design Assets**
+- Icon library and illustration set
+- Color palettes and typography
+- Spacing and elevation systems
+- Animation and motion guidelines
 
-## 🚀 **Technology Stack**
+## 🔄 **Related Resources**
 
-### **Component Framework**
-- **React**: Component-based architecture
-- **TypeScript**: Type-safe component development
-- **Tailwind CSS**: Utility-first styling approach
-- **Radix UI**: Accessible primitive components
-
-### **Design Tools**
-- **Figma**: Design specifications and prototypes
-- **Lucide React**: Consistent icon library
-- **Framer Motion**: Animation and micro-interactions
-- **shadcn/ui**: Pre-built accessible components
-
-## 📋 **Component Categories**
-
-### **Core Components**
-- Buttons, inputs, and form elements
-- Navigation and menu components
-- Cards, panels, and containers
-- Typography and text elements
-
-### **Complex Components**
-- Data tables and lists
-- Charts and visualizations
-- Modals and overlays
-- Multi-step workflows
-
-### **Layout Components**
-- Grid systems and containers
-- Responsive layouts
-- Sidebar and header patterns
-- Dashboard layouts
-
-## 🎯 **Design Principles**
-
-### **Accessibility First**
-- WCAG 2.1 AA compliance
-- Semantic HTML structure
-- Keyboard navigation support
-- Screen reader optimization
-
-### **Performance Optimized**
-- Lightweight component design
-- Lazy loading strategies
-- Efficient re-render patterns
-- Bundle size optimization
-
-### **Consistency**
-- Design token usage
-- Standardized component APIs
-- Consistent naming conventions
-- Unified interaction patterns
-
-## 🔧 **Usage Guidelines**
-
-1. **Component Development**: Follow established patterns and APIs
-2. **Design Tokens**: Use centralized design tokens for consistency
-3. **Accessibility**: Test with screen readers and keyboard navigation
-4. **Performance**: Optimize for Core Web Vitals metrics
+- **UI System Documentation**: [../DOCS/LIBRARY/ui-system/](../DOCS/LIBRARY/ui-system/)
+- **Feature Documentation**: [../DOCS/FEATURES/](../DOCS/FEATURES/)
+- **Mobile Optimization**: [../DOCS/FEATURES/mobile-optimization/](../DOCS/FEATURES/mobile-optimization/)
 
 ---
-*UI Component Library | SISO Internal Design System*
+
+*Visual Consistency | Design System | Asset Library*
