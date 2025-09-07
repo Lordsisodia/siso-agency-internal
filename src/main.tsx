@@ -6,8 +6,8 @@ import { ErrorBoundary } from 'react-error-boundary'
 import App from './App'
 import './index.css'
 import { ErrorFallback } from './components/ErrorFallback'
-import { checkEnv } from './utils/envCheck'
-import { registerServiceWorker } from './utils/registerServiceWorker'
+import { checkEnv } from '@/shared/utils/envCheck'
+import { registerServiceWorker } from '@/shared/utils/registerServiceWorker'
 
 // Check environment on load
 if (import.meta.env.PROD) {

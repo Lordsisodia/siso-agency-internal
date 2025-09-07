@@ -47,6 +47,10 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: [
       { find: "@/ai-first", replacement: path.resolve(__dirname, "./ai-first") },
+      { find: "@/internal", replacement: path.resolve(__dirname, "./src/ecosystem/internal") },
+      { find: "@/client", replacement: path.resolve(__dirname, "./src/ecosystem/client") },
+      { find: "@/partnership", replacement: path.resolve(__dirname, "./src/ecosystem/partnership") },
+      { find: "@/shared", replacement: path.resolve(__dirname, "./src/shared") },
       { find: "@", replacement: path.resolve(__dirname, "./src") },
       { find: "../../generated/prisma", replacement: path.resolve(__dirname, "./generated/prisma") },
     ]

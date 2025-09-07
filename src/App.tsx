@@ -2,13 +2,13 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { lazy, Suspense, useEffect } from 'react';
 import { ClerkHybridTaskService } from '@/ai-first/core/auth.service';
 import { ErrorBoundary } from 'react-error-boundary';
-import { Toaster } from '@/components/ui/toaster';
+import { Toaster } from '@/shared/ui/toaster';
 import { ClerkProvider } from './components/ClerkProvider';
 import { ClerkAuthGuard } from '@/ai-first/features/auth/components/ClerkAuthGuard';
 import { AuthGuard } from '@/ai-first/features/auth/components/AuthGuard';
-import { PageLoader } from './components/ui/PageLoader';
+import { PageLoader } from '@/shared/ui/PageLoader';
 
-import { logger } from '@/utils/logger';
+import { logger } from '@/shared/utils/logger';
 
 // Critical pages loaded immediately (landing, auth, home)
 import Index from './pages/Index';
@@ -48,22 +48,24 @@ const TimelinePage = lazy(() => import('./pages/TimelinePage'));
 const Communication = lazy(() => import('./pages/Communication'));
 
 // Admin pages - heavy bundle, lazy load all
-const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
-const AdminClients = lazy(() => import('./pages/AdminClients'));
-const AdminTasks = lazy(() => import('./pages/AdminTasks'));
-const AdminPlans = lazy(() => import('./pages/AdminPlans'));
-const AdminFeedback = lazy(() => import('./pages/AdminFeedback'));
+const AdminDashboard = lazy(() => import('@/internal/pages/AdminDashboard.tsx'));
+const AdminClients = lazy(() => import('@/internal/pages/AdminClients.tsx'));
+const AdminTasks = lazy(() => import('@/internal/pages/AdminTasks.tsx'));
+const AdminPlans = lazy(() => import('@/internal/pages/AdminPlans.tsx'));
+const AdminFeedback = lazy(() => import('@/internal/pages/AdminFeedback.tsx'));
 // Archived pages - removed from navigation
-// const AdminOutreach = lazy(() => import('./pages/AdminOutreach'));
-// const AdminTemplates = lazy(() => import('./pages/AdminTemplates'));
-// const AdminTeams = lazy(() => import('./pages/AdminTeams'));
-// const AdminPayments = lazy(() => import('./pages/AdminPayments'));
-// const AdminDailyPlanner = lazy(() => import('./pages/AdminDailyPlanner'));
-const AdminLifeLock = lazy(() => import('./pages/AdminLifeLock'));
-const AdminLifeLockDay = lazy(() => import('./pages/AdminLifeLockDay'));
+const AdminOutreach = lazy(() => import('@/internal/pages/AdminOutreach.tsx'));
+const AdminTemplates = lazy(() => import('@/internal/pages/AdminTemplates.tsx'));
+const AdminTeams = lazy(() => import('@/internal/pages/AdminTeams.tsx'));
+const AdminPayments = lazy(() => import('@/internal/pages/AdminPayments.tsx'));
+const AdminDailyPlanner = lazy(() => import('@/internal/pages/AdminDailyPlanner.tsx'));
+const AdminLifeLock = lazy(() => import('@/internal/lifelock/AdminLifeLock.tsx'));
+const AdminLifeLockDay = lazy(() => import('@/internal/lifelock/AdminLifeLockDay.tsx'));
 const ClientDetailPage = lazy(() => import('./pages/ClientDetailPage'));
-const AdminSettings = lazy(() => import('./pages/AdminSettings'));
-// const AdminPrompts = lazy(() => import('./pages/AdminPrompts'));
+const AdminSettings = lazy(() => import('@/internal/pages/AdminSettings.tsx'));
+const AdminPrompts = lazy(() => import('@/internal/pages/AdminPrompts.tsx'));
+const AdminWireframes = lazy(() => import('@/internal/pages/AdminWireframes.tsx'));
+const AdminUserFlow = lazy(() => import('@/internal/pages/AdminUserFlow.tsx'));
 const TeamMemberTasksPage = lazy(() => import('./pages/TeamMemberTasksPage'));
 
 // Client pages - separate bundle
@@ -87,9 +89,7 @@ const DebugPage = lazy(() => import('./pages/debug'));
 // const LeaderboardsPage = lazy(() => import('./pages/financial/LeaderboardsPage'));
 // const FinancialProfilePage = lazy(() => import('./pages/financial/FinancialProfilePage'));
 const ClientAppDetailsPage = lazy(() => import('./pages/ClientAppDetailsPage'));
-const AdminWireframes = lazy(() => import('./pages/AdminWireframes'));
 const UserFlow = lazy(() => import('./pages/UserFlow'));
-const AdminUserFlow = lazy(() => import('./pages/AdminUserFlow'));
 const UserFlowFeedbackPage = lazy(() => import('./pages/projects/UserFlowFeedbackPage'));
 const UserFlowNodesPage = lazy(() => import('./pages/projects/UserFlowNodesPage'));
 const UserFlowCodePage = lazy(() => import('./pages/projects/UserFlowCodePage'));
