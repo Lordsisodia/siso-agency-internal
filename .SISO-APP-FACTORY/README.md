@@ -5,18 +5,13 @@
 ## 📁 **Clean Directory Structure**
 
 ### **📚 DOCS/** - *Smart Documentation System*
-Intuitive organization with 160+ documents in 5 main categories
+Intuitive organization with 160+ documents in 6 main categories
 - **ESSENTIALS/**: Start here - setup guides, code standards, Claude workflows
 - **TECHNICAL/**: Architecture, database, APIs, deployment guides  
 - **FEATURES/**: User features, gamification, admin dashboards
 - **REPORTS/**: Completed work, feedback analysis, testing results
 - **LIBRARY/**: AI component docs, UI system, reference materials
-
-### **✨ SISO-VISION/**
-Strategic vision, development history, and directional documentation
-- **BILLION-DOLLAR-LIFE-GAME-FRAMEWORK.md**: Complete life gamification system
-- **development-docs/**: Phase completion reports and refactoring history
-- Development methodology and strategic planning
+- **SISO-VISION/**: Strategic vision, development methodology, planning
 
 ### **🔧 MCP/** 
 Model Context Protocol tools, configurations, and access utilities
@@ -69,10 +64,10 @@ This clean factory structure keeps the main project directory focused on active 
 - **Understanding Features**: `DOCS/FEATURES/` - user guides, gamification  
 - **Progress Tracking**: `DOCS/REPORTS/` - completed work, feedback, testing
 - **Reference Materials**: `DOCS/LIBRARY/` - component docs, UI system
+- **Strategic Vision**: `DOCS/SISO-VISION/` - project direction, methodology
 
 ### **📁 For Development Resources**
 Navigate to focused areas based on your task:
-- **Strategic Vision**: `SISO-VISION/` for project direction
 - **MCP Integration**: `MCP/` for protocol configurations
 - **UI Development**: `UI-BANK/` for components and screenshots
 - **Testing**: `TESTING/` for test resources
@@ -83,14 +78,14 @@ Navigate to focused areas based on your task:
 ### **💡 Pro Tips**
 - **Start with DOCS/INDEX.md**: Smart navigation guide with search tips
 - **New to project**: DOCS/ESSENTIALS/ has everything you need to start
-- **Use SISO-VISION**: For understanding project evolution and decisions  
+- **Use DOCS/SISO-VISION**: For understanding project evolution and decisions  
 - **Check UI-BANK**: For visual assets including screenshots
 - **Reference TOOLS**: For development scripts and utilities
 
 ## ✨ **Key Benefits**
 
 ### **Clean Organization**
-- **8 focused folders** at root level
+- **7 focused folders** at root level
 - **Logical grouping** by function and usage
 - **No loose files** in factory root
 

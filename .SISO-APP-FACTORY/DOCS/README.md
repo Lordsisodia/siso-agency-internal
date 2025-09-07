@@ -19,6 +19,7 @@
 | **[FEATURES](FEATURES/)** | User features, gamification, admin tools | Understanding product capabilities |
 | **[REPORTS](REPORTS/)** | Completed work, feedback, testing results | Progress tracking, analysis |
 | **[LIBRARY](LIBRARY/)** | AI docs, UI system, reference materials | Component usage, reference lookup |
+| **[SISO-VISION](SISO-VISION/)** | Strategic vision, development methodology | Project direction, planning |
 
 ## 🔍 **Find What You Need**
 
@@ -28,6 +29,7 @@
 - **Backend Developer**: TECHNICAL/database → TECHNICAL/architecture
 - **DevOps Engineer**: TECHNICAL/deployment → REPORTS/testing-results
 - **Product Manager**: FEATURES → REPORTS/feedback-analysis
+- **Team Lead**: SISO-VISION → ESSENTIALS/code-standards
 
 ### **By Task**
 - **Setting up environment**: ESSENTIALS/quick-start
@@ -40,6 +42,7 @@
 - **Reviewing completed work**: REPORTS/completed-work
 - **Analyzing feedback**: REPORTS/feedback-analysis
 - **Running tests**: REPORTS/testing-results
+- **Strategic planning**: SISO-VISION
 
 ### **By Technology**
 - **AI Integration**: LIBRARY/ai-docs
@@ -78,7 +81,7 @@ grep -r "search term" DOCS/
 ## 📊 **Documentation Stats**
 
 - **Total Documents**: 95+
-- **Categories**: 5 main areas  
+- **Categories**: 6 main areas  
 - **Max Depth**: 2 levels
 - **Coverage**: Complete project scope
 
