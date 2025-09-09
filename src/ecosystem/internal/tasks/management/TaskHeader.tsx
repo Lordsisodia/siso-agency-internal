@@ -1,8 +1,14 @@
 /**
- * 📋 TaskHeader Component
+ * 📋 TaskHeader Component - Enhanced UI
  * 
  * Contains task checkbox, editable title, and inline editing functionality
  * Handles completion toggle and title editing with keyboard shortcuts
+ * 
+ * ENHANCEMENTS:
+ * ✅ Enhanced checkbox with better contrast
+ * ✅ Custom checkbox with check icon
+ * ✅ Improved typography and spacing
+ * ✅ Card-style layout for tasks
  */
 
 import React from 'react';
@@ -43,8 +49,8 @@ export const TaskHeader: React.FC<TaskHeaderProps> = ({
   onKeyDown
 }) => {
   return (
-    <div className="flex items-center gap-3 min-h-[44px]">
-      {/* Left: Checkbox - Mobile Optimized */}
+    <div className="flex items-center gap-4">
+      {/* Enhanced Custom Checkbox with Better Contrast and Icon */}
       <button
         onClick={(e) => {
           e.stopPropagation();
@@ -53,21 +59,23 @@ export const TaskHeader: React.FC<TaskHeaderProps> = ({
         onTouchStart={(e) => {
           e.stopPropagation();
         }}
-        className="flex-shrink-0 hover:scale-105 active:scale-95 transition-all duration-150 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-gray-700/30 active:bg-gray-600/40 touch-manipulation"
+        className="flex-shrink-0 hover:scale-110 active:scale-95 transition-all duration-200 touch-manipulation"
         style={{ touchAction: 'manipulation' }}
         aria-label={task.completed ? "Mark task as incomplete" : "Mark task as complete"}
         role="checkbox"
         aria-checked={task.completed}
       >
         {task.completed ? (
-          <Check className={`h-7 w-7 ${themeConfig.colors.text} drop-shadow-sm`} />
+          <div className="w-7 h-7 rounded-full border-3 border-emerald-400 bg-emerald-500 flex items-center justify-center shadow-lg ring-2 ring-emerald-400/30">
+            <Check className="w-4 h-4 text-white font-bold stroke-[3]" />
+          </div>
         ) : (
-          <div className={`h-7 w-7 rounded-full border-3 border-gray-400 hover:${themeConfig.colors.border} hover:border-opacity-90 transition-all duration-200 bg-gray-800/20 hover:bg-gray-700/30`} />
+          <div className="w-7 h-7 rounded-full border-3 border-emerald-400/80 bg-gray-800 hover:bg-emerald-900/40 hover:border-emerald-300 transition-all duration-200 shadow-md ring-1 ring-emerald-400/20" />
         )}
       </button>
       
-      {/* Center: Task Title (flexible) */}
-      <div className="flex-1 min-w-0 px-2">
+      {/* Enhanced Typography & Spacing */}
+      <div className="flex-1 min-w-0">
         {isEditing ? (
           <input
             type="text"
@@ -76,12 +84,15 @@ export const TaskHeader: React.FC<TaskHeaderProps> = ({
             onKeyDown={(e) => onKeyDown(e, 'task', task.id)}
             onBlur={() => onSaveEdit(task.id)}
             autoFocus
-            className={`w-full text-base font-medium bg-gray-700/50 border ${themeConfig.colors.input} rounded px-3 py-2 text-white focus:outline-none focus:ring-1 min-h-[36px]`}
+            className="w-full text-lg font-semibold bg-gray-800/50 border-2 border-emerald-400 focus:border-emerald-300 focus:ring-2 focus:ring-emerald-400/50 rounded-lg px-4 py-3 text-emerald-100 focus:outline-none transition-all duration-200 shadow-sm"
+            placeholder="Enter task title..."
           />
         ) : (
           <h3 
-            className={`text-base font-medium leading-tight cursor-pointer hover:${themeConfig.colors.textSecondary} transition-colors text-white ${
-              task.completed ? `line-through ${themeConfig.colors.textSecondary}/80` : ''
+            className={`text-lg font-semibold leading-relaxed cursor-pointer hover:text-emerald-200 transition-colors duration-200 tracking-wide ${
+              task.completed 
+                ? 'line-through text-emerald-200/60' 
+                : 'text-emerald-100'
             }`}
             onClick={(e) => {
               e.stopPropagation();
