@@ -6,8 +6,8 @@
  */
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/utils/supabase';
-import { supabaseClerkUserMapping } from '@/utils/supabase-clerk';
+import { supabase } from '@/shared/lib/supabase';
+import { supabaseClerkUserMapping } from '@/shared/lib/supabase-clerk';
 
 interface MorningRoutineItem {
   name: string;
