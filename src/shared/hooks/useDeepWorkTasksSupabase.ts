@@ -255,13 +255,13 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
       const { data, error } = await supabase
         .from('deep_work_subtasks')
         .insert({
-          taskId,
+          task_id: taskId,
           title: subtaskTitle,
           text: subtaskTitle,
           completed: false,
           priority,
-          requiresFocus: true,
-          complexityLevel: 1
+          requires_focus: true,
+          complexity_level: 1
         })
         .select()
         .single();

@@ -1,14 +1,15 @@
-# SISO Core - Task Management & Life Log Tracker
+# SISO-INTERNAL - Revolutionary Task Management Platform
 
-A comprehensive task management platform with AI assistance and life logging capabilities.
+An advanced task management and productivity platform with AI intelligence, featuring the LifeLock dashboard and comprehensive ecosystem management.
 
 ## Features
 
-- Task Management with AI integration
-- Life Log Tracker
-- Multi-user support
-- Real-time updates
-- Responsive design
+- **LifeLock Dashboard** - Revolutionary productivity management system
+- **AI-Powered Task Management** - Intelligent task prioritization and automation
+- **Ecosystem Integration** - Internal tools and partnership management
+- **Advanced Authentication** - Multi-provider auth with Clerk integration
+- **Real-time Updates** - Live task synchronization and notifications
+- **Responsive Design** - Optimized for all devices
 
 ## Prerequisites
 
@@ -22,7 +23,7 @@ A comprehensive task management platform with AI assistance and life logging cap
 
 ```bash
 git clone [your-repo-url]
-cd SISO-CORE
+cd SISO-INTERNAL
 ```
 
 ### 2. Install dependencies
@@ -93,11 +94,13 @@ If the build fails:
 
 ## Architecture
 
-- **Frontend**: React + TypeScript + Vite
-- **Styling**: Tailwind CSS + shadcn/ui
-- **Database**: Supabase (PostgreSQL)
-- **Authentication**: Supabase Auth
-- **Deployment**: Vercel
+- **Frontend**: React 18 + TypeScript + Vite
+- **Styling**: Tailwind CSS + shadcn/ui components
+- **Database**: Supabase (PostgreSQL) with Row Level Security
+- **Authentication**: Clerk (primary) + Supabase Auth (fallback)
+- **Routing**: React Router with lazy loading (80+ routes)
+- **State Management**: React Context + hooks (no Redux)
+- **Deployment**: Vercel with automatic deployments
 
 ## Security Notes
 

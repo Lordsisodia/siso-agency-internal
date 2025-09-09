@@ -24,8 +24,8 @@ import { TaskActionButtons } from '@/ecosystem/internal/tasks/management/TaskAct
 import { TaskSeparator } from '@/ecosystem/internal/tasks/management/TaskSeparator';
 import { TaskProgress } from '@/ecosystem/internal/tasks/management/TaskProgress';
 import { SubtaskMetadata } from '@/ecosystem/internal/tasks/management/SubtaskMetadata';
-import { TaskHeader } from '@/ai-first/features/dashboard/components/TaskHeader';
-import { SubtaskItem } from '@/ai-first/features/dashboard/components/SubtaskItem';
+import { TaskHeader } from '@/ecosystem/internal/tasks/management/TaskHeader';
+import { SubtaskItem } from '@/ecosystem/internal/tasks/management/SubtaskItem';
 import { AddSubtaskInput } from '@/ecosystem/internal/tasks/management/AddSubtaskInput';
 import { SimpleFeedbackButton } from '@/internal/feedback/SimpleFeedbackButton';
 import { useTaskEditing } from '@/shared/hooks/useTaskEditing';
@@ -203,7 +203,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
       <div className="w-full max-w-none p-2 sm:p-3 md:p-4 lg:p-6 space-y-6">
         
         {/* Work Section Content */}
-        <Card className={`w-full ${workType === 'DEEP' ? 'bg-blue-900/30 border-blue-500/50' : 'bg-emerald-900/30 border-emerald-500/50'}`}>
+        <Card className={`w-full ${workType === 'DEEP' ? 'bg-transparent border-blue-500/30' : 'bg-transparent border-emerald-500/30'}`}>
           <CardContent className="p-3 sm:p-4 md:p-6">
             <h2 className={`flex items-center justify-between ${themeConfig.colors.text} text-base sm:text-lg font-semibold`}>
               <div className="flex items-center">
@@ -438,10 +438,6 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
               </button>
             </div>
 
-            {/* Feedback Button */}
-            <div className="mt-4 flex justify-center">
-              <SimpleFeedbackButton />
-            </div>
             </div>
           </CardContent>
         </Card>

@@ -20,8 +20,8 @@ export function TaskHeader({ onAddTask, onFilterChange, onExport }: TaskHeaderPr
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
       <div>
-        <h1 className="text-2xl font-bold">Task Tracker</h1>
-        <p className="text-muted-foreground">Manage and organize team tasks</p>
+        <h1 className="text-2xl font-bold text-white">Super Light Work</h1>
+        <p className="text-gray-300">Focus on lighter tasks and productivity</p>
       </div>
       
       <div className="flex flex-wrap gap-2">
@@ -29,11 +29,11 @@ export function TaskHeader({ onAddTask, onFilterChange, onExport }: TaskHeaderPr
           <SelectTrigger className="w-[140px]">
             <SelectValue placeholder="View" />
           </SelectTrigger>
-          <SelectContent className="bg-white border-gray-200">
-            <SelectItem value="all" className="text-gray-700 hover:bg-gray-100">All Tasks</SelectItem>
-            <SelectItem value="main" className="text-gray-700 hover:bg-gray-100">Main Tasks</SelectItem>
-            <SelectItem value="weekly" className="text-gray-700 hover:bg-gray-100">Weekly Tasks</SelectItem>
-            <SelectItem value="daily" className="text-gray-700 hover:bg-gray-100">Daily Tasks</SelectItem>
+          <SelectContent className="bg-gray-800 border-gray-600">
+            <SelectItem value="all" className="text-gray-200 hover:bg-gray-700">All Tasks</SelectItem>
+            <SelectItem value="main" className="text-gray-200 hover:bg-gray-700">Main Tasks</SelectItem>
+            <SelectItem value="weekly" className="text-gray-200 hover:bg-gray-700">Weekly Tasks</SelectItem>
+            <SelectItem value="daily" className="text-gray-200 hover:bg-gray-700">Daily Tasks</SelectItem>
           </SelectContent>
         </Select>
 

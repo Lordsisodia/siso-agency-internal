@@ -60,8 +60,8 @@ export {
   TASK_PRIORITY_CONFIG,
   TASK_CATEGORY_CONFIG,
   TASK_LIMITS,
-  TASK_SHORTCUTS,
-  TASK_API_ENDPOINTS
+  KEYBOARD_SHORTCUTS,
+  API_ENDPOINTS
 } from './constants/taskConstants';
 
 // Utilities and Helpers
@@ -73,11 +73,11 @@ export {
   calculateTaskProgress,
   isTaskOverdue,
   isTaskDueToday,
-  filterTasks,
+  doesTaskMatchFilters,
   sortTasks,
-  searchTasks,
-  validateTaskData,
-  convertLegacyTask
+  getSearchableText,
+  highlightSearchTerm,
+  validateTask
 } from './utils/taskHelpers';
 
 // Migration and Integration
@@ -177,7 +177,6 @@ export default {
   // Setup utilities
   setup: setupTasks,
   migration: {
-    convertLegacyTask,
     setupIntegration: setupTasksIntegration,
     createBridge: createSystemBridge
   }

@@ -16,6 +16,7 @@ import { TaskViewType } from '../../types/task.types';
 
 // Lazy load view components for better performance
 const ListView = React.lazy(() => import('../views/ListView'));
+const EnhancedListView = React.lazy(() => import('../views/EnhancedListView'));
 const KanbanView = React.lazy(() => import('../views/KanbanView'));
 const CalendarView = React.lazy(() => import('../views/CalendarView'));
 
@@ -169,7 +170,7 @@ export const TasksContent: React.FC<TasksContentProps> = ({
         return <CalendarView {...commonProps} />;
       case 'list':
       default:
-        return <ListView {...commonProps} />;
+        return <EnhancedListView {...commonProps} />;
     }
   };
 
