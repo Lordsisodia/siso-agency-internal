@@ -15,12 +15,18 @@ export default tseslint.config(
       "*.config.js",
       "vite.config.ts",
       ".SISO-APP-FACTORY/**/*",
+      ".archive-backups/**/*",
+      ".archive-src/**/*",
+      ".ai-first-backup*/**/*",
       "archive/**/*",
       "backup-*/**/*",
       "ai-first/**/*",
       "tests/**/*",
       "**/*.template.tsx",
-      "**/*.template.ts"
+      "**/*.template.ts",
+      "**/*.backup",
+      "**/*.bak",
+      "**/*-backup.*"
     ] 
   },
   {

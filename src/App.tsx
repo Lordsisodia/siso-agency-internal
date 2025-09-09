@@ -1,11 +1,11 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { lazy, Suspense, useEffect } from 'react';
-import { ClerkHybridTaskService } from '@/ai-first/core/auth.service';
+import { ClerkHybridTaskService } from '@/services/core/auth.service';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Toaster } from '@/shared/ui/toaster';
-import { ClerkProvider } from '@/shared/ClerkProvider';
-import { ClerkAuthGuard } from '@/ai-first/features/auth/components/ClerkAuthGuard';
-import { AuthGuard } from '@/ai-first/features/auth/components/AuthGuard';
+import { ClerkProvider } from '@/shared/auth';
+import { ClerkAuthGuard } from '@/shared/auth/ClerkAuthGuard';
+import { AuthGuard } from '@/shared/auth/AuthGuard';
 import { PageLoader } from '@/shared/ui/PageLoader';
 
 import { logger } from '@/shared/utils/logger';
@@ -14,12 +14,13 @@ import { logger } from '@/shared/utils/logger';
 import Index from './pages/Index';
 import Auth from './pages/Auth';
 import Home from './pages/Home';
-import { AdminAutoLogin } from '@/ai-first/features/auth/components/AdminAutoLogin';
+import { AdminAutoLogin } from '@/ecosystem/internal/admin/auth/AdminAutoLogin';
 
 // Lazy load all other pages for super-fast initial load
 const TestPage = lazy(() => import('./pages/TestPage'));
 const FeedbackTestPage = lazy(() => import('./pages/FeedbackTestPage'));
 const FeedbackDemo = lazy(() => import('./pages/FeedbackDemo'));
+const WorkingUITestPage = lazy(() => import('./pages/WorkingUITestPage'));
 const Profile = lazy(() => import('./pages/Profile'));
 
 // MCP Testing Components
@@ -175,6 +176,7 @@ function App() {
           <Route path="/test" element={<TestPage />} />
           <Route path="/feedback-test" element={<FeedbackTestPage />} />
           <Route path="/feedback-demo" element={<FeedbackDemo />} />
+          <Route path="/working-ui-test" element={<WorkingUITestPage />} />
           
           {/* Public routes - redirect root to LifeLock */}
           <Route path="/" element={<Navigate to="/admin/life-lock" replace />} />

@@ -1,0 +1,78 @@
+/* Custom styles for ReactFlow in UserFlow diagram */
+
+.userflow-container {
+  width: 100%;
+  height: 100%;
+  background-color: rgba(15, 23, 42, 0.3);
+}
+
+.reactflow-wrapper {
+  width: 100%;
+  height: 100%;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+/* Node styling improvements */
+.react-flow__node {
+  transition: all 0.2s ease;
+}
+
+.react-flow__node:hover {
+  z-index: 10;
+  transform: scale(1.02);
+}
+
+/* Node handle styling */
+.react-flow__handle {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #4f46e5;
+  border: 2px solid #1e1b4b;
+}
+
+.react-flow__handle:hover {
+  background-color: #818cf8;
+}
+
+/* Edge styling */
+.react-flow__edge-path {
+  stroke-width: 2;
+}
+
+.react-flow__edge-text {
+  font-size: 10px;
+  font-weight: 500;
+  fill: #d1d5db;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Controls styling */
+.react-flow__controls {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.react-flow__controls-button {
+  background-color: #1e293b;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+}
+
+.react-flow__controls-button:hover {
+  background-color: #334155;
+}
+
+/* MiniMap styling */
+.react-flow__minimap {
+  background-color: rgba(15, 23, 42, 0.7);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Background styling */
+.react-flow__background {
+  opacity: 0.5;
+} 

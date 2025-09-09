@@ -200,8 +200,8 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
         .from('light_work_tasks')
         .update({
           completed: newCompleted,
-          completedAt: newCompleted ? now : null,
-          updatedAt: now
+          completed_at: newCompleted ? now : null,
+          updated_at: now
         })
         .eq('id', taskId)
         .select()
@@ -214,8 +214,8 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
       const updatedTask: LightWorkTask = {
         ...currentTask,
         completed: data.completed,
-        completedAt: data.completedAt,
-        updatedAt: data.updatedAt
+        completedAt: data.completed_at,
+        updatedAt: data.updated_at
       };
 
       console.log(`✅ Toggled task completion in Supabase: ${taskId} -> ${newCompleted}`);
@@ -332,8 +332,8 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
         .from('light_work_subtasks')
         .update({
           completed: newCompleted,
-          completedAt: newCompleted ? now : null,
-          updatedAt: now
+          completed_at: newCompleted ? now : null,
+          updated_at: now
         })
         .eq('id', subtaskId);
       
@@ -377,7 +377,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
         .from('light_work_tasks')
         .update({
           title: newTitle,
-          updatedAt: new Date().toISOString()
+          updated_at: new Date().toISOString()
         })
         .eq('id', taskId);
       
@@ -414,7 +414,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
         .from('light_work_tasks')
         .update({
           task_date: newDate,
-          updatedAt: new Date().toISOString()
+          updated_at: new Date().toISOString()
         })
         .eq('id', taskId);
       

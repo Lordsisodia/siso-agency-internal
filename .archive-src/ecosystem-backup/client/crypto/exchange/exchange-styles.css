@@ -1,0 +1,45 @@
+
+.success-particle {
+  position: absolute;
+  pointer-events: none;
+  width: 10px;
+  height: 10px;
+  background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
+  border-radius: 50%;
+  animation: particle-burst 1s ease-out forwards;
+}
+
+@keyframes particle-burst {
+  0% {
+    transform: scale(0) translate(0, 0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(20) translate(var(--tx), var(--ty));
+    opacity: 0;
+  }
+}
+
+.shimmer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}

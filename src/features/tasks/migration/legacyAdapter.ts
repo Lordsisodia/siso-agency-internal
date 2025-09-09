@@ -312,9 +312,3 @@ export const mapLegacyCategory = (legacyCategory: string): TaskCategory => {
   return LEGACY_CATEGORY_MAP[normalized] || 'main';
 };
 
-export default {
-  convertLegacyTask,
-  mapLegacyStatus,
-  mapLegacyPriority,
-  mapLegacyCategory
-};

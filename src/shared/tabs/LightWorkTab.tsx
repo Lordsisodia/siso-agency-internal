@@ -1,46 +1,30 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { 
-  Zap,
-  Mail,
-  MessageSquare,
-  FileText,
-  CheckCircle2,
-  Circle,
-  Plus,
-  Clock,
-  Filter,
-  ArrowRight,
-  Calendar as CalendarIcon
-} from 'lucide-react';
-import { Card, CardContent, CardHeader } from '@/shared/ui/card';
-import { Button } from '@/shared/ui/button';
-import { Badge } from '@/shared/ui/badge';
-import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover';
-import { Calendar } from '@/ecosystem/internal/calendar/ui/calendar';
+/**
+ * LightWorkTab - Upgraded with GitHub Working UI Structure
+ * 
+ * Direct replacement with individual task cards, 5-button system, and proper spacing
+ * This is the pragmatic approach - modify the component that's actually being used
+ */
+
+import React, { useState, useEffect } from 'react';
+import { TaskHeader } from '@/components/working-ui/TaskHeader';
+import { TaskActionButtons } from '@/components/working-ui/TaskActionButtons';
+import { TaskSeparator } from '@/components/working-ui/TaskSeparator';
+import { Card, CardContent } from '@/shared/ui/card';
+import { Plus } from 'lucide-react';
 import { format } from 'date-fns';
-import { TabProps } from '../../../ai-first/features/tasks/DayTabContainer';
+import { TabProps } from '../../ai-first/features/tasks/DayTabContainer';
 import { useLightWorkTasksSupabase, LightWorkTask } from '@/shared/hooks/useLightWorkTasksSupabase';
 
-// Map Supabase task to display format
-const mapSupabaseTaskToDisplay = (task: LightWorkTask) => ({
+// Map Supabase task to UnifiedTaskManager format
+const mapSupabaseTaskToUnified = (task: LightWorkTask) => ({
   id: task.id,
   title: task.title,
-  category: 'other' as const,
-  estimatedTime: task.timeEstimate || '15m',
   completed: task.completed,
-  urgent: task.priority === 'HIGH' || task.priority === 'URGENT',
-  createdAt: new Date(task.createdAt),
-  dueDate: task.dueDate ? new Date(task.dueDate) : undefined
+  workType: 'LIGHT' as const,
+  aiAnalyzed: false,
+  xpReward: 10,
+  difficulty: task.priority === 'HIGH' ? 'Hard' : task.priority === 'MEDIUM' ? 'Medium' : 'Easy'
 });
-
-const categoryConfig = {
-  email: { name: 'Email', icon: Mail, color: 'from-blue-500 to-blue-600', textColor: 'text-blue-300', bgColor: 'bg-blue-500/20 border-blue-400/50' },
-  admin: { name: 'Admin', icon: FileText, color: 'from-purple-500 to-purple-600', textColor: 'text-purple-300', bgColor: 'bg-purple-500/20 border-purple-400/50' },
-  communication: { name: 'Communication', icon: MessageSquare, color: 'from-green-500 to-green-600', textColor: 'text-green-300', bgColor: 'bg-green-500/20 border-green-400/50' },
-  quick: { name: 'Quick Task', icon: Zap, color: 'from-yellow-500 to-yellow-600', textColor: 'text-yellow-300', bgColor: 'bg-yellow-500/20 border-yellow-400/50' },
-  other: { name: 'Other', icon: Circle, color: 'from-gray-500 to-gray-600', textColor: 'text-gray-300', bgColor: 'bg-gray-500/20 border-gray-400/50' }
-};
 
 export const LightWorkTab: React.FC<TabProps> = ({
   user,
@@ -61,426 +45,237 @@ export const LightWorkTab: React.FC<TabProps> = ({
     updateTaskDueDate: updateSupabaseTaskDueDate,
     deleteTask 
   } = useLightWorkTasksSupabase({ selectedDate: new Date() });
-  
-  // Map Supabase tasks to display format
-  const lightTasks = supabaseTasks.map(mapSupabaseTaskToDisplay);
-  
-  // Debug logging
-  React.useEffect(() => {
-    if (lightTasks.length > 0) {
-      console.log('🗓️ First task dueDate debug:', {
-        originalTask: supabaseTasks[0]?.dueDate,
-        mappedTask: lightTasks[0]?.dueDate,
-        isValidDate: lightTasks[0]?.dueDate instanceof Date
-      });
-    }
-  }, [lightTasks, supabaseTasks]);
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [showCompleted, setShowCompleted] = useState(false);
 
-  const toggleTask = async (taskId: string) => {
+  // Map to unified format
+  const tasks = supabaseTasks.map(mapSupabaseTaskToUnified);
+  const selectedDate = new Date();
+
+  // State for editing
+  const [recordingTaskId, setRecordingTaskId] = useState<string | null>(null);
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const [editTaskTitle, setEditTaskTitle] = useState('');
+
+  // Set dark theme
+  useEffect(() => {
+    document.body.className = 'bg-gray-900 min-h-screen text-white';
+    document.documentElement.className = 'dark bg-gray-900';
+    return () => {
+      document.body.className = '';
+      document.documentElement.className = '';
+    };
+  }, []);
+
+  // Theme configuration for Light Work (emerald)
+  const themeConfig = {
+    colors: {
+      text: 'text-emerald-400',
+      primary: 'emerald',
+      border: 'border-emerald-600',
+      input: 'border-emerald-600 focus:ring-emerald-500',
+      textSecondary: 'text-emerald-300',
+      button: 'border-emerald-600 text-emerald-300 hover:bg-emerald-900/30',
+      hover: 'hover:border-emerald-600/50 hover:bg-emerald-800/70',
+      completed: 'bg-emerald-900/30 border-emerald-800/50 text-emerald-200/60'
+    }
+  };
+
+  // Action handlers
+  const handleAnalyzeWithAI = async (taskId: string) => {
+    console.log('🧠 AI Analysis for light work task:', taskId);
+    // TODO: Integrate with actual AI analysis system
+  };
+
+  const handleStartThoughtDump = (taskId: string) => {
+    if (recordingTaskId === taskId) {
+      setRecordingTaskId(null);
+    } else {
+      setRecordingTaskId(taskId);
+      setTimeout(() => setRecordingTaskId(null), 120000); // 2 minutes
+    }
+    console.log('🎤 Thought dump for task:', taskId);
+  };
+
+  const handlePushToAnotherDay = async (taskId: string) => {
+    console.log('📅 Push to another day:', taskId);
+    // TODO: Integrate with task scheduling system
+  };
+
+  const handleViewTask = async (taskId: string) => {
+    console.log('👁 View task details:', taskId);
+    // TODO: Open task details modal/page
+  };
+
+  const handleDeleteTask = async (taskId: string) => {
+    console.log('❌ Delete task:', taskId);
+    await deleteTask(taskId);
+  };
+
+  const handleToggleTask = async (taskId: string) => {
+    console.log('✅ Toggle task completion:', taskId);
     await toggleTaskCompletion(taskId);
     onTaskToggle?.(taskId);
   };
 
-  const addLightTask = async (task: { title: string; priority: 'low' | 'medium' | 'high' }) => {
-    const priorityMap = { low: 'LOW', medium: 'MEDIUM', high: 'HIGH' } as const;
-    await createTask({
-      title: task.title,
-      priority: priorityMap[task.priority],
+  const handleCreateTask = async () => {
+    console.log('➕ Create new light work task');
+    const newTask = {
+      title: 'New Light Work Task',
+      priority: 'MEDIUM' as const,
       timeEstimate: '15m'
-    });
-    onCustomTaskAdd?.(task);
+    };
+    await createTask(newTask);
+    onCustomTaskAdd?.(newTask);
   };
 
-  const updateTaskDueDate = async (taskId: string, dueDate: Date | undefined) => {
-    console.log('🗓️ Calendar date selected:', { taskId, dueDate });
-    await updateSupabaseTaskDueDate(taskId, dueDate || null);
+  // Editing functions
+  const startEditingTask = (taskId: string, currentTitle: string) => {
+    setEditingTaskId(taskId);
+    setEditTaskTitle(currentTitle);
   };
 
-  const filteredTasks = lightTasks.filter(task => {
-    if (selectedCategory !== 'all' && task.category !== selectedCategory) return false;
-    if (!showCompleted && task.completed) return false;
-    return true;
-  });
+  const saveTaskEdit = (taskId: string) => {
+    setEditingTaskId(null);
+    // TODO: Update task title in Supabase
+    console.log('Save task:', taskId, editTaskTitle);
+  };
 
-  const completedTasks = lightTasks.filter(t => t.completed).length;
-  const urgentTasks = lightTasks.filter(t => t.urgent && !t.completed).length;
-  const totalEstimatedTime = lightTasks
-    .filter(t => !t.completed)
-    .reduce((acc, task) => acc + parseInt(task.estimatedTime), 0);
+  const handleKeyDown = (e: React.KeyboardEvent, type: 'task', taskId: string) => {
+    if (e.key === 'Enter') {
+      saveTaskEdit(taskId);
+    } else if (e.key === 'Escape') {
+      setEditingTaskId(null);
+    }
+  };
 
-  // Loading state
   if (loading) {
     return (
-      <div className="p-4 space-y-6 bg-gradient-to-br from-black via-gray-900 to-black min-h-full">
-        <div className="text-center space-y-4">
-          <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center shadow-lg mx-auto">
-            <Zap className="h-6 w-6 text-white" />
-          </div>
-          <h1 className="text-2xl font-bold text-white">Light Work</h1>
-          <div className="text-gray-400">Loading tasks...</div>
-        </div>
+      <div className="min-h-screen bg-gray-900 text-white p-6 flex items-center justify-center">
+        <div className={themeConfig.colors.text}>Loading light work tasks...</div>
       </div>
     );
   }
 
-  // Error state
   if (error) {
     return (
-      <div className="p-4 space-y-6 bg-gradient-to-br from-black via-gray-900 to-black min-h-full">
-        <div className="text-center space-y-4">
-          <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-red-600 rounded-full flex items-center justify-center shadow-lg mx-auto">
-            <Zap className="h-6 w-6 text-white" />
-          </div>
-          <h1 className="text-2xl font-bold text-white">Light Work</h1>
-          <div className="text-red-400">Error: {error}</div>
-          <Button 
-            onClick={() => window.location.reload()} 
-            className="bg-red-600 hover:bg-red-700"
-          >
-            Retry
-          </Button>
-        </div>
+      <div className="min-h-screen bg-gray-900 text-white p-6 flex items-center justify-center">
+        <div className="text-red-400">Error: {error}</div>
       </div>
     );
   }
 
+  console.log('🎯 LightWorkTab IS RENDERING WITH GITHUB UI!', { tasksCount: tasks.length });
+
   return (
-    <div className="p-4 space-y-6 bg-gradient-to-br from-black via-gray-900 to-black min-h-full">
-      {/* Header */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center space-y-4"
-      >
-        <div className="flex items-center justify-center space-x-3">
-          <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center shadow-lg">
-            <Zap className="h-6 w-6 text-white" />
+    <div className="min-h-screen bg-gray-900">
+      <Card className="bg-gray-800/50 border-gray-700/50">
+        <CardContent className="p-6">
+          {/* Header */}
+          <div className="mb-6">
+            <h2 className={`text-2xl font-bold ${themeConfig.colors.text} mb-2`}>
+              LIGHT Work - {format(selectedDate, 'MMMM d, yyyy')}
+            </h2>
+            <p className="text-gray-400">
+              {tasks.length} tasks • GitHub Working UI ✨
+            </p>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-white">Light Work</h1>
-            <p className="text-gray-400 text-sm">Quick tasks & admin work</p>
+
+          {/* Task Cards - Individual cards with proper spacing */}
+          <div className="flex flex-col items-center gap-4">
+            {tasks.map((task) => (
+              <div
+                key={task.id}
+                className={`
+                  p-4 rounded-lg border transition-all duration-200 w-full
+                  ${task.completed 
+                    ? themeConfig.colors.completed
+                    : `bg-emerald-800/50 border-emerald-700/50 text-emerald-50 ${themeConfig.colors.hover}`
+                  }
+                `}
+              >
+                {/* Task Header */}
+                <TaskHeader
+                  task={task}
+                  themeConfig={themeConfig}
+                  isEditing={editingTaskId === task.id}
+                  editTitle={editTaskTitle}
+                  onToggleCompletion={handleToggleTask}
+                  onStartEditing={startEditingTask}
+                  onEditTitleChange={setEditTaskTitle}
+                  onSaveEdit={saveTaskEdit}
+                  onKeyDown={handleKeyDown}
+                />
+
+                {/* First separator line */}
+                <TaskSeparator />
+
+                {/* Action Icons Row - THE 5 BUTTONS! */}
+                <TaskActionButtons
+                  task={task}
+                  themeConfig={themeConfig}
+                  recordingTaskId={recordingTaskId}
+                  onAnalyzeWithAI={handleAnalyzeWithAI}
+                  onStartThoughtDump={handleStartThoughtDump}
+                  onPushToAnotherDay={handlePushToAnotherDay}
+                  onViewTask={handleViewTask}
+                  onDeleteTask={handleDeleteTask}
+                />
+
+                {/* Second separator line */}
+                <TaskSeparator />
+
+                {/* Task completion status */}
+                {task.completed && (
+                  <div className="text-center text-sm text-gray-400 mt-2">
+                    ✅ Task completed
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
-        </div>
-        
-        {/* Stats */}
-        <div className="flex items-center justify-center space-x-6 text-sm text-gray-300">
-          <div className="flex items-center space-x-2">
-            <CheckCircle2 className="h-4 w-4 text-green-400" />
-            <span>{completedTasks}/{lightTasks.length} completed</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Clock className="h-4 w-4 text-orange-400" />
-            <span>~{totalEstimatedTime}m remaining</span>
-          </div>
-          {urgentTasks > 0 && (
-            <div className="flex items-center space-x-2">
-              <Zap className="h-4 w-4 text-red-400" />
-              <span>{urgentTasks} urgent</span>
+
+          {/* Add New Task Button */}
+          {tasks.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="text-gray-400 mb-4">No tasks for today</div>
+              <button
+                onClick={handleCreateTask}
+                className={`flex items-center gap-2 px-4 py-2 border-2 border-dashed ${themeConfig.colors.button} rounded-lg transition-all duration-200 text-sm font-medium mx-auto`}
+              >
+                <Plus className="h-4 w-4" />
+                Add Your First Light Work Task
+              </button>
+            </div>
+          ) : (
+            <div className="mt-6 flex justify-center">
+              <button
+                onClick={handleCreateTask}
+                className={`flex items-center gap-2 px-4 py-2 border-2 border-dashed ${themeConfig.colors.button} rounded-lg transition-all duration-200 text-sm font-medium`}
+              >
+                <Plus className="h-4 w-4" />
+                Add Task
+              </button>
             </div>
           )}
-        </div>
-      </motion.div>
 
-      {/* Quick Stats Cards */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="grid grid-cols-2 gap-3"
-      >
-        <Card className="bg-gradient-to-br from-green-900/40 to-emerald-900/40 border-green-400/30">
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-green-300">{completedTasks}</div>
-            <div className="text-xs text-green-400">Completed Today</div>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-gradient-to-br from-orange-900/40 to-red-900/40 border-orange-400/30">
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-orange-300">{urgentTasks}</div>
-            <div className="text-xs text-orange-400">Urgent Tasks</div>
-          </CardContent>
-        </Card>
-      </motion.div>
-
-      {/* Category Filter */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-      >
-        <Card className="bg-gradient-to-br from-gray-900/80 via-gray-800/60 to-gray-900/80 border-gray-600/30">
-          <CardHeader className="pb-3">
-            <div className="flex items-center space-x-2">
-              <Filter className="h-5 w-5 text-gray-400" />
-              <h3 className="text-lg font-semibold text-white">Categories</h3>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-2">
-              <Button
-                size="sm"
-                variant={selectedCategory === 'all' ? 'default' : 'outline'}
-                onClick={() => setSelectedCategory('all')}
-                className="text-xs"
-              >
-                All ({lightTasks.length})
-              </Button>
-              {Object.entries(categoryConfig).map(([key, config]) => {
-                const count = lightTasks.filter(t => t.category === key).length;
-                if (count === 0) return null;
-                
-                return (
-                  <Button
-                    key={key}
-                    size="sm"
-                    variant={selectedCategory === key ? 'default' : 'outline'}
-                    onClick={() => setSelectedCategory(key)}
-                    className="text-xs"
-                  >
-                    <config.icon className="h-3 w-3 mr-1" />
-                    {config.name} ({count})
-                  </Button>
-                );
-              })}
-            </div>
-            
-            <div className="flex items-center space-x-2 mt-3 pt-3 border-t border-gray-700/50">
-              <input
-                type="checkbox"
-                id="showCompleted"
-                checked={showCompleted}
-                onChange={(e) => setShowCompleted(e.target.checked)}
-                className="rounded text-green-500"
-              />
-              <label htmlFor="showCompleted" className="text-sm text-gray-400 cursor-pointer">
-                Show completed tasks
-              </label>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-
-      {/* Add New Task */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-      >
-        <Card className="bg-gradient-to-br from-gray-900/80 via-gray-800/60 to-gray-900/80 border-blue-400/30">
-          <CardHeader className="pb-3">
-            <div className="flex items-center space-x-2">
-              <Plus className="h-5 w-5 text-blue-400" />
-              <h3 className="text-lg font-semibold text-white">Add Light Task</h3>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <CustomTaskInput 
-              onAddTask={addLightTask}
-              placeholder="Add a quick task or admin item..."
-            />
-          </CardContent>
-        </Card>
-      </motion.div>
-
-      {/* Task List */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-      >
-        <Card className="bg-gradient-to-br from-gray-900/80 via-gray-800/60 to-gray-900/80 border-green-400/30">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Zap className="h-5 w-5 text-green-400" />
-                <h3 className="text-lg font-semibold text-white">
-                  Light Tasks ({filteredTasks.length})
-                </h3>
+          {/* Debug Info */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className="fixed bottom-4 right-4 bg-black/90 text-white text-xs px-3 py-2 rounded-lg border border-gray-600">
+              <div className={`${themeConfig.colors.text} font-medium`}>✅ GITHUB WORKING UI ACTIVE!</div>
+              <div className="text-gray-300 text-xs mt-1">
+                Direct LightWorkTab Upgrade • 5-Button System
               </div>
-              {urgentTasks > 0 && (
-                <Badge className="bg-red-500/20 text-red-300 border-red-500/40 animate-pulse">
-                  {urgentTasks} urgent
-                </Badge>
+              <div className="text-gray-400 text-xs mt-1">
+                Tasks: {tasks.length} • Type: LIGHT WORK
+              </div>
+              {recordingTaskId && (
+                <div className="text-red-400 text-xs mt-1 animate-pulse">
+                  🎤 Recording: {recordingTaskId.slice(0, 8)}...
+                </div>
               )}
             </div>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {filteredTasks.length > 0 ? (
-              filteredTasks.map((task, index) => {
-                const config = categoryConfig[task.category];
-                const Icon = config.icon;
-                
-                return (
-                  <motion.div
-                    key={task.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.05 * index }}
-                    className={`
-                      flex items-center justify-between p-3 rounded-lg border transition-all duration-200
-                      ${task.completed 
-                        ? 'bg-green-500/20 border-green-400/50' 
-                        : task.urgent 
-                          ? 'bg-red-500/10 border-red-400/30 shadow-md shadow-red-500/10' 
-                          : 'bg-gray-800/40 border-gray-700/50 hover:border-green-400/30'
-                      }
-                    `}
-                  >
-                    <div className="flex items-center space-x-3 flex-1">
-                      <button
-                        onClick={() => toggleTask(task.id)}
-                        className="p-1 hover:bg-gray-700/50 rounded transition-colors"
-                      >
-                        {task.completed ? (
-                          <CheckCircle2 className="h-5 w-5 text-green-400" />
-                        ) : (
-                          <Circle className="h-5 w-5 text-gray-500" />
-                        )}
-                      </button>
-                      
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center space-x-2">
-                          <h4 className={`
-                            font-medium transition-colors
-                            ${task.completed ? 'text-green-300 line-through' : 'text-white'}
-                          `}>
-                            {task.title}
-                          </h4>
-                          {task.urgent && !task.completed && (
-                            <Badge size="sm" className="bg-red-500/20 text-red-300 border-red-500/40">
-                              urgent
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="flex items-center space-x-3 mt-1">
-                          <Badge 
-                            size="sm"
-                            className={config.bgColor}
-                          >
-                            <Icon className="h-3 w-3 mr-1" />
-                            {config.name}
-                          </Badge>
-                          <span className="text-xs text-gray-400">
-                            {task.estimatedTime}
-                          </span>
-                          {/* Due Date Calendar */}
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <Badge 
-                                size="sm"
-                                className="bg-blue-500/20 text-blue-400 border-blue-500/30 cursor-pointer hover:bg-blue-500/30 transition-colors flex items-center gap-1"
-                              >
-                                <CalendarIcon className="h-3 w-3" />
-                                {task.dueDate ? format(task.dueDate, 'MMM d') : 'Add date'}
-                              </Badge>
-                            </PopoverTrigger>
-                            <PopoverContent 
-                              className="w-auto p-3 bg-gray-800 border-gray-700" 
-                              align="start"
-                              onInteractOutside={(e) => {
-                                // Prevent closing when clicking on date picker
-                                const target = e.target as HTMLElement;
-                                if (target?.closest('input[type="date"]') || target?.tagName === 'INPUT') {
-                                  e.preventDefault();
-                                }
-                              }}
-                            >
-                              <div className="space-y-2" onClick={(e) => e.stopPropagation()}>
-                                <div className="text-sm font-medium text-white mb-2">Select Due Date:</div>
-                                <input 
-                                  type="date" 
-                                  value={task.dueDate ? format(task.dueDate, 'yyyy-MM-dd') : ''}
-                                  onChange={(e) => {
-                                    const selectedDate = e.target.value ? new Date(e.target.value) : undefined;
-                                    console.log('🗓️ Date input changed:', selectedDate);
-                                    updateTaskDueDate(task.id, selectedDate);
-                                    // Keep popover open for a moment to show the change
-                                    setTimeout(() => {
-                                      // You can close it manually here if needed
-                                    }, 500);
-                                  }}
-                                  onClick={(e) => e.stopPropagation()}
-                                  className="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white"
-                                />
-                                <button 
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    updateTaskDueDate(task.id, undefined);
-                                  }}
-                                  className="w-full p-1 bg-red-600 hover:bg-red-700 text-white text-xs rounded"
-                                >
-                                  Clear Date
-                                </button>
-                              </div>
-                            </PopoverContent>
-                          </Popover>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {!task.completed && (
-                      <Button
-                        size="sm"
-                        className="bg-green-500/20 border border-green-400/50 text-green-300 hover:bg-green-500/30 text-xs"
-                      >
-                        <ArrowRight className="h-3 w-3" />
-                      </Button>
-                    )}
-                  </motion.div>
-                );
-              })
-            ) : (
-              <div className="text-center py-8 text-gray-400">
-                <Zap className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                <p className="text-sm">
-                  {selectedCategory !== 'all' 
-                    ? `No ${categoryConfig[selectedCategory as keyof typeof categoryConfig]?.name.toLowerCase()} tasks`
-                    : 'No light tasks yet'
-                  }
-                </p>
-                <Button 
-                  onClick={onQuickAdd}
-                  className="mt-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white"
-                  size="sm"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Light Task
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </motion.div>
-
-      {/* Quick Actions */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-        className="flex flex-col gap-3 pt-4"
-      >
-        <Button 
-          onClick={onQuickAdd}
-          className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold py-3 rounded-xl shadow-lg"
-        >
-          <Plus className="h-5 w-5 mr-2" />
-          Add Light Task
-        </Button>
-        
-        {urgentTasks > 0 && (
-          <Button 
-            onClick={() => setSelectedCategory('all')}
-            variant="outline"
-            className="w-full border-red-400/50 text-red-300 hover:bg-red-500/20 font-semibold py-3 rounded-xl"
-          >
-            <Zap className="h-5 w-5 mr-2" />
-            Focus on {urgentTasks} Urgent Task{urgentTasks > 1 ? 's' : ''}
-          </Button>
-        )}
-      </motion.div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };

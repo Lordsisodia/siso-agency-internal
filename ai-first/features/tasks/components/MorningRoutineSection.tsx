@@ -22,7 +22,7 @@ import { Input } from '@/shared/ui/input';
 import { format } from 'date-fns';
 import { cn } from '@/shared/lib/utils';
 import { useClerkUser } from '@/shared/ClerkProvider';
-import { workTypeApiClient } from '@/services/workTypeApiClient';
+import { useMorningRoutineSupabase } from '@/shared/hooks/useMorningRoutineSupabase';
 import { theme } from '@/styles/theme';
 import { getTasksForSection } from '@/data/task-defaults';
 import { isFeatureEnabled, useImplementation } from '@/migration/feature-flags';
@@ -134,9 +134,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
   selectedDate
 }) => {
   const { user } = useClerkUser();
-  const [morningRoutine, setMorningRoutine] = useState<MorningRoutineData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { morningRoutine, isLoading: loading, error, toggleHabit } = useMorningRoutineSupabase(selectedDate);
 
   const [wakeUpTime, setWakeUpTime] = useState<string>(() => {
     const dateKey = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd');
@@ -146,26 +144,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
 
   const [isEditingWakeTime, setIsEditingWakeTime] = useState(false);
 
-  // Load morning routine data
-  useEffect(() => {
-    const loadMorningRoutine = async () => {
-      if (!user?.id || !selectedDate) return;
-      
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await workTypeApiClient.getMorningRoutine(user.id, selectedDate);
-        setMorningRoutine(data);
-      } catch (error) {
-        console.error('Error loading morning routine:', error);
-        setError('Failed to load morning routine');
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    loadMorningRoutine();
-  }, [user?.id, selectedDate]);
 
   // Save wake-up time to localStorage
   useEffect(() => {
@@ -174,23 +153,9 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
     localStorage.setItem(`lifelock-${dateKey}-wakeUpTime`, wakeUpTime);
   }, [wakeUpTime, selectedDate]);
 
-  // Handle habit toggle
+  // Handle habit toggle using Supabase hook
   const handleHabitToggle = async (habitKey: string, completed: boolean) => {
-    if (!user?.id || !selectedDate || !morningRoutine) return;
-    
-    try {
-      await workTypeApiClient.updateMorningRoutineHabit(
-        user.id, 
-        selectedDate, 
-        habitKey, 
-        completed
-      );
-      // Refresh the morning routine data
-      const updatedData = await workTypeApiClient.getMorningRoutine(user.id, selectedDate);
-      setMorningRoutine(updatedData);
-    } catch (error) {
-      console.error('Error updating habit:', error);
-    }
+    await toggleHabit(habitKey, completed);
   };
 
   // Get current time in 12-hour format
@@ -208,7 +173,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
   // Calculate progress based on completed tasks and subtasks
   const getRoutineProgress = () => {
     if (!morningRoutine) return 0;
-    return morningRoutine.completionPercentage || 0;
+    return morningRoutine.completion_percentage || 0;
   };
 
   // Helper function to check if a habit is completed

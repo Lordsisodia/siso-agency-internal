@@ -17,7 +17,9 @@ import { QuickActionsSection } from '@/ai-first/features/tasks/ui/QuickActionsSe
 import { MonthlyProgressSection } from '@/ai-first/features/tasks/components/MonthlyProgressSection';
 import { MorningRoutineTab } from '@/ai-first/features/tasks/components/MorningRoutineTab';
 import { LightWorkTab } from '@/shared/tabs/LightWorkTab';
+import { LightWorkTabWrapper } from '@/components/working-ui/LightWorkTabWrapper';
 import { DeepFocusTab } from '@/ai-first/features/tasks/components/DeepFocusTab';
+import { DeepWorkTabWrapper } from '@/components/working-ui/DeepWorkTabWrapper';
 import { TimeBoxTab } from '@/ai-first/features/tasks/components/TimeBoxTab';
 import { NightlyCheckoutTab } from '@/ai-first/features/tasks/components/NightlyCheckoutTab';
 import { useLifeLockData } from './useLifeLockData';
@@ -27,7 +29,6 @@ import { TabContentRenderer } from '@/refactored/components/TabContentRenderer';
 import { isFeatureEnabled, useImplementation } from '@/migration/feature-flags';
 import { LoadingState } from '@/shared/ui/loading-state';
 import { theme } from '@/styles/theme';
-import { SimpleFeedbackButton } from '@/internal/feedback/SimpleFeedbackButton';
 
 const AdminLifeLock: React.FC = () => {
   const navigate = useNavigate();
@@ -271,25 +272,17 @@ const AdminLifeLock: React.FC = () => {
             (() => {
               switch (activeTab as TabId) {
                 case 'morning':
-                  return (
-                    <div className="h-full flex flex-col">
-                      <div className="flex-1">
-                        <MorningRoutineTab {...commonTabProps} />
-                      </div>
-                      <div className="px-4 pb-4">
-                        <SimpleFeedbackButton />
-                      </div>
-                    </div>
-                  );
+                  return <MorningRoutineTab {...commonTabProps} />;
                 
                 case 'focus':
                 case 'work':
-                  return <DeepFocusTab {...commonTabProps} />;
+                  return <DeepWorkTabWrapper {...commonTabProps} />;
                 
                 case 'light':
                   return (
-                    <LightWorkTab
+                    <LightWorkTabWrapper
                       user={user}
+                      selectedDate={selectedDate}
                       todayCard={todayCard}
                       refreshTrigger={refreshTrigger}
                       onRefresh={() => setRefreshTrigger(prev => prev + 1)}
@@ -302,7 +295,7 @@ const AdminLifeLock: React.FC = () => {
                 
                 case 'light-work':
                   return (
-                    <LightWorkTab
+                    <LightWorkTabWrapper
                       user={user}
                       selectedDate={selectedDate}
                       todayCard={todayCard}
@@ -377,11 +370,6 @@ const AdminLifeLock: React.FC = () => {
           );
         }}
       </TabLayoutWrapper>
-
-      {/* Feedback Button - positioned at bottom of page, above navigation */}
-      <div className="px-4 pb-4">
-        <SimpleFeedbackButton />
-      </div>
 
       {/* Global Modals */}
       {lastThoughtDumpResult && (

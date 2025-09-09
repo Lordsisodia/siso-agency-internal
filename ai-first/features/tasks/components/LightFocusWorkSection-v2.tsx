@@ -7,6 +7,7 @@
 
 import React from 'react';
 import { UnifiedWorkSection } from '@/refactored/components/UnifiedWorkSection';
+import { TaskHeader } from '@/ai-first/features/dashboard/components/TaskHeader';
 import { useLightWorkTasksSupabase } from '@/shared/hooks/useLightWorkTasksSupabase';
 
 interface LightFocusWorkSectionProps {
@@ -63,22 +64,32 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
   };
 
   return (
-    <UnifiedWorkSection 
-      selectedDate={selectedDate} 
-      workType="LIGHT"
-      tasks={transformedTasks}
-      loading={loading}
-      error={error}
-      createTask={handleCreateTask}
-      toggleTaskCompletion={handleToggleTaskCompletion}
-      toggleSubtaskCompletion={toggleSubtaskCompletion}
-      addSubtask={handleAddSubtask}
-      deleteTask={deleteTask}
-      deleteSubtask={deleteSubtask}
-      analyzeTaskWithAI={async () => {}} // TODO: Implement (AI feature)
-      pushTaskToAnotherDay={pushTaskToAnotherDay}
-      updateTaskTitle={updateTaskTitle}
-      updateSubtaskDueDate={updateSubtaskDueDate}
-    />
+    <div className="space-y-6">
+      {/* Dashboard Header with "Super Light Work" title and controls */}
+      <TaskHeader
+        onAddTask={() => createTask({ title: 'New Task', description: '', priority: 'MEDIUM' })}
+        onFilterChange={(filter) => console.log('Filter:', filter)}
+        onExport={() => console.log('Export tasks')}
+      />
+
+      {/* Main Task Management Section */}
+      <UnifiedWorkSection 
+        selectedDate={selectedDate} 
+        workType="LIGHT"
+        tasks={transformedTasks}
+        loading={loading}
+        error={error}
+        createTask={handleCreateTask}
+        toggleTaskCompletion={handleToggleTaskCompletion}
+        toggleSubtaskCompletion={toggleSubtaskCompletion}
+        addSubtask={handleAddSubtask}
+        deleteTask={deleteTask}
+        deleteSubtask={deleteSubtask}
+        analyzeTaskWithAI={async () => {}} // TODO: Implement (AI feature)
+        pushTaskToAnotherDay={pushTaskToAnotherDay}
+        updateTaskTitle={updateTaskTitle}
+        updateSubtaskDueDate={updateSubtaskDueDate}
+      />
+    </div>
   );
 };

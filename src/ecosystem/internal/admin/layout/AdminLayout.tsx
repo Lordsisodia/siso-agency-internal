@@ -3,6 +3,7 @@ import { ReactNode, useState, useEffect } from 'react';
 import { Sidebar } from './AdminSidebar';
 import { useIsMobile } from '@/shared/hooks/use-mobile';
 import { useLocation } from 'react-router-dom';
+import { SimpleFeedbackButton } from '@/ecosystem/internal/feedback/SimpleFeedbackButton';
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -38,6 +39,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       />
       <main className={`${getMainMargin()} overflow-y-auto admin-scrollbar min-h-screen transition-all duration-100 relative`}>
         {children}
+        {/* Global Feedback Button - appears on every page */}
+        <div className="px-4 pb-4 pt-6 flex justify-center">
+          <SimpleFeedbackButton />
+        </div>
       </main>
     </div>
   );

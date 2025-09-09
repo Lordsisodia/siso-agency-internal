@@ -11,8 +11,8 @@ import { TasksFilters } from './TasksFilters';
 import { TasksContent } from './TasksContent';
 import { TasksAI } from './TasksAI';
 import { TasksSidebar } from './TasksSidebar';
-import { TasksErrorFallback } from './TasksErrorFallback';
-import { TasksLoadingFallback } from './TasksLoadingFallback';
+import { TasksErrorFallback } from '../fallbacks/TasksErrorFallback';
+import { TasksLoadingFallback } from '../fallbacks/TasksLoadingFallback';
 import { TaskFilters, TaskViewType } from '../../types/task.types';
 import { cn } from '@/shared/lib/utils';
 

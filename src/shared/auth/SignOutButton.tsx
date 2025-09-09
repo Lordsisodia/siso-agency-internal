@@ -1,7 +1,7 @@
 import { Button } from '@/shared/ui/button';
 import { LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { signOut } from '@/services/authService';
+import { signOut } from '@/shared/services/authService';
 import { useToast } from '@/shared/hooks/use-toast';
 
 export const SignOutButton = () => {

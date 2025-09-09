@@ -18,6 +18,7 @@ export interface LifeLockFeatureFlags {
   useRefactoredTaskCards: boolean;            // Unified TaskCard component (5,100+ lines → reusable component)
   useUnifiedTaskCard: boolean;                // Replace all task card implementations with unified component
   useTaskCardUtils: boolean;                  // Use extracted task card utilities and helper functions
+  useWorkingUI: boolean;                      // Use the working UI from GitHub commit (TaskActionButtons + UnifiedWorkSection)
   
   // Hook refactoring  
   useRefactoredLifeLockHooks: boolean;        // Master refactored hook (226 lines → focused hooks)
@@ -60,6 +61,7 @@ export const DEFAULT_FEATURE_FLAGS: LifeLockFeatureFlags = {
   useRefactoredTaskCards: false,
   useUnifiedTaskCard: false,
   useTaskCardUtils: false,
+  useWorkingUI: false,
   
   // Hook refactoring
   useRefactoredLifeLockHooks: false,
@@ -102,6 +104,7 @@ let currentFlags: LifeLockFeatureFlags = {
   useRefactoredTaskCards: true,           // Enable unified task cards
   useUnifiedTaskCard: true,               // Enable unified task card component
   useTaskCardUtils: true,                 // Enable task card utilities
+  useWorkingUI: true,                     // FORCE ENABLE working UI
   useUnifiedLoadingState: true,           // Enable unified loading states
   useUnifiedErrorState: true,             // Enable unified error states
   useUnifiedThemeSystem: true,            // Enable unified theme system
@@ -120,6 +123,7 @@ const DEVELOPMENT_OVERRIDES: Partial<LifeLockFeatureFlags> = {
   useRefactoredTaskCards: true,           // Task card unification
   useUnifiedTaskCard: true,               // Enable unified task card component
   useTaskCardUtils: true,                 // Enable task card utilities
+  useWorkingUI: true,                     // Enable working UI from GitHub commit
   useOptimizedComponents: true,           // Performance optimizations
   
   // ULTRA-SAFE UI COMPONENT REFACTORS (150+ lines saved with zero risk)
@@ -217,6 +221,13 @@ export const FLAG_PRESETS = {
   // Test unified task card system
   unifiedTaskCards: {
     useRefactoredTaskCards: true,
+    useUnifiedTaskCard: true,
+    useTaskCardUtils: true,
+  },
+  
+  // Test working UI from GitHub
+  workingUI: {
+    useWorkingUI: true,
     useUnifiedTaskCard: true,
     useTaskCardUtils: true,
   },
