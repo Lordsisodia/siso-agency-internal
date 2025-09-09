@@ -7,7 +7,8 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/shared/lib/supabase';
-import { supabaseClerkUserMapping } from '@/shared/lib/supabase-clerk';
+import { useClerkUser } from './useClerkUser';
+import { useSupabaseClient, useSupabaseUserId } from '@/shared/lib/supabase-clerk';
 
 interface MorningRoutineItem {
   name: string;
@@ -50,6 +51,10 @@ const DEFAULT_MORNING_ROUTINE_ITEMS: MorningRoutineItem[] = [
 ];
 
 export function useMorningRoutineSupabase(selectedDate: Date) {
+  const { user, isSignedIn } = useClerkUser();
+  const supabaseClient = useSupabaseClient();
+  const internalUserId = useSupabaseUserId(user?.id || null);
+  
   const [morningRoutine, setMorningRoutine] = useState<MorningRoutine | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -59,23 +64,22 @@ export function useMorningRoutineSupabase(selectedDate: Date) {
   // Load morning routine from Supabase
   useEffect(() => {
     loadMorningRoutine();
-  }, [dateString]);
+  }, [dateString, internalUserId]);
 
   const loadMorningRoutine = async () => {
+    if (!isSignedIn || !internalUserId || !supabaseClient) {
+      setIsLoading(false);
+      return;
+    }
+
     try {
       setIsLoading(true);
       setError(null);
       
       console.log('🌅 Loading morning routine from Supabase...');
-      
-      // Get internal user ID through Clerk mapping
-      const internalUserId = await supabaseClerkUserMapping.getInternalUserId();
-      if (!internalUserId) {
-        throw new Error('Failed to get internal user ID');
-      }
 
       // Query for existing routine
-      const { data, error: queryError } = await supabase
+      const { data, error: queryError } = await supabaseClient
         .from('daily_routines')
         .select('*')
         .eq('user_id', internalUserId)
@@ -101,7 +105,7 @@ export function useMorningRoutineSupabase(selectedDate: Date) {
           completion_percentage: 0
         };
 
-        const { data: createdData, error: insertError } = await supabase
+        const { data: createdData, error: insertError } = await supabaseClient
           .from('daily_routines')
           .insert(defaultRoutine)
           .select()
@@ -151,7 +155,7 @@ export function useMorningRoutineSupabase(selectedDate: Date) {
       setMorningRoutine(updatedRoutine);
 
       // Update database - use snake_case column names to match schema
-      const { error: updateError } = await supabase
+      const { error: updateError } = await supabaseClient
         .from('daily_routines')
         .update({
           items: updatedItems,
