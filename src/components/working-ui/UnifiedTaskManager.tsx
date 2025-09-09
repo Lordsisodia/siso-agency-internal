@@ -153,14 +153,14 @@ export const UnifiedTaskManager: React.FC<UnifiedTaskManagerProps> = ({
               <div
                 key={task.id}
                 className={`
-                  p-4 rounded-lg border transition-all duration-200 w-full
+                  p-5 rounded-xl border-2 transition-all duration-200 w-full shadow-lg hover:shadow-xl
                   ${task.completed 
                     ? themeConfig.colors.completed
                     : task.isPushed
                       ? 'bg-purple-900/20 border-purple-700/50 text-purple-100 hover:border-purple-600/50 hover:bg-purple-800/30'
                       : workType === 'DEEP' 
-                        ? `bg-blue-800/50 border-blue-700/50 text-blue-50 ${themeConfig.colors.hover}`
-                        : `bg-emerald-800/50 border-emerald-700/50 text-emerald-50 ${themeConfig.colors.hover}`
+                        ? `bg-blue-800/40 border-blue-600/60 text-blue-50 ${themeConfig.colors.hover} hover:border-blue-500/80`
+                        : `bg-emerald-800/40 border-emerald-600/60 text-emerald-50 ${themeConfig.colors.hover} hover:border-emerald-500/80`
                   }
                 `}
               >
