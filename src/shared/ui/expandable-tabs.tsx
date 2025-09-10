@@ -49,29 +49,25 @@ const spanVariants = {
 
 const transition = { delay: 0.1, type: "spring", bounce: 0, duration: 0.6 };
 
-export function ExpandableTabs({
+export const ExpandableTabs = React.memo(function ExpandableTabs({
   tabs,
   className,
   activeColor = "text-primary",
   activeIndex,
   onChange,
 }: ExpandableTabsProps) {
-  const [selected, setSelected] = React.useState<number | null>(activeIndex ?? null);
   const outsideClickRef = React.useRef(null);
 
-  // Update internal state when activeIndex prop changes
-  React.useEffect(() => {
-    setSelected(activeIndex ?? null);
-  }, [activeIndex]);
+  // Use activeIndex prop directly - eliminates state synchronization race condition
+  const selected = activeIndex;
 
   // Don't collapse tabs on outside click - keep them expanded based on active page
   // useOnClickOutside(outsideClickRef, () => {
-  //   setSelected(null);
   //   onChange?.(null);
   // });
 
   const handleSelect = (index: number) => {
-    setSelected(index);
+    // Only call parent onChange - no local state to manage
     onChange?.(index);
   };
 
@@ -129,4 +125,4 @@ export function ExpandableTabs({
       })}
     </div>
   );
-}
+});

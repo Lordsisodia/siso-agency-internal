@@ -1,4 +1,4 @@
-import React, { useState, ReactNode } from 'react';
+import React, { useState, ReactNode, memo, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { format, addDays, subDays } from 'date-fns';
@@ -24,7 +24,7 @@ interface TabLayoutWrapperProps {
   children: (activeTab: string, navigateDay?: (direction: 'prev' | 'next') => void) => ReactNode;
 }
 
-export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({ 
+export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = memo(({ 
   selectedDate, 
   onDateChange, 
   children 
@@ -41,8 +41,8 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
     return relevantTab?.id || 'morning';
   };
 
-  // Calculate total XP from all sections
-  const getTotalXP = () => {
+  // Calculate total XP from all sections - memoized for performance
+  const getTotalXP = useMemo(() => {
     let totalXP = 0;
     let earnedXP = 0;
     
@@ -122,7 +122,7 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
       totalXP, 
       percentage: totalXP > 0 ? (earnedXP / totalXP) * 100 : 0 
     };
-  };
+  }, [data]);
 
   const [activeTabId, setActiveTabId] = useState<string>(
     searchParams.get('tab') || getSmartDefaultTab()
@@ -139,13 +139,13 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
     setSearchParams(newParams);
   }, [activeTabId, selectedDate, setSearchParams]);
 
-  // Day navigation
-  const navigateDay = (direction: 'prev' | 'next') => {
+  // Day navigation - memoized to prevent child re-renders
+  const navigateDay = useCallback((direction: 'prev' | 'next') => {
     const newDate = direction === 'next' 
       ? addDays(selectedDate, 1) 
       : subDays(selectedDate, 1);
     onDateChange(newDate);
-  };
+  }, [selectedDate, onDateChange]);
 
   // Tab navigation
   const navigateTab = (direction: 'prev' | 'next') => {
@@ -269,4 +269,6 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
       </div>
     </div>
   );
-};
+});
+
+TabLayoutWrapper.displayName = 'TabLayoutWrapper';
