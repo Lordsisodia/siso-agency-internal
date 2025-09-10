@@ -1,48 +1,31 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardHeader } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
 import { Badge } from '@/shared/ui/badge';
 import { 
-  CheckCircle2, 
   Circle, 
   ChevronDown, 
   ChevronUp, 
   Calendar, 
-  Plus, 
-  Settings,
-  ArrowRight,
-  Target,
-  Dumbbell,
-  Heart,
-  Coffee,
-  Sun,
-  Zap,
-  Brain,
-  Timer,
-  Mic,
-  Camera,
-  TrendingUp,
-  Flame,
-  Clock,
-  Award,
-  Activity,
-  Star,
-  Sparkles,
-  CheckCircle,
+  Plus,
   ChevronLeft,
   ChevronRight,
-  MoreHorizontal,
   Eye,
   EyeOff
 } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
-import { LifeLockService, DailyRoutine, DailyWorkout, DailyHealth, DailyHabits, DailyReflections } from '@/ai-first/core/task.service';
-import { EnhancedTaskService, EnhancedTask } from '@/ai-first/core/task.service';
-import { format } from 'date-fns';
 import { FocusSessionTimer } from './FocusSessionTimer';
-import SisoDeepFocusPlan from '@/shared/ui/siso-deep-focus-plan';
 import { MilkTracker } from './MilkTracker';
+
+// Extracted components
+import { MobileSectionCard } from '@/shared/components/InteractiveTodayCard/MobileSectionCard';
+import { TaskSectionGrid } from '@/shared/components/InteractiveTodayCard/TaskSectionGrid';
+import { QuickActions } from '@/shared/components/InteractiveTodayCard/QuickActions';
+import { DailyInsights } from '@/shared/components/InteractiveTodayCard/DailyInsights';
+
+// Extracted hook
+import { useLifeLockDataLoader } from '@/shared/hooks/useLifeLockDataLoader';
 
 interface TaskCard {
   id: string;

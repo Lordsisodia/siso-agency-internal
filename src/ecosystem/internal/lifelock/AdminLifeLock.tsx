@@ -30,6 +30,7 @@ import { isFeatureEnabled, useImplementation } from '@/migration/feature-flags';
 import { useFeatureFlags } from '@/shared/hooks/useFeatureFlags';
 import { LoadingState } from '@/shared/ui/loading-state';
 import { theme } from '@/styles/theme';
+import { FloatingAIAssistant } from '@/shared/components/FloatingAIAssistant';
 
 // Refactored components and hooks
 import { LifeLockTabRenderer, LifeLockDateNavigation } from './components';

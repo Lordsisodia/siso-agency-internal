@@ -13,6 +13,7 @@ import { ThoughtDumpResults } from '@/components/admin/lifelock/ui/ThoughtDumpRe
 import { eisenhowerMatrixOrganizer, EisenhowerMatrixResult } from '@/ai-first/core/task.service';
 import { EisenhowerMatrixModal } from '@/components/admin/lifelock/ui/EisenhowerMatrixModal';
 import { Lock, Calendar } from 'lucide-react';
+import { FloatingAIAssistant } from '@/shared/components/FloatingAIAssistant';
 
 interface TaskCard {
   id: string;
@@ -386,6 +387,19 @@ const AdminLifeLock: React.FC = () => {
           onReanalyze={handleReanalyze}
         />
       )}
+
+      {/* Floating AI Assistant */}
+      <FloatingAIAssistant
+        context="lifelock"
+        onTaskCreated={(task) => {
+          console.log('✅ Task created from AI:', task);
+          // Trigger refresh to show new task
+          setRefreshTrigger(prev => prev + 1);
+        }}
+        onSessionComplete={(session) => {
+          console.log('🏁 AI session completed:', session);
+        }}
+      />
     </AdminLayout>
   );
 };
