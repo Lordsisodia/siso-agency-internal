@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc"; // Using plugin-react-swc which is already in the project
 import path from "path";
 import { apiRoutesPlugin } from "./vite-api-plugin";
+import { VitePWA } from 'vite-plugin-pwa';
 
 // [Analysis] Implementing granular code splitting for optimal chunk sizes
 // [Plan] Monitor performance impact and adjust splits if needed
@@ -35,7 +36,120 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     react(), 
-    apiRoutesPlugin() // Re-enable API plugin for development
+    apiRoutesPlugin(), // Re-enable API plugin for development
+    VitePWA({
+      registerType: 'autoUpdate',
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,json,vue,txt,woff2}'],
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/api\.*/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'api-cache',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 60 * 24 * 7 // 7 days
+              },
+              networkTimeoutSeconds: 10,
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          {
+            urlPattern: /^https:\/\/.*\.supabase\.co\/rest\/v1\/.*$/,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'supabase-cache',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24 // 1 day
+              },
+              networkTimeoutSeconds: 5,
+              cacheableResponse: {
+                statuses: [200]
+              }
+            }
+          },
+          {
+            urlPattern: ({ request }) => request.destination === 'image',
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'images-cache',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+              }
+            }
+          },
+          {
+            urlPattern: ({ request }) => request.destination === 'document',
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'pages-cache',
+              networkTimeoutSeconds: 3
+            }
+          }
+        ]
+      },
+      manifest: {
+        name: 'SISO Internal - Offline Productivity Hub',
+        short_name: 'SISO Local',
+        description: 'Offline-first productivity dashboard that works without internet',
+        theme_color: '#ea384c',
+        background_color: '#000000',
+        display: 'standalone',
+        orientation: 'any',
+        scope: '/',
+        start_url: '/',
+        icons: [
+          {
+            src: '/icon-192x192.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'any maskable'
+          },
+          {
+            src: '/icon-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any maskable'
+          }
+        ],
+        shortcuts: [
+          {
+            name: 'LifeLock Dashboard',
+            short_name: 'LifeLock',
+            description: 'Open LifeLock productivity dashboard',
+            url: '/admin/life-lock',
+            icons: [{ src: '/icon-96x96.png', sizes: '96x96' }]
+          },
+          {
+            name: 'Analytics',
+            short_name: 'Analytics',
+            description: 'View productivity analytics',
+            url: '/admin/analytics',
+            icons: [{ src: '/icon-96x96.png', sizes: '96x96' }]
+          },
+          {
+            name: 'Tasks',
+            short_name: 'Tasks',
+            description: 'Manage tasks offline',
+            url: '/admin/tasks',
+            icons: [{ src: '/icon-96x96.png', sizes: '96x96' }]
+          }
+        ]
+      },
+      devOptions: {
+        enabled: mode === 'development',
+        type: 'module',
+        navigateFallback: 'index.html'
+      }
+    })
   ],
   
   // M4 Mac Mini Optimizations

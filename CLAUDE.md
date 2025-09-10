@@ -147,6 +147,57 @@ describe('TaskCard', () => {
 - Cumulative Layout Shift < 0.1
 - First Input Delay < 100ms
 
+## 🚨 **CRITICAL SAFETY PROTOCOLS**
+
+### 🛡️ **NEVER BREAK THE APP - Mandatory Safeguards**
+
+**BEFORE making ANY changes to routing, core components, or architecture:**
+
+1. **🔍 ALWAYS analyze existing patterns first**
+   - Read the current implementation thoroughly
+   - Understand data flow and component relationships
+   - Identify exactly which components handle UI/data
+
+2. **📸 Create safety checkpoints**
+   - Run `git status` and commit working state first
+   - Document current URL paths and test them
+   - Take screenshots of working UI if doing UI changes
+
+3. **🧪 Use incremental approach**
+   - Make ONE small change at a time
+   - Test immediately after each change
+   - NEVER modify multiple core files simultaneously
+
+4. **⛔ FORBIDDEN ACTIONS without explicit approval**
+   - Modifying AdminLifeLock.tsx routing logic
+   - Changing tab-config.ts without testing all tabs
+   - Creating components with mock data in production paths
+   - Removing or replacing working UI components
+   - Modifying App.tsx routing without full testing
+
+5. **✅ Mandatory testing protocol**
+   - Test ALL navigation tabs after routing changes
+   - Verify UI looks identical to before (use screenshots)
+   - Test in both development and production modes
+   - Confirm no console errors or crashes
+
+### 🔄 **Rollback Strategy - Always Ready**
+
+**If ANY errors occur during implementation:**
+1. `git restore <modified-files>` immediately
+2. `rm` any new files created
+3. Test that original functionality works
+4. THEN analyze what went wrong
+
+### 🎯 **Architecture Change Protocol**
+
+**For major changes like tab unification:**
+1. **Plan phase**: Document exact approach without coding
+2. **Prototype phase**: Create isolated test components first  
+3. **Integration phase**: Test with real data in development
+4. **Validation phase**: Compare with original UI pixel-by-pixel
+5. **Deployment phase**: Only after thorough testing
+
 ## 🚨 **Common Pitfalls to Avoid**
 
 1. **No Tests**: Always request test coverage
@@ -155,6 +206,9 @@ describe('TaskCard', () => {
 4. **Type Safety**: Avoid `any` types
 5. **Error Handling**: Implement proper error boundaries
 6. **Performance**: Avoid unnecessary re-renders
+7. **🆕 Breaking Working UI**: Never replace working components with mock versions
+8. **🆕 Routing Chaos**: Never modify core routing without comprehensive testing
+9. **🆕 Architecture Destruction**: Never change fundamental patterns without isolation testing
 
 ## 💡 **AI Assistant Guidelines**
 

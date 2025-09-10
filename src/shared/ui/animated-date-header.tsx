@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Flame, Trophy, Calendar } from 'lucide-react';
+import { Flame, Trophy, Calendar, Zap, TrendingUp } from 'lucide-react';
 import { format, isToday, isTomorrow, isYesterday } from 'date-fns';
+import { OfflineIndicator } from '@/shared/components/OfflineIndicator';
 
 interface AnimatedDateHeaderProps {
   selectedDate: Date;
@@ -81,15 +82,26 @@ export const AnimatedDateHeader: React.FC<AnimatedDateHeaderProps> = ({
               </motion.h1>
             </AnimatePresence>
             
-            <motion.p
-              className="text-gray-400 text-sm md:text-base flex items-center gap-2"
+            <motion.div
+              className="flex items-center gap-3"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4 }}
             >
-              <Calendar className="h-4 w-4" />
-              {dateInfo.formattedDate}
-            </motion.p>
+              <p className="text-gray-400 text-sm md:text-base flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                {dateInfo.formattedDate}
+              </p>
+              
+              {/* Offline Indicator */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.6 }}
+              >
+                <OfflineIndicator />
+              </motion.div>
+            </motion.div>
           </div>
         </div>
 
