@@ -1,0 +1,1 @@
+export { prepareTabProps } from './tabPropsPreparation';
