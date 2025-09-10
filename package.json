@@ -80,6 +80,7 @@
     "express": "^5.1.0",
     "framer-motion": "^12.23.12",
     "groq-sdk": "^0.29.0",
+    "idb": "^8.0.3",
     "input-otp": "^1.2.4",
     "jotai": "^2.12.3",
     "lucide-react": "^0.474.0",
@@ -114,6 +115,8 @@
     "usehooks-ts": "^3.1.1",
     "uuid": "^9.0.1",
     "vaul": "^0.9.3",
+    "vite-plugin-pwa": "^1.0.3",
+    "workbox-window": "^7.3.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {

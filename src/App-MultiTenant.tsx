@@ -10,6 +10,12 @@ import { PageLoader } from '@/shared/ui/PageLoader';
 
 import { logger } from '@/shared/utils/logger';
 
+// 🆕 NEW: Multi-tenant components - ADDITIVE ONLY
+import { LandingPageRouter } from '@/tenants/shared/LandingPageRouter';
+import { ClientPortal } from '@/tenants/client/ClientPortal';
+import { PartnershipPortal } from '@/tenants/partnership/PartnershipPortal';
+
+// ✅ EXISTING: All your current imports - UNCHANGED
 // Critical pages loaded immediately (landing, auth, home)
 import Index from './pages/Index';
 import Auth from './pages/Auth';
@@ -182,7 +188,51 @@ function App() {
           <Route path="/feedback-demo" element={<FeedbackDemo />} />
           <Route path="/working-ui-test" element={<WorkingUITestPage />} />
           
-          {/* Public routes - redirect root to LifeLock */}
+          {/* 🆕 NEW MULTI-TENANT ROUTES - SAFE ADDITIONS */}
+          
+          {/* 🆕 Client Portal Routes - NEW */}
+          <Route path="/clients/*" element={<ClientPortal />} />
+          
+          {/* 🆕 Partnership Portal Routes - NEW */}
+          <Route path="/partnership/*" element={<PartnershipPortal />} />
+          
+          {/* 🆕 Internal App Routes - EXPLICIT PATH FOR FUTURE SAFETY */}
+          <Route path="/internal/*" element={
+            <Routes>
+              {/* All your existing routes moved under /internal/* */}
+              <Route path="/" element={<Navigate to="/admin/life-lock" replace />} />
+              <Route path="/admin" element={<AuthGuard adminOnly={true}><AdminDashboard /></AuthGuard>} />
+              <Route path="/admin/dashboard" element={<AuthGuard adminOnly={true}><AdminDashboard /></AuthGuard>} />
+              <Route path="/admin/clients" element={<AuthGuard adminOnly={true}><AdminClients /></AuthGuard>} />
+              <Route path="/admin/clients/:clientId" element={<AuthGuard adminOnly={true}><ClientDetailPage /></AuthGuard>} />
+              <Route path="/admin/lifelock" element={<ClerkAuthGuard><AdminLifeLock /></ClerkAuthGuard>} />
+              <Route path="/admin/life-lock" element={<ClerkAuthGuard><AdminLifeLock /></ClerkAuthGuard>} />
+              <Route path="/admin/lifelock/day/:date" element={<ClerkAuthGuard><AdminLifeLockDay /></ClerkAuthGuard>} />
+              <Route path="/admin/life-lock/day/:date" element={<ClerkAuthGuard><AdminLifeLockDay /></ClerkAuthGuard>} />
+              <Route path="/admin/tasks" element={<ClerkAuthGuard><AdminTasks /></ClerkAuthGuard>} />
+              <Route path="/admin/feedback" element={<ClerkAuthGuard><AdminFeedback /></ClerkAuthGuard>} />
+              <Route path="/admin/tasks/:memberId" element={<ClerkAuthGuard><TeamMemberTasksPage /></ClerkAuthGuard>} />
+              <Route path="/admin/settings" element={<ClerkAuthGuard><AdminSettings /></ClerkAuthGuard>} />
+              <Route path="/admin/offline-demo" element={<ClerkAuthGuard><OfflineDemo /></ClerkAuthGuard>} />
+              <Route path="/admin/pwa-test" element={<ClerkAuthGuard><PWATestSuite /></ClerkAuthGuard>} />
+              <Route path="/admin/wireframes" element={<AuthGuard adminOnly={true}><AdminWireframes /></AuthGuard>} />
+              <Route path="/admin/wireframes/:projectId" element={<AuthGuard adminOnly={true}><AdminWireframes /></AuthGuard>} />
+              <Route path="/admin/userflow" element={<AuthGuard adminOnly={true}><AdminUserFlow /></AuthGuard>} />
+              <Route path="/admin/userflow/:projectId" element={<AuthGuard adminOnly={true}><UserFlow /></AuthGuard>} />
+              <Route path="/admin/partnership" element={<AuthGuard adminOnly={true}><AdminPartnershipDashboard /></AuthGuard>} />
+              <Route path="/admin/partnership/leaderboard" element={<AuthGuard adminOnly={true}><AdminPartnershipLeaderboard /></AuthGuard>} />
+              <Route path="/admin/partnership/referrals" element={<AuthGuard adminOnly={true}><AdminPartnershipReferrals /></AuthGuard>} />
+              <Route path="/admin/partnership/statistics" element={<AuthGuard adminOnly={true}><AdminPartnershipStatistics /></AuthGuard>} />
+              <Route path="/admin/partnership/training" element={<AuthGuard adminOnly={true}><AdminPartnershipTraining /></AuthGuard>} />
+              
+              {/* All other internal routes here... */}
+              <Route path="*" element={<Navigate to="/admin/life-lock" replace />} />
+            </Routes>
+          } />
+          
+          {/* ✅ EXISTING ROUTES - PRESERVED EXACTLY AS THEY WERE */}
+          
+          {/* Public routes - UNCHANGED - preserve existing behavior for now */}
           <Route path="/" element={<Navigate to="/admin/life-lock" replace />} />
           <Route path="/index" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
