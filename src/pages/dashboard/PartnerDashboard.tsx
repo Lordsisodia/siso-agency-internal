@@ -255,7 +255,6 @@ const PartnerDashboard = () => {
       <div className="row-6">
         <SupportCenter />
       </div>
-
       </div>
     </PartnershipLayout>
   );
