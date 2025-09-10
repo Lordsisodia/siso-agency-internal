@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, memo, useCallback } from 'react';
 import { AdminLayout } from '@/internal/admin/layout/AdminLayout';
 import { format, addWeeks, getYear, isToday } from 'date-fns';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -30,7 +30,7 @@ import { isFeatureEnabled, useImplementation } from '@/migration/feature-flags';
 import { LoadingState } from '@/shared/ui/loading-state';
 import { theme } from '@/styles/theme';
 
-const AdminLifeLock: React.FC = () => {
+const AdminLifeLock: React.FC = memo(() => {
   const navigate = useNavigate();
   const { date } = useParams<{ date: string }>();
   const [searchParams] = useSearchParams();
@@ -148,12 +148,12 @@ const AdminLifeLock: React.FC = () => {
     return Math.min(percentage, 100); // Cap at 100%
   }, [selectedDate, currentTime]);
 
-  // Navigation handlers
-  const handleCardClick = (card: any) => {
+  // Navigation handlers - memoized for performance
+  const handleCardClick = useCallback((card: any) => {
     navigate(`/admin/lifelock/day/${format(card.date, 'yyyy-MM-dd')}`);
-  };
+  }, [navigate]);
 
-  const handleDateChange = (newDate: Date) => {
+  const handleDateChange = useCallback((newDate: Date) => {
     // Stay on the same route, just update the date parameter
     const currentTab = new URLSearchParams(window.location.search).get('tab') || 'morning';
     const newDateStr = format(newDate, 'yyyy-MM-dd');
@@ -163,7 +163,7 @@ const AdminLifeLock: React.FC = () => {
       tab: currentTab
     });
     navigate(`/admin/lifelock?tab=${currentTab}&date=${newDateStr}`);
-  };
+  }, [selectedDate, navigate]);
   
   // Date navigation - arrows navigate between different days
 
@@ -393,6 +393,8 @@ const AdminLifeLock: React.FC = () => {
       )}
     </div>
   );
-};
+});
+
+AdminLifeLock.displayName = 'AdminLifeLock';
 
 export default AdminLifeLock;

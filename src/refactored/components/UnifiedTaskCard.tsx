@@ -252,9 +252,10 @@ export const UnifiedTaskCard: React.FC<TaskCardProps> = memo(({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
       className="relative"
+      layout={false}
     >
       <Card className={cn(
         themeConfig.background,
@@ -365,10 +366,12 @@ export const UnifiedTaskCard: React.FC<TaskCardProps> = memo(({
           <AnimatePresence>
             {isExpanded && showSubtasks && (
               <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                className="mt-4 ml-7 space-y-2"
+                initial={{ opacity: 0, scaleY: 0 }}
+                animate={{ opacity: 1, scaleY: 1 }}
+                exit={{ opacity: 0, scaleY: 0 }}
+                transition={{ duration: 0.2, ease: 'easeInOut' }}
+                style={{ transformOrigin: 'top' }}
+                className="mt-4 ml-7 space-y-2 overflow-hidden"
               >
                 {/* Subtasks */}
                 {task.subtasks?.map((subtask) => (
