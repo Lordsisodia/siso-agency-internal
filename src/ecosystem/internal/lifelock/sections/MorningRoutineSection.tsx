@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useExceptionalPerformanceMonitor } from '@/hooks/useExceptionalPerformanceMonitor';
+import { useExceptionalAccessibility } from '@/hooks/useExceptionalAccessibility';
 import { motion } from 'framer-motion';
+import { useSwipeable } from 'react-swipeable';
 import { 
   Sun,
   CheckCircle2,
@@ -19,6 +22,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
 import { Checkbox } from '@/shared/ui/checkbox';
 import { Input } from '@/shared/ui/input';
+import { ExceptionalAnimatedCheckbox } from '@/components/ui/exceptional-animated-checkbox';
+import { ExceptionalProgressCounter } from '@/components/ui/exceptional-progress-counter';
+import { ExceptionalAnimatedTaskIcon } from '@/components/ui/exceptional-animated-task-icon';
+import { ExceptionalSwipeHint } from '@/components/ui/exceptional-swipe-hint';
 import { format } from 'date-fns';
 import { cn } from '@/shared/lib/utils';
 import { useClerkUser } from '@/shared/ClerkProvider';
@@ -67,7 +74,7 @@ const MORNING_ROUTINE_TASKS = useImplementation(
   },
   {
     key: 'getBloodFlowing' as const,
-    title: 'Get Blood Flowing (5 min)',
+    title: 'Get Blood Flowing',
     description: 'Max rep push-ups (Target PB: 30) - Physical activation to wake up the body.',
     timeEstimate: '5 min',
     icon: Dumbbell,
@@ -138,6 +145,26 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Exceptional performance and accessibility monitoring
+  const performance = useExceptionalPerformanceMonitor({
+    enableMemoryMonitoring: true,
+    enableFPSMonitoring: true,
+    enableInteractionTracking: true,
+    onPerformanceIssue: (issue) => {
+      console.warn('Performance issue detected:', issue);
+      accessibility.announce(`Performance adjusted for better experience`, 'polite');
+    }
+  });
+
+  const accessibility = useExceptionalAccessibility({
+    enableMetrics: true,
+    enableAdaptiveInterface: true,
+    enableCognitiveSupport: true,
+    onAccessibilityIssue: (issue) => {
+      console.warn('Accessibility issue detected:', issue);
+    }
+  });
+
   const [wakeUpTime, setWakeUpTime] = useState<string>(() => {
     const dateKey = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd');
     const saved = localStorage.getItem(`lifelock-${dateKey}-wakeUpTime`);
@@ -145,6 +172,9 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
   });
 
   const [isEditingWakeTime, setIsEditingWakeTime] = useState(false);
+  const [showSwipeHint, setShowSwipeHint] = useState(() => {
+    return !localStorage.getItem('morning-routine-swipe-hint-dismissed');
+  });
 
   // Load morning routine data
   useEffect(() => {
@@ -174,9 +204,12 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
     localStorage.setItem(`lifelock-${dateKey}-wakeUpTime`, wakeUpTime);
   }, [wakeUpTime, selectedDate]);
 
-  // Handle habit toggle
+  // Handle habit toggle with performance and accessibility tracking
   const handleHabitToggle = async (habitKey: string, completed: boolean) => {
     if (!user?.id || !selectedDate || !morningRoutine) return;
+    
+    const interactionStart = performance.now();
+    accessibility.trackInteractionStart();
     
     try {
       await workTypeApiClient.updateMorningRoutineHabit(
@@ -188,8 +221,25 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
       // Refresh the morning routine data
       const updatedData = await workTypeApiClient.getMorningRoutine(user.id, selectedDate);
       setMorningRoutine(updatedData);
+      
+      // Track successful interaction
+      accessibility.trackInteractionComplete(true);
+      performance.trackInteraction(interactionStart);
+      
+      // Announce completion for screen readers
+      const taskName = MORNING_ROUTINE_TASKS.find(task => task.key === habitKey)?.title || habitKey;
+      accessibility.announce(
+        completed ? `${taskName} completed` : `${taskName} marked incomplete`,
+        'polite'
+      );
+      
     } catch (error) {
       console.error('Error updating habit:', error);
+      accessibility.trackInteractionComplete(false);
+      accessibility.handleAccessibilityError(
+        error as Error,
+        `Updating habit: ${habitKey}`
+      );
     }
   };
 
@@ -203,6 +253,12 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
   const setCurrentTimeAsWakeUp = () => {
     setWakeUpTime(getCurrentTime());
     setIsEditingWakeTime(false);
+  };
+
+  // Handle dismissing swipe hint
+  const dismissSwipeHint = () => {
+    setShowSwipeHint(false);
+    localStorage.setItem('morning-routine-swipe-hint-dismissed', 'true');
   };
 
   // Calculate progress based on completed tasks and subtasks
@@ -273,34 +329,73 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
   }
 
   return (
-    <div className={useImplementation(
-      'useUnifiedThemeSystem',
-      // NEW: Unified theme system
-      `min-h-screen w-full ${theme.backgrounds.solid.gray900}`,
-      // OLD: Original classes (fallback for safety)
-      'min-h-screen w-full bg-gray-900'
-    )}>
+    <div 
+      className={useImplementation(
+        'useUnifiedThemeSystem',
+        // NEW: Unified theme system
+        `min-h-screen w-full ${theme.backgrounds.solid.gray900}`,
+        // OLD: Original classes (fallback for safety)
+        'min-h-screen w-full bg-gray-900'
+      )}
+      style={{
+        ...accessibility.adaptiveStyles,
+        '--performance-mode': performance.performanceMode,
+        '--animation-speed': performance.optimalSettings.animationDuration
+      }}
+      role="main"
+      aria-label={accessibility.createAriaLabel('Morning Routine Dashboard', `${Math.round(morningRoutineProgress)}% complete`)}
+    >
       <div className="max-w-7xl mx-auto p-3 sm:p-4 md:p-6 lg:p-8 space-y-6">
         
         {/* Morning Routine Card */}
-        <Card className="bg-yellow-900/20 border-yellow-700/50">
+        <Card 
+          className="bg-yellow-900/20 border-yellow-700/50"
+          role="region"
+          aria-labelledby="morning-routine-title"
+          aria-describedby="morning-routine-description"
+          tabIndex={accessibility.features.keyboardNavigation ? 0 : -1}
+        >
           <CardHeader className="p-4 sm:p-6">
-            <CardTitle className="flex items-center justify-between text-yellow-400 text-base sm:text-lg">
+            <CardTitle 
+              id="morning-routine-title"
+              className="flex items-center justify-between text-yellow-400 text-base sm:text-lg"
+            >
               <div className="flex items-center">
-                <Sun className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                🌅 Morning Routine
+                <Sun className="h-4 w-4 sm:h-5 sm:w-5 mr-2" aria-hidden="true" />
+                <span role="text">🌅 Morning Routine</span>
               </div>
-              <div className="text-sm font-medium">
+              <div 
+                className="text-sm font-medium"
+                role="status"
+                aria-live="polite"
+                aria-label={`${Math.round(morningRoutineProgress)}% of morning routine completed`}
+              >
                 {Math.round(morningRoutineProgress)}% Complete
               </div>
             </CardTitle>
             
             {/* Progress Bar */}
-            <div className="w-full bg-yellow-900/20 rounded-full h-2 mt-4">
+            <div 
+              className="w-full bg-yellow-900/20 rounded-full h-2 mt-4"
+              role="progressbar"
+              aria-valuenow={Math.round(morningRoutineProgress)}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label="Morning routine completion progress"
+            >
               <motion.div
                 className="bg-gradient-to-r from-yellow-400 to-yellow-600 h-2 rounded-full transition-all duration-500"
                 initial={{ width: 0 }}
-                animate={{ width: `${morningRoutineProgress}%` }}
+                animate={{ 
+                  width: `${morningRoutineProgress}%`,
+                  transition: { 
+                    duration: performance.optimalSettings.animationDuration,
+                    ease: "easeOut"
+                  }
+                }}
+                style={{
+                  filter: accessibility.preferences.prefersHighContrast ? 'contrast(1.5)' : 'none'
+                }}
               />
             </div>
 
@@ -340,32 +435,74 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
                   <div key={task.key} className="group bg-yellow-900/10 border border-yellow-700/30 rounded-xl hover:bg-yellow-900/15 hover:border-yellow-600/40 transition-all duration-300 hover:shadow-lg hover:shadow-yellow-500/5">
                     {/* Main Task Header */}
                     <div className="flex items-start space-x-2 sm:space-x-3 p-2 sm:p-3">
-                      <Checkbox
+                      <ExceptionalAnimatedCheckbox
                         checked={isMainTaskCompleted}
                         onCheckedChange={(checked) => handleHabitToggle(task.key, !!checked)}
-                        className="mt-1 border-yellow-600 data-[state=checked]:bg-yellow-600 data-[state=checked]:border-yellow-600"
+                        className="mt-1"
+                        size="md"
+                        showCelebration={task.subtasks.length === 0}
+                        taskDifficulty={
+                          task.key === 'getBloodFlowing' || task.key === 'planDay' ? 'hard' :
+                          task.key === 'freshenUp' ? 'medium' :
+                          'easy'
+                        }
+                        completionStreak={0} // TODO: Track completion streaks
+                        contextualPriority={
+                          task.key === 'wakeUp' || task.key === 'planDay' ? 'high' :
+                          task.key === 'meditation' ? 'medium' :
+                          'low'
+                        }
                       />
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-2">
-                            <IconComponent className="h-5 w-5 text-yellow-400" />
+                            <ExceptionalAnimatedTaskIcon 
+                              icon={IconComponent}
+                              isCompleted={isMainTaskCompleted}
+                              size="md"
+                              taskType={
+                                task.key === 'getBloodFlowing' ? 'workout' :
+                                task.key === 'freshenUp' ? 'hygiene' :
+                                task.key === 'powerUpBrain' ? 'nutrition' :
+                                task.key === 'planDay' ? 'planning' :
+                                task.key === 'meditation' ? 'meditation' :
+                                'default'
+                              }
+                              completionStreak={0} // TODO: Track completion streaks
+                              taskDifficulty={
+                                task.key === 'getBloodFlowing' || task.key === 'planDay' ? 'hard' :
+                                task.key === 'freshenUp' ? 'medium' :
+                                'easy'
+                              }
+                              timeOfDay="morning"
+                              showProgress={task.subtasks.length > 0}
+                              progress={task.subtasks.length > 0 ? (completedSubtasks / task.subtasks.length) * 100 : 0}
+                            />
                             <h4 className="text-yellow-100 font-semibold text-sm sm:text-base">{task.title}</h4>
                             <span className="text-xs text-gray-400">({task.timeEstimate})</span>
                           </div>
                           {task.subtasks.length > 0 && (
-                            <div className="relative">
-                              <div className="bg-gradient-to-r from-yellow-500/20 to-yellow-400/20 border border-yellow-400/40 rounded-full px-3 py-1.5 ml-2 shadow-sm">
-                                <span className="text-xs text-yellow-300 font-semibold tracking-wide">
-                                  {completedSubtasks}/{task.subtasks.length}
-                                </span>
-                              </div>
-                              {/* Progress completion indicator */}
-                              {completedSubtasks === task.subtasks.length && task.subtasks.length > 0 && (
-                                <div className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full animate-pulse shadow-lg">
-                                  <div className="absolute inset-0.5 bg-green-300 rounded-full animate-ping"></div>
-                                </div>
-                              )}
-                            </div>
+                            <ExceptionalProgressCounter
+                              current={completedSubtasks}
+                              total={task.subtasks.length}
+                              className="ml-2"
+                              showCelebration={true}
+                              taskType={
+                                task.key === 'getBloodFlowing' ? 'workout' :
+                                task.key === 'freshenUp' ? 'hygiene' :
+                                task.key === 'powerUpBrain' ? 'nutrition' :
+                                task.key === 'planDay' ? 'planning' :
+                                task.key === 'meditation' ? 'meditation' :
+                                'planning'
+                              }
+                              completionStreak={0} // TODO: Track completion streaks
+                              taskDifficulty={
+                                task.key === 'getBloodFlowing' || task.key === 'planDay' ? 'hard' :
+                                task.key === 'freshenUp' ? 'medium' :
+                                'easy'
+                              }
+                              timeOfDay="morning"
+                            />
                           )}
                         </div>
                         {task.description && (
@@ -424,21 +561,41 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
                     
                     {/* Sub-tasks - Enhanced with better visual hierarchy */}
                     {task.subtasks.length > 0 && (
-                      <div className="mt-4 ml-8 space-y-3">
-                        {task.subtasks.map((subtask) => (
-                          <div
+                      <div className="mt-2 ml-6 space-y-2 border-l border-yellow-700/30 pl-4">
+                        {task.subtasks.map((subtask) => {
+                          const swipeHandlers = useSwipeable({
+                            onSwipedRight: () => handleHabitToggle(subtask.key, true),
+                            onSwipedLeft: () => handleHabitToggle(subtask.key, false),
+                            preventDefaultTouchmoveEvent: true,
+                            trackMouse: false,
+                            delta: 80
+                          });
+
+                          return (
+                          <motion.div
                             key={subtask.key}
-                            className="group flex items-center space-x-3 p-3 hover:bg-yellow-900/10 rounded-lg transition-all duration-200 hover:scale-[1.01]"
+                            {...swipeHandlers}
+                            className="group flex items-center space-x-3 p-3 sm:p-2 hover:bg-yellow-900/10 rounded-lg transition-all duration-200 min-h-[48px] sm:min-h-[40px] cursor-pointer"
+                            whileHover={{ scale: 1.01 }}
+                            whileTap={{ scale: 0.98 }}
                           >
-                            {/* Visual connector line */}
-                            <div className="relative">
-                              <div className="absolute -left-4 top-1/2 w-3 h-px bg-yellow-500/30"></div>
-                              <Checkbox
-                                checked={isHabitCompleted(subtask.key)}
-                                onCheckedChange={(checked) => handleHabitToggle(subtask.key, !!checked)}
-                                className="h-4 w-4 border-yellow-400/70 data-[state=checked]:bg-yellow-500 data-[state=checked]:border-yellow-500 transition-all duration-200 group-hover:border-yellow-400"
-                              />
-                            </div>
+                            <ExceptionalAnimatedCheckbox
+                              checked={isHabitCompleted(subtask.key)}
+                              onCheckedChange={(checked) => handleHabitToggle(subtask.key, !!checked)}
+                              size="sm"
+                              showCelebration={true}
+                              taskDifficulty={
+                                subtask.key === 'pushups' || subtask.key === 'thoughtDump' ? 'hard' :
+                                subtask.key === 'coldShower' || subtask.key === 'planDeepWork' ? 'medium' :
+                                'easy'
+                              }
+                              completionStreak={0} // TODO: Track individual subtask streaks
+                              contextualPriority={
+                                subtask.key === 'pushups' || subtask.key === 'thoughtDump' || subtask.key === 'planDeepWork' ? 'high' :
+                                subtask.key === 'coldShower' || subtask.key === 'water' ? 'medium' :
+                                'low'
+                              }
+                            />
                             <span className={cn(
                               "text-sm font-medium transition-all duration-200 flex-1",
                               isHabitCompleted(subtask.key)
@@ -448,10 +605,11 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
                               {subtask.title}
                             </span>
                             {isHabitCompleted(subtask.key) && (
-                              <CheckCircle2 className="h-3.5 w-3.5 text-green-400 animate-in zoom-in-50 duration-200" />
+                              <CheckCircle2 className="h-3.5 w-3.5 text-green-400 animate-in zoom-in-50 duration-200 flex-shrink-0" />
                             )}
                           </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     )}
                   </div>
@@ -462,6 +620,46 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
         </Card>
         
       </div>
+
+      {/* Exceptional Swipe Hint for Mobile Users */}
+      <ExceptionalSwipeHint 
+        show={showSwipeHint} 
+        onDismiss={dismissSwipeHint}
+        variant="floating"
+        gestureContext="subtasks"
+        adaptivePosition="auto"
+        swipeActions={{
+          right: { label: "Complete", color: "text-green-400" },
+          left: { label: "Undo", color: "text-red-400" }
+        }}
+      />
+
+      {/* ARIA Live Regions for Screen Reader Announcements */}
+      <div className="sr-only">
+        {accessibility.announcements.map((announcement, index) => {
+          const [priority, message] = announcement.split(':');
+          return (
+            <div
+              key={index}
+              aria-live={priority as 'polite' | 'assertive'}
+              aria-atomic="true"
+            >
+              {message}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Performance and Accessibility Debug Info (Development Only) */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="fixed bottom-4 right-4 bg-gray-800/90 backdrop-blur-sm text-xs text-gray-300 p-2 rounded border border-gray-600 max-w-xs">
+          <div>Performance: {performance.getPerformanceGrade()}</div>
+          <div>FPS: {performance.metrics.averageFPS}</div>
+          <div>Mode: {performance.performanceMode}</div>
+          <div>A11y Score: {accessibility.getAccessibilityScore()}</div>
+          <div>Features: {Object.entries(accessibility.features).filter(([k,v]) => v).map(([k]) => k).join(', ')}</div>
+        </div>
+      )}
     </div>
   );
 };

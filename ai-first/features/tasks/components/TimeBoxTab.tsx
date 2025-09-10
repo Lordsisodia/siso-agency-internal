@@ -17,6 +17,8 @@ import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
 import { StatisticalWeekView } from '../ui/StatisticalWeekView';
 import { TabProps } from '../DayTabContainer';
+import FunctionalTimeBox from '@/components/timebox/FunctionalTimeBox';
+import { TimeBoxAIAssistant } from '@/shared/components/TimeBoxAIAssistant';
 import { timeboxApi, DaySchedule, TimeBoxTask, TimeBoxStats } from '@/api/timeboxApi';
 import { format } from 'date-fns';
 
@@ -28,11 +30,7 @@ export const TimeBoxTab: React.FC<TabProps> = ({
   onNavigateWeek,
   onCardClick
 }) => {
-  const [schedule, setSchedule] = useState<DaySchedule | null>(null);
-  const [stats, setStats] = useState<TimeBoxStats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [activeTimer, setActiveTimer] = useState<string | null>(null);
-  
+  const [timeBoxRefreshTrigger, setTimeBoxRefreshTrigger] = useState(0);
   const weekStart = weekCards[0]?.date || new Date();
   const weekEnd = weekCards[6]?.date || new Date();
   
@@ -42,56 +40,6 @@ export const TimeBoxTab: React.FC<TabProps> = ({
     acc + card.tasks.filter((task: any) => task.completed).length, 0
   );
   const weekCompletion = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
-
-  // Load TimeBox data
-  useEffect(() => {
-    loadTimeBoxData();
-  }, [refreshTrigger]);
-
-  const loadTimeBoxData = async () => {
-    try {
-      setLoading(true);
-      const [daySchedule, timeboxStats] = await Promise.all([
-        timeboxApi.getDaySchedule(),
-        timeboxApi.getTimeBoxStats()
-      ]);
-      setSchedule(daySchedule);
-      setStats(timeboxStats);
-    } catch (error) {
-      console.error('Failed to load TimeBox data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleTaskComplete = async (taskId: string) => {
-    try {
-      await timeboxApi.completeTask(taskId);
-      await loadTimeBoxData(); // Refresh data
-    } catch (error) {
-      console.error('Failed to complete task:', error);
-    }
-  };
-
-  const handleStartTimer = (taskId: string) => {
-    timeboxApi.startTimer(taskId);
-    setActiveTimer(taskId);
-  };
-
-  const handleStopTimer = (taskId: string) => {
-    const duration = timeboxApi.stopTimer(taskId);
-    setActiveTimer(null);
-    console.log(`Task completed in ${duration} minutes`);
-  };
-
-  const handleAutoSchedule = async () => {
-    try {
-      const optimizedSchedule = await timeboxApi.autoScheduleTasks();
-      setSchedule(optimizedSchedule);
-    } catch (error) {
-      console.error('Failed to auto-schedule:', error);
-    }
-  };
 
   return (
     <div className="p-4 space-y-6 bg-gradient-to-br from-black via-gray-900 to-black min-h-full">
@@ -133,28 +81,22 @@ export const TimeBoxTab: React.FC<TabProps> = ({
       >
         <Card className="bg-gradient-to-br from-purple-900/40 to-pink-900/40 border-purple-400/30">
           <CardContent className="p-4 text-center">
-            <div className="text-xl font-bold text-purple-300">
-              {loading ? '...' : stats?.totalScheduledTasks || 0}
-            </div>
-            <div className="text-xs text-purple-400">Scheduled Tasks</div>
+            <div className="text-xl font-bold text-purple-300">{totalTasks}</div>
+            <div className="text-xs text-purple-400">Week Tasks</div>
           </CardContent>
         </Card>
         
         <Card className="bg-gradient-to-br from-green-900/40 to-emerald-900/40 border-green-400/30">
           <CardContent className="p-4 text-center">
-            <div className="text-xl font-bold text-green-300">
-              {loading ? '...' : stats?.tasksCompleted || 0}
-            </div>
-            <div className="text-xs text-green-400">Completed Today</div>
+            <div className="text-xl font-bold text-green-300">{completedTasks}</div>
+            <div className="text-xs text-green-400">Week Complete</div>
           </CardContent>
         </Card>
         
         <Card className="bg-gradient-to-br from-blue-900/40 to-cyan-900/40 border-blue-400/30">
           <CardContent className="p-4 text-center">
-            <div className="text-xl font-bold text-blue-300">
-              {loading ? '...' : Math.round(stats?.completionRate || 0)}%
-            </div>
-            <div className="text-xs text-blue-400">Completion Rate</div>
+            <div className="text-xl font-bold text-blue-300">{Math.round(weekCompletion)}%</div>
+            <div className="text-xs text-blue-400">Week Progress</div>
           </CardContent>
         </Card>
       </motion.div>
@@ -187,197 +129,16 @@ export const TimeBoxTab: React.FC<TabProps> = ({
         </Card>
       </motion.div>
 
-      {/* Functional TimeBox Schedule */}
+      {/* Professional Functional TimeBox */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
+        className="col-span-full"
       >
-        <Card className="bg-gradient-to-br from-gray-900/80 via-gray-800/60 to-gray-900/80 border-blue-400/30 shadow-xl">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Clock className="h-5 w-5 text-blue-400" />
-                <h3 className="text-lg font-semibold text-white">Today's Schedule</h3>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/40">
-                  {schedule?.scheduledTasks.length || 0} scheduled
-                </Badge>
-                <Button
-                  onClick={handleAutoSchedule}
-                  variant="outline"
-                  size="sm"
-                  className="text-blue-400 border-blue-400/50 hover:bg-blue-400/10"
-                >
-                  <Zap className="h-4 w-4 mr-1" />
-                  Auto-Schedule
-                </Button>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <div className="flex items-center justify-center py-8">
-                <div className="text-gray-400">Loading schedule...</div>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {/* Scheduled Tasks */}
-                {schedule?.scheduledTasks && schedule.scheduledTasks.length > 0 ? (
-                  <div className="space-y-3">
-                    <h4 className="text-sm font-semibold text-white mb-3">📅 Scheduled Tasks</h4>
-                    {schedule.scheduledTasks.map((task) => (
-                      <div
-                        key={task.id}
-                        className={`p-4 rounded-lg border-2 transition-all duration-200 ${
-                          task.completed
-                            ? 'bg-green-900/20 border-green-500/50'
-                            : task.isActive
-                            ? 'bg-blue-900/30 border-blue-400/70 shadow-lg shadow-blue-500/20'
-                            : 'bg-gray-800/50 border-gray-600/50 hover:border-gray-500/70'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-3">
-                              <button
-                                onClick={() => handleTaskComplete(task.id)}
-                                className={`transition-colors duration-200 ${
-                                  task.completed ? 'text-green-400' : 'text-gray-400 hover:text-white'
-                                }`}
-                              >
-                                {task.completed ? (
-                                  <CheckCircle2 className="h-5 w-5" />
-                                ) : (
-                                  <Clock className="h-5 w-5" />
-                                )}
-                              </button>
-                              <div>
-                                <h5 className={`font-medium ${task.completed ? 'text-green-300 line-through' : 'text-white'}`}>
-                                  {task.title}
-                                </h5>
-                                <p className="text-xs text-gray-400">
-                                  {task.scheduledSlot?.startTime} - {task.scheduledSlot?.endTime} • {task.estimatedDuration}m • {task.priority}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Badge
-                              variant="secondary"
-                              className={`text-xs ${
-                                task.taskType === 'deep_work'
-                                  ? 'bg-purple-500/20 text-purple-300 border-purple-500/40'
-                                  : 'bg-blue-500/20 text-blue-300 border-blue-500/40'
-                              }`}
-                            >
-                              {task.taskType === 'deep_work' ? '🧠 Deep' : '⚡ Light'}
-                            </Badge>
-                            {!task.completed && (
-                              <Button
-                                onClick={() => activeTimer === task.id ? handleStopTimer(task.id) : handleStartTimer(task.id)}
-                                variant="outline"
-                                size="sm"
-                                className={`text-xs ${
-                                  activeTimer === task.id
-                                    ? 'text-red-400 border-red-400/50 hover:bg-red-400/10'
-                                    : 'text-green-400 border-green-400/50 hover:bg-green-400/10'
-                                }`}
-                              >
-                                {activeTimer === task.id ? (
-                                  <>
-                                    <Pause className="h-3 w-3 mr-1" />
-                                    Stop
-                                  </>
-                                ) : (
-                                  <>
-                                    <Play className="h-3 w-3 mr-1" />
-                                    Start
-                                  </>
-                                )}
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-6">
-                    <Clock className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                    <p className="text-gray-400 mb-3">No tasks scheduled for today</p>
-                    <Button onClick={handleAutoSchedule} variant="outline" size="sm">
-                      Generate Schedule
-                    </Button>
-                  </div>
-                )}
-
-                {/* Unscheduled Tasks */}
-                {schedule?.unscheduledTasks && schedule.unscheduledTasks.length > 0 && (
-                  <div className="space-y-3 border-t border-gray-700 pt-4">
-                    <h4 className="text-sm font-semibold text-white mb-3">📋 Unscheduled Tasks</h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {schedule.unscheduledTasks.slice(0, 6).map((task) => (
-                        <div
-                          key={task.id}
-                          className="p-3 rounded-lg bg-gray-800/30 border border-gray-600/30 hover:border-gray-500/50 transition-colors duration-200"
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1 min-w-0">
-                              <h6 className="text-sm font-medium text-white truncate">{task.title}</h6>
-                              <p className="text-xs text-gray-400">
-                                {task.estimatedDuration}m • {task.priority}
-                              </p>
-                            </div>
-                            <Badge
-                              variant="secondary"
-                              className={`text-xs ml-2 ${
-                                task.taskType === 'deep_work'
-                                  ? 'bg-purple-500/20 text-purple-300'
-                                  : 'bg-blue-500/20 text-blue-300'
-                              }`}
-                            >
-                              {task.taskType === 'deep_work' ? '🧠' : '⚡'}
-                            </Badge>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    {schedule.unscheduledTasks.length > 6 && (
-                      <p className="text-xs text-gray-500 text-center">
-                        +{schedule.unscheduledTasks.length - 6} more unscheduled tasks
-                      </p>
-                    )}
-                  </div>
-                )}
-
-                {/* Quick Stats */}
-                {stats && (
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 border-t border-gray-700 pt-4">
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-blue-300">{Math.round(stats.totalFocusTime / 60 * 10) / 10}h</div>
-                      <div className="text-xs text-blue-400">Focus Time</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-green-300">{stats.xpEarned}</div>
-                      <div className="text-xs text-green-400">XP Earned</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-purple-300">{Math.round(stats.averageTaskDuration)}m</div>
-                      <div className="text-xs text-purple-400">Avg Duration</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-orange-300">{stats.mostProductiveHour}</div>
-                      <div className="text-xs text-orange-400">Peak Hour</div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <FunctionalTimeBox />
       </motion.div>
+
 
       {/* Monthly Progress Dots */}
       <motion.div
@@ -490,6 +251,19 @@ export const TimeBoxTab: React.FC<TabProps> = ({
           </CardContent>
         </Card>
       </motion.div>
+
+      {/* TimeBox AI Assistant */}
+      <TimeBoxAIAssistant
+        context="timebox"
+        onTaskScheduled={(taskId) => {
+          console.log('✅ Task scheduled via AI:', taskId);
+          setTimeBoxRefreshTrigger(prev => prev + 1);
+        }}
+        onScheduleChanged={() => {
+          console.log('📅 Schedule updated via AI');
+          setTimeBoxRefreshTrigger(prev => prev + 1);
+        }}
+      />
     </div>
   );
 };

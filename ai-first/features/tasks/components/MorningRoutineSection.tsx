@@ -28,6 +28,7 @@ import { getTasksForSection } from '@/data/task-defaults';
 import { isFeatureEnabled, useImplementation } from '@/migration/feature-flags';
 import { LoadingState } from '@/shared/ui/loading-state';
 import { ErrorState } from '@/shared/ui/error-state';
+import { WakeUpTimePicker } from '@/shared/ui/wake-up-time-picker';
 
 
 
@@ -337,11 +338,11 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
                           <p className="text-gray-300 text-xs sm:text-sm mt-1 leading-relaxed">{task.description}</p>
                         )}
                         
-                        {/* Special wake-up time interface */}
+                        {/* Enhanced wake-up time interface with wheel picker */}
                         {task.hasTimeTracking && (
                           <div className="mt-2">
                             <div className="space-y-2">
-                              {wakeUpTime ? (
+                              {wakeUpTime && !isEditingWakeTime ? (
                                 <div className="flex items-center space-x-2">
                                   <div className="flex items-center space-x-1 bg-yellow-900/20 border border-yellow-700/50 rounded-md px-3 py-2">
                                     <Clock className="h-4 w-4 text-yellow-400" />
@@ -352,35 +353,26 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    onClick={() => setIsEditingWakeTime(!isEditingWakeTime)}
+                                    onClick={() => setIsEditingWakeTime(true)}
                                     className="border-yellow-600 text-yellow-400 hover:bg-yellow-900/20"
                                   >
                                     Edit
                                   </Button>
                                 </div>
+                              ) : (!wakeUpTime || isEditingWakeTime) ? (
+                                <WakeUpTimePicker
+                                  value={wakeUpTime}
+                                  onChange={setWakeUpTime}
+                                  onClose={() => setIsEditingWakeTime(false)}
+                                  getCurrentTime={getCurrentTime}
+                                />
                               ) : null}
                               
-                              {(!wakeUpTime || isEditingWakeTime) && (
-                                <div className="flex items-center space-x-2">
-                                  <Input
-                                    placeholder="Enter wake-up time (e.g., 7:30 AM)"
-                                    value={wakeUpTime}
-                                    onChange={(e) => setWakeUpTime(e.target.value)}
-                                    className="bg-yellow-900/20 border-yellow-700/50 text-yellow-100 text-sm placeholder:text-gray-400 focus:border-yellow-600 flex-1"
-                                  />
-                                  <Button
-                                    size="sm"
-                                    onClick={setCurrentTimeAsWakeUp}
-                                    className="bg-yellow-600 hover:bg-yellow-700 text-white whitespace-nowrap"
-                                  >
-                                    Use Now ({getCurrentTime()})
-                                  </Button>
-                                </div>
+                              {!isEditingWakeTime && (
+                                <p className="text-xs text-gray-400 italic">
+                                  Track your wake-up time to build better morning routine habits.
+                                </p>
                               )}
-                              
-                              <p className="text-xs text-gray-400 italic">
-                                Track your wake-up time to build better morning routine habits.
-                              </p>
                             </div>
                           </div>
                         )}

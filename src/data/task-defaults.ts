@@ -65,7 +65,7 @@ export const MORNING_ROUTINE_TASKS: TaskDefault[] = [
   },
   {
     key: 'getBloodFlowing',
-    title: 'Get Blood Flowing (5 min)',
+    title: 'Get Blood Flowing',
     description: 'Max rep push-ups (Target PB: 30) - Physical activation to wake up the body.',
     timeEstimate: '5 min',
     icon: Dumbbell,
