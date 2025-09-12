@@ -1,0 +1,146 @@
+# AI Changelog
+
+This log is maintained by AI assistants working in this repo. Each entry captures what changed, why, and how to roll back. A machine‑readable mirror lives at `.siso/ai-changelog.jsonl`.
+
+Conventions:
+- Actor: `ai`, `human`, or a specific agent name.
+- Scope: short area or folder touched.
+- Rollback: usually a Git commit hash or command.
+- Files: key files changed (not exhaustive).
+
+---
+
+## 2025-09-11
+
+### Init AI changelog scaffolding
+- Actor: ai
+- Scope: tooling/.siso
+- Summary: Initialize `.siso` changelog structure and helper script to append entries and mirror them to JSONL. No app code changed.
+- Rollback: `git rm -r .siso && git commit -m "remove ai changelog"`
+- Files:
+  - `.siso/AI_CHANGELOG.md`
+  - `.siso/ai-changelog.jsonl`
+  - `.siso/siso-ai-log`
+  - `.siso/README.md`
+
+
+### Init: AI changelog scaffolding
+- Actor: ai
+- Scope: tooling/.siso
+- Summary: Init: AI changelog scaffolding
+- Rollback: git revert b573b07
+- Files:
+  - ts
+  - actor
+  - summary
+  - scope
+  - git_commit
+  - files
+  - labels
+  - details
+
+
+### Test: verify logger entry format
+- Actor: ai
+- Scope: tooling/.siso
+- Summary: Test: verify logger entry format
+- Rollback: git revert b573b07
+- Files:
+  - .SISO-APP-FACTORY/future-features/README.md
+  - .SISO-APP-FACTORY/future-features/ai-chat-assistant/existing-components.md
+  - .SISO-APP-FACTORY/future-features/ai-chat-assistant/integration-strategy.md
+  - .SISO-APP-FACTORY/future-features/ai-chat-assistant/requirements-planning.md
+  - .SISO-APP-FACTORY/future-features/ai-chat-assistant/requirements.md
+  - .SISO-APP-FACTORY/future-features/ai-chat-assistant/research.md
+  - FLOATING-AI-INTEGRATION-SUMMARY.md
+  - MORNING-ROUTINE-ANIMATIONS-PLAN.md
+  - MORNING-ROUTINE-ENHANCEMENT-BACKLOG.md
+  - MORNING-ROUTINE-ISSUES.md
+  - MORNING-ROUTINE-PHASE1-COMPLETE.md
+  - TESTING-QUICK-START.md
+  - ai-first/features/dashboard/pages/AdminLifeLock.tsx
+  - ai-first/features/tasks/components/EnhancedAIAssistantTab.tsx
+  - ai-first/features/tasks/components/MorningRoutineSection.tsx
+  - ai-first/features/tasks/components/TimeBoxTab.tsx
+  - ai-first/shared/components/APITester.tsx
+  - ai-first/shared/components/FeatureFlagTester.tsx
+  - ai-first/shared/components/MorningRoutineTimer.tsx
+  - ai-first/shared/database/ai-chat-schema.sql
+  - ai-first/shared/services/ai-chat-thread.service.ts
+  - ai-first/shared/services/ai-conversation-learning.service.ts
+  - ai-first/shared/types/ai-chat.types.ts
+  - ai-first/shared/utils/api-testing.utils.ts
+  - ai-first/shared/utils/database-testing.utils.ts
+  - ai-first/shared/utils/feature-flags.ts
+  - ai-first/shared/utils/voice-testing.utils.ts
+  - dev-dist/registerSW.js
+  - dev-dist/sw.js
+  - dev-dist/sw.js.map
+  - dev-dist/workbox-a959eb95.js
+  - dev-dist/workbox-a959eb95.js.map
+  - docs/README.md
+  - docs/ULTIMATE-AI-AGENT-IMPLEMENTATION-PLAN.md
+  - docs/architecture/ai-chat-assistant-design.md
+  - docs/architecture/siso-ecosystem-deployment-strategy.md
+  - docs/architecture/siso-ecosystem-free-plan-strategy.md
+  - docs/enhanced-ai-agent-capabilities.md
+  - docs/testing/ai-chat-assistant-testing-guide.md
+  - docs/thought-dumps/2025-01-09-ai-chat-assistant-vision.md
+  - docs/thought-dumps/2025-01-09-siso-ecosystem-planning.md
+  - docs/timebox-ai-integration.md
+  - docs/ui-ux/enhanced-lifelock-design.md
+  - docs/ui-ux/mobile-first-iphone-design-plan.md
+  - package-lock.json
+  - package.json
+  - src/components/timebox/TimeBoxCalendar.tsx
+  - src/components/ui/animated-checkbox.tsx
+  - src/components/ui/animated-progress-counter.tsx
+  - src/components/ui/animated-task-icon.tsx
+  - src/components/ui/exceptional-animated-checkbox.tsx
+  - src/components/ui/exceptional-animated-task-icon.tsx
+  - src/components/ui/exceptional-progress-counter.tsx
+  - src/components/ui/exceptional-swipe-hint.tsx
+  - src/components/ui/swipe-hint.tsx
+  - src/data/task-defaults.ts
+  - src/ecosystem/internal/lifelock/AdminLifeLock.tsx
+  - src/ecosystem/internal/lifelock/sections/MorningRoutineSection.tsx
+  - src/hooks/useExceptionalAccessibility.ts
+  - src/hooks/useExceptionalPerformanceMonitor.ts
+  - src/pages/test/AIAssistantTesting.tsx
+  - src/refactored/data/morning-routine-defaults.ts
+  - src/routes/TestingRoutes.tsx
+  - src/services/timeboxAiService.ts
+  - src/shared/components/FloatingAIAssistant.tsx
+  - src/shared/components/InteractiveTodayCard/DailyInsights.tsx
+  - src/shared/components/InteractiveTodayCard/MobileSectionCard.tsx
+  - src/shared/components/InteractiveTodayCard/QuickActions.tsx
+  - src/shared/components/InteractiveTodayCard/TaskSectionGrid.tsx
+  - src/shared/components/TimeBoxAIAssistant.tsx
+  - src/shared/hooks/useLifeLockDataLoader.ts
+  - src/shared/types/InteractiveTodayCard.refactored.tsx
+  - src/shared/types/InteractiveTodayCard.tsx
+  - src/shared/ui/light-work-manager/components/CategoryFilter.tsx
+  - src/shared/ui/light-work-manager/components/ProgressIndicator.tsx
+  - src/shared/ui/light-work-manager/components/StatusIcon.tsx
+  - src/shared/ui/light-work-manager/components/SubTaskList.tsx
+  - src/shared/ui/light-work-manager/components/TaskCard.tsx
+  - src/shared/ui/light-work-manager/components/TaskCreationModal.tsx
+  - src/shared/ui/light-work-manager/components/TaskStatusSelector.tsx
+  - src/shared/ui/light-work-manager/components/TaskTimer.tsx
+  - src/shared/ui/light-work-manager/components/index.ts
+  - src/shared/ui/light-work-manager/hooks/useLightWorkManager.ts
+  - src/shared/ui/light-work-manager/index.ts
+  - src/shared/ui/light-work-manager/types/index.ts
+  - src/shared/ui/prompt-input/PromptInputBox.refactored.tsx
+  - src/shared/ui/prompt-input/components/Button.tsx
+  - src/shared/ui/prompt-input/components/Dialog.tsx
+  - src/shared/ui/prompt-input/components/ImageViewDialog.tsx
+  - src/shared/ui/prompt-input/components/Textarea.tsx
+  - src/shared/ui/prompt-input/components/Tooltip.tsx
+  - src/shared/ui/prompt-input/components/VoiceRecorder.tsx
+  - src/shared/ui/prompt-input/context/PromptInputContext.tsx
+  - src/shared/ui/prompt-input/hooks/useVoiceInput.ts
+  - src/shared/ui/prompt-input/utils/fileHandling.ts
+  - src/shared/ui/wake-up-time-picker.tsx
+  - src/shared/ui/wheel-picker-demo.tsx
+  - src/shared/ui/wheel-picker.tsx

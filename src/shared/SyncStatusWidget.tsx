@@ -3,9 +3,9 @@
  */
 
 import React, { useState, useEffect } from 'react';
+// Supabase/offline-first: remove Prisma status checks
 import { HybridTaskService, HybridUsageTracker } from '@/ai-first/core/task.service';
 import { DataMigration, MigrationResult } from '../services/dataMigration';
-import { RealPrismaTaskService } from '@/ai-first/core/task.service';
 
 interface SyncStatus {
   lastSync: Date | null;
@@ -48,20 +48,17 @@ export const SyncStatusWidget: React.FC = () => {
 
   const handleShowStatus = async () => {
     try {
-      // Test Prisma connection
-      const healthCheck = await RealPrismaTaskService.healthCheck();
       const migrationStatus = await DataMigration.checkMigrationStatus();
-      
-      let statusMessage = `🎉 Prisma Postgres Active!\n\n⚡ Performance Status:\n• Response time: ${healthCheck.responseTime}ms\n• Zero cold starts: ✅ Active\n• Performance boost: ${Math.round(8000/healthCheck.responseTime)}x faster\n\n🤖 AI Features:\n• Eisenhower Matrix: ✅ Ready\n• Voice processing: ✅ Ready\n• Smart prioritization: ✅ Ready\n\n💰 Cost: $0/month (free tier)`;
-      
+      let statusMessage = `🔄 Sync Status (Supabase + Offline)\n\n` +
+        `Mode: ${HybridTaskService.isOfflineFirst?.() ? 'Offline-First' : 'Online-First'}\n`;
+
       if (migrationStatus.needsMigration) {
-        statusMessage += `\n\n📊 Migration: ${migrationStatus.localStorageTasks} tasks will be auto-migrated on next app use`;
+        statusMessage += `\n📊 Migration: ${migrationStatus.localStorageTasks} tasks pending local→cloud sync`;
       } else {
-        statusMessage += `\n\n✅ Migration: Complete - all data in Prisma`;
+        statusMessage += `\n✅ Migration: Complete (local data aligned)`;
       }
-      
+
       alert(statusMessage);
-      
     } catch (error) {
       console.error('Status check error:', error);
       alert('❌ Status check failed. Please check console for details.');
@@ -138,7 +135,7 @@ export const SyncStatusWidget: React.FC = () => {
               disabled={status.syncInProgress}
               className="w-full px-3 py-1.5 text-sm bg-gradient-to-r from-purple-500 via-blue-500 to-purple-600 text-white rounded hover:from-purple-600 hover:via-blue-600 hover:to-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed shadow-lg hover:shadow-purple-500/25 transition-all duration-300 flex items-center justify-center"
             >
-'📊 Prisma Status'
+              Offline Sync Status
             </button>
           </div>
 
@@ -163,9 +160,9 @@ export const SyncStatusWidget: React.FC = () => {
             </div>
           </div>
 
-          {/* Prisma Status */}
+          {/* Connection Info */}
           <div className="text-xs text-emerald-700 bg-emerald-50 p-2 rounded border border-emerald-200">
-            ⚡ Prisma Enhanced: Zero cold starts active!
+            ⚡ Supabase + Offline cache active
           </div>
           
           {/* Performance Stats */}

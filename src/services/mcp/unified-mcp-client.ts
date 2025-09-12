@@ -96,6 +96,14 @@ export class UnifiedMCPClient {
       suggestedMCP: 'desktop-commander'
     });
 
+    // Desktop commands (open/focus/notify)
+    this.addIntentPattern(/\b(open\s+(?:url|link|website)|open\s+[A-Za-z0-9 .+\-]+|launch\s+[A-Za-z0-9 .+\-]+|focus\s+[A-Za-z0-9 .+\-]+|switch\s+to\s+[A-Za-z0-9 .+\-]+|notify\b|notification\b)\b/i, {
+      type: 'automation',
+      action: 'execute',
+      confidence: 0.85,
+      suggestedMCP: 'desktop-commander'
+    });
+
     // Communication patterns
     this.addIntentPattern(/\b(slack|message|notify|alert|team)\b/i, {
       type: 'communication',

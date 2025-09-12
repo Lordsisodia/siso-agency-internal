@@ -48,6 +48,8 @@ export type {
   ValidationSchema 
 } from './mcp-middleware';
 
+import DesktopCommanderClient from './desktop-commander-client';
+
 /**
  * Quick start function to initialize all MCP services
  */
@@ -69,10 +71,17 @@ export function initializeMCPServices(config?: {
   // Example registration - replace with actual MCP clients
   const mcps = ['supabase', 'context7', 'notion', 'github', 'exa', 'slack', 'desktop-commander'];
   mcps.forEach(mcp => {
-    orchestrator.registerMCPClient(mcp, {
-      // Placeholder for actual MCP client
-      // In production, this would be the actual MCP client instance
-    });
+    if (mcp === 'desktop-commander') {
+      const dc = new DesktopCommanderClient({
+        // Keep defaults conservative; paths limited to project root
+        allowedPaths: [process.cwd()],
+      });
+      orchestrator.registerMCPClient(mcp, dc);
+    } else {
+      orchestrator.registerMCPClient(mcp, {
+        // Placeholder for actual MCP client
+      });
+    }
   });
 
   return {

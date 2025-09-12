@@ -1,5 +1,44 @@
 # SISO Internal - Claude Code Instructions
 
+## 🎭 **BMAD-METHOD™ REVOLUTIONARY DEVELOPMENT**
+
+**Game-Changer for Complex Features:** SISO Internal now uses BMAD-METHOD™ for context-engineered development that eliminates information loss and accelerates complex features.
+
+### **When to Use BMAD (Auto-Suggested)**
+- **Cross-ecosystem features** (internal/partnership/client systems)
+- **Architectural changes** (AdminLifeLock-scale refactoring)
+- **Multi-component integration** (>5 files, complex coordination)
+- **Major new features** (>1 week development time)
+
+### **BMAD Revolutionary Workflow**
+```bash
+# Complex Feature Development
+*agent analyst     # Market research & project brief
+*agent pm         # Comprehensive PRD creation  
+*agent architect  # Technical architecture design
+*agent sm         # Context-rich development stories
+*agent dev        # Story-driven implementation
+*agent qa         # Quality gates throughout
+```
+
+### **BMAD Core Files**
+- **Agents**: `.bmad-core/agents/` (10 specialist AI agents)
+- **Workflows**: `.bmad-core/workflows/brownfield-fullstack.yaml`
+- **Documentation**: `docs-bmad/user-guide.md`, `docs-bmad/enhanced-ide-development-workflow.md`
+- **Stories**: Stories contain complete implementation context
+
+### **Why BMAD is Revolutionary**
+1. **Context Preservation** - No more "what was I building?" moments
+2. **Structured Planning** - Comprehensive PRDs before coding
+3. **Story-Driven Development** - All context embedded in story files
+4. **Cross-Agent Coordination** - Specialist agents for each phase
+5. **Quality Integration** - QA gates throughout development lifecycle
+
+**Simple Tasks**: Keep using existing rapid iteration workflow  
+**Complex Tasks**: BMAD eliminates context loss and coordination failures
+
+---
+
 ## 🏗️ **Project Architecture**
 
 **Tech Stack:**
@@ -98,6 +137,13 @@ describe('TaskCard', () => {
 ## 🚀 **Development Workflow**
 
 ### Before Writing Code
+
+**🎭 For Complex Features (BMAD-Worthy):**
+1. **BMAD Planning Phase**: Use `*agent analyst` → `*agent pm` → `*agent architect` for comprehensive planning
+2. **Story Creation**: Use `*agent sm` to create context-rich development stories
+3. **Implementation**: Follow story-driven development with complete context embedded
+
+**⚡ For Simple Features (Rapid Iteration):**
 1. **Plan Mode**: Always use plan mode for complex features
 2. **Phase Planning**: Break large tasks into manageable phases
 3. **Context Review**: Check existing patterns in codebase

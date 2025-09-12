@@ -49,24 +49,24 @@ const TimelinePage = lazy(() => import('./pages/TimelinePage'));
 const Communication = lazy(() => import('./pages/Communication'));
 
 // Admin pages - heavy bundle, lazy load all
-const AdminDashboard = lazy(() => import('@/internal/pages/AdminDashboard.tsx'));
-const AdminClients = lazy(() => import('@/internal/pages/AdminClients.tsx'));
-const AdminTasks = lazy(() => import('@/internal/pages/AdminTasks.tsx'));
-const AdminPlans = lazy(() => import('@/internal/pages/AdminPlans.tsx'));
-const AdminFeedback = lazy(() => import('@/internal/pages/AdminFeedback.tsx'));
+const AdminDashboard = lazy(() => import('@/ecosystem/internal/pages/AdminDashboard.tsx'));
+const AdminClients = lazy(() => import('@/ecosystem/internal/pages/AdminClients.tsx'));
+const AdminTasks = lazy(() => import('@/ecosystem/internal/pages/AdminTasks.tsx'));
+const AdminPlans = lazy(() => import('@/ecosystem/internal/pages/AdminPlans.tsx'));
+const AdminFeedback = lazy(() => import('@/ecosystem/internal/pages/AdminFeedback.tsx'));
 // Archived pages - removed from navigation
-const AdminOutreach = lazy(() => import('@/internal/pages/AdminOutreach.tsx'));
-const AdminTemplates = lazy(() => import('@/internal/pages/AdminTemplates.tsx'));
-const AdminTeams = lazy(() => import('@/internal/pages/AdminTeams.tsx'));
-const AdminPayments = lazy(() => import('@/internal/pages/AdminPayments.tsx'));
-const AdminDailyPlanner = lazy(() => import('@/internal/pages/AdminDailyPlanner.tsx'));
-const AdminLifeLock = lazy(() => import('@/internal/lifelock/AdminLifeLock.tsx'));
-const AdminLifeLockDay = lazy(() => import('@/internal/lifelock/AdminLifeLockDay.tsx'));
+const AdminOutreach = lazy(() => import('@/ecosystem/internal/pages/AdminOutreach.tsx'));
+const AdminTemplates = lazy(() => import('@/ecosystem/internal/pages/AdminTemplates.tsx'));
+const AdminTeams = lazy(() => import('@/ecosystem/internal/pages/AdminTeams.tsx'));
+const AdminPayments = lazy(() => import('@/ecosystem/internal/pages/AdminPayments.tsx'));
+const AdminDailyPlanner = lazy(() => import('@/ecosystem/internal/pages/AdminDailyPlanner.tsx'));
+const AdminLifeLock = lazy(() => import('@/ecosystem/internal/lifelock/AdminLifeLock.tsx'));
+const AdminLifeLockDay = lazy(() => import('@/ecosystem/internal/lifelock/AdminLifeLockDay.tsx'));
 const ClientDetailPage = lazy(() => import('./pages/ClientDetailPage'));
-const AdminSettings = lazy(() => import('@/internal/pages/AdminSettings.tsx'));
-const AdminPrompts = lazy(() => import('@/internal/pages/AdminPrompts.tsx'));
-const AdminWireframes = lazy(() => import('@/internal/pages/AdminWireframes.tsx'));
-const AdminUserFlow = lazy(() => import('@/internal/pages/AdminUserFlow.tsx'));
+const AdminSettings = lazy(() => import('@/ecosystem/internal/pages/AdminSettings.tsx'));
+const AdminPrompts = lazy(() => import('@/ecosystem/internal/pages/AdminPrompts.tsx'));
+const AdminWireframes = lazy(() => import('@/ecosystem/internal/pages/AdminWireframes.tsx'));
+const AdminUserFlow = lazy(() => import('@/ecosystem/internal/pages/AdminUserFlow.tsx'));
 const TeamMemberTasksPage = lazy(() => import('./pages/TeamMemberTasksPage'));
 
 // Client pages - separate bundle

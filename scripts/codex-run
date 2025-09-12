@@ -1,0 +1,153 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# codex-run: run a command, and if it fails, collect an error bundle
+# and prepare context for Codex "Error Shooting Mode".
+
+if [[ $# -eq 0 ]]; then
+  echo "Usage: $(basename "$0") <command> [args...]" >&2
+  exit 2
+fi
+
+timestamp=$(date +%Y%m%d-%H%M%S)
+cmd_basename=$(basename "$1" | tr -cd '[:alnum:]_.-')
+session_root="SISO-INTERNAL/.codex-error-sessions"
+run_dir="$session_root/${timestamp}-${cmd_basename}"
+mkdir -p "$run_dir"
+
+stdout_log="$run_dir/stdout.log"
+stderr_log="$run_dir/stderr.log"
+
+echo "[codex-run] Running: $*" | tee "$run_dir/meta.txt"
+if command -v python3 >/dev/null 2>&1; then
+  start_epoch_ns=$(python3 - <<'PY'
+import time
+print(int(time.time()*1e9))
+PY
+)
+else
+  start_epoch_ns="$(date +%s)000000000"
+fi
+export CODEX_RUN_START_NS="$start_epoch_ns"
+
+# Execute and mirror output to logs
+set +e
+("$@" > >(tee "$stdout_log") 2> >(tee "$stderr_log" >&2))
+exit_code=$?
+set -e
+
+if command -v python3 >/dev/null 2>&1; then
+  end_epoch_ns=$(python3 - <<'PY'
+import time
+print(int(time.time()*1e9))
+PY
+)
+else
+  end_epoch_ns="$(date +%s)000000000"
+fi
+export CODEX_RUN_END_NS="$end_epoch_ns"
+
+# Build bundle.json using Python for robust JSON emission (falls back to basic shell if python missing)
+bundle_json="$run_dir/bundle.json"
+
+if command -v python3 >/dev/null 2>&1; then
+  python3 - "$stdout_log" "$stderr_log" "$bundle_json" "$exit_code" <<'PY'
+import json, os, sys, time, subprocess, shlex
+from pathlib import Path
+
+stdout_log, stderr_log, bundle_json, exit_code = sys.argv[1], sys.argv[2], sys.argv[3], int(sys.argv[4])
+
+def tail(path, n=200):
+    try:
+        with open(path, 'rb') as f:
+            data = f.readlines()[-n:]
+        return ''.join([d.decode('utf-8', errors='replace') for d in data])
+    except Exception:
+        return ''
+
+def safe_run(cmd):
+    try:
+        return subprocess.check_output(cmd, stderr=subprocess.STDOUT, text=True)
+    except Exception:
+        return ''
+
+cwd = os.getcwd()
+argv = sys.argv[5:]
+argv = []  # not passed here; reconstruct from /proc/self/cmdline is not portable; use env
+
+cmdline_env = os.environ.get('CODEX_ORIGINAL_CMDLINE')
+if not cmdline_env:
+    # Best effort: read from meta.txt if present
+    meta = Path(bundle_json).with_name('meta.txt')
+    try:
+        text = meta.read_text()
+        if text.startswith('[codex-run] Running: '):
+            cmdline_env = text.strip().split(': ',1)[1]
+    except Exception:
+        cmdline_env = ''
+
+git = {}
+git_root = safe_run(["git", "rev-parse", "--show-toplevel"]).strip()
+if git_root:
+    git = {
+        "root": git_root,
+        "branch": safe_run(["git", "rev-parse", "--abbrev-ref", "HEAD"]).strip(),
+        "commit": safe_run(["git", "rev-parse", "HEAD"]).strip(),
+        "status_porcelain": safe_run(["git", "status", "--porcelain"]).strip(),
+    }
+
+env_sample = {k: os.environ.get(k, '') for k in [
+    'SHELL','OS','TERM','NODE_ENV','PYTHONPATH','VIRTUAL_ENV','CONDA_DEFAULT_ENV','CI'
+]}
+
+bundle = {
+    "schema": "codex.error-bundle/v1",
+    "cwd": cwd,
+    "exit_code": exit_code,
+    "started_at_ns": os.environ.get('CODEX_RUN_START_NS'),
+    "ended_at_ns": os.environ.get('CODEX_RUN_END_NS'),
+    "duration_ms": None,
+    "cmd_str": cmdline_env,
+    "logs": {
+        "stdout": os.path.abspath(stdout_log),
+        "stderr": os.path.abspath(stderr_log),
+        "stdout_tail": tail(stdout_log),
+        "stderr_tail": tail(stderr_log),
+    },
+    "git": git,
+    "env_sample": env_sample,
+}
+
+try:
+    s = int(os.environ.get('CODEX_RUN_START_NS','0'))
+    e = int(os.environ.get('CODEX_RUN_END_NS','0'))
+    if s and e and e>=s:
+        bundle['duration_ms'] = int((e - s)/1_000_000)
+except Exception:
+    pass
+
+Path(bundle_json).write_text(json.dumps(bundle, indent=2))
+print(bundle_json)
+PY
+else
+  # Extremely minimal fallback JSON
+  printf '{\n  "schema": "codex.error-bundle/v1",\n  "cwd": %q,\n  "exit_code": %d,\n  "logs": {"stdout": %q, "stderr": %q}\n}\n' \
+    "$(pwd)" "$exit_code" "$stdout_log" "$stderr_log" >"$bundle_json"
+  printf '%s\n' "$bundle_json"
+fi
+
+# Maintain a stable symlink to the latest run for the agent to find easily
+mkdir -p "$session_root"
+ln -sfn "$(basename "$run_dir")" "$session_root/latest"
+
+if [[ "$exit_code" -ne 0 ]]; then
+  echo "" >&2
+  echo "✖ Command failed (exit $exit_code). Collected bundle:" >&2
+  echo "  $bundle_json" >&2
+  echo "" >&2
+  echo "Next: Open Codex with profile 'error-shooting' and it will auto-load the bundle." >&2
+  echo "If needed, the agent will look at: SISO-INTERNAL/.codex-error-sessions/latest/bundle.json" >&2
+  exit "$exit_code"
+else
+  echo "✔ Command succeeded. Full logs saved under: $run_dir" >&2
+fi

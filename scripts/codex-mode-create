@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# codex-mode-create: scaffold a new mode with standard layout
+
+if [[ $# -lt 1 ]]; then
+  echo "Usage: $(basename "$0") <mode-name> [--desc 'description']" >&2
+  exit 2
+fi
+
+mode="$1"; shift || true
+desc=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --desc) desc="$2"; shift 2;;
+    *) echo "Unknown arg: $1" >&2; exit 2;;
+  esac
+done
+
+base="SISO-INTERNAL/codex-modes/${mode}"
+mkdir -p "$base/templates"
+
+cat >"$base/${mode}.md" <<EOF
+# ${mode^} Mode — Operating Guide
+
+Purpose: ${desc}
+
+Inputs:
+- CODEX_${mode^^}_BUNDLE (optional) JSON bundle
+- Fallback: SISO-INTERNAL/.codex-${mode}/latest/bundle.json
+
+On session start:
+1) Load bundle; summarize inputs
+2) Initialize update_plan with 4–6 steps
+3) Execute grouped actions with short preambles
+4) Deliverables: summary, results, next steps
+
+Notes: keep non-destructive; ask before risky actions.
+
+Response Tail
+- End with **Next Steps** (3 bullets; one marked “(Recommended)”).
+- Include a brief Self‑Check only when complexity/risk is high (2–3 bullets; summarize validations/assumptions; no chain‑of‑thought).
+EOF
+
+cat >"$base/README.md" <<EOF
+# Codex ${mode^} Mode
+
+${desc}
+
+Components:
+- ${mode}.md (agent instructions)
+- templates/ (reports, briefs)
+- scripts/codex-${mode} (optional bundle helper)
+EOF
+
+echo "Scaffold created under: $base" >&2

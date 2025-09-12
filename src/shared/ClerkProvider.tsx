@@ -3,8 +3,7 @@
 
 import { ClerkProvider as BaseClerkProvider, useUser } from '@clerk/clerk-react';
 import { useEffect, useMemo } from 'react';
-import { ClerkUserSync } from '@/ai-first/core/auth.service';
-import { logger } from '@/shared/utils/logger';
+// Supabase-only: remove Prisma user sync during development
 
 const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -17,28 +16,7 @@ interface ClerkProviderProps {
 }
 
 // Auto-sync component that runs when user signs in
-function UserSyncComponent() {
-  const { user, isSignedIn } = useUser();
-
-  useEffect(() => {
-    if (isSignedIn && user) {
-      // Automatically sync user to Prisma when they sign in
-      ClerkUserSync.getOrCreateUser({
-        id: user.id,
-        emailAddresses: user.emailAddresses,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        imageUrl: user.imageUrl
-      }).then(() => {
-        logger.debug('[CLERK-PROVIDER] User auto-synced to Prisma');
-      }).catch((error) => {
-        logger.error('[CLERK-PROVIDER] User sync failed:', error);
-      });
-    }
-  }, [isSignedIn, user]);
-
-  return null; // This component only handles side effects
-}
+function UserSyncComponent() { return null; }
 
 export function ClerkProvider({ children }: ClerkProviderProps) {
   return (

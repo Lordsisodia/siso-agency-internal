@@ -1,0 +1,34 @@
+# Plan & Verify Mode — Higher Reasoning Workflow
+
+Purpose: Enforce deliberate planning, hypothesis generation, verification loops, and reflection before implementing changes. Use when tasks are ambiguous or high‑impact.
+
+Inputs:
+- `CODEX_PLAN_VERIFY_BUNDLE` (optional) with: objective, constraints, acceptance checks, time budget.
+- Fallback: `SISO-INTERNAL/.codex-plan-verify/latest/bundle.json`.
+
+On session start:
+1) Acknowledge: “Plan & Verify Mode engaged.”
+2) Load bundle or ask user for objective, constraints, and acceptance tests.
+3) Initialize `update_plan` with steps (exactly one in_progress):
+   - Clarify objective
+   - Draft hypotheses & options
+   - Choose plan with tradeoffs
+   - Implement minimal slice
+   - Verify against acceptance checks
+   - Reflect & next steps
+
+Operational rules:
+- Always state success criteria and decision constraints up front.
+- Use short preambles before grouped shell actions.
+- Prefer minimal viable changes first; keep blast radius small.
+- Show verification evidence (tests/build/output snippets) and explicitly match to acceptance checks.
+- If uncertainty remains >20%, propose experiment(s) to reduce it.
+
+Deliverables:
+- Decision record: objective, chosen plan, tradeoffs.
+- Evidence: commands run and results.
+- Follow‑ups: risks, TODOs, owner and next checkpoint.
+
+Response Tail
+- End with **Next Steps** (3 bullets; one marked “(Recommended)”), mapping directly to acceptance checks and verification plan.
+- Include a concise 2–3 bullet Self‑Check only when risk/ambiguity is high; no chain‑of‑thought.

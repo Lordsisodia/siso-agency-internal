@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# codex-feedback: capture a structured feedback bundle for the Feedback Logger mode
+
+rating=""
+tags=""
+comment=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -r|--rating) rating="$2"; shift 2;;
+    -t|--tags) tags="$2"; shift 2;;
+    -m|--message|--comment) comment="$2"; shift 2;;
+    *) echo "Unknown arg: $1" >&2; exit 2;;
+  esac
+done
+
+if [[ -z "${rating}" && -z "${comment}" ]]; then
+  echo "Usage: $(basename "$0") -r <1-5> -t 'tag1,tag2' -m 'comment'" >&2
+  exit 2
+fi
+
+timestamp=$(date +%Y%m%d-%H%M%S)
+root="SISO-INTERNAL/.codex-feedback"
+dir="$root/${timestamp}"
+mkdir -p "$dir"
+bundle="$dir/bundle.json"
+
+branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
+commit=$(git rev-parse HEAD 2>/dev/null || true)
+
+if command -v python3 >/dev/null 2>&1; then
+python3 - "$bundle" <<PY
+import json, os, sys
+from pathlib import Path
+bundle_path = sys.argv[1]
+bundle = {
+  "schema": "codex.feedback-bundle/v1",
+  "created_at": os.popen('date -Iseconds').read().strip(),
+  "cwd": os.getcwd(),
+  "rating": os.environ.get('RATING',''),
+  "tags": os.environ.get('TAGS',''),
+  "comment": os.environ.get('COMMENT',''),
+  "git": {
+    "branch": os.environ.get('GIT_BRANCH',''),
+    "commit": os.environ.get('GIT_COMMIT','')
+  }
+}
+Path(bundle_path).write_text(json.dumps(bundle, indent=2))
+print(bundle_path)
+PY
+else
+  printf '{\n  "schema": "codex.feedback-bundle/v1",\n  "rating": %q,\n  "tags": %q,\n  "comment": %q\n}\n' "$rating" "$tags" "$comment" > "$bundle"
+  printf '%s\n' "$bundle"
+fi
+
+ln -sfn "$(basename "$dir")" "$root/latest"
+echo "Feedback bundle saved:" >&2
+echo "  $bundle" >&2
+echo "Start Codex with profile 'feedback-logger' to process it." >&2
+

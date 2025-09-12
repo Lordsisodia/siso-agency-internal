@@ -5,7 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useClerkUser } from '@/shared/ClerkProvider';
 import { ThoughtDumpResults } from '@/ai-first/features/tasks/ui/ThoughtDumpResults';
 import { EisenhowerMatrixModal } from '@/ai-first/features/tasks/ui/EisenhowerMatrixModal';
-import { TabLayoutWrapper } from '@/ai-first/features/dashboard/components/TabLayoutWrapper';
+import { TabLayoutWrapper } from '@/internal/lifelock/TabLayoutWrapper';
 import { TodayProgressSection } from '@/ai-first/features/tasks/components/TodayProgressSection';
 import { WeeklyViewSection } from '@/ai-first/features/tasks/components/WeeklyViewSection';
 import { VoiceCommandSection } from '@/ai-first/features/tasks/components/VoiceCommandSection';

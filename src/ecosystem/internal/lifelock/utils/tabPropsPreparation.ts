@@ -1,4 +1,4 @@
-import { LifeLockData } from '../../../types/shared/lifelock';
+import type { LifeLockData } from '../../../types/shared/lifelock';
 
 export interface CommonTabProps {
   currentDate: Date;

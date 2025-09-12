@@ -33,7 +33,7 @@ import { theme } from '@/styles/theme';
 import { FloatingAIAssistant } from '@/shared/components/FloatingAIAssistant';
 
 // Refactored components and hooks
-import { LifeLockTabRenderer, LifeLockDateNavigation } from './components';
+import { SafeTabContentRenderer } from '@/refactored/components/TabContentRenderer';
 import { useDateNavigation, useModalHandlers } from './hooks';
 
 // Modal components (assuming they exist or need to be created)
@@ -44,10 +44,14 @@ import { CreateJournalEntryModal } from './modals/CreateJournalEntryModal';
 
 const AdminLifeLock: React.FC = memo(() => {
   const { useRefactoredLifeLockData } = useFeatureFlags();
-  const { lifeLockData, refactoredLifeLockData } = useLifeLockData();
   
   // Custom hooks for modular functionality
   const dateNavigation = useDateNavigation();
+  
+  // Load LifeLock data based on the selected date
+  const lifeLockHook = useLifeLockData(dateNavigation.currentDate);
+  const lifeLockData: any = lifeLockHook;
+  const refactoredLifeLockData: any = lifeLockHook;
   const modalHandlers = useModalHandlers();
   
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -68,31 +72,42 @@ const AdminLifeLock: React.FC = memo(() => {
     modalHandlers.openCreateJournalModal();
   };
 
+  // Compute completion percentage for date nav
+  const dayCompletionPercentage = (() => {
+    const tasks = lifeLockHook?.todayCard?.tasks || [];
+    if (!tasks.length) return 0;
+    const done = tasks.filter((t: any) => t.completed).length;
+    return Math.round((done / tasks.length) * 100);
+  })();
+
+  // Quick add adapter for QuickActionsSection
+  const handleQuickAdd = (title: string) => {
+    lifeLockHook?.handleCustomTaskAdd?.({ title, priority: 'medium' });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
       <div className="container mx-auto px-4 py-8">
-        <TabLayoutWrapper activeTab={activeTab} onTabChange={setActiveTab}>
-          <div className="space-y-6">
-            <LifeLockDateNavigation
-              currentDate={dateNavigation.currentDate}
-              onDateChange={dateNavigation.setCurrentDate}
-              onPreviousDay={dateNavigation.previousDay}
-              onNextDay={dateNavigation.nextDay}
-              onToday={dateNavigation.goToToday}
+        <TabLayoutWrapper 
+          selectedDate={dateNavigation.currentDate} 
+          onDateChange={dateNavigation.setCurrentDate}
+        >
+          {(activeTab, navigateDay) => (
+            <SafeTabContentRenderer
+              activeTab={activeTab as any}
+              layoutProps={{
+                selectedDate: dateNavigation.currentDate,
+                dayCompletionPercentage,
+                navigateDay,
+                handleQuickAdd,
+                handleOrganizeTasks: lifeLockHook?.handleOrganizeTasks,
+                isAnalyzingTasks: lifeLockHook?.isAnalyzingTasks,
+                isProcessingVoice: lifeLockHook?.isProcessingVoice,
+                handleVoiceCommand: lifeLockHook?.handleVoiceCommand,
+                todayCard: lifeLockHook?.todayCard
+              }}
             />
-
-            <LifeLockTabRenderer
-              activeTab={activeTab}
-              currentDate={dateNavigation.currentDate}
-              lifeLockData={lifeLockData}
-              refactoredLifeLockData={refactoredLifeLockData}
-              onDateChange={dateNavigation.setCurrentDate}
-              onCreateTask={handleCreateTask}
-              onCreateHabit={handleCreateHabit}
-              onCreateGoal={handleCreateGoal}
-              onCreateJournalEntry={handleCreateJournalEntry}
-            />
-          </div>
+          )}
         </TabLayoutWrapper>
 
         {/* Modals */}

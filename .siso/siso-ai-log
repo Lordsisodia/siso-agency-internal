@@ -1,0 +1,470 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<'USAGE'
+Usage:
+  siso-ai-log init
+  siso-ai-log log "Short summary" [--details TEXT|--details-file FILE] [--labels csv] [--actor NAME] [--scope NAME|auto] [--files "f1 f2 ..."] [--force]
+  siso-ai-log install-hook | uninstall-hook
+  siso-ai-log validate | rebuild | status | backfill N
+
+Notes:
+  - JSONL is canonical; Markdown is for humans.
+  - If --files not provided and repo has git, last commit diff files are used.
+USAGE
+}
+
+here() { cd "$(dirname "$0")" && pwd; }
+find_root() {
+  # Prefer the path containing .siso (script lives in .siso)
+  local sd; sd="$(here)"; echo "$(cd "$sd/.." && pwd)"
+}
+
+iso_now() { date -u +%Y-%m-%dT%H:%M:%SZ; }
+today() { date -u +%Y-%m-%d; }
+
+ensure_scaffold() {
+  local root; root="$(find_root)"
+  mkdir -p "$root/.siso"
+  [ -f "$root/.siso/AI_CHANGELOG.md" ] || cat > "$root/.siso/AI_CHANGELOG.md" <<'MD'
+# AI Changelog
+
+This log is maintained by AI assistants working in this repo. Each entry captures what changed, why, and how to roll back. A machine‑readable mirror lives at `.siso/ai-changelog.jsonl`.
+
+---
+MD
+  [ -f "$root/.siso/ai-changelog.jsonl" ] || : > "$root/.siso/ai-changelog.jsonl"
+}
+
+append_both_locked() {
+  # Appends JSONL and Markdown in one Python process with file locks.
+  local json_obj; json_obj="$1"; local root; root="$(find_root)"
+  python3 - "$root/.siso/ai-changelog.jsonl" "$root/.siso/AI_CHANGELOG.md" "$json_obj" <<'PY'
+import json, sys, os, datetime, fcntl, io
+
+jsonl_path, md_path, obj_s = sys.argv[1:4]
+obj = json.loads(obj_s)
+
+def ensure_parent(path):
+    d = os.path.dirname(path)
+    if d and not os.path.exists(d):
+        os.makedirs(d, exist_ok=True)
+
+ensure_parent(jsonl_path)
+ensure_parent(md_path)
+
+# 1) Append to JSONL atomically with O_APPEND and advisory lock
+line = json.dumps(obj, ensure_ascii=False)
+with open(jsonl_path, 'a+', encoding='utf-8') as jf:
+    fcntl.flock(jf.fileno(), fcntl.LOCK_EX)
+    jf.seek(0, io.SEEK_END)
+    jf.write(line + "\n")
+    jf.flush()
+    os.fsync(jf.fileno())
+    fcntl.flock(jf.fileno(), fcntl.LOCK_UN)
+
+# 2) Append rendered block to Markdown under date header, also locked
+today = obj.get('ts', '')[:10]
+if not today:
+    today = datetime.date.today().isoformat()
+date_header = f"## {today}"
+summary = obj.get('summary','')
+actor = obj.get('actor','ai')
+scope = obj.get('scope','-')
+rollback = f"git revert {obj.get('git_commit')}" if obj.get('git_commit') else '-'
+files = obj.get('files', [])
+
+entry_lines = [
+    f"\n### {summary}",
+    f"- Actor: {actor}",
+    f"- Scope: {scope}",
+    f"- Summary: {summary}",
+    f"- Rollback: {rollback}",
+    f"- Files:",
+] + [f"  - {p}" for p in files]
+entry = "\n".join(entry_lines) + "\n"
+
+try:
+    with open(md_path, 'r+', encoding='utf-8') as mf:
+        fcntl.flock(mf.fileno(), fcntl.LOCK_EX)
+        content = mf.read()
+        if not content:
+            content = "# AI Changelog\n\n---\n\n"
+        if date_header in content:
+            content = content.rstrip() + "\n\n" + entry
+        else:
+            content = content.rstrip() + f"\n\n{date_header}\n\n" + entry
+        mf.seek(0)
+        mf.write(content)
+        mf.truncate()
+        mf.flush()
+        os.fsync(mf.fileno())
+        fcntl.flock(mf.fileno(), fcntl.LOCK_UN)
+except FileNotFoundError:
+    with open(md_path, 'w', encoding='utf-8') as mf:
+        fcntl.flock(mf.fileno(), fcntl.LOCK_EX)
+        mf.write("# AI Changelog\n\n---\n\n" + f"{date_header}\n\n" + entry)
+        fcntl.flock(mf.fileno(), fcntl.LOCK_UN)
+PY
+}
+
+git_files_for_head() {
+  if git -C "$(find_root)" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    git -C "$(find_root)" diff-tree --no-commit-id --name-only -r HEAD || true
+  else
+    return 0
+  fi
+}
+
+git_head() {
+  git -C "$(find_root)" rev-parse --short HEAD 2>/dev/null || true
+}
+
+cmd_init() { ensure_scaffold; echo "Initialized .siso scaffold."; }
+
+cmd_install_hook() {
+  local root; root="$(find_root)"; ensure_scaffold
+  local hook="$root/.git/hooks/post-commit"
+  cat > "$hook" <<'HOOK'
+#!/usr/bin/env bash
+set -euo pipefail
+root="$(git rev-parse --show-toplevel)"
+subject="$(git -C "$root" log -1 --pretty=%s)"
+body="$(git -C "$root" log -1 --pretty=%b)"
+files="$(git -C "$root" diff-tree --no-commit-id --name-only -r HEAD | tr '\n' ' ')"
+"$root/.siso/siso-ai-log" log "$subject" --details "$body" --files "$files" --actor ai --scope auto
+HOOK
+  chmod +x "$hook"
+  echo "Installed post-commit hook to .git/hooks/post-commit"
+}
+
+cmd_uninstall_hook() {
+  local root; root="$(find_root)"; rm -f "$root/.git/hooks/post-commit" || true; echo "Removed post-commit hook."
+}
+
+cmd_validate() {
+  local root; root="$(find_root)"
+  python3 - <<'PY' "$root/.siso/ai-changelog.jsonl"
+import sys, json
+path = sys.argv[1]
+ok = True; n = 0
+try:
+    with open(path, 'r', encoding='utf-8') as f:
+        for i, line in enumerate(f, 1):
+            if not line.strip():
+                continue
+            n += 1
+            try:
+                obj = json.loads(line)
+            except Exception as e:
+                ok = False; print(f"Line {i}: invalid JSON ({e})")
+                continue
+            for k in ('ts','actor','summary','scope','files'):
+                if k not in obj:
+                    ok = False; print(f"Line {i}: missing '{k}'")
+    print(f"Checked {n} entries; {'OK' if ok else 'ISSUES FOUND'}")
+except FileNotFoundError:
+    print("No JSONL found; run 'siso-ai-log log' first.")
+PY
+}
+
+cmd_rebuild() {
+  local root; root="$(find_root)"
+  python3 - <<'PY' "$root/.siso/ai-changelog.jsonl" "$root/.siso/AI_CHANGELOG.md"
+import sys, json, os, datetime
+jsonl, md = sys.argv[1:3]
+entries = []
+try:
+    with open(jsonl,'r',encoding='utf-8') as f:
+        for line in f:
+            if not line.strip(): continue
+            try: entries.append(json.loads(line))
+            except Exception: pass
+except FileNotFoundError:
+    print("No JSONL found; nothing to rebuild."); sys.exit(0)
+
+entries.sort(key=lambda o:o.get('ts',''), reverse=False)
+
+out = ["# AI Changelog","","This log is maintained by AI assistants working in this repo. Each entry captures what changed, why, and how to roll back. A machine‑readable mirror lives at `.siso/ai-changelog.jsonl`.","","---",""]
+last_date = None
+for e in entries:
+    d = e.get('ts','')[:10] or datetime.date.today().isoformat()
+    if d != last_date:
+        out.append(f"## {d}\n")
+        last_date = d
+    files = e.get('files',[])
+    rollback = f"git revert {e.get('git_commit')}" if e.get('git_commit') else '-'
+    block = [
+        f"### {e.get('summary','')}",
+        f"- Actor: {e.get('actor','ai')}",
+        f"- Scope: {e.get('scope','-')}",
+        f"- Summary: {e.get('summary','')}",
+        f"- Rollback: {rollback}",
+        f"- Files:",
+    ] + [f"  - {p}" for p in files] + [""]
+    out.extend(block)
+
+with open(md,'w',encoding='utf-8') as f:
+    f.write("\n".join(out).rstrip()+"\n")
+print("Rebuilt AI_CHANGELOG.md from JSONL.")
+PY
+}
+
+cmd_status() {
+  local root; root="$(find_root)"
+  echo "Last 5 entries:"; tail -n 5 "$root/.siso/ai-changelog.jsonl" || true
+}
+
+cmd_backfill() {
+  local n; n="$1"; shift || true
+  if [[ -z "$n" ]]; then echo "Usage: siso-ai-log backfill N"; exit 1; fi
+  local root; root="$(find_root)"; ensure_scaffold
+  # Iterate last N commits and log if missing
+  while IFS=$'\t' read -r cid ts subject; do
+    local files; files="$(git -C "$root" diff-tree --no-commit-id --name-only -r "$cid" | tr '\n' ' ')"
+    TS="$ts" ACTOR="ai" SUMMARY="$subject" SCOPE="auto" COMMIT="$cid" FILES="$files" LABELS="backfill" DETAILS="" FORCE="false" \
+      python3 - "$root" <<'PY'
+import json, os, sys, datetime, fcntl, io
+root = sys.argv[1]
+jsonl = os.path.join(root,'.siso','ai-changelog.jsonl')
+md = os.path.join(root,'.siso','AI_CHANGELOG.md')
+ts = os.environ['TS']; actor=os.environ['ACTOR']; summary=os.environ['SUMMARY']; scope=os.environ['SCOPE']; commit=os.environ['COMMIT']; files_s=os.environ['FILES']; labels=[s for s in os.environ.get('LABELS','').split(',') if s]
+def filter_files(paths):
+    out=[]
+    for p in paths:
+        if not p: continue
+        if p.startswith('.git/') or p.startswith('node_modules/'): continue
+        if p.endswith('.env') or '/.env' in p: continue
+        out.append(p)
+    return out
+files = filter_files([p for p in files_s.split(' ') if p])
+def dedupe(cid):
+    try:
+        with open(jsonl,'r',encoding='utf-8') as f:
+            for line in f:
+                try:
+                    o=json.loads(line); 
+                except Exception:
+                    continue
+                if o.get('git_commit')==cid: return True
+    except FileNotFoundError:
+        return False
+    return False
+if dedupe(commit):
+    sys.exit(0)
+def scope_from(paths):
+    for p in paths:
+        t=p.split('/',1)[0]
+        if t in ('.siso','node_modules','.git','dist','dev-dist','build','coverage','tmp','temp'):
+            continue
+        return t
+    return '-'
+scope_final = scope if scope not in ('-','auto') else scope_from(files)
+obj={'ts':ts,'actor':actor,'summary':summary,'scope':scope_final,'git_commit':commit,'files':files,'labels':labels,'details':''}
+line=json.dumps(obj,ensure_ascii=False)
+with open(jsonl,'a+',encoding='utf-8') as jf:
+    fcntl.flock(jf.fileno(), fcntl.LOCK_EX); jf.seek(0,io.SEEK_END); jf.write(line+'\n'); jf.flush(); os.fsync(jf.fileno()); fcntl.flock(jf.fileno(), fcntl.LOCK_UN)
+date=ts[:10]
+entry=(f"\n### {summary}\n- Actor: {actor}\n- Scope: {scope_final}\n- Summary: {summary}\n- Rollback: git revert {commit}\n- Files:\n"+"\n".join([f"  - {p}" for p in files])+"\n")
+date_header=f"## {date}"
+try:
+    with open(md,'r+',encoding='utf-8') as mf:
+        fcntl.flock(mf.fileno(), fcntl.LOCK_EX)
+        content=mf.read() or "# AI Changelog\n\n---\n\n"
+        if date_header in content:
+            content=content.rstrip()+"\n\n"+entry
+        else:
+            content=content.rstrip()+f"\n\n{date_header}\n\n"+entry
+        mf.seek(0); mf.write(content); mf.truncate(); mf.flush(); os.fsync(mf.fileno()); fcntl.flock(mf.fileno(), fcntl.LOCK_UN)
+except FileNotFoundError:
+    with open(md,'w',encoding='utf-8') as mf:
+        fcntl.flock(mf.fileno(), fcntl.LOCK_EX); mf.write("# AI Changelog\n\n---\n\n"+f"{date_header}\n\n"+entry); fcntl.flock(mf.fileno(), fcntl.LOCK_UN)
+PY
+  done < <(git -C "$root" log -n "$n" --pretty=$'%H\t%cI\t%s')
+  echo "Backfill attempted for last $n commits."
+}
+
+cmd_log() {
+  local summary="" details="" details_file="" labels="" actor="ai" scope="-" files_opt="" force="false"
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --details) details="$2"; shift 2;;
+      --details-file) details_file="$2"; shift 2;;
+      --labels) labels="$2"; shift 2;;
+      --actor) actor="$2"; shift 2;;
+      --scope) scope="$2"; shift 2;;
+      --files) files_opt="$2"; shift 2;;
+      --force) force="true"; shift 1;;
+      --help|-h) usage; exit 0;;
+      *) if [[ -z "$summary" ]]; then summary="$1"; shift; else echo "Unexpected arg: $1"; exit 1; fi;;
+    esac
+  done
+  if [[ -z "$summary" ]]; then usage; exit 1; fi
+  ensure_scaffold
+  local root; root="$(find_root)"
+  local ts; ts="$(iso_now)"
+  local commit; commit="$(git_head)"; commit="${commit:-}"
+
+  if [[ -n "$details_file" && -z "$details" ]]; then
+    details="$(cat "$details_file" 2>/dev/null || true)"
+  fi
+
+  local files; files=""
+  if [[ -n "$files_opt" ]]; then
+    files="$files_opt"
+  else
+    files="$(git_files_for_head | tr '\n' ' ')"
+  fi
+  # Build JSON and write with locking, dedupe, auto-scope, exclude secrets
+  TS="$ts" ACTOR="$actor" SUMMARY="$summary" SCOPE="$scope" COMMIT="$commit" FILES="$files" LABELS="$labels" DETAILS="$details" FORCE="$force" \
+  python3 - "$root" <<'PY'
+import json, os, sys, subprocess, shlex, datetime, fcntl
+root = sys.argv[1]
+ts = os.environ["TS"]
+actor = os.environ.get("ACTOR","ai")
+summary = os.environ["SUMMARY"]
+scope = os.environ.get("SCOPE","-")
+commit = os.environ.get("COMMIT") or None
+files_s = os.environ.get("FILES"," ")
+labels = [s for s in os.environ.get("LABELS"," ").split(',') if s]
+details = os.environ.get("DETAILS","")
+force = os.environ.get("FORCE","false") == "true"
+
+def filter_files(paths):
+    out = []
+    for p in paths:
+        if not p or p.isspace():
+            continue
+        # Normalize
+        p = p.strip()
+        if p.startswith('./'):
+            p = p[2:]
+        # Excludes
+        lowered = p.lower()
+        if lowered == '.ds_store' or lowered.endswith('/.ds_store'):
+            continue
+        if p.startswith('.git/'):
+            continue
+        if p.startswith('node_modules/'):
+            continue
+        if p.endswith('.pem') or p.endswith('.key'):
+            continue
+        if p.endswith('.env') or '/.env' in p:
+            continue
+        out.append(p)
+    return out
+
+files = filter_files([p for p in files_s.split(' ') if p])
+
+def infer_scope(paths, current):
+    if current and current not in ('-', 'auto'):
+        return current
+    for p in paths:
+        top = p.split('/',1)[0]
+        if top in ('.siso','node_modules','.git','dist','dev-dist','build','coverage','tmp','temp'):
+            continue
+        if top:
+            return top
+    return current or '-'
+
+scope_final = infer_scope(files, scope)
+
+jsonl_path = os.path.join(root, '.siso', 'ai-changelog.jsonl')
+md_path = os.path.join(root, '.siso', 'AI_CHANGELOG.md')
+
+# Dedupe by commit id if present
+def commit_already_logged(cid):
+    if not cid:
+        return False
+    try:
+        with open(jsonl_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                try:
+                    obj = json.loads(line)
+                except Exception:
+                    continue
+                if obj.get('git_commit') == cid:
+                    return True
+    except FileNotFoundError:
+        return False
+    return False
+
+if commit and commit_already_logged(commit) and not force:
+    print(f"Skipped (already logged commit {commit}).", flush=True)
+    sys.exit(0)
+
+obj = {
+  'ts': ts,
+  'actor': actor,
+  'summary': summary,
+  'scope': scope_final,
+  'git_commit': commit,
+  'files': files,
+  'labels': labels,
+  'details': details,
+}
+
+# Single process to append both with locks
+import io
+import os
+
+os.makedirs(os.path.dirname(jsonl_path), exist_ok=True)
+
+line = json.dumps(obj, ensure_ascii=False)
+with open(jsonl_path, 'a+', encoding='utf-8') as jf:
+    fcntl.flock(jf.fileno(), fcntl.LOCK_EX)
+    jf.seek(0, io.SEEK_END)
+    jf.write(line + "\n")
+    jf.flush(); os.fsync(jf.fileno())
+    fcntl.flock(jf.fileno(), fcntl.LOCK_UN)
+
+date = ts[:10] if ts else datetime.date.today().isoformat()
+date_header = f"## {date}"
+rollback = f"git revert {commit}" if commit else '-'
+files_block = "\n".join([f"  - {p}" for p in files])
+entry = (f"\n### {summary}\n"
+         f"- Actor: {actor}\n"
+         f"- Scope: {scope_final}\n"
+         f"- Summary: {summary}\n"
+         f"- Rollback: {rollback}\n"
+         f"- Files:\n" + files_block + "\n")
+
+try:
+    with open(md_path, 'r+', encoding='utf-8') as mf:
+        fcntl.flock(mf.fileno(), fcntl.LOCK_EX)
+        content = mf.read() or "# AI Changelog\n\n---\n\n"
+        if date_header in content:
+            content = content.rstrip() + "\n\n" + entry
+        else:
+            content = content.rstrip() + f"\n\n{date_header}\n\n" + entry
+        mf.seek(0); mf.write(content); mf.truncate(); mf.flush(); os.fsync(mf.fileno())
+        fcntl.flock(mf.fileno(), fcntl.LOCK_UN)
+except FileNotFoundError:
+    os.makedirs(os.path.dirname(md_path), exist_ok=True)
+    with open(md_path, 'w', encoding='utf-8') as mf:
+        fcntl.flock(mf.fileno(), fcntl.LOCK_EX)
+        mf.write("# AI Changelog\n\n---\n\n" + f"{date_header}\n\n" + entry)
+        fcntl.flock(mf.fileno(), fcntl.LOCK_UN)
+
+print(f"Logged: {summary} [{scope_final}]", flush=True)
+PY
+  :
+}
+
+main() {
+  local cmd="${1:-}"; shift || true
+  case "$cmd" in
+    init) cmd_init "$@";;
+    log) cmd_log "$@";;
+    install-hook) cmd_install_hook;;
+    uninstall-hook) cmd_uninstall_hook;;
+    validate) cmd_validate;;
+    rebuild) cmd_rebuild;;
+    status) cmd_status;;
+    backfill) cmd_backfill "$@";;
+    *) usage; exit 1;;
+  esac
+}
+
+main "$@"
