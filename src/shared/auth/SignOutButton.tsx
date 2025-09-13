@@ -1,7 +1,8 @@
+
 import { Button } from '@/shared/ui/button';
 import { LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { signOut } from '@/shared/services/authService';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/shared/hooks/use-toast';
 
 export const SignOutButton = () => {
@@ -10,7 +11,8 @@ export const SignOutButton = () => {
   
   const handleSignOut = async () => {
     try {
-      await signOut();
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
       
       toast({
         title: "Signed out successfully",
@@ -22,7 +24,7 @@ export const SignOutButton = () => {
       toast({
         variant: "destructive",
         title: "Error signing out",
-        description: error.message || "An error occurred during sign out",
+        description: error.message,
       });
     }
   };

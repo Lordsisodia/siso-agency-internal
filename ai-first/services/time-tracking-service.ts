@@ -5,7 +5,7 @@
  * Provides feedback loop to improve future AI estimates
  */
 
-import { createApiUrl } from '../../src/utils/api-config';
+import { createApiUrl } from '../../src/shared/utils/api-config';
 
 export interface TimeAccuracyMetrics {
   taskId: string;

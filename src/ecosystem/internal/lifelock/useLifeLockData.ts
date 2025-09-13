@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval } from 'date-fns';
 import { useClerkUser } from '@/shared/ClerkProvider';
-import { personalTaskService } from '@/ai-first/core/task.service';
-import { ClerkHybridTaskService } from '@/ai-first/core/auth.service';
+import { personalTaskService } from '@/shared/services/task.service';
+import { ClerkHybridTaskService } from '@/shared/services/auth.service';
 import { lifeLockVoiceTaskProcessor, ThoughtDumpResult } from '@/services/lifeLockVoiceTaskProcessor';
-import { eisenhowerMatrixOrganizer, EisenhowerMatrixResult } from '@/ai-first/core/task.service';
+import { eisenhowerMatrixOrganizer, EisenhowerMatrixResult } from '@/shared/services/task.service';
 
 export interface TaskCard {
   id: string;

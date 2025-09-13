@@ -10,7 +10,7 @@ import { ProfileSkeleton } from '@/internal/profile/ProfileSkeleton';
 import { ProfileMetrics } from '@/internal/profile/ProfileMetrics';
 import { ProfileProgress } from '@/internal/profile/ProfileProgress';
 import { useProfileData } from '@/shared/hooks/useProfileData';
-import { SignOutButton } from '@/ai-first/features/auth/components/SignOutButton';
+import { SignOutButton } from '@/shared/auth/SignOutButton';
 
 const Profile = () => {
   const navigate = useNavigate();

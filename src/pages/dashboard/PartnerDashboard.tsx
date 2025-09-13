@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { PartnerOnboarding } from '@/internal/dashboard/PartnerOnboarding';
 import { theme } from '@/styles/theme';
 import { useImplementation } from '@/migration/feature-flags';
-import { PartnershipLayout } from '@/ai-first/features/partnerships/components/PartnershipLayout';
+import { PartnershipLayout } from '@/ecosystem/external/partnerships/components/PartnershipLayout';
 import { DashboardGreetingCard } from '@/shared/ui/dashboard-templates';
 import { useUser } from '@/shared/hooks/useUser';
 import { AppPlanMicroChat } from '@/internal/dashboard/AppPlanMicroChat';

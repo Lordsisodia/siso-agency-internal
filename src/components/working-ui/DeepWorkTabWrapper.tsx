@@ -11,8 +11,8 @@
 import React from 'react';
 import { useImplementation, isFeatureEnabled } from '@/migration/feature-flags';
 import { UnifiedTaskManager } from './UnifiedTaskManager';
-import { DeepFocusTab } from '@/ai-first/features/tasks/components/DeepFocusTab';
-import { TabProps } from '@/ai-first/features/tasks/DayTabContainer';
+import { DeepFocusTab } from '@/ecosystem/internal/tasks/components/DeepFocusTab';
+import { TabProps } from '@/ecosystem/internal/tasks/DayTabContainer';
 
 // Extended props to match UnifiedTaskManager interface
 interface ExtendedTabProps extends TabProps {

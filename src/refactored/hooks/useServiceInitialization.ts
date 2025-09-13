@@ -12,7 +12,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { ClerkHybridTaskService } from '@/ai-first/core/auth.service';
+import { ClerkHybridTaskService } from '@/shared/services/auth.service';
 
 export interface UseServiceInitializationReturn {
   // Initialization state

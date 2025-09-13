@@ -6,6 +6,10 @@ export interface DesktopCommanderOptions {
   allowedApps?: string[];
   allowedPaths?: string[];
   allowCustomScripts?: boolean;
+  allowExec?: boolean;
+  allowedCommands?: string[];
+  maxExecMs?: number;
+  maxOutputBytes?: number;
   defaultBrowserApp?: string; // when focusing/opening URL via specific app
 }
 
@@ -54,6 +58,10 @@ export class DesktopCommanderClient {
       ],
       allowedPaths: [resolve(process.cwd())],
       allowCustomScripts: false,
+      allowExec: false,
+      allowedCommands: ['node', 'python3', 'python', 'bash', 'sh', 'zsh'],
+      maxExecMs: 5000,
+      maxOutputBytes: 1024 * 256,
       defaultBrowserApp: 'Safari',
       ...opts,
     };
@@ -161,6 +169,124 @@ export class DesktopCommanderClient {
     return this.runOSA('notify', script);
   }
 
+  /**
+   * Execute a whitelisted binary with args, within allowed cwd, with timeouts and output limits.
+   */
+  async runCommand(params: {
+    command: string;
+    args?: string[];
+    cwd?: string;
+    timeoutMs?: number;
+    env?: Record<string, string>;
+  }): Promise<DesktopResult<{ stdout: string; stderr: string; code: number }>> {
+    if (!this.options.allowExec) return this.fail('runCommand', 'Code execution is disabled.');
+    const { command, args = [], env = {} } = params || {};
+    if (!command || typeof command !== 'string') return this.fail('runCommand', 'Missing command');
+
+    // Command allowlist
+    const base = command.split('/').pop() || command;
+    if (!this.options.allowedCommands.includes(base)) {
+      return this.fail('runCommand', `Command not allowed: ${base}`);
+    }
+
+    // CWD sandbox
+    const cwd = params.cwd ? resolve(params.cwd) : process.cwd();
+    if (!withinAllowed(cwd, this.options.allowedPaths)) {
+      return this.fail('runCommand', `cwd not allowed: ${cwd}`);
+    }
+
+    // Spawn
+    const { spawn } = await import('node:child_process');
+    const child = spawn(command, args, {
+      cwd,
+      env: { ...process.env, ...env },
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+
+    const deadline = Date.now() + (params.timeoutMs || this.options.maxExecMs);
+    let stdout = Buffer.alloc(0);
+    let stderr = Buffer.alloc(0);
+    let done = false;
+
+    const limit = this.options.maxOutputBytes;
+    child.stdout.on('data', (chunk) => {
+      if (done) return;
+      stdout = Buffer.concat([stdout, chunk]);
+      if (stdout.length > limit) {
+        stdout = stdout.subarray(0, limit);
+      }
+    });
+    child.stderr.on('data', (chunk) => {
+      if (done) return;
+      stderr = Buffer.concat([stderr, chunk]);
+      if (stderr.length > limit) {
+        stderr = stderr.subarray(0, limit);
+      }
+    });
+
+    return await new Promise((resolve) => {
+      const onEnd = (code: number) => {
+        done = true;
+        resolve({
+          success: code === 0,
+          action: 'runCommand',
+          data: { stdout: stdout.toString('utf8'), stderr: stderr.toString('utf8'), code },
+          error: code === 0 ? undefined : `Process exited with code ${code}`,
+        });
+      };
+
+      const timer = setInterval(() => {
+        if (Date.now() > deadline && !done) {
+          done = true;
+          try { child.kill('SIGKILL'); } catch {}
+          resolve({ success: false, action: 'runCommand', error: 'Timeout exceeded' });
+        }
+      }, 100);
+
+      child.on('error', (e) => {
+        clearInterval(timer);
+        if (!done) resolve({ success: false, action: 'runCommand', error: e.message });
+      });
+      child.on('close', (code) => {
+        clearInterval(timer);
+        onEnd(code ?? 1);
+      });
+    });
+  }
+
+  async runNodeCode(params: { code: string; cwd?: string; timeoutMs?: number }): Promise<DesktopResult<{ stdout: string; stderr: string; code: number }>> {
+    const { code, cwd, timeoutMs } = params || {};
+    if (!code || typeof code !== 'string') return this.fail('runNodeCode', 'Missing code');
+    return this.runCommand({ command: 'node', args: ['-e', code], cwd, timeoutMs });
+  }
+
+  async runPythonCode(params: { code: string; python?: string; cwd?: string; timeoutMs?: number }): Promise<DesktopResult<{ stdout: string; stderr: string; code: number }>> {
+    const { code, cwd, timeoutMs } = params || {};
+    if (!code || typeof code !== 'string') return this.fail('runPythonCode', 'Missing code');
+    // Prefer python3
+    const python = (this.options.allowedCommands.includes('python3') ? 'python3' : 'python');
+    return this.runCommand({ command: python, args: ['-c', code], cwd, timeoutMs });
+  }
+
+  async runScriptFile(params: { path: string; args?: string[]; interpreter?: 'bash' | 'zsh' | 'sh' | 'node' | 'python3' | 'python'; cwd?: string; timeoutMs?: number }): Promise<DesktopResult<{ stdout: string; stderr: string; code: number }>> {
+    const { path, args = [], interpreter, cwd, timeoutMs } = params || {};
+    if (!path) return this.fail('runScriptFile', 'Missing path');
+    const abs = resolve(path);
+    if (!withinAllowed(abs, this.options.allowedPaths)) return this.fail('runScriptFile', `Path not allowed: ${abs}`);
+
+    let cmd = interpreter;
+    if (!cmd) {
+      // Infer from extension
+      if (/\.sh$/i.test(abs)) cmd = 'bash';
+      else if (/\.zsh$/i.test(abs)) cmd = 'zsh';
+      else if (/\.js$/i.test(abs)) cmd = 'node';
+      else if (/\.mjs$/i.test(abs)) cmd = 'node';
+      else if (/\.py$/i.test(abs)) cmd = 'python3';
+      else cmd = 'bash';
+    }
+    return this.runCommand({ command: cmd, args: [abs, ...args], cwd, timeoutMs });
+  }
+
   // Optional and off by default; requires allowCustomScripts in constructor
   async runAppleScript(params: { script: string }): Promise<DesktopResult> {
     if (!isDarwin()) return this.unavailable('runAppleScript');
@@ -215,4 +341,3 @@ export class DesktopCommanderClient {
 }
 
 export default DesktopCommanderClient;
-

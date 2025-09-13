@@ -13,6 +13,7 @@ import { PriorityTasksSection } from '@/components/admin/lifelock/sections/Prior
 import { QuickActionsSection } from '@/components/admin/lifelock/sections/QuickActionsSection';
 import { MonthlyProgressSection } from '@/components/admin/lifelock/sections/MonthlyProgressSection';
 import { useLifeLockData } from '@/shared/hooks/useLifeLockData';
+import { MorningRoutineSection } from '@/ai-first/features/tasks/components/MorningRoutineSection';
 
 const AdminLifeLockDay: React.FC = () => {
   const navigate = useNavigate();
@@ -88,15 +89,7 @@ const AdminLifeLockDay: React.FC = () => {
           switch (activeTab) {
             case 'morning':
               return (
-                <div className="p-4 sm:p-6 space-y-6">
-                  <TodayProgressSection
-                    todayCard={todayCard}
-                    onViewDetails={handleCardClick}
-                    onQuickAdd={handleQuickAdd}
-                    onTaskToggle={handleTaskToggle}
-                    onCustomTaskAdd={handleCustomTaskAdd}
-                  />
-                </div>
+                <MorningRoutineSection />
               );
             
             case 'focus':

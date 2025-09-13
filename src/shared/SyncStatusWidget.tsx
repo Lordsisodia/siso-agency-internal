@@ -4,7 +4,7 @@
 
 import React, { useState, useEffect } from 'react';
 // Supabase/offline-first: remove Prisma status checks
-import { HybridTaskService, HybridUsageTracker } from '@/ai-first/core/task.service';
+import { HybridTaskService, HybridUsageTracker } from '@/shared/services/task.service';
 import { DataMigration, MigrationResult } from '../services/dataMigration';
 
 interface SyncStatus {

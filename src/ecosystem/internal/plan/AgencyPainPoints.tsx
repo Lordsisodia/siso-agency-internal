@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
 import { AgencyPainPointModal } from './AgencyPainPointModal';
 import { Badge } from '@/shared/ui/badge';
-import { safeSupabase } from '@/ai-first/core/data.service';
+import { safeSupabase } from '@/shared/services/data.service';
 import { useParams } from 'react-router-dom';
 import { safeGet } from '@/shared/utils/typeHelpers';
 

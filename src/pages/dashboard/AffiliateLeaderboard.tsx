@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { PartnershipLayout } from '@/ai-first/features/partnerships/components/PartnershipLayout';
+import { PartnershipLayout } from '@/ecosystem/external/partnerships/components/PartnershipLayout';
 import { LeaderboardTemplate, LeaderboardEntry } from '@/shared/ui/leaderboard-template';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';

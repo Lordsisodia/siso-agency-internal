@@ -14,7 +14,7 @@ import React from 'react';
 import { useImplementation, isFeatureEnabled } from '@/migration/feature-flags';
 import { UnifiedTaskManager } from './UnifiedTaskManager';
 import { LightWorkTab } from '@/shared/tabs/LightWorkTab';
-import { TabProps } from '@/ai-first/features/tasks/DayTabContainer';
+import { TabProps } from '@/ecosystem/internal/tasks/DayTabContainer';
 
 // Extended props to match MinimalWorkingUI interface
 interface ExtendedTabProps extends TabProps {

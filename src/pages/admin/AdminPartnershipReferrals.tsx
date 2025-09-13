@@ -2,7 +2,7 @@ import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
 import { AdminPageTitle } from '@/ecosystem/internal/admin/layout/AdminPageTitle';
 import { EnhancedTable } from '@/shared/ui/enhanced-table';
 import StatsCard from '@/internal/dashboard/StatsCard';
-import CommissionCalculator from '@/ai-first/features/partnerships/components/CommissionCalculator';
+import CommissionCalculator from '@/ecosystem/external/partnerships/components/CommissionCalculator';
 import { RecentActivityCard } from '@/internal/dashboard/cards/RecentActivityCard';
 import { Card } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';

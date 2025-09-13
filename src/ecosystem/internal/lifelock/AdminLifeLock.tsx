@@ -3,28 +3,28 @@ import { AdminLayout } from '@/internal/admin/layout/AdminLayout';
 import { format, addWeeks, getYear, isToday } from 'date-fns';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useClerkUser } from '@/shared/ClerkProvider';
-import { ThoughtDumpResults } from '@/ai-first/features/tasks/ui/ThoughtDumpResults';
-import { EisenhowerMatrixModal } from '@/ai-first/features/tasks/ui/EisenhowerMatrixModal';
+import { ThoughtDumpResults } from '@/ecosystem/internal/tasks/ui/ThoughtDumpResults';
+import { EisenhowerMatrixModal } from '@/ecosystem/internal/tasks/ui/EisenhowerMatrixModal';
 import { TabLayoutWrapper } from './TabLayoutWrapper';
-import { TodayProgressSection } from '@/ai-first/features/tasks/components/TodayProgressSection';
-import { WeeklyViewSection } from '@/ai-first/features/tasks/components/WeeklyViewSection';
-import { VoiceCommandSection } from '@/ai-first/features/tasks/components/VoiceCommandSection';
+import { TodayProgressSection } from '@/ecosystem/internal/tasks/components/TodayProgressSection';
+import { WeeklyViewSection } from '@/ecosystem/internal/tasks/components/WeeklyViewSection';
+import { VoiceCommandSection } from '@/ecosystem/internal/tasks/components/VoiceCommandSection';
 import { PromptInputBox } from '@/shared/ui/ai-prompt-box';
 import { SisoIcon } from '@/shared/ui/icons/SisoIcon';
 import { CleanDateNav } from '@/shared/ui/clean-date-nav';
-import { PriorityTasksSection } from '@/ai-first/features/tasks/components/PriorityTasksSection';
-import { QuickActionsSection } from '@/ai-first/features/tasks/ui/QuickActionsSection';
-import { MonthlyProgressSection } from '@/ai-first/features/tasks/components/MonthlyProgressSection';
-import { MorningRoutineTab } from '@/ai-first/features/tasks/components/MorningRoutineTab';
+import { PriorityTasksSection } from '@/ecosystem/internal/tasks/components/PriorityTasksSection';
+import { QuickActionsSection } from '@/ecosystem/internal/tasks/ui/QuickActionsSection';
+import { MonthlyProgressSection } from '@/ecosystem/internal/tasks/components/MonthlyProgressSection';
+import { MorningRoutineTab } from '@/ecosystem/internal/tasks/components/MorningRoutineTab';
 import { LightWorkTab } from '@/shared/tabs/LightWorkTab';
 import { LightWorkTabWrapper } from '@/components/working-ui/LightWorkTabWrapper';
-import { DeepFocusTab } from '@/ai-first/features/tasks/components/DeepFocusTab';
+import { DeepFocusTab } from '@/ecosystem/internal/tasks/components/DeepFocusTab';
 import { DeepWorkTabWrapper } from '@/components/working-ui/DeepWorkTabWrapper';
-import { TimeBoxTab } from '@/ai-first/features/tasks/components/TimeBoxTab';
-import { NightlyCheckoutTab } from '@/ai-first/features/tasks/components/NightlyCheckoutTab';
+import { TimeBoxTab } from '@/ecosystem/internal/tasks/components/TimeBoxTab';
+import { NightlyCheckoutTab } from '@/ecosystem/internal/tasks/components/NightlyCheckoutTab';
 import { useLifeLockData } from './useLifeLockData';
 import { useRefactoredLifeLockData } from './useRefactoredLifeLockData';
-import { TabId, validateTabHandler, assertExhaustive, isValidTabId } from '@/ai-first/core/tab-config';
+import { TabId, validateTabHandler, assertExhaustive, isValidTabId } from '@/shared/services/tab-config';
 import { TabContentRenderer } from '@/refactored/components/TabContentRenderer';
 import { isFeatureEnabled, useImplementation } from '@/migration/feature-flags';
 import { useFeatureFlags } from '@/shared/hooks/useFeatureFlags';
@@ -47,6 +47,18 @@ const AdminLifeLock: React.FC = memo(() => {
   
   // Custom hooks for modular functionality
   const dateNavigation = useDateNavigation();
+  
+  // State for real-time day progress updates
+  const [currentTime, setCurrentTime] = useState(new Date());
+  
+  // Update time every minute for real-time day progress
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000); // Update every minute
+    
+    return () => clearInterval(timer);
+  }, []);
   
   // Load LifeLock data based on the selected date
   const lifeLockHook = useLifeLockData(dateNavigation.currentDate);
@@ -72,12 +84,19 @@ const AdminLifeLock: React.FC = memo(() => {
     modalHandlers.openCreateJournalModal();
   };
 
-  // Compute completion percentage for date nav
+  // Compute day progress percentage (how far through the day we are)
   const dayCompletionPercentage = (() => {
-    const tasks = lifeLockHook?.todayCard?.tasks || [];
-    if (!tasks.length) return 0;
-    const done = tasks.filter((t: any) => t.completed).length;
-    return Math.round((done / tasks.length) * 100);
+    const now = currentTime;
+    const startOfDay = new Date(now);
+    startOfDay.setHours(0, 0, 0, 0);
+    
+    const endOfDay = new Date(now);
+    endOfDay.setHours(23, 59, 59, 999);
+    
+    const totalDayMs = endOfDay.getTime() - startOfDay.getTime();
+    const elapsedMs = now.getTime() - startOfDay.getTime();
+    
+    return Math.round((elapsedMs / totalDayMs) * 100);
   })();
 
   // Quick add adapter for QuickActionsSection
@@ -86,7 +105,7 @@ const AdminLifeLock: React.FC = memo(() => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black">
       <div className="container mx-auto px-4 py-8">
         <TabLayoutWrapper 
           selectedDate={dateNavigation.currentDate} 
@@ -142,3 +161,5 @@ const AdminLifeLock: React.FC = memo(() => {
     </div>
   );
 });
+
+export default AdminLifeLock;

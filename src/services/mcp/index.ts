@@ -48,7 +48,13 @@ export type {
   ValidationSchema 
 } from './mcp-middleware';
 
+import { MCPOrchestrator } from './mcp-orchestrator';
+import { UnifiedMCPClient } from './unified-mcp-client';
+import { MCPCache, mcpCache } from './mcp-cache';
+import { MCPMonitor, mcpMonitor } from './mcp-monitor';
+import { MCPMiddleware, mcpMiddleware } from './mcp-middleware';
 import DesktopCommanderClient from './desktop-commander-client';
+import SupabaseMCPClient from './supabase-client';
 
 /**
  * Quick start function to initialize all MCP services
@@ -72,11 +78,26 @@ export function initializeMCPServices(config?: {
   const mcps = ['supabase', 'context7', 'notion', 'github', 'exa', 'slack', 'desktop-commander'];
   mcps.forEach(mcp => {
     if (mcp === 'desktop-commander') {
+      const allowExec = (typeof process !== 'undefined' && process.env && (process.env.SISO_ALLOW_CODE_EXEC === '1' || process.env.SISO_ALLOW_CODE_EXEC === 'true')) || false;
+      const allowedPaths = (typeof process !== 'undefined' && process.env?.SISO_ALLOWED_PATHS ? process.env.SISO_ALLOWED_PATHS.split(':') : [process.cwd()]);
+      const allowedCommands = (typeof process !== 'undefined' && process.env?.SISO_ALLOWED_COMMANDS ? process.env.SISO_ALLOWED_COMMANDS.split(',').map(s => s.trim()).filter(Boolean) : undefined);
       const dc = new DesktopCommanderClient({
         // Keep defaults conservative; paths limited to project root
-        allowedPaths: [process.cwd()],
+        allowedPaths,
+        allowExec,
+        allowedCommands: allowedCommands && allowedCommands.length ? allowedCommands : undefined,
       });
       orchestrator.registerMCPClient(mcp, dc);
+    } else if (mcp === 'supabase') {
+      try {
+        const supa = new SupabaseMCPClient();
+        orchestrator.registerMCPClient(mcp, supa);
+      } catch (e) {
+        // If env not present, register a stub that throws informative error
+        orchestrator.registerMCPClient(mcp, {
+          executeSql() { throw new Error('Supabase MCP not configured: set SUPABASE_URL and SUPABASE_ANON_KEY'); }
+        });
+      }
     } else {
       orchestrator.registerMCPClient(mcp, {
         // Placeholder for actual MCP client

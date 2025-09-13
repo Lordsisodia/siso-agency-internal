@@ -1,0 +1,560 @@
+# <!-- Powered by BMAD™ Core -->
+workflow:
+  id: siso-quality-assurance
+  name: SISO Command Center Quality Assurance
+  description: >-
+    Comprehensive multi-agent quality assurance workflow for SISO Command Center.
+    Ensures CEO-ready production quality through systematic validation at every level.
+    Addresses critical QA gaps identified in assessment (7.2/10 → 9.5/10 target).
+  type: quality_assurance
+  priority: critical
+  target_system: siso-command-center
+  
+  qa_assessment_results:
+    current_score: 7.2/10
+    target_score: 9.5/10
+    critical_gaps:
+      - testing_coverage: "40% → 95% target"
+      - automated_validation: "Limited → Comprehensive"
+      - security_testing: "Basic → Enterprise-grade"
+      - performance_monitoring: "Manual → Automated"
+      - ceo_validation: "Ad-hoc → Systematic"
+
+  qa_categories:
+    code_quality:
+      - typescript_compliance
+      - code_review_standards
+      - architecture_adherence
+      - performance_optimization
+      - security_implementation
+    
+    functional_quality:
+      - feature_completeness
+      - user_experience_validation
+      - cross_browser_compatibility
+      - mobile_responsiveness
+      - accessibility_compliance
+    
+    integration_quality:
+      - service_layer_integration
+      - database_integrity
+      - api_reliability
+      - cross_system_compatibility
+      - data_flow_validation
+    
+    executive_quality:
+      - ceo_workflow_validation
+      - productivity_improvement_verification
+      - executive_dashboard_quality
+      - business_intelligence_accuracy
+      - executive_tool_integration
+
+  sequence:
+    - step: qa_scope_assessment
+      agent: qa
+      action: assess QA scope and complexity
+      creates: qa-scope-assessment.md
+      duration: 2-4 hours
+      notes: |
+        QA Scope Classification:
+        
+        COMPONENT QA (single component/feature):
+        - Unit testing validation
+        - Component integration testing
+        - Basic functional testing
+        - Performance spot checking
+        
+        FEATURE QA (complete feature):
+        - End-to-end testing
+        - User experience validation
+        - Cross-system integration
+        - Performance benchmarking
+        - Security vulnerability assessment
+        
+        SYSTEM QA (major release/refactor):
+        - Comprehensive test suite execution
+        - Full integration testing
+        - Performance stress testing
+        - Security penetration testing
+        - CEO acceptance testing
+        
+        PRODUCTION QA (deployment readiness):
+        - All previous QA levels
+        - Production environment validation
+        - Rollback strategy testing
+        - Monitoring and alerting verification
+        - Disaster recovery validation
+
+    - step: qa_strategy_development
+      agent: qa
+      action: develop comprehensive QA strategy
+      creates: qa-strategy.md
+      requires: qa-scope-assessment.md
+      duration: 4-8 hours
+      notes: |
+        QA Strategy Components:
+        - Testing methodology selection
+        - Tool and framework requirements
+        - Automation strategy
+        - Performance testing approach
+        - Security testing protocols
+        - CEO validation processes
+        - Risk assessment and mitigation
+        - Quality gates definition
+
+    - step: test_environment_preparation
+      agent: qa
+      action: prepare and validate test environments
+      creates: test-environment-report.md
+      requires: qa-strategy.md
+      duration: 1-2 days
+      notes: |
+        Test Environment Setup:
+        - Development environment validation
+        - Staging environment preparation
+        - Production-like test environment
+        - Test data preparation and seeding
+        - Mock service configuration
+        - Performance testing environment
+        - Security testing sandbox
+        - CEO demo environment preparation
+
+    - step: automated_testing_implementation
+      agent: dev
+      action: implement comprehensive automated testing
+      creates: automated-test-suite/
+      requires: qa-strategy.md
+      duration: 3-5 days
+      notes: |
+        Automated Testing Implementation:
+        
+        Unit Tests:
+        - Component logic testing
+        - Service function testing
+        - Utility function validation
+        - Error handling verification
+        
+        Integration Tests:
+        - Service layer integration
+        - Database operation testing
+        - API endpoint validation
+        - Cross-component communication
+        
+        End-to-End Tests:
+        - Complete user workflows
+        - Cross-browser functionality
+        - Mobile responsiveness
+        - Performance benchmarks
+        
+        Security Tests:
+        - Input validation testing
+        - Authentication flow testing
+        - Authorization verification
+        - XSS and CSRF protection
+
+    - step: manual_testing_procedures
+      agent: qa
+      action: develop manual testing procedures
+      creates: manual-testing-procedures.md
+      requires: qa-strategy.md
+      duration: 1-2 days
+      notes: |
+        Manual Testing Procedures:
+        - User experience testing checklists
+        - Exploratory testing guidelines
+        - CEO workflow validation procedures
+        - Accessibility testing protocols
+        - Cross-browser compatibility testing
+        - Mobile device testing procedures
+        - Performance validation methods
+        - Security testing protocols
+
+    - step: performance_testing_setup
+      agent: qa
+      action: implement performance testing framework
+      creates: performance-testing-suite/
+      requires: test-environment-report.md
+      duration: 2-3 days
+      notes: |
+        Performance Testing Framework:
+        - Load testing configuration
+        - Stress testing scenarios
+        - Performance baseline establishment
+        - Bottleneck identification methods
+        - Resource utilization monitoring
+        - CEO workflow performance validation
+        - Mobile performance testing
+        - API response time validation
+
+    - step: security_testing_implementation
+      agent: qa
+      action: implement security testing protocols
+      creates: security-testing-suite/
+      requires: qa-strategy.md
+      duration: 2-3 days
+      notes: |
+        Security Testing Implementation:
+        - Vulnerability scanning automation
+        - Penetration testing procedures
+        - Authentication security validation
+        - Data protection verification
+        - Input validation testing
+        - Session management testing
+        - API security assessment
+        - Executive data protection validation
+
+    - step: qa_execution_phase
+      repeats: for_each_qa_cycle
+      duration: varies_by_scope
+      notes: |
+        QA Execution Cycle:
+        
+        1. Pre-Execution Validation (qa):
+           - Test environment verification
+           - Test data preparation validation
+           - Automation suite readiness check
+           - Manual testing resource allocation
+        
+        2. Automated Testing Execution (qa):
+           - Unit test suite execution
+           - Integration test execution
+           - End-to-end test execution
+           - Performance test execution
+           - Security test execution
+           - Results collection and analysis
+        
+        3. Manual Testing Execution (qa):
+           - User experience validation
+           - Exploratory testing execution
+           - CEO workflow testing
+           - Cross-browser compatibility
+           - Mobile responsiveness validation
+           - Accessibility compliance testing
+        
+        4. Issue Identification and Triage (qa):
+           - Bug identification and classification
+           - Performance issue documentation
+           - Security vulnerability assessment
+           - User experience issue prioritization
+           - CEO impact assessment
+
+    - step: issue_resolution_coordination
+      agent: qa
+      action: coordinate issue resolution with development
+      creates: issue-resolution-tracking.md
+      condition: issues_identified
+      duration: varies_by_issue_complexity
+      notes: |
+        Issue Resolution Process:
+        - Critical issue immediate escalation
+        - Bug assignment to appropriate developers
+        - Resolution timeline establishment
+        - Fix validation procedures
+        - Regression testing requirements
+        - CEO critical issue fast-tracking
+        - Resolution quality verification
+
+    - step: regression_testing_execution
+      agent: qa
+      action: comprehensive regression testing
+      creates: regression-testing-report.md
+      condition: issues_resolved
+      duration: 1-3 days
+      notes: |
+        Regression Testing:
+        - Full automated test suite re-execution
+        - Critical path manual validation
+        - Performance benchmark verification
+        - Security test re-validation
+        - Integration point verification
+        - CEO workflow re-testing
+        - Cross-system compatibility validation
+
+    - step: ceo_acceptance_validation
+      agent: qa
+      action: CEO-specific quality validation
+      creates: ceo-acceptance-validation.md
+      condition: ceo_critical_features
+      duration: 1-2 days
+      notes: |
+        CEO Acceptance Validation:
+        - Executive workflow quality assessment
+        - Productivity improvement validation
+        - User experience from CEO perspective
+        - Performance standards verification
+        - Security and privacy validation
+        - Executive dashboard functionality
+        - Integration with CEO tools and processes
+
+    - step: production_readiness_certification
+      agent: qa
+      action: comprehensive production readiness assessment
+      creates: production-readiness-certificate.md
+      requires: all_qa_phases_complete
+      duration: 1-2 days
+      notes: |
+        Production Readiness Certification:
+        - All quality gates passed
+        - Performance benchmarks met
+        - Security standards satisfied
+        - CEO requirements fulfilled
+        - Monitoring and alerting validated
+        - Rollback procedures tested
+        - Documentation completeness verified
+        - Support readiness confirmed
+
+    - agent: po
+      action: final_qa_validation_and_sign_off
+      creates: qa-completion-certificate.md
+      requires: production-readiness-certificate.md
+      notes: |
+        Product Owner QA Sign-off:
+        - Quality standards exceeded
+        - Business requirements satisfied
+        - CEO acceptance criteria met
+        - Risk assessment acceptable
+        - Production deployment approved
+        - QA process improvement recommendations
+
+  quality_gates:
+    automated_testing_gate:
+      criteria:
+        - Unit test coverage ≥ 95%
+        - Integration tests all passing
+        - End-to-end tests successful
+        - Security tests clean
+        - Performance tests within bounds
+      validation: Automated test execution + coverage analysis
+      blocking: true
+      
+    manual_testing_gate:
+      criteria:
+        - User experience validation complete
+        - Cross-browser compatibility confirmed
+        - Mobile responsiveness verified
+        - Accessibility compliance achieved
+        - Exploratory testing issues resolved
+      validation: Manual testing checklist completion
+      blocking: true
+      
+    performance_gate:
+      criteria:
+        - Page load times < 2 seconds
+        - API response times < 500ms
+        - Memory usage within limits
+        - CPU utilization acceptable
+        - Concurrent user capacity validated
+      validation: Performance benchmarking
+      blocking: true
+      
+    security_gate:
+      criteria:
+        - Vulnerability scan clean
+        - Penetration testing passed
+        - Authentication security verified
+        - Data protection compliant
+        - Input validation comprehensive
+      validation: Security assessment
+      blocking: true
+      
+    ceo_acceptance_gate:
+      criteria:
+        - CEO workflow requirements met
+        - Productivity improvements validated
+        - Executive dashboard quality approved
+        - Business intelligence accuracy verified
+        - Integration with CEO tools successful
+      validation: CEO acceptance testing
+      blocking: true
+      
+    production_readiness_gate:
+      criteria:
+        - All previous gates passed
+        - Monitoring and alerting configured
+        - Rollback procedures validated
+        - Documentation complete
+        - Support processes ready
+      validation: Production readiness assessment
+      blocking: true
+
+  success_metrics:
+    quality_improvement:
+      - "QA score: 7.2 → 9.5+"
+      - "Test coverage: 40% → 95%+"
+      - "Automated test execution: 100%"
+      - "Critical bugs: 0 in production"
+      - "Performance standards: 100% compliance"
+    
+    efficiency_gains:
+      - "QA cycle time: 50% reduction"
+      - "Manual testing effort: 60% reduction"
+      - "Issue detection: 90% in QA phase"
+      - "Regression testing: 80% automated"
+      - "CEO acceptance: First-pass success"
+
+  automation_strategy:
+    continuous_integration:
+      - Automated test execution on commit
+      - Performance regression detection
+      - Security vulnerability scanning
+      - Code quality assessment
+      - Deployment readiness validation
+    
+    continuous_monitoring:
+      - Production performance monitoring
+      - Error rate tracking
+      - User experience metrics
+      - Security incident detection
+      - CEO workflow performance tracking
+
+  risk_mitigation:
+    quality_regression:
+      strategy: "Comprehensive regression testing automation"
+      monitoring: "Continuous quality metrics tracking"
+      response: "Immediate rollback and issue resolution"
+      
+    performance_degradation:
+      strategy: "Performance benchmarking at every release"
+      monitoring: "Real-time performance monitoring"
+      response: "Performance optimization task force"
+      
+    security_vulnerabilities:
+      strategy: "Automated security scanning and testing"
+      monitoring: "Continuous security monitoring"
+      response: "Security incident response protocol"
+      
+    ceo_acceptance_failure:
+      strategy: "Early and frequent CEO validation cycles"
+      monitoring: "CEO feedback integration"
+      response: "Rapid iteration and re-validation"
+
+  flow_diagram: |
+    ```mermaid
+    graph TD
+        A[Start: QA Process] --> B[qa: scope assessment]
+        B --> C[qa: strategy development]
+        C --> D[qa: test environment prep]
+        
+        D --> E[dev: automated testing]
+        D --> F[qa: manual procedures]
+        D --> G[qa: performance testing]
+        D --> H[qa: security testing]
+        
+        E --> I[qa: execution phase]
+        F --> I
+        G --> I
+        H --> I
+        
+        I --> J{Issues found?}
+        J -->|Yes| K[qa: issue resolution]
+        J -->|No| L{CEO Critical?}
+        
+        K --> M[qa: regression testing]
+        M --> J
+        
+        L -->|Yes| N[qa: CEO acceptance]
+        L -->|No| O[qa: production readiness]
+        N --> O
+        
+        O --> P[po: final validation]
+        P --> Q{QA complete?}
+        Q -->|Issues| R[Address gaps]
+        Q -->|Complete| S[QA Certificate]
+        R --> O
+
+        style S fill:#90EE90
+        style E fill:#87CEEB
+        style F fill:#ADD8E6
+        style G fill:#F0E68C
+        style H fill:#FFB6C1
+        style I fill:#DDA0DD
+        style N fill:#98FB98
+        style O fill:#DDA0DD
+    ```
+
+  agent_handoff_prompts:
+    scope_to_strategy: |
+      QA scope assessed:
+      - Scope level: {{qa_scope_level}}
+      - Components involved: {{component_count}}
+      - Testing complexity: {{complexity_level}}
+      - CEO critical: {{is_ceo_critical}}
+      - Estimated effort: {{effort_estimate}}
+      
+      Developing comprehensive QA strategy.
+
+    strategy_to_implementation: |
+      QA strategy finalized:
+      - Testing approach: {{testing_approach}}
+      - Automation percentage: {{automation_percentage}}
+      - Performance requirements: {{performance_requirements}}
+      - Security testing level: {{security_level}}
+      - CEO validation requirements: {{ceo_requirements}}
+      
+      Preparing test environments and implementing test suites.
+
+    implementation_to_execution: |
+      QA implementation complete:
+      - Automated tests: {{automated_test_count}} tests
+      - Manual procedures: {{manual_procedure_count}} procedures
+      - Performance tests: {{performance_test_count}} scenarios
+      - Security tests: {{security_test_count}} tests
+      - Test environments: {{environment_count}} ready
+      
+      Beginning QA execution phase.
+
+    execution_results: |
+      QA execution complete:
+      - Automated test results: {{automated_results}}
+      - Manual testing results: {{manual_results}}
+      - Performance test results: {{performance_results}}
+      - Security test results: {{security_results}}
+      - Issues identified: {{issue_count}}
+      - Critical issues: {{critical_issue_count}}
+
+    issue_resolution_to_regression: |
+      Issue resolution complete:
+      - Issues resolved: {{resolved_count}}
+      - Remaining issues: {{remaining_count}}
+      - Resolution time: {{resolution_time}}
+      - Code changes: {{change_count}}
+      
+      Beginning regression testing to validate fixes.
+
+    regression_to_acceptance: |
+      Regression testing complete:
+      - Regression test results: {{regression_results}}
+      - New issues found: {{new_issue_count}}
+      - Performance impact: {{performance_impact}}
+      - Quality gate status: {{quality_gate_status}}
+      
+      {{if_ceo_critical}}: Proceeding to CEO acceptance validation
+      {{if_not_ceo_critical}}: Proceeding to production readiness
+
+    final_certification: |
+      QA process complete:
+      - Quality score achieved: {{final_quality_score}}
+      - All quality gates: {{gate_status}}
+      - CEO acceptance: {{ceo_acceptance_status}}
+      - Production readiness: {{production_ready}}
+      - QA certificate: {{certificate_status}}
+
+  decision_guidance:
+    when_to_use:
+      - Any code changes requiring quality validation
+      - Feature releases before production deployment
+      - Critical bug fixes requiring comprehensive testing
+      - CEO-facing functionality requiring acceptance testing
+      - System-wide changes requiring integration validation
+
+    when_not_to_use:
+      - Documentation-only changes
+      - Configuration changes with no functional impact
+      - Development environment setup
+      - Non-functional administrative tasks
+
+  estimated_timeline:
+    component_qa: "2-5 days (single component validation)"
+    feature_qa: "1-2 weeks (complete feature validation)"
+    system_qa: "2-4 weeks (comprehensive system validation)"
+    production_qa: "1-2 weeks (deployment readiness validation)"

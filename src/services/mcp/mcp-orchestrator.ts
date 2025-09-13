@@ -1,4 +1,5 @@
 import { EventEmitter } from 'events';
+import { mcpMiddleware } from './mcp-middleware';
 
 export interface MCPStep {
   id: string;
@@ -201,13 +202,19 @@ export class MCPOrchestrator extends EventEmitter {
 
       try {
         this.emit('step:start', { stepId: step.id, mcp: step.mcp, action: step.action });
-        
-        const result = await mcpClient[step.action](step.params);
+
+        // Pre-process params through middleware
+        const processedParams = await mcpMiddleware.preProcess(step.mcp, step.action, step.params || {});
+
+        const rawResult = await mcpClient[step.action](processedParams);
+
+        // Post-process result
+        const finalResult = await mcpMiddleware.postProcess(step.mcp, step.action, rawResult);
         
         const executionResult: MCPExecutionResult = {
           stepId: step.id,
           status: 'success',
-          result,
+          result: finalResult,
           duration: Date.now() - startTime,
           retries: retries > 0 ? retries : undefined
         };

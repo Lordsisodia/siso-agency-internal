@@ -1,0 +1,626 @@
+# <!-- Powered by BMAD™ Core -->
+workflow:
+  id: siso-architecture-evolution
+  name: SISO Command Center Architecture Evolution
+  description: >-
+    Comprehensive workflow for major architectural changes and refactoring in SISO Command Center.
+    Maintains the excellent 9.2/10 architecture score while enabling systematic evolution.
+    Designed for complex refactoring, modernization, and architectural improvements.
+  type: architecture_evolution
+  priority: high
+  target_system: siso-command-center
+  
+  architecture_assessment:
+    current_score: 9.2/10
+    strengths:
+      - excellent_component_organization
+      - solid_service_layer_patterns
+      - good_separation_of_concerns
+      - effective_state_management
+      - clear_data_flow_architecture
+    
+    evolution_opportunities:
+      - service_layer_consolidation
+      - typescript_strict_mode_adoption
+      - performance_optimization_patterns
+      - scalability_architecture_improvements
+      - ai_integration_architecture_preparation
+
+  evolution_categories:
+    consolidation:
+      - duplicate_service_elimination
+      - component_architecture_simplification
+      - data_layer_optimization
+      - api_architecture_streamlining
+    
+    modernization:
+      - typescript_strict_mode_migration
+      - modern_react_patterns_adoption
+      - performance_architecture_optimization
+      - security_architecture_enhancement
+    
+    expansion:
+      - ai_integration_architecture
+      - scalability_improvements
+      - microservice_preparation
+      - real_time_architecture_addition
+    
+    optimization:
+      - performance_critical_path_optimization
+      - memory_usage_optimization
+      - bundle_size_optimization
+      - database_query_optimization
+
+  sequence:
+    - step: architecture_impact_assessment
+      agent: architect
+      action: comprehensive architecture impact analysis
+      creates: architecture-impact-assessment.md
+      duration: 2-3 days
+      notes: |
+        Architecture Impact Assessment:
+        
+        SCOPE CLASSIFICATION:
+        
+        MINOR REFACTOR (localized changes):
+        - Single component architectural improvements
+        - Service method optimization
+        - Performance tuning within existing patterns
+        - Small-scale TypeScript improvements
+        
+        MAJOR REFACTOR (system-wide changes):
+        - Service layer consolidation
+        - Component architecture redesign
+        - Data flow modifications
+        - Cross-cutting concern implementations
+        
+        ARCHITECTURAL EVOLUTION (fundamental changes):
+        - New architectural patterns introduction
+        - Technology stack modernization
+        - Scalability architecture changes
+        - AI integration architecture design
+        
+        SYSTEM TRANSFORMATION (complete reimagining):
+        - Microservice architecture transition
+        - Platform modernization
+        - Complete technology stack upgrade
+        - Business model architecture changes
+
+    - step: risk_assessment_and_mitigation
+      agent: architect
+      action: comprehensive risk assessment
+      creates: architecture-risk-assessment.md
+      requires: architecture-impact-assessment.md
+      duration: 1-2 days
+      notes: |
+        Risk Assessment Framework:
+        
+        TECHNICAL RISKS:
+        - Breaking changes impact
+        - Performance regression potential
+        - Integration failure risks
+        - Data migration challenges
+        - Backward compatibility issues
+        
+        BUSINESS RISKS:
+        - CEO workflow disruption
+        - User experience degradation
+        - Timeline impact assessment
+        - Resource allocation risks
+        - Opportunity cost analysis
+        
+        MITIGATION STRATEGIES:
+        - Incremental migration approaches
+        - Feature flag implementation
+        - Rollback strategy design
+        - Parallel system operation
+        - Comprehensive testing protocols
+
+    - step: architecture_design_phase
+      agent: architect
+      action: design new architecture with migration strategy
+      creates: architecture-evolution-design.md
+      requires: architecture-risk-assessment.md
+      duration: 3-5 days
+      notes: |
+        Architecture Evolution Design:
+        
+        CURRENT STATE ANALYSIS:
+        - Existing architecture documentation
+        - Component dependency mapping
+        - Service interaction analysis
+        - Data flow documentation
+        - Performance baseline establishment
+        
+        FUTURE STATE DESIGN:
+        - Target architecture specification
+        - Component interaction redesign
+        - Service layer optimization
+        - Data architecture improvements
+        - Performance optimization strategy
+        
+        MIGRATION STRATEGY:
+        - Phase-based migration plan
+        - Dependency resolution order
+        - Feature flag implementation
+        - Testing strategy integration
+        - Rollback procedure design
+
+    - step: implementation_planning
+      agent: architect
+      action: create detailed implementation roadmap
+      creates: implementation-roadmap.md
+      requires: architecture-evolution-design.md
+      duration: 2-3 days
+      notes: |
+        Implementation Planning:
+        
+        PHASE BREAKDOWN:
+        - Foundation phase (core architecture changes)
+        - Migration phase (component-by-component transition)
+        - Integration phase (system-wide integration)
+        - Optimization phase (performance and cleanup)
+        - Validation phase (comprehensive testing)
+        
+        RESOURCE ALLOCATION:
+        - Development effort estimation
+        - Testing resource requirements
+        - Infrastructure needs assessment
+        - Timeline and milestone planning
+        - Risk contingency planning
+
+    - agent: po
+      validates: architecture_evolution_plans
+      uses: po-architecture-validation-checklist
+      creates: validated-architecture-plan.md
+      duration: 1-2 days
+      notes: |
+        Product Owner Architecture Validation:
+        - Business value justification
+        - CEO workflow impact assessment
+        - Resource allocation approval
+        - Timeline feasibility verification
+        - Risk acceptance evaluation
+        - Success criteria definition
+        - Stakeholder communication plan
+
+    - step: foundation_phase_implementation
+      agent: dev
+      action: implement core architecture foundations
+      creates: foundation_implementation_files/
+      requires: validated-architecture-plan.md
+      duration: 1-3 weeks
+      notes: |
+        Foundation Phase Implementation:
+        
+        CORE ARCHITECTURE CHANGES:
+        - Base service layer modifications
+        - Core type system improvements
+        - Fundamental component patterns
+        - Data layer foundation changes
+        - Build system optimizations
+        
+        VALIDATION CHECKPOINTS:
+        - Foundation architecture tests
+        - Integration point validation
+        - Performance baseline maintenance
+        - Security compliance verification
+        - CEO workflow preservation
+
+    - step: foundation_validation
+      agent: qa
+      action: validate foundation implementation
+      creates: foundation-validation-report.md
+      requires: foundation_implementation_files/
+      duration: 3-5 days
+      notes: |
+        Foundation Validation:
+        - Architecture pattern verification
+        - Integration point testing
+        - Performance impact assessment
+        - Security compliance validation
+        - Regression testing execution
+        - CEO workflow impact verification
+
+    - step: migration_phase_implementation
+      agent: dev
+      action: systematic component migration
+      creates: migration_implementation_files/
+      requires: foundation-validation-report.md
+      repeats: for_each_migration_phase
+      duration: 2-4 weeks_per_phase
+      notes: |
+        Migration Phase Implementation:
+        
+        COMPONENT MIGRATION STRATEGY:
+        - Priority-based migration order
+        - Dependency-aware sequencing
+        - Feature flag controlled rollout
+        - Incremental testing validation
+        - Performance monitoring integration
+        
+        MIGRATION CHECKPOINTS:
+        - Component architecture compliance
+        - Integration testing validation
+        - Performance regression checking
+        - User experience preservation
+        - CEO workflow continuity
+
+    - step: migration_validation
+      agent: qa
+      action: validate each migration phase
+      creates: migration-validation-reports/
+      requires: migration_implementation_files/
+      repeats: for_each_migration_phase
+      duration: 1-2 days_per_phase
+      notes: |
+        Migration Validation:
+        - Component migration verification
+        - Integration testing execution
+        - Performance benchmarking
+        - User experience validation
+        - Security compliance checking
+        - CEO acceptance criteria verification
+
+    - step: integration_phase_implementation
+      agent: dev
+      action: system-wide integration optimization
+      creates: integration_implementation_files/
+      requires: all_migration_phases_complete
+      duration: 1-2 weeks
+      notes: |
+        Integration Phase Implementation:
+        - Cross-component integration optimization
+        - Service layer consolidation completion
+        - Data flow optimization
+        - Performance bottleneck resolution
+        - API optimization and cleanup
+        - Documentation updates
+
+    - step: integration_validation
+      agent: qa
+      action: comprehensive integration testing
+      creates: integration-validation-report.md
+      requires: integration_implementation_files/
+      duration: 1-2 weeks
+      notes: |
+        Integration Validation:
+        - End-to-end workflow testing
+        - Cross-system integration verification
+        - Performance stress testing
+        - Security penetration testing
+        - Load testing execution
+        - CEO workflow comprehensive validation
+
+    - step: optimization_phase_implementation
+      agent: dev
+      action: performance and architecture optimization
+      creates: optimization_implementation_files/
+      requires: integration-validation-report.md
+      duration: 1-2 weeks
+      notes: |
+        Optimization Phase Implementation:
+        - Performance critical path optimization
+        - Memory usage optimization
+        - Bundle size optimization
+        - Database query optimization
+        - Caching strategy implementation
+        - Monitoring and alerting enhancement
+
+    - step: optimization_validation
+      agent: qa
+      action: optimization impact validation
+      creates: optimization-validation-report.md
+      requires: optimization_implementation_files/
+      duration: 3-5 days
+      notes: |
+        Optimization Validation:
+        - Performance benchmark comparison
+        - Resource utilization assessment
+        - User experience impact measurement
+        - Scalability testing execution
+        - CEO workflow performance validation
+        - Production readiness assessment
+
+    - step: architecture_evolution_certification
+      agent: architect
+      action: comprehensive architecture quality assessment
+      creates: architecture-evolution-certificate.md
+      requires: optimization-validation-report.md
+      duration: 1-2 days
+      notes: |
+        Architecture Evolution Certification:
+        - Architecture quality score assessment
+        - Design pattern compliance verification
+        - Performance improvement validation
+        - Scalability enhancement confirmation
+        - Maintainability improvement verification
+        - Documentation completeness review
+
+    - agent: po
+      action: final_evolution_validation_and_handoff
+      creates: evolution-completion-report.md
+      requires: architecture-evolution-certificate.md
+      notes: |
+        Final Product Owner Sign-off:
+        - Architecture evolution objectives achieved
+        - Business value delivered as planned
+        - CEO requirements satisfied
+        - Quality standards exceeded
+        - Performance targets met
+        - Ready for production deployment
+
+  quality_gates:
+    foundation_gate:
+      criteria:
+        - Core architecture patterns implemented
+        - Foundation tests all passing
+        - Integration points functional
+        - Performance baseline maintained
+        - Security compliance verified
+      validation: Foundation validation testing
+      blocking: true
+      
+    migration_gate:
+      criteria:
+        - Component migration successful
+        - Integration tests passing
+        - Performance within acceptable bounds
+        - User experience preserved
+        - CEO workflows functional
+      validation: Migration phase validation
+      blocking: true
+      repeats: for_each_migration_phase
+      
+    integration_gate:
+      criteria:
+        - System-wide integration successful
+        - End-to-end workflows functional
+        - Performance targets achieved
+        - Security standards maintained
+        - CEO acceptance criteria met
+      validation: Comprehensive integration testing
+      blocking: true
+      
+    optimization_gate:
+      criteria:
+        - Performance improvements validated
+        - Resource optimization confirmed
+        - Scalability enhancements verified
+        - User experience optimized
+        - CEO workflow performance improved
+      validation: Optimization impact assessment
+      blocking: true
+      
+    architecture_certification_gate:
+      criteria:
+        - Architecture quality score ≥ 9.5/10
+        - Design pattern compliance 100%
+        - Performance improvements documented
+        - Maintainability enhanced
+        - Documentation complete
+      validation: Architecture quality assessment
+      blocking: true
+
+  success_metrics:
+    architecture_quality:
+      - "Architecture score: 9.2 → 9.5+"
+      - "Code maintainability: 50% improvement"
+      - "Component reusability: 40% improvement"
+      - "Architecture debt: 80% reduction"
+      - "Design pattern compliance: 100%"
+    
+    performance_improvement:
+      - "System performance: 30% improvement"
+      - "Memory usage: 25% reduction"
+      - "Bundle size: 20% reduction"
+      - "Database query performance: 40% improvement"
+      - "CEO workflow performance: 50% improvement"
+    
+    development_efficiency:
+      - "Development velocity: 30% improvement"
+      - "Bug resolution time: 40% reduction"
+      - "Feature delivery time: 25% improvement"
+      - "Code review efficiency: 35% improvement"
+      - "Testing efficiency: 50% improvement"
+
+  rollback_strategy:
+    feature_flags:
+      strategy: "Feature flag controlled rollout for all changes"
+      implementation: "Progressive rollout with instant rollback capability"
+      monitoring: "Real-time performance and error monitoring"
+      
+    database_migrations:
+      strategy: "Reversible database migrations with data preservation"
+      implementation: "Backup and restore procedures for each phase"
+      monitoring: "Data integrity validation at each checkpoint"
+      
+    component_rollback:
+      strategy: "Component-level rollback capability"
+      implementation: "Git-based rollback with automated deployment"
+      monitoring: "Component health monitoring and alerting"
+
+  risk_mitigation:
+    breaking_changes:
+      strategy: "Incremental migration with backward compatibility"
+      monitoring: "Continuous integration testing"
+      response: "Immediate rollback and issue resolution"
+      
+    performance_regression:
+      strategy: "Performance monitoring at every phase"
+      monitoring: "Real-time performance benchmarking"
+      response: "Performance optimization task force activation"
+      
+    ceo_workflow_disruption:
+      strategy: "CEO workflow preservation throughout evolution"
+      monitoring: "CEO acceptance testing at each phase"
+      response: "Priority fix with CEO validation"
+      
+    integration_failures:
+      strategy: "Comprehensive integration testing"
+      monitoring: "Integration point health monitoring"
+      response: "Integration issue rapid resolution protocol"
+
+  flow_diagram: |
+    ```mermaid
+    graph TD
+        A[Start: Architecture Evolution] --> B[architect: impact assessment]
+        B --> C[architect: risk assessment]
+        C --> D[architect: evolution design]
+        D --> E[architect: implementation planning]
+        
+        E --> F[po: validate plans]
+        F --> G{PO validation?}
+        G -->|Issues| H[Fix plans]
+        G -->|Approved| I[dev: foundation phase]
+        H --> F
+        
+        I --> J[qa: foundation validation]
+        J --> K{Foundation gate?}
+        K -->|Fail| I
+        K -->|Pass| L[dev: migration phase]
+        
+        L --> M[qa: migration validation]
+        M --> N{Migration gate?}
+        N -->|Fail| L
+        N -->|Pass| O{More migrations?}
+        O -->|Yes| L
+        O -->|No| P[dev: integration phase]
+        
+        P --> Q[qa: integration validation]
+        Q --> R{Integration gate?}
+        R -->|Fail| P
+        R -->|Pass| S[dev: optimization phase]
+        
+        S --> T[qa: optimization validation]
+        T --> U{Optimization gate?}
+        U -->|Fail| S
+        U -->|Pass| V[architect: certification]
+        
+        V --> W[po: final validation]
+        W --> X{Evolution complete?}
+        X -->|Issues| Y[Address gaps]
+        X -->|Complete| Z[Evolution Certificate]
+        Y --> V
+
+        style Z fill:#90EE90
+        style I fill:#87CEEB
+        style L fill:#ADD8E6
+        style P fill:#F0E68C
+        style S fill:#DDA0DD
+        style V fill:#98FB98
+        style W fill:#DDA0DD
+    ```
+
+  agent_handoff_prompts:
+    impact_to_risk: |
+      Architecture impact assessed:
+      - Evolution scope: {{evolution_scope}}
+      - Components affected: {{component_count}}
+      - Complexity level: {{complexity_level}}
+      - Estimated effort: {{effort_estimate}}
+      - Business impact: {{business_impact}}
+      
+      Proceeding to comprehensive risk assessment.
+
+    risk_to_design: |
+      Risk assessment complete:
+      - Technical risks: {{technical_risks}}
+      - Business risks: {{business_risks}}
+      - Mitigation strategies: {{mitigation_strategies}}
+      - Risk level: {{overall_risk_level}}
+      
+      Creating evolution design with risk mitigation.
+
+    design_to_planning: |
+      Architecture evolution design complete:
+      - Target architecture: {{target_architecture}}
+      - Migration strategy: {{migration_strategy}}
+      - Phase breakdown: {{phase_count}} phases
+      - Success criteria: {{success_criteria}}
+      
+      Creating detailed implementation roadmap.
+
+    planning_to_po: |
+      Implementation planning complete:
+      - Total timeline: {{total_timeline}}
+      - Resource requirements: {{resource_requirements}}
+      - Risk mitigation: {{risk_mitigation}}
+      - Success metrics: {{success_metrics}}
+      
+      Requesting Product Owner validation.
+
+    po_to_foundation: |
+      Plans validated and approved:
+      - Foundation phase scope: {{foundation_scope}}
+      - Timeline: {{foundation_timeline}}
+      - Success criteria: {{foundation_criteria}}
+      - Quality gates: {{foundation_gates}}
+      
+      Beginning foundation phase implementation.
+
+    foundation_to_migration: |
+      Foundation phase complete:
+      - Foundation validation: {{foundation_status}}
+      - Architecture baseline: {{baseline_status}}
+      - Performance impact: {{performance_impact}}
+      - Ready for migration: {{migration_ready}}
+      
+      Beginning migration phase implementation.
+
+    migration_progress: |
+      Migration phase {{phase_number}} complete:
+      - Components migrated: {{migrated_components}}
+      - Validation status: {{validation_status}}
+      - Performance impact: {{performance_impact}}
+      - Remaining phases: {{remaining_phases}}
+      
+      {{if_more_phases}}: Continuing to next migration phase
+      {{if_complete}}: Proceeding to integration phase
+
+    integration_to_optimization: |
+      Integration phase complete:
+      - Integration validation: {{integration_status}}
+      - System-wide testing: {{testing_status}}
+      - Performance benchmarks: {{performance_status}}
+      - CEO validation: {{ceo_status}}
+      
+      Beginning optimization phase.
+
+    optimization_to_certification: |
+      Optimization phase complete:
+      - Performance improvements: {{performance_gains}}
+      - Resource optimization: {{resource_gains}}
+      - User experience impact: {{ux_impact}}
+      - CEO workflow performance: {{ceo_performance}}
+      
+      Beginning architecture certification.
+
+    final_certification: |
+      Architecture evolution complete:
+      - Architecture quality score: {{final_score}}
+      - Performance improvements: {{performance_summary}}
+      - Business value delivered: {{business_value}}
+      - CEO satisfaction: {{ceo_satisfaction}}
+      - Ready for production: {{production_ready}}
+
+  decision_guidance:
+    when_to_use:
+      - Major architectural refactoring requirements
+      - Technology stack modernization needs
+      - Performance architecture optimization
+      - Scalability improvement requirements
+      - Service layer consolidation projects
+
+    when_not_to_use:
+      - Simple component refactoring
+      - Minor performance optimizations
+      - Bug fixes with no architectural impact
+      - UI/UX improvements without architecture changes
+      - Configuration or deployment changes
+
+  estimated_timeline:
+    minor_refactor: "2-4 weeks (localized architectural improvements)"
+    major_refactor: "6-12 weeks (system-wide architectural changes)"
+    architectural_evolution: "12-20 weeks (fundamental architecture changes)"
+    system_transformation: "20-40 weeks (complete architectural reimagining)"

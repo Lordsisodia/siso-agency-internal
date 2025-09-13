@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SOPDocumentationPage } from '@/ai-first/features/partnerships/pages/SOPDocumentationPage';
+import { SOPDocumentationPage } from '@/ecosystem/external/partnerships/hooks/pages/SOPDocumentationPage';
 import { partnershipSOPs } from '@/data/partnershipSOPs';
 
 export default function DirectReferralsSOP() {

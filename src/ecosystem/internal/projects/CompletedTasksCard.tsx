@@ -1,6 +1,6 @@
 import React from 'react';
 import { CheckSquare, Calendar, Clock } from 'lucide-react';
-import { DailyTrackerCard } from '@/ai-first/features/tasks/ui/DailyTrackerCard';
+import { DailyTrackerCard } from '@/ecosystem/internal/tasks/ui/DailyTrackerCard';
 import { format } from 'date-fns';
 
 export interface CompletedTask {

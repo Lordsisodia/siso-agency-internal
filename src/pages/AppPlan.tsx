@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
 import { ArrowLeft, Wand2, FileText, FlaskConical, Search, BarChart3, MessageSquare, ExternalLink, Clock, DollarSign, CheckCircle } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useToast } from '@/shared/hooks/use-toast';
-import { appPlanAgent } from '@/ai-first/core/ai.service';
+import { appPlanAgent } from '@/shared/services/ai.service';
 import { GeneratedAppPlan } from '@/types/appPlan.types';
 import { Progress } from '@/shared/ui/progress';
 import { getAppPlanByUsername, type SavedAppPlan } from '@/services/appPlanService';

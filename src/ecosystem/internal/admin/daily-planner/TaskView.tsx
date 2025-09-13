@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card';
 import { TaskBank } from './TaskBank';
-import { TeamMemberSelector } from '@/ai-first/features/dashboard/components/TeamMemberSelector';
+import { TeamMemberSelector } from '@/ecosystem/internal/admin/dashboard/components/TeamMemberSelector';
 
 export function TaskView() {
   return (

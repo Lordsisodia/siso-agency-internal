@@ -15,19 +15,23 @@
 import React from 'react';
 import { LucideIcon } from 'lucide-react';
 
-// Import tab components
-import { MorningRoutineSection } from '@/ai-first/features/tasks/components/MorningRoutineSection';
-import { DeepFocusWorkSection } from '@/ai-first/features/tasks/components/DeepFocusWorkSection-v2';
-import { LightFocusWorkSection } from '@/ai-first/features/tasks/components/LightFocusWorkSection-v2';
+// Import tab components - UPDATED FOR UNIFIED ARCHITECTURE
+// ✅ Components from unified /sections/ directory
+import { MorningRoutineSection } from './sections/MorningRoutineSection';
+import { DeepFocusWorkSection } from './sections/DeepFocusWorkSection';
+import SisoDeepFocusPlan from '@/components/ui/siso-deep-focus-plan';
+
+// ✅ Components from unified /sections/ directory  
+import { LightFocusWorkSection } from './sections/LightFocusWorkSection';
 import { EnhancedLightWorkManager } from '@/shared/ui/enhanced-light-work-manager';
-import { HomeWorkoutSection } from '@/ai-first/features/tasks/components/HomeWorkoutSection';
-import { HealthNonNegotiablesSection } from '@/ai-first/features/tasks/components/HealthNonNegotiablesSection';
-import { TimeboxSection } from '@/ai-first/features/tasks/components/TimeboxSection';
-import { NightlyCheckoutSection } from '@/ai-first/features/tasks/components/NightlyCheckoutSection';
-import { QuickActionsSection } from '@/ai-first/features/tasks/ui/QuickActionsSection';
+import { HomeWorkoutSection } from './sections/HomeWorkoutSection';
+import { HealthNonNegotiablesSection } from './sections/HealthNonNegotiablesSection';
+import { TimeboxSection } from './sections/TimeboxSection';
+import { NightlyCheckoutSection } from './sections/NightlyCheckoutSection';
+import { QuickActionsSection } from '@/ecosystem/internal/tasks/ui/QuickActionsSection';
 
 // Import existing tab config
-import { TabId, TAB_CONFIG } from '@/ai-first/core/tab-config';
+import { TabId, TAB_CONFIG } from '@/shared/services/tab-config';
 
 /**
  * Enhanced tab configuration with component mappings and layout variants
@@ -127,7 +131,7 @@ export const ENHANCED_TAB_CONFIG: Record<TabId, EnhancedTabConfig> = {
     layoutType: 'standard',
     backgroundClass: 'min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24',
     showDateNav: true,
-    components: [DeepFocusWorkSection],
+    components: [SisoDeepFocusPlan],
   },
   
   'wellness': {

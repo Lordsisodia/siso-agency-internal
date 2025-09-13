@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
-import { LifeLockService, DailyRoutine, DailyWorkout, DailyHealth, DailyHabits, DailyReflections } from '@/ai-first/core/task.service';
-import { EnhancedTaskService, EnhancedTask } from '@/ai-first/core/task.service';
+import { LifeLockService, DailyRoutine, DailyWorkout, DailyHealth, DailyHabits, DailyReflections } from '@/shared/services/task.service';
+import { EnhancedTaskService, EnhancedTask } from '@/shared/services/task.service';
 
 interface RealLifeLockData {
   routine: DailyRoutine | null;

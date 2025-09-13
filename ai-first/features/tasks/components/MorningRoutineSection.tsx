@@ -1,424 +1,497 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  Sun,
-  CheckCircle2,
-  Circle,
-  Calendar,
-  Clock,
-  Droplets,
-  Dumbbell,
-  Brain,
-  Newspaper,
-  Target,
-  Calendar as CalendarIcon,
-  Activity,
-  Heart
-} from 'lucide-react';
+import { format, isToday } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
 import { Checkbox } from '@/shared/ui/checkbox';
 import { Input } from '@/shared/ui/input';
-import { format } from 'date-fns';
 import { cn } from '@/shared/lib/utils';
 import { useClerkUser } from '@/shared/ClerkProvider';
-import { useMorningRoutineSupabase } from '@/shared/hooks/useMorningRoutineSupabase';
-import { theme } from '@/styles/theme';
-import { getTasksForSection } from '@/data/task-defaults';
-import { isFeatureEnabled, useImplementation } from '@/migration/feature-flags';
-import { LoadingState } from '@/shared/ui/loading-state';
-import { ErrorState } from '@/shared/ui/error-state';
-import { WakeUpTimePicker } from '@/shared/ui/wake-up-time-picker';
+import { workTypeApiClient } from '@/services/workTypeApiClient';
 
-
-
-interface MorningRoutineHabit {
-  name: string;
-  completed: boolean;
-}
-
-interface MorningRoutineData {
+interface Task {
   id: string;
-  userId: string;
-  date: string;
-  items: MorningRoutineHabit[];
-  completedCount: number;
-  totalCount: number;
-  completionPercentage: number;
+  title: string;
+  type: 'simple' | 'input' | 'subtask' | 'timer';
+  completed: boolean;
+  inputValue?: string;
+  placeholder?: string;
+  subtasks?: {
+    id: string;
+    title: string;
+    completed: boolean;
+    count?: number;
+    targetCount?: number;
+  }[];
 }
 
-interface MorningRoutineSectionProps {
-  selectedDate: Date;
-}
-
-const MORNING_ROUTINE_TASKS = useImplementation(
-  'useRefactoredDefaultTasks',
-  // NEW: Use centralized task defaults (47 lines saved)
-  getTasksForSection('morning'),
-  // OLD: Original hardcoded tasks (fallback for safety)
-  [
+const morningTasks: Task[] = [
   {
-    key: 'wakeUp' as const,
+    id: 'wakeup',
     title: 'Wake Up',
-    description: 'Start the day before midday to maximize productivity. Track your wake-up time.',
-    timeEstimate: '5 min',
-    icon: Sun,
-    hasTimeTracking: true,
-    subtasks: []
+    type: 'input',
+    completed: false,
+    placeholder: 'What time did you wake up?'
   },
   {
-    key: 'getBloodFlowing' as const,
-    title: 'Get Blood Flowing (5 min)',
-    description: 'Max rep push-ups (Target PB: 30) - Physical activation to wake up the body.',
-    timeEstimate: '5 min',
-    icon: Dumbbell,
-    hasTimeTracking: false,
+    id: 'getbloodflowing',
+    title: 'Get Blood Flowing',
+    type: 'subtask',
+    completed: false,
     subtasks: [
-      { key: 'pushups', title: 'Push-ups (PB 30)' },
-      { key: 'situps', title: 'Sit-ups' },
-      { key: 'pullups', title: 'Pull-ups' }
+      { id: 'pushups', title: 'Pushups', completed: false, count: 0, targetCount: 10 },
+      { id: 'situps', title: 'Situps', completed: false, count: 0, targetCount: 20 },
+      { id: 'pullups', title: 'Pullups', completed: false, count: 0, targetCount: 5 }
     ]
   },
   {
-    key: 'freshenUp' as const,
-    title: 'Freshen Up (25 min)',
-    description: 'Cold shower to wake up - Personal hygiene and cleanliness.',
-    timeEstimate: '25 min',
-    icon: Droplets,
-    hasTimeTracking: false,
+    id: 'freshenup',
+    title: 'Freshen Up',
+    type: 'subtask',
+    completed: false,
     subtasks: [
-      { key: 'bathroom', title: 'Bathroom break' },
-      { key: 'brushTeeth', title: 'Brush teeth' },
-      { key: 'coldShower', title: 'Cold shower' }
+      { id: 'bathroom', title: 'Bathroom', completed: false },
+      { id: 'brushteeth', title: 'Brush Teeth', completed: false },
+      { id: 'coldshower', title: 'Cold Shower', completed: false }
     ]
   },
   {
-    key: 'powerUpBrain' as const,
-    title: 'Power Up Brain (5 min)',
-    description: 'Hydrate and fuel the body and mind.',
-    timeEstimate: '5 min',
-    icon: Brain,
-    hasTimeTracking: false,
+    id: 'powerupbrain',
+    title: 'Power Up Brain',
+    type: 'subtask',
+    completed: false,
     subtasks: [
-      { key: 'water', title: 'Water (5 glasses)' },
-      { key: 'supplements', title: 'Supplements' },
-      { key: 'preworkout', title: 'Pre-workout' }
+      { id: 'water', title: 'Drink Water', completed: false },
+      { id: 'supplements', title: 'Supplements', completed: false },
+      { id: 'preworkout', title: 'Pre-workout', completed: false }
     ]
   },
   {
-    key: 'planDay' as const,
-    title: 'Plan Day (15 min)',
-    description: 'Go through tasks, prioritize, and allocate time slots.',
-    timeEstimate: '15 min',
-    icon: CalendarIcon,
-    hasTimeTracking: false,
+    id: 'planday',
+    title: 'Plan Day',
+    type: 'subtask',
+    completed: false,
     subtasks: [
-      { key: 'thoughtDump', title: 'Thought dump' },
-      { key: 'planDeepWork', title: 'Plan deep work' },
-      { key: 'planLightWork', title: 'Plan light work' },
-      { key: 'setTimebox', title: 'Set timebox' }
+      { id: 'thoughtdump', title: 'Thought Dump (3 min)', completed: false },
+      { id: 'deepwork', title: 'Plan Deep Work', completed: false },
+      { id: 'lightwork', title: 'Plan Light Work', completed: false },
+      { id: 'timebox', title: 'Set Time Box', completed: false }
     ]
   },
   {
-    key: 'meditation' as const,
-    title: 'Meditation (2 min)',
-    description: 'Meditate to set an innovative mindset for creating business value.',
-    timeEstimate: '2 min',
-    icon: Heart,
-    hasTimeTracking: false,
-    subtasks: []
+    id: 'meditation',
+    title: 'Meditation',
+    type: 'timer',
+    completed: false
   }
-  ]
-);
+];
 
-export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
-  selectedDate
-}) => {
+export function MorningRoutineSection() {
+  const [tasks, setTasks] = useState<Task[]>(morningTasks);
+  const [wakeUpTime, setWakeUpTime] = useState<string>('');
+  const [meditationTime, setMeditationTime] = useState<number>(0);
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [completedRoutine, setCompletedRoutine] = useState(false);
   const { user } = useClerkUser();
-  const { morningRoutine, isLoading: loading, error, toggleHabit } = useMorningRoutineSupabase(selectedDate);
 
-  const [wakeUpTime, setWakeUpTime] = useState<string>(() => {
-    const dateKey = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd');
-    const saved = localStorage.getItem(`lifelock-${dateKey}-wakeUpTime`);
-    return saved || '';
-  });
-
-  const [isEditingWakeTime, setIsEditingWakeTime] = useState(false);
-
-
-
-  // Save wake-up time to localStorage
+  // Load saved data on mount
   useEffect(() => {
-    if (!selectedDate || isNaN(selectedDate.getTime())) return;
-    const dateKey = format(selectedDate, 'yyyy-MM-dd');
-    localStorage.setItem(`lifelock-${dateKey}-wakeUpTime`, wakeUpTime);
-  }, [wakeUpTime, selectedDate]);
+    const today = format(new Date(), 'yyyy-MM-dd');
+    const savedData = localStorage.getItem(`morningRoutine-${today}`);
+    
+    if (savedData) {
+      const parsed = JSON.parse(savedData);
+      setTasks(parsed.tasks || morningTasks);
+      setWakeUpTime(parsed.wakeUpTime || '');
+      setCompletedRoutine(parsed.completedRoutine || false);
+    }
+  }, []);
 
-  // Handle habit toggle using Supabase hook
-  const handleHabitToggle = async (habitKey: string, completed: boolean) => {
-    await toggleHabit(habitKey, completed);
+  // Save data whenever tasks change
+  useEffect(() => {
+    const today = format(new Date(), 'yyyy-MM-dd');
+    const dataToSave = {
+      tasks,
+      wakeUpTime,
+      completedRoutine,
+      date: today
+    };
+    localStorage.setItem(`morningRoutine-${today}`, JSON.stringify(dataToSave));
+  }, [tasks, wakeUpTime, completedRoutine]);
+
+  // Timer effect for meditation
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isTimerRunning) {
+      interval = setInterval(() => {
+        setMeditationTime(prev => prev + 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isTimerRunning]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Get current time in 12-hour format
-  const getCurrentTime = () => {
-    const now = new Date();
-    return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const handleTaskToggle = (taskId: string) => {
+    setTasks(prev => prev.map(task => {
+      if (task.id === taskId) {
+        return { ...task, completed: !task.completed };
+      }
+      return task;
+    }));
   };
 
-  // Handle setting current time as wake-up time
-  const setCurrentTimeAsWakeUp = () => {
-    setWakeUpTime(getCurrentTime());
-    setIsEditingWakeTime(false);
+  const handleSubtaskToggle = (taskId: string, subtaskId: string) => {
+    setTasks(prev => prev.map(task => {
+      if (task.id === taskId && task.subtasks) {
+        const updatedSubtasks = task.subtasks.map(subtask => 
+          subtask.id === subtaskId 
+            ? { ...subtask, completed: !subtask.completed }
+            : subtask
+        );
+        
+        // Auto-complete main task if all subtasks are done
+        const allSubtasksComplete = updatedSubtasks.every(subtask => subtask.completed);
+        
+        return {
+          ...task,
+          subtasks: updatedSubtasks,
+          completed: allSubtasksComplete
+        };
+      }
+      return task;
+    }));
   };
 
-  // Calculate progress based on completed tasks and subtasks
-  const getRoutineProgress = () => {
-    if (!morningRoutine) return 0;
-    return morningRoutine.completion_percentage || 0;
+  const handleCountChange = (taskId: string, subtaskId: string, count: number) => {
+    setTasks(prev => prev.map(task => {
+      if (task.id === taskId && task.subtasks) {
+        const updatedSubtasks = task.subtasks.map(subtask => {
+          if (subtask.id === subtaskId) {
+            const completed = subtask.targetCount ? count >= subtask.targetCount : false;
+            return { ...subtask, count, completed };
+          }
+          return subtask;
+        });
+
+        // Auto-complete main task if all subtasks are done
+        const allSubtasksComplete = updatedSubtasks.every(subtask => subtask.completed);
+        
+        return {
+          ...task,
+          subtasks: updatedSubtasks,
+          completed: allSubtasksComplete
+        };
+      }
+      return task;
+    }));
   };
 
-  // Helper function to check if a habit is completed
-  const isHabitCompleted = (habitKey: string): boolean => {
-    if (!morningRoutine || !morningRoutine.items) return false;
-    const habit = morningRoutine.items.find(item => item.name === habitKey);
-    return habit?.completed || false;
+  const handleWakeUpTimeChange = (value: string) => {
+    setWakeUpTime(value);
+    
+    // Auto-complete wake up task if time is entered
+    setTasks(prev => prev.map(task => 
+      task.id === 'wakeup' 
+        ? { ...task, completed: value.length > 0, inputValue: value }
+        : task
+    ));
   };
-  
-  const morningRoutineProgress = getRoutineProgress();
 
-  if (loading) {
-    return useImplementation(
-      'useUnifiedLoadingState',
-      // NEW: Unified loading state (safer, consistent, reusable)
-      <LoadingState 
-        message="Loading morning routine..." 
-        variant="spinner"
-        size="lg"
-        className={useImplementation(
-          'useUnifiedThemeSystem',
-          // NEW: Unified theme system
-          `min-h-screen w-full ${theme.backgrounds.solid.gray900}`,
-          // OLD: Original classes (fallback for safety)
-          'min-h-screen w-full bg-gray-900'
-        )}
-      />,
-      // OLD: Original loading state (fallback for safety)
-      <div className={useImplementation(
-        'useUnifiedThemeSystem',
-        // NEW: Unified theme system
-        `min-h-screen w-full flex items-center justify-center ${theme.backgrounds.solid.gray900}`,
-        // OLD: Original classes (fallback for safety)
-        'min-h-screen w-full bg-gray-900 flex items-center justify-center'
-      )}>
-        <div className="text-yellow-400">Loading morning routine...</div>
-      </div>
-    );
-  }
+  const handleMeditationToggle = () => {
+    const meditationTask = tasks.find(task => task.id === 'meditation');
+    
+    if (!meditationTask?.completed) {
+      setIsTimerRunning(!isTimerRunning);
+    } else {
+      // Reset meditation
+      setMeditationTime(0);
+      setIsTimerRunning(false);
+      setTasks(prev => prev.map(task => 
+        task.id === 'meditation' 
+          ? { ...task, completed: false }
+          : task
+      ));
+    }
+  };
 
-  if (error) {
-    return useImplementation(
-      'useUnifiedErrorState',
-      // NEW: Unified error state (safer, consistent, reusable)
-      <ErrorState 
-        title="Error Loading Morning Routine"
-        message={`Could not load morning routine tasks: ${error}`}
-        type="loading_error"
-        className="min-h-screen w-full bg-gray-900"
-      />,
-      // OLD: Original error state (fallback for safety)
-      <div className={useImplementation(
-        'useUnifiedThemeSystem',
-        // NEW: Unified theme system
-        `min-h-screen w-full flex items-center justify-center ${theme.backgrounds.solid.gray900}`,
-        // OLD: Original classes (fallback for safety)
-        'min-h-screen w-full bg-gray-900 flex items-center justify-center'
-      )}>
-        <div className="text-red-400">Error loading morning routine: {error}</div>
-      </div>
-    );
-  }
+  const completeMeditation = () => {
+    setIsTimerRunning(false);
+    setTasks(prev => prev.map(task => 
+      task.id === 'meditation' 
+        ? { ...task, completed: true }
+        : task
+    ));
+  };
+
+  const completeRoutine = async () => {
+    const allTasksComplete = tasks.every(task => task.completed);
+    
+    if (!allTasksComplete) {
+      alert('Please complete all tasks before finishing your routine!');
+      return;
+    }
+
+    try {
+      setCompletedRoutine(true);
+      
+      // Optional: Send completion data to API
+      if (user) {
+        await workTypeApiClient.logMorningRoutine({
+          userId: user.id,
+          completedAt: new Date().toISOString(),
+          wakeUpTime,
+          meditationDuration: meditationTime,
+          tasks: tasks.map(task => ({
+            id: task.id,
+            title: task.title,
+            completed: task.completed,
+            subtasks: task.subtasks?.map(st => ({
+              id: st.id,
+              title: st.title,
+              completed: st.completed,
+              count: st.count
+            }))
+          }))
+        });
+      }
+    } catch (error) {
+      console.error('Error logging morning routine:', error);
+    }
+  };
+
+  const resetRoutine = () => {
+    setTasks(morningTasks);
+    setWakeUpTime('');
+    setMeditationTime(0);
+    setIsTimerRunning(false);
+    setCompletedRoutine(false);
+  };
+
+  const completedTasksCount = tasks.filter(task => task.completed).length;
+  const progress = (completedTasksCount / tasks.length) * 100;
+
+  const today = new Date();
+  const isCurrentDay = isToday(today);
 
   return (
-    <div className={useImplementation(
-      'useUnifiedThemeSystem',
-      // NEW: Unified theme system
-      `min-h-screen w-full ${theme.backgrounds.solid.gray900}`,
-      // OLD: Original classes (fallback for safety)
-      'min-h-screen w-full bg-gray-900'
-    )}>
-      <div className="max-w-7xl mx-auto p-3 sm:p-4 md:p-6 lg:p-8 space-y-6">
-        
-        {/* Morning Routine Card */}
-        <Card className="bg-yellow-900/20 border-yellow-700/50">
-          <CardHeader className="p-4 sm:p-6">
-            <CardTitle className="flex items-center justify-between text-yellow-400 text-base sm:text-lg">
-              <div className="flex items-center">
-                <Sun className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                🌅 Morning Routine
-              </div>
-              <div className="text-sm font-medium">
-                {Math.round(morningRoutineProgress)}% Complete
-              </div>
+    <Card className="w-full max-w-4xl mx-auto">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <span>🌅</span>
+              Morning Routine
+              <span className="text-sm font-normal text-muted-foreground">
+                {format(today, 'EEEE, MMMM do')}
+              </span>
             </CardTitle>
-            
-            {/* Progress Bar */}
-            <div className="w-full bg-yellow-900/20 rounded-full h-2 mt-4">
-              <motion.div
-                className="bg-gradient-to-r from-yellow-400 to-yellow-600 h-2 rounded-full transition-all duration-500"
-                initial={{ width: 0 }}
-                animate={{ width: `${morningRoutineProgress}%` }}
-              />
-            </div>
-
-            <div className="border-t border-yellow-600/50 my-4"></div>
-            <div className="space-y-4">
-              <div>
-                <h3 className="font-bold text-yellow-300 mb-2 text-sm sm:text-base">Coding My Brain</h3>
-                <p className="text-gray-200 text-xs sm:text-sm leading-relaxed">
-                  I am Shaan Sisodia. I have been given divine purpose, and on this mission, temptation awaits on either side of the path. 
-                  When I give in to temptation, I shall know I am astray. I will bring my family to a new age of freedom. 
-                  I will not be distracted from the path.
-                </p>
+            <div className="flex items-center gap-2 mt-2">
+              <div className="w-full bg-secondary rounded-full h-2">
+                <motion.div
+                  className="h-2 bg-primary rounded-full"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progress}%` }}
+                  transition={{ duration: 0.5 }}
+                />
               </div>
-              <div className="border-t border-yellow-600/50 my-4"></div>
-              <div>
-                <h3 className="font-bold text-yellow-300 mb-2 text-sm sm:text-base">Flow State Rules</h3>
-                <ul className="text-gray-200 text-xs sm:text-sm space-y-1">
-                  <li>• No use of apps other than Notion.</li>
-                  <li>• No vapes or drugs (including weed).</li>
-                  <li>• No more than 5 seconds until the next action.</li>
-                </ul>
-              </div>
+              <span className="text-sm text-muted-foreground">
+                {completedTasksCount}/{tasks.length}
+              </span>
             </div>
-            <div className="border-t border-yellow-600/50 my-3 sm:my-4"></div>
-          </CardHeader>
-          <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
-            
+          </div>
+          
+          {completedRoutine && (
+            <div className="text-green-600 font-semibold flex items-center gap-2">
+              <span>✅</span>
+              Routine Complete!
+            </div>
+          )}
+        </div>
+      </CardHeader>
 
-            {/* Morning Routine Tasks */}
-            <div className="space-y-2 sm:space-y-3">
-              {MORNING_ROUTINE_TASKS.map((task) => {
-                const IconComponent = task.icon;
-                const isMainTaskCompleted = isHabitCompleted(task.key);
-                const completedSubtasks = task.subtasks.filter(subtask => isHabitCompleted(subtask.key)).length;
+      <CardContent className="space-y-4">
+        {tasks.map((task) => (
+          <motion.div
+            key={task.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={cn(
+              "p-4 border rounded-lg transition-all",
+              task.completed ? "bg-green-50 border-green-200" : "bg-background"
+            )}
+          >
+            {task.type === 'simple' && (
+              <div className="flex items-center gap-3">
+                <Checkbox
+                  checked={task.completed}
+                  onCheckedChange={() => handleTaskToggle(task.id)}
+                />
+                <span className={cn(
+                  "font-medium",
+                  task.completed && "line-through text-muted-foreground"
+                )}>
+                  {task.title}
+                </span>
+              </div>
+            )}
+
+            {task.type === 'input' && task.id === 'wakeup' && (
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <Checkbox
+                    checked={task.completed}
+                    onCheckedChange={() => handleTaskToggle(task.id)}
+                  />
+                  <span className={cn(
+                    "font-medium",
+                    task.completed && "line-through text-muted-foreground"
+                  )}>
+                    {task.title}
+                  </span>
+                </div>
+                <Input
+                  type="time"
+                  value={wakeUpTime}
+                  onChange={(e) => handleWakeUpTimeChange(e.target.value)}
+                  className="w-48"
+                  placeholder={task.placeholder}
+                />
+                {wakeUpTime && (
+                  <p className="text-sm text-muted-foreground">
+                    You woke up at {format(new Date(`2000-01-01T${wakeUpTime}`), 'h:mm a')}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {task.type === 'subtask' && (
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <Checkbox
+                    checked={task.completed}
+                    onCheckedChange={() => handleTaskToggle(task.id)}
+                  />
+                  <span className={cn(
+                    "font-medium",
+                    task.completed && "line-through text-muted-foreground"
+                  )}>
+                    {task.title}
+                  </span>
+                </div>
                 
-                return (
-                  <div key={task.key} className="group bg-yellow-900/10 border border-yellow-700/30 rounded-xl hover:bg-yellow-900/15 hover:border-yellow-600/40 transition-all duration-300 hover:shadow-lg hover:shadow-yellow-500/5">
-                    {/* Main Task Header */}
-                    <div className="flex items-start space-x-2 sm:space-x-3 p-2 sm:p-3">
+                <div className="ml-6 space-y-2">
+                  {task.subtasks?.map((subtask) => (
+                    <div key={subtask.id} className="flex items-center gap-3">
                       <Checkbox
-                        checked={isMainTaskCompleted}
-                        onCheckedChange={(checked) => handleHabitToggle(task.key, !!checked)}
-                        className="mt-1 border-yellow-600 data-[state=checked]:bg-yellow-600 data-[state=checked]:border-yellow-600"
+                        checked={subtask.completed}
+                        onCheckedChange={() => handleSubtaskToggle(task.id, subtask.id)}
                       />
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-2">
-                            <IconComponent className="h-5 w-5 text-yellow-400" />
-                            <h4 className="text-yellow-100 font-semibold text-sm sm:text-base">{task.title}</h4>
-                            <span className="text-xs text-gray-400">({task.timeEstimate})</span>
-                          </div>
-                          {task.subtasks.length > 0 && (
-                            <div className="relative">
-                              <div className="bg-gradient-to-r from-yellow-500/20 to-yellow-400/20 border border-yellow-400/40 rounded-full px-3 py-1.5 ml-2 shadow-sm">
-                                <span className="text-xs text-yellow-300 font-semibold tracking-wide">
-                                  {completedSubtasks}/{task.subtasks.length}
-                                </span>
-                              </div>
-                              {/* Progress completion indicator */}
-                              {completedSubtasks === task.subtasks.length && task.subtasks.length > 0 && (
-                                <div className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full animate-pulse shadow-lg">
-                                  <div className="absolute inset-0.5 bg-green-300 rounded-full animate-ping"></div>
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                        {task.description && (
-                          <p className="text-gray-300 text-xs sm:text-sm mt-1 leading-relaxed">{task.description}</p>
-                        )}
-                        
-                        {/* Enhanced wake-up time interface with wheel picker */}
-                        {task.hasTimeTracking && (
-                          <div className="mt-2">
-                            <div className="space-y-2">
-                              {wakeUpTime && !isEditingWakeTime ? (
-                                <div className="flex items-center space-x-2">
-                                  <div className="flex items-center space-x-1 bg-yellow-900/20 border border-yellow-700/50 rounded-md px-3 py-2">
-                                    <Clock className="h-4 w-4 text-yellow-400" />
-                                    <span className="text-yellow-100 font-semibold">
-                                      Woke up at: {wakeUpTime}
-                                    </span>
-                                  </div>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => setIsEditingWakeTime(true)}
-                                    className="border-yellow-600 text-yellow-400 hover:bg-yellow-900/20"
-                                  >
-                                    Edit
-                                  </Button>
-                                </div>
-                              ) : (!wakeUpTime || isEditingWakeTime) ? (
-                                <WakeUpTimePicker
-                                  value={wakeUpTime}
-                                  onChange={setWakeUpTime}
-                                  onClose={() => setIsEditingWakeTime(false)}
-                                  getCurrentTime={getCurrentTime}
-                                />
-                              ) : null}
-                              
-                              {!isEditingWakeTime && (
-                                <p className="text-xs text-gray-400 italic">
-                                  Track your wake-up time to build better morning routine habits.
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    
-                    {/* Sub-tasks - Enhanced with better visual hierarchy */}
-                    {task.subtasks.length > 0 && (
-                      <div className="mt-4 ml-8 space-y-3">
-                        {task.subtasks.map((subtask) => (
-                          <div
-                            key={subtask.key}
-                            className="group flex items-center space-x-3 p-3 hover:bg-yellow-900/10 rounded-lg transition-all duration-200 hover:scale-[1.01]"
-                          >
-                            {/* Visual connector line */}
-                            <div className="relative">
-                              <div className="absolute -left-4 top-1/2 w-3 h-px bg-yellow-500/30"></div>
-                              <Checkbox
-                                checked={isHabitCompleted(subtask.key)}
-                                onCheckedChange={(checked) => handleHabitToggle(subtask.key, !!checked)}
-                                className="h-4 w-4 border-yellow-400/70 data-[state=checked]:bg-yellow-500 data-[state=checked]:border-yellow-500 transition-all duration-200 group-hover:border-yellow-400"
-                              />
-                            </div>
-                            <span className={cn(
-                              "text-sm font-medium transition-all duration-200 flex-1",
-                              isHabitCompleted(subtask.key)
-                                ? "text-gray-500 line-through" 
-                                : "text-yellow-100/90 group-hover:text-yellow-50"
-                            )}>
-                              {subtask.title}
-                            </span>
-                            {isHabitCompleted(subtask.key) && (
-                              <CheckCircle2 className="h-3.5 w-3.5 text-green-400 animate-in zoom-in-50 duration-200" />
+                      <span className={cn(
+                        "text-sm",
+                        subtask.completed && "line-through text-muted-foreground"
+                      )}>
+                        {subtask.title}
+                      </span>
+                      
+                      {subtask.targetCount && (
+                        <div className="flex items-center gap-2">
+                          <Input
+                            type="number"
+                            value={subtask.count || 0}
+                            onChange={(e) => handleCountChange(
+                              task.id, 
+                              subtask.id, 
+                              parseInt(e.target.value) || 0
                             )}
-                          </div>
-                        ))}
-                      </div>
+                            className="w-16 h-6"
+                            min="0"
+                          />
+                          <span className="text-xs text-muted-foreground">
+                            / {subtask.targetCount}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {task.type === 'timer' && task.id === 'meditation' && (
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <Checkbox
+                    checked={task.completed}
+                    onCheckedChange={() => handleTaskToggle(task.id)}
+                  />
+                  <span className={cn(
+                    "font-medium",
+                    task.completed && "line-through text-muted-foreground"
+                  )}>
+                    {task.title}
+                  </span>
+                </div>
+                
+                <div className="ml-6 flex items-center gap-4">
+                  <div className="text-2xl font-mono">
+                    {formatTime(meditationTime)}
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleMeditationToggle}
+                      disabled={task.completed}
+                    >
+                      {isTimerRunning ? 'Pause' : 'Start'}
+                    </Button>
+                    
+                    {meditationTime > 0 && !task.completed && (
+                      <Button
+                        variant="default"
+                        size="sm"
+                        onClick={completeMeditation}
+                      >
+                        Complete
+                      </Button>
                     )}
                   </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-        
-      </div>
-    </div>
+                </div>
+              </div>
+            )}
+          </motion.div>
+        ))}
+
+        <div className="flex gap-4 pt-4">
+          {!completedRoutine && (
+            <Button
+              onClick={completeRoutine}
+              disabled={completedTasksCount !== tasks.length}
+              className="flex-1"
+            >
+              Complete Morning Routine
+            </Button>
+          )}
+          
+          {(completedRoutine || !isCurrentDay) && (
+            <Button
+              variant="outline"
+              onClick={resetRoutine}
+              className="flex-1"
+            >
+              Reset Routine
+            </Button>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
-};
+}

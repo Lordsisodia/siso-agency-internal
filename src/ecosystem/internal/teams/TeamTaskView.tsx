@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card } from '@/shared/ui/card';
-import { TaskList } from '@/ai-first/features/tasks/components/TaskList';
+import { TaskList } from '@/ecosystem/internal/tasks/components/TaskList';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';

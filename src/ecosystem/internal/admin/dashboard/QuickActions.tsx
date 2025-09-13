@@ -4,13 +4,9 @@ import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Plus, Users, FileText, Calendar, Settings, BarChart3 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui/dialog";
-import { RealUsageDashboard } from "@/ai-first/features/claudia/components/RealUsageDashboard";
 
 export const QuickActions = React.memo(function QuickActions() {
   const navigate = useNavigate();
-  const [showUsageModal, setShowUsageModal] = useState(false);
 
   const actions = [
     {
@@ -35,13 +31,6 @@ export const QuickActions = React.memo(function QuickActions() {
       color: "from-orange-500/20 to-orange-600/20"
     },
     {
-      title: "Claude Usage",
-      icon: BarChart3,
-      action: () => setShowUsageModal(true),
-      variant: "outline" as const,
-      color: "from-purple-500/20 to-purple-600/20"
-    },
-    {
       title: "Settings",
       icon: Settings,
       href: "/admin/settings",
@@ -51,9 +40,7 @@ export const QuickActions = React.memo(function QuickActions() {
   ];
 
   const handleActionClick = (action: any) => {
-    if (action.action) {
-      action.action();
-    } else if (action.href) {
+    if (action.href) {
       navigate(action.href);
     }
   };
@@ -80,18 +67,6 @@ export const QuickActions = React.memo(function QuickActions() {
           </div>
         ))}
       </CardContent>
-      
-      {/* Claude Usage Modal */}
-      <Dialog open={showUsageModal} onOpenChange={setShowUsageModal}>
-        <DialogContent className="max-w-7xl max-h-[90vh] overflow-hidden bg-black border-orange-500/20">
-          <DialogHeader className="sr-only">
-            <DialogTitle>Claude Usage Dashboard</DialogTitle>
-          </DialogHeader>
-          <div className="h-full">
-            <RealUsageDashboard onBack={() => setShowUsageModal(false)} />
-          </div>
-        </DialogContent>
-      </Dialog>
     </Card>
   );
 });

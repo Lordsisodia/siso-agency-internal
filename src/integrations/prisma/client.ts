@@ -9,7 +9,7 @@
  */
 
 // Temporarily remove to break circular dependency - we'll create simple mock data
-// import { taskDatabaseService } from '@/ai-first/services/task-database-service-fixed';
+// import { taskDatabaseService } from '@/shared/services/task-database-service-fixed';
 
 // Real Prisma client that uses API routes for browser compatibility
 class BrowserPrismaClient {

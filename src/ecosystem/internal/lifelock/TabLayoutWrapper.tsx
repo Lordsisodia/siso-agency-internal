@@ -7,7 +7,7 @@ import {
   ChevronRight,
   ArrowLeft
 } from 'lucide-react';
-import { TAB_CONFIG, TabId, getAllTabIds } from '@/ai-first/core/tab-config';
+import { TAB_CONFIG, TabId, getAllTabIds } from '@/shared/services/tab-config';
 import { Button } from '@/shared/ui/button';
 import { Badge } from '@/shared/ui/badge';
 import { ExpandableTabs } from '@/shared/ui/expandable-tabs';
@@ -36,9 +36,13 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = memo(({
   
   // Get smart default tab based on time of day
   const getSmartDefaultTab = (): string => {
-    const hour = new Date().getHours();
-    const relevantTab = tabs.find(tab => tab.timeRelevance.includes(hour));
-    return relevantTab?.id || 'morning';
+    // BUSINESS FIX: Always default to morning to show comprehensive morning routine
+    return 'morning';
+    
+    // TODO: Re-enable time-based logic after morning routine is stable
+    // const hour = new Date().getHours();
+    // const relevantTab = tabs.find(tab => tab.timeRelevance.includes(hour));
+    // return relevantTab?.id || 'morning';
   };
 
   // Calculate total XP from all sections - memoized for performance

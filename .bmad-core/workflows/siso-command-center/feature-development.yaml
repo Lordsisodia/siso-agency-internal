@@ -1,0 +1,595 @@
+# <!-- Powered by BMAD™ Core -->
+workflow:
+  id: siso-feature-development
+  name: SISO Command Center Feature Development
+  description: >-
+    Comprehensive workflow for developing new features in SISO Command Center.
+    Optimized for CEO productivity features with complex integration requirements.
+    Maintains architectural excellence while enabling rapid feature delivery.
+  type: feature_development
+  priority: high
+  target_system: siso-command-center
+  
+  feature_categories:
+    ceo_productivity:
+      - ai_assistant_integration
+      - voice_command_interface
+      - intelligent_task_automation
+      - executive_dashboard_enhancement
+      - workflow_optimization
+    
+    system_enhancement:
+      - performance_optimization
+      - user_experience_improvement
+      - integration_expansion
+      - security_enhancement
+      - scalability_improvement
+
+  sequence:
+    - step: feature_scope_classification
+      agent: analyst
+      action: classify feature complexity and scope
+      creates: feature-classification.md
+      duration: 2-4 hours
+      notes: |
+        Feature Classification Framework:
+        
+        SIMPLE (1-2 stories):
+        - UI component additions
+        - Minor workflow improvements
+        - Simple integrations
+        → Route to: sm: create-single-story
+        
+        MODERATE (3-8 stories):
+        - Multi-component features
+        - Service layer changes
+        - Database schema updates
+        → Route to: pm: create-epic
+        
+        COMPLEX (9+ stories, architectural impact):
+        - AI integration features
+        - Major workflow redesign
+        - Cross-system integration
+        → Route to: Full BMAD workflow
+        
+        CEO CRITICAL (any complexity with CEO impact):
+        - Executive dashboard features
+        - Productivity optimization
+        - Business intelligence features
+        → Route to: Enhanced workflow with executive validation
+
+    - step: routing_decision
+      condition: based_on_classification
+      routes:
+        simple_feature:
+          agent: sm
+          uses: create-single-story
+          notes: "Create focused story for immediate implementation"
+          exit_workflow: true
+          
+        moderate_feature:
+          agent: pm
+          uses: create-epic
+          notes: "Create epic with 3-8 coordinated stories"
+          exit_workflow: true
+          
+        complex_feature:
+          continue: to_market_research
+          notes: "Continue with comprehensive planning workflow"
+          
+        ceo_critical:
+          continue: to_executive_brief
+          notes: "Enhanced workflow with CEO context integration"
+
+    - step: executive_brief_creation
+      agent: analyst
+      action: create executive context brief
+      creates: executive-context-brief.md
+      condition: ceo_critical_feature
+      duration: 4-6 hours
+      notes: |
+        Executive Context Analysis:
+        - CEO workflow impact assessment
+        - Productivity improvement metrics
+        - Integration with existing executive tools
+        - ROI and business impact analysis
+        - Risk assessment for executive workflows
+        - Success criteria from CEO perspective
+
+    - step: market_research_and_analysis
+      agent: analyst
+      action: comprehensive market and competitive analysis
+      creates: market-research.md
+      requires: feature-classification.md
+      duration: 1-2 days
+      notes: |
+        Market Research Focus:
+        - Competitive feature analysis
+        - Industry best practices
+        - Technology trend alignment
+        - User experience benchmarking
+        - Innovation opportunity identification
+        
+        CEO Context Integration:
+        - Executive productivity tool benchmarking
+        - C-suite user experience standards
+        - Enterprise feature requirements
+        - Security and compliance considerations
+
+    - step: technical_feasibility_assessment
+      agent: architect
+      action: evaluate technical feasibility and architecture impact
+      creates: technical-feasibility.md
+      requires: market-research.md
+      duration: 1-2 days
+      notes: |
+        Technical Assessment:
+        - Current architecture compatibility
+        - Performance impact analysis
+        - Security implications
+        - Scalability considerations
+        - Integration complexity assessment
+        - Resource requirement estimation
+        
+        SISO-Specific Considerations:
+        - AdminLifeLock architecture impact
+        - Service layer integration points
+        - Database schema modifications
+        - UI/UX component reusability
+
+    - step: prd_creation
+      agent: pm
+      action: create comprehensive product requirements document
+      creates: prd.md
+      uses: siso-feature-prd-template
+      requires: [market-research.md, technical-feasibility.md, executive-context-brief.md]
+      duration: 2-3 days
+      notes: |
+        PRD Components:
+        - Executive summary with CEO impact
+        - Detailed feature specifications
+        - User story mapping
+        - Success metrics and KPIs
+        - Risk assessment and mitigation
+        - Timeline and resource allocation
+        - Integration requirements
+        - Performance and security criteria
+
+    - step: architecture_design
+      agent: architect
+      action: create detailed technical architecture
+      creates: feature-architecture.md
+      uses: siso-feature-architecture-template
+      requires: prd.md
+      condition: complex_feature_or_architectural_impact
+      duration: 2-3 days
+      notes: |
+        Architecture Design:
+        - Component interaction diagrams
+        - Data flow architecture
+        - Service layer modifications
+        - Database design changes
+        - API specification
+        - Security architecture
+        - Performance optimization strategy
+        - Integration patterns
+
+    - step: ux_design_specification
+      agent: analyst
+      action: create user experience specification
+      creates: ux-specification.md
+      requires: prd.md
+      condition: ui_ux_changes_required
+      duration: 1-2 days
+      notes: |
+        UX Specification:
+        - User journey mapping
+        - Interface design requirements
+        - Accessibility compliance
+        - Mobile responsiveness
+        - CEO-specific UI/UX requirements
+        - Executive dashboard integration
+        - Performance optimization for user experience
+
+    - agent: po
+      validates: all_planning_artifacts
+      uses: po-feature-validation-checklist
+      creates: validated-feature-plan.md
+      duration: 1-2 days
+      notes: |
+        Product Owner Validation:
+        - Business value validation
+        - Technical feasibility confirmation
+        - Resource allocation approval
+        - Risk assessment review
+        - CEO requirements satisfaction
+        - Integration impact assessment
+        - Timeline feasibility verification
+
+    - step: planning_artifact_optimization
+      agent: various
+      action: update artifacts based on PO feedback
+      condition: po_validation_issues
+      notes: |
+        Iterative Planning Refinement:
+        - Address PO feedback items
+        - Refine technical specifications
+        - Update timeline estimates
+        - Clarify integration requirements
+        - Enhance risk mitigation strategies
+
+    - step: story_decomposition
+      agent: sm
+      action: decompose feature into development stories
+      creates: feature-stories/
+      uses: siso-story-creation-template
+      requires: validated-feature-plan.md
+      duration: 2-3 days
+      notes: |
+        Story Decomposition Strategy:
+        - Break down by technical layers (UI, Service, Data)
+        - Maintain feature coherence
+        - Include integration stories
+        - Add testing and validation stories
+        - CEO validation checkpoints
+        - Performance optimization stories
+        
+        Story Types:
+        - Foundation stories (infrastructure)
+        - Core feature stories (main functionality)
+        - Integration stories (system connections)
+        - Polish stories (UX optimization)
+        - Validation stories (testing and QA)
+
+    - step: development_iteration_cycle
+      repeats: for_each_story
+      duration: varies_by_story_complexity
+      notes: |
+        Development Cycle for Each Story:
+        
+        1. Story Preparation (dev):
+           - Review story context and requirements
+           - Identify dependencies and blockers
+           - Plan implementation approach
+           
+        2. Implementation (dev):
+           - Follow SISO coding standards
+           - Implement with TypeScript strict mode
+           - Include comprehensive error handling
+           - Add proper logging and monitoring
+           
+        3. Quality Assurance (qa):
+           - Code review and refactoring
+           - Functional testing validation
+           - Performance impact assessment
+           - Security vulnerability scanning
+           - CEO workflow impact validation
+           
+        4. Integration Testing (qa):
+           - Component integration verification
+           - Service layer integration testing
+           - End-to-end workflow validation
+           - Cross-browser compatibility
+           - Mobile responsiveness testing
+
+    - step: feature_integration_validation
+      agent: qa
+      action: comprehensive feature integration testing
+      creates: feature-integration-report.md
+      requires: all_stories_complete
+      duration: 2-3 days
+      notes: |
+        Integration Validation:
+        - Complete feature workflow testing
+        - Cross-system integration verification
+        - Performance benchmarking
+        - Security penetration testing
+        - CEO user acceptance testing
+        - Data integrity validation
+        - Error handling and recovery testing
+
+    - step: ceo_acceptance_testing
+      agent: qa
+      action: CEO-specific acceptance testing
+      creates: ceo-acceptance-report.md
+      condition: ceo_critical_feature
+      requires: feature-integration-report.md
+      duration: 1-2 days
+      notes: |
+        CEO Acceptance Criteria:
+        - Executive workflow enhancement validation
+        - Productivity improvement measurement
+        - User experience quality assessment
+        - Performance standards compliance
+        - Security and privacy verification
+        - Integration with existing CEO tools
+        - Training and adoption requirements
+
+    - step: production_readiness_assessment
+      agent: qa
+      action: production deployment readiness evaluation
+      creates: production-readiness-report.md
+      requires: [feature-integration-report.md, ceo-acceptance-report.md]
+      duration: 1-2 days
+      notes: |
+        Production Readiness:
+        - Performance optimization verification
+        - Security audit completion
+        - Monitoring and alerting setup
+        - Rollback strategy validation
+        - Documentation completeness
+        - Training material preparation
+        - Support process readiness
+
+    - agent: po
+      action: final_feature_validation_and_handoff
+      creates: feature-completion-report.md
+      requires: production-readiness-report.md
+      notes: |
+        Final Product Owner Sign-off:
+        - All acceptance criteria met
+        - Performance targets achieved
+        - Security standards satisfied
+        - CEO requirements fulfilled
+        - Documentation complete
+        - Ready for production deployment
+
+  quality_gates:
+    planning_gate:
+      criteria:
+        - Market research comprehensive
+        - Technical feasibility confirmed
+        - PRD complete and validated
+        - Architecture design approved
+        - UX specification finalized
+      validation: PO review + stakeholder approval
+      
+    development_gate:
+      criteria:
+        - All stories implemented and tested
+        - Code review completed
+        - TypeScript strict mode compliant
+        - Security scan passed
+        - Performance targets met
+      validation: QA validation + automated testing
+      
+    integration_gate:
+      criteria:
+        - Feature integration successful
+        - Cross-system compatibility verified
+        - End-to-end workflows functional
+        - Performance within acceptable bounds
+        - Security vulnerabilities addressed
+      validation: Comprehensive integration testing
+      
+    ceo_acceptance_gate:
+      criteria:
+        - CEO workflow requirements met
+        - Productivity improvements validated
+        - User experience standards achieved
+        - Executive dashboard integration working
+        - Training materials prepared
+      validation: CEO user acceptance testing
+      
+    production_gate:
+      criteria:
+        - All previous gates passed
+        - Production infrastructure ready
+        - Monitoring and alerting configured
+        - Rollback strategy tested
+        - Support documentation complete
+      validation: Production readiness assessment
+
+  success_metrics:
+    development:
+      - "Feature delivery on schedule"
+      - "Zero critical bugs in production"
+      - "Performance targets achieved"
+      - "Code quality standards maintained"
+      - "Security compliance verified"
+    
+    business:
+      - "CEO productivity improvement measurable"
+      - "User adoption targets met"
+      - "Business value delivered as specified"
+      - "Integration objectives achieved"
+      - "ROI targets on track"
+
+  risk_mitigation:
+    scope_creep:
+      strategy: "Clear story boundaries with PO validation"
+      monitoring: "Weekly scope review meetings"
+      response: "Change request process for additions"
+      
+    technical_complexity:
+      strategy: "Incremental development with frequent validation"
+      monitoring: "Daily technical risk assessment"
+      response: "Architecture review and simplification"
+      
+    integration_challenges:
+      strategy: "Early integration testing and validation"
+      monitoring: "Continuous integration testing"
+      response: "Rapid issue identification and resolution"
+      
+    ceo_requirement_changes:
+      strategy: "Regular CEO feedback and validation cycles"
+      monitoring: "Weekly executive checkpoint meetings"
+      response: "Agile adaptation with impact assessment"
+
+  flow_diagram: |
+    ```mermaid
+    graph TD
+        A[Start: Feature Development] --> B[analyst: feature classification]
+        B --> C{Feature Complexity?}
+        
+        C -->|Simple| D[sm: single story]
+        C -->|Moderate| E[pm: epic creation]
+        C -->|Complex| F{CEO Critical?}
+        
+        D --> END1[Direct Implementation]
+        E --> END2[Epic Development]
+        
+        F -->|Yes| G[analyst: executive brief]
+        F -->|No| H[analyst: market research]
+        G --> H
+        
+        H --> I[architect: feasibility]
+        I --> J[pm: PRD creation]
+        J --> K{Architecture needed?}
+        
+        K -->|Yes| L[architect: design]
+        K -->|No| M{UX changes?}
+        L --> M
+        
+        M -->|Yes| N[analyst: UX spec]
+        M -->|No| O[po: validate artifacts]
+        N --> O
+        
+        O --> P{PO validation?}
+        P -->|Issues| Q[Fix artifacts]
+        P -->|Approved| R[sm: story decomposition]
+        Q --> O
+        
+        R --> S[Development Iteration Cycle]
+        S --> T{All stories done?}
+        T -->|No| S
+        T -->|Yes| U[qa: integration testing]
+        
+        U --> V{CEO Critical?}
+        V -->|Yes| W[qa: CEO acceptance]
+        V -->|No| X[qa: production readiness]
+        W --> X
+        
+        X --> Y[po: final validation]
+        Y --> Z{Ready for production?}
+        Z -->|Issues| AA[Address gaps]
+        Z -->|Ready| BB[Complete]
+        AA --> X
+
+        style BB fill:#90EE90
+        style END1 fill:#90EE90
+        style END2 fill:#90EE90
+        style G fill:#FFE4B5
+        style J fill:#ADD8E6
+        style L fill:#87CEEB
+        style R fill:#F0E68C
+        style S fill:#DDA0DD
+        style W fill:#98FB98
+        style Y fill:#DDA0DD
+    ```
+
+  agent_handoff_prompts:
+    classification_to_routing: |
+      Feature classified as: {{feature_complexity}}
+      CEO Critical: {{is_ceo_critical}}
+      Estimated stories: {{story_count}}
+      Architectural impact: {{has_architecture_impact}}
+      
+      {{if_simple}}: Routing to single story creation
+      {{if_moderate}}: Routing to epic creation
+      {{if_complex}}: Continuing with comprehensive planning
+      {{if_ceo_critical}}: Adding executive context analysis
+
+    executive_brief_to_research: |
+      Executive context established:
+      - CEO workflow impact: {{workflow_impact}}
+      - Productivity improvement target: {{productivity_target}}
+      - Executive tool integration: {{integration_requirements}}
+      - ROI expectation: {{roi_target}}
+      
+      Proceeding to market research with CEO context.
+
+    research_to_feasibility: |
+      Market research complete:
+      - Competitive analysis: {{competitor_findings}}
+      - Best practices identified: {{best_practices}}
+      - Innovation opportunities: {{innovation_areas}}
+      - CEO-specific requirements: {{ceo_requirements}}
+      
+      Proceeding to technical feasibility assessment.
+
+    feasibility_to_prd: |
+      Technical feasibility confirmed:
+      - Architecture compatibility: {{architecture_compatible}}
+      - Performance impact: {{performance_impact}}
+      - Security implications: {{security_assessment}}
+      - Resource requirements: {{resource_estimate}}
+      
+      Creating comprehensive PRD with all context.
+
+    prd_to_architecture: |
+      PRD complete and validated:
+      - Feature scope: {{feature_scope}}
+      - Success metrics: {{success_metrics}}
+      - CEO requirements: {{ceo_requirements}}
+      - Integration needs: {{integration_requirements}}
+      
+      {{if_architecture_needed}}: Creating detailed architecture design
+      {{if_no_architecture}}: Proceeding to story decomposition
+
+    validation_to_stories: |
+      All planning artifacts validated:
+      - Business value confirmed: {{business_value}}
+      - Technical approach approved: {{technical_approach}}
+      - Resource allocation finalized: {{resource_allocation}}
+      - Timeline confirmed: {{timeline}}
+      
+      Decomposing feature into development stories.
+
+    stories_to_development: |
+      Story decomposition complete:
+      - Total stories: {{total_stories}}
+      - Foundation stories: {{foundation_count}}
+      - Core feature stories: {{core_count}}
+      - Integration stories: {{integration_count}}
+      - Validation stories: {{validation_count}}
+      
+      Beginning development iteration cycle.
+
+    development_to_integration: |
+      All development stories complete:
+      - Stories implemented: {{implemented_stories}}
+      - Code quality gates passed: {{quality_status}}
+      - Performance targets: {{performance_status}}
+      - Security scans: {{security_status}}
+      
+      Proceeding to feature integration testing.
+
+    integration_to_production: |
+      Feature integration validated:
+      - Integration tests: {{integration_status}}
+      - Performance benchmarks: {{performance_benchmarks}}
+      - Security audit: {{security_audit}}
+      - CEO acceptance: {{ceo_acceptance_status}}
+      
+      Assessing production readiness.
+
+    final_handoff: |
+      Feature development complete:
+      - All quality gates passed: {{quality_gates_status}}
+      - Production readiness: {{production_ready}}
+      - CEO acceptance: {{ceo_accepted}}
+      - Documentation: {{documentation_status}}
+      
+      Ready for production deployment.
+
+  decision_guidance:
+    when_to_use:
+      - New feature development with significant complexity
+      - CEO productivity enhancement features
+      - Multi-component integration requirements
+      - Features requiring architectural changes
+      - Cross-system integration features
+
+    when_not_to_use:
+      - Simple bug fixes or maintenance tasks
+      - Minor UI/UX tweaks
+      - Configuration changes
+      - Hotfix deployments
+      - Proof-of-concept development
+
+  estimated_timeline:
+    simple_features: "1-2 weeks (direct story implementation)"
+    moderate_features: "3-6 weeks (epic development)"
+    complex_features: "8-16 weeks (full BMAD workflow)"
+    ceo_critical_features: "10-20 weeks (enhanced validation and testing)"

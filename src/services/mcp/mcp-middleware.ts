@@ -55,6 +55,7 @@ export class MCPMiddleware {
     // Desktop Commander middleware
     this.addPreProcessor('desktop-commander', this.validatePaths);
     this.addPreProcessor('desktop-commander', this.checkBlockedCommands);
+    this.addPreProcessor('desktop-commander', this.enforceExecPolicy);
 
     this.initializeValidationSchemas();
   }
@@ -103,6 +104,44 @@ export class MCPMiddleware {
       pre: z.object({
         branchName: z.string().regex(/^[a-zA-Z0-9\-_\/]+$/),
         baseBranch: z.string().default('main')
+      })
+    });
+
+    // Desktop Commander schemas
+    this.setValidationSchema('desktop-commander.runCommand', {
+      pre: z.object({
+        command: z.string().min(1),
+        args: z.array(z.string()).optional(),
+        cwd: z.string().optional(),
+        timeoutMs: z.number().min(100).max(60000).optional(),
+        confirm: z.boolean().optional()
+      })
+    });
+    this.setValidationSchema('desktop-commander.runNodeCode', {
+      pre: z.object({
+        code: z.string().min(1).max(4000),
+        cwd: z.string().optional(),
+        timeoutMs: z.number().min(100).max(60000).optional(),
+        confirm: z.boolean().optional()
+      })
+    });
+    this.setValidationSchema('desktop-commander.runPythonCode', {
+      pre: z.object({
+        code: z.string().min(1).max(4000),
+        python: z.string().optional(),
+        cwd: z.string().optional(),
+        timeoutMs: z.number().min(100).max(60000).optional(),
+        confirm: z.boolean().optional()
+      })
+    });
+    this.setValidationSchema('desktop-commander.runScriptFile', {
+      pre: z.object({
+        path: z.string().min(1),
+        args: z.array(z.string()).optional(),
+        interpreter: z.enum(['bash', 'zsh', 'sh', 'node', 'python3', 'python']).optional(),
+        cwd: z.string().optional(),
+        timeoutMs: z.number().min(100).max(60000).optional(),
+        confirm: z.boolean().optional()
       })
     });
   }
@@ -204,7 +243,8 @@ export class MCPMiddleware {
   };
 
   private checkReadOnly: MiddlewareFunction = async (data, context) => {
-    if (context.metadata?.readOnly && data.query) {
+    const isReadOnly = (context as any)?.metadata?.readOnly ?? !!data?.readOnly;
+    if (isReadOnly && data.query) {
       const writePatterns = /^\s*(INSERT|UPDATE|DELETE|CREATE|DROP|ALTER|TRUNCATE)/i;
       if (writePatterns.test(data.query)) {
         throw new Error('Write operations not allowed in read-only mode');
@@ -328,7 +368,16 @@ export class MCPMiddleware {
   private validatePaths: MiddlewareFunction = async (data, context) => {
     if (data.path) {
       // Ensure path is within allowed directories
-      const allowedPaths = ['/Users/shaansisodia/Desktop/Cursor/SISO_ECOSYSTEM'];
+      let allowedPaths = ['/Users/shaansisodia/Desktop/Cursor/SISO_ECOSYSTEM'];
+      try {
+        // Allow override via env or default to cwd for local dev
+        const envPaths = typeof process !== 'undefined' && (process as any)?.env?.SISO_ALLOWED_PATHS;
+        if (envPaths) {
+          allowedPaths = String(envPaths).split(':').filter(Boolean);
+        } else if (typeof process !== 'undefined' && typeof (process as any).cwd === 'function') {
+          allowedPaths = [ (process as any).cwd() ];
+        }
+      } catch {}
       const isAllowed = allowedPaths.some(allowed => data.path.startsWith(allowed));
       
       if (!isAllowed) {
@@ -340,11 +389,29 @@ export class MCPMiddleware {
 
   private checkBlockedCommands: MiddlewareFunction = async (data, context) => {
     if (data.command) {
-      const blockedCommands = ['rm -rf', 'sudo', 'chmod 777'];
+      const blockedCommands = [
+        'rm -rf', 'rm -r', 'rm --no-preserve-root',
+        'sudo', 'chmod 777', 'chown',
+        'mkfs', 'diskutil', 'shutdown', 'reboot',
+        'kill -9 -1',
+        'curl | sh', 'wget | sh'
+      ];
       for (const blocked of blockedCommands) {
         if (data.command.includes(blocked)) {
           throw new Error(`Blocked command detected: ${blocked}`);
         }
+      }
+    }
+    return data;
+  };
+
+  private enforceExecPolicy: MiddlewareFunction = async (data, context) => {
+    const execMethods = new Set(['runCommand', 'runNodeCode', 'runPythonCode', 'runScriptFile']);
+    if (context.mcp === 'desktop-commander' && execMethods.has(context.method)) {
+      const envAllows = (typeof process !== 'undefined' && (process as any)?.env?.SISO_ALLOW_CODE_EXEC === '1');
+      const confirmed = !!data?.confirm;
+      if (!envAllows && !confirmed) {
+        throw new Error('Code execution disabled. Set SISO_ALLOW_CODE_EXEC=1 or pass confirm: true.');
       }
     }
     return data;

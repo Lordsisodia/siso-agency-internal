@@ -165,6 +165,28 @@ async function checkSequentialThinking() {
   return result;
 }
 
+async function checkCodeExec() {
+  const result = { name: 'Code Exec', shouldUse: 'Disabled by default; enable via SISO_ALLOW_CODE_EXEC=1 and allowlist', checks: [] };
+  const enabled = process.env.SISO_ALLOW_CODE_EXEC === '1' || process.env.SISO_ALLOW_CODE_EXEC === 'true';
+  if (!enabled) {
+    result.checks.push({ status: 'warn', msg: 'Code execution disabled (SISO_ALLOW_CODE_EXEC not set).' });
+    return result;
+  }
+  try {
+    const { spawnSync } = await import('node:child_process');
+    const out = spawnSync('node', ['-e', 'process.stdout.write(String(2+3))'], { encoding: 'utf8', timeout: 2000 });
+    if (out.error) {
+      result.checks.push({ status: 'err', msg: `node -e failed: ${out.error.message}` });
+    } else if ((out.stdout || '').trim() === '5') {
+      result.checks.push({ status: 'ok', msg: 'Node code exec OK (2+3=5).' });
+    } else {
+      result.checks.push({ status: 'warn', msg: 'Node code exec returned unexpected output.' });
+    }
+  } catch (e) {
+    result.checks.push({ status: 'err', msg: `Exec test error: ${e.message}` });
+  }
+  return result;
+}
 function printSection(title, arr) {
   log.heading(`** ${title} **`);
   for (const item of arr) {
@@ -196,6 +218,7 @@ async function main() {
     checkFetch(),
     checkSearch(),
     checkDesktopCommander(),
+    checkCodeExec(),
   ]);
 
   for (const r of results) {
@@ -220,4 +243,3 @@ main().catch((e) => {
   log.err(e?.message || String(e));
   process.exitCode = 2;
 });
-

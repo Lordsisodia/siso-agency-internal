@@ -6,7 +6,7 @@ import { Sidebar } from '@/shared/Sidebar';
 import { Button } from '@/shared/ui/button';
 import { AlertTriangle, ChevronLeft } from 'lucide-react';
 import { useToast } from '@/shared/hooks/use-toast';
-import { safeSupabase } from '@/ai-first/core/data.service';
+import { safeSupabase } from '@/shared/services/data.service';
 
 const BlogPost = () => {
   const { postId } = useParams();

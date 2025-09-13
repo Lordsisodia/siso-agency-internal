@@ -30,7 +30,8 @@ const StandardTabLayout: React.FC<{
   config: EnhancedTabConfig;
   layoutProps: TabLayoutProps;
   children: React.ReactNode;
-}> = ({ config, layoutProps, children }) => {
+  activeTab: TabId;
+}> = ({ config, layoutProps, children, activeTab }) => {
   const { selectedDate, dayCompletionPercentage, navigateDay } = layoutProps;
 
   return (
@@ -42,6 +43,7 @@ const StandardTabLayout: React.FC<{
           className="mb-6"
           onPreviousDate={() => navigateDay?.('prev')}
           onNextDate={() => navigateDay?.('next')}
+          activeTab={activeTab}
         />
       )}
       
@@ -65,7 +67,7 @@ export const TabContentRenderer: React.FC<{
   
   // Handle standard tab layout
   return (
-    <StandardTabLayout config={config} layoutProps={layoutProps}>
+    <StandardTabLayout config={config} layoutProps={layoutProps} activeTab={activeTab}>
       {/* Render primary components */}
       {config.components.map((Component, index) => (
         <Component
