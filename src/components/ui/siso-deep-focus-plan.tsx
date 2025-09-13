@@ -12,7 +12,9 @@ import {
   Pause,
   Brain,
   Clock,
-  Plus
+  Plus,
+  ChevronDown,
+  ChevronRight
 } from "lucide-react";
 import { TaskSeparator } from "../tasks/TaskSeparator";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
@@ -208,7 +210,7 @@ interface SisoDeepFocusPlanProps {
 
 export default function SisoDeepFocusPlan({ onStartFocusSession }: SisoDeepFocusPlanProps) {
   const [tasks, setTasks] = useState<Task[]>(sisoTasks);
-  const [expandedTasks, setExpandedTasks] = useState<string[]>(["1"]);
+  const [expandedTasks, setExpandedTasks] = useState<string[]>(["1", "2", "3"]); // Expand all by default
   const [expandedSubtasks, setExpandedSubtasks] = useState<{
     [key: string]: boolean;
   }>({});
@@ -524,7 +526,7 @@ export default function SisoDeepFocusPlan({ onStartFocusSession }: SisoDeepFocus
                     {/* Task Container - Wraps entire task including subtasks */}
                     <div className="group bg-blue-900/10 border border-blue-700/30 rounded-xl hover:bg-blue-900/15 hover:border-blue-600/40 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5">
                       {/* Task Header */}
-                      <div className="flex items-start space-x-2 sm:space-x-3 p-2 sm:p-3">
+                      <div className="flex items-start space-x-2 sm:space-x-3 p-3 sm:p-4 pt-4 sm:pt-5">
                         <div className="flex items-center flex-1 min-w-0">
                         <motion.div
                           className="mr-3 flex-shrink-0 cursor-pointer"
@@ -557,15 +559,33 @@ export default function SisoDeepFocusPlan({ onStartFocusSession }: SisoDeepFocus
                         </motion.div>
 
                         <div className="flex-1">
-                          <div className="flex items-center justify-between">
+                          <div className="flex items-center justify-between mb-3">
                             <h4 className="text-blue-100 font-semibold text-sm sm:text-base">
                               {task.title}
                             </h4>
+                            {/* Toggle Button */}
+                            <motion.button
+                              className="flex-shrink-0 p-1 rounded-md hover:bg-blue-900/20 transition-colors"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleTaskExpansion(task.id);
+                              }}
+                              whileTap={{ scale: 0.9 }}
+                            >
+                              {isExpanded ? (
+                                <ChevronDown className="h-4 w-4 text-blue-300" />
+                              ) : (
+                                <ChevronRight className="h-4 w-4 text-blue-300" />
+                              )}
+                            </motion.button>
                           </div>
                           
+                          {/* Top separator line */}
+                          <div className="border-t border-blue-600/50 mb-3"></div>
+                          
                           {/* 5 Icons Row */}
-                          <div className="border-t border-blue-600/50 pt-2 mt-2">
-                            <div className="flex items-center justify-between px-1">
+                          <div className="px-2 py-1">
+                            <div className="flex items-center justify-between">
                               <Brain className="h-4 w-4 text-blue-300 hover:text-blue-200 cursor-pointer transition-colors" />
                               <CheckCircle2 className="h-4 w-4 text-blue-300 hover:text-blue-200 cursor-pointer transition-colors" />
                               <Clock className="h-4 w-4 text-blue-300 hover:text-blue-200 cursor-pointer transition-colors" />
@@ -586,6 +606,9 @@ export default function SisoDeepFocusPlan({ onStartFocusSession }: SisoDeepFocus
                               />
                             </div>
                           </div>
+                          
+                          {/* Bottom separator line */}
+                          <div className="border-t border-blue-600/50 mt-3"></div>
                         </div>
                         </div>
                       </div>
@@ -662,12 +685,12 @@ export default function SisoDeepFocusPlan({ onStartFocusSession }: SisoDeepFocus
                             </div>
                           </div>
                           
-                          {/* Add Subtask Button */}
-                          <div className="px-4 pb-3 mt-2">
+                          {/* Add Subtask Button - Below Progress Summary */}
+                          <div className="px-6 pb-3 mt-3">
                             <Button 
                               variant="ghost" 
                               size="sm" 
-                              className="w-full text-blue-300 hover:text-blue-200 hover:bg-blue-900/20 transition-all duration-200 text-xs"
+                              className="w-full text-blue-300 hover:text-blue-200 hover:bg-blue-900/20 transition-all duration-200 text-xs border border-blue-700/30 hover:border-blue-600/40"
                               onClick={() => {
                                 // Add subtask functionality
                                 console.log('Add subtask to task:', task.id);
