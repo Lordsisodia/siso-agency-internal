@@ -6,8 +6,7 @@
  */
 
 import React from 'react';
-import { Check } from 'lucide-react';
-import { TaskSeparator } from './TaskSeparator';
+import { Check, ChevronDown, ChevronRight, Clock, AlertCircle, Wrench } from 'lucide-react';
 import { SubtaskMetadata } from './SubtaskMetadata';
 
 interface SubtaskItemProps {
@@ -16,6 +15,10 @@ interface SubtaskItemProps {
     title: string;
     completed: boolean;
     dueDate?: string;
+    description?: string;
+    priority?: string;
+    estimatedTime?: string;
+    tools?: string[];
   };
   taskId: string;
   themeConfig: {
@@ -29,7 +32,9 @@ interface SubtaskItemProps {
   isEditing: boolean;
   editTitle: string;
   calendarSubtaskId: string | null;
+  isExpanded?: boolean;
   onToggleCompletion: (taskId: string, subtaskId: string) => void;
+  onToggleExpansion?: (taskId: string, subtaskId: string) => void;
   onStartEditing: (subtaskId: string, currentTitle: string) => void;
   onEditTitleChange: (title: string) => void;
   onSaveEdit: (taskId: string, subtaskId: string) => void;
@@ -46,7 +51,9 @@ export const SubtaskItem: React.FC<SubtaskItemProps> = ({
   isEditing,
   editTitle,
   calendarSubtaskId,
+  isExpanded = false,
   onToggleCompletion,
+  onToggleExpansion,
   onStartEditing,
   onEditTitleChange,
   onSaveEdit,
@@ -89,24 +96,96 @@ export const SubtaskItem: React.FC<SubtaskItemProps> = ({
         />
       ) : (
         <div className="flex-1 min-w-0 pr-1">
-          {/* Subtask Title */}
+          {/* Subtask Title with Expansion Button */}
           <div className="w-full mb-1.5">
-            <span 
-              className={`block text-xs font-normal cursor-pointer hover:${themeConfig.colors.textSecondary} transition-colors leading-relaxed break-words ${
-                subtask.completed ? 'line-through text-gray-400' : 'text-white'
-              }`}
-              onClick={(e) => {
-                e.stopPropagation();
-                onStartEditing(subtask.id, subtask.title);
-              }}
-              title="Click to edit"
-            >
-              {subtask.title}
-            </span>
+            <div className="flex items-center gap-1">
+              {/* Expansion Toggle */}
+              {(subtask.description || subtask.priority || subtask.estimatedTime || subtask.tools?.length) && onToggleExpansion && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleExpansion(taskId, subtask.id);
+                  }}
+                  className="flex-shrink-0 p-0.5 hover:bg-gray-600/30 rounded transition-all duration-150"
+                  aria-label={isExpanded ? "Collapse details" : "Show details"}
+                >
+                  {isExpanded ? (
+                    <ChevronDown className="h-3 w-3 text-gray-400" />
+                  ) : (
+                    <ChevronRight className="h-3 w-3 text-gray-400" />
+                  )}
+                </button>
+              )}
+              
+              {/* Subtask Title */}
+              <span 
+                className={`block text-xs font-normal cursor-pointer hover:${themeConfig.colors.textSecondary} transition-colors leading-relaxed break-words flex-1 ${
+                  subtask.completed ? 'line-through text-gray-400' : 'text-white'
+                }`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onStartEditing(subtask.id, subtask.title);
+                }}
+                title="Click to edit"
+              >
+                {subtask.title}
+              </span>
+            </div>
           </div>
           
-          {/* Light, thin separator line */}
-          <TaskSeparator thickness="thin" opacity="light" spacing="tight" />
+          {/* Expanded Details */}
+          {isExpanded && (
+            <div className="mb-3 pl-4 border-l border-gray-600/50 ml-1">
+              <div className="space-y-2 text-xs">
+                {/* Description */}
+                {subtask.description && (
+                  <div className="text-gray-300">
+                    <span className="text-gray-500">Description:</span> {subtask.description}
+                  </div>
+                )}
+                
+                {/* Priority and Time */}
+                <div className="flex items-center gap-4">
+                  {subtask.priority && (
+                    <div className="flex items-center gap-1">
+                      <AlertCircle className={`h-3 w-3 ${
+                        subtask.priority === 'high' ? 'text-red-400' : 
+                        subtask.priority === 'medium' ? 'text-yellow-400' : 'text-green-400'
+                      }`} />
+                      <span className="text-gray-400 capitalize">{subtask.priority}</span>
+                    </div>
+                  )}
+                  
+                  {subtask.estimatedTime && (
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-3 w-3 text-blue-400" />
+                      <span className="text-gray-400">{subtask.estimatedTime}</span>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Tools */}
+                {subtask.tools && subtask.tools.length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-1 mb-1">
+                      <Wrench className="h-3 w-3 text-purple-400" />
+                      <span className="text-gray-500">Tools:</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {subtask.tools.map((tool, index) => (
+                        <span
+                          key={index}
+                          className="px-1.5 py-0.5 bg-gray-700/50 text-gray-300 rounded text-xs border border-gray-600/30"
+                        >
+                          {tool}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
           
           {/* Metadata row: Due date and Delete button */}
           <SubtaskMetadata

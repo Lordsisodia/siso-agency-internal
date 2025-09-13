@@ -641,14 +641,20 @@ export default function SisoDeepFocusPlan({ onStartFocusSession }: SisoDeepFocus
                                       id: subtask.id,
                                       title: subtask.title,
                                       completed: subtask.status === "completed",
-                                      dueDate: subtask.dueDate
+                                      dueDate: subtask.dueDate,
+                                      description: subtask.description,
+                                      priority: subtask.priority,
+                                      estimatedTime: subtask.estimatedTime,
+                                      tools: subtask.tools
                                     }}
                                     taskId={task.id}
                                     themeConfig={themeConfig}
                                     isEditing={editingSubtask === subtask.id}
                                     editTitle={editSubtaskTitle}
                                     calendarSubtaskId={calendarSubtaskId}
+                                    isExpanded={expandedSubtasks[`${task.id}-${subtask.id}`] || false}
                                     onToggleCompletion={toggleSubtaskStatus}
+                                    onToggleExpansion={toggleSubtaskExpansion}
                                     onStartEditing={handleSubtaskStartEditing}
                                     onEditTitleChange={handleSubtaskEditTitleChange}
                                     onSaveEdit={handleSubtaskSaveEdit}
