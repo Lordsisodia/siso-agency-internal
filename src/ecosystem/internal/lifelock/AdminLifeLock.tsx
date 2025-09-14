@@ -104,6 +104,50 @@ const AdminLifeLock: React.FC = memo(() => {
     lifeLockHook?.handleCustomTaskAdd?.({ title, priority: 'medium' });
   };
 
+  // 🎯 COUPLING FIX: Props filtering to prevent shared state pollution
+  // This ensures each tab only gets the props it actually needs
+  const getTabSpecificProps = (activeTab: string, allProps: any) => {
+    // Base props that ALL tabs need
+    const baseProps = {
+      selectedDate: allProps.selectedDate,
+      dayCompletionPercentage: allProps.dayCompletionPercentage,
+      navigateDay: allProps.navigateDay,
+    };
+
+    // Only give tabs what they actually use (prevents coupling)
+    switch (activeTab) {
+      case 'work':
+      case 'focus':
+        // Deep Work tabs need organization functionality
+        return { 
+          ...baseProps, 
+          handleOrganizeTasks: allProps.handleOrganizeTasks, 
+          isAnalyzingTasks: allProps.isAnalyzingTasks,
+          todayCard: allProps.todayCard 
+        };
+        
+      case 'light-work':
+      case 'light':
+        // Light Work tabs need quick add functionality
+        return { 
+          ...baseProps, 
+          handleQuickAdd: allProps.handleQuickAdd 
+        };
+
+      case 'morning':
+        // Morning routine needs voice commands
+        return {
+          ...baseProps,
+          handleVoiceCommand: allProps.handleVoiceCommand,
+          isProcessingVoice: allProps.isProcessingVoice
+        };
+        
+      default: // wellness, timebox, checkout
+        // Other tabs get minimal props to prevent coupling
+        return baseProps;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black">
       <div className="container mx-auto px-4 py-8">
@@ -114,7 +158,7 @@ const AdminLifeLock: React.FC = memo(() => {
           {(activeTab, navigateDay) => (
             <SafeTabContentRenderer
               activeTab={activeTab as any}
-              layoutProps={{
+              layoutProps={getTabSpecificProps(activeTab, {
                 selectedDate: dateNavigation.currentDate,
                 dayCompletionPercentage,
                 navigateDay,
@@ -124,7 +168,7 @@ const AdminLifeLock: React.FC = memo(() => {
                 isProcessingVoice: lifeLockHook?.isProcessingVoice,
                 handleVoiceCommand: lifeLockHook?.handleVoiceCommand,
                 todayCard: lifeLockHook?.todayCard
-              }}
+              })}
             />
           )}
         </TabLayoutWrapper>

@@ -62,7 +62,7 @@ interface LightFocusWorkSectionProps {
   onNextDate?: () => void;
 }
 
-export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
+export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = React.memo(({
   selectedDate,
   onPreviousDate,
   onNextDate
@@ -928,4 +928,4 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
       />
     </div>
   );
-};
+});

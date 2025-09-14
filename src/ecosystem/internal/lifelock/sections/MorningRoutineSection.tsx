@@ -117,7 +117,7 @@ const MORNING_ROUTINE_TASKS = [
   }
 ];
 
-export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
+export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React.memo(({
   selectedDate
 }) => {
   const { user } = useClerkUser();
@@ -451,4 +451,4 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = ({
       </div>
     </div>
   );
-};
+});

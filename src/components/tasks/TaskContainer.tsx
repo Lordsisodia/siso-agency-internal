@@ -1,9 +1,25 @@
 /**
- * 🎛️ TaskContainer Component
+ * 🎛️ TaskContainer Component (LEGACY)
+ * 
+ * ⚠️ DEPRECATED: This is the legacy TaskContainer implementation.
+ * Please migrate to TaskContainerV2 for better performance and features.
  * 
  * Smart container that manages task state and provides CRUD operations.
  * This component handles all data operations and state management,
  * making TaskCard purely presentational and reusable.
+ * 
+ * NEW ARCHITECTURE BENEFITS:
+ * - React Query integration with optimistic updates
+ * - Decomposed hooks for better testability
+ * - Type-safe validation system
+ * - Enhanced error handling
+ * - Performance optimizations
+ * 
+ * MIGRATION PATH:
+ * 1. Import TaskContainerV2 instead of TaskContainer
+ * 2. Update taskType prop (workType → taskType)
+ * 3. Remove initialTasks prop (auto-loaded)
+ * 4. Remove useDatabase prop (always enabled)
  */
 
 import React, { useState, useCallback, useEffect } from "react";

@@ -51,7 +51,7 @@ const mockPriorityTasks: PriorityTask[] = [
   { id: '4', title: 'Write technical documentation', priority: 'medium', estimatedTime: '1h', completed: true },
 ];
 
-export const DeepFocusWorkSection: React.FC<TabProps> = ({
+export const DeepFocusWorkSection: React.FC<TabProps> = React.memo(({
   user,
   todayCard,
   refreshTrigger,
@@ -411,4 +411,4 @@ export const DeepFocusWorkSection: React.FC<TabProps> = ({
       </motion.div>
     </div>
   );
-};
+});
