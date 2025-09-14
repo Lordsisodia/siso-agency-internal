@@ -1,3 +1,4 @@
+// Generated Supabase Database Types - Core Tables
 export type Json =
   | string
   | number
@@ -9,275 +10,272 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      partner_applications: {
+      deep_work_tasks: {
         Row: {
-          company: string | null
-          created_at: string | null
-          email: string
-          expected_referrals: number | null
-          experience_level: string | null
           id: string
-          name: string
-          network_description: string | null
-          phone: string | null
-          status: string | null
+          title: string
+          description: string | null
+          user_id: string
+          task_date: string
+          original_date: string
+          completed: boolean | null
+          priority: Database["public"]["Enums"]["priority"] | null
+          category: string | null
+          estimated_duration: number | null
+          actual_duration_min: number | null
+          tags: string[] | null
+          created_at: string | null
+          updated_at: string | null
+          completed_at: string | null
+          started_at: string | null
+          complexity: number | null
+          confidence: number | null
+          difficulty: number | null
+          learning_value: number | null
+          strategic_importance: number | null
+          contextual_bonus: number | null
+          priority_rank: number | null
+          xp_reward: number | null
+          time_accuracy: number | null
+          ai_analyzed: boolean | null
+          ai_reasoning: string | null
+          analyzed_at: string | null
+          rollovers: number | null
+          focus_blocks: number | null
+          break_duration: number | null
+          interruption_mode: boolean | null
+          time_estimate: string | null
+        }
+        Insert: {
+          id?: string
+          title: string
+          description?: string | null
+          user_id: string
+          task_date: string
+          original_date: string
+          completed?: boolean | null
+          priority?: Database["public"]["Enums"]["priority"] | null
+          category?: string | null
+          estimated_duration?: number | null
+          actual_duration_min?: number | null
+          tags?: string[] | null
+          created_at?: string | null
+          updated_at?: string | null
+          completed_at?: string | null
+          started_at?: string | null
+          complexity?: number | null
+          confidence?: number | null
+          difficulty?: number | null
+          learning_value?: number | null
+          strategic_importance?: number | null
+          contextual_bonus?: number | null
+          priority_rank?: number | null
+          xp_reward?: number | null
+          time_accuracy?: number | null
+          ai_analyzed?: boolean | null
+          ai_reasoning?: string | null
+          analyzed_at?: string | null
+          rollovers?: number | null
+          focus_blocks?: number | null
+          break_duration?: number | null
+          interruption_mode?: boolean | null
+          time_estimate?: string | null
+        }
+        Update: {
+          id?: string
+          title?: string
+          description?: string | null
+          user_id?: string
+          task_date?: string
+          original_date?: string
+          completed?: boolean | null
+          priority?: Database["public"]["Enums"]["priority"] | null
+          category?: string | null
+          estimated_duration?: number | null
+          actual_duration_min?: number | null
+          tags?: string[] | null
+          created_at?: string | null
+          updated_at?: string | null
+          completed_at?: string | null
+          started_at?: string | null
+          complexity?: number | null
+          confidence?: number | null
+          difficulty?: number | null
+          learning_value?: number | null
+          strategic_importance?: number | null
+          contextual_bonus?: number | null
+          priority_rank?: number | null
+          xp_reward?: number | null
+          time_accuracy?: number | null
+          ai_analyzed?: boolean | null
+          ai_reasoning?: string | null
+          analyzed_at?: string | null
+          rollovers?: number | null
+          focus_blocks?: number | null
+          break_duration?: number | null
+          interruption_mode?: boolean | null
+          time_estimate?: string | null
+        }
+        Relationships: []
+      }
+      light_work_tasks: {
+        Row: {
+          id: string
+          title: string
+          description: string | null
+          user_id: string
+          task_date: string
+          original_date: string
+          completed: boolean | null
+          priority: Database["public"]["Enums"]["priority"] | null
+          category: string | null
+          estimated_duration: number | null
+          actual_duration_min: number | null
+          tags: string[] | null
+          created_at: string | null
+          updated_at: string | null
+          completed_at: string | null
+          started_at: string | null
+          complexity: number | null
+          confidence: number | null
+          difficulty: number | null
+          learning_value: number | null
+          strategic_importance: number | null
+          contextual_bonus: number | null
+          priority_rank: number | null
+          xp_reward: number | null
+          time_accuracy: number | null
+          ai_analyzed: boolean | null
+          ai_reasoning: string | null
+          analyzed_at: string | null
+          rollovers: number | null
+          due_date: string | null
+          time_estimate: string | null
+        }
+        Insert: {
+          id?: string
+          title: string
+          description?: string | null
+          user_id: string
+          task_date: string
+          original_date: string
+          completed?: boolean | null
+          priority?: Database["public"]["Enums"]["priority"] | null
+          category?: string | null
+          estimated_duration?: number | null
+          actual_duration_min?: number | null
+          tags?: string[] | null
+          created_at?: string | null
+          updated_at?: string | null
+          completed_at?: string | null
+          started_at?: string | null
+          complexity?: number | null
+          confidence?: number | null
+          difficulty?: number | null
+          learning_value?: number | null
+          strategic_importance?: number | null
+          contextual_bonus?: number | null
+          priority_rank?: number | null
+          xp_reward?: number | null
+          time_accuracy?: number | null
+          ai_analyzed?: boolean | null
+          ai_reasoning?: string | null
+          analyzed_at?: string | null
+          rollovers?: number | null
+          due_date?: string | null
+          time_estimate?: string | null
+        }
+        Update: {
+          id?: string
+          title?: string
+          description?: string | null
+          user_id?: string
+          task_date?: string
+          original_date?: string
+          completed?: boolean | null
+          priority?: Database["public"]["Enums"]["priority"] | null
+          category?: string | null
+          estimated_duration?: number | null
+          actual_duration_min?: number | null
+          tags?: string[] | null
+          created_at?: string | null
+          updated_at?: string | null
+          completed_at?: string | null
+          started_at?: string | null
+          complexity?: number | null
+          confidence?: number | null
+          difficulty?: number | null
+          learning_value?: number | null
+          strategic_importance?: number | null
+          contextual_bonus?: number | null
+          priority_rank?: number | null
+          xp_reward?: number | null
+          time_accuracy?: number | null
+          ai_analyzed?: boolean | null
+          ai_reasoning?: string | null
+          analyzed_at?: string | null
+          rollovers?: number | null
+          due_date?: string | null
+          time_estimate?: string | null
+        }
+        Relationships: []
+      }
+      users: {
+        Row: {
+          id: string
+          email: string
+          supabase_id: string
+          display_name: string | null
+          role: Database["public"]["Enums"]["user_role"] | null
+          created_at: string | null
           updated_at: string | null
         }
         Insert: {
-          company?: string | null
-          created_at?: string | null
-          email: string
-          expected_referrals?: number | null
-          experience_level?: string | null
           id?: string
-          name: string
-          network_description?: string | null
-          phone?: string | null
-          status?: string | null
+          email: string
+          supabase_id: string
+          display_name?: string | null
+          role?: Database["public"]["Enums"]["user_role"] | null
+          created_at?: string | null
           updated_at?: string | null
         }
         Update: {
-          company?: string | null
-          created_at?: string | null
-          email?: string
-          expected_referrals?: number | null
-          experience_level?: string | null
           id?: string
-          name?: string
-          network_description?: string | null
-          phone?: string | null
-          status?: string | null
+          email?: string
+          supabase_id?: string
+          display_name?: string | null
+          role?: Database["public"]["Enums"]["user_role"] | null
+          created_at?: string | null
           updated_at?: string | null
         }
         Relationships: []
       }
-      partners: {
-        Row: {
-          application_id: string | null
-          company: string | null
-          created_at: string | null
-          email: string
-          id: string
-          name: string
-          phone: string | null
-          status: string | null
-          tier: string | null
-          total_deals: number | null
-          total_earnings: number | null
-          updated_at: string | null
-        }
-        Insert: {
-          application_id?: string | null
-          company?: string | null
-          created_at?: string | null
-          email: string
-          id?: string
-          name: string
-          phone?: string | null
-          status?: string | null
-          tier?: string | null
-          total_deals?: number | null
-          total_earnings?: number | null
-          updated_at?: string | null
-        }
-        Update: {
-          application_id?: string | null
-          company?: string | null
-          created_at?: string | null
-          email?: string
-          id?: string
-          name?: string
-          phone?: string | null
-          status?: string | null
-          tier?: string | null
-          total_deals?: number | null
-          total_earnings?: number | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "partners_application_id_fkey"
-            columns: ["application_id"]
-            isOneToOne: false
-            referencedRelation: "partner_applications"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      client_leads: {
-        Row: {
-          business_name: string | null
-          client_email: string | null
-          client_name: string
-          client_phone: string | null
-          created_at: string | null
-          estimated_value: number | null
-          id: string
-          partner_id: string | null
-          project_description: string | null
-          status: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          business_name?: string | null
-          client_email?: string | null
-          client_name: string
-          client_phone?: string | null
-          created_at?: string | null
-          estimated_value?: number | null
-          id?: string
-          partner_id?: string | null
-          project_description?: string | null
-          status?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          business_name?: string | null
-          client_email?: string | null
-          client_name?: string
-          client_phone?: string | null
-          created_at?: string | null
-          estimated_value?: number | null
-          id?: string
-          partner_id?: string | null
-          project_description?: string | null
-          status?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "client_leads_partner_id_fkey"
-            columns: ["partner_id"]
-            isOneToOne: false
-            referencedRelation: "partners"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      commissions: {
-        Row: {
-          client_lead_id: string | null
-          commission_amount: number
-          commission_rate: number | null
-          created_at: string | null
-          id: string
-          paid_at: string | null
-          partner_id: string | null
-          project_value: number
-          status: string | null
-        }
-        Insert: {
-          client_lead_id?: string | null
-          commission_amount: number
-          commission_rate?: number | null
-          created_at?: string | null
-          id?: string
-          paid_at?: string | null
-          partner_id?: string | null
-          project_value: number
-          status?: string | null
-        }
-        Update: {
-          client_lead_id?: string | null
-          commission_amount?: number
-          commission_rate?: number | null
-          created_at?: string | null
-          id?: string
-          paid_at?: string | null
-          partner_id?: string | null
-          project_value?: number
-          status?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "commissions_client_lead_id_fkey"
-            columns: ["client_lead_id"]
-            isOneToOne: false
-            referencedRelation: "client_leads"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "commissions_partner_id_fkey"
-            columns: ["partner_id"]
-            isOneToOne: false
-            referencedRelation: "partners"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      app_plans_partnership: {
-        Row: {
-          business_name: string
-          client_lead_id: string | null
-          created_at: string | null
-          features: Json | null
-          generated_content: string | null
-          id: string
-          industry: string | null
-          investment_range: string | null
-          partner_id: string | null
-          status: string | null
-          timeline_estimate: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          business_name: string
-          client_lead_id?: string | null
-          created_at?: string | null
-          features?: Json | null
-          generated_content?: string | null
-          id?: string
-          industry?: string | null
-          investment_range?: string | null
-          partner_id?: string | null
-          status?: string | null
-          timeline_estimate?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          business_name?: string
-          client_lead_id?: string | null
-          created_at?: string | null
-          features?: Json | null
-          generated_content?: string | null
-          id?: string
-          industry?: string | null
-          investment_range?: string | null
-          partner_id?: string | null
-          status?: string | null
-          timeline_estimate?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "app_plans_partnership_client_lead_id_fkey"
-            columns: ["client_lead_id"]
-            isOneToOne: false
-            referencedRelation: "client_leads"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "app_plans_partnership_partner_id_fkey"
-            columns: ["partner_id"]
-            isOneToOne: false
-            referencedRelation: "partners"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
     }
-    Views: {}
+    Views: {
+      [_ in never]: never
+    }
     Functions: {
-      calculate_partner_tier: {
-        Args: { partner_uuid: string }
-        Returns: string
-      }
-      update_partner_stats: {
-        Args: { partner_uuid: string }
-        Returns: undefined
-      }
+      [_ in never]: never
     }
-    Enums: {}
-    CompositeTypes: {}
+    Enums: {
+      priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT"
+      user_role: "admin" | "client"
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
-} 
+}
+
+// Type helpers for easier usage
+export type Tables<T extends keyof Database["public"]["Tables"]> = Database["public"]["Tables"][T]["Row"]
+export type TablesInsert<T extends keyof Database["public"]["Tables"]> = Database["public"]["Tables"][T]["Insert"]
+export type TablesUpdate<T extends keyof Database["public"]["Tables"]> = Database["public"]["Tables"][T]["Update"]
+export type Enums<T extends keyof Database["public"]["Enums"]> = Database["public"]["Enums"][T]
+
+// Task-specific types for convenience
+export type DeepWorkTask = Tables<"deep_work_tasks">
+export type LightWorkTask = Tables<"light_work_tasks">  
+export type User = Tables<"users">
+export type Priority = Enums<"priority">
+export type UserRole = Enums<"user_role"> 

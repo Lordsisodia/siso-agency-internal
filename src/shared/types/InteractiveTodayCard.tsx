@@ -41,7 +41,7 @@ import { LifeLockService, DailyRoutine, DailyWorkout, DailyHealth, DailyHabits, 
 import { EnhancedTaskService, EnhancedTask } from '@/shared/services/task.service';
 import { format } from 'date-fns';
 import { FocusSessionTimer } from './FocusSessionTimer';
-import SisoDeepFocusPlan from '@/shared/ui/siso-deep-focus-plan';
+import SisoDeepFocusPlanV2 from '@/components/ui/siso-deep-focus-plan-v2';
 import { MilkTracker } from './MilkTracker';
 
 interface TaskCard {
@@ -801,7 +801,7 @@ export const InteractiveTodayCard: React.FC<InteractiveTodayCardProps> = ({
                       transition={{ delay: index * 0.1 }}
                       className="col-span-full"
                     >
-                      <SisoDeepFocusPlan
+                      <SisoDeepFocusPlanV2
                         onStartFocusSession={(taskId, intensity) => {
                           console.log('Starting deep focus session:', { taskId, intensity });
                           // Start flow state timer with specified intensity

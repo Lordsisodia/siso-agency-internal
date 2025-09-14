@@ -1,6 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap') layer(fonts);
 @import './shared/ui/animations.css';
-@import './claudia-styles.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* Sign-in Component Animations */
 @keyframes fadeSlideIn {
@@ -88,10 +91,6 @@
   outline: 2px solid rgb(139 92 246 / 0.5);
   outline-offset: 2px;
 }
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 /* Mobile Daily Progress Card Animations */
 @keyframes shimmer {

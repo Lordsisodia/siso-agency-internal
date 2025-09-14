@@ -1,9 +1,0 @@
-[
-  {
-    "session_id": "90471910-cb19-4c6a-8cc4-61b76ed44459",
-    "transcript_path": "/Users/shaansisodia/.claude/projects/-Users-shaansisodia-DEV/90471910-cb19-4c6a-8cc4-61b76ed44459.jsonl",
-    "cwd": "/Users/shaansisodia/DEV",
-    "hook_event_name": "UserPromptSubmit",
-    "prompt": "can you look at the sessions we had open for claude code and see what is importnt tsask we get back to what task wsas we working on"
-  }
-]

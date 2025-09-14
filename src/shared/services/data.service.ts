@@ -9,33 +9,25 @@
  * }
  */
 
-import { prismaClient, type PrismaClient } from '@/integrations/prisma/client';
+import { supabaseAnon } from '@/shared/lib/supabase-clerk';
 import type {
+  Database,
+  DeepWorkTask,
+  LightWorkTask,
   User,
-  PersonalTask,
-  PersonalSubtask,
-  DailyHealth,
-  DailyHabits,
-  DailyWorkout,
-  DailyRoutines,
-  DailyReflections,
-  TimeBlock,
-  UserProgress,
-  AutomationTask,
-  WorkType,
   Priority,
-  Prisma
-} from '@/integrations/prisma/client';
+  UserRole
+} from '@/types/supabase';
 
 // ===== CORE DATA SERVICE CLASS =====
 export class DataService {
-  private client: PrismaClient;
+  private client: typeof supabaseAnon;
   private cache: Map<string, { data: any; timestamp: number }> = new Map();
   private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
   constructor() {
-    this.client = prismaClient;
-    console.log('🚀 DataService initialized with real Prisma client');
+    this.client = supabaseAnon;
+    console.log('🚀 DataService initialized with Supabase client');
   }
 
   // ===== USER OPERATIONS =====
@@ -46,16 +38,13 @@ export class DataService {
     if (cached) return cached;
 
     try {
-      const user = await this.client.user.findUnique({
-        where: { id },
-        include: {
-          personalTasks: {
-            where: { completed: false },
-            orderBy: { createdAt: 'desc' }
-          },
-          gamification: true
-        }
-      });
+      const { data: user, error } = await this.client
+        .from('users')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) throw error;
 
       this.setCache(cacheKey, user);
       return user;
@@ -65,21 +54,20 @@ export class DataService {
     }
   }
 
-  async createUser(data: { supabaseId: string; email: string }): Promise<User> {
+  async createUser(data: { supabase_id: string; email: string }): Promise<User> {
     try {
-      const user = await this.client.user.create({
-        data,
-        include: {
-          gamification: true
-        }
-      });
+      const { data: user, error } = await this.client
+        .from('users')
+        .insert([{
+          supabase_id: data.supabase_id,
+          email: data.email,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }])
+        .select()
+        .single();
 
-      // Initialize user progress
-      await this.client.userProgress.create({
-        data: {
-          userId: user.id
-        }
-      });
+      if (error) throw error;
 
       console.log('✅ [DataService] User created:', user.id);
       return user;
@@ -91,31 +79,43 @@ export class DataService {
 
   // ===== PERSONAL TASK OPERATIONS =====
 
-  async getPersonalTasks(userId: string, date?: string): Promise<PersonalTask[]> {
+  async getPersonalTasks(userId: string, date?: string): Promise<(DeepWorkTask | LightWorkTask)[]> {
     const cacheKey = `tasks:${userId}:${date || 'all'}`;
     const cached = this.getCached(cacheKey);
     if (cached) return cached;
 
     try {
-      const where: Prisma.PersonalTaskWhereInput = { userId };
-      if (date) {
-        where.currentDate = date;
-      }
+      const promises = [];
+      const whereClause = date ? { user_id: userId, task_date: date } : { user_id: userId };
 
-      const tasks = await this.client.personalTask.findMany({
-        where,
-        include: {
-          subtasks: true,
-          eisenhowerAnalysis: true
-        },
-        orderBy: [
-          { priority: 'desc' },
-          { createdAt: 'desc' }
-        ]
-      });
+      // Get deep work tasks
+      const deepWorkPromise = this.client
+        .from('deep_work_tasks')
+        .select('*')
+        .match(whereClause)
+        .order('priority', { ascending: false })
+        .order('created_at', { ascending: false });
 
-      this.setCache(cacheKey, tasks);
-      return tasks;
+      // Get light work tasks  
+      const lightWorkPromise = this.client
+        .from('light_work_tasks')
+        .select('*')
+        .match(whereClause)
+        .order('priority', { ascending: false })
+        .order('created_at', { ascending: false });
+
+      const [{ data: deepTasks, error: deepError }, { data: lightTasks, error: lightError }] = await Promise.all([
+        deepWorkPromise,
+        lightWorkPromise
+      ]);
+
+      if (deepError) throw deepError;
+      if (lightError) throw lightError;
+
+      const allTasks = [...(deepTasks || []), ...(lightTasks || [])];
+      
+      this.setCache(cacheKey, allTasks);
+      return allTasks;
     } catch (error) {
       console.error('❌ [DataService] Failed to get tasks:', error);
       throw new Error(`Failed to fetch tasks: ${error.message}`);
@@ -126,22 +126,38 @@ export class DataService {
     userId: string;
     title: string;
     description?: string;
-    workType: WorkType;
+    workType: 'deep' | 'light';
     priority: Priority;
     originalDate: string;
     currentDate: string;
     estimatedDuration?: number;
     tags?: string[];
     category?: string;
-  }): Promise<PersonalTask> {
+  }): Promise<DeepWorkTask | LightWorkTask> {
     try {
-      const task = await this.client.personalTask.create({
-        data,
-        include: {
-          subtasks: true,
-          eisenhowerAnalysis: true
-        }
-      });
+      const taskData = {
+        user_id: data.userId,
+        title: data.title,
+        description: data.description,
+        task_date: data.currentDate,
+        original_date: data.originalDate,
+        priority: data.priority,
+        category: data.category,
+        estimated_duration: data.estimatedDuration,
+        tags: data.tags,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
+      const tableName = data.workType === 'deep' ? 'deep_work_tasks' : 'light_work_tasks';
+      
+      const { data: task, error } = await this.client
+        .from(tableName)
+        .insert([taskData])
+        .select()
+        .single();
+
+      if (error) throw error;
 
       // Clear related cache
       this.clearCache(`tasks:${data.userId}`);
@@ -153,175 +169,132 @@ export class DataService {
     }
   }
 
-  async updatePersonalTask(id: string, data: Partial<PersonalTask>): Promise<PersonalTask> {
+  async updatePersonalTask(id: string, data: Partial<DeepWorkTask | LightWorkTask>, taskType?: 'deep' | 'light'): Promise<DeepWorkTask | LightWorkTask> {
     try {
-      const task = await this.client.personalTask.update({
-        where: { id },
-        data: {
-          ...data,
-          updatedAt: new Date()
-        },
-        include: {
-          subtasks: true,
-          eisenhowerAnalysis: true
-        }
-      });
+      // If taskType is provided, use it; otherwise try to find the task in both tables
+      if (taskType) {
+        const tableName = taskType === 'deep' ? 'deep_work_tasks' : 'light_work_tasks';
+        const { data: task, error } = await this.client
+          .from(tableName)
+          .update({
+            ...data,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', id)
+          .select()
+          .single();
 
-      // Clear related cache
-      this.clearCache(`tasks:${task.userId}`);
-      console.log('✅ [DataService] Task updated:', task.id);
-      return task;
+        if (error) throw error;
+        
+        // Clear related cache
+        this.clearCache(`tasks:${task.user_id}`);
+        console.log('✅ [DataService] Task updated:', task.id);
+        return task;
+      } else {
+        // Try deep work tasks first
+        const { data: deepTask, error: deepError } = await this.client
+          .from('deep_work_tasks')
+          .update({
+            ...data,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', id)
+          .select()
+          .single();
+
+        if (!deepError && deepTask) {
+          this.clearCache(`tasks:${deepTask.user_id}`);
+          console.log('✅ [DataService] Deep work task updated:', deepTask.id);
+          return deepTask;
+        }
+
+        // Try light work tasks
+        const { data: lightTask, error: lightError } = await this.client
+          .from('light_work_tasks')
+          .update({
+            ...data,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', id)
+          .select()
+          .single();
+
+        if (!lightError && lightTask) {
+          this.clearCache(`tasks:${lightTask.user_id}`);
+          console.log('✅ [DataService] Light work task updated:', lightTask.id);
+          return lightTask;
+        }
+
+        throw new Error('Task not found in either deep_work_tasks or light_work_tasks');
+      }
     } catch (error) {
       console.error('❌ [DataService] Failed to update task:', error);
       throw new Error(`Failed to update task: ${error.message}`);
     }
   }
 
-  async toggleTaskCompletion(id: string): Promise<PersonalTask> {
+  async toggleTaskCompletion(id: string): Promise<DeepWorkTask | LightWorkTask> {
     try {
-      // Get current task
-      const currentTask = await this.client.personalTask.findUnique({
-        where: { id }
-      });
+      // Try to find and toggle in deep work tasks first
+      const { data: deepTask, error: deepFindError } = await this.client
+        .from('deep_work_tasks')
+        .select('*')
+        .eq('id', id)
+        .single();
 
-      if (!currentTask) {
-        throw new Error('Task not found');
+      if (!deepFindError && deepTask) {
+        const { data: updatedTask, error: updateError } = await this.client
+          .from('deep_work_tasks')
+          .update({
+            completed: !deepTask.completed,
+            completed_at: !deepTask.completed ? new Date().toISOString() : null,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', id)
+          .select()
+          .single();
+
+        if (updateError) throw updateError;
+
+        this.clearCache(`tasks:${updatedTask.user_id}`);
+        console.log('✅ [DataService] Deep work task completion toggled:', updatedTask.id);
+        return updatedTask;
       }
 
-      const task = await this.client.personalTask.update({
-        where: { id },
-        data: {
-          completed: !currentTask.completed,
-          completedAt: !currentTask.completed ? new Date() : null,
-          updatedAt: new Date()
-        },
-        include: {
-          subtasks: true,
-          eisenhowerAnalysis: true
-        }
-      });
+      // Try light work tasks
+      const { data: lightTask, error: lightFindError } = await this.client
+        .from('light_work_tasks')
+        .select('*')
+        .eq('id', id)
+        .single();
 
-      // Clear related cache
-      this.clearCache(`tasks:${task.userId}`);
-      console.log('✅ [DataService] Task completion toggled:', task.id);
-      return task;
+      if (!lightFindError && lightTask) {
+        const { data: updatedTask, error: updateError } = await this.client
+          .from('light_work_tasks')
+          .update({
+            completed: !lightTask.completed,
+            completed_at: !lightTask.completed ? new Date().toISOString() : null,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', id)
+          .select()
+          .single();
+
+        if (updateError) throw updateError;
+
+        this.clearCache(`tasks:${updatedTask.user_id}`);
+        console.log('✅ [DataService] Light work task completion toggled:', updatedTask.id);
+        return updatedTask;
+      }
+
+      throw new Error('Task not found in either deep_work_tasks or light_work_tasks');
     } catch (error) {
       console.error('❌ [DataService] Failed to toggle task completion:', error);
       throw new Error(`Failed to toggle task completion: ${error.message}`);
     }
   }
 
-  // ===== DAILY HEALTH OPERATIONS =====
-
-  async getDailyHealth(userId: string, date: string): Promise<DailyHealth | null> {
-    const cacheKey = `health:${userId}:${date}`;
-    const cached = this.getCached(cacheKey);
-    if (cached) return cached;
-
-    try {
-      const health = await this.client.dailyHealth.findUnique({
-        where: {
-          userId_date: { userId, date }
-        }
-      });
-
-      this.setCache(cacheKey, health);
-      return health;
-    } catch (error) {
-      console.error('❌ [DataService] Failed to get daily health:', error);
-      throw new Error(`Failed to fetch daily health: ${error.message}`);
-    }
-  }
-
-  async upsertDailyHealth(data: {
-    userId: string;
-    date: string;
-    healthChecklist?: any;
-    meals?: any;
-    macros?: any;
-    waterIntakeMl?: number;
-    milkIntakeMl?: number;
-    sleepHours?: number;
-    energyLevel?: number;
-    moodLevel?: number;
-    notes?: string;
-  }): Promise<DailyHealth> {
-    try {
-      const health = await this.client.dailyHealth.upsert({
-        where: {
-          userId_date: { userId: data.userId, date: data.date }
-        },
-        update: {
-          ...data,
-          updatedAt: new Date()
-        },
-        create: data
-      });
-
-      // Clear related cache
-      this.clearCache(`health:${data.userId}:${data.date}`);
-      console.log('✅ [DataService] Daily health updated:', health.id);
-      return health;
-    } catch (error) {
-      console.error('❌ [DataService] Failed to upsert daily health:', error);
-      throw new Error(`Failed to save daily health: ${error.message}`);
-    }
-  }
-
-  // ===== DAILY HABITS OPERATIONS =====
-
-  async getDailyHabits(userId: string, date: string): Promise<DailyHabits | null> {
-    const cacheKey = `habits:${userId}:${date}`;
-    const cached = this.getCached(cacheKey);
-    if (cached) return cached;
-
-    try {
-      const habits = await this.client.dailyHabits.findUnique({
-        where: {
-          userId_date: { userId, date }
-        }
-      });
-
-      this.setCache(cacheKey, habits);
-      return habits;
-    } catch (error) {
-      console.error('❌ [DataService] Failed to get daily habits:', error);
-      throw new Error(`Failed to fetch daily habits: ${error.message}`);
-    }
-  }
-
-  async upsertDailyHabits(data: {
-    userId: string;
-    date: string;
-    screenTimeMinutes?: number;
-    bullshitContentMinutes?: number;
-    noWeed?: boolean;
-    noScrolling?: boolean;
-    deepWorkHours?: number;
-    lightWorkHours?: number;
-    habitsData?: any;
-  }): Promise<DailyHabits> {
-    try {
-      const habits = await this.client.dailyHabits.upsert({
-        where: {
-          userId_date: { userId: data.userId, date: data.date }
-        },
-        update: {
-          ...data,
-          updatedAt: new Date()
-        },
-        create: data
-      });
-
-      // Clear related cache
-      this.clearCache(`habits:${data.userId}:${data.date}`);
-      console.log('✅ [DataService] Daily habits updated:', habits.id);
-      return habits;
-    } catch (error) {
-      console.error('❌ [DataService] Failed to upsert daily habits:', error);
-      throw new Error(`Failed to save daily habits: ${error.message}`);
-    }
-  }
+  // Note: Daily health and habits operations removed - not implemented in current Supabase schema
 
   // ===== UTILITY METHODS =====
 
@@ -331,8 +304,10 @@ export class DataService {
   async healthCheck(): Promise<{ status: 'healthy' | 'unhealthy'; responseTime: number; error?: string }> {
     try {
       const start = Date.now();
-      await this.client.$queryRaw`SELECT 1`;
+      const { error } = await this.client.from('users').select('count').limit(1);
       const responseTime = Date.now() - start;
+
+      if (error) throw error;
 
       return {
         status: 'healthy',
@@ -352,23 +327,36 @@ export class DataService {
    */
   async getStats(): Promise<{
     users: number;
-    personalTasks: number;
-    completedTasks: number;
-    dailyHealthRecords: number;
+    deepWorkTasks: number;
+    lightWorkTasks: number;
+    completedDeepTasks: number;
+    completedLightTasks: number;
   }> {
     try {
-      const [users, personalTasks, completedTasks, dailyHealthRecords] = await Promise.all([
-        this.client.user.count(),
-        this.client.personalTask.count(),
-        this.client.personalTask.count({ where: { completed: true } }),
-        this.client.dailyHealth.count()
+      const [
+        { count: users, error: usersError },
+        { count: deepWorkTasks, error: deepTasksError },
+        { count: lightWorkTasks, error: lightTasksError },
+        { count: completedDeepTasks, error: completedDeepError },
+        { count: completedLightTasks, error: completedLightError }
+      ] = await Promise.all([
+        this.client.from('users').select('*', { count: 'exact', head: true }),
+        this.client.from('deep_work_tasks').select('*', { count: 'exact', head: true }),
+        this.client.from('light_work_tasks').select('*', { count: 'exact', head: true }),
+        this.client.from('deep_work_tasks').select('*', { count: 'exact', head: true }).eq('completed', true),
+        this.client.from('light_work_tasks').select('*', { count: 'exact', head: true }).eq('completed', true)
       ]);
 
+      if (usersError || deepTasksError || lightTasksError || completedDeepError || completedLightError) {
+        throw new Error('Failed to fetch statistics');
+      }
+
       return {
-        users,
-        personalTasks,
-        completedTasks,
-        dailyHealthRecords
+        users: users || 0,
+        deepWorkTasks: deepWorkTasks || 0,
+        lightWorkTasks: lightWorkTasks || 0,
+        completedDeepTasks: completedDeepTasks || 0,
+        completedLightTasks: completedLightTasks || 0
       };
     } catch (error) {
       console.error('❌ [DataService] Failed to get stats:', error);
@@ -437,7 +425,7 @@ export function useUser(id: string) {
 }
 
 export function usePersonalTasks(userId: string, date?: string) {
-  const [tasks, setTasks] = useState<PersonalTask[]>([]);
+  const [tasks, setTasks] = useState<(DeepWorkTask | LightWorkTask)[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -463,37 +451,7 @@ export function usePersonalTasks(userId: string, date?: string) {
   return { tasks, loading, error, refetch: fetchTasks };
 }
 
-export function useDailyHealth(userId: string, date: string) {
-  const [health, setHealth] = useState<DailyHealth | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!userId || !date) return;
-
-    dataService.getDailyHealth(userId, date)
-      .then(setHealth)
-      .catch(err => setError(err.message))
-      .finally(() => setLoading(false));
-  }, [userId, date]);
-
-  const updateHealth = async (data: any) => {
-    try {
-      const updatedHealth = await dataService.upsertDailyHealth({
-        userId,
-        date,
-        ...data
-      });
-      setHealth(updatedHealth);
-      return updatedHealth;
-    } catch (err) {
-      setError(err.message);
-      throw err;
-    }
-  };
-
-  return { health, loading, error, updateHealth };
-}
+// Health hooks removed - not implemented in current Supabase schema
 
 // ===== UTILITY FUNCTIONS =====
 export const checkIsAdmin = async (): Promise<boolean> => {
@@ -533,4 +491,4 @@ export const safeCast = (value: any, fallback: any = null) => {
 };
 
 // Export types
-export type { User, PersonalTask, DailyHealth, DailyHabits };
+export type { User, DeepWorkTask, LightWorkTask, Priority, UserRole };

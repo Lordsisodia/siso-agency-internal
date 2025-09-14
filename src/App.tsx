@@ -54,6 +54,8 @@ const AdminClients = lazy(() => import('@/ecosystem/internal/pages/AdminClients.
 const AdminTasks = lazy(() => import('@/ecosystem/internal/pages/AdminTasks.tsx'));
 const AdminPlans = lazy(() => import('@/ecosystem/internal/pages/AdminPlans.tsx'));
 const AdminFeedback = lazy(() => import('@/ecosystem/internal/pages/AdminFeedback.tsx'));
+const AdminLightWork = lazy(() => import('@/shared/tabs/LightWorkTab.tsx').then(m => ({ default: m.LightWorkTab })));
+const AdminDeepWork = lazy(() => import('@/shared/tabs/DeepWorkTab.tsx').then(m => ({ default: m.DeepWorkTab })));
 // Archived pages - removed from navigation
 const AdminOutreach = lazy(() => import('@/ecosystem/internal/pages/AdminOutreach.tsx'));
 const AdminTemplates = lazy(() => import('@/ecosystem/internal/pages/AdminTemplates.tsx'));
@@ -263,6 +265,8 @@ function App() {
           <Route path="/admin/life-lock" element={<ClerkAuthGuard><AdminLifeLock /></ClerkAuthGuard>} />
           <Route path="/admin/lifelock/day/:date" element={<ClerkAuthGuard><AdminLifeLockDay /></ClerkAuthGuard>} />
           <Route path="/admin/life-lock/day/:date" element={<ClerkAuthGuard><AdminLifeLockDay /></ClerkAuthGuard>} />
+          <Route path="/admin/light-work" element={<ClerkAuthGuard><AdminLightWork /></ClerkAuthGuard>} />
+          <Route path="/admin/deep-work" element={<ClerkAuthGuard><AdminDeepWork /></ClerkAuthGuard>} />
           <Route path="/admin/tasks" element={<ClerkAuthGuard><AdminTasks /></ClerkAuthGuard>} />
           <Route path="/admin/feedback" element={<ClerkAuthGuard><AdminFeedback /></ClerkAuthGuard>} />
           <Route path="/admin/tasks/:memberId" element={<ClerkAuthGuard><TeamMemberTasksPage /></ClerkAuthGuard>} />

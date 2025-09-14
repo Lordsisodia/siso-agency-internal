@@ -1,5 +1,0 @@
-2025-08-18 18:18:27,085 - __main__ - INFO - Starting advanced data processing pipeline...
-2025-08-18 18:18:27,089 - root - INFO - Successfully loaded 20 records
-2025-08-18 18:18:27,089 - root - INFO - JSON report generated successfully: /Users/shaansisodia/DEV/sales_analysis_results.json
-2025-08-18 18:18:27,090 - __main__ - INFO - Pipeline completed successfully in 0.00 seconds
-2025-08-18 18:18:27,090 - __main__ - INFO - Performance metrics: {'operations': [{'operation': 'data_loading', 'duration_seconds': 0.003485, 'success': True, 'timestamp': '2025-08-18T18:18:27.089245'}, {'operation': 'data_analysis', 'duration_seconds': 0.000341, 'success': True, 'timestamp': '2025-08-18T18:18:27.089591'}, {'operation': 'report_generation', 'duration_seconds': 0.000411, 'success': True, 'timestamp': '2025-08-18T18:18:27.090005'}, {'operation': 'summary_generation', 'duration_seconds': 1.2e-05, 'success': True, 'timestamp': '2025-08-18T18:18:27.090020'}]}

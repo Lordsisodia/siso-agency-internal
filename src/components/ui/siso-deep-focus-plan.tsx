@@ -1,28 +1,27 @@
 "use client";
 
 import React, { useState } from "react";
-import {
+import { motion, LayoutGroup, AnimatePresence } from "framer-motion";
+import { TaskContainer } from "../tasks/TaskContainer";
+import { Task } from "../tasks/TaskCard";
+import { SubtaskItem } from "../tasks/SubtaskItem";
+import { TaskSeparator } from "../tasks/TaskSeparator";
+import { TaskDetailModal } from "../tasks/TaskDetailModal";
+import { Button } from "@/shared/ui/button";
+import { CustomCalendar } from "./CustomCalendar";
+import { Card, CardHeader, CardTitle, CardContent } from "@/shared/ui/card";
+import { 
+  Brain,
   CheckCircle2,
+  ChevronDown,
+  ChevronRight,
   Circle,
   CircleAlert,
   CircleDotDashed,
   CircleX,
-  Timer,
-  Play,
-  Pause,
-  Brain,
   Clock,
-  Plus,
-  ChevronDown,
-  ChevronRight
+  Plus
 } from "lucide-react";
-import { TaskSeparator } from "../tasks/TaskSeparator";
-import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
-import { Button } from "@/shared/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
-import { TaskDetailModal } from "./task-detail-modal";
-import { CustomCalendar } from "./CustomCalendar";
-import { SubtaskItem } from "../tasks/SubtaskItem";
 
 // Type definitions
 interface Subtask {

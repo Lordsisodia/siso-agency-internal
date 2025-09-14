@@ -1,9 +1,0 @@
-[
-  {
-    "session_id": "faba695e-75ee-4e72-ba2d-0e0ae9cfabec",
-    "transcript_path": "/Users/shaansisodia/.claude/projects/-Users-shaansisodia-DEV/faba695e-75ee-4e72-ba2d-0e0ae9cfabec.jsonl",
-    "cwd": "/Users/shaansisodia/DEV",
-    "hook_event_name": "UserPromptSubmit",
-    "prompt": "\ud83c\udfaf Best Claude Code GUI Alternatives for Agent Delegation \n  Visualization\n\n  Based on my research, here are the top options better than \n  Claudia for your use case:\n\n  1. \ud83c\udfc6 Claude-Code-by-Agents (WINNER)\n\n  # What we just cloned - this is the BEST option\n  cd claude-code-by-agents\n\n  Why it's superior:\n  - Real Agent Delegation: Uses actual @agent-name mentions\n  - Multi-agent orchestration: Automatic task decomposition\n  - Visual workflow: See agents coordinate in real-time\n  - Desktop app: Native GUI with web backend\n  - Free: No API costs (uses developer's endpoint)\n  - Hybrid agents: Mix local + remote agents"
-  }
-]
