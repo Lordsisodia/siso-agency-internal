@@ -85,7 +85,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   const intensityConfig = {
     1: { name: 'Light Focus', color: 'bg-blue-500/20 text-blue-300', icon: Clock },
     2: { name: 'Medium Focus', color: 'bg-yellow-500/20 text-yellow-300', icon: Target },
-    3: { name: 'Deep Flow', color: 'bg-orange-500/20 text-orange-300', icon: Brain },
+    3: { name: 'Deep Flow', color: 'bg-emerald-500/20 text-emerald-300', icon: Brain },
     4: { name: 'Ultra-Deep', color: 'bg-red-500/20 text-red-300', icon: Zap }
   };
 
@@ -142,8 +142,8 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] max-w-2xl h-[90vh] max-h-none overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border border-gray-700/50 shadow-2xl">
-        <DialogHeader className="pb-4 border-b border-gray-700/30">
+      <DialogContent className="w-[95vw] max-w-2xl h-[90vh] max-h-none overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border border-emerald-500/20 shadow-2xl backdrop-blur-sm">
+        <DialogHeader className="pb-6 border-b border-emerald-500/20 bg-gradient-to-r from-emerald-950/30 to-slate-900/50">
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
             <div className="flex items-start space-x-3 flex-1 min-w-0">
               <div className={`p-2.5 rounded-xl ${intensity.color} shadow-lg`}>
@@ -166,7 +166,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
             
             <Button
               onClick={() => onStartFocusSession?.(editingTask.id)}
-              className="w-full sm:w-auto bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 shadow-lg font-medium"
+              className="w-full sm:w-auto bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 shadow-lg font-medium"
               size="sm"
             >
               <Play className="w-4 h-4 mr-2" />
@@ -185,7 +185,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                   ...editingTask,
                   description: e.target.value
                 })}
-                className="bg-gray-800/60 border-gray-600/50 text-white placeholder-gray-500 text-sm resize-none"
+                className="bg-slate-800/60 border-emerald-500/20 text-white placeholder-gray-400 text-sm resize-none focus:border-emerald-400/50 focus:ring-emerald-400/20"
                 rows={2}
                 placeholder="Add task description..."
               />
@@ -198,7 +198,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                 </h3>
                 <Button
                   size="sm"
-                  className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-md"
+                  className="w-full sm:w-auto bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 shadow-lg border border-emerald-500/20"
                   onClick={() => {
                     const newSubtask: Subtask = {
                       id: `${editingTask.id}-${Date.now()}`,
@@ -224,7 +224,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                 {editingTask.subtasks.map((subtask) => (
                   <motion.div
                     key={subtask.id}
-                    className="bg-gray-800/40 rounded-xl p-3 border border-gray-700/40 shadow-sm hover:bg-gray-800/60 transition-all"
+                    className="bg-slate-800/50 rounded-xl p-4 border border-emerald-500/10 shadow-lg hover:bg-slate-800/70 hover:border-emerald-500/20 transition-all duration-200"
                     layout
                   >
                     <div className="flex flex-col space-y-3">
@@ -242,13 +242,13 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                               <Input
                                 value={subtask.title}
                                 onChange={(e) => updateSubtask(subtask.id, { title: e.target.value })}
-                                className="bg-gray-700/50 border-gray-600/50 text-white text-sm"
+                                className="bg-slate-800/60 border-emerald-500/20 text-white text-sm focus:border-emerald-400/50 focus:ring-emerald-400/20"
                                 placeholder="Subtask title"
                               />
                               <Textarea
                                 value={subtask.description}
                                 onChange={(e) => updateSubtask(subtask.id, { description: e.target.value })}
-                                className="bg-gray-700/50 border-gray-600/50 text-white text-sm resize-none"
+                                className="bg-slate-800/60 border-emerald-500/20 text-white text-sm resize-none focus:border-emerald-400/50 focus:ring-emerald-400/20"
                                 placeholder="Subtask description"
                                 rows={2}
                               />
@@ -310,7 +310,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                             size="sm"
                             variant="ghost"
                             onClick={() => onStartFocusSession?.(editingTask.id, subtask.id)}
-                            className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/20 p-2"
+                            className="text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/20 p-2 rounded-lg transition-all"
                           >
                             <Play className="w-3 h-3" />
                           </Button>
@@ -320,7 +320,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                             onClick={() => setEditingSubtask(
                               editingSubtask === subtask.id ? null : subtask.id
                             )}
-                            className="text-gray-400 hover:text-white hover:bg-gray-600/50 p-2"
+                            className="text-gray-400 hover:text-white hover:bg-slate-600/50 p-2 rounded-lg transition-all"
                           >
                             <Edit3 className="w-3 h-3" />
                           </Button>
@@ -328,7 +328,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                             size="sm"
                             variant="ghost"
                             onClick={() => deleteSubtask(subtask.id)}
-                            className="text-red-400 hover:text-red-300 hover:bg-red-500/20 p-2"
+                            className="text-red-400 hover:text-red-300 hover:bg-red-500/20 p-2 rounded-lg transition-all"
                           >
                             <Trash2 className="w-3 h-3" />
                           </Button>
@@ -342,18 +342,18 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
           </div>
         </div>
 
-        <div className="border-t border-gray-700/50 p-4 bg-gray-900/80 backdrop-blur-sm">
+        <div className="border-t border-emerald-500/20 p-6 bg-gradient-to-r from-emerald-950/20 to-slate-900/80 backdrop-blur-sm">
           <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
             <Button
               variant="outline"
               onClick={onClose}
-              className="w-full sm:w-auto border-gray-600 text-gray-300 hover:bg-gray-700/50"
+              className="w-full sm:w-auto border-slate-600 text-gray-300 hover:bg-slate-700/50 hover:border-slate-500"
             >
               Cancel
             </Button>
             <Button
               onClick={saveChanges}
-              className="w-full sm:w-auto bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 shadow-lg font-medium"
+              className="w-full sm:w-auto bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 shadow-lg font-medium border border-emerald-500/20"
             >
               Save Changes
             </Button>
