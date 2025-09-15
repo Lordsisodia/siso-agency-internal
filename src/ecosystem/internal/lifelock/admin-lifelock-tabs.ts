@@ -20,6 +20,7 @@ import { LucideIcon } from 'lucide-react';
 import { MorningRoutineSection } from './sections/MorningRoutineSection';
 import { DeepFocusWorkSection } from './sections/DeepFocusWorkSection';
 import SisoDeepFocusPlan from '@/components/ui/siso-deep-focus-plan';
+import SisoLightWorkPlan from '@/components/ui/siso-light-work-plan';
 
 // ✅ Components from unified /sections/ directory  
 import { LightFocusWorkSection } from './sections/LightFocusWorkSection';
@@ -113,8 +114,7 @@ export const ENHANCED_TAB_CONFIG: Record<TabId, EnhancedTabConfig> = {
     layoutType: 'standard',
     backgroundClass: 'min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24',
     showDateNav: true,
-    components: [LightFocusWorkSection],
-    additionalContent: QuickActionsSection,
+    components: [SisoLightWorkPlan],
   },
   
   'light-work': {
@@ -122,8 +122,7 @@ export const ENHANCED_TAB_CONFIG: Record<TabId, EnhancedTabConfig> = {
     layoutType: 'standard',
     backgroundClass: 'min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24',
     showDateNav: true,
-    components: [LightFocusWorkSection],
-    additionalContent: QuickActionsSection,
+    components: [SisoLightWorkPlan],
   },
   
   'work': {

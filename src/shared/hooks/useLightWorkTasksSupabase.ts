@@ -547,6 +547,45 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
     }
   }, [supabase]);
 
+  // Update subtask title in Supabase
+  const updateSubtaskTitle = useCallback(async (subtaskId: string, newTitle: string) => {
+    if (!supabase) return null;
+    
+    try {
+      console.log(`✏️ Updating Light Work subtask title: ${subtaskId} -> ${newTitle}`);
+      
+      const { error } = await supabase
+        .from('light_work_subtasks')
+        .update({
+          title: newTitle,
+          text: newTitle, // Update both title and text fields
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', subtaskId);
+      
+      if (error) {
+        throw new Error(`Supabase error: ${error.message}`);
+      }
+      
+      console.log(`✅ Updated Light Work subtask title: ${subtaskId}`);
+      
+      // Update tasks state with new subtask title
+      setTasks(prev => prev.map(task => ({
+        ...task,
+        subtasks: task.subtasks.map(subtask => 
+          subtask.id === subtaskId ? { ...subtask, title: newTitle, text: newTitle } : subtask
+        )
+      })));
+      
+      return true;
+      
+    } catch (error) {
+      console.error('❌ Error updating Light Work subtask title:', error);
+      setError(error instanceof Error ? error.message : 'Failed to update subtask title');
+      return null;
+    }
+  }, [supabase]);
+
   // Load tasks when dependencies change
   useEffect(() => {
     loadTasks();
@@ -563,6 +602,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
     deleteTask,
     deleteSubtask,
     updateTaskTitle,
+    updateSubtaskTitle,
     pushTaskToAnotherDay,
     updateTaskDueDate,
     updateSubtaskDueDate,
