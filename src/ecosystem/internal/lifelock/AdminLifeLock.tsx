@@ -1,40 +1,29 @@
-import React, { useMemo, useState, useEffect, memo, useCallback } from 'react';
-import { AdminLayout } from '@/internal/admin/layout/AdminLayout';
-import { format, addWeeks, getYear, isToday } from 'date-fns';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import React, { useState, useEffect, memo, useCallback } from 'react';
+
+
 import { useClerkUser } from '@/shared/ClerkProvider';
-import { ThoughtDumpResults } from '@/ecosystem/internal/tasks/ui/ThoughtDumpResults';
-import { EisenhowerMatrixModal } from '@/ecosystem/internal/tasks/ui/EisenhowerMatrixModal';
 import { TabLayoutWrapper } from './TabLayoutWrapper';
-import { TodayProgressSection } from '@/ecosystem/internal/tasks/components/TodayProgressSection';
-import { WeeklyViewSection } from '@/ecosystem/internal/tasks/components/WeeklyViewSection';
-import { VoiceCommandSection } from '@/ecosystem/internal/tasks/components/VoiceCommandSection';
-import { PromptInputBox } from '@/shared/ui/ai-prompt-box';
-import { SisoIcon } from '@/shared/ui/icons/SisoIcon';
-import { CleanDateNav } from '@/shared/ui/clean-date-nav';
-import { PriorityTasksSection } from '@/ecosystem/internal/tasks/components/PriorityTasksSection';
-import { QuickActionsSection } from '@/ecosystem/internal/tasks/ui/QuickActionsSection';
-import { MonthlyProgressSection } from '@/ecosystem/internal/tasks/components/MonthlyProgressSection';
-import { MorningRoutineTab } from '@/ecosystem/internal/tasks/components/MorningRoutineTab';
-import { LightWorkTab } from '@/shared/tabs/LightWorkTab';
-import { LightWorkTabWrapper } from '@/components/working-ui/LightWorkTabWrapper';
-import { DeepFocusTab } from '@/ecosystem/internal/tasks/components/DeepFocusTab';
-import { DeepWorkTabWrapper } from '@/components/working-ui/DeepWorkTabWrapper';
-import { TimeBoxTab } from '@/ecosystem/internal/tasks/components/TimeBoxTab';
-import { NightlyCheckoutTab } from '@/ecosystem/internal/tasks/components/NightlyCheckoutTab';
-import { useLifeLockData } from './useLifeLockData';
-import { useRefactoredLifeLockData } from './useRefactoredLifeLockData';
-import { TabId, validateTabHandler, assertExhaustive, isValidTabId } from '@/shared/services/tab-config';
-import { TabContentRenderer } from '@/refactored/components/TabContentRenderer';
-import { isFeatureEnabled, useImplementation } from '@/migration/feature-flags';
-import { useFeatureFlags } from '@/shared/hooks/useFeatureFlags';
-import { LoadingState } from '@/shared/ui/loading-state';
-import { theme } from '@/styles/theme';
-import { FloatingAIAssistant } from '@/shared/components/FloatingAIAssistant';
+
+import { getTaskService } from '@/services/database/TaskServiceRegistry';
+import { useTaskCRUD } from '@/hooks/useTaskCRUD';
+import { useTaskState } from '@/hooks/useTaskState';
+import { useTaskValidation } from '@/hooks/useTaskValidation';
+
+
 
 // Refactored components and hooks
 import { SafeTabContentRenderer } from '@/refactored/components/TabContentRenderer';
 import { useDateNavigation, useModalHandlers } from './hooks';
+
+// New TabRegistry integration
+import { useTabConfiguration } from '@/shared/hooks/useTabConfiguration';
+import { tabRegistry } from '@/shared/services/TabRegistry';
+
+// TaskProvider for service integration
+import { TaskProvider } from '@/providers/TaskProvider';
+
+// Day progress utilities
+import { calculateDayCompletionPercentage } from '@/utils/dayProgress';
 
 // Modal components (assuming they exist or need to be created)
 import { CreateTaskModal } from './modals/CreateTaskModal';
@@ -43,7 +32,7 @@ import { CreateGoalModal } from './modals/CreateGoalModal';
 import { CreateJournalEntryModal } from './modals/CreateJournalEntryModal';
 
 const AdminLifeLock: React.FC = memo(() => {
-  const { useRefactoredLifeLockData } = useFeatureFlags();
+  const { user } = useClerkUser();
   
   // Custom hooks for modular functionality
   const dateNavigation = useDateNavigation();
@@ -60,13 +49,57 @@ const AdminLifeLock: React.FC = memo(() => {
     return () => clearInterval(timer);
   }, []);
   
-  // Load LifeLock data based on the selected date
-  const lifeLockHook = useLifeLockData(dateNavigation.currentDate);
-  const lifeLockData: any = lifeLockHook;
-  const refactoredLifeLockData: any = lifeLockHook;
+  // Initialize TaskServiceRegistry and get appropriate service for current context
+  const taskService = getTaskService('light-work'); // Default to light-work, can be made dynamic
+  
+  // Use new task management hooks
+  const taskCRUD = useTaskCRUD({ taskType: 'light-work', userId: user?.id });
+  const taskState = useTaskState(taskCRUD.tasks || []);
+  const taskValidation = useTaskValidation({ taskType: 'light-work' });
+  
+  // Legacy compatibility layer - map new hooks to old interface
+  const lifeLockHook = {
+    // Data - these would come from processed task state
+    tasks: taskState.tasks || [],
+    stats: taskState.stats || { total: 0, completed: 0, completionRate: 0 },
+    
+    // State - use loading states from CRUD operations
+    isLoading: taskCRUD.isLoading,
+    isProcessing: taskCRUD.isAnyOperationLoading,
+    
+    // Actions - map to new CRUD operations with proper error handling
+    handleTaskToggle: (taskId: string) => {
+      const task = taskState.tasks?.find(t => t.id === taskId);
+      if (task) {
+        taskCRUD.updateTask({
+          id: taskId,
+          status: task.status === 'completed' ? 'pending' : 'completed'
+        });
+      }
+    },
+    handleCustomTaskAdd: (task: { title: string; priority: string }) => 
+      taskCRUD.createTask({ 
+        title: task.title, 
+        priority: task.priority as any,
+        status: 'pending',
+        description: ''
+      }),
+    
+    // Search and filter actions
+    setSearchQuery: taskState.setSearchQuery || (() => {}),
+    updateFilters: taskState.updateFilters || (() => {}),
+    
+    // Selection actions
+    toggleTaskSelection: taskState.toggleTaskSelection || (() => {}),
+    clearSelection: taskState.clearSelection || (() => {}),
+  };
+  
+  const lifeLockData = lifeLockHook; // Maintain compatibility
+  const refactoredLifeLockData = lifeLockHook; // Maintain compatibility
   const modalHandlers = useModalHandlers();
   
-  const [activeTab, setActiveTab] = useState('dashboard');
+  // TabRegistry integration - replaces manual tab state management
+  const tabConfig = useTabConfiguration();
 
   const handleCreateTask = () => {
     modalHandlers.openCreateTaskModal();
@@ -84,81 +117,71 @@ const AdminLifeLock: React.FC = memo(() => {
     modalHandlers.openCreateJournalModal();
   };
 
-  // Compute day progress percentage (how far through the day we are)
-  const dayCompletionPercentage = (() => {
-    const now = currentTime;
-    const startOfDay = new Date(now);
-    startOfDay.setHours(0, 0, 0, 0);
-    
-    const endOfDay = new Date(now);
-    endOfDay.setHours(23, 59, 59, 999);
-    
-    const totalDayMs = endOfDay.getTime() - startOfDay.getTime();
-    const elapsedMs = now.getTime() - startOfDay.getTime();
-    
-    return Math.round((elapsedMs / totalDayMs) * 100);
-  })();
+  // Compute day progress percentage using utility function
+  const dayCompletionPercentage = calculateDayCompletionPercentage(currentTime);
 
   // Quick add adapter for QuickActionsSection
   const handleQuickAdd = (title: string) => {
     lifeLockHook?.handleCustomTaskAdd?.({ title, priority: 'medium' });
   };
 
-  // 🎯 COUPLING FIX: Props filtering to prevent shared state pollution
-  // This ensures each tab only gets the props it actually needs
-  const getTabSpecificProps = (activeTab: string, allProps: any) => {
-    // Base props that ALL tabs need
+  // 🎯 TABREGISTRY INTEGRATION: Automatic props filtering using TabRegistry
+  // TabRegistry handles prop filtering based on tab configuration
+  const getTabSpecificProps = useCallback((activeTab: string, allProps: any) => {
+    const tabConfig = tabRegistry.getTab(activeTab);
+    if (!tabConfig) {
+      console.warn(`Tab configuration not found for: ${activeTab}`);
+      // Return base props as fallback
+      return {
+        selectedDate: allProps.selectedDate,
+        dayCompletionPercentage: allProps.dayCompletionPercentage,
+        navigateDay: allProps.navigateDay,
+      };
+    }
+    
+    // Use TabRegistry's prop filtering capabilities
+    // Base props that all tabs need
     const baseProps = {
       selectedDate: allProps.selectedDate,
       dayCompletionPercentage: allProps.dayCompletionPercentage,
       navigateDay: allProps.navigateDay,
     };
-
-    // Only give tabs what they actually use (prevents coupling)
-    switch (activeTab) {
-      case 'work':
-      case 'focus':
-        // Deep Work tabs need organization functionality
-        return { 
-          ...baseProps, 
-          handleOrganizeTasks: allProps.handleOrganizeTasks, 
-          isAnalyzingTasks: allProps.isAnalyzingTasks,
-          todayCard: allProps.todayCard 
-        };
-        
-      case 'light-work':
-      case 'light':
-        // Light Work tabs need quick add functionality
-        return { 
-          ...baseProps, 
-          handleQuickAdd: allProps.handleQuickAdd 
-        };
-
-      case 'morning':
-        // Morning routine needs voice commands
-        return {
-          ...baseProps,
-          handleVoiceCommand: allProps.handleVoiceCommand,
-          isProcessingVoice: allProps.isProcessingVoice
-        };
-        
-      default: // wellness, timebox, checkout
-        // Other tabs get minimal props to prevent coupling
-        return baseProps;
-    }
-  };
+    
+    // Add tab-specific props based on TabRegistry configuration
+    const specificProps = tabConfig.features?.includes('organization') ? {
+      handleOrganizeTasks: allProps.handleOrganizeTasks,
+      isAnalyzingTasks: allProps.isAnalyzingTasks,
+      todayCard: allProps.todayCard
+    } : {};
+    
+    const quickAddProps = tabConfig.features?.includes('quickAdd') ? {
+      handleQuickAdd: allProps.handleQuickAdd
+    } : {};
+    
+    const voiceProps = tabConfig.features?.includes('voice') ? {
+      handleVoiceCommand: allProps.handleVoiceCommand,
+      isProcessingVoice: allProps.isProcessingVoice
+    } : {};
+    
+    return {
+      ...baseProps,
+      ...specificProps,
+      ...quickAddProps,
+      ...voiceProps
+    };
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black">
-      <div className="container mx-auto px-4 py-8">
-        <TabLayoutWrapper 
-          selectedDate={dateNavigation.currentDate} 
-          onDateChange={dateNavigation.setCurrentDate}
-        >
-          {(activeTab, navigateDay) => (
-            <SafeTabContentRenderer
-              activeTab={activeTab as any}
-              layoutProps={getTabSpecificProps(activeTab, {
+    <TaskProvider>
+      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black">
+        <div className="container mx-auto px-4 py-8">
+          <TabLayoutWrapper 
+            selectedDate={dateNavigation.currentDate} 
+            onDateChange={dateNavigation.setCurrentDate}
+          >
+            {(activeTab, navigateDay) => {
+              // Get tab-specific props using TabRegistry integration
+              const tabSpecificProps = getTabSpecificProps(activeTab, {
                 selectedDate: dateNavigation.currentDate,
                 dayCompletionPercentage,
                 navigateDay,
@@ -168,41 +191,48 @@ const AdminLifeLock: React.FC = memo(() => {
                 isProcessingVoice: lifeLockHook?.isProcessingVoice,
                 handleVoiceCommand: lifeLockHook?.handleVoiceCommand,
                 todayCard: lifeLockHook?.todayCard
-              })}
+              });
+              
+              return (
+                <SafeTabContentRenderer
+                  activeTab={activeTab as any}
+                  layoutProps={tabSpecificProps}
+                />
+              );
+            }}
+          </TabLayoutWrapper>
+
+          {/* Modals */}
+          {modalHandlers.isCreateTaskModalOpen && (
+            <CreateTaskModal
+              currentDate={dateNavigation.currentDate}
+              onClose={modalHandlers.closeCreateTaskModal}
             />
           )}
-        </TabLayoutWrapper>
 
-        {/* Modals */}
-        {modalHandlers.isCreateTaskModalOpen && (
-          <CreateTaskModal
-            currentDate={dateNavigation.currentDate}
-            onClose={modalHandlers.closeCreateTaskModal}
-          />
-        )}
+          {modalHandlers.isCreateHabitModalOpen && (
+            <CreateHabitModal
+              currentDate={dateNavigation.currentDate}
+              onClose={modalHandlers.closeCreateHabitModal}
+            />
+          )}
 
-        {modalHandlers.isCreateHabitModalOpen && (
-          <CreateHabitModal
-            currentDate={dateNavigation.currentDate}
-            onClose={modalHandlers.closeCreateHabitModal}
-          />
-        )}
+          {modalHandlers.isCreateGoalModalOpen && (
+            <CreateGoalModal
+              currentDate={dateNavigation.currentDate}
+              onClose={modalHandlers.closeCreateGoalModal}
+            />
+          )}
 
-        {modalHandlers.isCreateGoalModalOpen && (
-          <CreateGoalModal
-            currentDate={dateNavigation.currentDate}
-            onClose={modalHandlers.closeCreateGoalModal}
-          />
-        )}
-
-        {modalHandlers.isCreateJournalModalOpen && (
-          <CreateJournalEntryModal
-            currentDate={dateNavigation.currentDate}
-            onClose={modalHandlers.closeCreateJournalModal}
-          />
-        )}
+          {modalHandlers.isCreateJournalModalOpen && (
+            <CreateJournalEntryModal
+              currentDate={dateNavigation.currentDate}
+              onClose={modalHandlers.closeCreateJournalModal}
+            />
+          )}
+        </div>
       </div>
-    </div>
+    </TaskProvider>
   );
 });
 

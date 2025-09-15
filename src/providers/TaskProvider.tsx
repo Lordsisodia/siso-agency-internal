@@ -13,9 +13,11 @@
  * - Development mode debugging
  */
 
-import React, { createContext, useContext, ReactNode, useMemo } from 'react';
+import React, { createContext, useContext, ReactNode, useMemo, lazy } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+
+// Conditional import for development only - temporarily disabled due to Vite cache issue
+const ReactQueryDevtools = () => null;
 import { useTaskCRUD } from '@/hooks/useTaskCRUD';
 import { useTaskState } from '@/hooks/useTaskState';
 import { useTaskValidation } from '@/hooks/useTaskValidation';
@@ -216,7 +218,11 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({
       </TaskProviderInner>
       
       {/* Development tools */}
-      {enableDevtools && <ReactQueryDevtools initialIsOpen={false} />}
+      {enableDevtools && process.env.NODE_ENV === 'development' && (
+        <React.Suspense fallback={null}>
+          <ReactQueryDevtools initialIsOpen={false} />
+        </React.Suspense>
+      )}
     </QueryClientProvider>
   );
 };

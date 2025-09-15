@@ -103,7 +103,7 @@ export class TaskServiceRegistry {
       this.config = { ...this.config, ...config };
     }
 
-    console.log('🎛️ Initializing Task Service Registry...');
+    console.log('🎛️ Initializing Task Service Registry with micro-decomposed services...');
     
     // Register service factories for lazy loading
     // Services are created only when first requested
@@ -116,7 +116,7 @@ export class TaskServiceRegistry {
       this.startHealthMonitoring();
     }
     
-    console.log('✅ Task Service Registry initialized with lazy loading enabled');
+    console.log('✅ Task Service Registry initialized with micro-decomposed architecture enabled');
   }
 
   /**

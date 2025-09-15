@@ -1,16 +1,16 @@
 /**
- * 🎯 SISO Deep Focus Plan - Enhanced v2
+ * 🎯 SISO Deep Focus Plan - Modular Architecture V2
  * 
- * Refactored to use the new reusable TaskContainer architecture.
- * Preserves all original functionality while enabling component reuse.
- * Based on working HOTFIX implementation with full CRUD operations.
+ * MIGRATED: Now uses TaskContainerV2 with the new decomposed architecture.
+ * Benefits: React Query optimistic updates, enhanced validation, better performance.
+ * Preserves all original functionality while providing enhanced deep-work features.
  */
 
 "use client";
 
 import React from "react";
 import { motion } from "framer-motion";
-import { TaskContainer } from "../tasks/TaskContainer";
+import { TaskContainerV2 } from "../tasks/TaskContainerV2";
 import { Task } from "../tasks/TaskCard";
 
 // SISO IDE focused tasks - cleaned up for new architecture
@@ -171,20 +171,22 @@ export default function SisoDeepFocusPlanV2({ onStartFocusSession }: SisoDeepFoc
       className="h-full"
     >
       {/* 
-        🎯 New Architecture Benefits:
-        - All state management handled by TaskContainer
-        - Full CRUD operations (add, edit, delete tasks & subtasks)
-        - Reusable across Deep Work, Light Work, and other pages
-        - Clean separation of concerns
-        - Preserved beautiful animations and UI
+        🎯 Deep Work Architecture V2 Benefits:
+        - TaskContainerV2 with React Query optimistic updates
+        - Enhanced validation for deep-work task types (required descriptions)
+        - Automatic data loading with intelligent caching
+        - Better error handling and automatic recovery
+        - Modular hooks architecture for comprehensive testing
+        - Preserved beautiful animations and enhanced UX
       */}
-      <TaskContainer
-        initialTasks={sisoTasks}
-        theme="deep-work"
+      <TaskContainerV2
+        taskType="deep-work"
         onStartFocusSession={onStartFocusSession}
         className="px-2"
-        useDatabase={true}
-        workType="deep_work"
+        showHeader={true}
+        showSearch={true}
+        showFilters={true}
+        showBulkActions={true}
       />
     </motion.div>
   );

@@ -69,67 +69,59 @@ export const CustomCalendar: React.FC<CustomCalendarProps> = ({
   };
   
   return (
-    <div className="bg-gray-800 rounded-lg p-3 w-64">
+    <div className="bg-gray-800 border border-gray-600 rounded-lg shadow-2xl p-4 w-72">
       {/* Header */}
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-4">
         <button 
           onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1))}
-          className="text-gray-400 hover:text-white p-1 text-lg font-bold"
+          className="text-gray-400 hover:text-white p-2 rounded-md hover:bg-gray-700 transition-colors"
         >
-          ‹
+          <span className="text-lg font-bold">‹</span>
         </button>
-        <div className="text-white font-medium text-sm">
+        <div className="text-white font-semibold text-base">
           {monthNames[viewDate.getMonth()]} {viewDate.getFullYear()}
         </div>
         <button 
           onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1))}
-          className="text-gray-400 hover:text-white p-1 text-lg font-bold"
+          className="text-gray-400 hover:text-white p-2 rounded-md hover:bg-gray-700 transition-colors"
         >
-          ›
+          <span className="text-lg font-bold">›</span>
         </button>
       </div>
       
       {/* Day headers */}
-      <div className="grid grid-cols-7 gap-1 mb-2">
+      <div className="grid grid-cols-7 gap-1 mb-3">
         {dayNames.map(day => (
-          <div key={day} className="text-center text-xs text-gray-400 py-1">
+          <div key={day} className="text-center text-xs text-gray-400 py-2 font-medium">
             {day}
           </div>
         ))}
       </div>
       
       {/* Calendar grid */}
-      <div className="grid grid-cols-7 gap-1">
+      <div className="grid grid-cols-7 gap-1 mb-4">
         {days.map(date => (
           <button
             key={date.toISOString()}
-            onMouseDown={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              console.log('🔍 Calendar Debug: MouseDown on date:', date.toISOString().split('T')[0]);
-            }}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              console.log('📅 CustomCalendar: Date clicked:', date.toISOString().split('T')[0]);
-              console.log('🔍 Calendar Debug: Event details:', {
-                target: e.target,
-                currentTarget: e.currentTarget,
-                bubbles: e.bubbles,
-                cancelable: e.cancelable
-              });
               
-              // Call onDateSelect immediately
-              onDateSelect(date);
-              return false;
+              try {
+                // Call onDateSelect with proper error handling
+                onDateSelect(date);
+              } catch (error) {
+                console.error('Error selecting date:', error);
+              }
             }}
             disabled={isPastDate(date)}
             className={`
-              w-8 h-8 text-xs rounded-full flex items-center justify-center transition-colors
+              w-9 h-9 text-sm rounded-lg flex items-center justify-center transition-all duration-200
               ${!isCurrentMonth(date) ? 'text-gray-600' : 'text-gray-300'}
-              ${isToday(date) ? 'bg-white text-black font-medium' : ''}
-              ${isSelected(date) ? 'bg-gray-600 text-white' : ''}
-              ${!isPastDate(date) ? 'hover:bg-gray-700' : 'opacity-50 cursor-not-allowed'}
+              ${isToday(date) ? 'bg-blue-500 text-white font-semibold shadow-md' : ''}
+              ${isSelected(date) ? 'bg-blue-600 text-white font-medium' : ''}
+              ${!isPastDate(date) && !isToday(date) && !isSelected(date) ? 'hover:bg-gray-700 hover:text-white' : ''}
+              ${isPastDate(date) ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}
             `}
           >
             {date.getDate()}
@@ -138,16 +130,16 @@ export const CustomCalendar: React.FC<CustomCalendarProps> = ({
       </div>
       
       {/* Actions */}
-      <div className="flex gap-2 mt-3">
+      <div className="flex gap-3 mt-4">
         <button
           onClick={() => onDateSelect(null)}
-          className="flex-1 px-3 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-white rounded"
+          className="flex-1 px-4 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors font-medium"
         >
           Clear Date
         </button>
         <button
           onClick={onClose}
-          className="flex-1 px-3 py-1 text-xs bg-gray-600 hover:bg-gray-500 text-white rounded"
+          className="flex-1 px-4 py-2 text-sm bg-gray-600 hover:bg-gray-500 text-white rounded-lg transition-colors font-medium"
         >
           Cancel
         </button>

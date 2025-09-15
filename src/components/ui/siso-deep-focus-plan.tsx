@@ -1,12 +1,15 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import {
   CheckCircle2,
   Circle,
   CircleAlert,
   CircleDotDashed,
   CircleX,
+  Timer,
+  Play,
+  Pause,
   Brain,
   Clock,
   Plus,
@@ -15,14 +18,15 @@ import {
 } from "lucide-react";
 import { TaskSeparator } from "../tasks/TaskSeparator";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
+import { SimpleFeedbackButton } from "../../ecosystem/internal/feedback/SimpleFeedbackButton";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
 import { TaskDetailModal } from "./task-detail-modal";
 import { CustomCalendar } from "./CustomCalendar";
 import { SubtaskItem } from "../tasks/SubtaskItem";
-import { supabaseTaskService } from '@/services/supabaseTaskService';
+import { useDeepWorkTasksSupabase, DeepWorkTask, DeepWorkSubtask } from "@/shared/hooks/useDeepWorkTasksSupabase";
 
-// Type definitions
+// Type definitions - keeping original UI types
 interface Subtask {
   id: string;
   title: string;
@@ -51,24 +55,79 @@ interface Task {
 
 interface SisoDeepFocusPlanProps {
   onStartFocusSession?: (taskId: string, intensity: number) => void;
+  selectedDate?: Date; // Add selectedDate prop for the hook
 }
 
-export default function SisoDeepFocusPlan({ onStartFocusSession }: SisoDeepFocusPlanProps) {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [expandedTasks, setExpandedTasks] = useState<string[]>([]); 
+// Transform Supabase data to match original UI format
+function transformSupabaseToUITasks(deepWorkTasks: DeepWorkTask[]): Task[] {
+  return deepWorkTasks.map(task => ({
+    id: task.id,
+    title: task.title,
+    description: task.description || "",
+    status: task.completed ? "completed" : "in-progress",
+    priority: task.priority.toLowerCase(),
+    level: 0,
+    dependencies: [],
+    focusIntensity: (task.focusBlocks || 2) as 1 | 2 | 3 | 4,
+    context: "coding",
+    dueDate: task.createdAt,
+    subtasks: task.subtasks.map(subtask => ({
+      id: subtask.id,
+      title: subtask.title,
+      description: subtask.text || subtask.title,
+      status: subtask.completed ? "completed" : "pending",
+      priority: subtask.priority || "medium",
+      estimatedTime: "30min", // Default estimate
+      tools: [], // Empty array for tools
+      completed: subtask.completed,
+      dueDate: subtask.dueDate
+    }))
+  }));
+}
+
+export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = new Date() }: SisoDeepFocusPlanProps) {
+  // Use the Supabase hook
+  const { 
+    tasks: deepWorkTasks, 
+    loading, 
+    error,
+    toggleTaskCompletion,
+    toggleSubtaskCompletion,
+    createTask,
+    addSubtask,
+    deleteTask,
+    deleteSubtask,
+    updateSubtaskDueDate,
+    updateSubtaskTitle,
+    updateTaskTitle
+  } = useDeepWorkTasksSupabase({ selectedDate });
+  
+  // Transform Supabase data to UI format
+  const tasks = useMemo(() => transformSupabaseToUITasks(deepWorkTasks), [deepWorkTasks]);
+  
+  const [expandedTasks, setExpandedTasks] = useState<string[]>(["1", "2", "3"]); // Expand all by default
   const [expandedSubtasks, setExpandedSubtasks] = useState<{
     [key: string]: boolean;
   }>({});
+  const [activeFocusSession, setActiveFocusSession] = useState<string | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   
   // Calendar functionality states
   const [calendarSubtaskId, setCalendarSubtaskId] = useState<string | null>(null);
+  const [calendarLoading, setCalendarLoading] = useState(false);
   
   // Editing states for subtasks
   const [editingSubtask, setEditingSubtask] = useState<string | null>(null);
   const [editSubtaskTitle, setEditSubtaskTitle] = useState('');
+  
+  // Editing states for main tasks
+  const [editingMainTask, setEditingMainTask] = useState<string | null>(null);
+  const [editMainTaskTitle, setEditMainTaskTitle] = useState('');
+  
+  // Adding new subtask states
+  const [addingSubtaskToTask, setAddingSubtaskToTask] = useState<string | null>(null);
+  const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   
   // Theme configuration for SubtaskItem
   const themeConfig = {
@@ -85,59 +144,6 @@ export default function SisoDeepFocusPlan({ onStartFocusSession }: SisoDeepFocus
     typeof window !== 'undefined' 
       ? window.matchMedia('(prefers-reduced-motion: reduce)').matches 
       : false;
-
-  // Load tasks from Supabase on component mount
-  useEffect(() => {
-    const loadTasks = async () => {
-      setLoading(true);
-      try {
-        console.log('🔄 Loading Deep Work tasks from Supabase...');
-        const deepWorkTasks = await supabaseTaskService.getDeepWorkTasks();
-        
-        // Map the TaskCard interface to our local Task interface
-        const mappedTasks: Task[] = deepWorkTasks.map((task: any) => ({
-          id: task.id,
-          title: task.title,
-          description: task.description,
-          status: task.status,
-          priority: task.priority,
-          level: task.level,
-          dependencies: task.dependencies,
-          subtasks: task.subtasks.map((subtask: any) => ({
-            id: subtask.id,
-            title: subtask.title,
-            description: subtask.description,
-            status: subtask.status,
-            priority: subtask.priority,
-            estimatedTime: subtask.estimatedTime,
-            tools: subtask.tools,
-            completed: subtask.status === "completed",
-            dueDate: undefined // Add dueDate support later
-          })),
-          focusIntensity: task.focusIntensity,
-          context: task.context,
-          dueDate: undefined // Add dueDate support later
-        }));
-
-        setTasks(mappedTasks);
-        
-        // Auto-expand first few tasks for better UX
-        if (mappedTasks.length > 0) {
-          setExpandedTasks(mappedTasks.slice(0, 3).map(task => task.id));
-        }
-        
-        console.log(`✅ Loaded ${mappedTasks.length} Deep Work tasks from Supabase`);
-      } catch (error) {
-        console.error('❌ Failed to load Deep Work tasks:', error);
-        // Keep empty tasks array - user will see "no tasks" state
-        setTasks([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadTasks();
-  }, []);
 
   // Close calendar when clicking outside
   React.useEffect(() => {
@@ -170,92 +176,43 @@ export default function SisoDeepFocusPlan({ onStartFocusSession }: SisoDeepFocus
     }));
   };
 
-  // Toggle task status (with Supabase persistence)
-  const toggleTaskStatus = async (taskId: string) => {
-    setTasks((prev) =>
-      prev.map((task) => {
-        if (task.id === taskId) {
-          const statuses = ["completed", "in-progress", "pending", "need-help"];
-          const currentIndex = statuses.indexOf(task.status);
-          const newStatus = statuses[(currentIndex + 1) % statuses.length];
-
-          // Persist to Supabase
-          supabaseTaskService.updateTaskStatus(taskId, newStatus === "completed", "deep_work")
-            .catch((error: any) => console.error('Failed to update task status:', error));
-
-          const updatedSubtasks = task.subtasks.map((subtask) => ({
-            ...subtask,
-            status: newStatus === "completed" ? "completed" : subtask.status,
-            completed: newStatus === "completed",
-          }));
-
-          return {
-            ...task,
-            status: newStatus,
-            subtasks: updatedSubtasks,
-          };
-        }
-        return task;
-      }),
-    );
+  // Toggle task status - use Supabase hook
+  const handleToggleTaskStatus = async (taskId: string) => {
+    try {
+      await toggleTaskCompletion(taskId);
+    } catch (error) {
+      console.error('Error toggling task completion:', error);
+      // Optional: Show user feedback
+    }
   };
 
-  // Toggle subtask status (with Supabase persistence)
-  const toggleSubtaskStatus = async (taskId: string, subtaskId: string) => {
-    setTasks((prev) =>
-      prev.map((task) => {
-        if (task.id === taskId) {
-          const updatedSubtasks = task.subtasks.map((subtask) => {
-            if (subtask.id === subtaskId) {
-              const newStatus =
-                subtask.status === "completed" ? "pending" : "completed";
-              
-              // Persist to Supabase  
-              supabaseTaskService.updateSubtaskStatus(subtaskId, newStatus === "completed", "deep_work")
-                .catch((error: any) => console.error('Failed to update subtask status:', error));
-              
-              return { 
-                ...subtask, 
-                status: newStatus,
-                completed: newStatus === "completed" 
-              };
-            }
-            return subtask;
-          });
-
-          const allSubtasksCompleted = updatedSubtasks.every(
-            (s) => s.status === "completed",
-          );
-
-          // Auto-complete parent task if all subtasks are completed
-          if (allSubtasksCompleted && task.status !== "completed") {
-            supabaseTaskService.updateTaskStatus(taskId, true, "deep_work")
-              .catch((error: any) => console.error('Failed to update parent task status:', error));
-          }
-
-          return {
-            ...task,
-            subtasks: updatedSubtasks,
-            status: allSubtasksCompleted ? "completed" : task.status,
-          };
-        }
-        return task;
-      }),
-    );
+  // Toggle subtask status - use Supabase hook
+  const handleToggleSubtaskStatus = async (taskId: string, subtaskId: string) => {
+    try {
+      await toggleSubtaskCompletion(taskId, subtaskId);
+    } catch (error) {
+      console.error('Error toggling subtask completion:', error);
+      // Optional: Show user feedback
+    }
   };
 
-  const handleStartFocusSession = (taskId: string, subtaskId?: string) => {
+  const startFocusSession = async (taskId: string, subtaskId?: string) => {
     const task = tasks.find(t => t.id === taskId);
     if (task) {
-      onStartFocusSession?.(taskId, task.focusIntensity || 2);
-      
-      // Update status to in-progress
-      if (subtaskId) {
-        toggleSubtaskStatus(taskId, subtaskId);
-      } else {
-        setTasks(prev => prev.map(t => 
-          t.id === taskId ? { ...t, status: 'in-progress' } : t
-        ));
+      try {
+        setActiveFocusSession(subtaskId ? `${taskId}-${subtaskId}` : taskId);
+        onStartFocusSession?.(taskId, task.focusIntensity || 2);
+        
+        // Update status to in-progress
+        if (subtaskId) {
+          await handleToggleSubtaskStatus(taskId, subtaskId);
+        } else {
+          await handleToggleTaskStatus(taskId);
+        }
+      } catch (error) {
+        console.error('Error starting focus session:', error);
+        // Reset focus session if there was an error
+        setActiveFocusSession(null);
       }
     }
   };
@@ -266,26 +223,19 @@ export default function SisoDeepFocusPlan({ onStartFocusSession }: SisoDeepFocus
   };
 
   const updateTask = (updatedTask: Task) => {
-    setTasks(prev => prev.map(task => 
-      task.id === updatedTask.id ? updatedTask : task
-    ));
+    // This would need to be implemented with Supabase operations
+    console.log('Update task:', updatedTask);
   };
 
-  // Update subtask due date
-  const updateSubtaskDueDate = (taskId: string, subtaskId: string, dueDate: Date | null) => {
-    setTasks(prev => prev.map(task => {
-      if (task.id === taskId) {
-        return {
-          ...task,
-          subtasks: task.subtasks.map(subtask => 
-            subtask.id === subtaskId 
-              ? { ...subtask, dueDate: dueDate ? dueDate.toISOString() : undefined }
-              : subtask
-          )
-        };
-      }
-      return task;
-    }));
+  // Update subtask due date - use Supabase hook
+  const handleUpdateSubtaskDueDate = async (taskId: string, subtaskId: string, dueDate: Date | null) => {
+    try {
+      await updateSubtaskDueDate(subtaskId, dueDate);
+    } catch (error) {
+      console.error('Error updating subtask due date:', error);
+      // Don't close calendar if there's an error, let user try again
+      return;
+    }
   };
 
   // Subtask editing handlers
@@ -298,21 +248,14 @@ export default function SisoDeepFocusPlan({ onStartFocusSession }: SisoDeepFocus
     setEditSubtaskTitle(title);
   };
 
-  const handleSubtaskSaveEdit = (taskId: string, subtaskId: string) => {
+  const handleSubtaskSaveEdit = async (taskId: string, subtaskId: string) => {
     if (editSubtaskTitle.trim()) {
-      setTasks(prev => prev.map(task => {
-        if (task.id === taskId) {
-          return {
-            ...task,
-            subtasks: task.subtasks.map(subtask =>
-              subtask.id === subtaskId
-                ? { ...subtask, title: editSubtaskTitle.trim() }
-                : subtask
-            )
-          };
-        }
-        return task;
-      }));
+      try {
+        await updateSubtaskTitle(subtaskId, editSubtaskTitle.trim());
+        console.log('✅ Subtask title updated successfully');
+      } catch (error) {
+        console.error('❌ Failed to update subtask title:', error);
+      }
     }
     setEditingSubtask(null);
     setEditSubtaskTitle('');
@@ -334,11 +277,75 @@ export default function SisoDeepFocusPlan({ onStartFocusSession }: SisoDeepFocus
     setCalendarSubtaskId(prev => prev === subtaskId ? null : subtaskId);
   };
 
-  const handleDeleteSubtask = (subtaskId: string) => {
-    setTasks(prev => prev.map(task => ({
-      ...task,
-      subtasks: task.subtasks.filter(subtask => subtask.id !== subtaskId)
-    })));
+  // Main task editing handlers
+  const handleMainTaskStartEditing = (taskId: string, currentTitle: string) => {
+    setEditingMainTask(taskId);
+    setEditMainTaskTitle(currentTitle);
+  };
+
+  const handleMainTaskEditTitleChange = (value: string) => {
+    setEditMainTaskTitle(value);
+  };
+
+  const handleMainTaskSaveEdit = async (taskId: string) => {
+    if (editMainTaskTitle.trim()) {
+      try {
+        const success = await updateTaskTitle(taskId, editMainTaskTitle.trim());
+        if (success) {
+          setEditingMainTask(null);
+          setEditMainTaskTitle('');
+        }
+      } catch (error) {
+        console.error('Error updating main task title:', error);
+      }
+    }
+  };
+
+  const handleMainTaskKeyDown = (e: React.KeyboardEvent, taskId: string) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleMainTaskSaveEdit(taskId);
+    } else if (e.key === 'Escape') {
+      setEditingMainTask(null);
+      setEditMainTaskTitle('');
+    }
+  };
+
+  const handleDeleteSubtask = async (subtaskId: string) => {
+    await deleteSubtask(subtaskId);
+  };
+
+  // New subtask creation handlers
+  const handleStartAddingSubtask = (taskId: string) => {
+    setAddingSubtaskToTask(taskId);
+    setNewSubtaskTitle('');
+  };
+
+  const handleNewSubtaskTitleChange = (title: string) => {
+    setNewSubtaskTitle(title);
+  };
+
+  const handleSaveNewSubtask = async (taskId: string) => {
+    if (newSubtaskTitle.trim()) {
+      try {
+        await addSubtask(taskId, newSubtaskTitle.trim());
+        console.log('✅ New subtask created successfully');
+      } catch (error) {
+        console.error('❌ Failed to create new subtask:', error);
+      }
+    }
+    setAddingSubtaskToTask(null);
+    setNewSubtaskTitle('');
+  };
+
+  const handleNewSubtaskKeyDown = (e: React.KeyboardEvent, taskId: string) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSaveNewSubtask(taskId);
+    } else if (e.key === 'Escape') {
+      setAddingSubtaskToTask(null);
+      setNewSubtaskTitle('');
+    }
   };
 
   // Animation variants with reduced motion support
@@ -347,9 +354,12 @@ export default function SisoDeepFocusPlan({ onStartFocusSession }: SisoDeepFocus
     visible: { 
       opacity: 1, 
       y: 0,
-      transition: prefersReducedMotion ? 
-        { duration: 0.2 } : 
-        { type: "spring" as const, stiffness: 500, damping: 30 }
+      transition: { 
+        type: prefersReducedMotion ? "tween" : "spring", 
+        stiffness: 500, 
+        damping: 30,
+        duration: prefersReducedMotion ? 0.2 : undefined
+      }
     },
   };
 
@@ -362,7 +372,8 @@ export default function SisoDeepFocusPlan({ onStartFocusSession }: SisoDeepFocus
       transition: { 
         duration: 0.25, 
         staggerChildren: prefersReducedMotion ? 0 : 0.05,
-        when: "beforeChildren"
+        when: "beforeChildren",
+        ease: [0.2, 0.65, 0.3, 0.9]
       }
     },
   };
@@ -372,20 +383,50 @@ export default function SisoDeepFocusPlan({ onStartFocusSession }: SisoDeepFocus
     visible: { 
       opacity: 1, 
       x: 0,
-      transition: prefersReducedMotion ? 
-        { duration: 0.2 } : 
-        { type: "spring" as const, stiffness: 500, damping: 25 }
+      transition: { 
+        type: prefersReducedMotion ? "tween" : "spring", 
+        stiffness: 500, 
+        damping: 25,
+        duration: prefersReducedMotion ? 0.2 : undefined
+      }
     },
   };
 
-  // Loading state
+  // Show loading state
   if (loading) {
     return (
-      <div className="text-white h-full overflow-auto flex items-center justify-center">
-        <div className="flex items-center space-x-3">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
-          <span className="text-lg text-blue-400">Loading Deep Work tasks...</span>
-        </div>
+      <div className="text-white h-full overflow-auto">
+        <Card className="bg-blue-900/20 border-blue-700/50">
+          <CardContent className="p-6 text-center">
+            <div className="flex items-center justify-center space-x-2">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-400"></div>
+              <span className="text-blue-300">Loading Deep Work tasks...</span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="text-white h-full overflow-auto">
+        <Card className="bg-blue-900/20 border-blue-700/50">
+          <CardContent className="p-6 text-center">
+            <div className="text-red-400 mb-4">
+              <CircleAlert className="h-8 w-8 mx-auto mb-2" />
+              Error loading Deep Work tasks
+            </div>
+            <p className="text-sm text-gray-400 mb-4">{error}</p>
+            <Button 
+              onClick={() => window.location.reload()} 
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              Retry
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -431,237 +472,306 @@ export default function SisoDeepFocusPlan({ onStartFocusSession }: SisoDeepFocus
           >
             <LayoutGroup>
               <div className="overflow-hidden">
-                {tasks.length === 0 ? (
-                  <div className="flex items-center justify-center h-32 text-gray-400">
-                    <div className="text-center">
-                      <p className="text-lg mb-2">No Deep Work tasks found</p>
-                      <p className="text-sm">Check your Supabase database connection</p>
-                    </div>
-                  </div>
-                ) : (
-                  <ul className="space-y-1 overflow-hidden">
-                    {tasks.map((task, index) => {
-                      const isExpanded = expandedTasks.includes(task.id);
+                <ul className="space-y-1 overflow-hidden">
+              {tasks.map((task, index) => {
+                const isExpanded = expandedTasks.includes(task.id);
+                const isCompleted = task.status === "completed";
 
-                      return (
-                        <motion.li
-                          key={task.id}
-                          className={`${index !== 0 ? "mt-1 pt-2" : ""}`}
+                return (
+                  <motion.li
+                    key={task.id}
+                    className={`${index !== 0 ? "mt-1 pt-2" : ""}`}
+                    initial="hidden"
+                    animate="visible"
+                    variants={taskVariants}
+                  >
+                    {/* Task Container - Wraps entire task including subtasks */}
+                    <div className="group bg-blue-900/10 border border-blue-700/30 rounded-xl hover:bg-blue-900/15 hover:border-blue-600/40 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5">
+                      {/* Task Header */}
+                      <div className="p-3 sm:p-4">
+                        <div className="flex items-center gap-3">
+                          {/* Checkbox */}
+                          <motion.div
+                            className="flex-shrink-0 cursor-pointer"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleToggleTaskStatus(task.id);
+                            }}
+                            whileTap={{ scale: 0.9 }}
+                            whileHover={{ scale: 1.1 }}
+                          >
+                            <AnimatePresence mode="wait">
+                              <motion.div
+                                key={task.status}
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.8 }}
+                                transition={{ duration: 0.2 }}
+                              >
+                                {task.status === "completed" ? (
+                                  <CheckCircle2 className="h-5 w-5 text-green-400" />
+                                ) : task.status === "in-progress" ? (
+                                  <CircleDotDashed className="h-5 w-5 text-blue-400" />
+                                ) : task.status === "need-help" ? (
+                                  <CircleAlert className="h-5 w-5 text-yellow-400" />
+                                ) : (
+                                  <Circle className="h-5 w-5 text-gray-400" />
+                                )}
+                              </motion.div>
+                            </AnimatePresence>
+                          </motion.div>
+
+
+                          {/* Title */}
+                          <div className="flex-1 min-w-0">
+                            {editingMainTask === task.id ? (
+                              <input
+                                type="text"
+                                value={editMainTaskTitle}
+                                onChange={(e) => handleMainTaskEditTitleChange(e.target.value)}
+                                onKeyDown={(e) => handleMainTaskKeyDown(e, task.id)}
+                                onBlur={() => handleMainTaskSaveEdit(task.id)}
+                                className="w-full bg-blue-900/40 text-blue-100 font-semibold text-sm sm:text-base px-2 py-1 rounded border border-blue-600/50 focus:border-blue-400 focus:outline-none"
+                                autoFocus
+                              />
+                            ) : (
+                              <h4 
+                                className="text-blue-100 font-semibold text-sm sm:text-base cursor-pointer hover:text-blue-50 transition-colors truncate"
+                                onClick={() => handleMainTaskStartEditing(task.id, task.title)}
+                              >
+                                {task.title}
+                              </h4>
+                            )}
+                          </div>
+                          
+                          {/* Toggle Button Only */}
+                          <div className="flex items-center flex-shrink-0">
+                            <motion.button
+                              className="p-1 rounded-md hover:bg-blue-900/20 transition-colors"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleTaskExpansion(task.id);
+                              }}
+                              whileTap={{ scale: 0.9 }}
+                            >
+                              {isExpanded ? (
+                                <ChevronDown className="h-4 w-4 text-blue-300" />
+                              ) : (
+                                <ChevronRight className="h-4 w-4 text-blue-300" />
+                              )}
+                            </motion.button>
+                          </div>
+                        </div>
+                        
+                        {/* Top divider below main task */}
+                        <div className="border-t border-blue-600/50 mt-3"></div>
+                      </div>
+
+                      {/* Subtasks */}
+                    <AnimatePresence mode="wait">
+                      {isExpanded && (
+                        <motion.div 
+                          className="relative overflow-hidden"
+                          variants={subtaskListVariants}
                           initial="hidden"
                           animate="visible"
-                          variants={taskVariants}
+                          exit="hidden"
+                          layout
                         >
-                          {/* Task Container - Wraps entire task including subtasks */}
-                          <div className="group bg-blue-900/10 border border-blue-700/30 rounded-xl hover:bg-blue-900/15 hover:border-blue-600/40 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5">
-                            {/* Task Header */}
-                            <div className="flex items-start space-x-2 sm:space-x-3 p-3 sm:p-4 pt-4 sm:pt-5">
-                              <div className="flex items-center flex-1 min-w-0">
-                              <motion.div
-                                className="mr-3 flex-shrink-0 cursor-pointer"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  toggleTaskStatus(task.id);
-                                }}
-                                whileTap={{ scale: 0.9 }}
-                                whileHover={{ scale: 1.1 }}
-                              >
-                                <AnimatePresence mode="wait">
-                                  <motion.div
-                                    key={task.status}
-                                    initial={{ opacity: 0, scale: 0.8 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0.8 }}
-                                    transition={{ duration: 0.2 }}
-                                  >
-                                    {task.status === "completed" ? (
-                                      <CheckCircle2 className="h-5 w-5 text-green-400" />
-                                    ) : task.status === "in-progress" ? (
-                                      <CircleDotDashed className="h-5 w-5 text-blue-400" />
-                                    ) : task.status === "need-help" ? (
-                                      <CircleAlert className="h-5 w-5 text-yellow-400" />
-                                    ) : (
-                                      <Circle className="h-5 w-5 text-gray-400" />
-                                    )}
-                                  </motion.div>
-                                </AnimatePresence>
-                              </motion.div>
 
-                              <div className="flex-1">
-                                <div className="flex items-center justify-between mb-3">
-                                  <h4 className="text-blue-100 font-semibold text-sm sm:text-base">
-                                    {task.title}
-                                  </h4>
-                                  {/* Toggle Button */}
-                                  <motion.button
-                                    className="flex-shrink-0 p-1 rounded-md hover:bg-blue-900/20 transition-colors"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      toggleTaskExpansion(task.id);
+                          {task.subtasks.length > 0 && (
+                            <ul className="mt-1 mr-2 mb-2 ml-2 space-y-1">
+                              {task.subtasks.map((subtask) => {
+                              return (
+                                <motion.li
+                                  key={subtask.id}
+                                  className="pl-3"
+                                  variants={subtaskVariants}
+                                  initial="hidden"
+                                  animate="visible"
+                                  layout
+                                >
+                                  <SubtaskItem
+                                    subtask={{
+                                      id: subtask.id,
+                                      title: subtask.title,
+                                      completed: subtask.status === "completed",
+                                      dueDate: subtask.dueDate,
+                                      description: subtask.description,
+                                      priority: subtask.priority,
+                                      estimatedTime: subtask.estimatedTime,
+                                      tools: subtask.tools
                                     }}
-                                    whileTap={{ scale: 0.9 }}
+                                    taskId={task.id}
+                                    themeConfig={themeConfig}
+                                    isEditing={editingSubtask === subtask.id}
+                                    editTitle={editSubtaskTitle}
+                                    calendarSubtaskId={calendarSubtaskId}
+                                    isExpanded={expandedSubtasks[`${task.id}-${subtask.id}`] || false}
+                                    onToggleCompletion={handleToggleSubtaskStatus}
+                                    onToggleExpansion={toggleSubtaskExpansion}
+                                    onStartEditing={handleSubtaskStartEditing}
+                                    onEditTitleChange={handleSubtaskEditTitleChange}
+                                    onSaveEdit={handleSubtaskSaveEdit}
+                                    onKeyDown={handleSubtaskKeyDown}
+                                    onCalendarToggle={handleCalendarToggle}
+                                    onDeleteSubtask={handleDeleteSubtask}
                                   >
-                                    {isExpanded ? (
-                                      <ChevronDown className="h-4 w-4 text-blue-300" />
-                                    ) : (
-                                      <ChevronRight className="h-4 w-4 text-blue-300" />
+                                    {/* Calendar popup */}
+                                    {calendarSubtaskId === subtask.id && (
+                                      <div className="calendar-popup fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 bg-gray-800 border border-gray-600 rounded-lg shadow-xl p-3 min-w-[280px] max-w-[90vw] max-h-[90vh] overflow-auto">
+                                        <CustomCalendar
+                                          subtask={subtask}
+                                          onDateSelect={async (date) => {
+                                            try {
+                                              await handleUpdateSubtaskDueDate(task.id, subtask.id, date);
+                                              // Only close calendar if update was successful
+                                              setCalendarSubtaskId(null);
+                                            } catch (error) {
+                                              console.error('Failed to update due date:', error);
+                                              // Keep calendar open so user can try again
+                                            }
+                                          }}
+                                          onClose={() => setCalendarSubtaskId(null)}
+                                        />
+                                      </div>
                                     )}
-                                  </motion.button>
+                                  </SubtaskItem>
+                                </motion.li>
+                                );
+                              })}
+                            </ul>
+                          )}
+                          
+                          {/* Add Subtask Button - Above line, below last subtask */}
+                          <div className="px-3 pb-2 mt-2">
+                            {addingSubtaskToTask === task.id ? (
+                              <input
+                                type="text"
+                                value={newSubtaskTitle}
+                                onChange={(e) => handleNewSubtaskTitleChange(e.target.value)}
+                                onKeyDown={(e) => handleNewSubtaskKeyDown(e, task.id)}
+                                onBlur={() => handleSaveNewSubtask(task.id)}
+                                placeholder="Enter subtask title..."
+                                className="w-full bg-blue-900/40 text-blue-100 text-xs px-3 py-2 rounded border border-blue-600/50 focus:border-blue-400 focus:outline-none"
+                                autoFocus
+                              />
+                            ) : (
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="w-full text-blue-300 hover:text-blue-200 hover:bg-blue-900/20 transition-all duration-200 text-xs border border-blue-700/30 hover:border-blue-600/40"
+                                onClick={() => handleStartAddingSubtask(task.id)}
+                              >
+                                <Plus className="h-3 w-3 mr-1" />
+                                Add Subtask
+                              </Button>
+                            )}
+                          </div>
+                          
+                          {/* Bottom divider */}
+                          <div className="border-t border-blue-600/50 mt-3"></div>
+                          
+                          {/* Progress Summary at bottom with action buttons */}
+                          {task.subtasks.length > 0 && (
+                            <div className="mt-3 pb-2 px-3">
+                              <div className="flex items-center justify-between">
+                                <CircleAlert 
+                                  className="h-4 w-4 text-blue-300 hover:text-blue-200 cursor-pointer transition-colors" 
+                                  onClick={() => openTaskDetail(task)}
+                                  title="Task Info"
+                                />
+                                <div className="text-xs text-gray-400">
+                                  {task.subtasks.filter(s => s.status === "completed").length} of {task.subtasks.length} subtasks completed
                                 </div>
-                                
-                                {/* Top separator line */}
-                                <div className="border-t border-blue-600/50 mb-3"></div>
-                                
-                                {/* 5 Icons Row */}
-                                <div className="px-2 py-1">
-                                  <div className="flex items-center justify-between">
-                                    <Brain className="h-4 w-4 text-blue-300 hover:text-blue-200 cursor-pointer transition-colors" />
-                                    <CheckCircle2 className="h-4 w-4 text-blue-300 hover:text-blue-200 cursor-pointer transition-colors" />
-                                    <Clock className="h-4 w-4 text-blue-300 hover:text-blue-200 cursor-pointer transition-colors" />
-                                    <CircleAlert 
-                                      className="h-4 w-4 text-blue-300 hover:text-blue-200 cursor-pointer transition-colors" 
-                                      onClick={() => openTaskDetail(task)}
-                                    />
-                                    <CircleX 
-                                      className="h-4 w-4 text-blue-300 hover:text-red-300 cursor-pointer transition-colors" 
-                                      onClick={() => {
-                                        if (window.confirm('Delete this task?')) {
-                                          // Add delete functionality here
-                                          console.log('Delete task:', task.id);
-                                        }
-                                      }}
-                                    />
-                                  </div>
-                                </div>
-                                
-                                {/* Bottom separator line */}
-                                <div className="border-t border-blue-600/50 mt-3"></div>
-                              </div>
+                                <CircleX 
+                                  className="h-4 w-4 text-blue-300 hover:text-red-300 cursor-pointer transition-colors" 
+                                  onClick={() => {
+                                    if (window.confirm('Delete this task?')) {
+                                      deleteTask(task.id);
+                                    }
+                                  }}
+                                  title="Delete Task"
+                                />
                               </div>
                             </div>
+                          )}
 
-                            {/* Subtasks */}
-                          <AnimatePresence mode="wait">
-                            {isExpanded && task.subtasks.length > 0 && (
-                              <motion.div 
-                                className="relative overflow-hidden"
-                                variants={subtaskListVariants}
-                                initial="hidden"
-                                animate="visible"
-                                exit="hidden"
-                                layout
-                              >
-                                <div className="absolute top-0 bottom-0 left-[22px] border-l-2 border-dashed border-gray-600/40" />
-                                <ul className="mt-1 mr-2 mb-2 ml-4 space-y-1">
-                                  {task.subtasks.map((subtask) => {
-                                    return (
-                                      <motion.li
-                                        key={subtask.id}
-                                        className="pl-6"
-                                        variants={subtaskVariants}
-                                        initial="hidden"
-                                        animate="visible"
-                                        layout
-                                      >
-                                        <SubtaskItem
-                                          subtask={{
-                                            id: subtask.id,
-                                            title: subtask.title,
-                                            completed: subtask.status === "completed",
-                                            dueDate: subtask.dueDate,
-                                            description: subtask.description,
-                                            priority: subtask.priority,
-                                            estimatedTime: subtask.estimatedTime,
-                                            tools: subtask.tools
-                                          }}
-                                          taskId={task.id}
-                                          themeConfig={themeConfig}
-                                          isEditing={editingSubtask === subtask.id}
-                                          editTitle={editSubtaskTitle}
-                                          calendarSubtaskId={calendarSubtaskId}
-                                          isExpanded={expandedSubtasks[`${task.id}-${subtask.id}`] || false}
-                                          onToggleCompletion={toggleSubtaskStatus}
-                                          onToggleExpansion={toggleSubtaskExpansion}
-                                          onStartEditing={handleSubtaskStartEditing}
-                                          onEditTitleChange={handleSubtaskEditTitleChange}
-                                          onSaveEdit={handleSubtaskSaveEdit}
-                                          onKeyDown={handleSubtaskKeyDown}
-                                          onCalendarToggle={handleCalendarToggle}
-                                          onDeleteSubtask={handleDeleteSubtask}
-                                        >
-                                          {/* Calendar popup */}
-                                          {calendarSubtaskId === subtask.id && (
-                                            <div className="calendar-popup absolute top-8 left-1/2 transform -translate-x-1/2 z-50 bg-gray-800 border border-gray-600 rounded-lg shadow-lg p-3 min-w-[280px]">
-                                              <CustomCalendar
-                                                subtask={subtask}
-                                                onDateSelect={(date) => {
-                                                  updateSubtaskDueDate(task.id, subtask.id, date);
-                                                  setCalendarSubtaskId(null);
-                                                }}
-                                                onClose={() => setCalendarSubtaskId(null)}
-                                              />
-                                            </div>
-                                          )}
-                                        </SubtaskItem>
-                                      </motion.li>
-                                    );
-                                  })}
-                                </ul>
-                                
-                                {/* Progress Summary */}
-                                <div className="mt-4 pt-3 pl-6">
-                                  <TaskSeparator opacity="strong" spacing="normal" />
-                                  <div className="text-center">
-                                    <div className="text-xs text-gray-500">
-                                      {task.subtasks.filter(s => s.status === "completed").length} out of {task.subtasks.length} subtasks completed
-                                    </div>
-                                  </div>
-                                </div>
-                                
-                                {/* Add Subtask Button - Below Progress Summary */}
-                                <div className="px-6 pb-3 mt-3">
-                                  <Button 
-                                    variant="ghost" 
-                                    size="sm" 
-                                    className="w-full text-blue-300 hover:text-blue-200 hover:bg-blue-900/20 transition-all duration-200 text-xs border border-blue-700/30 hover:border-blue-600/40"
-                                    onClick={() => {
-                                      // Add subtask functionality
-                                      console.log('Add subtask to task:', task.id);
-                                    }}
-                                  >
-                                    <Plus className="h-3 w-3 mr-1" />
-                                    Add Subtask
-                                  </Button>
-                                </div>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                    
+                    {/* Progress Summary when collapsed - Always visible when there are subtasks */}
+                    {!isExpanded && task.subtasks.length > 0 && (
+                      <div className="px-3 pb-3">
+                        <div className="flex items-center justify-between">
+                          <CircleAlert 
+                            className="h-4 w-4 text-blue-300 hover:text-blue-200 cursor-pointer transition-colors" 
+                            onClick={() => openTaskDetail(task)}
+                            title="Task Info"
+                          />
+                          <div className="text-xs text-gray-400">
+                            {task.subtasks.filter(s => s.status === "completed").length} of {task.subtasks.length} subtasks completed
                           </div>
-                        </motion.li>
-                      );
-                    })}
-                  </ul>
-                )}
-                
-                {/* Add Task Button */}
-                <div className="mt-4 px-4">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="w-full text-blue-300 hover:text-blue-200 hover:bg-blue-900/20 transition-all duration-200 text-sm border border-blue-700/30 hover:border-blue-600/40"
-                    onClick={() => {
-                      // Add task functionality
-                      console.log('Add new task');
-                    }}
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Task
-                  </Button>
-                </div>
-                </div>
-              </LayoutGroup>
-            </motion.div>
+                          <CircleX 
+                            className="h-4 w-4 text-blue-300 hover:text-red-300 cursor-pointer transition-colors" 
+                            onClick={() => {
+                              if (window.confirm('Delete this task?')) {
+                                deleteTask(task.id);
+                              }
+                            }}
+                            title="Delete Task"
+                          />
+                        </div>
+                      </div>
+                    )}
+                    </div>
+                  </motion.li>
+                );
+              })}
+            </ul>
+            
+            {/* Add Task Button */}
+            <div className="mt-4 px-4">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="w-full text-blue-300 hover:text-blue-200 hover:bg-blue-900/20 transition-all duration-200 text-sm border border-blue-700/30 hover:border-blue-600/40"
+                onClick={async () => {
+                  try {
+                    // Create task with default title
+                    const newTask = await createTask({ 
+                      title: 'New Deep Work Task', 
+                      priority: 'HIGH' 
+                    });
+                    
+                    // If task creation was successful, immediately start editing
+                    if (newTask) {
+                      setTimeout(() => {
+                        setEditingMainTask(newTask.id);
+                        setEditMainTaskTitle(newTask.title);
+                      }, 100); // Small delay to ensure UI updates
+                    }
+                  } catch (error) {
+                    console.error('Error creating new task:', error);
+                  }
+                }}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Task
+              </Button>
+            </div>
+
+              </div>
+            </LayoutGroup>
+          </motion.div>
         </CardContent>
       </Card>
+
+      {/* Feedback Button - Outside card on black background */}
+      <div className="mt-4 flex justify-center">
+        <SimpleFeedbackButton />
+      </div>
 
       {/* Task Detail Modal */}
       <TaskDetailModal
@@ -672,7 +782,7 @@ export default function SisoDeepFocusPlan({ onStartFocusSession }: SisoDeepFocus
           setSelectedTask(null);
         }}
         onTaskUpdate={updateTask}
-        onStartFocusSession={(taskId) => {
+        onStartFocusSession={(taskId, subtaskId) => {
           setIsModalOpen(false);
           onStartFocusSession?.(taskId, tasks.find(t => t.id === taskId)?.focusIntensity || 2);
         }}

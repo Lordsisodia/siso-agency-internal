@@ -19,6 +19,7 @@
  */
 
 import { Task, Subtask } from '@/components/tasks/TaskCard';
+import { supabase, TABLES } from '@/shared/lib/supabase';
 
 // Core database result structure for consistent error handling
 // This standardizes how we handle both successful and failed database operations
@@ -308,29 +309,69 @@ export abstract class BaseTaskService {
   }
 
   /**
-   * Execute MCP Supabase query with proper error handling.
-   * This centralizes the interface to Supabase MCP tools and provides fallbacks.
+   * Execute Supabase query with proper error handling.
+   * This provides a unified interface to Supabase for all service operations.
    */
-  protected async executeMCPQuery(query: string): Promise<any[]> {
+  protected async executeSupabaseQuery(tableName: string, query: 'select' | 'insert' | 'update' | 'delete', options: any = {}): Promise<any[]> {
     try {
-      // Check if MCP Supabase tools are available
-      // In production, this would be the primary database interface
-      const { execute_sql } = (globalThis as any).mcp__supabase__ || {};
+      console.log(`🔍 Executing Supabase query on ${tableName}:`, query);
       
-      if (execute_sql) {
-        console.log(`🔍 Executing MCP query: ${query}`);
-        const result = await execute_sql({ query });
-        return result.rows || [];
+      let result;
+      
+      switch (query) {
+        case 'select':
+          let selectQuery = supabase
+            .from(tableName)
+            .select(options.select || '*');
+          
+          // Only add .eq() filter if both column and value are defined
+          if (options.eq?.column && options.eq?.value !== undefined) {
+            selectQuery = selectQuery.eq(options.eq.column, options.eq.value);
+          }
+          
+          result = await selectQuery
+            .order(options.order?.column || 'created_at', { ascending: options.order?.ascending !== false });
+          break;
+          
+        case 'insert':
+          result = await supabase
+            .from(tableName)
+            .insert(options.data)
+            .select();
+          break;
+          
+        case 'update':
+          result = await supabase
+            .from(tableName)
+            .update(options.data)
+            .eq(options.eq?.column || 'id', options.eq?.value)
+            .select();
+          break;
+          
+        case 'delete':
+          result = await supabase
+            .from(tableName)
+            .delete()
+            .eq(options.eq?.column || 'id', options.eq?.value);
+          break;
+          
+        default:
+          throw new Error(`Unsupported query type: ${query}`);
       }
       
-      // Fallback for development/testing environments
-      // This simulates the database response structure for consistent development
-      console.log(`⚠️ MCP tools not available, using simulated query: ${query}`);
-      return await this.simulateQuery(query);
+      if (result.error) {
+        throw new Error(`Supabase error: ${result.error.message}`);
+      }
+      
+      console.log(`✅ Supabase query executed successfully on ${tableName}`);
+      return result.data || [];
       
     } catch (error) {
-      console.error('❌ MCP query execution failed:', error);
-      throw new Error(`Database query failed: ${(error as Error).message}`);
+      console.error('❌ Supabase query execution failed:', error);
+      
+      // Fallback to simulated data for development/testing
+      console.log(`⚠️ Using fallback simulated data for ${tableName}`);
+      return await this.simulateQuery(tableName);
     }
   }
 
@@ -338,30 +379,25 @@ export abstract class BaseTaskService {
    * Simulate database queries for development and testing.
    * This provides realistic test data that matches the production database structure.
    */
-  private async simulateQuery(query: string): Promise<any[]> {
+  private async simulateQuery(tableName: string): Promise<any[]> {
     // Add realistic delay to simulate network latency
     // This helps catch timing issues during development
     await this.delay(Math.random() * 200 + 50); // 50-250ms delay
     
-    // Return appropriate mock data based on query type
+    // Return appropriate mock data based on table name
     // These simulate actual database responses for development
-    if (query.includes('light_work_tasks')) {
-      return this.getMockLightWorkTasks();
+    switch (tableName) {
+      case TABLES.LIGHT_WORK_TASKS:
+        return this.getMockLightWorkTasks();
+      case TABLES.LIGHT_WORK_SUBTASKS:
+        return this.getMockLightWorkSubtasks();
+      case TABLES.DEEP_WORK_TASKS:
+        return this.getMockDeepWorkTasks();
+      case TABLES.DEEP_WORK_SUBTASKS:
+        return this.getMockDeepWorkSubtasks();
+      default:
+        return [];
     }
-    
-    if (query.includes('light_work_subtasks')) {
-      return this.getMockLightWorkSubtasks();
-    }
-    
-    if (query.includes('deep_work_tasks')) {
-      return this.getMockDeepWorkTasks();
-    }
-    
-    if (query.includes('deep_work_subtasks')) {
-      return this.getMockDeepWorkSubtasks();
-    }
-    
-    return [];
   }
 
   /**

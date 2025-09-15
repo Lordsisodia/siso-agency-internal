@@ -1,15 +1,16 @@
 /**
- * 🌟 SISO Light Work Plan - Reusable Architecture
+ * 🌟 SISO Light Work Plan - Modular Architecture V2
  * 
- * Uses the new reusable TaskContainer architecture with light-work theme.
- * Demonstrates how the same components work across different work contexts.
+ * MIGRATED: Now uses TaskContainerV2 with the new decomposed architecture.
+ * Benefits: React Query optimistic updates, enhanced validation, better performance.
+ * Maintains identical UI/UX while providing enhanced functionality.
  */
 
 "use client";
 
 import React from "react";
 import { motion } from "framer-motion";
-import { TaskContainer } from "../tasks/TaskContainer";
+import { TaskContainerV2 } from "../tasks/TaskContainerV2";
 import { Task } from "../tasks/TaskCard";
 
 // Light Work focused tasks - optimized for shorter, flexible tasks
@@ -183,21 +184,22 @@ export default function SisoLightWorkPlan({ onStartFocusSession }: SisoLightWork
       className="h-full"
     >
       {/* 
-        🌟 Light Work Architecture Benefits:
-        - Same TaskContainer as Deep Work but with light-work theme
-        - Lower intensity tasks (1-2 focus levels vs 3-4 for deep work)
-        - Shorter time estimates (10-30min vs 45-120min)
-        - More flexible, interruptible work context
-        - All CRUD operations work identically
-        - Reuses all modal and state management functionality
+        🌟 Light Work Architecture V2 Benefits:
+        - TaskContainerV2 with React Query optimistic updates
+        - Enhanced validation for light-work task types
+        - Automatic data loading (no initialTasks needed)
+        - Better error handling and recovery
+        - All CRUD operations with instant UI feedback
+        - Modular hooks architecture for easier testing
       */}
-      <TaskContainer
-        initialTasks={lightWorkTasks}
-        theme="light-work"
+      <TaskContainerV2
+        taskType="light-work"
         onStartFocusSession={onStartFocusSession}
         className="px-2"
-        useDatabase={true}
-        workType="light_work"
+        showHeader={true}
+        showSearch={true}
+        showFilters={true}
+        showBulkActions={true}
       />
     </motion.div>
   );

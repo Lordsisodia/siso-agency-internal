@@ -1,13 +1,16 @@
 /**
- * TAB CONFIGURATION - SIMPLE COMPATIBILITY LAYER
+ * CENTRALIZED TAB CONFIGURATION
  * 
- * This file provides a simple, backward-compatible interface to the new tab system.
- * It avoids complex initialization and circular import issues by keeping things simple.
+ * This file defines all LifeLock tabs in one place to prevent routing inconsistencies.
  * 
- * MIGRATION STRATEGY:
- * This can be renamed to tab-config.ts to replace the original file seamlessly.
+ * CRITICAL: When adding/modifying tabs:
+ * 1. Update this configuration file
+ * 2. Ensure TabLayoutWrapper.tsx uses these same IDs
+ * 3. Ensure AdminLifeLock.tsx switch statement covers all cases
+ * 4. Run tests to verify all tabs work
  */
 
+import { ComponentType } from 'react';
 import { 
   Sunrise, 
   Coffee,
@@ -18,20 +21,7 @@ import {
   LucideIcon
 } from 'lucide-react';
 
-// Re-export enhanced system components for opt-in usage
-export { tabRegistry } from './TabRegistry';
-export { ConfigLoader } from './ConfigLoader';
-export { 
-  useTabConfiguration, 
-  useTabList, 
-  useTabSuggestion,
-  useTabConfigHealth 
-} from '../hooks/useTabConfiguration';
-
-// Re-export all types
-export type * from '../types/tab-types';
-
-// EXACT LEGACY COMPATIBILITY - maintains original interface
+// STRICT TYPING - This prevents typos and missing cases
 export type TabId = 
   | 'morning'
   | 'light-work' 
@@ -47,12 +37,12 @@ export interface TabConfig {
   timeRelevance: number[];
   color: string;
   description: string;
-  componentPath: string;
+  componentPath: string; // For documentation - which component handles this tab
 }
 
 /**
- * TAB_CONFIG - Exact replica of original configuration
- * This maintains 100% backward compatibility
+ * MASTER TAB CONFIGURATION
+ * This is the single source of truth for all LifeLock tabs
  */
 export const TAB_CONFIG: Record<TabId, TabConfig> = {
   'morning': {
@@ -111,7 +101,7 @@ export const TAB_CONFIG: Record<TabId, TabConfig> = {
   }
 };
 
-// UTILITY FUNCTIONS - Exact replicas of original functions
+// UTILITY FUNCTIONS
 export const getAllTabIds = (): TabId[] => Object.keys(TAB_CONFIG) as TabId[];
 
 export const getTabConfig = (tabId: TabId): TabConfig => TAB_CONFIG[tabId];
@@ -119,7 +109,7 @@ export const getTabConfig = (tabId: TabId): TabConfig => TAB_CONFIG[tabId];
 export const isValidTabId = (tabId: string): tabId is TabId => 
   getAllTabIds().includes(tabId as TabId);
 
-// VALIDATION FUNCTION - Exact replica
+// VALIDATION FUNCTION - Use this to check if all tabs are handled
 export const validateTabHandler = (handledTabs: Set<string>): string[] => {
   const allTabs = getAllTabIds();
   const missingTabs = allTabs.filter(tab => !handledTabs.has(tab));
@@ -132,61 +122,7 @@ export const validateTabHandler = (handledTabs: Set<string>): string[] => {
   return missingTabs;
 };
 
-// RUNTIME GUARD - Exact replica
+// RUNTIME GUARD - Use this in switch statements
 export const assertExhaustive = (x: never): never => {
   throw new Error(`Unhandled tab case: ${x}`);
-};
-
-/**
- * ENHANCED FEATURES (OPTIONAL)
- * These provide additional functionality while maintaining compatibility
- */
-
-// Enhanced suggestion function with time-based intelligence
-export const getSuggestedTab = (currentHour?: number): TabId => {
-  const hour = currentHour ?? new Date().getHours();
-  
-  // Simple time-based suggestions
-  if (hour >= 6 && hour < 10) return 'morning';
-  if (hour >= 10 && hour < 14) return 'light-work';
-  if (hour >= 14 && hour < 17) return 'work';
-  if (hour >= 17 && hour < 19) return 'wellness';
-  if (hour >= 19 && hour < 22) return 'checkout';
-  
-  return 'morning'; // Default fallback
-};
-
-// Enhanced health check
-export const getSystemHealth = () => {
-  return {
-    healthy: true,
-    issues: [],
-    stats: {
-      totalTabs: getAllTabIds().length,
-      enabledTabs: getAllTabIds().length,
-      validationErrors: 0,
-      fallbacksUsed: 0
-    }
-  };
-};
-
-// User permission filtering (simplified)
-export const getTabsForUser = (permissions: string[] = ['user']): TabId[] => {
-  // In the simple version, all tabs are available to all users
-  return getAllTabIds();
-};
-
-/**
- * DEFAULT EXPORT FOR CONVENIENCE
- */
-export default {
-  TAB_CONFIG,
-  getAllTabIds,
-  getTabConfig,
-  isValidTabId,
-  validateTabHandler,
-  assertExhaustive,
-  getSuggestedTab,
-  getSystemHealth,
-  getTabsForUser
 };

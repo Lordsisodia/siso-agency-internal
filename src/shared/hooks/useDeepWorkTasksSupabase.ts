@@ -95,26 +95,26 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
       // Transform Supabase data to match our interface
       const transformedTasks: DeepWorkTask[] = tasksData?.map(task => ({
         id: task.id,
-        userId: task.userId,
+        userId: task.user_id,
         title: task.title,
         description: task.description,
         priority: task.priority,
         completed: task.completed,
-        originalDate: task.originalDate,
-        currentDate: task.task_date || task.currentDate,
-        estimatedDuration: task.estimatedDuration,
-        focusBlocks: task.focusBlocks || 4,
-        breakDuration: task.breakDuration || 15,
-        interruptionMode: task.interruptionMode || false,
+        originalDate: task.original_date,
+        currentDate: task.task_date || task.original_date,
+        estimatedDuration: task.estimated_duration,
+        focusBlocks: task.focus_blocks || 4,
+        breakDuration: task.break_duration || 15,
+        interruptionMode: task.interruption_mode || false,
         rollovers: task.rollovers || 0,
         tags: task.tags || [],
         category: task.category,
-        createdAt: task.createdAt,
-        updatedAt: task.updatedAt,
-        completedAt: task.completedAt,
-        startedAt: task.startedAt,
-        actualDurationMin: task.actualDurationMin,
-        timeEstimate: task.timeEstimate,
+        createdAt: task.created_at,
+        updatedAt: task.updated_at,
+        completedAt: task.completed_at,
+        startedAt: task.started_at,
+        actualDurationMin: task.actual_duration_min,
+        timeEstimate: task.time_estimate,
         subtasks: task.subtasks?.map((subtask: any) => ({
           id: subtask.id,
           taskId: subtask.task_id,
@@ -156,17 +156,17 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
           title: taskData.title,
           description: taskData.description,
           priority: taskData.priority || 'HIGH',
-          originalDate: dateString,
+          original_date: dateString,
           task_date: dateString,
           completed: false,
-          focusBlocks: taskData.focusBlocks || 4,
-          breakDuration: taskData.breakDuration || 15,
-          interruptionMode: taskData.interruptionMode || false,
+          focus_blocks: taskData.focusBlocks || 4,
+          break_duration: taskData.breakDuration || 15,
+          interruption_mode: taskData.interruptionMode || false,
           rollovers: 0,
           tags: taskData.tags || [],
           category: taskData.category,
-          estimatedDuration: taskData.estimatedDuration,
-          timeEstimate: taskData.timeEstimate
+          estimated_duration: taskData.estimatedDuration,
+          time_estimate: taskData.timeEstimate
         })
         .select()
         .single();
@@ -176,12 +176,27 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
       }
 
       const newTask: DeepWorkTask = {
-        ...data,
-        focusBlocks: data.focusBlocks || 4,
-        breakDuration: data.breakDuration || 15,
-        interruptionMode: data.interruptionMode || false,
+        id: data.id,
+        userId: data.user_id,
+        title: data.title,
+        description: data.description,
+        priority: data.priority,
+        completed: data.completed,
+        originalDate: data.original_date,
+        currentDate: data.task_date,
+        estimatedDuration: data.estimated_duration,
+        focusBlocks: data.focus_blocks || 4,
+        breakDuration: data.break_duration || 15,
+        interruptionMode: data.interruption_mode || false,
         rollovers: data.rollovers || 0,
         tags: data.tags || [],
+        category: data.category,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at,
+        completedAt: data.completed_at,
+        startedAt: data.started_at,
+        actualDurationMin: data.actual_duration_min,
+        timeEstimate: data.time_estimate,
         subtasks: []
       };
 
@@ -214,8 +229,8 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
         .from('deep_work_tasks')
         .update({
           completed: newCompleted,
-          completedAt: newCompleted ? now : null,
-          updatedAt: now
+          completed_at: newCompleted ? now : null,
+          updated_at: now
         })
         .eq('id', taskId)
         .select()
@@ -228,8 +243,8 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
       const updatedTask: DeepWorkTask = {
         ...currentTask,
         completed: data.completed,
-        completedAt: data.completedAt,
-        updatedAt: data.updatedAt
+        completedAt: data.completed_at,
+        updatedAt: data.updated_at
       };
 
       console.log(`✅ Toggled Deep Work task completion in Supabase: ${taskId} -> ${newCompleted}`);
@@ -277,12 +292,12 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
         text: data.text,
         completed: data.completed,
         priority: data.priority,
-        dueDate: data.dueDate,
+        due_date: data.dueDate,
         requiresFocus: data.requiresFocus,
         complexityLevel: data.complexityLevel,
         createdAt: data.createdAt,
-        updatedAt: data.updatedAt,
-        completedAt: data.completedAt
+        updatedAt: data.updated_at,
+        completedAt: data.completed_at
       };
 
       console.log(`✅ Added subtask to Deep Work task in Supabase: ${taskId}`);
@@ -382,8 +397,8 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
         .from('deep_work_subtasks')
         .update({
           completed: newCompleted,
-          completedAt: newCompleted ? now : null,
-          updatedAt: now
+          completed_at: newCompleted ? now : null,
+          updated_at: now
         })
         .eq('id', subtaskId);
       
@@ -427,7 +442,7 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
         .from('deep_work_tasks')
         .update({
           title: newTitle,
-          updatedAt: new Date().toISOString()
+          updated_at: new Date().toISOString()
         })
         .eq('id', taskId);
       
@@ -464,7 +479,7 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
         .from('deep_work_tasks')
         .update({
           task_date: newDate,
-          updatedAt: new Date().toISOString()
+          updated_at: new Date().toISOString()
         })
         .eq('id', taskId);
       
@@ -504,8 +519,8 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
       const { error: subtaskError } = await supabase
         .from('deep_work_subtasks')
         .update({
-          dueDate: dateString,
-          updatedAt: new Date().toISOString()
+          due_date: dateString,
+          updated_at: new Date().toISOString()
         })
         .eq('id', taskOrSubtaskId);
       
@@ -530,7 +545,7 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
         .from('deep_work_tasks')
         .update({
           due_date: dateString,
-          updatedAt: new Date().toISOString()
+          updated_at: new Date().toISOString()
         })
         .eq('id', taskOrSubtaskId);
       
@@ -556,6 +571,47 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
     }
   }, [supabase]);
 
+  // Update subtask title in Supabase
+  const updateSubtaskTitle = useCallback(async (subtaskId: string, newTitle: string) => {
+    if (!supabase) return null;
+    
+    try {
+      console.log(`✏️ Updating Deep Work subtask title: ${subtaskId} -> ${newTitle}`);
+
+      const { error } = await supabase
+        .from('deep_work_subtasks')
+        .update({
+          title: newTitle,
+          text: newTitle, // Update both title and text fields
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', subtaskId);
+      
+      if (error) {
+        throw new Error(`Supabase error: ${error.message}`);
+      }
+
+      console.log(`✅ Updated Deep Work subtask title: ${subtaskId}`);
+      
+      // Update local state
+      setTasks(prev => prev.map(task => ({
+        ...task,
+        subtasks: task.subtasks.map(subtask => 
+          subtask.id === subtaskId 
+            ? { ...subtask, title: newTitle, text: newTitle }
+            : subtask
+        )
+      })));
+      
+      return true;
+      
+    } catch (error) {
+      console.error('❌ Error updating Deep Work subtask title:', error);
+      setError(error instanceof Error ? error.message : 'Failed to update subtask title');
+      return null;
+    }
+  }, [supabase]);
+
   // Update subtask due date in Supabase (dedicated function for subtasks only)
   const updateSubtaskDueDate = useCallback(async (subtaskId: string, dueDate: Date | null) => {
     if (!supabase) return null;
@@ -568,8 +624,8 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
       const { error } = await supabase
         .from('deep_work_subtasks')
         .update({
-          dueDate: dateString,
-          updatedAt: new Date().toISOString()
+          due_date: dateString,
+          updated_at: new Date().toISOString()
         })
         .eq('id', subtaskId);
       
@@ -614,6 +670,7 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
     deleteTask,
     deleteSubtask,
     updateTaskTitle,
+    updateSubtaskTitle,
     pushTaskToAnotherDay,
     updateTaskDueDate,
     updateSubtaskDueDate,

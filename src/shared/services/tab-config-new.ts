@@ -170,7 +170,10 @@ export const TAB_CONFIG: Record<TabId, LegacyTabConfigInterface> = {
  */
 function populateTabConfigFromRegistry(): void {
   try {
-    const registryTabs = tabRegistry.getAllTabs();
+    // Import dynamically to avoid circular import issues
+    const registryModule = require('./TabRegistry');
+    const registry = registryModule.tabRegistry;
+    const registryTabs = registry.getAllTabs();
     
     registryTabs.forEach(tab => {
       if (TAB_CONFIG[tab.id as TabId]) {
@@ -192,8 +195,14 @@ function populateTabConfigFromRegistry(): void {
   }
 }
 
-// Initialize enhanced config
-populateTabConfigFromRegistry();
+// Initialize enhanced config lazily
+let isPopulated = false;
+const ensurePopulated = () => {
+  if (!isPopulated) {
+    populateTabConfigFromRegistry();
+    isPopulated = true;
+  }
+};
 
 /**
  * UTILITY FUNCTIONS - Legacy Compatibility
@@ -201,6 +210,7 @@ populateTabConfigFromRegistry();
  * Maintains exact compatibility with original utility functions.
  */
 export const getAllTabIds = (): TabId[] => {
+  ensurePopulated();
   try {
     return tabRegistry.getLegacyTabIds();
   } catch (error) {
@@ -210,6 +220,7 @@ export const getAllTabIds = (): TabId[] => {
 };
 
 export const getTabConfig = (tabId: TabId): LegacyTabConfigInterface => {
+  ensurePopulated();
   try {
     const tab = tabRegistry.getTab(tabId);
     if (tab) {
@@ -232,6 +243,7 @@ export const getTabConfig = (tabId: TabId): LegacyTabConfigInterface => {
 };
 
 export const isValidTabId = (tabId: string): tabId is TabId => {
+  ensurePopulated();
   try {
     return tabRegistry.getTab(tabId) !== null;
   } catch (error) {
@@ -246,6 +258,7 @@ export const isValidTabId = (tabId: string): tabId is TabId => {
  * Maintains legacy interface while adding enhanced validation capabilities.
  */
 export const validateTabHandler = (handledTabs: Set<string>): string[] => {
+  ensurePopulated();
   try {
     const allTabs = getAllTabIds();
     const missingTabs = allTabs.filter(tab => !handledTabs.has(tab));
@@ -255,9 +268,13 @@ export const validateTabHandler = (handledTabs: Set<string>): string[] => {
       console.error('📝 Add these cases to your switch statement:', missingTabs.map(tab => `case '${tab}':`));
       
       // Enhanced: Also check registry health
-      const healthCheck = tabRegistry.healthCheck();
-      if (!healthCheck.healthy) {
-        console.warn('⚠️ TAB REGISTRY HEALTH ISSUES:', healthCheck.issues);
+      try {
+        const healthCheck = tabRegistry.healthCheck();
+        if (!healthCheck.healthy) {
+          console.warn('⚠️ TAB REGISTRY HEALTH ISSUES:', healthCheck.issues);
+        }
+      } catch (healthError) {
+        console.warn('Failed to check registry health:', healthError);
       }
     }
     
@@ -297,6 +314,7 @@ export const assertExhaustive = (x: never): never => {
  * Get intelligent tab suggestion based on current time
  */
 export const getSuggestedTab = (currentHour?: number): TabId => {
+  ensurePopulated();
   try {
     const suggestion = tabRegistry.getSuggestedTab(currentHour);
     return suggestion as TabId;
@@ -310,6 +328,7 @@ export const getSuggestedTab = (currentHour?: number): TabId => {
  * Get tabs filtered by user permissions
  */
 export const getTabsForUser = (permissions: string[]): TabId[] => {
+  ensurePopulated();
   try {
     const userTabs = tabRegistry.getTabsByPermission(permissions);
     return userTabs.map(tab => tab.id as TabId);
@@ -323,6 +342,7 @@ export const getTabsForUser = (permissions: string[]): TabId[] => {
  * Get system health status
  */
 export const getSystemHealth = () => {
+  ensurePopulated();
   try {
     return tabRegistry.healthCheck();
   } catch (error) {
@@ -354,6 +374,7 @@ export const getDebugInfo = () => {
     return null;
   }
   
+  ensurePopulated();
   return {
     registryHealth: tabRegistry.healthCheck(),
     registryConfig: tabRegistry.getConfig(),
@@ -408,12 +429,12 @@ export default {
   getSystemHealth,
   
   // React hooks
-  useTabConfiguration,
-  useTabList,
-  useTabSuggestion,
+  useTabConfiguration: useTabConfiguration,
+  useTabList: useTabList,
+  useTabSuggestion: useTabSuggestion,
   
   // Registry access
-  tabRegistry,
+  tabRegistry: tabRegistry,
   
   // Development utilities
   getDebugInfo,
