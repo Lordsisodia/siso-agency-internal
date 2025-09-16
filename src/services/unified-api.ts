@@ -63,14 +63,28 @@ export const taskService = {
     return data;
   },
 
-  // Create new task
-  createTask: async (userId: string, taskData: any) => {
+  // Create new task - supports both signatures for backward compatibility
+  createTask: async (userIdOrTaskData: string | any, taskData?: any) => {
+    let finalTaskData: any;
+    
+    if (typeof userIdOrTaskData === 'string') {
+      // Called as createTask(userId, taskData) - deep work pattern
+      finalTaskData = {
+        user_id: userIdOrTaskData,
+        ...taskData
+      };
+    } else {
+      // Called as createTask({ userId: xxx, ... }) - light work pattern
+      finalTaskData = {
+        user_id: userIdOrTaskData.userId,
+        ...userIdOrTaskData
+      };
+      delete finalTaskData.userId; // Remove duplicate userId field
+    }
+    
     const { data, error } = await supabase
       .from('tasks')
-      .insert({
-        user_id: userId,
-        ...taskData
-      })
+      .insert(finalTaskData)
       .select()
       .single();
     
