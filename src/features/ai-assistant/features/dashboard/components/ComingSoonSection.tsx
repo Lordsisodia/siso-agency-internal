@@ -1,2 +1,2 @@
-export { ComingSoonSection as default } from '@/ecosystem/internal/dashboard/ComingSoonSection';
+export { ComingSoonSection as default } from '@/features/admin/dashboard/components/ComingSoonSection';
 

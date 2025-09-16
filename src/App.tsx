@@ -111,7 +111,7 @@ const PartnerPasswordReset = lazy(() => import('./pages/auth/PartnerPasswordRese
 const PartnerDashboard = lazy(() => import('./pages/dashboard/PartnerDashboard'));
 const PartnerAuthGuard = lazy(() => import('@/shared/auth/PartnerAuthGuard').then(m => ({ default: m.PartnerAuthGuard })));
 const PartnerLeaderboard = lazy(() => import('@/features/admin/dashboard/components/PartnerLeaderboard').then(m => ({ default: m.PartnerLeaderboard })));
-const ComingSoonSection = lazy(() => import('@/features/admin/dashboard/components/ComingSoonSection'));
+const ComingSoonSection = lazy(() => import('@/features/admin/dashboard/components/ComingSoonSection').then(m => ({ default: m.ComingSoonSection })));
 const EducationHub = lazy(() => import('./pages/dashboard/EducationHub'));
 const TrainingHub = lazy(() => import('./pages/dashboard/TrainingHub'));
 const ReferralsManagement = lazy(() => import('./pages/dashboard/ReferralsManagement'));
