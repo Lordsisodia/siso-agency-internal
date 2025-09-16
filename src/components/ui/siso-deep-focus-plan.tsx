@@ -435,9 +435,9 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
   // Show loading state
   if (loading) {
     return (
-      <div className={`${isLightWork ? "text-green-50" : "text-blue-50"} h-full overflow-auto`}>
+      <div className={`${isLightWork ? "text-green-50" : "text-blue-50"} h-full`}>
         <Card className={isLightWork ? "bg-green-900/20 border-green-700/50" : "bg-blue-900/20 border-blue-700/50"}>
-          <CardContent className="p-6 text-center">
+          <CardContent className="p-4 text-center">
             <div className="flex items-center justify-center space-x-2">
               <div className={`animate-spin rounded-full h-6 w-6 border-b-2 ${isLightWork ? "border-green-400" : "border-blue-400"}`}></div>
               <span className={isLightWork ? "text-green-300" : "text-blue-300"}>Loading {theme.subtitle} tasks...</span>
@@ -451,9 +451,9 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
   // Show error state
   if (error) {
     return (
-      <div className={`${isLightWork ? "text-green-50" : "text-blue-50"} h-full overflow-auto`}>
+      <div className={`${isLightWork ? "text-green-50" : "text-blue-50"} h-full`}>
         <Card className={isLightWork ? "bg-green-900/20 border-green-700/50" : "bg-blue-900/20 border-blue-700/50"}>
-          <CardContent className="p-6 text-center">
+          <CardContent className="p-4 text-center">
             <div className="text-red-400 mb-4">
               <CircleAlert className="h-8 w-8 mx-auto mb-2" />
               Error loading Deep Work tasks
@@ -472,9 +472,9 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
   }
 
   return (
-    <div className={`${isLightWork ? "text-green-50" : "text-blue-50"} h-full overflow-auto`}>
+    <div className={`${isLightWork ? "text-green-50" : "text-blue-50"} h-full`}>
       <Card className={isLightWork ? "bg-green-900/20 border-green-700/50" : "bg-blue-900/20 border-blue-700/50"}>
-        <CardHeader className="p-4 sm:p-6">
+        <CardHeader className="p-3 sm:p-4">
           <CardTitle className={`flex items-center ${isLightWork ? "text-green-400" : "text-blue-400"} text-base sm:text-lg`}>
             <Brain className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
             {theme.title}
@@ -500,7 +500,7 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
           </div>
           <div className={`border-t ${isLightWork ? "border-green-600/50" : "border-blue-600/50"} my-3 sm:my-4`}></div>
         </CardHeader>
-        <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
+        <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
 
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
@@ -630,7 +630,7 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
                               return (
                                 <motion.li
                                   key={subtask.id}
-                                  className="pl-3"
+                                  className="pl-1"
                                   variants={subtaskVariants}
                                   initial="hidden"
                                   animate="visible"
@@ -815,7 +815,7 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
       </Card>
 
       {/* Feedback Button - Outside card on black background */}
-      <div className="mt-4 flex justify-center">
+      <div className="mt-2 flex justify-center">
         <SimpleFeedbackButton />
       </div>
 

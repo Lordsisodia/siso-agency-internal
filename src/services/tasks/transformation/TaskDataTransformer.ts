@@ -252,7 +252,7 @@ export class TaskDataTransformer {
     console.log(`🔄 Transformed ${successCount}/${rows.length} tasks successfully`);
 
     return {
-      success: successCount > 0,
+      success: allErrors.length === 0, // Success if no errors occurred, even with 0 tasks
       data: tasks,
       errors: allErrors,
       warnings: allWarnings
