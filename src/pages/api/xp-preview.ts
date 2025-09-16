@@ -7,7 +7,7 @@
 
 import { NextApiRequest, NextApiResponse } from 'next';
 import { auth } from '@clerk/nextjs';
-// TODO: Implement with Supabase when needed
+import { taskDatabaseService } from '@/services/unified-api';
 import { XPPreviewService } from '@/services/xpPreviewService';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

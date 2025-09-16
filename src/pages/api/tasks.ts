@@ -6,6 +6,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { auth } from '@clerk/nextjs';
+import { taskDatabaseService } from '@/services/unified-api';
 
 export default async function handler(req: any, res: any) {
   const { method, query, body } = req;

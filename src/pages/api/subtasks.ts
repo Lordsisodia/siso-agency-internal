@@ -4,7 +4,7 @@
  * HTTP API for subtask operations with real database persistence
  */
 
-// TODO: Implement with Supabase when needed
+import { taskDatabaseService } from '@/services/unified-api';
 
 export default async function handler(req: any, res: any) {
   const { method, query, body } = req;
