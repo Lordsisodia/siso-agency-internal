@@ -207,7 +207,7 @@ describe('Decomposed Task Services', () => {
           task_date: '2025-01-14'
         });
       } catch (error) {
-        expect((error as Error).message).toContain('validation failed');
+        expect((error as Error).message).toContain('Please correct the following issues');
         console.log('✅ Light work validation works:', (error as Error).message);
       }
     });
@@ -226,7 +226,7 @@ describe('Decomposed Task Services', () => {
           task_date: '2025-01-14'
         });
       } catch (error) {
-        expect((error as Error).message).toContain('validation failed');
+        expect((error as Error).message).toContain('Please correct the following issues');
         console.log('✅ Deep work validation works:', (error as Error).message);
       }
     });

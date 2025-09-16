@@ -9,7 +9,7 @@ import { TAB_CONFIG, getAllTabIds, isValidTabId, validateTabHandler, TabId } fro
 describe('Tab Configuration', () => {
   test('should have all required tab IDs', () => {
     const expectedTabs: TabId[] = [
-      'morning', 'light-work', 'work', 'wellness', 'timebox', 'checkout', 'ai-chat'
+      'morning', 'light-work', 'work', 'wellness', 'timebox', 'checkout'
     ];
     
     const actualTabs = getAllTabIds();
@@ -21,7 +21,7 @@ describe('Tab Configuration', () => {
     // Valid tab IDs
     expect(isValidTabId('morning')).toBe(true);
     expect(isValidTabId('light-work')).toBe(true);
-    expect(isValidTabId('ai-chat')).toBe(true);
+    expect(isValidTabId('checkout')).toBe(true);
     
     // Invalid tab IDs
     expect(isValidTabId('invalid')).toBe(false);
@@ -39,7 +39,7 @@ describe('Tab Configuration', () => {
     const missing = validateTabHandler(partialHandled);
     expect(missing.length).toBeGreaterThan(0);
     expect(missing).toContain('light-work');
-    expect(missing).toContain('ai-chat');
+    expect(missing).toContain('wellness');
   });
 
   test('should have required properties for each tab', () => {
