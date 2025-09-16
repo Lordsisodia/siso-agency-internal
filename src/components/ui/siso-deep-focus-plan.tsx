@@ -6,7 +6,6 @@ import {
   Circle,
   CircleAlert,
   CircleDotDashed,
-  CircleX,
   Timer,
   Play,
   Pause,
@@ -158,6 +157,9 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
   // Adding new subtask states
   const [addingSubtaskToTask, setAddingSubtaskToTask] = useState<string | null>(null);
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
+  
+  // Subtask visibility toggle state
+  const [showCompletedSubtasks, setShowCompletedSubtasks] = useState<{[taskId: string]: boolean}>({});
   
   // Theme configuration for SubtaskItem
   const themeConfig = {
@@ -378,6 +380,14 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
     }
   };
 
+  // Toggle subtask visibility
+  const toggleSubtaskVisibility = (taskId: string) => {
+    setShowCompletedSubtasks(prev => ({
+      ...prev,
+      [taskId]: !prev[taskId]
+    }));
+  };
+
   // Animation variants with reduced motion support
   const taskVariants = {
     hidden: { opacity: 0, y: prefersReducedMotion ? 0 : -5 },
@@ -425,7 +435,7 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
   // Show loading state
   if (loading) {
     return (
-      <div className="text-white h-full overflow-auto">
+      <div className={`${isLightWork ? "text-green-50" : "text-blue-50"} h-full overflow-auto`}>
         <Card className={isLightWork ? "bg-green-900/20 border-green-700/50" : "bg-blue-900/20 border-blue-700/50"}>
           <CardContent className="p-6 text-center">
             <div className="flex items-center justify-center space-x-2">
@@ -441,14 +451,14 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
   // Show error state
   if (error) {
     return (
-      <div className="text-white h-full overflow-auto">
+      <div className={`${isLightWork ? "text-green-50" : "text-blue-50"} h-full overflow-auto`}>
         <Card className={isLightWork ? "bg-green-900/20 border-green-700/50" : "bg-blue-900/20 border-blue-700/50"}>
           <CardContent className="p-6 text-center">
             <div className="text-red-400 mb-4">
               <CircleAlert className="h-8 w-8 mx-auto mb-2" />
               Error loading Deep Work tasks
             </div>
-            <p className="text-sm text-gray-400 mb-4">{error}</p>
+            <p className={`text-sm ${isLightWork ? "text-green-200" : "text-blue-200"} mb-4`}>{error}</p>
             <Button 
               onClick={() => window.location.reload()} 
               className={isLightWork ? "bg-green-600 hover:bg-green-700" : "bg-blue-600 hover:bg-blue-700"}
@@ -462,18 +472,18 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
   }
 
   return (
-    <div className="text-white h-full overflow-auto">
+    <div className={`${isLightWork ? "text-green-50" : "text-blue-50"} h-full overflow-auto`}>
       <Card className={isLightWork ? "bg-green-900/20 border-green-700/50" : "bg-blue-900/20 border-blue-700/50"}>
         <CardHeader className="p-4 sm:p-6">
           <CardTitle className={`flex items-center ${isLightWork ? "text-green-400" : "text-blue-400"} text-base sm:text-lg`}>
             <Brain className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
             {theme.title}
           </CardTitle>
-          <div className="border-t border-{theme.colors.primary}-600/50 my-4"></div>
+          <div className={`border-t ${isLightWork ? "border-green-600/50" : "border-blue-600/50"} my-4`}></div>
           <div className="space-y-4">
             <div>
               <h3 className={`font-bold ${isLightWork ? "text-green-300" : "text-blue-300"} mb-2 text-sm sm:text-base`}>Flow State Protocol</h3>
-              <p className="text-gray-200 text-xs sm:text-sm leading-relaxed">
+              <p className={`${isLightWork ? "text-green-200" : "text-blue-200"} text-xs sm:text-sm leading-relaxed`}>
                 Deep work sessions require sustained focus without interruption. These blocks are designed for your most 
                 important, cognitively demanding work that creates maximum value.
               </p>
@@ -481,7 +491,7 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
             <div className={`border-t ${isLightWork ? "border-green-600/50" : "border-blue-600/50"} my-4`}></div>
             <div>
               <h3 className={`font-bold ${isLightWork ? "text-green-300" : "text-blue-300"} mb-2 text-sm sm:text-base`}>{theme.subtitle} Rules</h3>
-              <ul className="text-gray-200 text-xs sm:text-sm space-y-1">
+              <ul className={`${isLightWork ? "text-green-200" : "text-blue-200"} text-xs sm:text-sm space-y-1`}>
                 {theme.rules.map((rule, index) => (
                   <li key={index}>{rule}</li>
                 ))}
@@ -561,12 +571,12 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
                                 onChange={(e) => handleMainTaskEditTitleChange(e.target.value)}
                                 onKeyDown={(e) => handleMainTaskKeyDown(e, task.id)}
                                 onBlur={() => handleMainTaskSaveEdit(task.id)}
-                                className="w-full bg-blue-900/40 {theme.colors.textLight} font-semibold text-sm sm:text-base px-2 py-1 rounded border border-{theme.colors.primary}-600/50 focus:border-blue-400 focus:outline-none"
+                                className={`w-full ${isLightWork ? "bg-green-900/40 text-green-100" : "bg-blue-900/40 text-blue-100"} font-semibold text-sm sm:text-base px-2 py-1 rounded border ${isLightWork ? "border-green-600/50 focus:border-green-400" : "border-blue-600/50 focus:border-blue-400"} focus:outline-none`}
                                 autoFocus
                               />
                             ) : (
                               <h4 
-                                className="{theme.colors.textLight} font-semibold text-sm sm:text-base cursor-pointer hover:text-blue-50 transition-colors truncate"
+                                className={`${isLightWork ? "text-green-100 hover:text-green-50" : "text-blue-100 hover:text-blue-50"} font-semibold text-sm sm:text-base cursor-pointer transition-colors truncate`}
                                 onClick={() => handleMainTaskStartEditing(task.id, task.title)}
                               >
                                 {task.title}
@@ -577,7 +587,7 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
                           {/* Toggle Button Only */}
                           <div className="flex items-center flex-shrink-0">
                             <motion.button
-                              className="p-1 rounded-md hover:bg-blue-900/20 transition-colors"
+                              className={`p-1 rounded-md ${isLightWork ? "hover:bg-green-900/20" : "hover:bg-blue-900/20"} transition-colors`}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 toggleTaskExpansion(task.id);
@@ -585,16 +595,16 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
                               whileTap={{ scale: 0.9 }}
                             >
                               {isExpanded ? (
-                                <ChevronDown className="h-4 w-4 {theme.colors.textSecondary}" />
+                                <ChevronDown className={`h-4 w-4 ${isLightWork ? "text-green-300" : "text-blue-300"}`} />
                               ) : (
-                                <ChevronRight className="h-4 w-4 {theme.colors.textSecondary}" />
+                                <ChevronRight className={`h-4 w-4 ${isLightWork ? "text-green-300" : "text-blue-300"}`} />
                               )}
                             </motion.button>
                           </div>
                         </div>
                         
                         {/* Top divider below main task */}
-                        <div className="border-t border-{theme.colors.primary}-600/50 mt-3"></div>
+                        <div className={`border-t ${isLightWork ? "border-green-600/50" : "border-blue-600/50"} mt-3`}></div>
                       </div>
 
                       {/* Subtasks */}
@@ -611,7 +621,12 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
 
                           {task.subtasks.length > 0 && (
                             <ul className="mt-1 mr-2 mb-2 ml-2 space-y-1">
-                              {task.subtasks.map((subtask) => {
+                              {task.subtasks.filter((subtask) => {
+                                // Show all subtasks by default, but if toggled, only show completed or incomplete
+                                const shouldShowCompleted = showCompletedSubtasks[task.id];
+                                if (shouldShowCompleted === undefined) return true; // Show all by default
+                                return shouldShowCompleted ? subtask.status === "completed" : subtask.status !== "completed";
+                              }).map((subtask) => {
                               return (
                                 <motion.li
                                   key={subtask.id}
@@ -683,14 +698,14 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
                                 onKeyDown={(e) => handleNewSubtaskKeyDown(e, task.id)}
                                 onBlur={() => handleSaveNewSubtask(task.id)}
                                 placeholder="Enter subtask title..."
-                                className="w-full bg-blue-900/40 {theme.colors.textLight} text-xs px-3 py-2 rounded border border-{theme.colors.primary}-600/50 focus:border-blue-400 focus:outline-none"
+                                className={`w-full ${isLightWork ? "bg-green-900/40 text-green-100 border-green-600/50 focus:border-green-400" : "bg-blue-900/40 text-blue-100 border-blue-600/50 focus:border-blue-400"} text-xs px-3 py-2 rounded border focus:outline-none`}
                                 autoFocus
                               />
                             ) : (
                               <Button 
                                 variant="ghost" 
                                 size="sm" 
-                                className="w-full {theme.colors.textSecondary} hover:text-blue-200 hover:bg-blue-900/20 transition-all duration-200 text-xs border border-blue-700/30 hover:border-blue-600/40"
+                                className={`w-full ${isLightWork ? "text-green-300 hover:text-green-200 hover:bg-green-900/20 border-green-700/30 hover:border-green-600/40" : "text-blue-300 hover:text-blue-200 hover:bg-blue-900/20 border-blue-700/30 hover:border-blue-600/40"} transition-all duration-200 text-xs border`}
                                 onClick={() => handleStartAddingSubtask(task.id)}
                               >
                                 <Plus className="h-3 w-3 mr-1" />
@@ -700,29 +715,31 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
                           </div>
                           
                           {/* Bottom divider */}
-                          <div className="border-t border-{theme.colors.primary}-600/50 mt-3"></div>
+                          <div className={`border-t ${isLightWork ? "border-green-600/50" : "border-blue-600/50"} mt-3`}></div>
                           
                           {/* Progress Summary at bottom with action buttons */}
                           {task.subtasks.length > 0 && (
                             <div className="mt-3 pb-2 px-3">
                               <div className="flex items-center justify-between">
-                                <CircleAlert 
-                                  className="h-4 w-4 {theme.colors.textSecondary} hover:text-blue-200 cursor-pointer transition-colors" 
-                                  onClick={() => openTaskDetail(task)}
-                                  title="Task Info"
-                                />
-                                <div className="text-xs text-gray-400">
+                                <div></div>
+                                <button 
+                                  className={`text-xs ${isLightWork ? "text-green-400 hover:text-green-300" : "text-blue-400 hover:text-blue-300"} cursor-pointer transition-colors`}
+                                  onClick={() => toggleSubtaskVisibility(task.id)}
+                                  title="Toggle completed subtasks visibility"
+                                >
                                   {task.subtasks.filter(s => s.status === "completed").length} of {task.subtasks.length} subtasks completed
-                                </div>
-                                <CircleX 
-                                  className="h-4 w-4 {theme.colors.textSecondary} hover:text-red-300 cursor-pointer transition-colors" 
+                                </button>
+                                <button 
+                                  className="text-gray-400 hover:text-red-400 cursor-pointer transition-colors text-lg font-bold leading-none"
                                   onClick={() => {
                                     if (window.confirm('Delete this task?')) {
                                       deleteTask(task.id);
                                     }
                                   }}
                                   title="Delete Task"
-                                />
+                                >
+                                  ×
+                                </button>
                               </div>
                             </div>
                           )}
@@ -735,23 +752,25 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
                     {!isExpanded && task.subtasks.length > 0 && (
                       <div className="px-3 pb-3">
                         <div className="flex items-center justify-between">
-                          <CircleAlert 
-                            className="h-4 w-4 {theme.colors.textSecondary} hover:text-blue-200 cursor-pointer transition-colors" 
-                            onClick={() => openTaskDetail(task)}
-                            title="Task Info"
-                          />
-                          <div className="text-xs text-gray-400">
+                          <div></div>
+                          <button 
+                            className={`text-xs ${isLightWork ? "text-green-400 hover:text-green-300" : "text-blue-400 hover:text-blue-300"} cursor-pointer transition-colors`}
+                            onClick={() => toggleSubtaskVisibility(task.id)}
+                            title="Toggle completed subtasks visibility"
+                          >
                             {task.subtasks.filter(s => s.status === "completed").length} of {task.subtasks.length} subtasks completed
-                          </div>
-                          <CircleX 
-                            className="h-4 w-4 {theme.colors.textSecondary} hover:text-red-300 cursor-pointer transition-colors" 
+                          </button>
+                          <button 
+                            className="text-gray-400 hover:text-red-400 cursor-pointer transition-colors text-lg font-bold leading-none" 
                             onClick={() => {
                               if (window.confirm('Delete this task?')) {
                                 deleteTask(task.id);
                               }
                             }}
                             title="Delete Task"
-                          />
+                          >
+                            ×
+                          </button>
                         </div>
                       </div>
                     )}
@@ -766,7 +785,7 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="w-full {theme.colors.textSecondary} hover:text-blue-200 hover:bg-blue-900/20 transition-all duration-200 text-sm border border-blue-700/30 hover:border-blue-600/40"
+                className={`w-full ${isLightWork ? "text-green-300 hover:text-green-200 hover:bg-green-900/20 border-green-700/30 hover:border-green-600/40" : "text-blue-300 hover:text-blue-200 hover:bg-blue-900/20 border-blue-700/30 hover:border-blue-600/40"} transition-all duration-200 text-sm border`}
                 onClick={async () => {
                   try {
                     // Create task with default title
