@@ -4,7 +4,7 @@
  * HTTP API for Deep Work subtask operations with real database persistence
  */
 
-import { taskDatabaseService } from '@/shared/services/task-database-service-fixed';
+// TODO: Implement with Supabase when needed
 
 export default async function handler(req: any, res: any) {
   const { method, query, body } = req;
