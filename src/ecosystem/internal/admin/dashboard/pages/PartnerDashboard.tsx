@@ -42,7 +42,7 @@ import { PartnerOnboarding } from '@/components/dashboard/PartnerOnboarding';
 import { cn } from '@/shared/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { PartnershipLayout } from '@/components/partnership/PartnershipLayout';
+import { PartnershipLayout } from '@/ecosystem/external/partnerships/components/PartnershipLayout';
 import { DashboardGreetingCard } from '@/shared/ui/dashboard-templates';
 import { useUser } from '@/shared/hooks/useUser';
 import { AppPlanMicroChat } from '@/components/dashboard/AppPlanMicroChat';

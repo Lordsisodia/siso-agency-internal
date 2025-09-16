@@ -108,7 +108,7 @@ const PartnershipPage = lazy(() => import('./pages/PartnershipPage'));
 const PartnerLogin = lazy(() => import('./pages/auth/PartnerLogin'));
 const PartnerRegister = lazy(() => import('./pages/auth/PartnerRegister'));
 const PartnerPasswordReset = lazy(() => import('./pages/auth/PartnerPasswordReset'));
-const PartnerDashboard = lazy(() => import('./pages/dashboard/PartnerDashboard'));
+const PartnerDashboard = lazy(() => import('./ecosystem/internal/admin/dashboard/pages/PartnerDashboard'));
 const PartnerAuthGuard = lazy(() => import('@/shared/auth/PartnerAuthGuard').then(m => ({ default: m.PartnerAuthGuard })));
 const PartnerLeaderboard = lazy(() => import('@/features/admin/dashboard/components/PartnerLeaderboard').then(m => ({ default: m.PartnerLeaderboard })));
 const ComingSoonSection = lazy(() => import('@/features/admin/dashboard/components/ComingSoonSection').then(m => ({ default: m.ComingSoonSection })));

@@ -159,7 +159,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
       document.addEventListener('mousedown', handleClickOutside);
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
-  }, [calendarSubtaskId]);
+  }, [calendarSubtaskId, setCalendarSubtaskId]);
 
   // Task filtering logic moved to useTaskFiltering hook
 
@@ -167,35 +167,36 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
 
   // Thought dump logic moved to useThoughtDump hook
 
-  if (loading) {
-    return useImplementation(
-      'useUnifiedLoadingState',
-      <LoadingState 
-        message={`Loading ${workType.toLowerCase()} work tasks...`}
-        variant="spinner"
-        size="lg"
-        className="min-h-screen w-full"
-      />,
-      <div className="min-h-screen w-full flex items-center justify-center">
-        <div className={themeConfig.colors.text}>Loading {workType.toLowerCase()} work tasks...</div>
-      </div>
-    );
-  }
+  // Get implementation elements unconditionally
+  const loadingElement = useImplementation(
+    'useUnifiedLoadingState',
+    <LoadingState 
+      message={`Loading ${workType.toLowerCase()} work tasks...`}
+      variant="spinner"
+      size="lg"
+      className="min-h-screen w-full"
+    />,
+    <div className="min-h-screen w-full flex items-center justify-center">
+      <div className={themeConfig.colors.text}>Loading {workType.toLowerCase()} work tasks...</div>
+    </div>
+  );
 
-  if (error) {
-    return useImplementation(
-      'useUnifiedErrorState',
-      <ErrorState 
-        title="Error Loading Tasks"
-        message={`Could not load ${workType.toLowerCase()} work tasks: ${error}`}
-        type="network"
-        className="min-h-screen w-full"
-      />,
-      <div className="min-h-screen w-full flex items-center justify-center">
+  const errorElement = useImplementation(
+    'useUnifiedErrorState',
+    <ErrorState 
+      title="Error Loading Tasks"
+      message={`Could not load ${workType.toLowerCase()} work tasks: ${error}`}
+      type="network"
+      className="min-h-screen w-full"
+    />,
+    <div className="min-h-screen w-full flex items-center justify-center">
         <div className="text-red-400">Error loading tasks: {error}</div>
       </div>
     );
-  }
+
+  // Return based on state
+  if (loading) return loadingElement;
+  if (error) return errorElement;
 
   return (
     <div className="min-h-screen w-full relative">
