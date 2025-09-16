@@ -178,11 +178,25 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       external: mode === 'development' ? ['child_process', 'fs', 'path', 'os', '@tauri-apps/api/core'] : [],
       output: mode === 'production' ? {
-        // Simple chunking for production to avoid React context issues
+        // Advanced chunking for optimal bundle sizes
         manualChunks: {
           'vendor': ['react', 'react-dom', 'react-router-dom'],
           'ui': ['@radix-ui/react-dialog', '@radix-ui/react-slot', 'lucide-react'],
-          'supabase': ['@supabase/supabase-js']
+          'supabase': ['@supabase/supabase-js'],
+          'charts': ['recharts'],
+          'forms': ['react-hook-form', '@hookform/resolvers', 'zod'],
+          'animations': ['framer-motion'],
+          'utils': ['date-fns', 'clsx', 'tailwind-merge']
+        },
+        // Dynamic chunking for large components
+        chunkFileNames: (chunkInfo) => {
+          const facadeModuleId = chunkInfo.facadeModuleId
+          if (facadeModuleId?.includes('ResourcesPage')) return 'resources-[hash].js'
+          if (facadeModuleId?.includes('UserFlow')) return 'userflow-[hash].js'
+          if (facadeModuleId?.includes('incident-report')) return 'reports-[hash].js'
+          if (facadeModuleId?.includes('AdminLifeLock')) return 'lifelock-[hash].js'
+          if (facadeModuleId?.includes('AdminTasks')) return 'tasks-[hash].js'
+          return 'chunk-[hash].js'
         }
       } : {}
     }

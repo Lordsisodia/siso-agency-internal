@@ -66,9 +66,9 @@ export const TaskContainer: React.FC<TaskContainerProps> = ({
     if (useDatabase) {
       loadTasksFromDatabase();
     }
-  }, [useDatabase, workType]);
+  }, [useDatabase, workType, loadTasksFromDatabase]);
 
-  const loadTasksFromDatabase = async () => {
+  const loadTasksFromDatabase = useCallback(async () => {
     setLoading(true);
     try {
       const dbTasks = workType === 'light_work' 
@@ -87,7 +87,7 @@ export const TaskContainer: React.FC<TaskContainerProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [workType, initialTasks]);
 
   // Toggle task expansion
   const handleToggleExpansion = useCallback((taskId: string) => {
