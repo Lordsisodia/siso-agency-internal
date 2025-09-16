@@ -17,7 +17,7 @@ export const PortfolioDetails = ({ item }: PortfolioDetailsProps) => {
   // Extract YouTube video ID if the live_url is a YouTube link
   const getYoutubeId = (url: string | undefined) => {
     if (!url) return null;
-    const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+    const youtubeRegex = /(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/;
     const match = url.match(youtubeRegex);
     return match ? match[1] : null;
   };

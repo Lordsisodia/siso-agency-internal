@@ -133,7 +133,7 @@ export const WelcomeNFTStatus = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [toast]);
 
   const handleShare = async () => {
     if (!status?.metadata) return;

@@ -33,7 +33,7 @@ export const formatPatterns = {
   numberedLists: /^\d+\.\s+(.+)$/gm,
   
   // Bullet points
-  bulletPoints: /^[•\-\*]\s+(.+)$/gm,
+  bulletPoints: /^[•\-*]\s+(.+)$/gm,
   
   // Bold text
   boldText: /\*\*(.*?)\*\*/g,
@@ -114,7 +114,7 @@ const extractListItems = (content: string): string[] => {
     }
     
     // Check for bullet points
-    const bulletMatch = line.match(/^[•\-\*]\s+(.+)$/);
+    const bulletMatch = line.match(/^[•\-*]\s+(.+)$/);
     if (bulletMatch) {
       items.push(bulletMatch[1]);
       return;

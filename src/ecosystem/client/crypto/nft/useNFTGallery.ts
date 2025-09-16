@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/shared/hooks/use-toast';
 
@@ -19,7 +19,7 @@ export const useNFTGallery = () => {
   const [filterAttribute, setFilterAttribute] = useState<string>('all');
   const { toast } = useToast();
 
-  const fetchNFTs = async () => {
+  const fetchNFTs = useCallback(async () => {
     try {
       setLoading(true);
       const { data: { session } } = await supabase.auth.getSession();
@@ -71,11 +71,11 @@ export const useNFTGallery = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [sortOrder, toast]);
 
   useEffect(() => {
     fetchNFTs();
-  }, [sortOrder]);
+  }, [fetchNFTs]);
 
   const getUniqueAttributes = () => {
     const attributes = new Set<string>();

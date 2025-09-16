@@ -9,9 +9,9 @@ export const AI_INTERFACE = {
 };
 
 export interface PartnershipsProps {
-  // TODO: Define partnerships props
+  className?: string;
 }
 
 export interface PartnershipsState {
-  // TODO: Define partnerships state
+  isLoading: boolean;
 }

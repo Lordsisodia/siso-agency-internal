@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { cn } from "@/shared/lib/utils";
 import { useToast } from "@/shared/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -191,7 +191,7 @@ export function AirtablePartnersTable() {
 
 
   // Load data from Supabase
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setIsLoading(true);
       const { data: projects, error } = await supabase
@@ -231,15 +231,15 @@ export function AirtablePartnersTable() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [toast]);
 
   // Load data on mount
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
   // Handle field updates
-  const handleUpdateField = async (id: string, field: string, value: string) => {
+  const handleUpdateField = useCallback(async (id: string, field: string, value: string) => {
     try {
       const { error } = await supabase
         .from('portfolio_items')
@@ -267,7 +267,7 @@ export function AirtablePartnersTable() {
         variant: "destructive",
       });
     }
-  };
+  }, [toast]);
 
   // Handle adding new project
   const handleAddProject = async () => {
@@ -509,7 +509,7 @@ export function AirtablePartnersTable() {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [selectedCell, editingCell, data]);
+  }, [selectedCell, editingCell, data, handleUpdateField]);
 
   // Hide context menu on click
   useEffect(() => {
