@@ -622,9 +622,9 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
                           {task.subtasks.length > 0 && (
                             <ul className="mt-1 mr-2 mb-2 ml-2 space-y-1">
                               {task.subtasks.filter((subtask) => {
-                                // Show all subtasks by default, but if toggled, only show completed or incomplete
+                                // Show incomplete subtasks by default, toggle to show completed when clicked
                                 const shouldShowCompleted = showCompletedSubtasks[task.id];
-                                if (shouldShowCompleted === undefined) return true; // Show all by default
+                                if (shouldShowCompleted === undefined) return subtask.status !== "completed"; // Show incomplete by default
                                 return shouldShowCompleted ? subtask.status === "completed" : subtask.status !== "completed";
                               }).map((subtask) => {
                               return (
