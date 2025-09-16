@@ -1,6 +1,6 @@
 
-import { InstagramLeadForm } from '@/archive/ecosystem-backup/client/instagram/InstagramLeadForm';
-import { InstagramLeadList } from '@/archive/ecosystem-backup/client/instagram/InstagramLeadList';
+import { InstagramLeadForm } from '@/features/client/instagram/InstagramLeadForm';
+import { InstagramLeadList } from '@/features/client/instagram/InstagramLeadList';
 
 export default function InstagramLeads() {
   return (

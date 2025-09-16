@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { AdminLayout } from '@/archive/ecosystem-backup/internal/admin/layout/AdminLayout';
-import { AdminPageTitle } from '@/archive/ecosystem-backup/internal/admin/layout/AdminPageTitle';
+import { AdminLayout } from '@/features/admin/layout/AdminLayout';
+import { AdminPageTitle } from '@/features/admin/layout/AdminPageTitle';
 import { Megaphone } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/shared/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
@@ -10,19 +10,19 @@ import { useOutreachColumnPreferences } from '@/shared/hooks/useOutreachColumnPr
 import { useOutreachAccounts } from '@/shared/hooks/useOutreachAccounts';
 import { toast } from "sonner";
 import { UserPlus, BarChart3, Star, Edit, Plus } from 'lucide-react';
-import { INITIAL_COLUMNS } from '@/archive/ecosystem-backup/internal/admin/outreach/types';
-import { LeadsTable } from '@/archive/ecosystem-backup/internal/admin/outreach/leads/LeadsTable';
-import { LeadsToolbar } from '@/archive/ecosystem-backup/internal/admin/outreach/leads/LeadsToolbar';
-import { LeadDetailSheet } from '@/archive/ecosystem-backup/internal/admin/outreach/LeadDetailSheet';
-import { LeadsFunnelChart } from '@/archive/ecosystem-backup/internal/admin/outreach/LeadsFunnelChart';
-import { OutreachAnalyticsCards } from '@/archive/ecosystem-backup/internal/admin/outreach/OutreachAnalyticsCards';
-import { OutreachActivityLog } from '@/archive/ecosystem-backup/internal/admin/outreach/OutreachActivityLog';
-import { AccountsGrid } from '@/archive/ecosystem-backup/internal/admin/outreach/accounts/AccountsGrid';
-import { AccountManagementDialog } from '@/archive/ecosystem-backup/internal/admin/outreach/accounts/AccountManagementDialog';
-import { PlatformFilters } from '@/archive/ecosystem-backup/internal/admin/outreach/accounts/PlatformFilters';
-import { IndustryFilter } from '@/archive/ecosystem-backup/internal/admin/outreach/accounts/IndustryFilter';
+import { INITIAL_COLUMNS } from '@/features/admin/outreach/types';
+import { LeadsTable } from '@/features/admin/outreach/leads/LeadsTable';
+import { LeadsToolbar } from '@/features/admin/outreach/leads/LeadsToolbar';
+import { LeadDetailSheet } from '@/features/admin/outreach/LeadDetailSheet';
+import { LeadsFunnelChart } from '@/features/admin/outreach/LeadsFunnelChart';
+import { OutreachAnalyticsCards } from '@/features/admin/outreach/OutreachAnalyticsCards';
+import { OutreachActivityLog } from '@/features/admin/outreach/OutreachActivityLog';
+import { AccountsGrid } from '@/features/admin/outreach/accounts/AccountsGrid';
+import { AccountManagementDialog } from '@/features/admin/outreach/accounts/AccountManagementDialog';
+import { PlatformFilters } from '@/features/admin/outreach/accounts/PlatformFilters';
+import { IndustryFilter } from '@/features/admin/outreach/accounts/IndustryFilter';
 import type { OutreachAccount } from '@/types/outreach';
-import type { OutreachStats } from '@/archive/ecosystem-backup/internal/admin/outreach/types';
+import type { OutreachStats } from '@/features/admin/outreach/types';
 import {
   Table,
   TableBody,

@@ -1,16 +1,16 @@
 import { useParams, Link } from 'react-router-dom';
 import { AppLayout } from '@/shared/layout/AppLayout';
 import { useClientAppDetails } from '@/shared/hooks/useClientAppDetails';
-import { ClientAppHeader } from '@/archive/ecosystem-backup/client/client-app/ClientAppHeader';
-import { ClientAppStats } from '@/archive/ecosystem-backup/client/client-app/ClientAppStats';
-import { ClientAppTimeline } from '@/archive/ecosystem-backup/client/client-app/ClientAppTimeline';
-import { ClientAppFeatures } from '@/archive/ecosystem-backup/client/client-app/ClientAppFeatures';
-import { ClientAppMediaPreview } from '@/archive/ecosystem-backup/client/client-app/ClientAppMediaPreview';
-import { ClientAppCaseStudy } from '@/archive/ecosystem-backup/client/client-app/ClientAppCaseStudy';
+import { ClientAppHeader } from '@/features/client/client-app/ClientAppHeader';
+import { ClientAppStats } from '@/features/client/client-app/ClientAppStats';
+import { ClientAppTimeline } from '@/features/client/client-app/ClientAppTimeline';
+import { ClientAppFeatures } from '@/features/client/client-app/ClientAppFeatures';
+import { ClientAppMediaPreview } from '@/features/client/client-app/ClientAppMediaPreview';
+import { ClientAppCaseStudy } from '@/features/client/client-app/ClientAppCaseStudy';
 import { Button } from '@/shared/ui/button';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
-import { ProjectActions } from '@/archive/ecosystem-backup/internal/projects/details/ProjectActions';
+import { ProjectActions } from '@/features/projects/details/ProjectActions';
 import { ArrowLeft } from 'lucide-react';
 import { Spotlight } from '@/shared/ui/spotlight';
 

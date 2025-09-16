@@ -1,21 +1,21 @@
 
-import { AdminLayout } from '@/archive/ecosystem-backup/internal/admin/layout/AdminLayout';
-import { StatsOverview } from '@/archive/ecosystem-backup/internal/dashboard/components/StatsOverview';
-import { QuickActions } from '@/archive/ecosystem-backup/internal/dashboard/ui/QuickActions';
-import { ClientsList } from '@/archive/ecosystem-backup/internal/dashboard/components/ClientsList';
-import { AdminTasks } from '@/archive/ecosystem-backup/internal/dashboard/components/AdminTasks';
-import { AdminStats } from '@/archive/ecosystem-backup/internal/dashboard/components/AdminStats';
+import { AdminLayout } from '@/features/admin/layout/AdminLayout';
+import { StatsOverview } from '@/features/admin/dashboard/components/StatsOverview';
+import { QuickActions } from '@/features/dashboard/ui/QuickActions';
+import { ClientsList } from '@/features/admin/dashboard/components/ClientsList';
+import { AdminTasks } from '@/features/admin/dashboard/components/AdminTasks';
+import { AdminStats } from '@/features/admin/dashboard/components/AdminStats';
 import { useAdminCheck } from '@/shared/hooks/useAdminCheck';
 import { Loader2, Users, Target } from 'lucide-react';
 import { useEffect, useState, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/shared/ui/use-toast';
 import { useUser } from '@/shared/hooks/useUser';
-import { AdminPageTitle } from '@/archive/ecosystem-backup/internal/admin/layout/AdminPageTitle';
+import { AdminPageTitle } from '@/features/admin/layout/AdminPageTitle';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
 
 // Lazy load heavy components
-const ProjectBasedTaskDashboard = lazy(() => import('@/archive/ecosystem-backup/internal/dashboard/components/ProjectBasedTaskDashboard').then(m => ({ default: m.ProjectBasedTaskDashboard })));
+const ProjectBasedTaskDashboard = lazy(() => import('@/features/admin/dashboard/components/ProjectBasedTaskDashboard').then(m => ({ default: m.ProjectBasedTaskDashboard })));
 const AdvancedNormalizedIncidentReport = lazy(() => import('@/shared/ui/advanced-normalized-incident-report'));
 
 export default function AdminDashboard() {

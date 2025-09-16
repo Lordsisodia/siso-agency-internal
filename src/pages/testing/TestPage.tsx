@@ -1,5 +1,5 @@
 import React from 'react';
-import { PartnershipIntegrationTest } from '@/archive/ecosystem-backup/partnership/partnerships/components/PartnershipIntegrationTest';
+import { PartnershipIntegrationTest } from '@/features/partnerships/components/PartnershipIntegrationTest';
 
 export default function TestPage() {
   return (

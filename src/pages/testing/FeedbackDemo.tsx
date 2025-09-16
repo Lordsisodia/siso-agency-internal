@@ -1,6 +1,6 @@
 import React from 'react';
-import { CleanFeedbackManager } from '@/archive/ecosystem-backup/internal/feedback/CleanFeedbackManager';
-import { SimpleFeedbackList } from '@/archive/ecosystem-backup/internal/feedback/SimpleFeedbackList';
+import { CleanFeedbackManager } from '@/features/feedback/CleanFeedbackManager';
+import { SimpleFeedbackList } from '@/features/feedback/SimpleFeedbackList';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { Badge } from '@/shared/ui/badge';
 import { feedbackService } from '@/services/data/feedbackService';

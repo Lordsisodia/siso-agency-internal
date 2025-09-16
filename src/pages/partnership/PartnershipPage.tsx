@@ -5,14 +5,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { Waves } from '@/shared/ui/waves-background';
 import { AgencyPartnershipHeader } from '@/shared/ui/agency-partnership-header';
 import { Stats } from '@/shared/ui/stats-section-with-text';
-import { PartnershipNavigation } from '@/archive/ecosystem-backup/partnership/partnerships/components/PartnershipNavigation';
-import { PartnershipPortfolio } from '@/archive/ecosystem-backup/partnership/partnerships/components/PartnershipPortfolio';
-import { PartnershipBenefits } from '@/archive/ecosystem-backup/partnership/partnerships/components/PartnershipBenefits';
-import { PartnershipProcess } from '@/archive/ecosystem-backup/partnership/partnerships/components/PartnershipProcess';
-import { PartnershipAIChat } from '@/archive/ecosystem-backup/partnership/partnerships/components/PartnershipAIChat';
-import { PartnershipTraining } from '@/archive/ecosystem-backup/partnership/partnerships/components/PartnershipTraining';
+import { PartnershipNavigation } from '@/features/partnerships/components/PartnershipNavigation';
+import { PartnershipPortfolio } from '@/features/partnerships/components/PartnershipPortfolio';
+import { PartnershipBenefits } from '@/features/partnerships/components/PartnershipBenefits';
+import { PartnershipProcess } from '@/features/partnerships/components/PartnershipProcess';
+import { PartnershipAIChat } from '@/features/partnerships/components/PartnershipAIChat';
+import { PartnershipTraining } from '@/features/partnerships/components/PartnershipTraining';
 import Footer from '@/shared/Footer';
-import { PartnerRequirements } from '@/archive/ecosystem-backup/partnership/partnerships/ui/PartnerRequirements';
+import { PartnerRequirements } from '@/features/partnerships/ui/PartnerRequirements';
 
 const PartnershipPage = memo(() => {
   const navigate = useNavigate();

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { ProjectOnboarding } from '@/archive/ecosystem-backup/internal/projects/ProjectOnboarding';
+import { ProjectOnboarding } from '@/features/projects/ProjectOnboarding';
 import { AppLayout } from '@/shared/layout/AppLayout';
 
 export default function ProjectOnboardingPage() {

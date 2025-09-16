@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { AdminLayout } from '@/archive/ecosystem-backup/internal/admin/layout/AdminLayout';
-import { AdminPageTitle } from '@/archive/ecosystem-backup/internal/admin/layout/AdminPageTitle';
+import { AdminLayout } from '@/features/admin/layout/AdminLayout';
+import { AdminPageTitle } from '@/features/admin/layout/AdminPageTitle';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';

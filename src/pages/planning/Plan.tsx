@@ -22,22 +22,22 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/shared/hooks/use-toast';
 import { MessageLoading } from '@/shared/ui/message-loading';
-import { CaseStudy } from '@/archive/ecosystem-backup/internal/plan/CaseStudy';
-import { WelcomeMessage } from '@/archive/ecosystem-backup/internal/plan/WelcomeMessage';
-import { PainPointsModal, PainPointDetailProps } from '@/archive/ecosystem-backup/internal/plan/PainPointsModal';
-import { PlanReviewSummary } from '@/archive/ecosystem-backup/internal/plan/PlanReviewSummary';
-import { AgencyPainPoints } from '@/archive/ecosystem-backup/internal/plan/AgencyPainPoints';
-import { ROICalculator } from '@/archive/ecosystem-backup/internal/plan/ROICalculator';
-import { FeatureSection } from '@/archive/ecosystem-backup/internal/plan/FeatureSection';
-import { InteractiveCallout } from '@/archive/ecosystem-backup/internal/plan/InteractiveCallout';
-import { EnhancedNextSteps } from '@/archive/ecosystem-backup/internal/plan/EnhancedNextSteps';
+import { CaseStudy } from '@/features/planning/components/CaseStudy';
+import { WelcomeMessage } from '@/features/planning/components/WelcomeMessage';
+import { PainPointsModal, PainPointDetailProps } from '@/features/planning/components/PainPointsModal';
+import { PlanReviewSummary } from '@/features/planning/components/PlanReviewSummary';
+import { AgencyPainPoints } from '@/features/planning/components/AgencyPainPoints';
+import { ROICalculator } from '@/features/planning/components/ROICalculator';
+import { FeatureSection } from '@/features/planning/components/FeatureSection';
+import { InteractiveCallout } from '@/features/planning/components/InteractiveCallout';
+import { EnhancedNextSteps } from '@/features/planning/components/EnhancedNextSteps';
 import { caseStudies } from '@/data/plan/featureData';
-import { ImplementationPlan } from '@/archive/ecosystem-backup/internal/plan/ImplementationPlan';
+import { ImplementationPlan } from '@/features/planning/components/ImplementationPlan';
 import { usePlanData, PlanDataType } from '@/shared/hooks/usePlanData';
 import { Button } from '@/shared/ui/button';
 import { GradientHeading } from '@/shared/ui/gradient-heading';
 import { supabase } from '@/integrations/supabase/client';
-import { PlanComments } from '@/archive/ecosystem-backup/internal/plan/NewsCardComments';
+import { PlanComments } from '@/features/planning/components/NewsCardComments';
 import { usePlanViewTracking } from '@/shared/hooks/usePlanViewTracking';
 
 // Mapping of agency-specific URLs to industry types

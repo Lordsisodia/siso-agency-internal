@@ -2,8 +2,8 @@
 import React from "react";
 import { SidebarProvider } from "@/shared/ui/sidebar";
 import { TimelineDemo } from "@/shared/ui/timeline.demo";
-import { AdminLayout } from "@/archive/ecosystem-backup/internal/admin/layout/AdminLayout";
-import { AdminPageTitle } from "@/archive/ecosystem-backup/internal/admin/layout/AdminPageTitle";
+import { AdminLayout } from "@/features/admin/layout/AdminLayout";
+import { AdminPageTitle } from "@/features/admin/layout/AdminPageTitle";
 import { Settings } from "lucide-react";
 import { useAdminCheck } from "@/shared/hooks/useAdminCheck";
 import { Loader2 } from "lucide-react";

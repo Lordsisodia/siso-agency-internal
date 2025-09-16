@@ -3,13 +3,13 @@ import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { Tool } from '@/archive/ecosystem-backup/internal/tools/types';
+import { Tool } from '@/features/tools/types';
 import { Sidebar } from '@/shared/Sidebar';
-import { ToolHeader } from '@/archive/ecosystem-backup/internal/tools/ToolHeader';
-import { ToolActions } from '@/archive/ecosystem-backup/internal/tools/ToolActions';
-import { ToolStats } from '@/archive/ecosystem-backup/internal/tools/ToolStats';
-import { ToolVideos } from '@/archive/ecosystem-backup/internal/tools/ToolVideos';
-import { ToolTags } from '@/archive/ecosystem-backup/internal/tools/ToolTags';
+import { ToolHeader } from '@/features/tools/ToolHeader';
+import { ToolActions } from '@/features/tools/ToolActions';
+import { ToolStats } from '@/features/tools/ToolStats';
+import { ToolVideos } from '@/features/tools/ToolVideos';
+import { ToolTags } from '@/features/tools/ToolTags';
 import { enhancedTableQuery, castToMockType, MockTypes } from '@/shared/utils/errorSuppressions';
 
 export default function ToolPage() {

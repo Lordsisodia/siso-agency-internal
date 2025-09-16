@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useClientDetails } from '@/shared/hooks/client';
-import { AdminLayout } from '@/archive/ecosystem-backup/internal/admin/layout/AdminLayout';
-import { ClientDetailHeader } from '@/archive/ecosystem-backup/internal/admin/clients/detail/ClientDetailHeader';
-import { ClientProjectOverview } from '@/archive/ecosystem-backup/internal/admin/clients/detail/ClientProjectOverview';
-import { ClientProjectTimeline } from '@/archive/ecosystem-backup/internal/admin/clients/detail/ClientProjectTimeline';
-import { ClientInteractionLog } from '@/archive/ecosystem-backup/internal/admin/clients/detail/ClientInteractionLog';
-import { ClientTasksList } from '@/archive/ecosystem-backup/internal/admin/clients/detail/ClientTasksList';
-import { ClientFinancialSummary } from '@/archive/ecosystem-backup/internal/admin/clients/detail/ClientFinancialSummary';
-import { ClientTeamAssignments } from '@/archive/ecosystem-backup/internal/admin/clients/detail/ClientTeamAssignments';
-import { ClientRelatedDocuments } from '@/archive/ecosystem-backup/internal/admin/clients/detail/ClientRelatedDocuments';
+import { AdminLayout } from '@/features/admin/layout/AdminLayout';
+import { ClientDetailHeader } from '@/features/admin/clients/detail/ClientDetailHeader';
+import { ClientProjectOverview } from '@/features/admin/clients/detail/ClientProjectOverview';
+import { ClientProjectTimeline } from '@/features/admin/clients/detail/ClientProjectTimeline';
+import { ClientInteractionLog } from '@/features/admin/clients/detail/ClientInteractionLog';
+import { ClientTasksList } from '@/features/admin/clients/detail/ClientTasksList';
+import { ClientFinancialSummary } from '@/features/admin/clients/detail/ClientFinancialSummary';
+import { ClientTeamAssignments } from '@/features/admin/clients/detail/ClientTeamAssignments';
+import { ClientRelatedDocuments } from '@/features/admin/clients/detail/ClientRelatedDocuments';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
 import { Card, CardContent } from '@/shared/ui/card';
 import { Skeleton } from '@/shared/ui/skeleton';
@@ -22,7 +22,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/shared/ui/breadcrumb";
-import { ClientDocuments } from '@/archive/ecosystem-backup/internal/admin/clients/detail/ClientDocuments';
+import { ClientDocuments } from '@/features/admin/clients/detail/ClientDocuments';
 import { Timeline } from '@/shared/ui/timeline';
 
 export default function ClientDetailPage() {
