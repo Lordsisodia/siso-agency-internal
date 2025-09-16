@@ -70,7 +70,7 @@ export default function ResourcesPage() {
           className="relative mb-10 rounded-xl overflow-hidden"
         >
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-black/40 z-10"></div>
-          <div className="absolute inset-0 bg-[url('/images/resources-bg.jpg')] bg-cover bg-center z-0 opacity-40"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-siso-orange/20 via-black/60 to-purple-900/20 z-0"></div>
           <ParticlesBackground className="opacity-40" />
           
           <div className="relative z-20 px-8 py-12 md:py-16 max-w-3xl">

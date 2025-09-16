@@ -33,10 +33,10 @@ import {
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
 import { Card, CardContent, CardHeader } from '@/shared/ui/card';
-import { TaskCard } from './tasks/TaskCard';
+import { TaskCard } from '@/ecosystem/internal/tasks/components/TaskCard';
 import { TaskDetailModal } from './ui/task-detail-modal';
 import { useTaskContext } from '@/providers/TaskProvider';
-import { Task } from './tasks/TaskCard';
+import { Task } from '@/ecosystem/internal/tasks/components/TaskCard';
 
 /**
  * TaskManager component props

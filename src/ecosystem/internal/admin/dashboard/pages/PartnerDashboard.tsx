@@ -38,14 +38,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
 import { Badge } from '@/shared/ui/badge';
 import { Progress } from '@/shared/ui/progress';
-import { PartnerOnboarding } from '@/components/dashboard/PartnerOnboarding';
+import { PartnerOnboarding } from '@/features/admin/dashboard/components/PartnerOnboarding';
 import { cn } from '@/shared/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { PartnershipLayout } from '@/ecosystem/external/partnerships/components/PartnershipLayout';
 import { DashboardGreetingCard } from '@/shared/ui/dashboard-templates';
 import { useUser } from '@/shared/hooks/useUser';
-import { AppPlanMicroChat } from '@/components/dashboard/AppPlanMicroChat';
+import { AppPlanMicroChat } from '@/features/admin/dashboard/components/AppPlanMicroChat';
 
 interface DashboardStats {
   totalEarnings: number;
