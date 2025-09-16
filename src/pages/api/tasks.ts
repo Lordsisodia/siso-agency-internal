@@ -4,7 +4,7 @@
  * HTTP API for task operations with real database persistence
  */
 
-import { taskDatabaseService } from '@/shared/services/task-database-service-fixed';
+import { supabase } from '@/integrations/supabase/client';
 import { auth } from '@clerk/nextjs';
 
 export default async function handler(req: any, res: any) {
@@ -19,8 +19,17 @@ export default async function handler(req: any, res: any) {
           return res.status(400).json({ error: 'userId and date are required' });
         }
         
-        const tasks = await taskDatabaseService.getTasksForDate(userId, date);
-        return res.status(200).json({ success: true, data: tasks });
+        const { data: tasks, error } = await supabase
+          .from('tasks')
+          .select('*')
+          .eq('user_id', userId)
+          .eq('date', date);
+        
+        if (error) {
+          return res.status(500).json({ success: false, error: error.message });
+        }
+        
+        return res.status(200).json({ success: true, data: tasks || [] });
 
       case 'POST':
         // POST /api/tasks - Create new task
@@ -29,7 +38,19 @@ export default async function handler(req: any, res: any) {
           return res.status(400).json({ error: 'userId and taskData are required' });
         }
         
-        const newTask = await taskDatabaseService.createTask(createUserId, taskData);
+        const { data: newTask, error: createError } = await supabase
+          .from('tasks')
+          .insert({
+            user_id: createUserId,
+            ...taskData
+          })
+          .select()
+          .single();
+        
+        if (createError) {
+          return res.status(500).json({ success: false, error: createError.message });
+        }
+        
         return res.status(201).json({ success: true, data: newTask });
 
       case 'PUT':
@@ -40,7 +61,14 @@ export default async function handler(req: any, res: any) {
         }
         
         if (completed !== undefined) {
-          await taskDatabaseService.updateTaskCompletion(taskId, completed);
+          const { error: updateError } = await supabase
+            .from('tasks')
+            .update({ completed })
+            .eq('id', taskId);
+          
+          if (updateError) {
+            return res.status(500).json({ success: false, error: updateError.message });
+          }
           
           // Award XP when task is completed (not when uncompleted)
           if (completed === true) {
@@ -48,7 +76,11 @@ export default async function handler(req: any, res: any) {
               const { userId } = auth();
               if (userId) {
                 // Get full task data for intelligent XP calculation
-                const taskData = await taskDatabaseService.getTaskById?.(taskId);
+                const { data: taskData } = await supabase
+                  .from('tasks')
+                  .select('*')
+                  .eq('id', taskId)
+                  .single();
                 
                 // Import intelligent XP services
                 const { IntelligentXPService, TaskImportanceDetector } = await import('@/services/intelligentXPService');
