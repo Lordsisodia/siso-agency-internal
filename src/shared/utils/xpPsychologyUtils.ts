@@ -167,7 +167,7 @@ export class XPPsychologyUtils {
     
     // Determine friction level based on cost
     let frictionLevel: 'low' | 'medium' | 'high' = 'low';
-    let shouldShowConfirmation = true;
+    const shouldShowConfirmation = true;
     
     if (percentageOfBalance >= 50) {
       frictionLevel = 'high';

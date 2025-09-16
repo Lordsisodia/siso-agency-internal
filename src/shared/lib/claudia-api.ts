@@ -277,8 +277,8 @@ const invoke = async <T>(cmd: string, args?: any): Promise<T> => {
         console.log(`Connecting to Claudia for ${cmd}:`, { projectPath, prompt, model, args });
         
         // Different endpoints for different commands
-        let endpoint = '/api/execute';
-        let body: any = {
+        const endpoint = '/api/execute';
+        const body: any = {
           command: cmd,
           projectPath: projectPath || process.cwd(),
           prompt,

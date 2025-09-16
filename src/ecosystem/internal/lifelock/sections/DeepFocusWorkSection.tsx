@@ -19,6 +19,7 @@ import {
 import { Card, CardContent, CardHeader } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
 import { Badge } from '@/shared/ui/badge';
+import { SharedTaskCard, TaskData } from '@/components/ui/SharedTaskCard';
 import { Progress } from '@/shared/ui/progress';
 import { FlowStateTimer } from '../ui/FlowStateTimer';
 import { FocusSessionTimer } from '../ui/FocusSessionTimer';
@@ -280,64 +281,22 @@ export const DeepFocusWorkSection: React.FC<TabProps> = React.memo(({
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
-            {priorityTasks.map((task, index) => (
-              <motion.div
+{priorityTasks.map((task, index) => (
+              <SharedTaskCard
                 key={task.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1 * index }}
-                className={`
-                  flex items-center justify-between p-3 rounded-lg border transition-all duration-200
-                  ${task.completed 
-                    ? 'bg-green-500/20 border-green-400/50 shadow-md shadow-green-500/10' 
-                    : 'bg-gray-800/40 border-gray-700/50 hover:border-red-400/30'
-                  }
-                `}
-              >
-                <div className="flex items-center space-x-3 flex-1">
-                  <button
-                    onClick={() => toggleTaskComplete(task.id)}
-                    className="p-1 hover:bg-gray-700/50 rounded transition-colors"
-                  >
-                    {task.completed ? (
-                      <CheckCircle2 className="h-5 w-5 text-green-400" />
-                    ) : (
-                      <Circle className="h-5 w-5 text-gray-500" />
-                    )}
-                  </button>
-                  
-                  <div className="flex-1 min-w-0">
-                    <h4 className={`
-                      font-medium transition-colors
-                      ${task.completed ? 'text-green-300 line-through' : 'text-white'}
-                    `}>
-                      {task.title}
-                    </h4>
-                    <div className="flex items-center space-x-3 mt-1">
-                      <Badge 
-                        size="sm"
-                        className={getPriorityColor(task.priority)}
-                      >
-                        {task.priority}
-                      </Badge>
-                      <span className="text-xs text-gray-400">
-                        {task.estimatedTime}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                
-                {!task.completed && !activeSession && (
-                  <Button
-                    size="sm"
-                    onClick={() => startFocusSession('flow', task.id)}
-                    className="bg-blue-500/20 border border-blue-400/50 text-blue-300 hover:bg-blue-500/30 text-xs"
-                  >
-                    <Play className="h-3 w-3 mr-1" />
-                    Focus
-                  </Button>
-                )}
-              </motion.div>
+                task={{
+                  id: task.id,
+                  title: task.title,
+                  priority: task.priority as 'high' | 'medium' | 'low',
+                  estimatedTime: task.estimatedTime,
+                  completed: task.completed
+                }}
+                index={index}
+                theme="deep-work"
+                onToggleComplete={(taskId) => toggleTaskComplete(taskId)}
+                onStartFocus={!activeSession ? (taskId) => startFocusSession('flow', taskId) : undefined}
+                showFocusButton={!activeSession}
+              />
             ))}
             
             {priorityTasks.length === 0 && (

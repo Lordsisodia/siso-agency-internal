@@ -58,7 +58,7 @@ export const TaskSelector: React.FC<TaskSelectorProps> = ({
 
   // Filter tasks based on search and filters
   useEffect(() => {
-    let filtered = availableTasks.filter(task => {
+    const filtered = availableTasks.filter(task => {
       // Exclude already imported tasks
       if (existingTaskIds.includes(task.id)) return false;
       

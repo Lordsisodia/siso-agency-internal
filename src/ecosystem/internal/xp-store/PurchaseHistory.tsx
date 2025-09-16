@@ -55,7 +55,7 @@ export const PurchaseHistory = ({ userId, className }: PurchaseHistoryProps) => 
   const filteredHistory = useMemo(() => {
     if (!purchaseHistory) return [];
 
-    let filtered = purchaseHistory.filter(purchase => {
+    const filtered = purchaseHistory.filter(purchase => {
       // Search filter
       if (searchTerm && !purchase.rewardName.toLowerCase().includes(searchTerm.toLowerCase())) {
         return false;

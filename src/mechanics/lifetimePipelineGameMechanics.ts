@@ -126,7 +126,7 @@ export class LifetimePipelineEngine {
   ): RewardPsychology {
     
     // Base reward calculation
-    let baseReward = Math.floor(immediateValue / 100); // $100 = 1 base XP
+    const baseReward = Math.floor(immediateValue / 100); // $100 = 1 base XP
     
     // Apply variable ratio reinforcement (random reward variance)
     const variabilityMultiplier = this.getVariableRatioMultiplier(gameState.dailyStreak);

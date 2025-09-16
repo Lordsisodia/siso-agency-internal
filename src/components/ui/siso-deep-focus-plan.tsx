@@ -25,6 +25,7 @@ import { TaskDetailModal } from "./task-detail-modal";
 import { CustomCalendar } from "./CustomCalendar";
 import { SubtaskItem } from "../tasks/SubtaskItem";
 import { useDeepWorkTasksSupabase, DeepWorkTask, DeepWorkSubtask } from "@/shared/hooks/useDeepWorkTasksSupabase";
+import { useLightWorkTasksSupabase, LightWorkTask, LightWorkSubtask } from "@/shared/hooks/useLightWorkTasksSupabase";
 
 // Type definitions - keeping original UI types
 interface Subtask {
@@ -56,11 +57,12 @@ interface Task {
 interface SisoDeepFocusPlanProps {
   onStartFocusSession?: (taskId: string, intensity: number) => void;
   selectedDate?: Date; // Add selectedDate prop for the hook
+  taskType?: 'deep-work' | 'light-work'; // NEW: Optional taskType prop
 }
 
 // Transform Supabase data to match original UI format
-function transformSupabaseToUITasks(deepWorkTasks: DeepWorkTask[]): Task[] {
-  return deepWorkTasks.map(task => ({
+function transformSupabaseToUITasks(tasks: DeepWorkTask[] | LightWorkTask[]): Task[] {
+  return tasks.map(task => ({
     id: task.id,
     title: task.title,
     description: task.description || "",
@@ -85,10 +87,38 @@ function transformSupabaseToUITasks(deepWorkTasks: DeepWorkTask[]): Task[] {
   }));
 }
 
-export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = new Date() }: SisoDeepFocusPlanProps) {
+export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = new Date(), taskType = 'deep-work' }: SisoDeepFocusPlanProps) {
+  // Theme configuration - using conditional complete class names for Tailwind
+  const isLightWork = taskType === 'light-work';
+  
+  const theme = {
+    title: isLightWork ? '🌱 Light Work Tasks' : '🧠 Deep Work Sessions',
+    subtitle: isLightWork ? 'Light Focus Work' : 'Deep Focus Work',
+    description: isLightWork 
+      ? 'Light work sessions require focused attention without deep cognitive load. These blocks are designed for your routine, administrative, and quick-turnaround work that creates steady progress.'
+      : 'Deep work sessions require sustained focus without interruption. These blocks are designed for your most important, cognitively demanding work that creates maximum value.',
+    rules: isLightWork 
+      ? [
+          '• Light interruptions allowed for urgent matters',
+          '• Phone on normal mode - check periodically',
+          '• Work in 1-2 hour focused blocks',
+          '• Quick breaks encouraged between tasks'
+        ]
+      : [
+          '• No interruptions or task switching allowed',
+          '• Phone on airplane mode or Do Not Disturb',
+          '• Work in 2-4 hour focused blocks',
+          '• Deep cognitive work only'
+        ]
+  };
   // Use the Supabase hook
+  // Conditional hook usage based on taskType
+  const deepWorkData = useDeepWorkTasksSupabase({ selectedDate });
+  const lightWorkData = useLightWorkTasksSupabase({ selectedDate });
+  
+  // Select the appropriate hook data based on taskType
   const { 
-    tasks: deepWorkTasks, 
+    tasks: rawTasks, 
     loading, 
     error,
     toggleTaskCompletion,
@@ -100,10 +130,10 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
     updateSubtaskDueDate,
     updateSubtaskTitle,
     updateTaskTitle
-  } = useDeepWorkTasksSupabase({ selectedDate });
+  } = taskType === 'light-work' ? lightWorkData : deepWorkData;
   
   // Transform Supabase data to UI format
-  const tasks = useMemo(() => transformSupabaseToUITasks(deepWorkTasks), [deepWorkTasks]);
+  const tasks = useMemo(() => transformSupabaseToUITasks(rawTasks), [rawTasks]);
   
   const [expandedTasks, setExpandedTasks] = useState<string[]>(["1", "2", "3"]); // Expand all by default
   const [expandedSubtasks, setExpandedSubtasks] = useState<{
@@ -396,11 +426,11 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
   if (loading) {
     return (
       <div className="text-white h-full overflow-auto">
-        <Card className="bg-blue-900/20 border-blue-700/50">
+        <Card className={isLightWork ? "bg-green-900/20 border-green-700/50" : "bg-blue-900/20 border-blue-700/50"}>
           <CardContent className="p-6 text-center">
             <div className="flex items-center justify-center space-x-2">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-400"></div>
-              <span className="text-blue-300">Loading Deep Work tasks...</span>
+              <div className={`animate-spin rounded-full h-6 w-6 border-b-2 ${isLightWork ? "border-green-400" : "border-blue-400"}`}></div>
+              <span className={isLightWork ? "text-green-300" : "text-blue-300"}>Loading {theme.subtitle} tasks...</span>
             </div>
           </CardContent>
         </Card>
@@ -412,7 +442,7 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
   if (error) {
     return (
       <div className="text-white h-full overflow-auto">
-        <Card className="bg-blue-900/20 border-blue-700/50">
+        <Card className={isLightWork ? "bg-green-900/20 border-green-700/50" : "bg-blue-900/20 border-blue-700/50"}>
           <CardContent className="p-6 text-center">
             <div className="text-red-400 mb-4">
               <CircleAlert className="h-8 w-8 mx-auto mb-2" />
@@ -421,7 +451,7 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
             <p className="text-sm text-gray-400 mb-4">{error}</p>
             <Button 
               onClick={() => window.location.reload()} 
-              className="bg-blue-600 hover:bg-blue-700"
+              className={isLightWork ? "bg-green-600 hover:bg-green-700" : "bg-blue-600 hover:bg-blue-700"}
             >
               Retry
             </Button>
@@ -433,32 +463,32 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
 
   return (
     <div className="text-white h-full overflow-auto">
-      <Card className="bg-blue-900/20 border-blue-700/50">
+      <Card className={isLightWork ? "bg-green-900/20 border-green-700/50" : "bg-blue-900/20 border-blue-700/50"}>
         <CardHeader className="p-4 sm:p-6">
-          <CardTitle className="flex items-center text-blue-400 text-base sm:text-lg">
+          <CardTitle className={`flex items-center ${isLightWork ? "text-green-400" : "text-blue-400"} text-base sm:text-lg`}>
             <Brain className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-            🧠 Deep Work Sessions
+            {theme.title}
           </CardTitle>
-          <div className="border-t border-blue-600/50 my-4"></div>
+          <div className="border-t border-{theme.colors.primary}-600/50 my-4"></div>
           <div className="space-y-4">
             <div>
-              <h3 className="font-bold text-blue-300 mb-2 text-sm sm:text-base">Flow State Protocol</h3>
+              <h3 className={`font-bold ${isLightWork ? "text-green-300" : "text-blue-300"} mb-2 text-sm sm:text-base`}>Flow State Protocol</h3>
               <p className="text-gray-200 text-xs sm:text-sm leading-relaxed">
                 Deep work sessions require sustained focus without interruption. These blocks are designed for your most 
                 important, cognitively demanding work that creates maximum value.
               </p>
             </div>
-            <div className="border-t border-blue-600/50 my-4"></div>
+            <div className={`border-t ${isLightWork ? "border-green-600/50" : "border-blue-600/50"} my-4`}></div>
             <div>
-              <h3 className="font-bold text-blue-300 mb-2 text-sm sm:text-base">Deep Work Rules</h3>
+              <h3 className={`font-bold ${isLightWork ? "text-green-300" : "text-blue-300"} mb-2 text-sm sm:text-base`}>{theme.subtitle} Rules</h3>
               <ul className="text-gray-200 text-xs sm:text-sm space-y-1">
-                <li>• No interruptions or task switching allowed.</li>
-                <li>• Phone on airplane mode or Do Not Disturb.</li>
-                <li>• Work in 2-4 hour focused blocks.</li>
+                {theme.rules.map((rule, index) => (
+                  <li key={index}>{rule}</li>
+                ))}
               </ul>
             </div>
           </div>
-          <div className="border-t border-blue-600/50 my-3 sm:my-4"></div>
+          <div className={`border-t ${isLightWork ? "border-green-600/50" : "border-blue-600/50"} my-3 sm:my-4`}></div>
         </CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
 
@@ -486,7 +516,7 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
                     variants={taskVariants}
                   >
                     {/* Task Container - Wraps entire task including subtasks */}
-                    <div className="group bg-blue-900/10 border border-blue-700/30 rounded-xl hover:bg-blue-900/15 hover:border-blue-600/40 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5">
+                    <div className={`group ${isLightWork ? "bg-green-900/10 border-green-700/30 hover:bg-green-900/15 hover:border-green-600/40 hover:shadow-green-500/5" : "bg-blue-900/10 border-blue-700/30 hover:bg-blue-900/15 hover:border-blue-600/40 hover:shadow-blue-500/5"} rounded-xl transition-all duration-300 hover:shadow-lg`}>
                       {/* Task Header */}
                       <div className="p-3 sm:p-4">
                         <div className="flex items-center gap-3">
@@ -511,7 +541,7 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
                                 {task.status === "completed" ? (
                                   <CheckCircle2 className="h-5 w-5 text-green-400" />
                                 ) : task.status === "in-progress" ? (
-                                  <CircleDotDashed className="h-5 w-5 text-blue-400" />
+                                  <CircleDotDashed className={`h-5 w-5 ${isLightWork ? "text-green-400" : "text-blue-400"}`} />
                                 ) : task.status === "need-help" ? (
                                   <CircleAlert className="h-5 w-5 text-yellow-400" />
                                 ) : (
@@ -531,12 +561,12 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
                                 onChange={(e) => handleMainTaskEditTitleChange(e.target.value)}
                                 onKeyDown={(e) => handleMainTaskKeyDown(e, task.id)}
                                 onBlur={() => handleMainTaskSaveEdit(task.id)}
-                                className="w-full bg-blue-900/40 text-blue-100 font-semibold text-sm sm:text-base px-2 py-1 rounded border border-blue-600/50 focus:border-blue-400 focus:outline-none"
+                                className="w-full bg-blue-900/40 {theme.colors.textLight} font-semibold text-sm sm:text-base px-2 py-1 rounded border border-{theme.colors.primary}-600/50 focus:border-blue-400 focus:outline-none"
                                 autoFocus
                               />
                             ) : (
                               <h4 
-                                className="text-blue-100 font-semibold text-sm sm:text-base cursor-pointer hover:text-blue-50 transition-colors truncate"
+                                className="{theme.colors.textLight} font-semibold text-sm sm:text-base cursor-pointer hover:text-blue-50 transition-colors truncate"
                                 onClick={() => handleMainTaskStartEditing(task.id, task.title)}
                               >
                                 {task.title}
@@ -555,16 +585,16 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
                               whileTap={{ scale: 0.9 }}
                             >
                               {isExpanded ? (
-                                <ChevronDown className="h-4 w-4 text-blue-300" />
+                                <ChevronDown className="h-4 w-4 {theme.colors.textSecondary}" />
                               ) : (
-                                <ChevronRight className="h-4 w-4 text-blue-300" />
+                                <ChevronRight className="h-4 w-4 {theme.colors.textSecondary}" />
                               )}
                             </motion.button>
                           </div>
                         </div>
                         
                         {/* Top divider below main task */}
-                        <div className="border-t border-blue-600/50 mt-3"></div>
+                        <div className="border-t border-{theme.colors.primary}-600/50 mt-3"></div>
                       </div>
 
                       {/* Subtasks */}
@@ -653,14 +683,14 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
                                 onKeyDown={(e) => handleNewSubtaskKeyDown(e, task.id)}
                                 onBlur={() => handleSaveNewSubtask(task.id)}
                                 placeholder="Enter subtask title..."
-                                className="w-full bg-blue-900/40 text-blue-100 text-xs px-3 py-2 rounded border border-blue-600/50 focus:border-blue-400 focus:outline-none"
+                                className="w-full bg-blue-900/40 {theme.colors.textLight} text-xs px-3 py-2 rounded border border-{theme.colors.primary}-600/50 focus:border-blue-400 focus:outline-none"
                                 autoFocus
                               />
                             ) : (
                               <Button 
                                 variant="ghost" 
                                 size="sm" 
-                                className="w-full text-blue-300 hover:text-blue-200 hover:bg-blue-900/20 transition-all duration-200 text-xs border border-blue-700/30 hover:border-blue-600/40"
+                                className="w-full {theme.colors.textSecondary} hover:text-blue-200 hover:bg-blue-900/20 transition-all duration-200 text-xs border border-blue-700/30 hover:border-blue-600/40"
                                 onClick={() => handleStartAddingSubtask(task.id)}
                               >
                                 <Plus className="h-3 w-3 mr-1" />
@@ -670,14 +700,14 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
                           </div>
                           
                           {/* Bottom divider */}
-                          <div className="border-t border-blue-600/50 mt-3"></div>
+                          <div className="border-t border-{theme.colors.primary}-600/50 mt-3"></div>
                           
                           {/* Progress Summary at bottom with action buttons */}
                           {task.subtasks.length > 0 && (
                             <div className="mt-3 pb-2 px-3">
                               <div className="flex items-center justify-between">
                                 <CircleAlert 
-                                  className="h-4 w-4 text-blue-300 hover:text-blue-200 cursor-pointer transition-colors" 
+                                  className="h-4 w-4 {theme.colors.textSecondary} hover:text-blue-200 cursor-pointer transition-colors" 
                                   onClick={() => openTaskDetail(task)}
                                   title="Task Info"
                                 />
@@ -685,7 +715,7 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
                                   {task.subtasks.filter(s => s.status === "completed").length} of {task.subtasks.length} subtasks completed
                                 </div>
                                 <CircleX 
-                                  className="h-4 w-4 text-blue-300 hover:text-red-300 cursor-pointer transition-colors" 
+                                  className="h-4 w-4 {theme.colors.textSecondary} hover:text-red-300 cursor-pointer transition-colors" 
                                   onClick={() => {
                                     if (window.confirm('Delete this task?')) {
                                       deleteTask(task.id);
@@ -706,7 +736,7 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
                       <div className="px-3 pb-3">
                         <div className="flex items-center justify-between">
                           <CircleAlert 
-                            className="h-4 w-4 text-blue-300 hover:text-blue-200 cursor-pointer transition-colors" 
+                            className="h-4 w-4 {theme.colors.textSecondary} hover:text-blue-200 cursor-pointer transition-colors" 
                             onClick={() => openTaskDetail(task)}
                             title="Task Info"
                           />
@@ -714,7 +744,7 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
                             {task.subtasks.filter(s => s.status === "completed").length} of {task.subtasks.length} subtasks completed
                           </div>
                           <CircleX 
-                            className="h-4 w-4 text-blue-300 hover:text-red-300 cursor-pointer transition-colors" 
+                            className="h-4 w-4 {theme.colors.textSecondary} hover:text-red-300 cursor-pointer transition-colors" 
                             onClick={() => {
                               if (window.confirm('Delete this task?')) {
                                 deleteTask(task.id);
@@ -736,7 +766,7 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="w-full text-blue-300 hover:text-blue-200 hover:bg-blue-900/20 transition-all duration-200 text-sm border border-blue-700/30 hover:border-blue-600/40"
+                className="w-full {theme.colors.textSecondary} hover:text-blue-200 hover:bg-blue-900/20 transition-all duration-200 text-sm border border-blue-700/30 hover:border-blue-600/40"
                 onClick={async () => {
                   try {
                     // Create task with default title

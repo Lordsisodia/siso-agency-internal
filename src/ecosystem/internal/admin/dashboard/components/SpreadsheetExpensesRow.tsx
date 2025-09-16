@@ -30,8 +30,8 @@ export function SpreadsheetExpensesRow({
   onUpdateExpense
 }: SpreadsheetExpensesRowProps) {
   // Freeze first (description), second (category) columns
-  let stickyStyleDesc = { left: 48 };
-  let stickyStyleCat = { left: 220 };
+  const stickyStyleDesc = { left: 48 };
+  const stickyStyleCat = { left: 220 };
 
   return (
     <TableRow

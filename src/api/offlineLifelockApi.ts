@@ -125,7 +125,7 @@ class OfflineLifeLockApi {
       if (task.xp_reward) return task;
       
       // Calculate XP based on task type and properties
-      let baseXP = task.focus_blocks ? 25 : 10; // Deep work vs light work
+      const baseXP = task.focus_blocks ? 25 : 10; // Deep work vs light work
       let bonusXP = 0;
 
       // Difficulty bonus (30% for HIGH priority)

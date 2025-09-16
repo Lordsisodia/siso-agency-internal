@@ -55,7 +55,7 @@ export default async function handler(req: any, res: any) {
                 const { GamificationEngine } = await import('@/services/gamificationSystem');
                 
                 // Get or analyze task importance if not already done
-                let taskAnalysis = taskData?.aiAnalyzed ? {
+                const taskAnalysis = taskData?.aiAnalyzed ? {
                   priority: taskData.priority,
                   complexity: taskData.complexity || 5,
                   learningValue: taskData.learningValue || 5,

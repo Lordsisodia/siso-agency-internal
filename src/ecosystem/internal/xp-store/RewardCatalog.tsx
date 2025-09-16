@@ -49,7 +49,7 @@ export const RewardCatalog = ({ userId, onPurchase, className }: RewardCatalogPr
   const filteredRewards = useMemo(() => {
     if (!rewards) return [];
 
-    let filtered = rewards.filter(reward => {
+    const filtered = rewards.filter(reward => {
       // Search filter
       if (searchTerm && !reward.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
           !reward.description.toLowerCase().includes(searchTerm.toLowerCase())) {

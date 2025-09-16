@@ -31,8 +31,8 @@ export function SpreadsheetExpenseRow({
 }: SpreadsheetExpenseRowProps) {
   // Notion/Airtable-like: subtle row highlight, custom border for each row ("eline")
   // Freeze first two columns
-  let stickyStyleDesc = { left: 48 };
-  let stickyStyleCat = { left: 220 };
+  const stickyStyleDesc = { left: 48 };
+  const stickyStyleCat = { left: 220 };
 
   // Check if expense is due within the next few days
   const isDueSoon = () => {

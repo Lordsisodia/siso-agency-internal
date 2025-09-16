@@ -815,7 +815,7 @@ export class BehaviorDesignUtilities {
     
     // Calculate optimal timing
     const now = new Date();
-    let timing = new Date(now.getTime() + 5 * 60 * 1000); // Default: 5 minutes from now
+    const timing = new Date(now.getTime() + 5 * 60 * 1000); // Default: 5 minutes from now
     
     if (behaviorTrigger.trigger.timing === 'scheduled' && user.preferredTime) {
       // TODO: Parse preferred time and set accordingly

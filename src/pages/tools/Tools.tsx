@@ -116,7 +116,7 @@ export default function Tools() {
   const filteredTools = useMemo(() => {
     if (!tools) return [];
     
-    let filtered = tools.filter(tool => {
+    const filtered = tools.filter(tool => {
       const matchesSearch = !searchQuery || 
         tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         tool.description?.toLowerCase().includes(searchQuery.toLowerCase());

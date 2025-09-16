@@ -11,8 +11,8 @@ export class MarkdownParser {
   static parseToBlocks(text: string): ParsedContent {
     const lines = text.split('\n');
     const blocks: NotionBlock[] = [];
-    let currentListLevel = 0;
-    let currentListType: 'bulleted_list' | 'numbered_list' | null = null;
+    const currentListLevel = 0;
+    const currentListType: 'bulleted_list' | 'numbered_list' | null = null;
 
     for (const line of lines) {
       const trimmedLine = line.trim();

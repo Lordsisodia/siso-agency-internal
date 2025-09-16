@@ -164,7 +164,7 @@ export const useExceptionalAccessibility = (options: ExceptionalAccessibilityOpt
 
   // Focus management and tracking
   const manageFocus = useCallback(() => {
-    let focusTraversalTimes: number[] = [];
+    const focusTraversalTimes: number[] = [];
 
     const handleFocusIn = (e: FocusEvent) => {
       const now = performance.now();

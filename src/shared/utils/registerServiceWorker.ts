@@ -3,7 +3,7 @@ export async function registerServiceWorker() {
     try {
       // Unregister any existing service workers to prevent issues
       const registrations = await navigator.serviceWorker.getRegistrations();
-      for (let registration of registrations) {
+      for (const registration of registrations) {
         await registration.unregister();
       }
       console.log('Service Worker disabled for debugging');

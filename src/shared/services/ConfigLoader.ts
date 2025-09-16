@@ -119,7 +119,7 @@ export class ConfigLoader {
       source: 'registry'
     };
 
-    let loadState: TabLoadState = {
+    const loadState: TabLoadState = {
       isLoading: true,
       error: null,
       usingFallback: false,

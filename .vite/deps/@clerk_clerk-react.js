@@ -2084,7 +2084,7 @@ var infinite = (useSWRNext) => (getKey, fn, config) => {
     return data;
   }, config);
   const mutate2 = (0, import_react4.useCallback)(
-    // eslint-disable-next-line func-names
+     
     function(data, opts) {
       const options = typeof opts === "boolean" ? {
         revalidate: opts
