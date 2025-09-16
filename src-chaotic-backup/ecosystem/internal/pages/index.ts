@@ -1,0 +1,14 @@
+export { default as AdminDashboard } from './AdminDashboard';
+export { default as AdminClients } from './AdminClients';
+export { default as AdminTasks } from './AdminTasks';
+export { default as AdminPlans } from './AdminPlans';
+export { default as AdminFeedback } from './AdminFeedback';
+export { default as AdminOutreach } from './AdminOutreach';
+export { default as AdminTemplates } from './AdminTemplates';
+export { default as AdminTeams } from './AdminTeams';
+export { default as AdminPayments } from './AdminPayments';
+export { default as AdminDailyPlanner } from './AdminDailyPlanner';
+export { default as AdminSettings } from './AdminSettings';
+export { default as AdminPrompts } from './AdminPrompts';
+export { default as AdminWireframes } from './AdminWireframes';
+export { default as AdminUserFlow } from './AdminUserFlow';
