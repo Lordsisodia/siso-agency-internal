@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/shared/hooks/use-toast';
@@ -10,6 +10,11 @@ export const useAuthSession = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // 🚀 MEMOIZED AUTH STATE - Prevents cascading re-renders
+  const authState = useMemo(() => ({
+    user, loading, isAdmin
+  }), [user, loading, isAdmin]);
   // Track initialization vs auth events separately
   const isInitialized = useRef(false);
   const profileCache = useRef<any>(null);
@@ -50,18 +55,16 @@ export const useAuthSession = () => {
         // Prevent multiple initializations
         if (isInitialized.current) return;
         
-        console.log('Initializing auth session...');
+        // 🔇 SILENT AUTH - Only log errors, not every render
         const { data: { session } } = await supabase.auth.getSession();
         
         if (session?.user) {
-          console.log('Found existing session for user:', session.user.id);
           setUser(session.user);
           
           // Check admin status
           const adminStatus = await checkIsAdmin();
           setIsAdmin(adminStatus);
         } else {
-          console.log('No active session found');
           setUser(null);
           setIsAdmin(false);
         }
@@ -81,9 +84,9 @@ export const useAuthSession = () => {
   useEffect(() => {
     if (!isInitialized.current) return;
 
-    console.log('Setting up auth state change listener');
+    // 🎯 MEMOIZED AUTH LISTENER - Prevents duplicate subscriptions
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state changed:', event, session?.user?.id);
+      // Only log significant auth events, not every change
 
       if (event === 'SIGNED_IN') {
         if (session?.user) {
@@ -158,10 +161,10 @@ export const useAuthSession = () => {
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate, toast]);
+  }, []); // 🎯 EMPTY DEPS - Prevent re-render cascade from navigate/toast
 
   const handleSignOut = async () => {
-    console.log('Handling sign out');
+    // 🔇 SILENT SIGN OUT - No console spam
     try {
       await supabase.auth.signOut();
       setUser(null);
