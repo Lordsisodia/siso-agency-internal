@@ -717,8 +717,8 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
                           {/* Bottom divider */}
                           <div className={`border-t ${isLightWork ? "border-green-600/50" : "border-blue-600/50"} mt-3`}></div>
                           
-                          {/* Progress Summary at bottom with action buttons */}
-                          {task.subtasks.length > 0 && (
+                          {/* Progress Summary at bottom with action buttons - Always show */}
+                          {(
                             <div className="mt-3 pb-2 px-3">
                               <div className="flex items-center justify-between">
                                 <div></div>
@@ -732,9 +732,7 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
                                 <button 
                                   className="text-gray-400 hover:text-red-400 cursor-pointer transition-colors text-lg font-bold leading-none"
                                   onClick={() => {
-                                    if (window.confirm('Delete this task?')) {
-                                      deleteTask(task.id);
-                                    }
+                                    deleteTask(task.id);
                                   }}
                                   title="Delete Task"
                                 >
@@ -748,8 +746,8 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
                       )}
                     </AnimatePresence>
                     
-                    {/* Progress Summary when collapsed - Always visible when there are subtasks */}
-                    {!isExpanded && task.subtasks.length > 0 && (
+                    {/* Progress Summary when collapsed - Always visible */}
+                    {!isExpanded && (
                       <div className="px-3 pb-3">
                         <div className="flex items-center justify-between">
                           <div></div>
@@ -763,9 +761,7 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
                           <button 
                             className="text-gray-400 hover:text-red-400 cursor-pointer transition-colors text-lg font-bold leading-none" 
                             onClick={() => {
-                              if (window.confirm('Delete this task?')) {
-                                deleteTask(task.id);
-                              }
+                              deleteTask(task.id);
                             }}
                             title="Delete Task"
                           >
@@ -788,9 +784,10 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
                 className={`w-full ${isLightWork ? "text-green-300 hover:text-green-200 hover:bg-green-900/20 border-green-700/30 hover:border-green-600/40" : "text-blue-300 hover:text-blue-200 hover:bg-blue-900/20 border-blue-700/30 hover:border-blue-600/40"} transition-all duration-200 text-sm border`}
                 onClick={async () => {
                   try {
-                    // Create task with default title
+                    // Create task with appropriate title based on task type
+                    const taskTitle = isLightWork ? 'New Light Work Task' : 'New Deep Work Task';
                     const newTask = await createTask({ 
-                      title: 'New Deep Work Task', 
+                      title: taskTitle, 
                       priority: 'HIGH' 
                     });
                     
