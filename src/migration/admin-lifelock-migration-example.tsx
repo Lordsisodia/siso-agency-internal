@@ -171,7 +171,7 @@ export const ADMIN_LIFELOCK_MIGRATION_GUIDE = `
 ## Step 1: Add Feature Flag Imports
 \`\`\`typescript
 import { isFeatureEnabled } from '@/migration/feature-flags';
-import { SafeTabContentRenderer } from '@/refactored/components/TabContentRenderer';
+import { SafeTabContentRenderer } from '@/components/ui/TabContentRenderer';
 import { TabLayoutProps } from '@/refactored/data/admin-lifelock-tabs';
 \`\`\`
 

@@ -194,9 +194,9 @@ const data = useRefactoredLifeLockData(selectedDate);
 ### Option 2: Focused Hook Usage (Best Performance)
 \`\`\`typescript
 // Use only what you need:
-import { useTaskData } from '@/refactored/hooks/useTaskData';
-import { useTaskActions } from '@/refactored/hooks/useTaskActions';
-import { useVoiceProcessing } from '@/refactored/hooks/useVoiceProcessing';
+import { useTaskData } from '@/features/tasks/hooks/useTaskData';
+import { useTaskActions } from '@/features/tasks/hooks/useTaskActions';
+import { useVoiceProcessing } from '@/hooks/useVoiceProcessing';
 
 // Component only re-renders when task data changes
 const { todayCard, weekCards, refresh } = useTaskData(selectedDate);

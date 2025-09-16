@@ -5,7 +5,7 @@
 
 import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { calculateTaskProgress } from '@/refactored/utils/taskCardUtils';
+import { calculateTaskProgress } from '@/features/tasks/utils/taskCardUtils';
 import { isFeatureEnabled } from '@/migration/feature-flags';
 import { 
   Task, 

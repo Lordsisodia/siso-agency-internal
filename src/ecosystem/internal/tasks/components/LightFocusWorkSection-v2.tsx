@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import { UnifiedWorkSection } from '@/refactored/components/UnifiedWorkSection';
+import { UnifiedWorkSection } from '@/features/tasks/components/UnifiedWorkSection';
 import { TaskHeader } from '@/ecosystem/internal/admin/dashboard/components/TaskHeader';
 import { useLightWorkTasksSupabase } from '@/shared/hooks/useLightWorkTasksSupabase';
 

@@ -11,9 +11,9 @@ import { PageLoader } from '@/shared/ui/PageLoader';
 import { logger } from '@/shared/utils/logger';
 
 // 🆕 NEW: Multi-tenant components - ADDITIVE ONLY
-import { LandingPageRouter } from '@/tenants/shared/LandingPageRouter';
-import { ClientPortal } from '@/tenants/client/ClientPortal';
-import { PartnershipPortal } from '@/tenants/partnership/PartnershipPortal';
+import { LandingPageRouter } from '@/features/multi-tenant/shared/LandingPageRouter';
+import { ClientPortal } from '@/features/multi-tenant/client/ClientPortal';
+import { PartnershipPortal } from '@/features/multi-tenant/partnership/PartnershipPortal';
 
 // ✅ EXISTING: All your current imports - UNCHANGED
 // Critical pages loaded immediately (landing, auth, home)

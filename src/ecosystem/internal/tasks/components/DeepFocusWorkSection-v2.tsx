@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import { UnifiedWorkSection } from '@/refactored/components/UnifiedWorkSection';
+import { UnifiedWorkSection } from '@/features/tasks/components/UnifiedWorkSection';
 import { useDeepWorkTasksSupabase } from '@/shared/hooks/useDeepWorkTasksSupabase';
 
 interface DeepFocusWorkSectionProps {

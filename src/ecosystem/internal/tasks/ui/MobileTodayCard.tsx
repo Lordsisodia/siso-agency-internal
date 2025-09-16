@@ -12,7 +12,7 @@
  */
 
 import React from 'react';
-import { UnifiedTaskCard, TaskCardTask } from '@/refactored/components/UnifiedTaskCard';
+import { UnifiedTaskCard, TaskCardTask } from '@/features/tasks/components/UnifiedTaskCard';
 import { useImplementation } from '@/migration/feature-flags';
 import { theme } from '@/styles/theme';
 import { cn } from '@/shared/lib/utils';

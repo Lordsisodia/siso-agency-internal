@@ -12,7 +12,7 @@ import { useTaskValidation } from '@/hooks/useTaskValidation';
 
 
 // Refactored components and hooks
-import { SafeTabContentRenderer } from '@/refactored/components/TabContentRenderer';
+import { SafeTabContentRenderer } from '@/components/ui/TabContentRenderer';
 import { useDateNavigation, useModalHandlers } from './hooks';
 
 // New TabRegistry integration
