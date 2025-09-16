@@ -61,14 +61,7 @@ export const TaskContainer: React.FC<TaskContainerProps> = ({
       ? window.matchMedia('(prefers-reduced-motion: reduce)').matches 
       : false;
 
-  // Load tasks from database on mount
-  useEffect(() => {
-    if (useDatabase) {
-      loadTasksFromDatabase();
-    }
-  }, [useDatabase, workType]);
-
-  const loadTasksFromDatabase = async () => {
+  const loadTasksFromDatabase = useCallback(async () => {
     setLoading(true);
     try {
       const dbTasks = workType === 'light_work' 
@@ -87,7 +80,14 @@ export const TaskContainer: React.FC<TaskContainerProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [workType, initialTasks]);
+
+  // Load tasks from database on mount
+  useEffect(() => {
+    if (useDatabase) {
+      loadTasksFromDatabase();
+    }
+  }, [useDatabase, loadTasksFromDatabase]);
 
   // Toggle task expansion
   const handleToggleExpansion = useCallback((taskId: string) => {
