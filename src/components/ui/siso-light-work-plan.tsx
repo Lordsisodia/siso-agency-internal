@@ -23,7 +23,7 @@ import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
 import { TaskDetailModal } from "./task-detail-modal";
 import { CustomCalendar } from "./CustomCalendar";
-import { SubtaskItem } from "../tasks/SubtaskItem";
+import { SubtaskRow } from "./SubtaskRow";
 import { useLightWorkTasksSupabase, LightWorkTask, LightWorkSubtask } from "@/shared/hooks/useLightWorkTasksSupabase";
 
 // Type definitions - keeping original UI types
@@ -85,7 +85,7 @@ function transformSupabaseToUITasks(lightWorkTasks: LightWorkTask[]): Task[] {
   }));
 }
 
-export default function SisoLightWorkPlan({ onStartFocusSession, selectedDate = new Date() }: SisoLightWorkPlanProps) {
+export default function SisoLightWorkPlanV2({ onStartFocusSession, selectedDate = new Date() }: SisoLightWorkPlanProps) {
   // Use the Supabase hook
   const { 
     tasks: lightWorkTasks, 
@@ -531,7 +531,7 @@ export default function SisoLightWorkPlan({ onStartFocusSession, selectedDate = 
                                 onChange={(e) => handleMainTaskEditTitleChange(e.target.value)}
                                 onKeyDown={(e) => handleMainTaskKeyDown(e, task.id)}
                                 onBlur={() => handleMainTaskSaveEdit(task.id)}
-                                className="w-full bg-green-900/40 text-green-100 font-semibold text-sm sm:text-base px-2 py-1 rounded border border-green-600/50 focus:border-green-400 focus:outline-none"
+                                className="w-full bg-green-900/40 text-green-100 font-semibold text-sm sm:text-base px-2 py-1 rounded border border-green-600/50 focus:border-orange-400 focus:outline-none"
                                 autoFocus
                               />
                             ) : (
@@ -591,52 +591,54 @@ export default function SisoLightWorkPlan({ onStartFocusSession, selectedDate = 
                                   animate="visible"
                                   layout
                                 >
-                                  <SubtaskItem
+                                  <SubtaskRow
                                     subtask={{
                                       id: subtask.id,
                                       title: subtask.title,
                                       completed: subtask.status === "completed",
-                                      dueDate: subtask.dueDate,
-                                      description: subtask.description,
+                                      status: subtask.status,
                                       priority: subtask.priority,
                                       estimatedTime: subtask.estimatedTime,
-                                      tools: subtask.tools
+                                      description: subtask.description,
+                                      tools: subtask.tools,
+                                      dueDate: subtask.dueDate
                                     }}
                                     taskId={task.id}
-                                    themeConfig={themeConfig}
+                                    onToggle={(subtaskId) => handleToggleSubtaskStatus(task.id, subtaskId)}
+                                    onEdit={(subtaskId, newTitle) => {
+                                      if (editingSubtask === subtask.id) {
+                                        handleSubtaskEditTitleChange(newTitle);
+                                      } else {
+                                        handleSubtaskStartEditing(subtaskId, subtask.title);
+                                      }
+                                    }}
+                                    onExpand={(subtaskId) => toggleSubtaskExpansion(task.id, subtaskId)}
                                     isEditing={editingSubtask === subtask.id}
-                                    editTitle={editSubtaskTitle}
-                                    calendarSubtaskId={calendarSubtaskId}
+                                    editValue={editSubtaskTitle}
                                     isExpanded={expandedSubtasks[`${task.id}-${subtask.id}`] || false}
-                                    onToggleCompletion={handleToggleSubtaskStatus}
-                                    onToggleExpansion={toggleSubtaskExpansion}
-                                    onStartEditing={handleSubtaskStartEditing}
-                                    onEditTitleChange={handleSubtaskEditTitleChange}
-                                    onSaveEdit={handleSubtaskSaveEdit}
-                                    onKeyDown={handleSubtaskKeyDown}
-                                    onCalendarToggle={handleCalendarToggle}
-                                    onDeleteSubtask={handleDeleteSubtask}
-                                  >
-                                    {/* Calendar popup */}
-                                    {calendarSubtaskId === subtask.id && (
-                                      <div className="calendar-popup fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 bg-gray-800 border border-gray-600 rounded-lg shadow-xl p-3 min-w-[280px] max-w-[90vw] max-h-[90vh] overflow-auto">
-                                        <CustomCalendar
-                                          subtask={subtask}
-                                          onDateSelect={async (date) => {
-                                            try {
-                                              await handleUpdateSubtaskDueDate(task.id, subtask.id, date);
-                                              // Only close calendar if update was successful
-                                              setCalendarSubtaskId(null);
-                                            } catch (error) {
-                                              console.error('Failed to update due date:', error);
-                                              // Keep calendar open so user can try again
-                                            }
-                                          }}
-                                          onClose={() => setCalendarSubtaskId(null)}
-                                        />
-                                      </div>
-                                    )}
-                                  </SubtaskItem>
+                                    theme="light-work"
+                                    size="normal"
+                                    showMetadata={true}
+                                  />
+                                  {/* Calendar popup - moved outside SubtaskRow */}
+                                  {calendarSubtaskId === subtask.id && (
+                                    <div className="calendar-popup fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 bg-gray-800 border border-gray-600 rounded-lg shadow-xl p-3 min-w-[280px] max-w-[90vw] max-h-[90vh] overflow-auto">
+                                      <CustomCalendar
+                                        subtask={subtask}
+                                        onDateSelect={async (date) => {
+                                          try {
+                                            await handleUpdateSubtaskDueDate(task.id, subtask.id, date);
+                                            // Only close calendar if update was successful
+                                            setCalendarSubtaskId(null);
+                                          } catch (error) {
+                                            console.error('Failed to update due date:', error);
+                                            // Keep calendar open so user can try again
+                                          }
+                                        }}
+                                        onClose={() => setCalendarSubtaskId(null)}
+                                      />
+                                    </div>
+                                  )}
                                 </motion.li>
                                 );
                               })}
@@ -653,7 +655,7 @@ export default function SisoLightWorkPlan({ onStartFocusSession, selectedDate = 
                                 onKeyDown={(e) => handleNewSubtaskKeyDown(e, task.id)}
                                 onBlur={() => handleSaveNewSubtask(task.id)}
                                 placeholder="Enter subtask title..."
-                                className="w-full bg-green-900/40 text-green-100 text-xs px-3 py-2 rounded border border-green-600/50 focus:border-green-400 focus:outline-none"
+                                className="w-full bg-green-900/40 text-green-100 text-xs px-3 py-2 rounded border border-green-600/50 focus:border-orange-400 focus:outline-none"
                                 autoFocus
                               />
                             ) : (
@@ -790,6 +792,3 @@ export default function SisoLightWorkPlan({ onStartFocusSession, selectedDate = 
     </div>
   );
 }
-
-// Export the component for testing
-export { SisoLightWorkPlan };
