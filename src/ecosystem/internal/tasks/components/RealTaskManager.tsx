@@ -207,12 +207,12 @@ export function RealTaskManager({
     
     // Check for actual completion states
     checkActualCompletionStates();
-  }, []);
+  }, [checkActualCompletionStates]);
 
   // Refresh completion states when hasProjects changes
   useEffect(() => {
     checkActualCompletionStates();
-  }, [hasProjects]);
+  }, [hasProjects, checkActualCompletionStates]);
 
   // Check if tasks are actually completed based on real data
   const checkActualCompletionStates = () => {
