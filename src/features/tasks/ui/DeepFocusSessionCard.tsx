@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Card, CardContent, CardHeader } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
 import { Badge } from '@/shared/ui/badge';
@@ -84,6 +84,25 @@ export const DeepFocusSessionCard: React.FC<DeepFocusSessionCardProps> = ({
     cyclesBeforeLongBreak: 4
   };
 
+  const handleTimerComplete = useCallback(() => {
+    setIsRunning(false);
+    // Play completion sound
+    if (audioRef.current) {
+      audioRef.current.play().catch(() => {}); // Ignore audio errors
+    }
+    
+    if (session) {
+      if (session.status === 'active') {
+        // Work session completed, suggest break
+        setSession(prev => prev ? { ...prev, status: 'break' } : null);
+      } else if (session.status === 'break') {
+        // Break completed, return to work
+        setSession(prev => prev ? { ...prev, status: 'active' } : null);
+        setTimeRemaining(pomodoroSettings.work * 60);
+      }
+    }
+  }, [session, pomodoroSettings.work]);
+
   // Timer logic
   useEffect(() => {
     if (isRunning && session && timeRemaining > 0) {
@@ -108,26 +127,7 @@ export const DeepFocusSessionCard: React.FC<DeepFocusSessionCardProps> = ({
         clearInterval(intervalRef.current);
       }
     };
-  }, [isRunning, session, timeRemaining]);
-
-  const handleTimerComplete = () => {
-    setIsRunning(false);
-    // Play completion sound
-    if (audioRef.current) {
-      audioRef.current.play().catch(() => {}); // Ignore audio errors
-    }
-    
-    if (session) {
-      if (session.status === 'active') {
-        // Work session completed, suggest break
-        setSession(prev => prev ? { ...prev, status: 'break' } : null);
-      } else if (session.status === 'break') {
-        // Break completed, return to work
-        setSession(prev => prev ? { ...prev, status: 'active' } : null);
-        setTimeRemaining(pomodoroSettings.work * 60);
-      }
-    }
-  };
+  }, [isRunning, session, timeRemaining, handleTimerComplete]);
 
   const startSession = (duration: number, type: 'deep_focus' | 'pomodoro' | 'timeboxing' = 'deep_focus') => {
     const newSession: DeepFocusSession = {
