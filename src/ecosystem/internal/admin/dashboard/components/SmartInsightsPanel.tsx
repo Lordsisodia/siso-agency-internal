@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
 import { Badge } from '@/shared/ui/badge';
@@ -44,9 +44,9 @@ export const SmartInsightsPanel: React.FC<SmartInsightsPanelProps> = ({ classNam
     // Refresh insights every 2 minutes
     const interval = setInterval(loadInsights, 120000);
     return () => clearInterval(interval);
-  }, []);
+  }, [loadInsights]);
 
-  const loadInsights = async () => {
+  const loadInsights = useCallback(async () => {
     setIsLoading(true);
     try {
       const { intelligentAgentCore } = await import('@/services/intelligentAgentCore');
@@ -72,7 +72,7 @@ export const SmartInsightsPanel: React.FC<SmartInsightsPanelProps> = ({ classNam
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   const generateMockInsights = (): SmartInsight[] => {
     return [
