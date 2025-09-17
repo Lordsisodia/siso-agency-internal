@@ -111,9 +111,7 @@ const tabs: Tab[] = [
   }
 ];
 
-interface DayTabContainerProps extends TabProps {}
-
-export const DayTabContainer: React.FC<DayTabContainerProps> = (props) => {
+export const DayTabContainer: React.FC<TabProps> = (props) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const isMobile = useIsMobile();

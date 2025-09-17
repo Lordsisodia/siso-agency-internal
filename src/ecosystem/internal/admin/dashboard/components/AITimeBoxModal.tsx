@@ -3,7 +3,7 @@
  * Complete 24-hour calendar view with smart task scheduling
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/ui/dialog';
 import { Button } from '@/shared/ui/button';
 import { Badge } from '@/shared/ui/badge';
@@ -148,7 +148,7 @@ export const AITimeBoxModal: React.FC<AITimeBoxModalProps> = ({
   });
 
   // Generate optimal schedule
-  const generateSchedule = async () => {
+  const generateSchedule = useCallback(async () => {
     setIsGenerating(true);
     
     try {
@@ -179,7 +179,7 @@ export const AITimeBoxModal: React.FC<AITimeBoxModalProps> = ({
     } finally {
       setIsGenerating(false);
     }
-  };
+  }, [date, preferences, morningTasks, deepTasks, lightTasks, workoutTasks, healthTasks]);
 
   // Handle block completion
   const handleBlockComplete = (blockId: string) => {
