@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select';
@@ -83,7 +83,7 @@ export const TaskSelector: React.FC<TaskSelectorProps> = ({
     setFilteredTasks(filtered);
   }, [availableTasks, searchQuery, categoryFilter, priorityFilter, workType, existingTaskIds]);
 
-  const loadAvailableTasks = async () => {
+  const loadAvailableTasks = useCallback(async () => {
     setIsLoading(true);
     try {
       // Get all tasks for the user (not just today's)
@@ -106,7 +106,7 @@ export const TaskSelector: React.FC<TaskSelectorProps> = ({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [currentDate, workType]);
 
   const handleTaskToggle = (taskId: string) => {
     setSelectedTasks(prev => 

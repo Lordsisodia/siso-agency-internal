@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/shared/ui/button';
 import { format } from 'date-fns';
 import { Sparkles, Settings, RefreshCw } from 'lucide-react';
@@ -66,7 +66,7 @@ export function TimeBlockView({
     generateOptimalSchedule();
   }, [currentDate, morningTasks, deepTasks, lightTasks, workoutTasks, healthTasks, generateOptimalSchedule]);
 
-  const generateOptimalSchedule = async () => {
+  const generateOptimalSchedule = useCallback(async () => {
     if (isGeneratingSchedule) return;
     
     setIsGeneratingSchedule(true);
@@ -87,7 +87,7 @@ export function TimeBlockView({
     } finally {
       setIsGeneratingSchedule(false);
     }
-  };
+  }, [currentDate, defaultPreferences, morningTasks, deepTasks, lightTasks, workoutTasks, healthTasks, isGeneratingSchedule]);
 
   const handleBlockComplete = (blockId: string) => {
     if (!schedule) return;
