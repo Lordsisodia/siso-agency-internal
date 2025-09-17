@@ -146,7 +146,7 @@ export const LoginStreakTracker = ({ userId }: { userId: string }) => {
     if (userId) {
       updateLoginStreak();
     }
-  }, [userId]);
+  }, [userId, toast]);
 
   return (
     <AnimatePresence>

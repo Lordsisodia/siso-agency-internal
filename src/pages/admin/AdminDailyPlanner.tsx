@@ -27,7 +27,7 @@ export default function AdminDailyPlanner() {
         });
       }
     }
-  }, [user, loading, toast]);
+  }, [user, loading, toast, isAdmin]);
 
   if (loading) {
     return <div>Loading...</div>;

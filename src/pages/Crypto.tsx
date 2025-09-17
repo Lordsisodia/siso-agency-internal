@@ -40,7 +40,7 @@ const Crypto = () => {
     };
 
     fetchUserPoints();
-  }, []);
+  }, [toast]);
 
   if (loading) {
     return (

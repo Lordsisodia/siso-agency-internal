@@ -135,7 +135,7 @@ export function BusinessOnboarding() {
         setTimeout(nextAction, 1000);
       }
     }, 1000);
-  }, []);
+  }, [handlePhoneCall]);
 
   const handlePhoneCall = () => {
     // Show phone call scheduling component

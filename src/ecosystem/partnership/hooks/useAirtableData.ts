@@ -333,7 +333,7 @@ export function useAirtableData(): UseAirtableDataReturn {
   // Load data on mount
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
   // Handle keyboard navigation
   useEffect(() => {

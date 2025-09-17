@@ -428,7 +428,7 @@ export const useAirtablePartners = (): UseAirtablePartnersReturn => {
   // Load data on mount
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
   return {
     // Data state
