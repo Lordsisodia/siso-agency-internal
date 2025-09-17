@@ -371,9 +371,9 @@ function extractTasksFromResponse(response: string): string[] {
   }
   
   // Look for bullet points
-  const bulletMatches = response.match(/^[•\-\*]\s+(.+)$/gm);
+  const bulletMatches = response.match(/^[•\-*]\s+(.+)$/gm);
   if (bulletMatches) {
-    tasks.push(...bulletMatches.map(match => match.replace(/^[•\-\*]\s+/, '')));
+    tasks.push(...bulletMatches.map(match => match.replace(/^[•\-*]\s+/, '')));
   }
   
   // Look for "Task:" patterns

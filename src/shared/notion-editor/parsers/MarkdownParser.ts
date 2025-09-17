@@ -68,7 +68,7 @@ export class MarkdownParser {
     }
 
     // Lists
-    if (trimmedLine.match(/^[-\*\+] /)) {
+    if (trimmedLine.match(/^[-*+] /)) {
       return {
         id: this.generateId(),
         type: 'bulleted_list',
