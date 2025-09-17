@@ -141,7 +141,7 @@ export const FocusSessionTimer: React.FC<FocusSessionTimerProps> = ({
         clearInterval(intervalRef.current);
       }
     };
-  }, [sessionState]);
+  }, [sessionState, handleTimerComplete]);
 
   const handleTimerComplete = useCallback(() => {
     if (soundEnabled) {
@@ -161,7 +161,7 @@ export const FocusSessionTimer: React.FC<FocusSessionTimerProps> = ({
       // Break completed, session fully done
       handleSessionEnd(true);
     }
-  }, [sessionState, selectedConfig, soundEnabled]);
+  }, [sessionState, selectedConfig, soundEnabled, handleSessionEnd]);
 
   const startSession = useCallback(() => {
     const startTime = new Date();
@@ -194,7 +194,7 @@ export const FocusSessionTimer: React.FC<FocusSessionTimerProps> = ({
 
   const stopSession = useCallback(() => {
     handleSessionEnd(false);
-  }, []);
+  }, [handleSessionEnd]);
 
   const handleSessionEnd = useCallback(async (completed: boolean) => {
     const endTime = new Date();
