@@ -86,7 +86,7 @@ export function BusinessOnboarding() {
     };
     
     setMessages([welcomeMessage]);
-  }, []);
+  }, [handleCommunicationChoice]);
 
   // Scroll to bottom when messages change
   useEffect(() => {

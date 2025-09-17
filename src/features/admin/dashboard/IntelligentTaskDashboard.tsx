@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
 import { Badge } from '@/shared/ui/badge';
@@ -41,9 +41,9 @@ export function IntelligentTaskDashboard() {
 
   useEffect(() => {
     loadDashboardData();
-  }, []);
+  }, [loadDashboardData]);
 
-  const loadDashboardData = async () => {
+  const loadDashboardData = useCallback(async () => {
     try {
       setLoading(true);
       const [analysisData, prioritiesData] = await Promise.all([
@@ -63,7 +63,7 @@ export function IntelligentTaskDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const createIntelligentTask = async () => {
     if (!newTaskTitle.trim()) {
