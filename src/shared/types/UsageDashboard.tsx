@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
@@ -39,11 +39,7 @@ export const UsageDashboard: React.FC<UsageDashboardProps> = ({ onBack }) => {
   const [selectedDateRange, setSelectedDateRange] = useState<"all" | "7d" | "30d">("all");
   const [activeTab, setActiveTab] = useState("overview");
 
-  useEffect(() => {
-    loadUsageStats();
-  }, [selectedDateRange]);
-
-  const loadUsageStats = async () => {
+  const loadUsageStats = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -89,7 +85,11 @@ export const UsageDashboard: React.FC<UsageDashboardProps> = ({ onBack }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedDateRange]);
+
+  useEffect(() => {
+    loadUsageStats();
+  }, [loadUsageStats]);
 
   const formatCurrency = (amount: number): string => {
     return new Intl.NumberFormat('en-US', {

@@ -141,7 +141,7 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = memo(({
     newParams.set('tab', activeTabId);
     newParams.set('date', format(selectedDate, 'yyyy-MM-dd'));
     setSearchParams(newParams);
-  }, [activeTabId, selectedDate, setSearchParams]);
+  }, [activeTabId, selectedDate, searchParams, setSearchParams]);
 
   // Day navigation - memoized to prevent child re-renders
   const navigateDay = useCallback((direction: 'prev' | 'next') => {

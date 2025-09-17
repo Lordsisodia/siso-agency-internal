@@ -137,7 +137,7 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
     newParams.set('tab', activeTabId);
     newParams.set('date', format(selectedDate, 'yyyy-MM-dd'));
     setSearchParams(newParams);
-  }, [activeTabId, selectedDate, setSearchParams]);
+  }, [activeTabId, selectedDate, searchParams, setSearchParams]);
 
   // Day navigation
   const navigateDay = (direction: 'prev' | 'next') => {

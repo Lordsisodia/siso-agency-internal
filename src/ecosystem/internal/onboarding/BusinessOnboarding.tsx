@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bot, User, X, ArrowLeft, Send, Mic, Phone, MessageSquare, MicOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -93,7 +93,7 @@ export function BusinessOnboarding() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, showTypingIndicator]);
 
-  const handleCommunicationChoice = (method: 'chat' | 'voice' | 'phone') => {
+  const handleCommunicationChoice = useCallback((method: 'chat' | 'voice' | 'phone') => {
     setCommunicationMethod(method);
     
     let responseMessage = '';
@@ -135,7 +135,7 @@ export function BusinessOnboarding() {
         setTimeout(nextAction, 1000);
       }
     }, 1000);
-  };
+  }, []);
 
   const handlePhoneCall = () => {
     // Show phone call scheduling component

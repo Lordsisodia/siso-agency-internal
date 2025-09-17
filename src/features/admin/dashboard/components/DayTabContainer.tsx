@@ -143,7 +143,7 @@ export const DayTabContainer: React.FC<TabProps> = (props) => {
       newParams.set('date', format(props.selectedDate, 'yyyy-MM-dd'));
     }
     setSearchParams(newParams);
-  }, [activeTabId, props.selectedDate, setSearchParams]);
+  }, [activeTabId, props.selectedDate, searchParams, setSearchParams]);
 
   // Day navigation
   const navigateDay = (direction: 'prev' | 'next') => {

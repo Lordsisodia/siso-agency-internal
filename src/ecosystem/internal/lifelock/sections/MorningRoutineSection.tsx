@@ -247,7 +247,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   
   const morningRoutineProgress = useMemo(() => {
     return getRoutineProgress();
-  }, [morningRoutine, selectedDate, localProgressTrigger, getRoutineProgress]);
+  }, [getRoutineProgress]);
 
   if (loading) {
     return (

@@ -82,7 +82,7 @@ export function SwarmDashboard() {
       });
       setAgents(initialAgents);
     }
-  }, [isSwarmActive, selectedModes]);
+  }, [isSwarmActive, selectedModes, agents.length]);
 
   // Simulate agent messages
   useEffect(() => {
