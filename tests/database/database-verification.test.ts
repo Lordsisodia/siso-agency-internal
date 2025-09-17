@@ -5,7 +5,7 @@
  * Verifies Prisma integration, UI button functionality, and data persistence.
  */
 
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from '@jest/testing-library/jest-dom';
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { taskDatabaseService } from '../ai-first/services/task-database-service';
 import { aiXPService } from '../ai-first/services/ai-xp-service';
 import type { CreateTaskInput, TaskWithSubtasks, PersonalContextData } from '../ai-first/services/task-database-service';

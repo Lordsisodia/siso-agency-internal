@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
@@ -215,7 +215,7 @@ export function RealTaskManager({
   }, [hasProjects, checkActualCompletionStates]);
 
   // Check if tasks are actually completed based on real data
-  const checkActualCompletionStates = () => {
+  const checkActualCompletionStates = useCallback(() => {
     const actuallyCompleted = new Set<string>();
     
     // Check if business onboarding is complete
@@ -242,7 +242,7 @@ export function RealTaskManager({
     // Update the completed tasks state with actual completion data
     setCompletedTasks(actuallyCompleted);
     localStorage.setItem('workflow-completed-tasks', JSON.stringify([...actuallyCompleted]));
-  };
+  }, [hasProjects]);
 
   // Save completed tasks to localStorage
   const saveCompletedTasks = (completed: Set<string>) => {

@@ -82,23 +82,26 @@ export class MCPOrchestrator extends EventEmitter {
             group.map(step => this.executeStep(step, executedSteps, abortController.signal))
           );
 
-          groupResults.forEach((result, index) => {
-            const step = group[index];
+          for (let i = 0; i < groupResults.length; i++) {
+            const result = groupResults[i];
+            const step = group[i];
+            
             if (result.status === 'fulfilled') {
               results.push(result.value);
               executedSteps.set(step.id, result.value.result);
             } else {
-              results.push({
+              const errorResult = {
                 stepId: step.id,
-                status: 'error',
+                status: 'error' as const,
                 error: result.reason,
                 duration: 0
-              });
+              };
+              results.push(errorResult);
               if (workflow.onError === 'stop') {
                 throw result.reason;
               }
             }
-          });
+          }
         }
       } else {
         // Sequential execution
@@ -110,12 +113,13 @@ export class MCPOrchestrator extends EventEmitter {
             results.push(result);
             executedSteps.set(step.id, result.result);
           } catch (error) {
-            results.push({
+            const errorResult = {
               stepId: step.id,
-              status: 'error',
+              status: 'error' as const,
               error: error as Error,
               duration: 0
-            });
+            };
+            results.push(errorResult);
             if (workflow.onError === 'stop') {
               throw error;
             }
@@ -205,6 +209,11 @@ export class MCPOrchestrator extends EventEmitter {
 
         // Pre-process params through middleware
         const processedParams = await mcpMiddleware.preProcess(step.mcp, step.action, step.params || {});
+
+        // Execute the MCP method
+        if (typeof mcpClient[step.action] !== 'function') {
+          throw new Error(`Method ${step.action} not found on MCP client ${step.mcp}`);
+        }
 
         const rawResult = await mcpClient[step.action](processedParams);
 

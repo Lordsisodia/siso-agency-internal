@@ -75,16 +75,25 @@ export class MCPMiddleware {
     });
 
     // Context7 schemas
+    this.setValidationSchema('context7.resolveLibraryId', {
+      pre: z.object({
+        libraryName: z.string().min(1)
+      }),
+      post: z.object({
+        libraryId: z.string()
+      })
+    });
+
     this.setValidationSchema('context7.getLibraryDocs', {
       pre: z.object({
-        context7CompatibleLibraryID: z.string(),
+        libraryId: z.string().min(1),
         topic: z.string().optional(),
         tokens: z.number().min(1000).max(50000).default(10000)
       }),
       post: z.object({
         content: z.string(),
-        libraryId: z.string(),
-        tokens: z.number()
+        libraryId: z.string().optional(),
+        tokens: z.number().optional()
       })
     });
 

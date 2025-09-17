@@ -121,7 +121,11 @@ export class LightWorkOrchestrator {
       const transformStart = Date.now();
       const transformResult = TaskDataTransformer.transformDatabaseRowsToTasks(
         dbResult.data || [],
-        { contextFormat: 'ui' }
+        { 
+          contextFormat: 'ui',
+          includeSubtasks: true,
+          includeMetadata: true
+        }
       );
 
       if (!transformResult.success) {

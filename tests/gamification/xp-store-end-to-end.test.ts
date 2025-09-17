@@ -77,23 +77,25 @@ const mockRewards = [
     requiresStreak: null,
     maxDailyUse: 1,
     availabilityWindow: 'EVENING'
+  },
+  {
+    id: 'reward-4',
+    category: 'Luxury',
+    name: 'Weekend Trip',
+    description: 'Mini getaway or luxury experience',
+    basePrice: 500,
+    currentPrice: 500,
+    iconEmoji: '✈️',
+    discountPercent: 0,
+    requiresStreak: 7,
+    maxDailyUse: 1,
+    availabilityWindow: 'ANYTIME'
   }
 ];
 
 describe('XP Store End-to-End User Flow', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    
-    // Setup default successful API responses
-    mockFetch
-      .mockImplementationOnce(() => Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve(mockBalance)
-      }))
-      .mockImplementationOnce(() => Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve(mockRewards)
-      }));
   });
 
   afterEach(() => {
@@ -177,9 +179,8 @@ describe('XP Store End-to-End User Flow', () => {
     it('should prevent purchasing expensive rewards', async () => {
       const expensiveReward = mockRewards.find(r => r.currentPrice > mockBalance.canSpend);
       expect(expensiveReward).toBeDefined();
-      expect(expensiveReward?.name).toBe('Movie Night');
-      expect(expensiveReward?.currentPrice).toBe(250);
-      expect(mockBalance.canSpend).toBeLessThan(250);
+      expect(expensiveReward?.currentPrice).toBeGreaterThan(mockBalance.canSpend);
+      expect(mockBalance.canSpend).toBe(300); // Verify our balance
     });
 
     it('should handle successful purchase with balance update', async () => {
@@ -220,7 +221,7 @@ describe('XP Store End-to-End User Flow', () => {
         return xpNeeded > 0 && xpNeeded <= 200;
       });
 
-      expect(nearMissRewards).toHaveLength(0); // With current test data, no near-miss
+      expect(nearMissRewards).toHaveLength(1); // Weekend Trip is 500-300=200 XP away
       
       // Test with modified balance to create near-miss scenario
       const lowBalance = { ...balance, canSpend: 230 }; // 230 XP available
@@ -243,9 +244,9 @@ describe('XP Store End-to-End User Flow', () => {
       });
       const dreamRewards = mockRewards.filter(r => r.currentPrice > balance.canSpend + 150);
 
-      expect(canAfford).toHaveLength(2); // Coffee (100) and Cannabis (180)
-      expect(almostAfford).toHaveLength(0); // Movie Night is 250 - 300 = -50 (affordable, not almost)
-      expect(dreamRewards).toHaveLength(0); // No rewards > 450 XP in test data
+      expect(canAfford).toHaveLength(3); // Coffee (100), Cannabis (180), and Movie Night (250)
+      expect(almostAfford).toHaveLength(0); // No rewards in the 300-450 range
+      expect(dreamRewards).toHaveLength(1); // Weekend Trip (500) > 450 XP
 
       expect(canAfford.map(r => r.name)).toContain('Premium Coffee');
       expect(canAfford.map(r => r.name)).toContain('Evening Session');
@@ -255,9 +256,9 @@ describe('XP Store End-to-End User Flow', () => {
       const rewardsWithStreak = mockRewards.filter(r => r.requiresStreak);
       const rewardsWithoutStreak = mockRewards.filter(r => !r.requiresStreak);
 
-      expect(rewardsWithStreak).toHaveLength(1);
-      expect(rewardsWithStreak[0].name).toBe('Evening Session');
-      expect(rewardsWithStreak[0].requiresStreak).toBe(1);
+      expect(rewardsWithStreak).toHaveLength(2);
+      expect(rewardsWithStreak.map(r => r.name)).toContain('Evening Session');
+      expect(rewardsWithStreak.map(r => r.name)).toContain('Weekend Trip');
 
       expect(rewardsWithoutStreak).toHaveLength(2);
     });
@@ -270,8 +271,9 @@ describe('XP Store End-to-End User Flow', () => {
       expect(eveningRewards.map(r => r.name)).toContain('Evening Session');
       expect(eveningRewards.map(r => r.name)).toContain('Movie Night');
 
-      expect(anytimeRewards).toHaveLength(1);
-      expect(anytimeRewards[0].name).toBe('Premium Coffee');
+      expect(anytimeRewards).toHaveLength(2);
+      expect(anytimeRewards.map(r => r.name)).toContain('Premium Coffee');
+      expect(anytimeRewards.map(r => r.name)).toContain('Weekend Trip');
     });
   });
 

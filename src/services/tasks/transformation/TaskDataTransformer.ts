@@ -108,10 +108,22 @@ export class TaskDataTransformer {
           subtasks = typeof row.subtasks === 'string' 
             ? JSON.parse(row.subtasks) 
             : row.subtasks;
+          console.log('🔍 DEBUG: Subtasks processed:', { 
+            originalSubtasks: row.subtasks, 
+            processedSubtasks: subtasks,
+            includeSubtasks: options.includeSubtasks,
+            length: subtasks?.length || 0
+          });
         } catch (e) {
           warnings.push('Failed to parse subtasks, using empty array');
           subtasks = [];
         }
+      } else {
+        console.log('🔍 DEBUG: Subtasks not included:', { 
+          hasRowSubtasks: !!row.subtasks, 
+          includeSubtasks: options.includeSubtasks,
+          options 
+        });
       }
 
       let dependencies: string[] = [];
@@ -163,6 +175,12 @@ export class TaskDataTransformer {
       }
 
       // Transform the task object
+      console.log('🔍 DEBUG: Creating task with subtasks:', { 
+        subtasksLength: subtasks?.length || 0, 
+        willIncludeSubtasks: subtasks.length > 0,
+        subtasks: subtasks
+      });
+      
       const task: Task = {
         id: row.id,
         title: row.title?.trim() || '',
@@ -173,9 +191,16 @@ export class TaskDataTransformer {
         dependencies,
         focusIntensity: row.focus_intensity || 1,
         context: row.context || 'general',
-        ...(subtasks.length > 0 && { subtasks }),
+        subtasks, // Always include subtasks property (empty array if no subtasks)
         ...(tools.length > 0 && { tools })
       };
+      
+      console.log('🔍 DEBUG: Final task object:', { 
+        id: task.id, 
+        hasSubtasks: 'subtasks' in task,
+        taskKeys: Object.keys(task),
+        subtasksValue: (task as any).subtasks
+      });
 
       // Add optional metadata based on context
       if (options.includeMetadata) {

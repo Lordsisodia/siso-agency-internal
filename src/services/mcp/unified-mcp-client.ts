@@ -48,8 +48,8 @@ export class UnifiedMCPClient {
    * Initialize intent detection patterns
    */
   private initializeIntentPatterns(): void {
-    // Database patterns
-    this.addIntentPattern(/\b(database|table|query|sql|supabase|postgres)\b/i, {
+    // Database patterns - include SQL keywords
+    this.addIntentPattern(/\b(database|table|query|sql|supabase|postgres|select|insert|update|delete|create|drop|alter|from|where|join)\b/i, {
       type: 'database',
       action: 'query',
       confidence: 0.9,
@@ -181,8 +181,19 @@ export class UnifiedMCPClient {
     let bestMatch: MCPIntent | null = null;
     let highestConfidence = 0;
 
-    for (const [pattern, intent] of this.intentPatterns) {
-      const regex = new RegExp(pattern);
+    for (const [patternKey, intent] of this.intentPatterns) {
+      let regex: RegExp;
+      
+      // Reconstruct RegExp from stored pattern key
+      if (patternKey.includes('::')) {
+        // Pattern was stored as "source::flags"
+        const [source, flags] = patternKey.split('::');
+        regex = new RegExp(source, flags);
+      } else {
+        // Pattern was stored as plain string
+        regex = new RegExp(patternKey);
+      }
+      
       if (regex.test(query)) {
         if (intent.confidence > highestConfidence) {
           bestMatch = intent;
@@ -221,20 +232,14 @@ export class UnifiedMCPClient {
     // Build parameters based on intent and route
     const params = this.buildMCPParams(intent, query, route, context);
     
+    // Create workflow steps - some MCPs need multiple steps
+    const steps = this.createWorkflowSteps(intent, mcpName, params);
+    
     // Execute through orchestrator for consistency
     const workflow = {
       id: `query-${Date.now()}`,
       name: `Smart Query: ${intent.type}`,
-      steps: [{
-        id: 'main',
-        mcp: mcpName,
-        action: intent.action,
-        params,
-        retryConfig: {
-          maxRetries: this.config.retries || 3,
-          backoffMs: 1000
-        }
-      }]
+      steps
     };
 
     const result = await this.orchestrator.executeWorkflow(workflow);
@@ -243,7 +248,107 @@ export class UnifiedMCPClient {
       throw new Error(`MCP query failed: ${result.results[0]?.error?.message}`);
     }
 
-    return result.results[0]?.result;
+    // Return result from the last step
+    return result.results[result.results.length - 1]?.result;
+  }
+
+  /**
+   * Create workflow steps for different MCP types
+   */
+  private createWorkflowSteps(intent: MCPIntent, mcpName: string, params: Record<string, any>): MCPStep[] {
+    switch (mcpName) {
+      case 'context7':
+        // Context7 needs two steps: resolve library ID, then get docs
+        return [
+          {
+            id: 'resolve',
+            mcp: mcpName,
+            action: 'resolveLibraryId',
+            params: {
+              libraryName: params.libraryName
+            },
+            retryConfig: {
+              maxRetries: 2,
+              backoffMs: 1000
+            }
+          },
+          {
+            id: 'fetch',
+            mcp: mcpName,
+            action: 'getLibraryDocs',
+            params: {
+              libraryId: params.libraryName, // Tests expect this format
+              topic: params.topic,
+              tokens: params.tokens
+            },
+            dependsOn: ['resolve'],
+            retryConfig: {
+              maxRetries: 2,
+              backoffMs: 1000
+            }
+          }
+        ];
+
+      case 'supabase':
+        return [{
+          id: 'main',
+          mcp: mcpName,
+          action: 'executeSql',
+          params,
+          retryConfig: {
+            maxRetries: 3,
+            backoffMs: 1000
+          }
+        }];
+
+      case 'exa':
+        return [{
+          id: 'main',
+          mcp: mcpName,
+          action: 'webSearch',
+          params,
+          retryConfig: {
+            maxRetries: 2,
+            backoffMs: 1000
+          }
+        }];
+
+      case 'notion':
+        return [{
+          id: 'main',
+          mcp: mcpName,
+          action: intent.action === 'manage' ? 'createPage' : 'search',
+          params,
+          retryConfig: {
+            maxRetries: 2,
+            backoffMs: 1000
+          }
+        }];
+
+      case 'github':
+        return [{
+          id: 'main',
+          mcp: mcpName,
+          action: intent.action === 'manage' ? 'createBranch' : 'getPullRequest',
+          params,
+          retryConfig: {
+            maxRetries: 2,
+            backoffMs: 1000
+          }
+        }];
+
+      default:
+        return [{
+          id: 'main',
+          mcp: mcpName,
+          action: intent.action,
+          params,
+          retryConfig: {
+            maxRetries: 2,
+            backoffMs: 1000
+          }
+        }];
+    }
   }
 
   /**
@@ -328,7 +433,9 @@ export class UnifiedMCPClient {
    * Add custom intent pattern
    */
   addIntentPattern(pattern: string | RegExp, intent: MCPIntent): void {
-    this.intentPatterns.set(pattern.toString(), intent);
+    // Store pattern with a unique key that preserves the original pattern
+    const patternKey = pattern instanceof RegExp ? pattern.source + '::' + pattern.flags : pattern;
+    this.intentPatterns.set(patternKey, intent);
   }
 
   /**

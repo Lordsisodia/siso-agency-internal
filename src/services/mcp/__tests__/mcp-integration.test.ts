@@ -93,13 +93,16 @@ describe('MCP Integration Tests', () => {
         name: 'Test Parallel',
         parallel: true,
         steps: [
-          { id: 'step1', mcp: 'github', action: 'createBranch' },
-          { id: 'step2', mcp: 'supabase', action: 'executeSql' },
-          { id: 'step3', mcp: 'notion', action: 'createPage' }
+          { id: 'step1', mcp: 'github', action: 'createBranch', params: { branchName: 'test-branch' } },
+          { id: 'step2', mcp: 'supabase', action: 'executeSql', params: { query: 'SELECT * FROM test' } },
+          { id: 'step3', mcp: 'notion', action: 'createPage', params: { parentId: '12345678-1234-1234-1234-123456789abc', parentType: 'page', title: 'Test Page' } }
         ]
       };
 
       const result = await orchestrator.executeWorkflow(workflow);
+      
+      // Debug: Log results to see which step is failing
+      console.log('Workflow results:', result.results.map(r => ({ stepId: r.stepId, status: r.status, error: r.error?.message })));
       
       expect(result.status).toBe('completed');
       expect(result.results).toHaveLength(3);
@@ -147,8 +150,8 @@ describe('MCP Integration Tests', () => {
         name: 'Test Error',
         onError: 'continue' as const,
         steps: [
-          { id: 'step1', mcp: 'github', action: 'createBranch' },
-          { id: 'step2', mcp: 'notion', action: 'createPage' }
+          { id: 'step1', mcp: 'github', action: 'createBranch', params: { branchName: 'test-branch' } },
+          { id: 'step2', mcp: 'notion', action: 'createPage', params: { parentId: '12345678-1234-1234-1234-123456789abc', parentType: 'page', title: 'Test Page' } }
         ]
       };
 
@@ -337,6 +340,7 @@ describe('MCP Integration Tests', () => {
             id: 'step1', 
             mcp: 'github', 
             action: 'createBranch',
+            params: { branchName: 'test-branch' },
             retryConfig: { maxRetries: 2, backoffMs: 10 }
           }
         ]

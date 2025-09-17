@@ -17,8 +17,16 @@ import { supabaseTaskService } from '../supabaseTaskService';
 import { taskServiceRegistry, getTaskService } from '../database/TaskServiceRegistry';
 import { LightWorkTaskService } from '../database/LightWorkTaskService';
 import { DeepWorkTaskService } from '../database/DeepWorkTaskService';
+import { TaskCacheManager } from '../tasks/cache/TaskCacheManager';
 
 describe('Decomposed Task Services', () => {
+  
+  // Clear cache before each test to ensure fresh data
+  beforeEach(() => {
+    const cacheManager = TaskCacheManager.getInstance();
+    cacheManager.clear();
+    console.log('🧹 Cache cleared before test');
+  });
   
   // Test that original service interface still works exactly the same
   describe('API Compatibility', () => {
@@ -26,6 +34,8 @@ describe('Decomposed Task Services', () => {
     it('should maintain exact same interface for getLightWorkTasks()', async () => {
       // This should work exactly like the original service
       const tasks = await supabaseTaskService.getLightWorkTasks();
+      
+      console.log('🔍 TEST DEBUG - Light work tasks received:', tasks.map(t => ({ id: t.id, hasSubtasks: !!t.subtasks, subtasksLength: t.subtasks?.length })));
       
       expect(Array.isArray(tasks)).toBe(true);
       
@@ -47,6 +57,8 @@ describe('Decomposed Task Services', () => {
     it('should maintain exact same interface for getDeepWorkTasks()', async () => {
       // This should work exactly like the original service
       const tasks = await supabaseTaskService.getDeepWorkTasks();
+      
+      console.log('🔍 TEST DEBUG - Deep work tasks received:', tasks.map(t => ({ id: t.id, hasSubtasks: !!t.subtasks, subtasksLength: t.subtasks?.length })));
       
       expect(Array.isArray(tasks)).toBe(true);
       

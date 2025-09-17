@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Button } from '@/shared/ui/button';
 import { format } from 'date-fns';
 import { Sparkles, Settings, RefreshCw } from 'lucide-react';
@@ -29,7 +29,7 @@ export function TimeBlockView({
   const [isGeneratingSchedule, setIsGeneratingSchedule] = useState(false);
 
   // Default work preferences - could be made configurable
-  const defaultPreferences: WorkSchedulePreferences = {
+  const defaultPreferences: WorkSchedulePreferences = useMemo(() => ({
     wakeUpTime: '07:00',
     sleepTime: '23:00',
     workStartTime: '09:00',
@@ -59,7 +59,7 @@ export function TimeBlockView({
     allowInterruptions: false,
     prioritizeDeadlines: true,
     bufferTime: 15
-  };
+  }), []);
 
   // Generate schedule when component mounts or tasks change
   useEffect(() => {

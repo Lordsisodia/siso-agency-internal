@@ -432,17 +432,52 @@ export abstract class BaseTaskService {
   protected getMockLightWorkTasks(): any[] {
     return [
       {
-        id: 'mock-lw-1',
+        id: 'lw-test-task-1',
         user_id: 'user-123',
         title: 'Email Processing & Admin Tasks',
         description: 'Handle incoming emails and quick administrative work',
         priority: 'Med',
+        status: 'pending',
         completed: false,
         original_date: '2025-09-14',
         task_date: '2025-09-14',
         estimated_duration: 30,
         tags: ['admin', 'email'],
         category: 'Administration',
+        focusIntensity: 1,
+        subtasks: [
+          {
+            id: 'test-subtask-1',
+            title: 'Check priority emails',
+            completed: false,
+            priority: 'HIGH'
+          }
+        ],
+        created_at: '2025-09-14T10:00:00Z',
+        updated_at: '2025-09-14T10:00:00Z'
+      },
+      {
+        id: 'lw-test-task-2',
+        user_id: 'user-123',
+        title: 'Secondary Light Work Task',
+        description: 'Another light work task for testing',
+        priority: 'HIGH',
+        status: 'pending',
+        completed: false,
+        original_date: '2025-09-14',
+        task_date: '2025-09-14',
+        estimated_duration: 45,
+        tags: ['testing'],
+        category: 'Development',
+        focusIntensity: 1,
+        subtasks: [
+          {
+            id: 'subtask-1',
+            title: 'Mock Subtask',
+            completed: true,
+            created_at: '2024-01-01T00:00:00Z'
+          }
+        ],
         created_at: '2025-09-14T10:00:00Z',
         updated_at: '2025-09-14T10:00:00Z'
       }
@@ -467,11 +502,12 @@ export abstract class BaseTaskService {
   protected getMockDeepWorkTasks(): any[] {
     return [
       {
-        id: 'mock-dw-1',
+        id: 'dw-test-task-1',
         user_id: 'user-123',
         title: 'Complete SISO Database Integration',
         description: 'Finish database services decomposition and test all components',
         priority: 'HIGH',
+        status: 'in-progress',
         completed: false,
         original_date: '2025-09-14',
         task_date: '2025-09-14',
@@ -480,6 +516,21 @@ export abstract class BaseTaskService {
         break_duration: 15,
         tags: ['development', 'database'],
         category: 'Development',
+        focusIntensity: 3,
+        subtasks: [
+          {
+            id: 'test-subtask-1',
+            title: 'Set up database connections',
+            completed: false,
+            priority: 'HIGH'
+          },
+          {
+            id: 'test-subtask-2',
+            title: 'Write integration tests',
+            completed: true,
+            priority: 'MED'
+          }
+        ],
         created_at: '2025-09-14T08:00:00Z',
         updated_at: '2025-09-14T08:00:00Z'
       }
