@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Card, CardContent, CardHeader } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
 import { Badge } from '@/shared/ui/badge';
@@ -108,9 +108,9 @@ export const DeepFocusSessionCard: React.FC<DeepFocusSessionCardProps> = ({
         clearInterval(intervalRef.current);
       }
     };
-  }, [isRunning, session, timeRemaining]);
+  }, [isRunning, session, timeRemaining, handleTimerComplete]);
 
-  const handleTimerComplete = () => {
+  const handleTimerComplete = useCallback(() => {
     setIsRunning(false);
     // Play completion sound
     if (audioRef.current) {
@@ -127,7 +127,7 @@ export const DeepFocusSessionCard: React.FC<DeepFocusSessionCardProps> = ({
         setTimeRemaining(pomodoroSettings.work * 60);
       }
     }
-  };
+  }, [session, pomodoroSettings.work]);
 
   const startSession = (duration: number, type: 'deep_focus' | 'pomodoro' | 'timeboxing' = 'deep_focus') => {
     const newSession: DeepFocusSession = {

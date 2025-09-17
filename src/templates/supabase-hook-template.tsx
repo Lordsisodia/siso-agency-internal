@@ -12,7 +12,7 @@
  * 5. Customize operations as needed
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/shared/lib/supabase';
 import { useClerkUser } from '../shared/hooks/useClerkUser';
 import { useSupabaseClient, useSupabaseUserId } from '@/shared/lib/supabase-clerk';
@@ -51,12 +51,7 @@ export function useEntitySupabase(selectedDate: Date) {
 
   const dateString = selectedDate.toISOString().split('T')[0]; // YYYY-MM-DD format
 
-  // Load entity from Supabase
-  useEffect(() => {
-    loadEntity();
-  }, [dateString]);
-
-  const loadEntity = async () => {
+  const loadEntity = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
@@ -119,7 +114,12 @@ export function useEntitySupabase(selectedDate: Date) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [dateString]);
+
+  // Load entity from Supabase
+  useEffect(() => {
+    loadEntity();
+  }, [loadEntity]);
 
   // Toggle item completion
   const toggleItem = async (itemName: string, completed: boolean) => {
