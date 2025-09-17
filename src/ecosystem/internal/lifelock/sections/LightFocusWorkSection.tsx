@@ -507,7 +507,7 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = React
     });
 
     return { earned: earnedXP, potential: potentialXP };
-  }, [tasks]);
+  }, [tasks, getDefaultTaskXP]);
 
   return (
     <div className="min-h-screen w-full bg-gray-900 relative">

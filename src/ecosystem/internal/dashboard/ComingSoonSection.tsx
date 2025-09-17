@@ -128,7 +128,7 @@ export function ComingSoonSection() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [targetDate]);
 
   const handleBetaSignup = async (e: React.FormEvent) => {
     e.preventDefault();
