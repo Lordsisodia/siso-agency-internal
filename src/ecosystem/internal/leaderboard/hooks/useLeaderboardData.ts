@@ -227,7 +227,7 @@ export const useLeaderboardData = () => {
     } finally {
       setLoading(false);
     }
-  }, [filter, toast]);
+  }, [toast]);
 
   useEffect(() => {
     fetchLeaderboardData();

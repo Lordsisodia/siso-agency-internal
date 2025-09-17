@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Sun,
@@ -204,8 +204,22 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
     setIsEditingWakeTime(false);
   };
 
+  // Helper function to check if a habit is completed
+  const isHabitCompleted = useCallback((habitKey: string): boolean => {
+    if (morningRoutine && morningRoutine.items) {
+      // Use API data if available
+      const habit = morningRoutine.items.find(item => item.name === habitKey);
+      return habit?.completed || false;
+    } else {
+      // Fallback to localStorage if API data not available
+      const dateKey = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd');
+      const stored = localStorage.getItem(`lifelock-${dateKey}-${habitKey}`);
+      return stored === 'true';
+    }
+  }, [morningRoutine, selectedDate]);
+
   // Calculate progress based on completed tasks and subtasks
-  const getRoutineProgress = () => {
+  const getRoutineProgress = useCallback(() => {
     if (!morningRoutine) {
       // If no API data, calculate locally based on MORNING_ROUTINE_TASKS
       let totalTasks = 0;
@@ -229,21 +243,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
     }
     
     return morningRoutine.completionPercentage || 0;
-  };
-
-  // Helper function to check if a habit is completed
-  const isHabitCompleted = (habitKey: string): boolean => {
-    if (morningRoutine && morningRoutine.items) {
-      // Use API data if available
-      const habit = morningRoutine.items.find(item => item.name === habitKey);
-      return habit?.completed || false;
-    } else {
-      // Fallback to localStorage if API data not available
-      const dateKey = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd');
-      const stored = localStorage.getItem(`lifelock-${dateKey}-${habitKey}`);
-      return stored === 'true';
-    }
-  };
+  }, [morningRoutine, isHabitCompleted]);
   
   const morningRoutineProgress = useMemo(() => {
     return getRoutineProgress();

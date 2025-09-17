@@ -63,7 +63,7 @@ export function WireframeAdmin({ projectId }: WireframeAdminProps) {
       });
       setLoading(false);
     }
-  }, [projectId, toast]);
+  }, [projectId]);
 
   useEffect(() => {
     if (projectId) {

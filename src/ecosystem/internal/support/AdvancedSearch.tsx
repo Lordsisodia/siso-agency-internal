@@ -5,7 +5,7 @@
  * Searches through all support content, FAQs, and documentation
  */
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Search, 
@@ -196,7 +196,7 @@ export function AdvancedSearch({ onResultClick, className }: AdvancedSearchProps
   ];
 
   // Advanced search algorithm
-  const performSearch = (searchQuery: string) => {
+  const performSearch = useCallback((searchQuery: string) => {
     if (!searchQuery.trim()) {
       setResults([]);
       return;
@@ -286,7 +286,7 @@ export function AdvancedSearch({ onResultClick, className }: AdvancedSearchProps
       setResults(searchResults);
       setIsSearching(false);
     }, 300);
-  };
+  }, [selectedCategories, selectedTypes, sortBy]);
 
   useEffect(() => {
     if (query.length > 2) {
@@ -294,7 +294,7 @@ export function AdvancedSearch({ onResultClick, className }: AdvancedSearchProps
     } else {
       setResults([]);
     }
-  }, [query, selectedCategories, selectedTypes, sortBy]); // performSearch is stable due to setTimeout
+  }, [query, selectedCategories, selectedTypes, sortBy, performSearch]);
 
   const handleSuggestionClick = (suggestion: string) => {
     setQuery(suggestion);

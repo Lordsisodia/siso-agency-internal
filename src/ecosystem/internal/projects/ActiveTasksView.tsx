@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   KanbanBoard,
   KanbanCard,
@@ -247,7 +247,7 @@ export function ActiveTasksView() {
   };
 
   // Fetch tasks from database
-  const fetchTasks = async () => {
+  const fetchTasks = useCallback(async () => {
     try {
       setLoading(true);
       console.log('Fetching tasks for user:', user?.id);
@@ -288,11 +288,11 @@ export function ActiveTasksView() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, toast]);
 
   useEffect(() => {
     fetchTasks();
-  }, [user]);
+  }, [fetchTasks]);
 
   const handleDragEnd = async (event: any) => {
     const { active, over } = event;
