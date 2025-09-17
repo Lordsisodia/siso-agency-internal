@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   Coffee,
   Plus,
@@ -361,10 +361,10 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = React
   };
 
   // Get default XP for tasks without AI analysis
-  const getDefaultTaskXP = (task: Task): number => {
+  const getDefaultTaskXP = useCallback((task: Task): number => {
     const timeMinutes = parseTimeEstimate(task.timeEstimate);
     return Math.round(10 + (timeMinutes * 0.5)); // Base 10 + 0.5 per minute
-  };
+  }, []);
 
   // Get default XP for subtasks without AI analysis
   const getDefaultSubtaskXP = (subtask: Subtask): number => {
