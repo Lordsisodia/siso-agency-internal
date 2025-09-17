@@ -262,16 +262,17 @@ const PartnerDashboard = () => {
   }
 
   // Show onboarding if not complete (temporarily disabled to show new dashboard)
-  if (false && isOnboardingComplete === false) {
-    return (
-      <div className="p-6">
-        <PartnerOnboarding 
-          onComplete={handleOnboardingComplete}
-          onSkip={handleOnboardingSkip}
-        />
-      </div>
-    );
-  }
+  // TODO: Re-enable onboarding when needed
+  // if (isOnboardingComplete === false) {
+  //   return (
+  //     <div className="p-6">
+  //       <PartnerOnboarding 
+  //         onComplete={handleOnboardingComplete}
+  //         onSkip={handleOnboardingSkip}
+  //       />
+  //     </div>
+  //   );
+  // }
 
 
   return (

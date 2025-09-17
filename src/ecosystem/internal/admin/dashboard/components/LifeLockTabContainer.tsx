@@ -107,9 +107,7 @@ const tabs: Tab[] = [
   }
 ];
 
-interface LifeLockTabContainerProps extends TabProps {}
-
-export const LifeLockTabContainer: React.FC<LifeLockTabContainerProps> = (props) => {
+export const LifeLockTabContainer: React.FC<TabProps> = (props) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
