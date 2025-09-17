@@ -20,7 +20,7 @@ function useAutoFocus(ref, active) {
     if (active && ref.current) {
       ref.current.focus();
     }
-  }, [active]);
+  }, [active, ref]);
 }
 
 export function AddExpenseRow({ onExpenseAdded, visibleColumns }: AddExpenseRowProps) {

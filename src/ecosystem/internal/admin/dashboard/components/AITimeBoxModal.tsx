@@ -237,7 +237,7 @@ export const AITimeBoxModal: React.FC<AITimeBoxModalProps> = ({
     if (open && (morningTasks.length > 0 || deepTasks.length > 0 || lightTasks.length > 0)) {
       generateSchedule();
     }
-  }, [open, date, preferences.wakeUpTime, preferences.workStartTime, preferences.workEndTime]);
+  }, [open, date, preferences.wakeUpTime, preferences.workStartTime, preferences.workEndTime, deepTasks.length, generateSchedule, lightTasks.length, morningTasks.length]);
 
   // Calculate schedule stats
   const stats = useMemo(() => {

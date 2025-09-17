@@ -797,7 +797,7 @@ export function AirtableClientsTable({
     }
   };
 
-  const columns = useMemo(() => createColumns(handleUpdateField), []);
+  const columns = useMemo(() => createColumns(handleUpdateField), [handleUpdateField]);
 
   const data: TableClient[] = React.useMemo(
     () => clients.map(c => ({ ...c, id: c.id })),
