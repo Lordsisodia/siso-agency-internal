@@ -416,7 +416,7 @@ export const useAirtablePartners = (): UseAirtablePartnersReturn => {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [selectedCell, editingCell, data]);
+  }, [selectedCell, editingCell, data, handleUpdateField]);
 
   // Hide context menu on click
   useEffect(() => {
