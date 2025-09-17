@@ -53,7 +53,7 @@ export const PartnershipSidebar = () => {
     if (isMobile) {
       setIsMobileMenuOpen(false);
     }
-  }, [location.pathname]);
+  }, [location.pathname, isMobile]);
 
   const sidebarVariants = {
     expanded: {

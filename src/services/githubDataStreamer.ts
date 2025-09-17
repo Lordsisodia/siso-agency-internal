@@ -283,7 +283,7 @@ collect_system_data() {
     cat > /tmp/legacy-ai-data/system.json << EOF
 {
   "cpu": $(top -l 1 | grep "CPU usage" | awk '{print $3}' | sed 's/%//'),
-  "memory": $(vm_stat | grep "Pages active" | awk '{print $3}' | sed 's/\.//' | awk '{print $1 * 4096 / 1024 / 1024}'),
+  "memory": $(vm_stat | grep "Pages active" | awk '{print $3}' | sed 's/.//' | awk '{print $1 * 4096 / 1024 / 1024}'),
   "disk": $(df -h / | tail -1 | awk '{print $5}' | sed 's/%//'),
   "network": 0,
   "alerts": []

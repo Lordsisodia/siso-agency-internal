@@ -81,15 +81,15 @@ export class DesktopCommanderClient {
     if (urlMatch) return this.openUrl({ url: urlMatch[1] });
 
     // open/launch app
-    const openAppMatch = q.match(/\b(?:open|launch)\s+([A-Za-z0-9 .+\-]+)$/i);
+    const openAppMatch = q.match(/\b(?:open|launch)\s+([A-Za-z0-9 .+-]+)$/i);
     if (openAppMatch) return this.openApp({ app: openAppMatch[1].trim() });
 
     // focus app
-    const focusMatch = q.match(/\b(?:focus|switch\s+to)\s+([A-Za-z0-9 .+\-]+)$/i);
+    const focusMatch = q.match(/\b(?:focus|switch\s+to)\s+([A-Za-z0-9 .+-]+)$/i);
     if (focusMatch) return this.focusApp({ app: focusMatch[1].trim() });
 
     // notification
-    const notifyMatch = q.match(/\b(?:notify|notification|alert)\b[:\-]?\s*(.+)$/i);
+    const notifyMatch = q.match(/\b(?:notify|notification|alert)\b[:+-]?\s*(.+)$/i);
     if (notifyMatch) return this.notify({ message: notifyMatch[1] });
 
     return this.fail('execute', 'No matching desktop action');

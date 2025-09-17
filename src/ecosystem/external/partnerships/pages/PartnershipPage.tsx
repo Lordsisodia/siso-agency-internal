@@ -1,4 +1,4 @@
-import { memo, useState, useEffect } from 'react';
+import { memo, useState, useEffect, useMemo } from 'react';
 import { motion, useScroll, useSpring } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -58,7 +58,7 @@ const PartnershipPage = memo(() => {
   };
 
   // Navigation sections for the sticky nav - OPTIMIZED ORDER for better UX flow
-  const navigationSections = [
+  const navigationSections = useMemo(() => [
     { id: 'hero', label: 'Get Started' },
     { id: 'portfolio', label: 'Our Work' },
     { id: 'process', label: 'How It Works' },
@@ -66,7 +66,7 @@ const PartnershipPage = memo(() => {
     { id: 'stats', label: 'Program Stats' },
     { id: 'faq', label: 'AI Chat' },
     { id: 'requirements', label: 'Requirements' }
-  ];
+  ], []);
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
