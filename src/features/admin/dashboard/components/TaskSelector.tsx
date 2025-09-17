@@ -54,7 +54,7 @@ export const TaskSelector: React.FC<TaskSelectorProps> = ({
     if (isOpen) {
       loadAvailableTasks();
     }
-  }, [isOpen, workType]);
+  }, [isOpen, workType, loadAvailableTasks]);
 
   // Filter tasks based on search and filters
   useEffect(() => {

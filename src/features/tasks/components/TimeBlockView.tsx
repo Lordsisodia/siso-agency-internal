@@ -64,7 +64,7 @@ export function TimeBlockView({
   // Generate schedule when component mounts or tasks change
   useEffect(() => {
     generateOptimalSchedule();
-  }, [currentDate, morningTasks, deepTasks, lightTasks, workoutTasks, healthTasks]);
+  }, [currentDate, morningTasks, deepTasks, lightTasks, workoutTasks, healthTasks, generateOptimalSchedule]);
 
   const generateOptimalSchedule = async () => {
     if (isGeneratingSchedule) return;

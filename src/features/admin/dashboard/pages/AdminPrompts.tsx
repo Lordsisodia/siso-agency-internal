@@ -225,7 +225,8 @@ export default function AdminPrompts() {
 
   useEffect(() => {
     loadPrompts();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Load prompts once on mount
 
   return (
     <AdminLayout>
