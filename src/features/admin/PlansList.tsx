@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { 
@@ -56,11 +56,7 @@ export const PlansList = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchPlans();
-  }, []);
-
-  const fetchPlans = async () => {
+  const fetchPlans = useCallback(async () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
@@ -92,7 +88,11 @@ export const PlansList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchPlans();
+  }, [fetchPlans]);
 
   const handleCreatePlan = () => {
     navigate('/admin/plans/create');

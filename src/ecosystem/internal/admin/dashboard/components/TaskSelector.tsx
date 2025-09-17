@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select';
@@ -49,12 +49,37 @@ export const TaskSelector: React.FC<TaskSelectorProps> = ({
   const [priorityFilter, setPriorityFilter] = useState<string>('all');
   const [isLoading, setIsLoading] = useState(false);
 
+  const loadAvailableTasks = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      // Get all tasks for the user (not just today's)
+      const tasks = await EnhancedTaskService.getTasksForDate(currentDate, workType);
+      
+      // Also get pending tasks from other dates that could be moved to today
+      const allPendingTasks = await EnhancedTaskService.getTasksForDate(
+        new Date(), // Get all pending tasks
+        workType
+      );
+      
+      // Combine and deduplicate
+      const allTasks = [...tasks, ...allPendingTasks].filter((task, index, self) =>
+        index === self.findIndex(t => t.id === task.id)
+      );
+      
+      setAvailableTasks(allTasks);
+    } catch (error) {
+      console.error('Failed to load available tasks:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [currentDate, workType]);
+
   // Load available tasks when dialog opens
   useEffect(() => {
     if (isOpen) {
       loadAvailableTasks();
     }
-  }, [isOpen, workType]);
+  }, [isOpen, loadAvailableTasks]);
 
   // Filter tasks based on search and filters
   useEffect(() => {

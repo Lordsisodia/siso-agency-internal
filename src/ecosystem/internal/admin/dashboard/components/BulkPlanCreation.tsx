@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Button } from '@/shared/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { Input } from '@/shared/ui/input';
@@ -28,11 +28,7 @@ export const BulkPlanCreation = () => {
   const [usernames, setUsernames] = useState<string>('');
   const { toast } = useToast();
 
-  React.useEffect(() => {
-    fetchTemplates();
-  }, []);
-
-  const fetchTemplates = async () => {
+  const fetchTemplates = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('plan_templates')
@@ -49,7 +45,11 @@ export const BulkPlanCreation = () => {
         description: error.message
       });
     }
-  };
+  }, [toast]);
+
+  React.useEffect(() => {
+    fetchTemplates();
+  }, [fetchTemplates]);
 
   const handleCreatePlans = async () => {
     if (!selectedTemplate || !usernames.trim()) {

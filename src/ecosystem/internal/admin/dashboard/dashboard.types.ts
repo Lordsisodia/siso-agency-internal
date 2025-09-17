@@ -8,10 +8,6 @@ export const AI_INTERFACE = {
   patterns: ["types-only"]
 };
 
-export interface DashboardProps {
-  // TODO: Define dashboard props
-}
+export type DashboardProps = object;
 
-export interface DashboardState {
-  // TODO: Define dashboard state
-}
+export type DashboardState = object;

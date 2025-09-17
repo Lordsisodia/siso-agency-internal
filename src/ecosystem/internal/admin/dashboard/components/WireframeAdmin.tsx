@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
@@ -30,13 +30,7 @@ export function WireframeAdmin({ projectId }: WireframeAdminProps) {
     dev_status: 'pending'
   });
 
-  useEffect(() => {
-    if (projectId) {
-      fetchWireframes();
-    }
-  }, [projectId]);
-
-  const fetchWireframes = async () => {
+  const fetchWireframes = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -69,7 +63,13 @@ export function WireframeAdmin({ projectId }: WireframeAdminProps) {
       });
       setLoading(false);
     }
-  };
+  }, [projectId]);
+
+  useEffect(() => {
+    if (projectId) {
+      fetchWireframes();
+    }
+  }, [projectId, fetchWireframes]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({

@@ -8,10 +8,6 @@ export const AI_INTERFACE = {
   patterns: ["types-only"]
 };
 
-export interface PartnershipsProps {
-  // TODO: Define partnerships props
-}
+export type PartnershipsProps = object;
 
-export interface PartnershipsState {
-  // TODO: Define partnerships state
-}
+export type PartnershipsState = object;

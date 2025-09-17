@@ -13,9 +13,7 @@ const ULogo = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-export interface GlassCardProps extends React.HTMLAttributes<HTMLDivElement> {}
-
-const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(
+const GlassCard = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => {
     return (
       <div
