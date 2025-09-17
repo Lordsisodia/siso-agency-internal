@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
 import { Badge } from '@/shared/ui/badge';
@@ -52,11 +52,7 @@ export function ProjectBasedTaskDashboard() {
   const projects = agent.getProjects();
   const workTypes = agent.getWorkTypes();
 
-  useEffect(() => {
-    loadDashboardData();
-  }, []);
-
-  const loadDashboardData = async () => {
+  const loadDashboardData = useCallback(async () => {
     try {
       setLoading(true);
       const [projectData, workTypeData, insightData] = await Promise.all([
@@ -78,7 +74,11 @@ export function ProjectBasedTaskDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [agent, toast]);
+
+  useEffect(() => {
+    loadDashboardData();
+  }, [loadDashboardData]);
 
   const createProjectTask = async () => {
     if (!newTaskTitle.trim() || !selectedProject || !selectedWorkType) {
