@@ -23,6 +23,7 @@ import { format } from 'date-fns';
 import { cn } from '@/shared/lib/utils';
 import { useClerkUser } from '@/shared/ClerkProvider';
 import { workTypeApiClient } from '@/services/workTypeApiClient';
+import { useOfflineManager } from '@/shared/hooks/useOfflineManager';
 
 interface MorningRoutineHabit {
   name: string;
@@ -121,6 +122,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   selectedDate
 }) => {
   const { user } = useClerkUser();
+  const { saveTask, loadTasks, isOffline } = useOfflineManager();
   const [morningRoutine, setMorningRoutine] = useState<MorningRoutineData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -142,7 +144,21 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
       try {
         setLoading(true);
         setError(null);
-        const data = await workTypeApiClient.getMorningRoutine(user.id, selectedDate);
+        // Try offline-first approach
+        const data = await loadTasks('morning_routine', {
+          user_id: user.id,
+          date: format(selectedDate, 'yyyy-MM-dd')
+        });
+        
+        if (data && data.length > 0) {
+          // Use offline data
+          const routineData = data[0];
+          setMorningRoutine(routineData);
+        } else {
+          // Fallback to API if no offline data
+          const apiData = await workTypeApiClient.getMorningRoutine(user.id, selectedDate);
+          setMorningRoutine(apiData);
+        }
         setMorningRoutine(data);
       } catch (error) {
         console.error('Error loading morning routine:', error);
@@ -171,17 +187,29 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
       const dateKey = format(selectedDate, 'yyyy-MM-dd');
       localStorage.setItem(`lifelock-${dateKey}-${habitKey}`, completed.toString());
       
-      // Try to save to API if available
+      // Use offline manager for persistent storage and sync
+      const habitData = {
+        user_id: user.id,
+        date: format(selectedDate, 'yyyy-MM-dd'),
+        habit_key: habitKey,
+        completed: completed,
+        updated_at: new Date().toISOString()
+      };
+      
+      await saveTask('morning_routine_habits', habitData);
+      
+      // Update local state immediately for better UX
       if (morningRoutine) {
-        await workTypeApiClient.updateMorningRoutineHabit(
-          user.id, 
-          selectedDate, 
-          habitKey, 
-          completed
+        const updatedItems = morningRoutine.items.map(item => 
+          item.name === habitKey ? { ...item, completed } : item
         );
-        // Refresh the morning routine data
-        const updatedData = await workTypeApiClient.getMorningRoutine(user.id, selectedDate);
-        setMorningRoutine(updatedData);
+        const completedCount = updatedItems.filter(item => item.completed).length;
+        setMorningRoutine({
+          ...morningRoutine,
+          items: updatedItems,
+          completedCount,
+          completionPercentage: (completedCount / updatedItems.length) * 100
+        });
       }
       
       // Force re-render to update progress calculation

@@ -374,15 +374,17 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
   }, [tasks]);
   
   // Show loading state
-  if (isLoading) {
-    return (
-      <div className={useImplementation(
+  const loadingImplementation = useImplementation(
         'useUnifiedThemeSystem',
         // NEW: Unified theme system
         `h-full w-full flex items-center justify-center ${theme.gradients.diagonal.grayToBlack}`,
         // OLD: Original classes (fallback for safety)
         'h-full w-full bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center'
-      )}>
+      );
+  
+  if (isLoading) {
+    return (
+      <div className={loadingImplementation}>
         <div className="text-center">
           <motion.div 
             className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full mx-auto mb-4"

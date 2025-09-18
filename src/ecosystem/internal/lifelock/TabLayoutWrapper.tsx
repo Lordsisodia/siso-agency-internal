@@ -14,6 +14,7 @@ import { ExpandableTabs } from '@/shared/ui/expandable-tabs';
 import { cn } from '@/shared/lib/utils';
 import { useIsMobile } from '@/shared/hooks/use-mobile';
 import { useLifeLockData } from '@/ecosystem/internal/lifelock/useLifeLockData';
+import { OfflineStatusIndicator } from '@/shared/components/OfflineStatusIndicator';
 
 // Use centralized tab configuration to prevent routing inconsistencies
 const tabs = Object.values(TAB_CONFIG);
@@ -207,6 +208,11 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = memo(({
 
   return (
     <div className="flex flex-col h-screen w-full overflow-hidden">
+      {/* Offline Status Indicator - Fixed at top */}
+      <div className="absolute top-4 right-4 z-50">
+        <OfflineStatusIndicator />
+      </div>
+
       {/* Hidden Header - Now using AnimatedDateHeader in each tab */}
 
       {/* Tab Content with Swipe Support (All Devices) */}

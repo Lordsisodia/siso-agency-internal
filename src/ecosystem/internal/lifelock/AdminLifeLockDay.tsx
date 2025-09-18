@@ -84,8 +84,7 @@ const AdminLifeLockDay: React.FC = () => {
   };
 
   // Loading and auth guards
-  if (!isLoaded) {
-    return useImplementation(
+  const loadingImplementation = useImplementation(
       'useUnifiedLoadingState',
       // NEW: Unified loading state (safer, consistent, reusable)
       <AdminLayout>
@@ -103,6 +102,9 @@ const AdminLifeLockDay: React.FC = () => {
         </div>
       </AdminLayout>
     );
+  
+  if (!isLoaded) {
+    return loadingImplementation;
   }
 
   if (!isSignedIn) {
