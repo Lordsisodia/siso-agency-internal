@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useUser } from '@clerk/clerk-react';
-import { useXPStore } from '@/shared/hooks/useXPStore';
+import { useXPStore } from '@/ecosystem/internal/xp-store/hooks/useXPStore';
 import { XPEconomyDashboard } from '@/features/xp-store/XPEconomyDashboard';
 import { XPStoreBalance } from '@/features/xp-store/XPStoreBalance';
 import { RewardCatalog } from '@/features/xp-store/RewardCatalog';

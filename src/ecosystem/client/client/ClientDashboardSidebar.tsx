@@ -9,7 +9,7 @@ import {
   Plus
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useProjects } from "@/shared/hooks/useProjects";
+import { useProjects } from "@/ecosystem/internal/projects/hooks/useProjects";
 import { SidebarProvider, SidebarContent } from "@/shared/ui/sidebar";
 import { Button } from "@/shared/ui/button";
 import {
@@ -21,8 +21,8 @@ import {
 } from "@/shared/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { Badge } from "@/shared/ui/badge";
-import { useSelectedProject } from "@/shared/hooks/useSelectedProject";
-import { useClientData } from "@/shared/hooks/useClientData";
+import { useSelectedProject } from "@/ecosystem/internal/projects/hooks/useSelectedProject";
+import { useClientData } from "@/ecosystem/internal/projects/hooks/useClientData";
 import { useAuthSession } from "@/shared/hooks/useAuthSession";
 
 export function ClientDashboardSidebar() {

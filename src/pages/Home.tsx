@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet';
 import { useAuthSession } from '@/shared/hooks/useAuthSession';
 import { DashboardLayout } from '@/internal/dashboard/layout/DashboardLayout';
-import { useAdminCheck } from '@/shared/hooks/useAdminCheck';
+import { useAdminCheck } from '@/ecosystem/internal/admin/hooks/useAdminCheck';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
 import { Users } from 'lucide-react';
@@ -15,8 +15,8 @@ import { HelpSupportCard } from '@/internal/dashboard/HelpSupportCard';
 import { ProjectHeader } from '@/ecosystem/internal/projects/details/ProjectHeader';
 import { ProjectMetricsDashboard } from '@/ecosystem/internal/projects/details/ProjectMetricsDashboard';
 import { ProjectProgressCards } from '@/internal/dashboard/ProjectProgressCards';
-import { RealTaskManager } from '@/ecosystem/internal/tasks/management/RealTaskManager';
-import { useMainUserProject } from '@/shared/hooks/useUserProjects';
+import { RealTaskManager } from '@/shared/components/tasks/RealTaskManager';
+import { useMainUserProject } from '@/ecosystem/internal/projects/hooks/useUserProjects';
 import { AlertCircle } from 'lucide-react';
 import { DataViewer } from '@/shared/debug/DataViewer';
 

@@ -6,6 +6,9 @@ import { Input } from '@/shared/ui/input';
 import { Textarea } from '@/shared/ui/textarea';
 import { Button } from '@/shared/ui/button';
 import { format } from 'date-fns';
+import { useClerkUser } from '@/shared/hooks/useClerkUser';
+import { useSupabaseUserId } from '@/shared/lib/supabase-clerk';
+import { useNutritionSupabase } from '@/shared/hooks/useNutritionSupabase';
 
 interface HealthNonNegotiablesSectionProps {
   selectedDate: Date;
@@ -15,37 +18,36 @@ export const HealthNonNegotiablesSection: React.FC<HealthNonNegotiablesSectionPr
   selectedDate
 }) => {
   const dateKey = format(selectedDate, 'yyyy-MM-dd');
+  const { user } = useClerkUser();
+  const internalUserId = useSupabaseUserId(user?.id || null);
   
+  const { nutrition, loading, saving, updateMeals, updateMacros } = useNutritionSupabase(
+    internalUserId || '', 
+    dateKey
+  );
 
-  const [meals, setMeals] = useState(() => {
-    const saved = localStorage.getItem(`lifelock-${dateKey}-meals`);
-    return saved ? JSON.parse(saved) : {
-      breakfast: '',
-      lunch: '',
-      dinner: '',
-      snacks: ''
-    };
-  });
+  const [meals, setMeals] = useState(nutrition.meals);
+  const [dailyTotals, setDailyTotals] = useState(nutrition.macros);
 
-  const [dailyTotals, setDailyTotals] = useState(() => {
-    const saved = localStorage.getItem(`lifelock-${dateKey}-dailyTotals`);
-    return saved ? JSON.parse(saved) : {
-      calories: '',
-      protein: '',
-      carbs: '',
-      fats: ''
-    };
-  });
-
-  // Save to localStorage whenever state changes
-
+  // Update local state when nutrition data loads
   useEffect(() => {
-    localStorage.setItem(`lifelock-${dateKey}-meals`, JSON.stringify(meals));
-  }, [meals, dateKey]);
+    setMeals(nutrition.meals);
+    setDailyTotals(nutrition.macros);
+  }, [nutrition]);
 
+  // Save meals to Supabase when they change
   useEffect(() => {
-    localStorage.setItem(`lifelock-${dateKey}-dailyTotals`, JSON.stringify(dailyTotals));
-  }, [dailyTotals, dateKey]);
+    if (!loading && internalUserId) {
+      updateMeals(meals);
+    }
+  }, [meals, updateMeals, loading, internalUserId]);
+
+  // Save macros to Supabase when they change
+  useEffect(() => {
+    if (!loading && internalUserId) {
+      updateMacros(dailyTotals);
+    }
+  }, [dailyTotals, updateMacros, loading, internalUserId]);
 
 
   return (

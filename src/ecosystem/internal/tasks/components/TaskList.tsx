@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useTasks, TaskCategory, Task } from '@/shared/hooks/useTasks';
+import { useTasks, TaskCategory, Task } from '@/ecosystem/internal/tasks/hooks/useTasks';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { Alert, AlertDescription } from '@/shared/ui/alert';
 import { TaskItem } from './TaskItem';

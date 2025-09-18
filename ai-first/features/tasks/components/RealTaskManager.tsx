@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/shared/lib/utils';
 import { useToast } from '@/shared/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { useMainUserProject } from '@/shared/hooks/useUserProjects';
+import { useMainUserProject } from '@/ecosystem/internal/projects/hooks/useUserProjects';
 
 interface RealTaskManagerProps {
   title?: string;

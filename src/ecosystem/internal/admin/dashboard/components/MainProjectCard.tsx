@@ -5,8 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Plus, FolderPlus, GitBranch, Code, Server, Briefcase } from 'lucide-react';
 import { Badge } from '@/shared/ui/badge';
 import { Progress } from '@/shared/ui/progress';
-import { useMainUserProject } from '@/shared/hooks/useUserProjects';
-import { useClientData } from '@/shared/hooks/useClientData';
+import { useMainUserProject } from '@/ecosystem/internal/projects/hooks/useUserProjects';
+import { useClientData } from '@/ecosystem/internal/projects/hooks/useClientData';
 import { Skeleton } from '@/shared/ui/skeleton';
 
 export function MainProjectCard() {

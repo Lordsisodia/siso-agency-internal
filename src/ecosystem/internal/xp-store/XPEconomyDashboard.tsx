@@ -26,7 +26,7 @@ import { RewardCatalog } from './RewardCatalog';
 import { PurchaseDialog } from './PurchaseDialog';
 import { PurchaseHistory } from './PurchaseHistory';
 import { XPAnalytics } from './XPAnalytics';
-import { useXPStore } from '@/shared/hooks/useXPStore';
+import { useXPStore } from '@/ecosystem/internal/xp-store/hooks/useXPStore';
 import { cn } from '@/shared/lib/utils';
 
 interface XPEconomyDashboardProps {

@@ -7,8 +7,8 @@ import { Input } from '@/shared/ui/input';
 import { Textarea } from '@/shared/ui/textarea';
 import { PromptInputBox } from '@/shared/ui/ai-prompt-box';
 import { format } from 'date-fns';
-import { createApiUrl } from '@/shared/utils/api-config';
 import { useAuth } from '@clerk/clerk-react';
+import { useDailyReflections } from '@/shared/hooks/useDailyReflections';
 
 interface NightlyCheckoutSectionProps {
   selectedDate: Date;
@@ -20,14 +20,15 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
   const { userId } = useAuth();
   const dateKey = format(selectedDate, 'yyyy-MM-dd');
   
+  // Use the new Supabase hook for data persistence
+  const { reflection, loading: isLoading, saving: isSaving, saveReflection } = useDailyReflections({ selectedDate });
+  
   const [bedTime, setBedTime] = useState<string>('');
   const [isEditingBedTime, setIsEditingBedTime] = useState(false);
   const [isVoiceProcessing, setIsVoiceProcessing] = useState(false);
   const [voiceAnalysisResult, setVoiceAnalysisResult] = useState<any>(null);
   const [showVoicePreview, setShowVoicePreview] = useState(false);
   const [voiceError, setVoiceError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
 
   const [nightlyCheckout, setNightlyCheckout] = useState({
     wentWell: ['', '', ''],
@@ -57,70 +58,32 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
     }
   };
 
-  // Load data from database on component mount or date change
+  // Sync local state with Supabase data when reflection loads
   useEffect(() => {
-    if (!userId) return;
-    
-    const loadReflections = async () => {
-      try {
-        setIsLoading(true);
-        const response = await fetch(
-          createApiUrl(`/api/daily-reflections?userId=${userId}&date=${dateKey}`)
-        );
-        
-        if (response.ok) {
-          const result = await response.json();
-          if (result.success && result.data) {
-            const data = result.data;
-            setNightlyCheckout({
-              wentWell: data.wentWell && data.wentWell.length > 0 ? data.wentWell : ['', '', ''],
-              evenBetterIf: data.evenBetterIf || ['', '', '', '', ''],
-              analysis: data.analysis || ['', '', ''],
-              patterns: data.patterns || ['', '', ''],
-              changes: data.changes || ['', '', ''],
-              overallRating: data.overallRating,
-              keyLearnings: data.keyLearnings || '',
-              tomorrowFocus: data.tomorrowFocus || ''
-            });
-          }
-        }
-      } catch (error) {
-        console.error('Failed to load daily reflections:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    if (reflection) {
+      setNightlyCheckout({
+        wentWell: reflection.wentWell && reflection.wentWell.length > 0 ? reflection.wentWell : ['', '', ''],
+        evenBetterIf: reflection.evenBetterIf || ['', '', '', '', ''],
+        analysis: reflection.analysis || ['', '', ''],
+        patterns: reflection.patterns || ['', '', ''],
+        changes: reflection.changes || ['', '', ''],
+        overallRating: reflection.overallRating,
+        keyLearnings: reflection.keyLearnings || '',
+        tomorrowFocus: reflection.tomorrowFocus || ''
+      });
+    }
+  }, [reflection]);
 
-    loadReflections();
-  }, [userId, dateKey]);
-
-  // Save to database with debouncing
+  // Save to Supabase with debouncing
   useEffect(() => {
     if (!userId || isLoading) return;
     
     const saveTimer = setTimeout(async () => {
-      try {
-        setIsSaving(true);
-        await fetch(createApiUrl('/api/daily-reflections'), {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            userId,
-            date: dateKey,
-            ...nightlyCheckout
-          }),
-        });
-      } catch (error) {
-        console.error('Failed to save daily reflections:', error);
-      } finally {
-        setIsSaving(false);
-      }
+      await saveReflection(nightlyCheckout);
     }, 1000); // Debounce for 1 second
 
     return () => clearTimeout(saveTimer);
-  }, [nightlyCheckout, userId, dateKey, isLoading]);
+  }, [nightlyCheckout, userId, isLoading, saveReflection]);
 
   // Get current time in 12-hour format
   const getCurrentTime = () => {

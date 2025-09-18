@@ -13,7 +13,7 @@
  * - TypeScript support with proper type safety
  * 
  * Dependencies:
- * - react-icons (for IoHomeOutline, IoVideocamOutline, etc.)
+ * - lucide-react (for Home, Video, Camera, etc.)
  * - Tailwind CSS (for styling and animations)
  * 
  * Usage Example:
@@ -33,21 +33,21 @@
  * You can modify the menuItems array to add/remove items or change colors:
  * ```tsx
  * const menuItems = [
- *   { title: 'Home', icon: <IoHomeOutline />, gradientFrom: '#a955ff', gradientTo: '#ea51ff' },
+ *   { title: 'Home', icon: <Home />, gradientFrom: '#a955ff', gradientTo: '#ea51ff' },
  *   // Add more items...
  * ];
  * ```
  */
 
 import React from 'react';
-import { IoHomeOutline, IoVideocamOutline, IoCameraOutline, IoShareSocialOutline, IoHeartOutline } from 'react-icons/io5';
+import { Home, Video, Camera, Share, Heart } from 'lucide-react';
 
 const menuItems = [
-  { title: 'Home', icon: <IoHomeOutline />, gradientFrom: '#a955ff', gradientTo: '#ea51ff' },
-  { title: 'Video', icon: <IoVideocamOutline />, gradientFrom: '#56CCF2', gradientTo: '#2F80ED' },
-  { title: 'Photo', icon: <IoCameraOutline />, gradientFrom: '#FF9966', gradientTo: '#FF5E62' },
-  { title: 'Share', icon: <IoShareSocialOutline />, gradientFrom: '#80FF72', gradientTo: '#7EE8FA' },
-  { title: 'Tym', icon: <IoHeartOutline />, gradientFrom: '#ffa9c6', gradientTo: '#f434e2' }
+  { title: 'Home', icon: <Home />, gradientFrom: '#a955ff', gradientTo: '#ea51ff' },
+  { title: 'Video', icon: <Video />, gradientFrom: '#56CCF2', gradientTo: '#2F80ED' },
+  { title: 'Photo', icon: <Camera />, gradientFrom: '#FF9966', gradientTo: '#FF5E62' },
+  { title: 'Share', icon: <Share />, gradientFrom: '#80FF72', gradientTo: '#7EE8FA' },
+  { title: 'Tym', icon: <Heart />, gradientFrom: '#ffa9c6', gradientTo: '#f434e2' }
 ];
 
 export default function GradientMenu() {

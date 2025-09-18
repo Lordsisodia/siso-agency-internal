@@ -2,7 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/shared/ui/button';
-import { PlanPhase } from '@/shared/hooks/usePlanData';
+import { PlanPhase } from '@/ecosystem/internal/planning/hooks/usePlanData';
 
 interface PhasesNavigationProps {
   phases: PlanPhase[];

@@ -23,8 +23,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
 import { TaskDetailModal } from "./task-detail-modal";
 import { CustomCalendar } from "./CustomCalendar";
 import { SubtaskItem } from "../tasks/SubtaskItem";
-import { useDeepWorkTasksSupabase, DeepWorkTask, DeepWorkSubtask } from "@/shared/hooks/useDeepWorkTasksSupabase";
-import { useLightWorkTasksSupabase, LightWorkTask, LightWorkSubtask } from "@/shared/hooks/useLightWorkTasksSupabase";
+import { useDeepWorkTasksSupabase, DeepWorkTask, DeepWorkSubtask } from "@/ecosystem/internal/tasks/hooks/useDeepWorkTasksSupabase";
+import { useLightWorkTasksSupabase, LightWorkTask, LightWorkSubtask } from "@/ecosystem/internal/tasks/hooks/useLightWorkTasksSupabase";
 
 // Type definitions - keeping original UI types
 interface Subtask {

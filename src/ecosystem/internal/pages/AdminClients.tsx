@@ -1,7 +1,7 @@
 
 import { useEffect } from 'react';
 import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
-import { useAdminCheck } from '@/shared/hooks/useAdminCheck';
+import { useAdminCheck } from '@/ecosystem/internal/admin/hooks/useAdminCheck';
 import { Loader2, Users } from 'lucide-react';
 import { useToast } from '@/shared/hooks/use-toast';
 import { AdminClientsView } from '@/ecosystem/internal/admin/clients/AdminClientsView';

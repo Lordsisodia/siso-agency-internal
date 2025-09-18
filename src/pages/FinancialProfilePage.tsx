@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { FinancialLayout } from '@/shared/layout/FinancialLayout';
-import { useProfileData } from '@/shared/hooks/useProfileData';
+import { useProfileData } from '@/ecosystem/internal/profile/hooks/useProfileData';
 import { ProfileInfo } from '@/internal/profile/ProfileInfo';
 import { Card } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';

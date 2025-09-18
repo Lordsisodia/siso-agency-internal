@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { MainLayout } from '@/shared/layout/MainLayout';
-import { usePortfolioData } from '@/shared/hooks/usePortfolioData';
+import { usePortfolioData } from '@/ecosystem/internal/projects/hooks/usePortfolioData';
 import { PortfolioCard } from '@/client/portfolio/PortfolioCard';
 import { PortfolioHero } from '@/client/portfolio/PortfolioHero';
 import { PortfolioFilters } from '@/client/portfolio/PortfolioFilters';

@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Button } from '@/shared/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
 import { Plus, AlertTriangle, FileIcon } from 'lucide-react';
-import { useProjectWireframes } from '@/shared/hooks/useProjectWireframes';
+import { useProjectWireframes } from '@/ecosystem/internal/projects/hooks/useProjectWireframes';
 import { WireframeCard } from '@/ecosystem/internal/projects/wireframes/WireframeCard';
 import { Skeleton } from '@/shared/ui/skeleton';
 

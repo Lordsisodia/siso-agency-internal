@@ -8,7 +8,7 @@
 import React from 'react';
 import { UnifiedWorkSection } from '@/refactored/components/UnifiedWorkSection';
 import { TaskHeader } from '@/ai-first/features/dashboard/components/TaskHeader';
-import { useLightWorkTasksSupabase } from '@/shared/hooks/useLightWorkTasksSupabase';
+import { useLightWorkTasksSupabase } from '@/ecosystem/internal/tasks/hooks/useLightWorkTasksSupabase';
 
 interface LightFocusWorkSectionProps {
   selectedDate: Date;

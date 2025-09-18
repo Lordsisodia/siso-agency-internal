@@ -5,7 +5,7 @@ import { TimelineDemo } from "@/shared/ui/timeline.demo";
 import { AdminLayout } from "@/ecosystem/internal/admin/layout/AdminLayout";
 import { AdminPageTitle } from "@/ecosystem/internal/admin/layout/AdminPageTitle";
 import { Settings } from "lucide-react";
-import { useAdminCheck } from "@/shared/hooks/useAdminCheck";
+import { useAdminCheck } from "@/ecosystem/internal/admin/hooks/useAdminCheck";
 import { Loader2 } from "lucide-react";
 
 export default function ChangelogPage() {

@@ -36,7 +36,10 @@
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
     "prepare": "husky",
-    "check:mcp": "node scripts/mcp/check-codecs.mjs"
+    "check:mcp": "node scripts/mcp/check-codecs.mjs",
+    "security:scan": "snyk test --org=27f2978d-30d9-46a5-b982-64e7055a8a61",
+    "security:monitor": "snyk monitor --org=27f2978d-30d9-46a5-b982-64e7055a8a61",
+    "security:fix": "snyk fix --org=27f2978d-30d9-46a5-b982-64e7055a8a61"
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.30",
@@ -79,7 +82,6 @@
     "@supabase/auth-ui-react": "^0.4.7",
     "@supabase/auth-ui-shared": "^0.1.8",
     "@supabase/supabase-js": "^2.49.4",
-    "@tabler/icons-react": "^3.29.0",
     "@tanstack/react-query": "^5.56.2",
     "@tanstack/react-table": "^8.21.3",
     "@tanstack/react-virtual": "^3.13.12",
@@ -119,7 +121,6 @@
     "react-hook-form": "^7.53.0",
     "react-hot-toast": "^2.5.1",
     "react-hotkeys-hook": "^4.6.1",
-    "react-icons": "^5.5.0",
     "react-intersection-observer": "^9.16.0",
     "react-markdown": "^10.1.0",
     "react-resizable-panels": "^2.1.3",

@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Card } from '@/shared/ui/card';
 import { TaskList } from './TaskList';
 import { Chip } from '@/shared/ui/chip';
-import { TaskCategory } from '@/shared/hooks/useTasks';
+import { TaskCategory } from '@/ecosystem/internal/tasks/hooks/useTasks';
 import { Tabs, TabsList, TabsTrigger } from '@/shared/ui/tabs';
 import { useSearchParams } from 'react-router-dom';
 import { TaskAnalytics } from './TaskAnalytics';

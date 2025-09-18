@@ -7,7 +7,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { ProjectDirectoryCard } from '@/features/projects/ProjectDirectoryCard';
 // Modern Task System
 import { TasksProvider, ListView as ActiveTasksView } from '@/tasks';
-import { useProjects } from '@/shared/hooks/useProjects';
+import { useProjects } from '@/ecosystem/internal/projects/hooks/useProjects';
 import { useAuthSession } from '@/shared/hooks/useAuthSession';
 import { useIsMobile } from '@/shared/hooks/use-mobile';
 import {

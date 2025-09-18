@@ -2,7 +2,7 @@ import React from "react";
 import { cn } from "@/shared/lib/utils";
 import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { IconBrandYoutubeFilled } from "@tabler/icons-react";
+import { Youtube } from "lucide-react";
 import createGlobe from "cobe";
 
 export function FeaturesSectionWithBentoGrid() {
@@ -131,7 +131,7 @@ export const SkeletonThree = () => {
     >
       <div className="w-full mx-auto bg-transparent group h-full">
         <div className="flex flex-1 w-full h-full flex-col space-y-2 relative">
-          <IconBrandYoutubeFilled className="h-20 w-20 absolute z-10 inset-0 text-red-500 m-auto" />
+          <Youtube className="h-20 w-20 absolute z-10 inset-0 text-red-500 m-auto fill-current" />
           <img
             src="/lovable-uploads/1f9eba1e-c2af-4ed8-84e7-a375872c9182.png"
             alt="header"

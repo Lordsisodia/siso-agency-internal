@@ -92,7 +92,7 @@ export const LightWorkTab: React.FC<TabProps> = ({
     .reduce((acc, task) => acc + parseInt(task.estimatedTime), 0);
 
   return (
-    <div className="p-4 space-y-6 bg-gradient-to-br from-black via-gray-900 to-black min-h-full">
+    <div className="p-4 space-y-6 bg-gradient-to-br from-black via-gray-900 to-black">
       {/* Header */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}

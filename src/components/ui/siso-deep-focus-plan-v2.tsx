@@ -168,7 +168,7 @@ export default function SisoDeepFocusPlanV2({ onStartFocusSession }: SisoDeepFoc
         y: 0,
         transition: { duration: 0.3, ease: [0.2, 0.65, 0.3, 0.9] }
       }}
-      className="h-full"
+      className="h-full overflow-hidden"
     >
       {/* 
         🎯 Deep Work Architecture V2 Benefits:

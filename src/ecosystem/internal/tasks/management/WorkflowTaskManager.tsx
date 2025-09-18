@@ -7,7 +7,7 @@ import { Plus, X, ArrowRight, Rocket, CheckCircle, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/shared/lib/utils';
 import { useLocalStorage } from '@/shared/hooks/useLocalStorage';
-import { useMainUserProject } from '@/shared/hooks/useUserProjects';
+import { useMainUserProject } from '@/ecosystem/internal/projects/hooks/useUserProjects';
 import { useNavigate } from 'react-router-dom';
 
 interface WorkflowTask {

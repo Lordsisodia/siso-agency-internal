@@ -306,7 +306,7 @@ export const DayTabContainer: React.FC<TabProps> = (props) => {
                 x: { type: "spring", stiffness: 300, damping: 30 },
                 opacity: { duration: 0.2 },
               }}
-              className="absolute inset-0 overflow-y-auto"
+              className="absolute inset-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent"
             >
               <ActiveTabComponent {...props} />
             </motion.div>

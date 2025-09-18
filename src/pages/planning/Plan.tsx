@@ -33,12 +33,12 @@ import { InteractiveCallout } from '@/features/planning/components/InteractiveCa
 import { EnhancedNextSteps } from '@/features/planning/components/EnhancedNextSteps';
 import { caseStudies } from '@/data/plan/featureData';
 import { ImplementationPlan } from '@/features/planning/components/ImplementationPlan';
-import { usePlanData, PlanDataType } from '@/shared/hooks/usePlanData';
+import { usePlanData, PlanDataType } from '@/ecosystem/internal/planning/hooks/usePlanData';
 import { Button } from '@/shared/ui/button';
 import { GradientHeading } from '@/shared/ui/gradient-heading';
 import { supabase } from '@/integrations/supabase/client';
 import { PlanComments } from '@/features/planning/components/NewsCardComments';
-import { usePlanViewTracking } from '@/shared/hooks/usePlanViewTracking';
+import { usePlanViewTracking } from '@/ecosystem/internal/planning/hooks/usePlanViewTracking';
 
 // Mapping of agency-specific URLs to industry types
 const AGENCY_TO_INDUSTRY_MAP: Record<string, string> = {

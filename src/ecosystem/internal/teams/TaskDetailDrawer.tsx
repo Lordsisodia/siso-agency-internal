@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Task } from '@/types/task.types';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter } from '@/shared/ui/drawer';
 import { Separator } from '@/shared/ui/separator';
-import { useTaskOperations } from '@/shared/hooks/useTaskOperations';
+import { useTaskOperations } from '@/ecosystem/internal/tasks/hooks/useTaskOperations';
 import { useToast } from '@/shared/hooks/use-toast';
 import { SubtaskList } from './SubtaskList';
 import { Plus } from 'lucide-react';

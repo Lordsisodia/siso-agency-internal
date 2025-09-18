@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/shared/ui/card';
 import { FolderOpen, CheckSquare, Rocket, Calendar, TrendingUp, TrendingDown, Clock, Target } from 'lucide-react';
-import { useMainUserProject } from '@/shared/hooks/useUserProjects';
+import { useMainUserProject } from '@/ecosystem/internal/projects/hooks/useUserProjects';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { cn } from '@/shared/lib/utils';
 

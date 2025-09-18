@@ -22,7 +22,7 @@ import { Button } from '@/shared/ui/button';
 import { Badge } from '@/shared/ui/badge';
 import { SharedTaskCard, TaskData } from '@/components/ui/SharedTaskCard';
 import { Progress } from '@/shared/ui/progress';
-import { useLightWorkTasksSupabase } from '@/shared/hooks/useLightWorkTasksSupabase';
+import { useLightWorkTasksSupabase } from '@/ecosystem/internal/tasks/hooks/useLightWorkTasksSupabase';
 
 interface LightWorkSectionProps {
   onStartFocusSession?: (taskId: string, intensity: number) => void;

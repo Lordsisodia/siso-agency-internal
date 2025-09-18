@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { ClientData, ClientsListParams, ClientsListResponse, TodoItem } from '@/types/client.types';
-import { useAdminCheck } from '@/shared/hooks/useAdminCheck';
+import { useAdminCheck } from '@/ecosystem/internal/admin/hooks/useAdminCheck';
 import { sampleClients } from '@/data/sampleClients';
 
 /**

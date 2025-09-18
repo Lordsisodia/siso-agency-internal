@@ -4,7 +4,7 @@ import { AdminLayout } from '@/components/admin/layout/AdminLayout';
 import { Card } from '@/shared/ui/card';
 import { BulkPlanCreation } from '@/components/admin/BulkPlanCreation';
 import { ShareablePlansSection } from '@/components/admin/templates/ShareablePlansSection';
-import { useAdminCheck } from '@/shared/hooks/useAdminCheck';
+import { useAdminCheck } from '@/ecosystem/internal/admin/hooks/useAdminCheck';
 import { Loader2, FileStack, ChevronDown, ChevronUp, Users } from 'lucide-react';
 import { AdminPageTitle } from '@/components/admin/layout/AdminPageTitle';
 import { Button } from '@/shared/ui/button';

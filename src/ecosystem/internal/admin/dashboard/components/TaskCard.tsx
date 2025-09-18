@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Task } from '@/types/task.types';
 import { Card } from '@/shared/ui/card';
-import { useTaskDragDrop } from '@/shared/hooks/useTaskDragDrop';
+import { useTaskDragDrop } from '@/ecosystem/internal/tasks/hooks/useTaskDragDrop';
 import { cn } from '@/shared/lib/utils';
 import { Progress } from '@/shared/ui/progress';
 import { PriorityBadge } from './PriorityBadge';

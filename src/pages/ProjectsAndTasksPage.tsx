@@ -6,7 +6,7 @@ import { Home, Component, AlertCircle } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ProjectDirectoryCard } from '@/ecosystem/internal/projects/ProjectDirectoryCard';
 import { ActiveTasksView } from '@/ecosystem/internal/projects/ActiveTasksView';
-import { useProjects } from '@/shared/hooks/useProjects';
+import { useProjects } from '@/ecosystem/internal/projects/hooks/useProjects';
 import { useAuthSession } from '@/shared/hooks/useAuthSession';
 import { useIsMobile } from '@/shared/hooks/use-mobile';
 import {

@@ -54,8 +54,8 @@ const AdminClients = lazy(() => import('@/ecosystem/internal/pages/AdminClients.
 const AdminTasks = lazy(() => import('@/ecosystem/internal/pages/AdminTasks.tsx'));
 const AdminPlans = lazy(() => import('@/ecosystem/internal/pages/AdminPlans.tsx'));
 const AdminFeedback = lazy(() => import('@/ecosystem/internal/pages/AdminFeedback.tsx'));
-const AdminLightWork = lazy(() => import('@/shared/tabs/LightWorkTab.tsx').then(m => ({ default: m.LightWorkTab })));
-const AdminDeepWork = lazy(() => import('@/shared/tabs/DeepWorkTab.tsx').then(m => ({ default: m.DeepWorkTab })));
+const AdminLightWork = lazy(() => import('@/ecosystem/internal/tasks/components/shared-tabs/LightWorkTab.tsx').then(m => ({ default: m.LightWorkTab })));
+const AdminDeepWork = lazy(() => import('@/ecosystem/internal/tasks/components/shared-tabs/DeepWorkTab.tsx').then(m => ({ default: m.DeepWorkTab })));
 // Archived pages - removed from navigation
 const AdminOutreach = lazy(() => import('@/ecosystem/internal/pages/AdminOutreach.tsx'));
 const AdminTemplates = lazy(() => import('@/ecosystem/internal/pages/AdminTemplates.tsx'));

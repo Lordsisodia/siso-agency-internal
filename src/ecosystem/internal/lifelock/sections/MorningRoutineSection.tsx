@@ -251,7 +251,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
 
   if (loading) {
     return (
-      <div className="min-h-screen w-full bg-gray-900 flex items-center justify-center">
+      <div className="h-full w-full bg-gray-900 flex items-center justify-center">
         <div className="text-yellow-400">Loading morning routine...</div>
       </div>
     );
@@ -259,14 +259,14 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
 
   if (error) {
     return (
-      <div className="min-h-screen w-full bg-gray-900 flex items-center justify-center">
+      <div className="h-full w-full bg-gray-900 flex items-center justify-center">
         <div className="text-red-400">Error loading morning routine: {error}</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen w-full">
+    <div className="h-full w-full">
       <div className="max-w-7xl mx-auto p-3 sm:p-4 md:p-6 lg:p-8 space-y-6">
         
         {/* Morning Routine Card */}

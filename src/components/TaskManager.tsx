@@ -251,7 +251,7 @@ export const TaskManager: React.FC<TaskManagerProps> = ({
   };
 
   return (
-    <div className={`task-manager ${className}`}>
+    <div className={`task-manager h-full ${className}`}>
       {/* Header Section */}
       {showHeader && (
         <div className="mb-6">

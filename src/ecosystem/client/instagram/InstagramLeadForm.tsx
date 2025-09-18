@@ -3,7 +3,7 @@ import React from 'react';
 import { useState } from 'react';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
-import { useInstagramLeads } from '@/shared/hooks/useInstagramLeads';
+import { useInstagramLeads } from '@/ecosystem/internal/admin/hooks/useInstagramLeads';
 import { toast } from 'sonner';
 
 export const InstagramLeadForm = () => {

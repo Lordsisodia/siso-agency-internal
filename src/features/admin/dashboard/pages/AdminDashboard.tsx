@@ -5,7 +5,7 @@ import { QuickActions } from '@/components/admin/dashboard/QuickActions';
 import { ClientsList } from '@/components/admin/dashboard/ClientsList';
 import { AdminTasks } from '@/components/admin/dashboard/AdminTasks';
 import { AdminStats } from '@/components/admin/dashboard/AdminStats';
-import { useAdminCheck } from '@/shared/hooks/useAdminCheck';
+import { useAdminCheck } from '@/ecosystem/internal/admin/hooks/useAdminCheck';
 import { Loader2, Users, Target } from 'lucide-react';
 import { useEffect, useState, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';

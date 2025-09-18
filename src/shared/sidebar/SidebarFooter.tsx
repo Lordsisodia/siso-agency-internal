@@ -16,7 +16,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu";
-import { useClientData } from '@/shared/hooks/useClientData';
+import { useClientData } from '@/ecosystem/internal/projects/hooks/useClientData';
 import { useAuthSession } from '@/shared/hooks/useAuthSession';
 
 interface SidebarFooterProps {

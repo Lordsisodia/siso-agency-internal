@@ -17,8 +17,8 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/shared/u
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthSession } from '@/shared/hooks/useAuthSession';
 import { useToast } from '@/shared/ui/use-toast';
-import { useTasks } from '@/shared/hooks/useTasks';
-import { useTaskOperations } from '@/shared/hooks/useTaskOperations';
+import { useTasks } from '@/ecosystem/internal/tasks/hooks/useTasks';
+import { useTaskOperations } from '@/ecosystem/internal/tasks/hooks/useTaskOperations';
 import {
   Calendar,
   Clock,

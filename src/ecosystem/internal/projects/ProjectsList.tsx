@@ -7,7 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '@/shared/hooks/useUser';
 import { useToast } from '@/shared/hooks/use-toast';
-import { useUserProjects } from '@/shared/hooks/useUserProjects';
+import { useUserProjects } from '@/ecosystem/internal/projects/hooks/useUserProjects';
 import { Skeleton } from '@/shared/ui/skeleton';
 
 interface EnhancedProject {

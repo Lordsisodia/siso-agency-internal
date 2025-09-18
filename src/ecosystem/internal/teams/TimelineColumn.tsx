@@ -13,7 +13,7 @@ import { TimelineGrid } from './timeline/TimelineGrid';
 import { Plus } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
 import { ScrollArea } from '@/shared/ui/scroll-area';
-import { useTaskDragDrop } from '@/shared/hooks/useTaskDragDrop';
+import { useTaskDragDrop } from '@/ecosystem/internal/tasks/hooks/useTaskDragDrop';
 
 export function TimelineColumn({ tasks }: { tasks: Task[] }) {
   const { currentTime, timelineRef, getCurrentWindow, scrollToCurrentTime } = useTimeWindow();

@@ -7,7 +7,7 @@ import {
   AccordionTrigger,
 } from '@/shared/ui/accordion';
 import { Button } from '@/shared/ui/button';
-import { usePoints } from '@/shared/hooks/usePoints';
+import { usePoints } from '@/ecosystem/internal/xp-store/hooks/usePoints';
 import { useAuthSession } from '@/shared/hooks/useAuthSession';
 import { useToast } from '@/shared/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';

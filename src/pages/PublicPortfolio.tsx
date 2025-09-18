@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
 import { GridBackground } from "@/shared/ui/glowing-card";
-import { usePortfolioData } from '@/shared/hooks/usePortfolioData';
+import { usePortfolioData } from '@/ecosystem/internal/projects/hooks/usePortfolioData';
 import { adaptPortfolioToLeaderboard } from '@/client/portfolio/PortfolioLeaderboardAdapter';
 import { PortfolioLeaderboardTable } from '@/client/portfolio/PortfolioLeaderboardTable';
 import { ProjectDetailsModal } from '@/client/portfolio/ProjectDetailsModal';

@@ -9,7 +9,7 @@ import { ProfileLayout } from '@/internal/profile/ProfileLayout';
 import { ProfileSkeleton } from '@/internal/profile/ProfileSkeleton';
 import { ProfileMetrics } from '@/internal/profile/ProfileMetrics';
 import { ProfileProgress } from '@/internal/profile/ProfileProgress';
-import { useProfileData } from '@/shared/hooks/useProfileData';
+import { useProfileData } from '@/ecosystem/internal/profile/hooks/useProfileData';
 import { SignOutButton } from '@/shared/auth/SignOutButton';
 
 const Profile = () => {

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar } from "@/ecosystem/internal/calendar/ui/calendar";
 import { supabase } from '@/integrations/supabase/client';
-import { useTasks } from '@/shared/hooks/useTasks';
+import { useTasks } from '@/ecosystem/internal/tasks/hooks/useTasks';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
 import { PlusCircle } from 'lucide-react';

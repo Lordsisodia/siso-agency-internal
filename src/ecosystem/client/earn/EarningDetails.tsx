@@ -3,7 +3,7 @@ import { Star, Info, Trophy } from 'lucide-react';
 import { Card } from '@/shared/ui/card';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/shared/ui/hover-card';
 import { cn } from '@/shared/lib/utils';
-import { usePoints } from '@/shared/hooks/usePoints';
+import { usePoints } from '@/ecosystem/internal/xp-store/hooks/usePoints';
 import { useToast } from "@/shared/hooks/use-toast";
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';

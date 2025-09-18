@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Tabs, TabsList, TabsTrigger } from '@/shared/ui/tabs';
 import { Search } from 'lucide-react';
 import { Input } from '@/shared/ui/input';
-import { RealTaskManager } from '@/ecosystem/internal/tasks/RealTaskManager';
+import { RealTaskManager } from '@/shared/components/tasks/RealTaskManager';
 import { useUserPreferences } from '@/shared/hooks/useLocalStorage';
 
 interface TasksListProps {

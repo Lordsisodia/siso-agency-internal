@@ -1,6 +1,6 @@
 
 import { Button } from '@/shared/ui/button';
-import { useAddPortfolioProjects } from '@/shared/hooks/useAddPortfolioProjects';
+import { useAddPortfolioProjects } from '@/ecosystem/internal/projects/hooks/useAddPortfolioProjects';
 
 export const AddPortfolioButton = () => {
   const { addProjects } = useAddPortfolioProjects();

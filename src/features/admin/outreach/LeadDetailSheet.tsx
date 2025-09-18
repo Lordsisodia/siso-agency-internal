@@ -35,7 +35,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/ui/select";
-import { useInstagramLeads } from '@/shared/hooks/useInstagramLeads';
+import { useInstagramLeads } from '@/ecosystem/internal/admin/hooks/useInstagramLeads';
 import { toast } from 'sonner';
 import { formatCompactNumber } from '@/shared/lib/formatters';
 

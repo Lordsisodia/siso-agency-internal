@@ -1,5 +1,5 @@
 
-import { useProfileData } from '@/shared/hooks/useProfileData';
+import { useProfileData } from '@/ecosystem/internal/profile/hooks/useProfileData';
 import { ProfileInfo } from '@/internal/profile/ProfileInfo';
 import { Button } from '@/shared/ui/button';
 import { useToast } from '@/shared/hooks/use-toast';

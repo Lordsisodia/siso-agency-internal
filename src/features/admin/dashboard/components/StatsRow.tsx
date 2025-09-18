@@ -6,8 +6,8 @@ import {
   CheckSquare, 
   Star 
 } from 'lucide-react';
-import { useMainUserProject } from '@/shared/hooks/useUserProjects';
-import { useRealTasks } from '@/shared/hooks/useRealTasks';
+import { useMainUserProject } from '@/ecosystem/internal/projects/hooks/useUserProjects';
+import { useRealTasks } from '@/ecosystem/internal/tasks/hooks/useRealTasks';
 
 export function StatsRow() {
   const { projectCount } = useMainUserProject();

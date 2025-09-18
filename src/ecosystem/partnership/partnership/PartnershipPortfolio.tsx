@@ -4,7 +4,7 @@ import { Trophy, Star, ArrowRight, ExternalLink, Code, Database, Palette, Globe 
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
 import { ProjectDetailsModal } from '@/client/portfolio/ProjectDetailsModal';
-import { usePortfolioData } from '@/shared/hooks/usePortfolioData';
+import { usePortfolioData } from '@/ecosystem/internal/projects/hooks/usePortfolioData';
 import { adaptPortfolioToLeaderboard } from '@/client/portfolio/PortfolioLeaderboardAdapter';
 import { Badge } from '@/shared/ui/badge';
 

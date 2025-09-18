@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { useTaskXPPreview, useNewTaskXPPreview, useBulkXPPreview, useXPPreviewHelpers } from '@/shared/hooks/useXPPreview';
+import { useTaskXPPreview, useNewTaskXPPreview, useBulkXPPreview, useXPPreviewHelpers } from '@/ecosystem/internal/xp-store/hooks/useXPPreview';
 import { XPPreview } from '@/services/xpPreviewService';
 
 // Types

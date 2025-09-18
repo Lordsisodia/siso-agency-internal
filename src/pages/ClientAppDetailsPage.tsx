@@ -1,6 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { AppLayout } from '@/shared/layout/AppLayout';
-import { useClientAppDetails } from '@/shared/hooks/useClientAppDetails';
+import { useClientAppDetails } from '@/ecosystem/internal/projects/hooks/useClientAppDetails';
 import { ClientAppHeader } from '@/client/client-app/ClientAppHeader';
 import { ClientAppStats } from '@/client/client-app/ClientAppStats';
 import { ClientAppTimeline } from '@/client/client-app/ClientAppTimeline';

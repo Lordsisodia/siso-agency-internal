@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import { PhasesNavigation } from './PhasesNavigation';
 import { PlanHeader } from './PlanHeader';
 import { PhaseSection } from './PhaseSection';
-import { useProjectPlan } from '@/shared/hooks/usePlanData';
+import { useProjectPlan } from '@/ecosystem/internal/planning/hooks/usePlanData';
 import { Spinner } from '@/shared/ui/spinner';
 
 export function AppPlanSection() {

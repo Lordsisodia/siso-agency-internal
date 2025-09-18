@@ -7,7 +7,7 @@
 
 import React from 'react';
 import { UnifiedWorkSection } from '@/features/tasks/components/UnifiedWorkSection';
-import { useDeepWorkTasksSupabase } from '@/shared/hooks/useDeepWorkTasksSupabase';
+import { useDeepWorkTasksSupabase } from '@/ecosystem/internal/tasks/hooks/useDeepWorkTasksSupabase';
 
 interface DeepFocusWorkSectionProps {
   selectedDate: Date;

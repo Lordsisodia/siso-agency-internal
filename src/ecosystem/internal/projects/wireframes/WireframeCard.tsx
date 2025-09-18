@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
 import { ExternalLink, Eye, FileIcon } from 'lucide-react';
-import { Wireframe } from '@/shared/hooks/useProjectWireframes';
+import { Wireframe } from '@/ecosystem/internal/projects/hooks/useProjectWireframes';
 import { useNavigate } from 'react-router-dom';
 
 interface WireframeCardProps {

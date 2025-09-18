@@ -7,7 +7,7 @@ import { Menu, X, FolderOpen, ChevronDown, User, LogOut } from 'lucide-react';
 import { useIsMobile } from '@/shared/hooks/use-mobile';
 import { Button } from './ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useSelectedProject } from '@/shared/hooks/useSelectedProject';
+import { useSelectedProject } from '@/ecosystem/internal/projects/hooks/useSelectedProject';
 import { CollapsedProjectCard } from '@/client/client/CollapsedProjectCard';
 import {
   DropdownMenu,

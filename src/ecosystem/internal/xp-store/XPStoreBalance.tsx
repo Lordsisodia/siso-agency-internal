@@ -20,7 +20,7 @@ import {
   Flame
 } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
-import { useXPStore } from '@/shared/hooks/useXPStore';
+import { useXPStore } from '@/ecosystem/internal/xp-store/hooks/useXPStore';
 
 interface XPStoreBalanceProps {
   userId: string;

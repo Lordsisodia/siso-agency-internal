@@ -379,9 +379,9 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
       <div className={useImplementation(
         'useUnifiedThemeSystem',
         // NEW: Unified theme system
-        `min-h-screen w-full flex items-center justify-center ${theme.gradients.diagonal.grayToBlack}`,
+        `h-full w-full flex items-center justify-center ${theme.gradients.diagonal.grayToBlack}`,
         // OLD: Original classes (fallback for safety)
-        'min-h-screen w-full bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center'
+        'h-full w-full bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center'
       )}>
         <div className="text-center">
           <motion.div 
@@ -399,9 +399,9 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
     <div className={useImplementation(
       'useUnifiedThemeSystem',
       // NEW: Unified theme system
-      `min-h-screen w-full ${theme.gradients.diagonal.grayToBlack}`,
+      `h-full w-full ${theme.gradients.diagonal.grayToBlack}`,
       // OLD: Original classes (fallback for safety)
-      'min-h-screen w-full bg-gradient-to-br from-black via-gray-900 to-black'
+      'h-full w-full bg-gradient-to-br from-black via-gray-900 to-black'
     )}>
       <div className="w-full">
         
@@ -433,7 +433,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
             <div className="relative w-full">
               
               <div 
-                className="relative w-full bg-gray-900 overflow-auto max-h-[700px]" 
+                className="relative w-full bg-gray-900" 
                 data-timeline-container
               >
               

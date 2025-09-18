@@ -1,5 +1,5 @@
 
-import { useInstagramLeads } from '@/shared/hooks/useInstagramLeads';
+import { useInstagramLeads } from '@/ecosystem/internal/admin/hooks/useInstagramLeads';
 import { Badge } from '@/shared/ui/badge';
 import {
   Table,
