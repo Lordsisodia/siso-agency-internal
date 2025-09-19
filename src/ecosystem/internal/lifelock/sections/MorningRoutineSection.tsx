@@ -159,7 +159,6 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
           const apiData = await workTypeApiClient.getMorningRoutine(user.id, selectedDate);
           setMorningRoutine(apiData);
         }
-        setMorningRoutine(data);
       } catch (error) {
         console.error('Error loading morning routine:', error);
         setError('Failed to load morning routine');
@@ -169,7 +168,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
     };
 
     loadMorningRoutine();
-  }, [user?.id, selectedDate]);
+  }, [user?.id, selectedDate, loadTasks]);
 
   // Save wake-up time to localStorage
   useEffect(() => {

@@ -4,7 +4,6 @@
  */
 
 import { offlineDb } from '../offline/offlineDb';
-import { useSupabaseClient } from '@/shared/lib/supabase-clerk';
 
 interface OfflineStatus {
   isOnline: boolean;
@@ -68,10 +67,12 @@ class OfflineManager {
 
   private async testSupabaseConnection(): Promise<boolean> {
     try {
-      const supabase = useSupabaseClient();
-      const { error } = await supabase.from('user_tasks').select('id').limit(1);
+      // Import Supabase client directly without hooks
+      const { supabaseAnon } = await import('@/shared/lib/supabase-clerk');
+      const { error } = await supabaseAnon.from('users').select('id').limit(1);
       return !error;
     } catch (error) {
+      console.warn('Supabase connection test failed:', error);
       return false;
     }
   }
@@ -126,13 +127,11 @@ class OfflineManager {
             );
           } else {
             // For other tables, save as generic offline action
-            await offlineDb.addAction({
+            await offlineDb.queueAction(
               table,
-              action: 'create',
-              data: task,
-              timestamp: Date.now(),
-              synced: true
-            });
+              'create',
+              task
+            );
           }
           return { success: true };
         }
@@ -147,13 +146,11 @@ class OfflineManager {
         );
       } else {
         // For other tables, save as pending action
-        await offlineDb.addAction({
+        await offlineDb.queueAction(
           table,
-          action: 'create',
-          data: task,
-          timestamp: Date.now(),
-          synced: false
-        });
+          'create',
+          task
+        );
       }
 
       await this.checkStatus(); // Update pending count
@@ -252,7 +249,8 @@ class OfflineManager {
 
   private async syncAction(action: any): Promise<boolean> {
     try {
-      const supabase = useSupabaseClient();
+      const { supabaseAnon } = await import('@/shared/lib/supabase-clerk');
+      const supabase = supabaseAnon;
       
       // Map table names to actual Supabase tables
       const tableMapping: Record<string, string> = {
@@ -293,7 +291,8 @@ class OfflineManager {
 
   private async saveToSupabase(table: string, task: any): Promise<{ success: boolean; error?: string }> {
     try {
-      const supabase = useSupabaseClient();
+      const { supabaseAnon } = await import('@/shared/lib/supabase-clerk');
+      const supabase = supabaseAnon;
       
       // Map table names to actual Supabase tables
       const tableMapping: Record<string, string> = {
@@ -319,7 +318,8 @@ class OfflineManager {
   }
 
   private async loadFromSupabase(table: string, filters?: any): Promise<any[]> {
-    const supabase = useSupabaseClient();
+    const { supabaseAnon } = await import('@/shared/lib/supabase-clerk');
+    const supabase = supabaseAnon;
     
     // Map table names to actual Supabase tables
     const tableMapping: Record<string, string> = {
