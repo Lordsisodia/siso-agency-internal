@@ -23,7 +23,7 @@ import { Button } from '@/shared/ui/button';
 import { Badge } from '@/shared/ui/badge';
 import { Textarea } from '@/shared/ui/textarea';
 import { MobileMicrophoneButton } from '../ui/MobileMicrophoneButton';
-import { ThoughtDumpResults } from '../ui/ThoughtDumpResults';
+import { ThoughtDumpResults } from "@/shared/components/ui";
 import { useFeatureFlags } from '@/ai-first/shared/utils/feature-flags';
 import { EnhancedTabProps, ChatThread, ChatMessage, EnhancedChatMessage } from '@/ai-first/shared/types/ai-chat.types';
 

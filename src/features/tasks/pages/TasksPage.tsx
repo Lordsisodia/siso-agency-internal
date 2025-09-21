@@ -5,7 +5,7 @@
 
 import React, { Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { TasksProvider, useTasks } from '../components/TasksProvider';
+import { TasksProvider, useTasks } from '../../../stores/tasks/taskProviderCompat';
 import { TasksHeader } from '../components/TasksHeader';
 import { TasksFilters } from '../components/TasksFilters';
 import { TasksContent } from '../components/TasksContent';
@@ -13,7 +13,7 @@ import { TasksAI } from '../components/TasksAI';
 import { TasksSidebar } from '../components/TasksSidebar';
 import { TasksErrorFallback } from '../components/TasksErrorFallback';
 import { TasksLoadingFallback } from '../components/TasksLoadingFallback';
-import { TaskFilters, TaskViewType } from '../../types/task.types';
+import { TaskFilters, TaskViewType } from '../../ecosystem/internal/tasks/types/task.types';
 import { cn } from '@/shared/lib/utils';
 
 // TasksPage Props

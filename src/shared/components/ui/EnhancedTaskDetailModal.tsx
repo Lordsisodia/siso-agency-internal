@@ -30,8 +30,8 @@ import {
 } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
-import { EnhancedTask, SubTask, FocusIntensity, TaskContext } from '@/ai-first/core/task.service';
-import { FlowStateTimer, FlowSession, FlowState } from './FlowStateTimer';
+import { EnhancedTask, SubTask, FocusIntensity, TaskContext } from '@/shared/services/task.service';
+import { FlowStateTimer, FlowSession, FlowState } from '@/shared/components/ui/FlowStateTimer';
 import { FlowStatsService } from '@/services/flowStatsService';
 
 interface EnhancedTaskDetailModalProps {

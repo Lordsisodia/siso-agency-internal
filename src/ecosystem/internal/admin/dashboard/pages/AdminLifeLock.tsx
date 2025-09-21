@@ -9,9 +9,9 @@ import { useClerkUser } from '@/components/ClerkProvider';
 import { PersonalTaskCard, personalTaskService } from '@/shared/services/task.service';
 import { ClerkHybridTaskService } from '@/shared/services/auth.service';
 import { lifeLockVoiceTaskProcessor, ThoughtDumpResult } from '@/services/lifeLockVoiceTaskProcessor';
-import { ThoughtDumpResults } from '@/components/admin/lifelock/ui/ThoughtDumpResults';
+import { ThoughtDumpResults } from "@/shared/components/ui";
 import { eisenhowerMatrixOrganizer, EisenhowerMatrixResult } from '@/shared/services/task.service';
-import { EisenhowerMatrixModal } from '@/components/admin/lifelock/ui/EisenhowerMatrixModal';
+import { EisenhowerMatrixModal } from "@/shared/components/ui";
 import { Lock, Calendar } from 'lucide-react';
 import { FloatingAIAssistant } from '@/shared/components/FloatingAIAssistant';
 

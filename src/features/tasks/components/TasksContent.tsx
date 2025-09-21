@@ -11,8 +11,8 @@ import { Badge } from '@/shared/ui/badge';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { AlertCircle, RefreshCw, Inbox, Plus } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
-import { useTasks, useTasksView, useTasksSelection } from './TasksProvider';
-import { TaskViewType } from '../../types/task.types';
+import { useTasks, useTasksView, useTasksSelection } from '../../../stores/tasks/taskProviderCompat';
+import { TaskViewType } from '../types/task.types';
 
 // Lazy load view components for better performance
 const ListView = React.lazy(() => import('./ListView'));

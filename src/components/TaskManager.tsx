@@ -35,7 +35,7 @@ import { Input } from '@/shared/ui/input';
 import { Card, CardContent, CardHeader } from '@/shared/ui/card';
 import { TaskCard } from '@/ecosystem/internal/tasks/components/TaskCard';
 import { TaskDetailModal } from './ui/task-detail-modal';
-import { useTaskContext } from '@/providers/TaskProvider';
+import { useTasks } from '../stores/tasks/taskProviderCompat';
 import { Task } from '@/ecosystem/internal/tasks/components/TaskCard';
 
 /**
@@ -71,7 +71,7 @@ export const TaskManager: React.FC<TaskManagerProps> = ({
     validation, 
     utilities, 
     config 
-  } = useTaskContext();
+  } = useTasks();
 
   // Destructure commonly used state
   const {

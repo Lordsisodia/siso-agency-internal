@@ -1,4 +1,3 @@
-
 import { AnimatedCard } from "@/shared/ui/animated-card";
 import { Button } from "@/shared/ui/button";
 import { ArrowUpRight, CheckCircle } from "lucide-react";

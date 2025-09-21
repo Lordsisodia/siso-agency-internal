@@ -40,13 +40,13 @@ import {
   Sliders
 } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
-import { useTasksFilters, useTasks } from '../providers/TasksProvider';
+import { useTasksFilters, useTasks } from '../../../../stores/tasks/taskProviderCompat';
 import { 
   TaskStatus, 
   TaskPriority, 
   TaskCategory, 
   TaskFilters 
-} from '../../types/task.types';
+} from '../../../../features/tasks/types/task.types';
 import { 
   TASK_STATUS_CONFIG, 
   TASK_PRIORITY_CONFIG, 

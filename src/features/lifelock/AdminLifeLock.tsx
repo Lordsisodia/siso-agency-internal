@@ -20,7 +20,7 @@ import { useTabConfiguration } from '@/shared/hooks/useTabConfiguration';
 import { tabRegistry } from '@/shared/services/TabRegistry';
 
 // TaskProvider for service integration
-import { TaskProvider } from '@/providers/TaskProvider';
+import { TasksProvider } from '../../stores/tasks/taskProviderCompat';
 
 // Day progress utilities
 import { calculateDayCompletionPercentage } from '@/utils/dayProgress';
@@ -172,7 +172,7 @@ const AdminLifeLock: React.FC = memo(() => {
   }, []);
 
   return (
-    <TaskProvider>
+    <TasksProvider>
       <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black">
         <div className="container mx-auto px-4 py-8">
           <TabLayoutWrapper 
@@ -232,7 +232,7 @@ const AdminLifeLock: React.FC = memo(() => {
           )}
         </div>
       </div>
-    </TaskProvider>
+    </TasksProvider>
   );
 });
 

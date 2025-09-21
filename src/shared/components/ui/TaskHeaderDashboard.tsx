@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/shared/ui/button';
 import { Plus, Filter, Download } from 'lucide-react';
@@ -16,7 +15,7 @@ interface TaskHeaderProps {
   onExport?: () => void;
 }
 
-export function TaskHeader({ onAddTask, onFilterChange, onExport }: TaskHeaderProps) {
+export function TaskHeaderDashboard({ onAddTask, onFilterChange, onExport }: TaskHeaderProps) {
   return (
     <div className="mb-6">
       {/* All header content removed as requested by user */}

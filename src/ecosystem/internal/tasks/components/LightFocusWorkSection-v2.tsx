@@ -7,7 +7,7 @@
 
 import React from 'react';
 import { UnifiedWorkSection } from '@/features/tasks/components/UnifiedWorkSection';
-import { TaskHeader } from '@/ecosystem/internal/admin/dashboard/components/TaskHeader';
+import { TaskHeaderDashboard as TaskHeader } from '@/shared/components/ui';
 import { useLightWorkTasksSupabase } from '@/ecosystem/internal/tasks/hooks/useLightWorkTasksSupabase';
 
 interface LightFocusWorkSectionProps {

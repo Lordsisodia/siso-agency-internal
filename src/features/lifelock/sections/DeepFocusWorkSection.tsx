@@ -21,7 +21,7 @@ import { Button } from '@/shared/ui/button';
 import { Badge } from '@/shared/ui/badge';
 import { SharedTaskCard, TaskData } from '@/components/ui/SharedTaskCard';
 import { Progress } from '@/shared/ui/progress';
-import { FlowStateTimer } from '../ui/FlowStateTimer';
+import { FlowStateTimer } from '@/shared/components/ui/FlowStateTimer';
 import { FocusSessionTimer } from '../ui/FocusSessionTimer';
 import { DeepFocusSessionCard } from '@/ecosystem/internal/tasks/ui/DeepFocusSessionCard';
 import { TabProps } from '@/ecosystem/internal/tasks/DayTabContainer';

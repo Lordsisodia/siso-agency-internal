@@ -24,7 +24,7 @@ import {
   MessageSquare
 } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
-import { useTasks } from '../providers/TasksProvider';
+import { useTasks } from '../../../../stores/tasks/taskProviderCompat';
 
 interface TasksAIProps {
   className?: string;

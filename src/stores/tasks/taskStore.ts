@@ -8,7 +8,7 @@
 import { create } from 'zustand';
 import { devtools, persist, subscribeWithSelector } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import { Task, TaskStatus, TaskPriority, TaskCategory } from '@/ecosystem/internal/tasks/types/task.types';
+import { Task, TaskStatus, TaskPriority, TaskCategory } from '../../ecosystem/internal/tasks/types/task.types';
 
 // ===== INTERFACES =====
 
@@ -519,55 +519,55 @@ export const useTaskStore = create<TaskStore>()(
 
 // ===== SPECIALIZED HOOKS =====
 
-// Hook for only task data (performance optimized)
+// Hook for only task data (performance optimized) - Fixed infinite loop
 export const useTaskData = () => {
-  return useTaskStore((state) => ({
-    tasks: state.tasks,
-    filteredTasks: state.getFilteredTasks(),
-    isLoading: state.isLoading,
-    error: state.error,
-  }));
+  const tasks = useTaskStore((state) => state.tasks);
+  const filteredTasks = useTaskStore((state) => state.filteredTasks);
+  const isLoading = useTaskStore((state) => state.isLoading);
+  const error = useTaskStore((state) => state.error);
+  
+  return { tasks, filteredTasks, isLoading, error };
 };
 
 // Hook for only actions (won't cause re-renders)
 export const useTaskActions = () => {
-  return useTaskStore((state) => ({
-    addTask: state.addTask,
-    updateTask: state.updateTask,
-    deleteTask: state.deleteTask,
-    duplicateTask: state.duplicateTask,
-    addTasks: state.addTasks,
-    updateTasks: state.updateTasks,
-    deleteTasks: state.deleteTasks,
-    completeSelectedTasks: state.completeSelectedTasks,
-    deleteSelectedTasks: state.deleteSelectedTasks,
-  }));
+  const addTask = useTaskStore((state) => state.addTask);
+  const updateTask = useTaskStore((state) => state.updateTask);
+  const deleteTask = useTaskStore((state) => state.deleteTask);
+  const duplicateTask = useTaskStore((state) => state.duplicateTask);
+  const addTasks = useTaskStore((state) => state.addTasks);
+  const updateTasks = useTaskStore((state) => state.updateTasks);
+  const deleteTasks = useTaskStore((state) => state.deleteTasks);
+  const completeSelectedTasks = useTaskStore((state) => state.completeSelectedTasks);
+  const deleteSelectedTasks = useTaskStore((state) => state.deleteSelectedTasks);
+  
+  return { addTask, updateTask, deleteTask, duplicateTask, addTasks, updateTasks, deleteTasks, completeSelectedTasks, deleteSelectedTasks };
 };
 
 // Hook for only filters (minimal re-renders)
 export const useTaskFilters = () => {
-  return useTaskStore((state) => ({
-    filters: state.filters,
-    setFilters: state.setFilters,
-    resetFilters: state.resetFilters,
-    setSearchQuery: state.setSearchQuery,
-  }));
+  const filters = useTaskStore((state) => state.filters);
+  const setFilters = useTaskStore((state) => state.setFilters);
+  const resetFilters = useTaskStore((state) => state.resetFilters);
+  const setSearchQuery = useTaskStore((state) => state.setSearchQuery);
+  
+  return { filters, setFilters, resetFilters, setSearchQuery };
 };
 
 // Hook for only view state
 export const useTaskViewState = () => {
-  return useTaskStore((state) => ({
-    viewState: state.viewState,
-    selectedTasks: state.getSelectedTasks(),
-    setViewMode: state.setViewMode,
-    setGroupBy: state.setGroupBy,
-    setSortConfig: state.setSortConfig,
-    toggleTaskSelection: state.toggleTaskSelection,
-    selectAllTasks: state.selectAllTasks,
-    clearSelection: state.clearSelection,
-    selectTasksInRange: state.selectTasksInRange,
-    toggleTaskExpansion: state.toggleTaskExpansion,
-  }));
+  const viewState = useTaskStore((state) => state.viewState);
+  const selectedTasks = useTaskStore((state) => state.viewState.selectedTasks);
+  const setViewMode = useTaskStore((state) => state.setViewMode);
+  const setGroupBy = useTaskStore((state) => state.setGroupBy);
+  const setSortConfig = useTaskStore((state) => state.setSortConfig);
+  const toggleTaskSelection = useTaskStore((state) => state.toggleTaskSelection);
+  const selectAllTasks = useTaskStore((state) => state.selectAllTasks);
+  const clearSelection = useTaskStore((state) => state.clearSelection);
+  const selectTasksInRange = useTaskStore((state) => state.selectTasksInRange);
+  const toggleTaskExpansion = useTaskStore((state) => state.toggleTaskExpansion);
+  
+  return { viewState, selectedTasks, setViewMode, setGroupBy, setSortConfig, toggleTaskSelection, selectAllTasks, clearSelection, selectTasksInRange, toggleTaskExpansion };
 };
 
 // Hook for only stats (computed values)
@@ -577,14 +577,14 @@ export const useTaskStats = () => {
 
 // Hook for utilities and sync
 export const useTaskUtils = () => {
-  return useTaskStore((state) => ({
-    getTaskById: state.getTaskById,
-    syncTasks: state.syncTasks,
-    resetStore: state.resetStore,
-    setLoading: state.setLoading,
-    setError: state.setError,
-    clearError: state.clearError,
-  }));
+  const getTaskById = useTaskStore((state) => state.getTaskById);
+  const syncTasks = useTaskStore((state) => state.syncTasks);
+  const resetStore = useTaskStore((state) => state.resetStore);
+  const setLoading = useTaskStore((state) => state.setLoading);
+  const setError = useTaskStore((state) => state.setError);
+  const clearError = useTaskStore((state) => state.clearError);
+  
+  return { getTaskById, syncTasks, resetStore, setLoading, setError, clearError };
 };
 
 export default useTaskStore;

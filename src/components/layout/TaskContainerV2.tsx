@@ -21,7 +21,7 @@
  */
 
 import React from 'react';
-import { TaskProvider, TaskErrorBoundary } from '@/providers/TaskProvider';
+import { TasksProvider } from '../../stores/tasks/taskProviderCompat';
 import { TaskManager } from '@/components/TaskManager';
 
 /**
@@ -98,7 +98,7 @@ export const TaskContainerV2: React.FC<TaskContainerV2Props> = ({
   }, [initialTasks, theme, useDatabase, workType, taskType]);
 
   // Error Boundary component
-  const ErrorBoundary = customErrorBoundary || TaskErrorBoundary;
+  const ErrorBoundary = customErrorBoundary || React.Fragment;
 
   return (
     <ErrorBoundary
@@ -119,12 +119,7 @@ export const TaskContainerV2: React.FC<TaskContainerV2Props> = ({
         </div>
       }
     >
-      <TaskProvider
-        taskType={taskType}
-        userId={userId}
-        onStartFocusSession={onStartFocusSession}
-        enableDevtools={enableDevtools}
-      >
+      <TasksProvider>
         <TaskManager
           className={className}
           showHeader={showHeader}
@@ -135,7 +130,7 @@ export const TaskContainerV2: React.FC<TaskContainerV2Props> = ({
           compactMode={compactMode}
           onStartFocusSession={onStartFocusSession}
         />
-      </TaskProvider>
+      </TasksProvider>
     </ErrorBoundary>
   );
 };

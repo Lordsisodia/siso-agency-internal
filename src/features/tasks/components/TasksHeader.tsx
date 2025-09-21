@@ -48,9 +48,9 @@ import {
   Zap
 } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
-import { useTasks, useTasksSelection, useTasksFilters, useTasksView } from './TasksProvider';
-import { TaskViewType, TaskStatus, TaskPriority, TaskCategory } from '../../types/task.types';
-import { TASK_STATUS_CONFIG, TASK_PRIORITY_CONFIG, TASK_CATEGORY_CONFIG } from '../constants/taskConstants';
+import { useTasks, useTasksSelection, useTasksFilters, useTasksView } from '../../../stores/tasks/taskProviderCompat';
+import { TaskViewType, TaskStatus, TaskPriority, TaskCategory } from '../../../ecosystem/internal/tasks/types/task.types';
+import { TASK_STATUS_CONFIG, TASK_PRIORITY_CONFIG, TASK_CATEGORY_CONFIG } from '../../../ecosystem/internal/tasks/constants/taskConstants';
 
 interface TasksHeaderProps {
   className?: string;

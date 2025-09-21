@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/shared/ui/button';
 import { Plus, Filter, Download } from 'lucide-react';
@@ -16,7 +15,7 @@ interface TaskHeaderProps {
   onExport?: () => void;
 }
 
-export function TaskHeader({ onAddTask, onFilterChange, onExport }: TaskHeaderProps) {
+export function TaskHeaderList({ onAddTask, onFilterChange, onExport }: TaskHeaderProps) {
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
       <div>

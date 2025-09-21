@@ -48,8 +48,8 @@ import {
   Zap
 } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
-import { useTasks, useTasksSelection, useTasksFilters, useTasksView } from '../providers/TasksProvider';
-import { TaskViewType, TaskStatus, TaskPriority, TaskCategory } from '../../types/task.types';
+import { useTasksStats, useTaskSelection, useCurrentFilters, useCurrentView, useFilterActions, useViewActions, useTasksStatus } from '../../../../stores/tasks/optimizedTaskHooks';
+import { TaskViewType, TaskStatus, TaskPriority, TaskCategory } from '../../../../features/tasks/types/task.types';
 import { TASK_STATUS_CONFIG, TASK_PRIORITY_CONFIG, TASK_CATEGORY_CONFIG } from '../../constants/taskConstants';
 
 interface TasksHeaderProps {
@@ -79,10 +79,13 @@ export const TasksHeader: React.FC<TasksHeaderProps> = ({
   onImport,
   onSettings
 }) => {
-  const { tasks, filteredTasks, isLoading } = useTasks();
-  const { selectedTasks, clearSelection } = useTasksSelection();
-  const { filters, setFilters } = useTasksFilters();
-  const { currentView, setCurrentView } = useTasksView();
+  const { totalTasks, filteredCount } = useTasksStats();
+  const { selectedTasks, selectedCount, clearSelection } = useTaskSelection();
+  const { isLoading } = useTasksStatus();
+  const filters = useCurrentFilters();
+  const currentView = useCurrentView();
+  const { setFilters } = useFilterActions();
+  const { setViewMode } = useViewActions();
   
   const [searchValue, setSearchValue] = useState(filters.search || '');
   const [sortBy, setSortBy] = useState<string>('updated_at');
@@ -113,7 +116,7 @@ export const TasksHeader: React.FC<TasksHeaderProps> = ({
 
   // Handle view change
   const handleViewChange = (view: TaskViewType) => {
-    setCurrentView(view);
+    setViewMode(view);
   };
 
   // Handle filter changes
@@ -189,7 +192,7 @@ export const TasksHeader: React.FC<TasksHeaderProps> = ({
               Tasks
             </h1>
             <div className="flex items-center gap-2 text-sm text-gray-500">
-              <span>{filteredTasks.length} of {tasks.length}</span>
+              <span>{filteredCount} of {totalTasks}</span>
               {hasSelectedTasks && (
                 <>
                   <Separator orientation="vertical" className="h-4" />

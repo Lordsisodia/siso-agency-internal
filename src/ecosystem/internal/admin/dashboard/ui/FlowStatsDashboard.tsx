@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
 import { FlowStatsService } from '@/services/flowStatsService';
-import { FlowStats, FlowSession } from './FlowStateTimer';
+import { FlowStats, FlowSession } from '@/shared/components/ui/FlowStateTimer';
 
 interface FlowStatsDashboardProps {
   className?: string;
