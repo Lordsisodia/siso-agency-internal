@@ -510,7 +510,7 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = React
   }, [tasks, getDefaultTaskXP]);
 
   return (
-    <div className="h-full w-full bg-gray-900 relative">
+    <div className="min-h-screen w-full bg-gray-900 relative">
       {/* Progress Line */}
       <div className="absolute left-0 top-0 bottom-0 w-1 bg-green-500/50"></div>
       

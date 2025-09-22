@@ -22,6 +22,7 @@ import { Input } from '@/shared/ui/input';
 import { format } from 'date-fns';
 import { cn } from '@/shared/lib/utils';
 import { useClerkUser } from '@/shared/ClerkProvider';
+import { useSupabaseUserId } from '@/shared/lib/supabase-clerk';
 import { workTypeApiClient } from '@/services/workTypeApiClient';
 import { useOfflineManager } from '@/shared/hooks/useOfflineManager';
 
@@ -122,6 +123,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   selectedDate
 }) => {
   const { user } = useClerkUser();
+  const internalUserId = useSupabaseUserId(internalUserId || null);
   const { saveTask, loadTasks, isOffline } = useOfflineManager();
   const [morningRoutine, setMorningRoutine] = useState<MorningRoutineData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -139,14 +141,14 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   // Load morning routine data
   useEffect(() => {
     const loadMorningRoutine = async () => {
-      if (!user?.id || !selectedDate) return;
+      if (!internalUserId || !selectedDate) return;
       
       try {
         setLoading(true);
         setError(null);
         // Try offline-first approach
         const data = await loadTasks('morning_routine', {
-          user_id: user.id,
+          user_id: internalUserId,
           date: format(selectedDate, 'yyyy-MM-dd')
         });
         
@@ -156,7 +158,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
           setMorningRoutine(routineData);
         } else {
           // Fallback to API if no offline data
-          const apiData = await workTypeApiClient.getMorningRoutine(user.id, selectedDate);
+          const apiData = await workTypeApiClient.getMorningRoutine(internalUserId, selectedDate);
           setMorningRoutine(apiData);
         }
       } catch (error) {
@@ -168,7 +170,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
     };
 
     loadMorningRoutine();
-  }, [user?.id, selectedDate, loadTasks]);
+  }, [internalUserId, selectedDate, loadTasks]);
 
   // Save wake-up time to localStorage
   useEffect(() => {
@@ -179,7 +181,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
 
   // Handle habit toggle
   const handleHabitToggle = async (habitKey: string, completed: boolean) => {
-    if (!user?.id || !selectedDate) return;
+    if (!internalUserId || !selectedDate) return;
     
     try {
       // Always save to localStorage for immediate feedback
@@ -188,7 +190,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
       
       // Use offline manager for persistent storage and sync
       const habitData = {
-        user_id: user.id,
+        user_id: internalUserId,
         date: format(selectedDate, 'yyyy-MM-dd'),
         habit_key: habitKey,
         completed: completed,
@@ -293,7 +295,10 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   }
 
   return (
-    <div className="h-full w-full">
+    <div className="min-h-screen w-full bg-gray-900 relative">
+      {/* Progress Line */}
+      <div className="absolute left-0 top-0 bottom-0 w-1 bg-yellow-500/50"></div>
+      
       <div className="max-w-7xl mx-auto p-3 sm:p-4 md:p-6 lg:p-8 space-y-6">
         
         {/* Morning Routine Card */}

@@ -401,9 +401,9 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
     <div className={useImplementation(
       'useUnifiedThemeSystem',
       // NEW: Unified theme system
-      `h-full w-full ${theme.gradients.diagonal.grayToBlack}`,
+      `min-h-screen w-full ${theme.gradients.diagonal.grayToBlack}`,
       // OLD: Original classes (fallback for safety)
-      'h-full w-full bg-gradient-to-br from-black via-gray-900 to-black'
+      'min-h-screen w-full bg-gradient-to-br from-black via-gray-900 to-black'
     )}>
       <div className="w-full">
         

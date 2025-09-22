@@ -215,8 +215,8 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = memo(({
 
       {/* Hidden Header - Now using AnimatedDateHeader in each tab */}
 
-      {/* Tab Content with Swipe Support (All Devices) */}
-      <div className="flex-1 relative overflow-hidden touch-action-pan-y">
+      {/* UNIFIED SCROLL CONTAINER - Single scroll area for entire screen */}
+      <div className="flex-1 relative overflow-hidden">
         <motion.div
           drag="x"
           dragConstraints={{ left: 0, right: 0 }}
@@ -224,10 +224,10 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = memo(({
           dragMomentum={false}
           whileDrag={{ scale: 0.98 }}
           onDragEnd={handleDragEnd}
-          className="h-full touch-pan-y relative z-10"
+          className="h-full relative z-10"
           style={{ 
-            // Prevent content from interfering with bottom navigation
-            paddingBottom: isMobile ? '0px' : '0px' 
+            // PWA-optimized touch handling - allow vertical scroll, restrict horizontal
+            touchAction: 'pan-y pinch-zoom'
           }}
         >
           <AnimatePresence mode="wait" custom={activeTabIndex}>
@@ -242,12 +242,15 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = memo(({
                 x: { type: "spring", stiffness: 300, damping: 30 },
                 opacity: { duration: 0.2 },
               }}
-              className="absolute inset-0 overflow-y-auto overscroll-y-contain"
+              className="h-full overflow-y-auto"
               style={{ 
-                // Full height content with more bottom padding for navigation clearance
+                // SINGLE SCROLL CONTAINER - this is the ONLY scrollable area
                 paddingBottom: isMobile ? '120px' : '100px',
-                // Prevent overscroll that might interfere with touch events
-                overscrollBehavior: 'contain'
+                // PWA scroll optimization for mobile
+                WebkitOverflowScrolling: 'touch',
+                overscrollBehavior: 'contain',
+                // Prevent bounce effects that compete with swipe gestures
+                overscrollBehaviorY: 'contain'
               }}
             >
               {/* Render tab content via children function */}
