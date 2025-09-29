@@ -53,6 +53,13 @@
 - Test coverage for all new functions
 - Component reuse over duplication
 
+**COMPONENT VERIFICATION PROTOCOL**:
+- **NEVER edit components without verifying usage path**
+- **Search for specific UI text/elements first** (e.g., "blue dot", "pending")
+- **Trace actual render chain**: Page → Wrapper → Component
+- **Verify the component is used on the target pages**
+- **Confirm changes appear before declaring success**
+
 **📋 Full Guidelines**: [`.bmad-core/architectural-warnings/`](.bmad-core/architectural-warnings/)
 </details>
 

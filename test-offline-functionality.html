@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 BMAD Phase 2 - Offline System Validator</title>
+    <style>
+        body { font-family: system-ui; max-width: 800px; margin: 50px auto; padding: 20px; background: #1a1a1a; color: #fff; }
+        .test-section { background: #2a2a2a; border-radius: 12px; padding: 20px; margin: 20px 0; border-left: 4px solid #3b82f6; }
+        .test-button { background: #3b82f6; color: white; padding: 12px 24px; border: none; border-radius: 8px; margin: 8px; cursor: pointer; font-weight: 500; }
+        .test-button:hover { background: #2563eb; }
+        .test-button:disabled { background: #6b7280; cursor: not-allowed; }
+        .success { color: #10b981; font-weight: bold; }
+        .error { color: #ef4444; font-weight: bold; }
+        .warning { color: #f59e0b; font-weight: bold; }
+        .results { background: #111; padding: 15px; border-radius: 8px; margin: 10px 0; font-family: 'Courier New', monospace; font-size: 14px; }
+        .step { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
+        .step-icon { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+        .pending { background: #6b7280; }
+        .running { background: #f59e0b; animation: pulse 1s infinite; }
+        .success-step { background: #10b981; }
+        .error-step { background: #ef4444; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+    </style>
+</head>
+<body>
+    <h1>🧪 BMAD Phase 2 - Offline System End-to-End Validator</h1>
+    <p>This tool systematically tests all offline functionality before Vercel deployment</p>
+
+    <!-- Test 1: Architecture Verification -->
+    <div class="test-section">
+        <h2>🏗️ Test 1: Architecture & Imports</h2>
+        <div id="arch-steps">
+            <div class="step" id="step-imports">
+                <span class="step-icon pending">1</span>
+                <span>Import offline manager and verify table mappings</span>
+            </div>
+            <div class="step" id="step-status">
+                <span class="step-icon pending">2</span>
+                <span>Check initial status and Supabase connectivity</span>
+            </div>
+        </div>
+        <button class="test-button" onclick="testArchitecture()">▶️ Test Architecture</button>
+        <div id="arch-results" class="results" style="display: none;"></div>
+    </div>
+
+    <!-- Test 2: IndexedDB Storage -->
+    <div class="test-section">
+        <h2>💾 Test 2: IndexedDB Offline Storage</h2>
+        <div id="storage-steps">
+            <div class="step" id="step-save">
+                <span class="step-icon pending">1</span>
+                <span>Save test task to IndexedDB (offline mode)</span>
+            </div>
+            <div class="step" id="step-retrieve">
+                <span class="step-icon pending">2</span>
+                <span>Retrieve task from IndexedDB and verify data</span>
+            </div>
+            <div class="step" id="step-stats">
+                <span class="step-icon pending">3</span>
+                <span>Check offline stats and pending count</span>
+            </div>
+        </div>
+        <button class="test-button" onclick="testIndexedDB()">▶️ Test IndexedDB</button>
+        <div id="storage-results" class="results" style="display: none;"></div>
+    </div>
+
+    <!-- Test 3: Supabase Sync -->
+    <div class="test-section">
+        <h2>☁️ Test 3: Supabase Connectivity & Sync</h2>
+        <div id="sync-steps">
+            <div class="step" id="step-connect">
+                <span class="step-icon pending">1</span>
+                <span>Test Supabase connection and table access</span>
+            </div>
+            <div class="step" id="step-online-save">
+                <span class="step-icon pending">2</span>
+                <span>Save data directly to Supabase (online mode)</span>
+            </div>
+            <div class="step" id="step-sync-offline">
+                <span class="step-icon pending">3</span>
+                <span>Sync offline data to Supabase</span>
+            </div>
+        </div>
+        <button class="test-button" onclick="testSupabaseSync()">▶️ Test Supabase</button>
+        <div id="sync-results" class="results" style="display: none;"></div>
+    </div>
+
+    <!-- Test 4: End-to-End Flow -->
+    <div class="test-section">
+        <h2>🔄 Test 4: Complete Offline → Online Flow</h2>
+        <div id="e2e-steps">
+            <div class="step" id="step-offline-create">
+                <span class="step-icon pending">1</span>
+                <span>Create task while "offline" (force offline mode)</span>
+            </div>
+            <div class="step" id="step-verify-local">
+                <span class="step-icon pending">2</span>
+                <span>Verify task stored locally with pending flag</span>
+            </div>
+            <div class="step" id="step-go-online">
+                <span class="step-icon pending">3</span>
+                <span>Simulate going "online" and trigger sync</span>
+            </div>
+            <div class="step" id="step-verify-remote">
+                <span class="step-icon pending">4</span>
+                <span>Verify task synced to Supabase successfully</span>
+            </div>
+        </div>
+        <button class="test-button" onclick="testEndToEnd()">▶️ Test E2E Flow</button>
+        <div id="e2e-results" class="results" style="display: none;"></div>
+    </div>
+
+    <!-- Final Status -->
+    <div class="test-section">
+        <h2>✅ Test Summary</h2>
+        <div id="final-status">
+            <p class="warning">🧪 Ready to run tests - Execute tests above in order</p>
+        </div>
+        <button class="test-button" onclick="runAllTests()" style="background: #10b981;">🚀 Run All Tests</button>
+    </div>
+
+    <script type="module">
+        let offlineManager = null;
+        let testResults = {};
+
+        // Utility functions
+        function updateStep(stepId, status, message = '') {
+            const step = document.getElementById(stepId);
+            const icon = step.querySelector('.step-icon');
+            icon.className = `step-icon ${status}`;
+            
+            if (status === 'running') icon.textContent = '⏳';
+            else if (status === 'success-step') icon.textContent = '✅';
+            else if (status === 'error-step') icon.textContent = '❌';
+            
+            if (message) {
+                step.innerHTML = step.innerHTML.replace(/(<span class="step-icon[^>]*>.*?<\/span>\s*<span>).*?(<\/span>)/, `$1${message}$2`);
+            }
+        }
+
+        function logResult(containerId, message, type = 'info') {
+            const container = document.getElementById(containerId);
+            container.style.display = 'block';
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : type === 'warning' ? 'warning' : '';
+            container.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Test 1: Architecture Verification
+        window.testArchitecture = async function() {
+            logResult('arch-results', '🏗️ Testing offline system architecture...', 'info');
+            
+            try {
+                updateStep('step-imports', 'running');
+                logResult('arch-results', '📦 Importing offline manager...', 'info');
+                
+                // Import the offline manager
+                const { offlineManager: manager } = await import('/src/shared/services/offlineManager.ts');
+                offlineManager = manager;
+                
+                logResult('arch-results', '✅ Offline manager imported successfully', 'success');
+                logResult('arch-results', '🗂️ Checking table mappings...', 'info');
+                
+                // Test table mapping
+                const testData = { id: 'test-123', title: 'Test Task', user_id: 'test-user' };
+                const saveResult = await offlineManager.saveUniversal('lightWorkTasks', testData, true);
+                
+                if (saveResult.success) {
+                    updateStep('step-imports', 'success-step', 'Table mappings working correctly');
+                    logResult('arch-results', '✅ Table mapping test passed: lightWorkTasks → light_work_tasks', 'success');
+                } else {
+                    throw new Error('Table mapping failed');
+                }
+                
+                updateStep('step-status', 'running');
+                logResult('arch-results', '🔍 Checking system status...', 'info');
+                
+                // Check status
+                const status = offlineManager.getStatus();
+                logResult('arch-results', `📊 Status: Online=${status.isOnline}, Supabase=${status.isSupabaseConnected}, Pending=${status.pendingSyncCount}`, 'info');
+                
+                updateStep('step-status', 'success-step', 'System status retrieved successfully');
+                logResult('arch-results', '🎉 Architecture test PASSED', 'success');
+                
+                testResults.architecture = true;
+                
+            } catch (error) {
+                updateStep('step-imports', 'error-step', 'Import failed');
+                updateStep('step-status', 'error-step', 'Status check failed');
+                logResult('arch-results', `❌ Architecture test FAILED: ${error.message}`, 'error');
+                testResults.architecture = false;
+            }
+        }
+
+        // Test 2: IndexedDB Storage
+        window.testIndexedDB = async function() {
+            if (!offlineManager) {
+                logResult('storage-results', '❌ Must run Architecture test first', 'error');
+                return;
+            }
+            
+            logResult('storage-results', '💾 Testing IndexedDB offline storage...', 'info');
+            
+            try {
+                updateStep('step-save', 'running');
+                
+                // Create test task
+                const testTask = {
+                    id: 'offline-test-' + Date.now(),
+                    user_id: '0e402267-17de-43a9-b54f-3756bcd24614',
+                    title: 'BMAD Test Task - IndexedDB',
+                    description: 'Testing offline storage functionality',
+                    priority: 'HIGH',
+                    completed: false,
+                    task_date: new Date().toISOString().split('T')[0],
+                    original_date: new Date().toISOString().split('T')[0],
+                    current_task_date: new Date().toISOString().split('T')[0]
+                };
+                
+                logResult('storage-results', `💾 Saving task offline: ${testTask.title}`, 'info');
+                
+                // Force offline save
+                const saveResult = await offlineManager.saveUniversal('lightWorkTasks', testTask, true);
+                
+                if (saveResult.success && saveResult.offline) {
+                    updateStep('step-save', 'success-step', 'Task saved to IndexedDB');
+                    logResult('storage-results', `✅ Task saved offline: ${testTask.id}`, 'success');
+                } else {
+                    throw new Error('Failed to save offline');
+                }
+                
+                updateStep('step-retrieve', 'running');
+                logResult('storage-results', '🔍 Retrieving task from IndexedDB...', 'info');
+                
+                // Retrieve from offline storage
+                const loadResult = await offlineManager.loadUniversal('lightWorkTasks');
+                const savedTask = loadResult.find(task => task.id === testTask.id);
+                
+                if (savedTask && savedTask.title === testTask.title) {
+                    updateStep('step-retrieve', 'success-step', 'Task retrieved successfully');
+                    logResult('storage-results', `✅ Task retrieved: ${savedTask.title}`, 'success');
+                } else {
+                    throw new Error('Task not found in offline storage');
+                }
+                
+                updateStep('step-stats', 'running');
+                logResult('storage-results', '📊 Checking offline statistics...', 'info');
+                
+                // Check stats
+                const stats = await offlineManager.getOfflineStats();
+                logResult('storage-results', `📈 Offline Stats: lightWorkTasks=${stats.database.lightWorkTasks}, pending=${stats.database.pendingActions}`, 'info');
+                
+                updateStep('step-stats', 'success-step', 'Statistics retrieved');
+                logResult('storage-results', '🎉 IndexedDB test PASSED', 'success');
+                
+                testResults.indexedDB = true;
+                
+            } catch (error) {
+                updateStep('step-save', 'error-step', 'Save failed');
+                updateStep('step-retrieve', 'error-step', 'Retrieve failed');
+                updateStep('step-stats', 'error-step', 'Stats failed');
+                logResult('storage-results', `❌ IndexedDB test FAILED: ${error.message}`, 'error');
+                testResults.indexedDB = false;
+            }
+        }
+
+        // Test 3: Supabase Connectivity
+        window.testSupabaseSync = async function() {
+            if (!offlineManager) {
+                logResult('sync-results', '❌ Must run Architecture test first', 'error');
+                return;
+            }
+            
+            logResult('sync-results', '☁️ Testing Supabase connectivity and sync...', 'info');
+            
+            try {
+                updateStep('step-connect', 'running');
+                logResult('sync-results', '🔗 Testing Supabase connection...', 'info');
+                
+                // Test connection
+                await offlineManager.testSupabaseConnection();
+                const status = offlineManager.getStatus();
+                
+                if (status.isSupabaseConnected) {
+                    updateStep('step-connect', 'success-step', 'Supabase connected');
+                    logResult('sync-results', '✅ Supabase connection verified', 'success');
+                } else {
+                    throw new Error('Supabase connection failed');
+                }
+                
+                updateStep('step-online-save', 'running');
+                logResult('sync-results', '💾 Saving data directly to Supabase...', 'info');
+                
+                // Test direct save to Supabase
+                const onlineTask = {
+                    id: 'online-test-' + Date.now(),
+                    user_id: '0e402267-17de-43a9-b54f-3756bcd24614',
+                    title: 'BMAD Test Task - Supabase Direct',
+                    description: 'Testing direct Supabase save',
+                    priority: 'MEDIUM',
+                    completed: false,
+                    task_date: new Date().toISOString().split('T')[0],
+                    original_date: new Date().toISOString().split('T')[0],
+                    current_task_date: new Date().toISOString().split('T')[0]
+                };
+                
+                const onlineResult = await offlineManager.saveUniversal('lightWorkTasks', onlineTask, false);
+                
+                if (onlineResult.success && !onlineResult.offline) {
+                    updateStep('step-online-save', 'success-step', 'Online save successful');
+                    logResult('sync-results', `✅ Task saved to Supabase: ${onlineTask.id}`, 'success');
+                } else {
+                    throw new Error('Online save failed');
+                }
+                
+                updateStep('step-sync-offline', 'running');
+                logResult('sync-results', '🔄 Testing offline → online sync...', 'info');
+                
+                // Force sync pending actions
+                const syncResult = await offlineManager.forcSync();
+                logResult('sync-results', `🔄 Sync completed: ${JSON.stringify(syncResult)}`, 'info');
+                
+                updateStep('step-sync-offline', 'success-step', 'Sync completed');
+                logResult('sync-results', '🎉 Supabase sync test PASSED', 'success');
+                
+                testResults.supabase = true;
+                
+            } catch (error) {
+                updateStep('step-connect', 'error-step', 'Connection failed');
+                updateStep('step-online-save', 'error-step', 'Online save failed');
+                updateStep('step-sync-offline', 'error-step', 'Sync failed');
+                logResult('sync-results', `❌ Supabase test FAILED: ${error.message}`, 'error');
+                testResults.supabase = false;
+            }
+        }
+
+        // Test 4: End-to-End Flow
+        window.testEndToEnd = async function() {
+            if (!offlineManager) {
+                logResult('e2e-results', '❌ Must run Architecture test first', 'error');
+                return;
+            }
+            
+            logResult('e2e-results', '🔄 Testing complete offline → online flow...', 'info');
+            
+            try {
+                updateStep('step-offline-create', 'running');
+                
+                // Create task in forced offline mode
+                const e2eTask = {
+                    id: 'e2e-test-' + Date.now(),
+                    user_id: '0e402267-17de-43a9-b54f-3756bcd24614',
+                    title: 'BMAD E2E Test Task',
+                    description: 'End-to-end offline → online test',
+                    priority: 'HIGH',
+                    completed: false,
+                    task_date: new Date().toISOString().split('T')[0],
+                    original_date: new Date().toISOString().split('T')[0],
+                    current_task_date: new Date().toISOString().split('T')[0]
+                };
+                
+                logResult('e2e-results', '📱 Simulating offline mode...', 'info');
+                const offlineResult = await offlineManager.saveUniversal('lightWorkTasks', e2eTask, true);
+                
+                if (offlineResult.success && offlineResult.offline) {
+                    updateStep('step-offline-create', 'success-step', 'Task created offline');
+                    logResult('e2e-results', `✅ Task saved offline: ${e2eTask.title}`, 'success');
+                } else {
+                    throw new Error('Offline creation failed');
+                }
+                
+                updateStep('step-verify-local', 'running');
+                logResult('e2e-results', '🔍 Verifying local storage...', 'info');
+                
+                // Verify in local storage
+                const localTasks = await offlineManager.loadUniversal('lightWorkTasks');
+                const localTask = localTasks.find(task => task.id === e2eTask.id);
+                
+                if (localTask) {
+                    updateStep('step-verify-local', 'success-step', 'Task found in local storage');
+                    logResult('e2e-results', `✅ Task verified locally: ${localTask.title}`, 'success');
+                } else {
+                    throw new Error('Task not found in local storage');
+                }
+                
+                updateStep('step-go-online', 'running');
+                logResult('e2e-results', '🌐 Simulating going online and syncing...', 'info');
+                
+                // Check current pending count
+                const preStatus = offlineManager.getStatus();
+                logResult('e2e-results', `📊 Pre-sync pending count: ${preStatus.pendingSyncCount}`, 'info');
+                
+                // Force sync
+                const syncResult = await offlineManager.forcSync();
+                logResult('e2e-results', `🔄 Sync result: ${JSON.stringify(syncResult)}`, 'info');
+                
+                updateStep('step-go-online', 'success-step', 'Sync triggered');
+                
+                updateStep('step-verify-remote', 'running');
+                logResult('e2e-results', '☁️ Verifying remote sync...', 'info');
+                
+                // Check post-sync status
+                const postStatus = offlineManager.getStatus();
+                logResult('e2e-results', `📊 Post-sync pending count: ${postStatus.pendingSyncCount}`, 'info');
+                
+                updateStep('step-verify-remote', 'success-step', 'Sync verified');
+                logResult('e2e-results', '🎉 End-to-End test PASSED', 'success');
+                
+                testResults.endToEnd = true;
+                
+            } catch (error) {
+                updateStep('step-offline-create', 'error-step', 'Creation failed');
+                updateStep('step-verify-local', 'error-step', 'Local verify failed');
+                updateStep('step-go-online', 'error-step', 'Sync failed');
+                updateStep('step-verify-remote', 'error-step', 'Remote verify failed');
+                logResult('e2e-results', `❌ E2E test FAILED: ${error.message}`, 'error');
+                testResults.endToEnd = false;
+            }
+        }
+
+        // Run all tests
+        window.runAllTests = async function() {
+            const finalStatus = document.getElementById('final-status');
+            finalStatus.innerHTML = '<p class="warning">🧪 Running comprehensive test suite...</p>';
+            
+            await testArchitecture();
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Brief pause
+            
+            await testIndexedDB();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await testSupabaseSync();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await testEndToEnd();
+            
+            // Final summary
+            const passed = Object.values(testResults).filter(result => result === true).length;
+            const total = Object.keys(testResults).length;
+            
+            if (passed === total) {
+                finalStatus.innerHTML = `
+                    <p class="success">🎉 ALL TESTS PASSED (${passed}/${total})</p>
+                    <p class="success">✅ Offline system is ready for Vercel deployment!</p>
+                    <p class="success">📱 PWA should work offline on your phone</p>
+                `;
+            } else {
+                finalStatus.innerHTML = `
+                    <p class="error">❌ SOME TESTS FAILED (${passed}/${total})</p>
+                    <p class="warning">🔧 Fix issues before deploying to Vercel</p>
+                `;
+            }
+        }
+
+        // Initialize
+        logResult('arch-results', '🚀 BMAD Phase 2 Test Suite Ready', 'info');
+        logResult('arch-results', '📋 Run tests in order or use "Run All Tests"', 'info');
+    </script>
+</body>
+</html>

@@ -12,13 +12,21 @@
  */
 
 import React from 'react';
-import { Check } from 'lucide-react';
+import { Check, GripVertical } from 'lucide-react';
 
 interface TaskHeaderProps {
   task: {
     id: string;
     title: string;
     completed: boolean;
+  };
+  dragHandleProps?: {
+    draggable: boolean;
+    onDragStart: (e: React.DragEvent) => void;
+    onDragOver: (e: React.DragEvent) => void;
+    onDrop: (e: React.DragEvent) => void;
+    onDragEnd: (e: React.DragEvent) => void;
+    'data-item-id': string;
   };
   themeConfig: {
     colors: {
@@ -46,10 +54,22 @@ export const TaskHeader: React.FC<TaskHeaderProps> = ({
   onStartEditing,
   onEditTitleChange,
   onSaveEdit,
-  onKeyDown
+  onKeyDown,
+  dragHandleProps
 }) => {
   return (
     <div className="flex items-center gap-4">
+      {/* Drag Handle */}
+      {dragHandleProps && (
+        <div
+          className="flex-shrink-0 p-1 hover:bg-gray-700/50 rounded cursor-grab active:cursor-grabbing transition-colors"
+          title="Drag to reorder"
+          {...dragHandleProps}
+        >
+          <GripVertical className="h-4 w-4 text-gray-400" />
+        </div>
+      )}
+      
       {/* Enhanced Custom Checkbox with Better Contrast and Icon */}
       <button
         onClick={(e) => {

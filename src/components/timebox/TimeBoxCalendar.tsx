@@ -33,6 +33,7 @@ import {
   DropdownMenuTrigger,
 } from '@/shared/ui/dropdown-menu';
 import { timeboxApi, DaySchedule, TimeBoxTask, TimeSlot } from '@/api/timeboxApi';
+import { TaskIntegrationService, UnifiedTimeBoxTask } from '@/services/taskIntegrationService';
 
 interface TimeBoxCalendarProps {
   schedule: DaySchedule | null;
@@ -40,6 +41,7 @@ interface TimeBoxCalendarProps {
   onTaskComplete?: (taskId: string) => void;
   onStartTimer?: (taskId: string) => void;
   onStopTimer?: (taskId: string) => void;
+  onAutoSchedule?: () => void;
   activeTimer?: string | null;
   className?: string;
 }
@@ -50,16 +52,38 @@ export const TimeBoxCalendar: React.FC<TimeBoxCalendarProps> = ({
   onTaskComplete,
   onStartTimer,
   onStopTimer,
+  onAutoSchedule,
   activeTimer,
   className
 }) => {
   const [draggedTask, setDraggedTask] = useState<TimeBoxTask | null>(null);
   const [hoveredSlot, setHoveredSlot] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<'all' | 'light_work' | 'deep_work' | 'morning_routine'>('all');
+  const [unifiedTasks, setUnifiedTasks] = useState<UnifiedTimeBoxTask[]>([]);
+  const [isLoadingTasks, setIsLoadingTasks] = useState(true);
 
   // Generate time slots from 6 AM to 10 PM
-  const timeSlots = schedule?.timeSlots || timeboxApi.generateTimeSlots(
-    schedule?.date || format(new Date(), 'yyyy-MM-dd')
-  );
+  const timeSlots = schedule?.timeSlots || timeboxApi.generateTimeSlots(6, 22, 30);
+
+  // Load unified tasks from LifeLock services
+  useEffect(() => {
+    const loadUnifiedTasks = async () => {
+      try {
+        setIsLoadingTasks(true);
+        const tasks = await TaskIntegrationService.getUnifiedTasks();
+        setUnifiedTasks(tasks);
+      } catch (error) {
+        console.error('Failed to load unified tasks:', error);
+      } finally {
+        setIsLoadingTasks(false);
+      }
+    };
+
+    loadUnifiedTasks();
+  }, []);
+
+  // Filter tasks by selected category
+  const filteredTasks = TaskIntegrationService.filterTasksByCategory(unifiedTasks, selectedCategory);
 
   // Handle drag start
   const handleDragStart = (e: React.DragEvent, task: TimeBoxTask) => {
@@ -107,15 +131,19 @@ export const TimeBoxCalendar: React.FC<TimeBoxCalendarProps> = ({
     }
   };
 
-  // Get task icon based on type
-  const getTaskIcon = (taskType: string) => {
-    switch (taskType) {
+  // Get task icon based on category
+  const getTaskIcon = (category: string) => {
+    switch (category) {
       case 'deep_work':
         return Brain;
       case 'light_work':
         return Coffee;
-      case 'break':
-        return Timer;
+      case 'admin':
+        return Settings;
+      case 'learning':
+        return Zap;
+      case 'planning':
+        return Calendar;
       default:
         return Circle;
     }
@@ -141,45 +169,46 @@ export const TimeBoxCalendar: React.FC<TimeBoxCalendarProps> = ({
 
   if (!schedule) {
     return (
-      <Card className={className}>
-        <CardContent className="flex items-center justify-center h-64">
+      <div className={`bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700/50 ${className}`}>
+        <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-500">Loading schedule...</p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 
   return (
     <TooltipProvider>
-      <Card className={className}>
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Calendar className="h-5 w-5 text-blue-400" />
-              <h3 className="text-lg font-semibold text-white">
-                {format(new Date(schedule.date), 'EEEE, MMM d')}
-              </h3>
+      <div className={`bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700/50 ${className}`}>
+        <div className="p-4">
+          {/* Auto Schedule Button */}
+          {onAutoSchedule && (
+            <div className="flex justify-center mb-4">
+              <Button
+                onClick={onAutoSchedule}
+                className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2"
+                size="sm"
+              >
+                <Zap className="h-4 w-4 mr-2" />
+                Auto Schedule
+              </Button>
             </div>
-            <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/40">
-              {schedule.scheduledTasks.length} / {schedule.timeSlots.length} slots
-            </Badge>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-6">
+          )}
+          
+          <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
             {/* Time Slots Calendar */}
             <div className="flex-1">
               <div className="flex">
                 {/* Time Labels */}
-                <div className="w-16 flex-shrink-0">
-                  {timeSlots.slice(0, Math.ceil(timeSlots.length / 2)).map((slot, index) => {
-                    const hour = 6 + Math.floor(index / 2);
+                <div className="w-12 lg:w-16 flex-shrink-0">
+                  {Array.from({ length: 16 }, (_, i) => { // 6 AM to 10 PM = 16 hours
+                    const hour = 6 + i;
                     return (
-                      <div key={`hour-${hour}`} className="h-16 flex items-start justify-end pr-2 pt-1">
-                        <span className="text-xs text-gray-400 font-medium">
+                      <div key={`hour-label-${hour}`} className="h-16 flex items-start justify-end pr-1 lg:pr-2 pt-1">
+                        <span className="text-xs lg:text-xs text-gray-400 font-medium">
                           {format(new Date().setHours(hour, 0), 'HH:mm')}
                         </span>
                       </div>
@@ -193,9 +222,7 @@ export const TimeBoxCalendar: React.FC<TimeBoxCalendarProps> = ({
                     <div className="relative">
                       {/* Time Slots */}
                       {timeSlots.map((slot, index) => {
-                        const scheduledTask = schedule.scheduledTasks.find(
-                          task => task.scheduledSlot?.id === slot.id
-                        );
+                        const scheduledTask = slot.task;
                         const isHovered = hoveredSlot === slot.id;
                         
                         return (
@@ -223,11 +250,11 @@ export const TimeBoxCalendar: React.FC<TimeBoxCalendarProps> = ({
                             {scheduledTask && (
                               <motion.div
                                 className={`absolute inset-x-2 inset-y-0.5 rounded px-2 py-1 cursor-pointer group ${
-                                  scheduledTask.completed
+                                  scheduledTask.status === 'completed'
                                     ? 'bg-green-600/30 border border-green-500/50'
-                                    : scheduledTask.isActive
+                                    : scheduledTask.status === 'in_progress'
                                     ? 'bg-blue-600/40 border border-blue-400/70 shadow-lg'
-                                    : scheduledTask.taskType === 'deep_work'
+                                    : scheduledTask.category === 'deep_work'
                                     ? 'bg-purple-600/30 border border-purple-500/50'
                                     : 'bg-blue-600/30 border border-blue-500/50'
                                 }`}
@@ -238,7 +265,7 @@ export const TimeBoxCalendar: React.FC<TimeBoxCalendarProps> = ({
                               >
                                 <div className="flex items-center justify-between h-full">
                                   <div className="flex items-center space-x-1 min-w-0">
-                                    {React.createElement(getTaskIcon(scheduledTask.taskType), {
+                                    {React.createElement(getTaskIcon(scheduledTask.category), {
                                       className: "h-3 w-3 flex-shrink-0 text-white"
                                     })}
                                     <span className="text-xs text-white font-medium truncate">
@@ -331,26 +358,75 @@ export const TimeBoxCalendar: React.FC<TimeBoxCalendarProps> = ({
             </div>
 
             {/* Unscheduled Tasks Sidebar */}
-            <div className="w-64 flex-shrink-0">
+            <div className="w-full lg:w-64 lg:flex-shrink-0">
               <h4 className="text-sm font-semibold text-white mb-3">📋 Unscheduled Tasks</h4>
-              <ScrollArea className="h-96">
+              
+              {/* Category Filter Buttons */}
+              <div className="mb-4">
+                <div className="grid grid-cols-2 gap-1 text-xs">
+                  <Button
+                    size="sm"
+                    variant={selectedCategory === 'all' ? 'default' : 'outline'}
+                    onClick={() => setSelectedCategory('all')}
+                    className={`h-7 px-2 ${selectedCategory === 'all' ? 'bg-purple-600 hover:bg-purple-700' : 'text-white hover:bg-white/10'}`}
+                  >
+                    All ({unifiedTasks.length})
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={selectedCategory === 'light_work' ? 'default' : 'outline'}
+                    onClick={() => setSelectedCategory('light_work')}
+                    className={`h-7 px-2 ${selectedCategory === 'light_work' ? 'bg-blue-600 hover:bg-blue-700' : 'text-white hover:bg-white/10'}`}
+                  >
+                    <Zap className="h-3 w-3 mr-1" />
+                    Light ({unifiedTasks.filter(t => t.category === 'light_work').length})
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={selectedCategory === 'deep_work' ? 'default' : 'outline'}
+                    onClick={() => setSelectedCategory('deep_work')}
+                    className={`h-7 px-2 ${selectedCategory === 'deep_work' ? 'bg-purple-600 hover:bg-purple-700' : 'text-white hover:bg-white/10'}`}
+                  >
+                    <Brain className="h-3 w-3 mr-1" />
+                    Deep ({unifiedTasks.filter(t => t.category === 'deep_work').length})
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={selectedCategory === 'morning_routine' ? 'default' : 'outline'}
+                    onClick={() => setSelectedCategory('morning_routine')}
+                    className={`h-7 px-2 ${selectedCategory === 'morning_routine' ? 'bg-orange-600 hover:bg-orange-700' : 'text-white hover:bg-white/10'}`}
+                  >
+                    <Coffee className="h-3 w-3 mr-1" />
+                    Morning ({unifiedTasks.filter(t => t.category === 'morning_routine').length})
+                  </Button>
+                </div>
+              </div>
+              <ScrollArea className="h-64 lg:h-96">
                 <div className="space-y-2">
-                  {schedule.unscheduledTasks.map((task) => (
+                  {isLoadingTasks ? (
+                    <div className="text-center py-6">
+                      <div className="animate-spin h-6 w-6 border-2 border-purple-500 border-t-transparent rounded-full mx-auto mb-2" />
+                      <p className="text-sm text-gray-400">Loading tasks...</p>
+                    </div>
+                  ) : (
+                    filteredTasks.map((task) => (
                     <motion.div
                       key={task.id}
                       className={`p-3 rounded-lg cursor-move transition-all duration-200 ${
-                        task.taskType === 'deep_work'
+                        task.category === 'deep_work'
                           ? 'bg-purple-600/20 border border-purple-500/40 hover:bg-purple-600/30'
-                          : 'bg-blue-600/20 border border-blue-500/40 hover:bg-blue-600/30'
+                          : task.category === 'light_work'
+                          ? 'bg-blue-600/20 border border-blue-500/40 hover:bg-blue-600/30'
+                          : 'bg-orange-600/20 border border-orange-500/40 hover:bg-orange-600/30'
                       }`}
                       draggable
-                      onDragStart={(e) => handleDragStart(e, task)}
+                      onDragStart={(e) => handleDragStart(e, task as any)}
                       whileHover={{ scale: 1.02 }}
                       whileDrag={{ scale: 1.05, rotate: 2 }}
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex items-start space-x-2 min-w-0">
-                          {React.createElement(getTaskIcon(task.taskType), {
+                          {React.createElement(getTaskIcon(task.category), {
                             className: "h-4 w-4 flex-shrink-0 text-white mt-0.5"
                           })}
                           <div className="min-w-0">
@@ -365,20 +441,23 @@ export const TimeBoxCalendar: React.FC<TimeBoxCalendarProps> = ({
                         <Move className="h-4 w-4 text-gray-400 flex-shrink-0" />
                       </div>
                     </motion.div>
-                  ))}
+                  ))
+                  )}
                   
-                  {schedule.unscheduledTasks.length === 0 && (
+                  {!isLoadingTasks && filteredTasks.length === 0 && (
                     <div className="text-center py-6">
                       <CheckCircle2 className="h-8 w-8 text-green-400 mx-auto mb-2" />
-                      <p className="text-sm text-gray-400">All tasks scheduled!</p>
+                      <p className="text-sm text-gray-400">
+                        {selectedCategory === 'all' ? 'All tasks scheduled!' : `No ${selectedCategory.replace('_', ' ')} tasks`}
+                      </p>
                     </div>
                   )}
                 </div>
               </ScrollArea>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </TooltipProvider>
   );
 };

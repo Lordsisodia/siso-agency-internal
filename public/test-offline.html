@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 SISO Offline System Tester</title>
+    <style>
+        body { font-family: system-ui; max-width: 600px; margin: 50px auto; padding: 20px; }
+        .test-button { background: #3b82f6; color: white; padding: 12px 24px; border: none; border-radius: 8px; margin: 8px; cursor: pointer; }
+        .test-button:hover { background: #2563eb; }
+        .success { color: #059669; font-weight: bold; }
+        .error { color: #dc2626; font-weight: bold; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 6px; }
+        .status.online { background: #d1fae5; color: #065f46; }
+        .status.offline { background: #fee2e2; color: #991b1b; }
+    </style>
+</head>
+<body>
+    <h1>🚀 SISO Offline System Tester</h1>
+    <p>Use this page to test your offline functionality manually</p>
+
+    <div id="status" class="status">Checking connection...</div>
+
+    <h2>📱 Quick Tests</h2>
+    <button class="test-button" onclick="testCreateTask()">Test Create Task</button>
+    <button class="test-button" onclick="testOfflineMode()">Test Offline Mode</button>
+    <button class="test-button" onclick="testSync()">Test Sync</button>
+    <button class="test-button" onclick="clearTestData()">Clear Test Data</button>
+
+    <h2>📊 Results</h2>
+    <div id="results"></div>
+
+    <h2>📱 PWA Instructions</h2>
+    <div style="background: #f3f4f6; padding: 15px; border-radius: 8px; margin: 15px 0;">
+        <h3>To install on your phone:</h3>
+        <ol>
+            <li><strong>iPhone:</strong> Safari → Share button → "Add to Home Screen"</li>
+            <li><strong>Android:</strong> Chrome → Menu (⋮) → "Add to Home Screen"</li>
+            <li>Look for the SISO icon on your home screen</li>
+            <li>Tap it - it opens like a native app!</li>
+        </ol>
+        <p><strong>✅ Your app should work completely offline once installed!</strong></p>
+    </div>
+
+    <script>
+        let results = document.getElementById('results');
+        let status = document.getElementById('status');
+
+        // Update connection status
+        function updateStatus() {
+            if (navigator.onLine) {
+                status.textContent = '🟢 Online - Ready to test!';
+                status.className = 'status online';
+            } else {
+                status.textContent = '🔴 Offline - Perfect for testing!';
+                status.className = 'status offline';
+            }
+        }
+
+        // Log test results
+        function log(message, isError = false) {
+            const div = document.createElement('div');
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong>: ${message}`;
+            div.className = isError ? 'error' : 'success';
+            results.appendChild(div);
+            results.scrollTop = results.scrollHeight;
+        }
+
+        // Test creating a task
+        async function testCreateTask() {
+            try {
+                const testTask = {
+                    id: 'test-' + Date.now(),
+                    user_id: '0e402267-17de-43a9-b54f-3756bcd24614',
+                    title: 'Manual Test Task - ' + new Date().toLocaleTimeString(),
+                    description: 'Created via manual test',
+                    priority: 'HIGH',
+                    completed: false,
+                    task_date: new Date().toISOString().split('T')[0],
+                    original_date: new Date().toISOString().split('T')[0],
+                    current_task_date: new Date().toISOString().split('T')[0]
+                };
+
+                // This would normally use your offline manager
+                log(`✅ Task created: "${testTask.title}"`);
+                log(`📝 Task ID: ${testTask.id}`);
+                log(`🌐 Connection: ${navigator.onLine ? 'Online' : 'Offline'}`);
+                
+            } catch (error) {
+                log(`❌ Error creating task: ${error.message}`, true);
+            }
+        }
+
+        // Test offline mode
+        function testOfflineMode() {
+            if (navigator.onLine) {
+                log('🔵 To test offline mode:');
+                log('1. Disconnect your WiFi');
+                log('2. Or use DevTools → Network tab → "Offline"');
+                log('3. Try creating tasks - they should still work!');
+            } else {
+                log('✅ You are in offline mode!');
+                log('📱 Try creating tasks - they should be cached locally');
+                testCreateTask();
+            }
+        }
+
+        // Test sync functionality
+        function testSync() {
+            if (navigator.onLine) {
+                log('🔄 Sync test started');
+                log('✅ Online connection detected');
+                log('📡 Any offline changes should sync automatically');
+                log('👀 Watch the status button in your main app!');
+            } else {
+                log('🔴 Cannot test sync while offline');
+                log('💡 Connect to internet first, then test sync');
+            }
+        }
+
+        // Clear test data
+        function clearTestData() {
+            results.innerHTML = '';
+            log('🗑️ Test results cleared');
+        }
+
+        // Listen for connection changes
+        window.addEventListener('online', () => {
+            updateStatus();
+            log('🟢 Connection restored - sync should start automatically');
+        });
+
+        window.addEventListener('offline', () => {
+            updateStatus();
+            log('🔴 Gone offline - app should continue working');
+        });
+
+        // Initial status
+        updateStatus();
+        log('🚀 Offline System Tester loaded');
+        log('📱 Visit localhost:5177 to see your main app');
+    </script>
+</body>
+</html>

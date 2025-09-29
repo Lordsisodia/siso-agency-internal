@@ -14,12 +14,12 @@ import {
   Trash,
   Settings
 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent } from '@/shared/ui/card';
 import { format } from 'date-fns';
 import { useImplementation } from '@/migration/feature-flags';
 import { theme } from '@/styles/theme';
-import { LoadingState } from '@/components/ui/loading-state';
-import { ErrorState } from '@/components/ui/error-state';
+import { LoadingState } from '@/shared/ui/loading-state';
+import { ErrorState } from '@/shared/ui/error-state';
 import { TaskActionButtons } from './TaskActionButtons';
 import { TaskSeparator } from '@/components/tasks/TaskSeparator';
 import { TaskProgress } from '@/components/tasks/TaskProgress';

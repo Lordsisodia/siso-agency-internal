@@ -172,43 +172,6 @@ export const Sidebar = ({ onExpandedChange, onMobileMenuChange }: SidebarProps) 
 
   return (
     <>
-      {false && (
-        <Button
-          variant="ghost"
-          size="icon"
-          className="fixed top-4 right-4 z-50 bg-siso-bg/90 backdrop-blur-sm border border-siso-border"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            // Prevent double-clicks
-            if (isToggling) return;
-            
-            setIsToggling(true);
-            setIsMobileMenuOpen(prev => !prev);
-            
-            // Reset toggle lock after animation
-            setTimeout(() => setIsToggling(false), 200);
-          }}
-          disabled={isToggling}
-        >
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div
-              key={isMobileMenuOpen ? 'close' : 'menu'}
-              initial={{ opacity: 0, rotate: -90 }}
-              animate={{ opacity: 1, rotate: 0 }}
-              exit={{ opacity: 0, rotate: 90 }}
-              transition={{ duration: 0.15 }}
-            >
-              {isMobileMenuOpen ? (
-                <X className="h-6 w-6 text-siso-text" />
-              ) : (
-                <Menu className="h-6 w-6 text-siso-text" />
-              )}
-            </motion.div>
-          </AnimatePresence>
-        </Button>
-      )}
 
       <motion.div 
         initial={false}

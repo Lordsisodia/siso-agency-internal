@@ -41,7 +41,7 @@ import { LifeLockService, DailyRoutine, DailyWorkout, DailyHealth, DailyHabits, 
 import { EnhancedTaskService, EnhancedTask } from '@/shared/services/task.service';
 import { format } from 'date-fns';
 import { FocusSessionTimer } from './FocusSessionTimer';
-import SisoDeepFocusPlan from '@/shared/ui/siso-deep-focus-plan';
+import SisoDeepFocusPlan from '@/components/ui/siso-deep-focus-plan';
 import { MilkTracker } from './MilkTracker';
 
 interface TaskCard {

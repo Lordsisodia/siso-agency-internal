@@ -10,7 +10,7 @@ import {
   CheckCircle, 
   CheckCircle2
 } from 'lucide-react';
-import SisoDeepFocusPlan from '@/shared/ui/siso-deep-focus-plan';
+import SisoDeepFocusPlan from '@/components/ui/siso-deep-focus-plan';
 
 interface TaskSection {
   id: string;

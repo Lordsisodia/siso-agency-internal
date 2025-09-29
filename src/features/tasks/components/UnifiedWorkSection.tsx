@@ -31,6 +31,7 @@ import { SimpleFeedbackButton } from '@/internal/feedback/SimpleFeedbackButton';
 import { useTaskEditing } from '@/shared/hooks/useTaskEditing';
 import { useThoughtDump } from '@/shared/hooks/useThoughtDump';
 import { useTaskFiltering } from '@/shared/hooks/useTaskFiltering';
+import { useTaskReordering } from '@/ecosystem/internal/tasks/hooks/useTaskReordering';
 import { WORK_THEMES } from '@/config/work-themes';
 import { CustomCalendar } from '@/ecosystem/internal/calendar/ui/CustomCalendar';
 import { TaskStatsGrid } from '@/ecosystem/internal/tasks/management/TaskStatsGrid';
@@ -55,6 +56,8 @@ interface UnifiedWorkSectionProps {
   analyzeTaskWithAI: (taskId: string) => void;
   pushTaskToAnotherDay: (taskId: string, date: string) => Promise<void>;
   updateTaskTitle: (taskId: string, title: string) => Promise<void>;
+  updateTaskPriority?: (taskId: string, priority: string) => Promise<void>;
+  reorderTasks?: (tasks: any[]) => Promise<void>;
   // Optional features (for Light Work)
   showContextModal?: () => void;
   showStats?: boolean;
@@ -82,6 +85,8 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
   analyzeTaskWithAI,
   pushTaskToAnotherDay,
   updateTaskTitle,
+  updateTaskPriority,
+  reorderTasks,
   showContextModal,
   showStats = false,
   statsData,
@@ -127,6 +132,25 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
 
   // Task filtering hook
   const { filteredAndSortedTasks } = useTaskFiltering({ tasks, workType });
+  
+  // Task reordering hook
+  const {
+    isDragging,
+    draggedId,
+    handleDragStart,
+    handleDragEnd,
+    getDropZoneProps
+  } = useTaskReordering(
+    filteredAndSortedTasks,
+    (reorderedTasks) => {
+      // Update local state immediately for smooth UX
+      // The parent component will handle persistence
+      reorderTasks?.(reorderedTasks);
+    },
+    (taskId, newIndex) => {
+      console.log(`Task ${taskId} moved to position ${newIndex}`);
+    }
+  );
   
   // Calendar loading state
   const [calendarLoading, setCalendarLoading] = useState(false);
@@ -232,11 +256,12 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
             <div className="pt-4">
             {/* Task Blocks */}
             <div className="flex flex-col items-center gap-4">
-              {filteredAndSortedTasks.map((task) => {
+              {filteredAndSortedTasks.map((task, index) => {
                 const isExpanded = true; // Always expanded
                 return (
                   <div
                     key={task.id}
+                    {...getDropZoneProps(index)}
                     className={`
                       p-4 rounded-lg border transition-all duration-200 w-full
                       ${task.completed 
@@ -260,6 +285,11 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                       onEditTitleChange={setEditTaskTitle}
                       onSaveEdit={saveTaskEdit}
                       onKeyDown={handleKeyDown}
+                      dragHandleProps={{
+                        draggable: true,
+                        onDragStart: (e) => handleDragStart(e, task),
+                        onDragEnd: handleDragEnd
+                      }}
                     />
 
                     {/* First separator line */}
@@ -275,6 +305,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                       onPushToAnotherDay={handlePushToAnotherDay}
                       onViewTask={setViewingTaskId}
                       onDeleteTask={handleDeleteTask}
+                      onPriorityChange={updateTaskPriority ? (taskId, priority) => updateTaskPriority(taskId, priority) : undefined}
                     />
 
 

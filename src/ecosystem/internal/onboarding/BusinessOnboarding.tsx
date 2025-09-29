@@ -93,6 +93,45 @@ export function BusinessOnboarding() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, showTypingIndicator]);
 
+  const handlePhoneCall = useCallback(() => {
+    // Show phone call scheduling component
+    setShowTypingIndicator(true);
+    
+    setTimeout(() => {
+      setShowTypingIndicator(false);
+      const callMessage = {
+        id: Date.now().toString(),
+        role: 'assistant' as const,
+        content: "Here's how to schedule a call with our team:",
+        actionComponent: (
+          <div className="mt-4 space-y-3">
+            <div className="p-4 bg-orange-500/10 border border-orange-500/30 rounded-lg">
+              <h3 className="font-medium text-orange-400 mb-2">Schedule Your Call</h3>
+              <p className="text-sm text-gray-300 mb-3">
+                Our team will collect your business information and help you get started.
+              </p>
+              <div className="space-y-2">
+                <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white">
+                  <Phone className="h-4 w-4 mr-2" />
+                  Book a 15-minute call
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full border-white/20 text-gray-300"
+                  onClick={() => navigate('/home')}
+                >
+                  Back to Dashboard
+                </Button>
+              </div>
+            </div>
+          </div>
+        )
+      };
+      
+      setMessages(prev => [...prev, callMessage]);
+    }, 1000);
+  }, [navigate]);
+
   const handleCommunicationChoice = useCallback((method: 'chat' | 'voice' | 'phone') => {
     setCommunicationMethod(method);
     
@@ -136,45 +175,6 @@ export function BusinessOnboarding() {
       }
     }, 1000);
   }, [handlePhoneCall]);
-
-  const handlePhoneCall = () => {
-    // Show phone call scheduling component
-    setShowTypingIndicator(true);
-    
-    setTimeout(() => {
-      setShowTypingIndicator(false);
-      const callMessage = {
-        id: Date.now().toString(),
-        role: 'assistant' as const,
-        content: "Here's how to schedule a call with our team:",
-        actionComponent: (
-          <div className="mt-4 space-y-3">
-            <div className="p-4 bg-orange-500/10 border border-orange-500/30 rounded-lg">
-              <h3 className="font-medium text-orange-400 mb-2">Schedule Your Call</h3>
-              <p className="text-sm text-gray-300 mb-3">
-                Our team will collect your business information and help you get started.
-              </p>
-              <div className="space-y-2">
-                <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white">
-                  <Phone className="h-4 w-4 mr-2" />
-                  Book a 15-minute call
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="w-full border-white/20 text-gray-300"
-                  onClick={() => navigate('/home')}
-                >
-                  Back to Dashboard
-                </Button>
-              </div>
-            </div>
-          </div>
-        )
-      };
-      
-      setMessages(prev => [...prev, callMessage]);
-    }, 1000);
-  };
 
   const startBusinessQuestions = () => {
     setShowTypingIndicator(true);

@@ -11,15 +11,17 @@ import {
   Edit,
   Mic,
   MicOff,
-  Zap,
-  Brain,
-  Settings
+
+  Settings,
+  GripVertical
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { AnimatedDateHeader } from '@/shared/ui/animated-date-header-v2';
 import { format } from 'date-fns';
-import { aiXPService, TaskAnalysis } from '@/shared/services/ai-xp-service';
+
 import { PersonalContextModal } from '@/ecosystem/internal/tasks/components/PersonalContextModal';
+import { PrioritySelector, PriorityLevel } from '@/ecosystem/internal/tasks/components/PrioritySelector';
+import { useTaskReordering } from '@/ecosystem/internal/tasks/hooks/useTaskReordering';
 
 // Simple block-style task management for light work sessions
 
@@ -27,11 +29,8 @@ interface Subtask {
   id: string;
   title: string;
   completed: boolean;
-  xpReward?: number;
-  difficulty?: 'trivial' | 'easy' | 'moderate' | 'hard' | 'expert';
-  aiAnalyzed?: boolean;
-  priorityRank?: number; // 1-5 ranking
-  contextualBonus?: number; // Extra XP
+  priority?: PriorityLevel;
+  sortOrder?: number;
 }
 
 interface ThoughtDump {
@@ -49,11 +48,8 @@ interface Task {
   subtasks: Subtask[];
   thoughtDump?: ThoughtDump;
   isEditable?: boolean;
-  xpReward?: number;
-  difficulty?: 'trivial' | 'easy' | 'moderate' | 'hard' | 'expert';
-  aiAnalyzed?: boolean;
-  priorityRank?: number; // 1-5 ranking
-  contextualBonus?: number; // Extra XP
+  priority?: PriorityLevel;
+  sortOrder?: number;
 }
 
 interface LightFocusWorkSectionProps {
@@ -73,9 +69,11 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = React
       title: 'Review and respond to emails', 
       completed: true, 
       timeEstimate: '15 min',
+      priority: 'medium',
+      sortOrder: 0,
       subtasks: [
-        { id: '1-1', title: 'Check priority inbox', completed: true },
-        { id: '1-2', title: 'Reply to client emails', completed: true }
+        { id: '1-1', title: 'Check priority inbox', completed: true, priority: 'high', sortOrder: 0 },
+        { id: '1-2', title: 'Reply to client emails', completed: true, priority: 'medium', sortOrder: 1 }
       ]
     },
     { 
@@ -83,9 +81,11 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = React
       title: 'Update project documentation', 
       completed: false, 
       timeEstimate: '30 min',
+      priority: 'high',
+      sortOrder: 1,
       subtasks: [
-        { id: '2-1', title: 'Update README file', completed: false },
-        { id: '2-2', title: 'Add API documentation', completed: false }
+        { id: '2-1', title: 'Update README file', completed: false, priority: 'high', sortOrder: 0 },
+        { id: '2-2', title: 'Add API documentation', completed: false, priority: 'medium', sortOrder: 1 }
       ]
     },
     { 
@@ -93,6 +93,8 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = React
       title: 'Schedule team check-in meetings', 
       completed: false, 
       timeEstimate: '20 min',
+      priority: 'low',
+      sortOrder: 2,
       subtasks: []
     },
     { 
@@ -100,10 +102,32 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = React
       title: 'Organize workspace and files', 
       completed: false, 
       timeEstimate: '25 min',
+      priority: 'none',
+      sortOrder: 3,
       subtasks: []
     },
   ]);
   const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set());
+  
+  // Drag and drop for tasks
+  const taskReordering = useTaskReordering(tasks, setTasks);
+  
+  // Drag and drop for subtasks within each task
+  const subtaskReorderings = useMemo(() => {
+    const reorderings: Record<string, ReturnType<typeof useTaskReordering>> = {};
+    tasks.forEach(task => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      reorderings[task.id] = useTaskReordering(
+        task.subtasks, 
+        (newSubtasks) => {
+          setTasks(prevTasks => prevTasks.map(t => 
+            t.id === task.id ? { ...t, subtasks: newSubtasks } : t
+          ));
+        }
+      );
+    });
+    return reorderings;
+  }, [tasks.map(t => t.id).join(',')]); // Only recreate when task IDs change
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [editingSubtaskId, setEditingSubtaskId] = useState<string | null>(null);
   const [addingSubtaskToId, setAddingSubtaskToId] = useState<string | null>(null);
@@ -170,8 +194,7 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = React
           completed: false
         };
         
-        // Auto-analyze subtask with AI after creation
-        setTimeout(() => analyzeSubtaskWithAI(taskId, newSubtask.id), 1500);
+
         return { ...task, subtasks: [...task.subtasks, newSubtask] };
       }
       return task;
@@ -345,14 +368,14 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = React
     
     // Calculate from main tasks
     let totalXP = remainingTasks.reduce((total, task) => {
-      return total + (task.xpReward || getDefaultTaskXP(task));
+      return total + getDefaultTaskXP(task);
     }, 0);
     
     // Add XP from incomplete subtasks
     remainingTasks.forEach(task => {
       task.subtasks.forEach(subtask => {
         if (!subtask.completed) {
-          totalXP += subtask.xpReward || getDefaultSubtaskXP(subtask);
+          totalXP += getDefaultSubtaskXP(subtask);
         }
       });
     });
@@ -372,95 +395,29 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = React
   };
 
   // Analyze task with AI and update XP
-  const analyzeTaskWithAI = async (taskId: string) => {
-    const task = tasks.find(t => t.id === taskId);
-    if (!task) return;
-
-    try {
-      console.log(`🤖 Analyzing task: ${task.title}`);
-      const analysis = await aiXPService.analyzeTaskForXP(
-        task.title,
-        undefined, // No description field yet
-        task.timeEstimate,
-        {
-          allTasks: tasks.map(t => ({
-            title: t.title,
-            completed: t.completed,
-            timeEstimate: t.timeEstimate
-          })),
-          completedTasksToday: tasks.filter(t => t.completed).length,
-          sessionType: 'light-work',
-          personalContext: personalContext
-        }
-      );
-
-      // Update task with AI analysis
-      setTasks(prevTasks => prevTasks.map(t => 
-        t.id === taskId ? {
-          ...t,
-          xpReward: analysis.xpReward,
-          difficulty: analysis.difficulty,
-          aiAnalyzed: true,
-          priorityRank: analysis.priorityRank,
-          contextualBonus: analysis.contextualBonus
-        } : t
-      ));
-
-      console.log(`✅ Task analyzed: ${analysis.xpReward} XP (${analysis.difficulty})`);
-      console.log(`🧠 AI Reasoning: ${analysis.reasoning}`);
-    } catch (error) {
-      console.error('❌ Failed to analyze task:', error);
-    }
+  // Update task priority
+  const updateTaskPriority = (taskId: string, priority: TaskPriority) => {
+    setTasks(tasks.map(task => 
+      task.id === taskId ? { ...task, priority } : task
+    ));
   };
 
-  // Analyze subtask with AI and update XP
-  const analyzeSubtaskWithAI = async (taskId: string, subtaskId: string) => {
-    const task = tasks.find(t => t.id === taskId);
-    const subtask = task?.subtasks.find(s => s.id === subtaskId);
-    if (!task || !subtask) return;
-
-    try {
-      console.log(`🤖 Analyzing subtask: ${subtask.title}`);
-      const analysis = await aiXPService.analyzeTaskForXP(
-        subtask.title,
-        undefined,
-        '15 min', // Default subtask time
-        {
-          parentTask: task.title,
-          allTasks: tasks.map(t => ({
-            title: t.title,
-            completed: t.completed,
-            timeEstimate: t.timeEstimate
-          })),
-          completedTasksToday: tasks.filter(t => t.completed).length,
-          sessionType: 'light-work',
-          personalContext: personalContext
-        }
-      );
-
-      // Update subtask with AI analysis
-      setTasks(prevTasks => prevTasks.map(t => 
-        t.id === taskId ? {
-          ...t,
-          subtasks: t.subtasks.map(s => 
-            s.id === subtaskId ? {
-              ...s,
-              xpReward: analysis.xpReward,
-              difficulty: analysis.difficulty,
-              aiAnalyzed: true,
-              priorityRank: analysis.priorityRank,
-              contextualBonus: analysis.contextualBonus
-            } : s
+  // Update subtask priority
+  const updateSubtaskPriority = (taskId: string, subtaskId: string, priority: TaskPriority) => {
+    setTasks(tasks.map(task => {
+      if (task.id === taskId) {
+        return {
+          ...task,
+          subtasks: task.subtasks.map(subtask =>
+            subtask.id === subtaskId ? { ...subtask, priority } : subtask
           )
-        } : t
-      ));
-
-      console.log(`✅ Subtask analyzed: ${analysis.xpReward} XP (${analysis.difficulty})`);
-      console.log(`🧠 AI Reasoning: ${analysis.reasoning}`);
-    } catch (error) {
-      console.error('❌ Failed to analyze subtask:', error);
-    }
+        };
+      }
+      return task;
+    }));
   };
+
+
 
   // Calculate total and completed tasks (including subtasks)
   const taskProgress = useMemo(() => {
@@ -487,7 +444,7 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = React
     let potentialXP = 0;
 
     tasks.forEach(task => {
-      const taskXP = task.xpReward || getDefaultTaskXP(task);
+      const taskXP = getDefaultTaskXP(task);
       
       if (task.completed) {
         earnedXP += taskXP;
@@ -497,7 +454,7 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = React
       
       // Add subtask XP
       task.subtasks.forEach(subtask => {
-        const subtaskXP = subtask.xpReward || getDefaultSubtaskXP(subtask);
+        const subtaskXP = getDefaultSubtaskXP(subtask);
         if (subtask.completed) {
           earnedXP += subtaskXP;
         } else {
@@ -611,6 +568,18 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = React
                     <div className="space-y-2">
                       {/* Main task row */}
                       <div className="flex items-center gap-3">
+                        <div
+                          className="flex-shrink-0 p-1 hover:bg-gray-700/50 rounded cursor-grab active:cursor-grabbing transition-colors"
+                          draggable
+                          onDragStart={taskReordering.handleDragStart}
+                          onDragOver={taskReordering.handleDragOver}
+                          onDrop={taskReordering.handleDrop}
+                          onDragEnd={taskReordering.handleDragEnd}
+                          data-item-id={task.id}
+                          title="Drag to reorder"
+                        >
+                          <GripVertical className="h-4 w-4 text-gray-400" />
+                        </div>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -660,31 +629,7 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = React
                             <Clock className="h-3 w-3" />
                             {task.timeEstimate}
                           </div>
-                          {task.aiAnalyzed && (
-                            <div className="flex items-center gap-1">
-                              <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
-                                task.difficulty === 'expert' ? 'bg-red-900/30 text-red-300' :
-                                task.difficulty === 'hard' ? 'bg-orange-900/30 text-orange-300' :
-                                task.difficulty === 'moderate' ? 'bg-yellow-900/30 text-yellow-300' :
-                                task.difficulty === 'easy' ? 'bg-blue-900/30 text-blue-300' :
-                                'bg-gray-900/30 text-gray-300'
-                              }`}>
-                                <Zap className="h-3 w-3" />
-                                {task.xpReward} XP
-                              </div>
-                              {task.priorityRank && (
-                                <div className={`flex items-center justify-center w-4 h-4 rounded-full text-xs font-bold ${
-                                  task.priorityRank === 5 ? 'bg-red-500 text-white' :
-                                  task.priorityRank === 4 ? 'bg-orange-500 text-white' :
-                                  task.priorityRank === 3 ? 'bg-yellow-500 text-black' :
-                                  task.priorityRank === 2 ? 'bg-blue-500 text-white' :
-                                  'bg-gray-500 text-white'
-                                }`}>
-                                  {task.priorityRank}
-                                </div>
-                              )}
-                            </div>
-                          )}
+
                         </div>
                         
                         <div className="flex items-center gap-1">
@@ -699,29 +644,22 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = React
                             <Plus className="h-3 w-3" />
                           </button>
                           
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              analyzeTaskWithAI(task.id);
-                            }}
-                            className={`p-1 hover:bg-gray-700/50 rounded transition-colors ${
-                              task.aiAnalyzed 
-                                ? 'text-yellow-400 hover:text-yellow-300' 
-                                : 'text-gray-400 hover:text-yellow-400'
-                            }`}
-                            title={task.aiAnalyzed ? `AI Analyzed: ${task.xpReward} XP (${task.difficulty})` : 'Analyze with AI for smart XP allocation'}
-                          >
-                            {task.aiAnalyzed ? (
-                              <Zap className="h-3 w-3" />
-                            ) : (
-                              <Brain className="h-3 w-3" />
-                            )}
-                          </button>
+                          <div className="flex items-center gap-1">
+                            <PrioritySelector
+                              value={task.priority || 'none'}
+                              onChange={(priority) => updateTaskPriority(task.id, priority)}
+                              size="xs"
+                            />
+                          </div>
                           
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              task.thoughtDump ? removeThoughtDump(task.id) : startThoughtDump(task.id);
+                              if (task.thoughtDump) {
+                                removeThoughtDump(task.id);
+                              } else {
+                                startThoughtDump(task.id);
+                              }
                             }}
                             className={`p-1 hover:bg-gray-700/50 rounded transition-colors ${
                               task.thoughtDump 
@@ -810,6 +748,18 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = React
                             key={subtask.id}
                             className="flex items-center gap-3 pl-6 py-1 hover:bg-gray-700/30 rounded transition-colors"
                           >
+                            <div
+                              className="flex-shrink-0 p-1 hover:bg-gray-700/50 rounded cursor-grab active:cursor-grabbing transition-colors"
+                              draggable
+                              onDragStart={subtaskReorderings[task.id]?.handleDragStart}
+                              onDragOver={subtaskReorderings[task.id]?.handleDragOver}
+                              onDrop={subtaskReorderings[task.id]?.handleDrop}
+                              onDragEnd={subtaskReorderings[task.id]?.handleDragEnd}
+                              data-item-id={subtask.id}
+                              title="Drag to reorder"
+                            >
+                              <GripVertical className="h-3 w-3 text-gray-400" />
+                            </div>
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -834,18 +784,25 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = React
                                 className="flex-1 text-sm bg-gray-700/50 border border-green-500 rounded px-2 py-1 text-white focus:outline-none focus:ring-1 focus:ring-green-500"
                               />
                             ) : (
-                              <span 
-                                className={`text-sm cursor-pointer hover:text-green-300 transition-colors ${
-                                  subtask.completed ? 'line-through text-gray-400' : ''
-                                }`}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  startEditingSubtask(subtask.id, subtask.title);
-                                }}
-                                title="Click to edit"
-                              >
-                                {subtask.title}
-                              </span>
+                              <div className="flex items-center gap-2 flex-1">
+                                <span 
+                                  className={`text-sm cursor-pointer hover:text-green-300 transition-colors flex-1 ${
+                                    subtask.completed ? 'line-through text-gray-400' : ''
+                                  }`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    startEditingSubtask(subtask.id, subtask.title);
+                                  }}
+                                  title="Click to edit"
+                                >
+                                  {subtask.title}
+                                </span>
+                                <PrioritySelector
+                                  value={subtask.priority || 'none'}
+                                  onChange={(priority) => updateSubtaskPriority(task.id, subtask.id, priority)}
+                                  size="xs"
+                                />
+                              </div>
                             )}
                           </div>
                         ))}
@@ -903,8 +860,7 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = React
                   setTasks([...tasks, newTask]);
                   // Auto-focus on the new task for editing
                   setTimeout(() => startEditingTask(newTask.id, newTask.title), 100);
-                  // Auto-analyze with AI after a short delay
-                  setTimeout(() => analyzeTaskWithAI(newTask.id), 2000);
+
                 }}
                 className="flex items-center gap-2 px-4 py-2 border-2 border-dashed border-green-600/50 text-green-400 hover:border-green-500 hover:text-green-300 hover:bg-green-900/10 rounded-lg transition-all duration-200 text-sm font-medium"
               >

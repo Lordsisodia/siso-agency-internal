@@ -154,7 +154,7 @@ const AdminLifeLockDay: React.FC = () => {
             
             case 'wellness':
               return (
-                <div className="h-full bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 p-4 pb-24">
+                <div className="h-full bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 p-4">
                   <div className="mb-8">
                     <h1 className="text-3xl font-bold text-white mb-2">
                       💪 Wellness & Health

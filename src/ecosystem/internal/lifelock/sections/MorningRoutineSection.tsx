@@ -123,7 +123,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   selectedDate
 }) => {
   const { user } = useClerkUser();
-  const internalUserId = useSupabaseUserId(internalUserId || null);
+  const internalUserId = useSupabaseUserId(user?.id || null);
   const { saveTask, loadTasks, isOffline } = useOfflineManager();
   const [morningRoutine, setMorningRoutine] = useState<MorningRoutineData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -345,7 +345,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
             </div>
             <div className="border-t border-yellow-600/50 my-3 sm:my-4"></div>
           </CardHeader>
-          <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
+          <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 pb-24">
             
 
             {/* Morning Routine Tasks */}

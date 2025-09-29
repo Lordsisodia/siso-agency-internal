@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, Square, RotateCcw, Coffee, CheckCircle, Circle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
+import { Button } from '@/shared/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
+import { Progress } from '@/shared/ui/progress';
+import { Badge } from '@/shared/ui/badge';
 import { AIAssistantFeatureFlags } from '../utils/feature-flags';
 import { useAIChatThreadService } from '../services/ai-chat-thread.service';
 import { MorningRoutineSession } from '../types/ai-chat.types';

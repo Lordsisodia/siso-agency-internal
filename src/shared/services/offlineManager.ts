@@ -106,8 +106,98 @@ class OfflineManager {
     await this.checkStatus();
   }
 
-  // ===== DATA OPERATIONS =====
+  // ===== UNIVERSAL DATA OPERATIONS - BMAD Phase 2A =====
 
+  // 🚀 Universal save method for any table
+  async saveUniversal(
+    table: string,
+    data: any,
+    forceOffline = false
+  ): Promise<{ success: boolean; offline?: boolean; error?: string }> {
+    try {
+      // Try online first (unless forced offline)
+      if (!forceOffline && this.status.isOnline && this.status.isSupabaseConnected) {
+        const result = await this.saveToSupabase(table, data);
+        if (result.success) {
+          // Cache to offline storage for supported tables
+          await this.cacheToOfflineStorage(table, data, false);
+          return { success: true };
+        }
+      }
+
+      // Fallback to offline storage
+      console.log('💾 Universal offline save:', table, data.title || data.name || data.id);
+      await this.cacheToOfflineStorage(table, data, true);
+      await this.checkStatus(); // Update pending count
+      
+      return { success: true, offline: true };
+    } catch (error) {
+      console.error('❌ Universal save failed:', error);
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+    }
+  }
+
+  // 🚀 Universal load method for any table
+  async loadUniversal(table: string, filters?: any): Promise<any[]> {
+    try {
+      // 🚀 FIXED: Check IndexedDB first for offline-first architecture
+      console.log('🔍 Loading from IndexedDB first:', table);
+      const offlineData = await this.loadFromOfflineStorage(table, filters);
+      
+      // If we have offline data, return it immediately (offline-first)
+      if (offlineData && offlineData.length > 0) {
+        console.log(`📱 Found ${offlineData.length} items in IndexedDB for ${table}`);
+        return offlineData;
+      }
+      
+      // Only try online if no offline data and we're connected
+      if (this.status.isOnline && this.status.isSupabaseConnected) {
+        console.log('☁️ No offline data, trying Supabase:', table);
+        const onlineData = await this.loadFromSupabase(table, filters);
+        
+        // Cache online data offline for future use
+        for (const item of onlineData) {
+          await this.cacheToOfflineStorage(table, item, false);
+        }
+        
+        return onlineData;
+      }
+    } catch (error) {
+      console.warn('⚠️ Load failed, returning empty array:', error);
+    }
+
+    // Fallback to empty array if everything fails
+    console.log('📭 No data found for:', table);
+    return [];
+  }
+
+  // 🚀 Smart caching method
+  private async cacheToOfflineStorage(table: string, data: any, markForSync: boolean): Promise<void> {
+    if (table === 'lightWorkTasks' || table === 'deepWorkTasks') {
+      // Use existing specialized methods
+      await offlineDb[table === 'lightWorkTasks' ? 'saveLightWorkTask' : 'saveDeepWorkTask'](
+        data, 
+        markForSync
+      );
+    } else {
+      // Queue as generic action for other tables
+      await offlineDb.queueAction(table, 'create', data);
+    }
+  }
+
+  // 🚀 Universal offline loading
+  private async loadFromOfflineStorage(table: string, filters?: any): Promise<any[]> {
+    if (table === 'lightWorkTasks' || table === 'deepWorkTasks') {
+      const dateFilter = filters?.date || filters;
+      return await offlineDb[table === 'lightWorkTasks' ? 'getLightWorkTasks' : 'getDeepWorkTasks'](dateFilter);
+    } else {
+      // For other tables, could implement generic storage or return empty
+      console.warn('⚠️ Table not yet supported for offline storage:', table);
+      return [];
+    }
+  }
+
+  // Legacy method for backward compatibility
   // Save task with offline support
   async saveTask(
     table: string,
@@ -252,12 +342,32 @@ class OfflineManager {
       const { supabaseAnon } = await import('@/shared/lib/supabase-clerk');
       const supabase = supabaseAnon;
       
-      // Map table names to actual Supabase tables
+      // 🚀 UNIVERSAL TABLE MAPPING - BMAD Phase 2A (syncAction)
       const tableMapping: Record<string, string> = {
-        'lightWorkTasks': 'user_light_work_tasks',
-        'deepWorkTasks': 'user_deep_work_tasks',
+        // Work Tasks (Phase 1 - Complete)
+        'lightWorkTasks': 'light_work_tasks',
+        'deepWorkTasks': 'deep_work_sessions',
+        
+        // Health & Routine Data  
         'morning_routine': 'daily_health',
-        'morning_routine_habits': 'daily_health'
+        'morning_routine_habits': 'daily_health',
+        'dailyHealth': 'daily_health',
+        
+        // Generic Task Management
+        'tasks': 'tasks',
+        'genericTasks': 'tasks',
+        
+        // User & Memory Data
+        'users': 'users',
+        'memories': 'memories',
+        'projectMemories': 'project_memories',
+        'businessContext': 'business_context',
+        
+        // System Tables
+        'learningPatterns': 'learning_patterns',
+        'workingStylePreferences': 'working_style_preferences',
+        'embeddingJobs': 'embedding_jobs',
+        'claudeEffectiveness': 'claude_effectiveness_metrics'
       };
       
       const tableName = tableMapping[action.table] || action.table;
@@ -294,22 +404,64 @@ class OfflineManager {
       const { supabaseAnon } = await import('@/shared/lib/supabase-clerk');
       const supabase = supabaseAnon;
       
-      // Map table names to actual Supabase tables
+      // 🚀 UNIVERSAL TABLE MAPPING - BMAD Phase 2A (saveToSupabase)
       const tableMapping: Record<string, string> = {
-        'lightWorkTasks': 'user_light_work_tasks',
-        'deepWorkTasks': 'user_deep_work_tasks',
+        // Work Tasks (Phase 1 - Complete)
+        'lightWorkTasks': 'light_work_tasks',
+        'deepWorkTasks': 'deep_work_sessions',
+        
+        // Health & Routine Data  
         'morning_routine': 'daily_health',
-        'morning_routine_habits': 'daily_health'
+        'morning_routine_habits': 'daily_health',
+        'dailyHealth': 'daily_health',
+        
+        // Generic Task Management
+        'tasks': 'tasks',
+        'genericTasks': 'tasks',
+        
+        // User & Memory Data
+        'users': 'users',
+        'memories': 'memories',
+        'projectMemories': 'project_memories',
+        'businessContext': 'business_context',
+        
+        // System Tables
+        'learningPatterns': 'learning_patterns',
+        'workingStylePreferences': 'working_style_preferences',
+        'embeddingJobs': 'embedding_jobs',
+        'claudeEffectiveness': 'claude_effectiveness_metrics'
       };
       
       const tableName = tableMapping[table] || table;
       
-      const { error } = await supabase
+      // 🐛 ENHANCED DEBUG: Log what we're trying to save
+      console.log('💾 Saving to Supabase:', {
+        originalTable: table,
+        mappedTable: tableName,
+        dataKeys: Object.keys(task),
+        sampleData: { id: task.id, title: task.title, user_id: task.user_id }
+      });
+      
+      const { data, error } = await supabase
         .from(tableName)
-        .upsert(task);
+        .upsert(task)
+        .select(); // Add select to get better error info
+
+      // 🐛 ENHANCED DEBUG: Log response
+      if (error) {
+        console.error('❌ Supabase save error:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
+      } else {
+        console.log('✅ Supabase save success:', data);
+      }
 
       return { success: !error, error: error?.message };
     } catch (error) {
+      console.error('❌ Supabase save exception:', error);
       return { 
         success: false, 
         error: error instanceof Error ? error.message : 'Unknown error' 
@@ -321,12 +473,32 @@ class OfflineManager {
     const { supabaseAnon } = await import('@/shared/lib/supabase-clerk');
     const supabase = supabaseAnon;
     
-    // Map table names to actual Supabase tables
+    // 🚀 UNIVERSAL TABLE MAPPING - BMAD Phase 2A (loadFromSupabase)
     const tableMapping: Record<string, string> = {
-      'lightWorkTasks': 'user_light_work_tasks',
-      'deepWorkTasks': 'user_deep_work_tasks', 
+      // Work Tasks (Phase 1 - Complete)
+      'lightWorkTasks': 'light_work_tasks',
+      'deepWorkTasks': 'deep_work_sessions',
+      
+      // Health & Routine Data  
       'morning_routine': 'daily_health',
-      'morning_routine_habits': 'daily_health'
+      'morning_routine_habits': 'daily_health',
+      'dailyHealth': 'daily_health',
+      
+      // Generic Task Management
+      'tasks': 'tasks',
+      'genericTasks': 'tasks',
+      
+      // User & Memory Data
+      'users': 'users',
+      'memories': 'memories',
+      'projectMemories': 'project_memories',
+      'businessContext': 'business_context',
+      
+      // System Tables
+      'learningPatterns': 'learning_patterns',
+      'workingStylePreferences': 'working_style_preferences',
+      'embeddingJobs': 'embedding_jobs',
+      'claudeEffectiveness': 'claude_effectiveness_metrics'
     };
     
     const tableName = tableMapping[table] || table;

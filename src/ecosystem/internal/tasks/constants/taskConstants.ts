@@ -74,17 +74,17 @@ export const TASK_STATUS_CONFIG = {
 
 // Priority configuration
 export const TASK_PRIORITY_CONFIG = {
-  [TaskPriority.CRITICAL]: {
-    label: 'Critical',
+  ultra: {
+    label: 'Ultra',
     color: 'red',
-    bgColor: 'bg-red-500',
+    bgColor: 'bg-red-600',
     textColor: 'text-white',
-    borderColor: 'border-red-500',
+    borderColor: 'border-red-600',
     icon: '🔥',
     order: 1,
     weight: 5
   },
-  [TaskPriority.HIGH]: {
+  high: {
     label: 'High',
     color: 'orange',
     bgColor: 'bg-orange-500',
@@ -94,7 +94,7 @@ export const TASK_PRIORITY_CONFIG = {
     order: 2,
     weight: 4
   },
-  [TaskPriority.MEDIUM]: {
+  medium: {
     label: 'Medium',
     color: 'yellow',
     bgColor: 'bg-yellow-500',
@@ -104,18 +104,18 @@ export const TASK_PRIORITY_CONFIG = {
     order: 3,
     weight: 3
   },
-  [TaskPriority.LOW]: {
+  low: {
     label: 'Low',
-    color: 'green',
-    bgColor: 'bg-green-500',
+    color: 'blue',
+    bgColor: 'bg-blue-500',
     textColor: 'text-white',
-    borderColor: 'border-green-500',
+    borderColor: 'border-blue-500',
     icon: '🟢',
     order: 4,
     weight: 2
   },
-  [TaskPriority.BACKLOG]: {
-    label: 'Backlog',
+  none: {
+    label: 'None',
     color: 'gray',
     bgColor: 'bg-gray-500',
     textColor: 'text-white',

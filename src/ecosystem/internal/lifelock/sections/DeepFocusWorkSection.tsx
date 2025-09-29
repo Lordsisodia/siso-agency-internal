@@ -25,6 +25,9 @@ import { FlowStateTimer } from '@/shared/components/ui/FlowStateTimer';
 import { FocusSessionTimer } from '../ui/FocusSessionTimer';
 import { DeepFocusSessionCard } from '@/ecosystem/internal/tasks/ui/DeepFocusSessionCard';
 import { TabProps } from '@/ecosystem/internal/tasks/DayTabContainer';
+import { PrioritySelector, PriorityLevel } from '@/ecosystem/internal/tasks/components/PrioritySelector';
+import { useTaskReordering } from '@/ecosystem/internal/tasks/hooks/useTaskReordering';
+import { GripVertical } from 'lucide-react';
 
 interface FocusSession {
   id: string;
@@ -39,17 +42,18 @@ interface FocusSession {
 interface PriorityTask {
   id: string;
   title: string;
-  priority: 'high' | 'medium' | 'low';
+  priority: PriorityLevel;
   estimatedTime: string;
   completed: boolean;
   sessionId?: string;
+  sortOrder?: number;
 }
 
 const mockPriorityTasks: PriorityTask[] = [
-  { id: '1', title: 'Complete quarterly review', priority: 'high', estimatedTime: '2h', completed: false },
-  { id: '2', title: 'Finish client presentation', priority: 'high', estimatedTime: '1.5h', completed: false },
-  { id: '3', title: 'Code review for API changes', priority: 'medium', estimatedTime: '45m', completed: false },
-  { id: '4', title: 'Write technical documentation', priority: 'medium', estimatedTime: '1h', completed: true },
+  { id: '1', title: 'Complete quarterly review', priority: 'ultra', estimatedTime: '2h', completed: false, sortOrder: 0 },
+  { id: '2', title: 'Finish client presentation', priority: 'high', estimatedTime: '1.5h', completed: false, sortOrder: 1 },
+  { id: '3', title: 'Code review for API changes', priority: 'medium', estimatedTime: '45m', completed: false, sortOrder: 2 },
+  { id: '4', title: 'Write technical documentation', priority: 'low', estimatedTime: '1h', completed: true, sortOrder: 3 },
 ];
 
 export const DeepFocusWorkSection: React.FC<TabProps> = React.memo(({
@@ -68,8 +72,11 @@ export const DeepFocusWorkSection: React.FC<TabProps> = React.memo(({
   const [totalFocusTime, setTotalFocusTime] = useState(125); // minutes today
   const [focusGoal] = useState(240); // 4 hours
 
+  // Drag and drop for priority tasks
+  const taskReordering = useTaskReordering(priorityTasks, setPriorityTasks);
+
   const completedTasks = priorityTasks.filter(t => t.completed).length;
-  const highPriorityTasks = priorityTasks.filter(t => t.priority === 'high' && !t.completed);
+  const highPriorityTasks = priorityTasks.filter(t => (t.priority === 'ultra' || t.priority === 'high') && !t.completed);
   const focusProgress = (totalFocusTime / focusGoal) * 100;
 
   const startFocusSession = (type: 'pomodoro' | 'flow' | 'custom', taskId?: string) => {
@@ -97,17 +104,17 @@ export const DeepFocusWorkSection: React.FC<TabProps> = React.memo(({
     onTaskToggle?.(taskId);
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'text-red-400 bg-red-500/20 border-red-400/50';
-      case 'medium': return 'text-yellow-400 bg-yellow-500/20 border-yellow-400/50';
-      case 'low': return 'text-blue-400 bg-blue-500/20 border-blue-400/50';
-      default: return 'text-gray-400 bg-gray-500/20 border-gray-400/50';
-    }
+  const updateTaskPriority = (taskId: string, priority: PriorityLevel) => {
+    setPriorityTasks(prev => prev.map(task => 
+      task.id === taskId ? { ...task, priority } : task
+    ));
   };
 
+
+
   return (
-    <div className="p-4 space-y-6 bg-gradient-to-br from-black via-gray-900 to-black min-h-full">
+    <div className="min-h-screen w-full bg-gradient-to-br from-black via-gray-900 to-black relative">
+      <div className="max-w-7xl mx-auto p-3 sm:p-4 md:p-6 lg:p-8 space-y-6">
       {/* Header */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
@@ -281,22 +288,63 @@ export const DeepFocusWorkSection: React.FC<TabProps> = React.memo(({
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
-{priorityTasks.map((task, index) => (
-              <SharedTaskCard
+            {priorityTasks.map((task) => (
+              <div
                 key={task.id}
-                task={{
-                  id: task.id,
-                  title: task.title,
-                  priority: task.priority as 'high' | 'medium' | 'low',
-                  estimatedTime: task.estimatedTime,
-                  completed: task.completed
-                }}
-                index={index}
-                theme="deep-work"
-                onToggleComplete={(taskId) => toggleTaskComplete(taskId)}
-                onStartFocus={!activeSession ? (taskId) => startFocusSession('flow', taskId) : undefined}
-                showFocusButton={!activeSession}
-              />
+                className="flex items-center gap-3 p-3 rounded-lg bg-gray-800/50 border border-gray-700/50 hover:border-purple-500/50 transition-all"
+              >
+                <div
+                  className="flex-shrink-0 p-1 hover:bg-gray-700/50 rounded cursor-grab active:cursor-grabbing transition-colors"
+                  draggable
+                  onDragStart={taskReordering.handleDragStart}
+                  onDragOver={taskReordering.handleDragOver}
+                  onDrop={taskReordering.handleDrop}
+                  onDragEnd={taskReordering.handleDragEnd}
+                  data-item-id={task.id}
+                  title="Drag to reorder"
+                >
+                  <GripVertical className="h-4 w-4 text-gray-400" />
+                </div>
+                
+                <button
+                  onClick={() => toggleTaskComplete(task.id)}
+                  className="flex-shrink-0 hover:scale-110 transition-transform"
+                >
+                  {task.completed ? (
+                    <CheckCircle2 className="h-5 w-5 text-green-400" />
+                  ) : (
+                    <Circle className="h-5 w-5 text-gray-400 hover:text-purple-400" />
+                  )}
+                </button>
+                
+                <div className="flex-1 min-w-0">
+                  <h4 className={`font-medium text-sm ${task.completed ? 'line-through text-gray-500' : 'text-white'}`}>
+                    {task.title}
+                  </h4>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-xs text-gray-400">{task.estimatedTime}</span>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <PrioritySelector
+                    value={task.priority}
+                    onChange={(priority) => updateTaskPriority(task.id, priority)}
+                    size="xs"
+                  />
+                  
+                  {!activeSession && (
+                    <Button
+                      size="sm"
+                      onClick={() => startFocusSession('flow', task.id)}
+                      className="bg-purple-500/20 border border-purple-400/50 text-purple-300 hover:bg-purple-500/30 hover:border-purple-400/70 text-xs"
+                    >
+                      <Play className="h-3 w-3 mr-1" />
+                      Focus
+                    </Button>
+                  )}
+                </div>
+              </div>
             ))}
             
             {priorityTasks.length === 0 && (
@@ -368,6 +416,7 @@ export const DeepFocusWorkSection: React.FC<TabProps> = React.memo(({
           Start Deep Focus
         </Button>
       </motion.div>
+      </div>
     </div>
   );
 });

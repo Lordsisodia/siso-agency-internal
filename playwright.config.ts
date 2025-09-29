@@ -1,6 +1,11 @@
 import { defineConfig, devices } from '@playwright/test';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
+import { fileURLToPath } from 'url';
+
+// Fix for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Load environment variables
 dotenv.config({ path: path.resolve(__dirname, '.env.test') });
@@ -17,7 +22,7 @@ export default defineConfig({
     ['json', { outputFile: 'test-results.json' }]
   ],
   use: {
-    baseURL: process.env.BASE_URL || 'http://localhost:5173',
+    baseURL: process.env.BASE_URL || 'http://localhost:5174',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
@@ -75,14 +80,14 @@ export default defineConfig({
     }
   ],
   
-  webServer: {
-    command: process.env.CI ? 'npm run build && npm run preview' : 'npm run dev',
-    url: process.env.BASE_URL || 'http://localhost:5173',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
-    stdout: 'pipe',
-    stderr: 'pipe',
-  },
+  // webServer: {
+  //   command: process.env.CI ? 'npm run build && npm run preview' : 'npm run dev',
+  //   url: process.env.BASE_URL || 'http://localhost:5174',
+  //   reuseExistingServer: !process.env.CI,
+  //   timeout: 120_000,
+  //   stdout: 'pipe',
+  //   stderr: 'pipe',
+  // },
   
   /* Configure global test settings */
   expect: {

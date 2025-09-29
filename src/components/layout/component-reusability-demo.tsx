@@ -11,7 +11,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import SisoDeepFocusPlanV2 from "./siso-deep-focus-plan-v2";
 import SisoLightWorkPlan from "./siso-light-work-plan";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/ui/button";
 import { Brain, Zap } from "lucide-react";
 
 type ViewMode = 'deep' | 'light' | 'side-by-side';

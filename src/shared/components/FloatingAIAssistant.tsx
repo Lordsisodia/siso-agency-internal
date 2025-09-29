@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageSquare, X, ArrowLeft, Sparkles, Mic } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Button } from '@/shared/ui/button';
+import { Badge } from '@/shared/ui/badge';
 import { SisoIcon } from '@/shared/ui/icons/SisoIcon';
 import { EnhancedAIAssistantTab } from '../../ai-first/features/tasks/components/EnhancedAIAssistantTab';
 import { AIAssistantFeatureFlags, getDefaultFeatureFlags } from '../../ai-first/shared/utils/feature-flags';

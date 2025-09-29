@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Heart, Plus, Minus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
@@ -29,26 +28,49 @@ export const HealthNonNegotiablesSection: React.FC<HealthNonNegotiablesSectionPr
 
   const [meals, setMeals] = useState(nutrition.meals);
   const [dailyTotals, setDailyTotals] = useState(nutrition.macros);
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const hasLoadedInitialData = useRef(false);
 
-  // Update local state when nutrition data loads
+  // Update local state when nutrition data loads from server
   useEffect(() => {
-    setMeals(nutrition.meals);
-    setDailyTotals(nutrition.macros);
-  }, [nutrition]);
-
-  // Save meals to Supabase when they change
-  useEffect(() => {
-    if (!loading && internalUserId) {
-      updateMeals(meals);
+    if (!loading && !hasLoadedInitialData.current) {
+      setMeals(nutrition.meals);
+      setDailyTotals(nutrition.macros);
+      hasLoadedInitialData.current = true;
     }
-  }, [meals, updateMeals, loading, internalUserId]);
+  }, [nutrition.meals, nutrition.macros, loading]);
 
-  // Save macros to Supabase when they change
-  useEffect(() => {
-    if (!loading && internalUserId) {
-      updateMacros(dailyTotals);
+  // Handle saving with proper debouncing to prevent loops
+  const saveData = (newMeals: typeof meals, newMacros: typeof dailyTotals) => {
+    if (!hasLoadedInitialData.current || !internalUserId || saving) return;
+    
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
     }
-  }, [dailyTotals, updateMacros, loading, internalUserId]);
+    
+    saveTimeoutRef.current = setTimeout(async () => {
+      try {
+        await updateMeals(newMeals);
+        await updateMacros(newMacros);
+      } catch (error) {
+        console.error('Error saving nutrition data:', error);
+      }
+    }, 1000);
+  };
+
+  // Save when meals change (from user input only)
+  useEffect(() => {
+    if (hasLoadedInitialData.current) {
+      saveData(meals, dailyTotals);
+    }
+  }, [meals]);
+
+  // Save when macros change (from user input only)
+  useEffect(() => {
+    if (hasLoadedInitialData.current) {
+      saveData(meals, dailyTotals);
+    }
+  }, [dailyTotals]);
 
 
   return (

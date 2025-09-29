@@ -7,6 +7,7 @@
 
 import React from 'react';
 import { Brain, Mic, MicOff, Calendar, Eye, X, Zap } from 'lucide-react';
+import { PrioritySelector } from '@/ecosystem/internal/tasks/components/PrioritySelector';
 
 interface TaskActionButtonsProps {
   task: {
@@ -14,6 +15,7 @@ interface TaskActionButtonsProps {
     aiAnalyzed?: boolean;
     xpReward?: number;
     difficulty?: string;
+    priority?: string;
   };
   themeConfig: {
     colors: {
@@ -27,6 +29,7 @@ interface TaskActionButtonsProps {
   onPushToAnotherDay: (taskId: string) => void;
   onViewTask: (taskId: string) => void;
   onDeleteTask: (taskId: string) => void;
+  onPriorityChange?: (taskId: string, priority: string) => void;
 }
 
 export const TaskActionButtons: React.FC<TaskActionButtonsProps> = ({
@@ -37,7 +40,8 @@ export const TaskActionButtons: React.FC<TaskActionButtonsProps> = ({
   onStartThoughtDump,
   onPushToAnotherDay,
   onViewTask,
-  onDeleteTask
+  onDeleteTask,
+  onPriorityChange
 }) => {
   const handleClick = (e: React.MouseEvent, action: () => void) => {
     e.stopPropagation();
@@ -50,6 +54,15 @@ export const TaskActionButtons: React.FC<TaskActionButtonsProps> = ({
 
   return (
     <div className="flex items-center justify-center gap-1">
+      {/* Priority Selector */}
+      {onPriorityChange && (
+        <PrioritySelector
+          value={task.priority || 'none'}
+          onChange={(priority) => onPriorityChange(task.id, priority)}
+          size="sm"
+        />
+      )}
+      
       {/* AI Analysis Button */}
       <button
         onClick={(e) => handleClick(e, () => onAnalyzeWithAI(task.id))}
