@@ -52,7 +52,7 @@ test.describe('🚀 SISO Offline System Tests', () => {
           completed: false,
           task_date: new Date().toISOString().split('T')[0],
           original_date: new Date().toISOString().split('T')[0],
-          current_task_date: new Date().toISOString().split('T')[0]
+          // Note: using task_date instead of current_task_date (schema alignment)
         }
       };
     });

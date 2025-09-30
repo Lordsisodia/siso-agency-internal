@@ -295,11 +295,11 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   }
 
   return (
-    <div className="min-h-screen w-full bg-gray-900 relative">
+    <div className="min-h-screen w-full bg-gradient-to-br from-black via-gray-900 to-black relative">
       {/* Progress Line */}
       <div className="absolute left-0 top-0 bottom-0 w-1 bg-yellow-500/50"></div>
       
-      <div className="max-w-7xl mx-auto p-3 sm:p-4 md:p-6 lg:p-8 space-y-6">
+      <div className="max-w-7xl mx-auto p-3 sm:p-4 md:p-6 lg:p-8 space-y-6 pb-24">
         
         {/* Morning Routine Card */}
         <Card className="bg-yellow-900/20 border-yellow-700/50">

@@ -51,11 +51,10 @@ export function SimpleFeedbackButton({ onSubmit }: SimpleFeedbackButtonProps) {
       {/* Simple floating button */}
       <Button
         onClick={() => setShowFeedback(true)}
-        className="w-full shadow-lg bg-blue-600 hover:bg-blue-700"
+        className="w-10 h-10 rounded-full shadow-lg bg-blue-600 hover:bg-blue-700 p-0"
         size="sm"
       >
-        <MessageSquare className="h-4 w-4 mr-1" />
-        Feedback
+        <MessageSquare className="h-4 w-4" />
       </Button>
 
       {/* Simple modal */}

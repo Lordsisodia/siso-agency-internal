@@ -158,7 +158,7 @@ export const SharedTaskCard: React.FC<SharedTaskCardProps> = ({
               `}
               onClick={() => onEdit?.(task.id, task.title)}
             >
-              {task.title}
+🟢 SHARED TASK CARD - {task.title}
             </h4>
           )}
           <div className="flex items-center space-x-3 mt-1">

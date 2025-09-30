@@ -27,6 +27,7 @@ export const DeepFocusWorkSection: React.FC<DeepFocusWorkSectionProps> = ({
     deleteTask,
     deleteSubtask,
     updateTaskTitle,
+    updateTask,
     pushTaskToAnotherDay,
     updateTaskDueDate,
     updateSubtaskDueDate,
@@ -65,6 +66,18 @@ export const DeepFocusWorkSection: React.FC<DeepFocusWorkSectionProps> = ({
     return await addSubtask(taskId, subtaskTitle, 'HIGH');
   };
 
+  const handleUpdateTaskPriority = async (taskId: string, priority: string) => {
+    if (updateTask) {
+      await updateTask(taskId, { priority: priority.toUpperCase() });
+    }
+  };
+
+  const handleReorderTasks = async (reorderedTasks: any[]) => {
+    // Update task order in state/database
+    console.log('Reordering deep work tasks:', reorderedTasks);
+    // TODO: Implement actual reordering logic when backend supports it
+  };
+
   return (
     <UnifiedWorkSection 
       selectedDate={selectedDate} 
@@ -82,6 +95,8 @@ export const DeepFocusWorkSection: React.FC<DeepFocusWorkSectionProps> = ({
       pushTaskToAnotherDay={pushTaskToAnotherDay}
       updateTaskTitle={updateTaskTitle}
       updateSubtaskDueDate={updateSubtaskDueDate}
+      updateTaskPriority={handleUpdateTaskPriority}
+      reorderTasks={handleReorderTasks}
     />
   );
 };

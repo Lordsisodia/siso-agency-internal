@@ -28,6 +28,7 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
     deleteTask,
     deleteSubtask,
     updateTaskTitle,
+    updateTask,
     pushTaskToAnotherDay,
     updateTaskDueDate,
     updateSubtaskDueDate,
@@ -63,6 +64,18 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
     return await addSubtask(taskId, subtaskTitle, 'Med');
   };
 
+  const handleUpdateTaskPriority = async (taskId: string, priority: string) => {
+    if (updateTask) {
+      await updateTask(taskId, { priority: priority.toUpperCase() });
+    }
+  };
+
+  const handleReorderTasks = async (reorderedTasks: any[]) => {
+    // Update task order in state/database
+    console.log('Reordering tasks:', reorderedTasks);
+    // TODO: Implement actual reordering logic when backend supports it
+  };
+
   return (
     <div className="space-y-6">
       {/* Dashboard Header with "Super Light Work" title and controls */}
@@ -89,6 +102,8 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
         pushTaskToAnotherDay={pushTaskToAnotherDay}
         updateTaskTitle={updateTaskTitle}
         updateSubtaskDueDate={updateSubtaskDueDate}
+        updateTaskPriority={handleUpdateTaskPriority}
+        reorderTasks={handleReorderTasks}
       />
     </div>
   );

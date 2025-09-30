@@ -148,7 +148,7 @@ export const FloatingAIAssistant: React.FC<FloatingAIAssistantProps> = ({
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
-            className={`fixed bottom-6 right-6 z-40 ${className}`}
+            className={`fixed bottom-6 right-6 z-[60] ${className}`}
           >
             <Button
               onClick={handleOpen}
@@ -200,7 +200,7 @@ export const FloatingAIAssistant: React.FC<FloatingAIAssistantProps> = ({
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="fixed inset-0 z-50 bg-white dark:bg-gray-900"
+            className="fixed inset-0 z-[60] bg-white dark:bg-gray-900"
           >
             {/* Mobile Header with Back Arrow */}
             <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
@@ -248,7 +248,7 @@ export const FloatingAIAssistant: React.FC<FloatingAIAssistantProps> = ({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={handleClose}
-              className="fixed inset-0 bg-black/20 z-40"
+              className="fixed inset-0 bg-black/20 z-[55]"
             />
             
             {/* AI Panel */}
@@ -257,7 +257,7 @@ export const FloatingAIAssistant: React.FC<FloatingAIAssistantProps> = ({
               animate={{ scale: 1, opacity: 1, x: 0, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, x: 20, y: 20 }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="fixed bottom-24 right-6 w-96 h-[600px] bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 z-50 overflow-hidden"
+              className="fixed bottom-24 right-6 w-96 h-[600px] bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 z-[60] overflow-hidden"
             >
               {/* Desktop Header */}
               <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">

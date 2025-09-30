@@ -40,7 +40,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       <main className={`${getMainMargin()} overflow-y-auto admin-scrollbar min-h-screen transition-all duration-100 relative`}>
         {children}
         {/* Global Feedback Button - appears on every page */}
-        <div className="px-4 pb-4 pt-6 flex justify-center">
+        <div className="fixed bottom-48 left-1/2 transform -translate-x-1/2 z-[100]">
           <SimpleFeedbackButton />
         </div>
       </main>

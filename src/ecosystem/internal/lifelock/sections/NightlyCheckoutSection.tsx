@@ -208,12 +208,14 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
   const checkoutProgress = totalInputs > 0 ? (completedInputs / totalInputs) * 100 : 0;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.6 }}
-    >
-      <Card className="bg-purple-900/20 border-purple-700/50">
+    <div className="min-h-screen w-full bg-gray-900 relative">
+      <div className="max-w-7xl mx-auto p-3 sm:p-4 md:p-6 lg:p-8 space-y-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+        >
+          <Card className="bg-purple-900/20 border-purple-700/50">
         <CardHeader>
           <CardTitle className="flex items-center text-purple-400">
             <Moon className="h-5 w-5 mr-2" />
@@ -237,7 +239,7 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pb-24">
           {/* Voice Input Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -592,5 +594,7 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
         </CardContent>
       </Card>
     </motion.div>
+      </div>
+    </div>
   );
 };

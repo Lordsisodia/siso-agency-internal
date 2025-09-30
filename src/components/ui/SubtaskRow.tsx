@@ -213,7 +213,7 @@ export const SubtaskRow: React.FC<SubtaskRowProps> = ({
             `}
             onClick={() => onEdit?.(subtask.id, subtask.title)}
             >
-              {subtask.title}
+{subtask.title}
             </h4>
           )}
           {showMetadata && (subtask.priority || subtask.estimatedTime) && (

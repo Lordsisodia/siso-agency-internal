@@ -814,9 +814,11 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
         </CardContent>
       </Card>
 
-      {/* Feedback Button - Outside card on black background */}
-      <div className="mt-2 flex justify-center">
-        <SimpleFeedbackButton />
+      {/* Feedback Button - Small fixed position on right */}
+      <div className="fixed bottom-20 right-4 z-40">
+        <div className="scale-75">
+          <SimpleFeedbackButton />
+        </div>
       </div>
 
       {/* Task Detail Modal */}

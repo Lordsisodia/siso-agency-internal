@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🔧 Debug Supabase Connection</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #1a1a1a; color: #fff; }
+        .log { background: #2a2a2a; padding: 10px; margin: 5px 0; border-radius: 5px; }
+        .error { background: #ff4444; color: white; }
+        .success { background: #44ff44; color: black; }
+        .info { background: #4444ff; color: white; }
+        button { padding: 10px 20px; margin: 10px 5px; font-size: 16px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Debug Supabase Connection</h1>
+    <p>This page will help debug the Supabase connectivity issue</p>
+    
+    <button onclick="testConnection()">Test Connection</button>
+    <button onclick="testSimpleSave()">Test Simple Save</button>
+    <button onclick="clearLogs()">Clear Logs</button>
+    
+    <div id="logs"></div>
+
+    <script type="module">
+        function log(message, type = 'info') {
+            const logs = document.getElementById('logs');
+            const div = document.createElement('div');
+            div.className = `log ${type}`;
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logs.appendChild(div);
+            console.log(message);
+        }
+
+        window.log = log;
+
+        async function testConnection() {
+            try {
+                log('🔗 Testing Supabase connection...', 'info');
+                
+                // Import Supabase client
+                const { supabaseAnon } = await import('/src/shared/lib/supabase-clerk.ts');
+                log('✅ Supabase client imported successfully', 'success');
+                
+                // Test 1: Count all records (no filters)
+                log('📊 Test 1: Count all records...', 'info');
+                const { count, error: countError } = await supabaseAnon
+                    .from('light_work_tasks')
+                    .select('*', { count: 'exact', head: true });
+                
+                if (countError) {
+                    log(`❌ Count test failed: ${countError.message}`, 'error');
+                } else {
+                    log(`📈 Total records in light_work_tasks: ${count}`, 'success');
+                }
+                
+                // Test 2: Get sample records with user_id filter
+                log('👤 Test 2: Query with user_id filter...', 'info');
+                const { data, error } = await supabaseAnon
+                    .from('light_work_tasks')
+                    .select('id, title, user_id, created_at')
+                    .eq('user_id', '0e402267-17de-43a9-b54f-3756bcd24614')
+                    .limit(5);
+                
+                if (error) {
+                    log(`❌ User filter test failed: ${error.message}`, 'error');
+                    log(`Error code: ${error.code}`, 'error');
+                    log(`Error details: ${error.details}`, 'error');
+                } else {
+                    log(`✅ Found ${data?.length || 0} records for user`, 'success');
+                    if (data && data.length > 0) {
+                        log(`Sample record: ${JSON.stringify(data[0], null, 2)}`, 'info');
+                    }
+                }
+                
+                // Test 3: Get ANY records (no user filter)
+                log('🌍 Test 3: Query without user filter...', 'info');
+                const { data: allData, error: allError } = await supabaseAnon
+                    .from('light_work_tasks')
+                    .select('id, title, user_id')
+                    .limit(3);
+                
+                if (allError) {
+                    log(`❌ All records test failed: ${allError.message}`, 'error');
+                } else {
+                    log(`✅ Found ${allData?.length || 0} records total`, 'success');
+                    if (allData && allData.length > 0) {
+                        log(`Sample users in DB: ${allData.map(r => r.user_id).join(', ')}`, 'info');
+                    }
+                }
+                
+            } catch (error) {
+                log(`❌ Connection test exception: ${error.message}`, 'error');
+            }
+        }
+
+        async function testSimpleSave() {
+            try {
+                log('💾 Testing simple save operation...', 'info');
+                
+                // Import Supabase client
+                const { supabaseAnon } = await import('/src/shared/lib/supabase-clerk.ts');
+                
+                const testTask = {
+                    id: 'debug-test-' + Date.now(),
+                    user_id: '0e402267-17de-43a9-b54f-3756bcd24614',
+                    title: 'Debug Test Task',
+                    description: 'Testing Supabase save',
+                    priority: 'HIGH',
+                    completed: false,
+                    task_date: new Date().toISOString().split('T')[0],
+                    original_date: new Date().toISOString().split('T')[0]
+                };
+                
+                log(`Attempting to save: ${JSON.stringify(testTask, null, 2)}`, 'info');
+                
+                const { data, error } = await supabaseAnon
+                    .from('light_work_tasks')
+                    .upsert(testTask)
+                    .select();
+                
+                if (error) {
+                    log(`❌ Save failed: ${error.message}`, 'error');
+                    log(`Error code: ${error.code}`, 'error');
+                    log(`Error details: ${error.details}`, 'error');
+                    log(`Error hint: ${error.hint}`, 'error');
+                } else {
+                    log('✅ Save successful!', 'success');
+                    log(`Saved data: ${JSON.stringify(data, null, 2)}`, 'success');
+                }
+                
+            } catch (error) {
+                log(`❌ Save test exception: ${error.message}`, 'error');
+                log(`Stack: ${error.stack}`, 'error');
+            }
+        }
+
+        function clearLogs() {
+            document.getElementById('logs').innerHTML = '';
+        }
+
+        window.testConnection = testConnection;
+        window.testSimpleSave = testSimpleSave;
+        window.clearLogs = clearLogs;
+    </script>
+</body>
+</html>

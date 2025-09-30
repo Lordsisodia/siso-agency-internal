@@ -16,6 +16,7 @@ interface SubtaskItemProps {
     title: string;
     completed: boolean;
     dueDate?: string;
+    priority?: string;
   };
   taskId: string;
   themeConfig: {
@@ -36,6 +37,7 @@ interface SubtaskItemProps {
   onKeyDown: (e: React.KeyboardEvent, type: 'subtask', taskId: string, subtaskId?: string) => void;
   onCalendarToggle: (subtaskId: string) => void;
   onDeleteSubtask: (subtaskId: string) => void;
+  onPriorityChange?: (subtaskId: string, priority: string) => void;
   children?: React.ReactNode; // For calendar popup
 }
 
@@ -53,6 +55,7 @@ export const SubtaskItem: React.FC<SubtaskItemProps> = ({
   onKeyDown,
   onCalendarToggle,
   onDeleteSubtask,
+  onPriorityChange,
   children
 }) => {
   return (
@@ -101,7 +104,7 @@ export const SubtaskItem: React.FC<SubtaskItemProps> = ({
               }}
               title="Click to edit"
             >
-              {subtask.title}
+              🟡 SUBTASK ITEM COMPONENT - {subtask.title}
             </span>
           </div>
           
@@ -114,6 +117,7 @@ export const SubtaskItem: React.FC<SubtaskItemProps> = ({
             calendarSubtaskId={calendarSubtaskId}
             onCalendarToggle={onCalendarToggle}
             onDeleteSubtask={onDeleteSubtask}
+            onPriorityChange={onPriorityChange}
           >
             {children}
           </SubtaskMetadata>

@@ -23,6 +23,7 @@ import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { Textarea } from "@/shared/ui/textarea";
 import { Badge } from "@/shared/ui/badge";
+import { PrioritySelector } from "@/ecosystem/internal/tasks/components/PrioritySelector";
 import {
   Dialog,
   DialogContent,
@@ -256,6 +257,11 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                                   className="bg-gray-700/50 border-gray-600/50 text-white text-sm flex-1"
                                   placeholder="30min"
                                 />
+                                <PrioritySelector
+                                  value={subtask.priority || 'medium'}
+                                  onChange={(priority) => updateSubtask(subtask.id, { priority })}
+                                  size="sm"
+                                />
                                 <Button
                                   size="sm"
                                   onClick={() => setEditingSubtask(null)}
@@ -273,7 +279,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                                   ? "text-gray-500 line-through" 
                                   : "text-white"
                               }`}>
-                                {subtask.title}
+                                🔵 TASK DETAIL MODAL - {subtask.title}
                               </h4>
                               <p className="text-xs text-gray-400 leading-relaxed">
                                 {subtask.description}

@@ -61,9 +61,18 @@ export const TimeBoxCalendar: React.FC<TimeBoxCalendarProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'light_work' | 'deep_work' | 'morning_routine'>('all');
   const [unifiedTasks, setUnifiedTasks] = useState<UnifiedTimeBoxTask[]>([]);
   const [isLoadingTasks, setIsLoadingTasks] = useState(true);
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   // Generate time slots from 6 AM to 10 PM
   const timeSlots = schedule?.timeSlots || timeboxApi.generateTimeSlots(6, 22, 30);
+
+  // Update current time every minute for accurate red line positioning
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000); // Update every minute
+    return () => clearInterval(interval);
+  }, []);
 
   // Load unified tasks from LifeLock services
   useEffect(() => {
@@ -151,9 +160,8 @@ export const TimeBoxCalendar: React.FC<TimeBoxCalendarProps> = ({
 
   // Get current time indicator position
   const getCurrentTimePosition = () => {
-    const now = new Date();
-    const hour = now.getHours();
-    const minute = now.getMinutes();
+    const hour = currentTime.getHours();
+    const minute = currentTime.getMinutes();
     
     // Convert to position within our 6 AM - 10 PM range
     if (hour < 6 || hour > 22) return null;
@@ -347,7 +355,7 @@ export const TimeBoxCalendar: React.FC<TimeBoxCalendarProps> = ({
                           <div className="w-2 h-2 bg-red-500 rounded-full" />
                           <div className="flex-1 h-0.5 bg-red-500" />
                           <span className="text-xs text-red-500 font-medium ml-2">
-                            {format(new Date(), 'HH:mm')}
+                            {format(currentTime, 'HH:mm')}
                           </span>
                         </motion.div>
                       )}

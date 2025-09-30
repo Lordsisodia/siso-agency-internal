@@ -63,30 +63,32 @@ export const HealthNonNegotiablesSection: React.FC<HealthNonNegotiablesSectionPr
     if (hasLoadedInitialData.current) {
       saveData(meals, dailyTotals);
     }
-  }, [meals]);
+  }, [meals, dailyTotals, saveData]);
 
   // Save when macros change (from user input only)
   useEffect(() => {
     if (hasLoadedInitialData.current) {
       saveData(meals, dailyTotals);
     }
-  }, [dailyTotals]);
+  }, [dailyTotals, meals, saveData]);
 
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.4 }}
-    >
-      <Card className="bg-pink-900/20 border-pink-700/50">
+    <div className="min-h-screen w-full bg-gray-900 relative">
+      <div className="max-w-7xl mx-auto p-3 sm:p-4 md:p-6 lg:p-8 space-y-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <Card className="bg-pink-900/20 border-pink-700/50">
         <CardHeader>
           <CardTitle className="flex items-center text-pink-400">
             <Heart className="h-5 w-5 mr-2" />
             💖 Nutrition Tracker
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pb-24">
           
           {/* Daily Calorie & Macro Tracker */}
           <h3 className="font-semibold text-white mb-5">Daily Calorie & Macro Tracker</h3>
@@ -225,5 +227,7 @@ export const HealthNonNegotiablesSection: React.FC<HealthNonNegotiablesSectionPr
         </CardContent>
       </Card>
     </motion.div>
+      </div>
+    </div>
   );
 };

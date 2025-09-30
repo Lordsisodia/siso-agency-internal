@@ -71,12 +71,25 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({
   const workoutProgress = (workoutItems.filter(item => item.completed).length / workoutItems.length) * 100;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.3 }}
-    >
-      <Card className="bg-red-900/20 border-red-700/50">
+    <div className="min-h-screen w-full bg-gray-900 relative">
+      <div className="max-w-7xl mx-auto p-3 sm:p-4 md:p-6 lg:p-8 space-y-6">
+        
+        {/* Add Wellness Header */}
+        <div className="mb-8 text-center">
+          <h1 className="text-3xl font-bold text-white mb-2">
+            💪 Wellness & Health
+          </h1>
+          <p className="text-gray-400 text-sm">
+            Physical fitness and nutrition tracking for optimal health
+          </p>
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <Card className="bg-red-900/20 border-red-700/50">
         <CardHeader>
           <CardTitle className="flex items-center text-red-400">
             <Dumbbell className="h-5 w-5 mr-2" />
@@ -99,7 +112,7 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pb-24">
           <div className="space-y-4">
             {workoutItems.map((item, index) => (
               <motion.div 
@@ -198,5 +211,7 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({
         </CardContent>
       </Card>
     </motion.div>
+      </div>
+    </div>
   );
 };

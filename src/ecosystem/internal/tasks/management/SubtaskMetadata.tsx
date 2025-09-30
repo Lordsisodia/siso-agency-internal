@@ -7,15 +7,18 @@
 
 import React from 'react';
 import { Calendar, X } from 'lucide-react';
+import { PrioritySelector } from '@/ecosystem/internal/tasks/components/PrioritySelector';
 
 interface SubtaskMetadataProps {
   subtask: {
     id: string;
     dueDate?: string;
+    priority?: string;
   };
   calendarSubtaskId: string | null;
   onCalendarToggle: (subtaskId: string) => void;
   onDeleteSubtask: (subtaskId: string) => void;
+  onPriorityChange?: (subtaskId: string, priority: string) => void;
   children?: React.ReactNode; // For calendar popup
 }
 
@@ -24,11 +27,12 @@ export const SubtaskMetadata: React.FC<SubtaskMetadataProps> = ({
   calendarSubtaskId,
   onCalendarToggle,
   onDeleteSubtask,
+  onPriorityChange,
   children
 }) => {
   return (
     <div className="flex items-center justify-between">
-      {/* Left side: Due date */}
+      {/* Left side: Due date and Priority */}
       <div className="flex items-center gap-3">
         {/* Due date indicator - opens calendar */}
         <div className="relative">
@@ -57,6 +61,15 @@ export const SubtaskMetadata: React.FC<SubtaskMetadataProps> = ({
           {/* Calendar Popup - rendered as children */}
           {calendarSubtaskId === subtask.id && children}
         </div>
+        
+        {/* Priority Selector */}
+        {onPriorityChange && (
+          <PrioritySelector 
+            value={subtask.priority || 'none'} 
+            onChange={(priority) => onPriorityChange(subtask.id, priority)} 
+            size="sm" 
+          />
+        )}
       </div>
       
       {/* Right side: Delete button */}

@@ -21,6 +21,7 @@ export const PrioritySelector: React.FC<PrioritySelectorProps> = ({
   
   return (
     <Select value={value} onValueChange={onChange} disabled={disabled}>
+      {/* Debug: Priority selector for task detail modal */}
       <SelectTrigger 
         className={`
           ${size === 'sm' ? 'h-6 text-xs px-2' : 'h-8 text-sm px-3'} 
@@ -37,7 +38,13 @@ export const PrioritySelector: React.FC<PrioritySelectorProps> = ({
           </span>
         </SelectValue>
       </SelectTrigger>
-      <SelectContent className="bg-gray-800 border border-gray-700">
+      <SelectContent 
+        className="bg-gray-800 border border-gray-700 z-[9999]"
+        position="popper"
+        side="bottom"
+        align="start"
+        sideOffset={4}
+      >
         {Object.entries(TASK_PRIORITY_CONFIG).map(([key, cfg]) => (
           <SelectItem 
             key={key} 

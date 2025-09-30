@@ -216,7 +216,7 @@
                     completed: false,
                     task_date: new Date().toISOString().split('T')[0],
                     original_date: new Date().toISOString().split('T')[0],
-                    current_task_date: new Date().toISOString().split('T')[0]
+                    // Note: using task_date instead of current_task_date (schema alignment)
                 };
                 
                 logResult('storage-results', `💾 Saving task offline: ${testTask.title}`, 'info');
@@ -303,7 +303,7 @@
                     completed: false,
                     task_date: new Date().toISOString().split('T')[0],
                     original_date: new Date().toISOString().split('T')[0],
-                    current_task_date: new Date().toISOString().split('T')[0]
+                    // Note: using task_date instead of current_task_date (schema alignment)
                 };
                 
                 const onlineResult = await offlineManager.saveUniversal('lightWorkTasks', onlineTask, false);
@@ -358,7 +358,7 @@
                     completed: false,
                     task_date: new Date().toISOString().split('T')[0],
                     original_date: new Date().toISOString().split('T')[0],
-                    current_task_date: new Date().toISOString().split('T')[0]
+                    // Note: using task_date instead of current_task_date (schema alignment)
                 };
                 
                 logResult('e2e-results', '📱 Simulating offline mode...', 'info');

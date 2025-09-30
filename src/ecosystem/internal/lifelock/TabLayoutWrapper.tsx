@@ -216,16 +216,10 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = memo(({
       {/* UNIFIED SCROLL CONTAINER - Single scroll area for entire screen */}
       <div className="flex-1 relative overflow-hidden">
         <motion.div
-          drag="x"
-          dragConstraints={{ left: 0, right: 0 }}
-          dragElastic={0.3}
-          dragMomentum={false}
-          whileDrag={{ scale: 0.98 }}
-          onDragEnd={handleDragEnd}
           className="h-full relative z-10"
           style={{ 
-            // PWA-optimized touch handling - allow vertical scroll, restrict horizontal
-            touchAction: 'pan-y pinch-zoom'
+            // PWA-optimized touch handling - full scroll freedom
+            touchAction: 'auto'
           }}
         >
           <AnimatePresence mode="wait" custom={activeTabIndex}>
@@ -243,7 +237,7 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = memo(({
               className="h-full overflow-y-auto"
               style={{ 
                 // SINGLE SCROLL CONTAINER - this is the ONLY scrollable area
-                paddingBottom: isMobile ? '120px' : '100px',
+                paddingBottom: isMobile ? '200px' : '180px',
                 // PWA scroll optimization for mobile
                 WebkitOverflowScrolling: 'touch',
                 overscrollBehavior: 'contain',
@@ -259,7 +253,7 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = memo(({
       </div>
 
       {/* Bottom Tab Navigation - Transparent Floating */}
-      <div className="absolute bottom-4 left-4 right-4 z-50 flex justify-center pointer-events-none">
+      <div className="fixed bottom-4 left-4 right-4 z-50 flex justify-center pointer-events-none">
         <div className="pointer-events-auto">
         {/* Swipe-Style Interface for All Devices */}
         <ExpandableTabs

@@ -444,7 +444,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
             </div>
 
             {/* Feedback Button */}
-            <div className="mt-4 flex justify-center">
+            <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-[100]">
               <SimpleFeedbackButton />
             </div>
             </div>

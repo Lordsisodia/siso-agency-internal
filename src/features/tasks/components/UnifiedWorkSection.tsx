@@ -152,6 +152,13 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
     }
   );
   
+  // Subtask priority handler
+  const handleSubtaskPriorityChange = async (subtaskId: string, priority: string) => {
+    // TODO: Implement subtask priority update logic
+    // This would need to be passed through from parent components
+    console.log(`Updating subtask ${subtaskId} priority to ${priority}`);
+  };
+  
   // Calendar loading state
   const [calendarLoading, setCalendarLoading] = useState(false);
 
@@ -232,7 +239,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
             <h2 className={`flex items-center justify-between ${themeConfig.colors.text} text-base sm:text-lg font-semibold`}>
               <div className="flex items-center">
                 <IconComponent className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                {themeConfig.emoji} {themeConfig.name}
+                🔥 UNIFIED COMPONENT - {themeConfig.emoji} {themeConfig.name}
               </div>
               {showContextModal && (
                 <button
@@ -331,6 +338,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                             onKeyDown={handleKeyDown}
                             onCalendarToggle={setCalendarSubtaskId}
                             onDeleteSubtask={deleteSubtask}
+                            onPriorityChange={handleSubtaskPriorityChange}
                           >
                             {/* Mobile-Optimized Calendar Modal with Backdrop */}
                             {calendarSubtaskId === subtask.id && (
