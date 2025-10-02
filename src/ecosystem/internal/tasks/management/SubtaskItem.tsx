@@ -104,7 +104,7 @@ export const SubtaskItem: React.FC<SubtaskItemProps> = ({
               }}
               title="Click to edit"
             >
-              🟡 SUBTASK ITEM COMPONENT - {subtask.title}
+              {subtask.title}
             </span>
           </div>
           

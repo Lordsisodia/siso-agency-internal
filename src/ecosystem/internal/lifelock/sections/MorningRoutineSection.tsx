@@ -295,15 +295,13 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   }
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-black via-gray-900 to-black relative">
-      {/* Progress Line */}
-      <div className="absolute left-0 top-0 bottom-0 w-1 bg-yellow-500/50"></div>
+    <div className="min-h-screen w-full relative">
       
-      <div className="max-w-7xl mx-auto p-3 sm:p-4 md:p-6 lg:p-8 space-y-6 pb-24">
+      <div className="max-w-7xl mx-auto space-y-6 pb-24">
         
         {/* Morning Routine Card */}
         <Card className="bg-yellow-900/20 border-yellow-700/50">
-          <CardHeader className="p-4 sm:p-6">
+          <CardHeader className="p-6">
             <CardTitle className="flex items-center justify-between text-yellow-400 text-base sm:text-lg">
               <div className="flex items-center">
                 <Sun className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
@@ -345,7 +343,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
             </div>
             <div className="border-t border-yellow-600/50 my-3 sm:my-4"></div>
           </CardHeader>
-          <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 pb-24">
+          <CardContent className="p-6 pt-0 pb-24">
             
 
             {/* Morning Routine Tasks */}
@@ -356,7 +354,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                 const completedSubtasks = task.subtasks.filter(subtask => isHabitCompleted(subtask.key)).length;
                 
                 return (
-                  <div key={task.key} className="group bg-yellow-900/10 border border-yellow-700/30 rounded-xl hover:bg-yellow-900/15 hover:border-yellow-600/40 transition-all duration-300 hover:shadow-lg hover:shadow-yellow-500/5">
+                  <div key={task.key} className="group py-3 transition-all duration-300">
                     {/* Main Task Header */}
                     <div className="flex items-start space-x-2 sm:space-x-3 p-2 sm:p-3">
                       <Checkbox
@@ -397,7 +395,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                             <div className="space-y-2">
                               {wakeUpTime ? (
                                 <div className="flex items-center space-x-2">
-                                  <div className="flex items-center space-x-1 bg-yellow-900/20 border border-yellow-700/50 rounded-md px-3 py-2">
+                                  <div className="flex items-center space-x-1 bg-transparent border border-yellow-700/50 rounded-md px-3 py-2">
                                     <Clock className="h-4 w-4 text-yellow-400" />
                                     <span className="text-yellow-100 font-semibold">
                                       Woke up at: {wakeUpTime}
@@ -420,7 +418,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                                     placeholder="Enter wake-up time (e.g., 7:30 AM)"
                                     value={wakeUpTime}
                                     onChange={(e) => setWakeUpTime(e.target.value)}
-                                    className="bg-yellow-900/20 border-yellow-700/50 text-yellow-100 text-sm placeholder:text-gray-400 focus:border-yellow-600 flex-1"
+                                    className="bg-transparent border-yellow-700/50 text-yellow-100 text-sm placeholder:text-gray-400 focus:border-yellow-600 flex-1"
                                   />
                                   <Button
                                     size="sm"
@@ -447,7 +445,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                         {task.subtasks.map((subtask) => (
                           <div
                             key={subtask.key}
-                            className="group flex items-center space-x-3 p-3 hover:bg-yellow-900/10 rounded-lg transition-all duration-200 hover:scale-[1.01]"
+                            className="group flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 hover:scale-[1.01]"
                           >
                             {/* Visual connector line */}
                             <div className="relative">

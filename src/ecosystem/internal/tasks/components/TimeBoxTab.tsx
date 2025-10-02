@@ -42,7 +42,7 @@ export const TimeBoxTab: React.FC<TabProps> = ({
   const weekCompletion = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
   return (
-    <div className="p-4 space-y-6 bg-gradient-to-br from-black via-gray-900 to-black min-h-full">
+    <div className="space-y-6 bg-gradient-to-br from-black via-gray-900 to-black min-h-full">
       {/* Header */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}

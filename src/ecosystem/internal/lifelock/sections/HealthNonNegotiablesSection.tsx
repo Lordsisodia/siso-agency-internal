@@ -81,7 +81,7 @@ export const HealthNonNegotiablesSection: React.FC<HealthNonNegotiablesSectionPr
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
         >
-          <Card className="bg-pink-900/20 border-pink-700/50">
+          <Card className="mb-24 bg-pink-900/20 border-pink-700/50">
         <CardHeader>
           <CardTitle className="flex items-center text-pink-400">
             <Heart className="h-5 w-5 mr-2" />

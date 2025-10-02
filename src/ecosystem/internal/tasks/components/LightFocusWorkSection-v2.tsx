@@ -70,6 +70,23 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
     }
   };
 
+  const handleUpdateSubtaskPriority = async (subtaskId: string, priority: string) => {
+    if (updateTask) {
+      // Find the task containing this subtask and update it
+      const taskWithSubtask = tasks.find(task => 
+        task.subtasks.some(subtask => subtask.id === subtaskId)
+      );
+      if (taskWithSubtask) {
+        const updatedSubtasks = taskWithSubtask.subtasks.map(subtask =>
+          subtask.id === subtaskId 
+            ? { ...subtask, priority: priority.toUpperCase() }
+            : subtask
+        );
+        await updateTask(taskWithSubtask.id, { subtasks: updatedSubtasks });
+      }
+    }
+  };
+
   const handleReorderTasks = async (reorderedTasks: any[]) => {
     // Update task order in state/database
     console.log('Reordering tasks:', reorderedTasks);
@@ -103,6 +120,7 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
         updateTaskTitle={updateTaskTitle}
         updateSubtaskDueDate={updateSubtaskDueDate}
         updateTaskPriority={handleUpdateTaskPriority}
+        updateSubtaskPriority={handleUpdateSubtaskPriority}
         reorderTasks={handleReorderTasks}
       />
     </div>

@@ -6,10 +6,13 @@ import {
   CheckCircle2,
   Circle,
   Plus,
-  Edit3
+  Edit3,
+  Target,
+  Zap
 } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
 import { Badge } from '@/shared/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { format } from 'date-fns';
 import { cn } from '@/shared/lib/utils';
 import { TaskDetailModal } from '@/ecosystem/internal/tasks/ui/task-detail-modal';
@@ -401,100 +404,128 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
     <div className={useImplementation(
       'useUnifiedThemeSystem',
       // NEW: Unified theme system
-      `min-h-screen w-full ${theme.gradients.diagonal.grayToBlack}`,
+      `min-h-screen w-full mb-24 ${theme.gradients.diagonal.grayToBlack}`,
       // OLD: Original classes (fallback for safety)
-      'min-h-screen w-full bg-gradient-to-br from-black via-gray-900 to-black'
+      'min-h-screen w-full mb-24 bg-gradient-to-br from-black via-gray-900 to-black'
     )}>
       <div className="w-full">
         
-        {/* Simple Header - Full Width */}
-        <div className="w-full px-4 py-6 border-b border-gray-700/30">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <h1 className="text-white text-2xl font-bold">
-                {format(selectedDate, 'EEEE, MMMM d, yyyy')}
-              </h1>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Button
-                onClick={() => setIsQuickSchedulerOpen(true)}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2"
-                size="sm"
-                title="Add tasks to timebox"
-              >
-                <Calendar className="h-4 w-4 mr-2" />
-                Add Tasks
-              </Button>
-            </div>
+        {/* Header with Add Tasks button */}
+        <div className="w-full px-4 py-4">
+          <div className="flex justify-end">
+            <Button
+              onClick={() => setIsQuickSchedulerOpen(true)}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2"
+              size="sm"
+              title="Add tasks to timebox"
+            >
+              <Calendar className="h-4 w-4 mr-2" />
+              Add Tasks
+            </Button>
           </div>
         </div>
+
+        {/* Today's Focus Stats Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="mx-4 mb-4"
+        >
+          <Card className="bg-gradient-to-r from-blue-900/40 via-purple-900/30 to-indigo-900/40 border-blue-700/50 shadow-2xl shadow-blue-500/20 rounded-2xl backdrop-blur-sm">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center shadow-md">
+                    <Target className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-white">Today's Focus</h3>
+                    <div className="flex items-center space-x-4 text-sm text-gray-300">
+                      <span className="flex items-center space-x-1">
+                        <Target className="h-3 w-3 text-blue-400" />
+                        <span>{validTasks.length} tasks</span>
+                      </span>
+                      <span className="flex items-center space-x-1">
+                        <Clock className="h-3 w-3 text-purple-400" />
+                        <span>{Math.round(validTasks.reduce((acc, task) => acc + task.duration, 0) / 60)}h planned</span>
+                      </span>
+                      <span className="flex items-center space-x-1">
+                        <Zap className="h-3 w-3 text-orange-400" />
+                        <span>{validTasks.filter(task => task.category === 'deep-work').length} deep</span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-white">
+                    {Math.round((validTasks.filter(task => task.completed).length / Math.max(validTasks.length, 1)) * 100)}%
+                  </div>
+                  <div className="text-xs text-gray-400">complete</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
         
-        {/* Full Width Timeline */}
-        <div className="w-full">
+        {/* TimeBox Card Wrapper */}
+        <Card className="w-full bg-blue-900/20 border-blue-700/50 shadow-2xl shadow-blue-900/20 rounded-2xl backdrop-blur-sm mb-32">
+          <CardContent className="p-0">
+            {/* Full Width Timeline */}
+            <div className="w-full">
             {/* Clean Timeline Container - Full Width */}
             <div className="relative w-full">
               
               <div 
-                className="relative w-full bg-gray-900" 
+                className="relative w-full" 
                 data-timeline-container
               >
               
               {/* Enhanced Timeline Grid with improved proportions */}
               <div className="relative" style={{ height: `${(23 - 0 + 1) * 80}px` }}>
                 
-                {/* Enhanced Hour Markers and Labels */}
-                {timeSlots.map((slot, index) => (
-                  <motion.div
-                    key={slot.hour}
-                    className={cn(
-                      "absolute w-full group/hour hover:bg-purple-500/5 transition-all duration-300 cursor-pointer",
-                      slot.isCurrentHour && "bg-purple-500/10 border-l-4 border-purple-400/50"
-                    )}
-                    style={{ top: `${slot.hour * 80}px`, height: '80px' }}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ 
-                      duration: 0.3,
-                      delay: index * 0.05,
-                      ease: "easeOut"
-                    }}
-                    whileHover={{ 
-                      backgroundColor: "rgba(168, 85, 247, 0.05)",
-                      transition: { duration: 0.2 }
-                    }}
-                  >
-                    {/* Enhanced hour line with gradient effect */}
-                    <motion.div 
-                      className="absolute w-full border-t border-gradient-to-r from-purple-500/40 via-gray-500/50 to-purple-500/40 shadow-sm"
-                      whileHover={{
-                        borderColor: "rgba(168, 85, 247, 0.7)",
-                        boxShadow: "0 1px 3px rgba(168, 85, 247, 0.2)",
-                        transition: { duration: 0.3 }
+                {/* Clean Time Sidebar */}
+                <div className="absolute left-0 top-0 w-16 h-full bg-gray-900/50 border-r border-gray-600/30 rounded-l-2xl shadow-inner">
+                  {timeSlots.map((slot, index) => (
+                    <motion.div
+                      key={slot.hour}
+                      className={cn(
+                        "absolute w-full flex items-center justify-center group/hour transition-all duration-300",
+                        slot.isCurrentHour && "bg-blue-500/10"
+                      )}
+                      style={{ top: `${slot.hour * 80}px`, height: '80px' }}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ 
+                        duration: 0.3,
+                        delay: index * 0.02,
+                        ease: "easeOut"
                       }}
-                    />
-                    
-                    {/* Enhanced Hour Label with interactive background */}
-                    <motion.div 
-                      className="absolute left-4 top-1"
-                      whileHover={{ scale: 1.05, x: 2 }}
-                      transition={{ duration: 0.2 }}
                     >
+                      {/* Compact Time Label */}
                       <motion.div 
-                        className="bg-gradient-to-r from-purple-900/70 to-purple-800/50 backdrop-blur-md border border-purple-500/30 rounded-lg px-3 py-1.5 shadow-lg group-hover/hour:border-purple-400/50 group-hover/hour:shadow-purple-500/30 transition-all duration-300"
-                        whileHover={{
-                          backgroundColor: "rgba(147, 51, 234, 0.2)",
-                          boxShadow: "0 6px 25px rgba(168, 85, 247, 0.4)",
-                          scale: 1.02
-                        }}
+                        className={cn(
+                          "bg-gray-800/60 backdrop-blur-sm border border-gray-600/40 rounded-md px-2 py-1 shadow-sm",
+                          slot.isCurrentHour 
+                            ? "border-blue-400/50 bg-blue-900/30 shadow-blue-500/20" 
+                            : "group-hover/hour:border-gray-500/60"
+                        )}
+                        whileHover={{ scale: 1.05 }}
+                        transition={{ duration: 0.2 }}
                       >
-                        <span className="text-sm font-extrabold text-purple-100 tracking-wide group-hover/hour:text-white transition-colors duration-200 drop-shadow-sm">
+                        <span className={cn(
+                          "text-xs font-medium tracking-wide",
+                          slot.isCurrentHour 
+                            ? "text-blue-200" 
+                            : "text-gray-300 group-hover/hour:text-gray-200"
+                        )}>
                           {slot.label}
                         </span>
                         {slot.hour === new Date().getHours() && (
                           <motion.div
-                            className="absolute -top-1 -right-1 w-2 h-2 bg-blue-400 rounded-full"
+                            className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-blue-400 rounded-full"
                             animate={{
-                              scale: [1, 1.3, 1],
+                              scale: [1, 1.2, 1],
                               opacity: [1, 0.7, 1]
                             }}
                             transition={{
@@ -506,27 +537,23 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                         )}
                       </motion.div>
                     </motion.div>
-                    
-                    {/* Interactive Half-hour marker */}
-                    <motion.div 
-                      className="absolute left-16 right-4 border-t border-dashed border-gray-600/30 group-hover/hour:border-purple-400/50 transition-all duration-300"
-                      style={{ top: '40px' }}
-                      whileHover={{ 
-                        borderColor: "rgba(168, 85, 247, 0.4)",
-                        x: 4
-                      }}
-                    />
-                    
-                    {/* Ripple effect on click */}
-                    <motion.div
-                      className="absolute inset-0 bg-purple-400/10 rounded-lg opacity-0 pointer-events-none"
-                      whileTap={{ 
-                        opacity: [0, 0.3, 0],
-                        scale: [0.8, 1, 1.1],
-                        transition: { duration: 0.4 }
-                      }}
-                    />
-                  </motion.div>
+                  ))}
+                </div>
+
+                {/* Subtle Hour Dividers */}
+                {timeSlots.map((slot, index) => (
+                  <motion.div
+                    key={`divider-${slot.hour}`}
+                    className="absolute left-16 right-0 border-t border-gray-700/40"
+                    style={{ top: `${slot.hour * 80}px` }}
+                    initial={{ opacity: 0, scaleX: 0 }}
+                    animate={{ opacity: 1, scaleX: 1 }}
+                    transition={{ 
+                      duration: 0.4,
+                      delay: index * 0.02,
+                      ease: "easeOut"
+                    }}
+                  />
                 ))}
 
                 {/* Current Time Indicator */}
@@ -602,8 +629,8 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                   </motion.div>
                 )}
 
-                {/* Enhanced Task Blocks Container with consistent width */}
-                <div className="absolute left-20 right-4 top-0 bottom-0 bg-gradient-to-r from-transparent via-black/5 to-transparent rounded-lg" style={{ width: 'calc(100% - 96px)' }}>
+                {/* Enhanced Task Blocks Container - Adjusted for sidebar */}
+                <div className="absolute left-16 right-4 top-0 bottom-0 bg-gradient-to-r from-transparent via-black/5 to-transparent rounded-2xl shadow-inner" style={{ width: 'calc(100% - 80px)' }}>
                   {validTasks.length === 0 ? (
                     /* Empty state */
                     <div className="flex items-center justify-center h-full">
@@ -845,7 +872,9 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
               </div>
             </div>
             </div>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
         
       </div>
 

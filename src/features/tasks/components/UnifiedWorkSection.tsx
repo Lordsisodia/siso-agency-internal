@@ -57,6 +57,7 @@ interface UnifiedWorkSectionProps {
   pushTaskToAnotherDay: (taskId: string, date: string) => Promise<void>;
   updateTaskTitle: (taskId: string, title: string) => Promise<void>;
   updateTaskPriority?: (taskId: string, priority: string) => Promise<void>;
+  updateSubtaskPriority?: (subtaskId: string, priority: string) => Promise<void>;
   reorderTasks?: (tasks: any[]) => Promise<void>;
   // Optional features (for Light Work)
   showContextModal?: () => void;
@@ -86,6 +87,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
   pushTaskToAnotherDay,
   updateTaskTitle,
   updateTaskPriority,
+  updateSubtaskPriority,
   reorderTasks,
   showContextModal,
   showStats = false,
@@ -154,9 +156,16 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
   
   // Subtask priority handler
   const handleSubtaskPriorityChange = async (subtaskId: string, priority: string) => {
-    // TODO: Implement subtask priority update logic
-    // This would need to be passed through from parent components
-    console.log(`Updating subtask ${subtaskId} priority to ${priority}`);
+    if (updateSubtaskPriority) {
+      try {
+        await updateSubtaskPriority(subtaskId, priority);
+        console.log(`✅ Updated subtask ${subtaskId} priority to ${priority}`);
+      } catch (error) {
+        console.error(`❌ Failed to update subtask ${subtaskId} priority:`, error);
+      }
+    } else {
+      console.warn('⚠️ updateSubtaskPriority function not available');
+    }
   };
   
   // Calendar loading state
@@ -239,7 +248,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
             <h2 className={`flex items-center justify-between ${themeConfig.colors.text} text-base sm:text-lg font-semibold`}>
               <div className="flex items-center">
                 <IconComponent className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                🔥 UNIFIED COMPONENT - {themeConfig.emoji} {themeConfig.name}
+                {themeConfig.emoji} {themeConfig.name}
               </div>
               {showContextModal && (
                 <button

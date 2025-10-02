@@ -279,7 +279,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                                   ? "text-gray-500 line-through" 
                                   : "text-white"
                               }`}>
-                                🔵 TASK DETAIL MODAL - {subtask.title}
+                                {subtask.title}
                               </h4>
                               <p className="text-xs text-gray-400 leading-relaxed">
                                 {subtask.description}

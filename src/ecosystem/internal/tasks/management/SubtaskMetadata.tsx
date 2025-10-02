@@ -30,6 +30,12 @@ export const SubtaskMetadata: React.FC<SubtaskMetadataProps> = ({
   onPriorityChange,
   children
 }) => {
+  // DEBUG: Log when component renders and check props
+  console.log('📊 SubtaskMetadata rendered:', { 
+    subtaskId: subtask.id, 
+    priority: subtask.priority,
+    hasOnPriorityChange: !!onPriorityChange 
+  });
   return (
     <div className="flex items-center justify-between">
       {/* Left side: Due date and Priority */}
@@ -65,7 +71,7 @@ export const SubtaskMetadata: React.FC<SubtaskMetadataProps> = ({
         {/* Priority Selector */}
         {onPriorityChange && (
           <PrioritySelector 
-            value={subtask.priority || 'none'} 
+            value={subtask.priority || 'medium'} 
             onChange={(priority) => onPriorityChange(subtask.id, priority)} 
             size="sm" 
           />

@@ -215,7 +215,7 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
         >
-          <Card className="bg-purple-900/20 border-purple-700/50">
+          <Card className="mb-24 bg-purple-900/20 border-purple-700/50">
         <CardHeader>
           <CardTitle className="flex items-center text-purple-400">
             <Moon className="h-5 w-5 mr-2" />

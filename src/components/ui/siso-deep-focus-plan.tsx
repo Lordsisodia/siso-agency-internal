@@ -473,7 +473,7 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
 
   return (
     <div className={`${isLightWork ? "text-green-50" : "text-blue-50"} h-full`}>
-      <Card className={isLightWork ? "bg-green-900/20 border-green-700/50" : "bg-blue-900/20 border-blue-700/50"}>
+      <Card className={`mb-24 ${isLightWork ? "bg-green-900/20 border-green-700/50" : "bg-blue-900/20 border-blue-700/50"}`}>
         <CardHeader className="p-3 sm:p-4">
           <CardTitle className={`flex items-center ${isLightWork ? "text-green-400" : "text-blue-400"} text-base sm:text-lg`}>
             <Brain className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />

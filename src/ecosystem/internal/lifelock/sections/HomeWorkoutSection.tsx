@@ -71,30 +71,20 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({
   const workoutProgress = (workoutItems.filter(item => item.completed).length / workoutItems.length) * 100;
 
   return (
-    <div className="min-h-screen w-full bg-gray-900 relative">
-      <div className="max-w-7xl mx-auto p-3 sm:p-4 md:p-6 lg:p-8 space-y-6">
+    <div className="w-full relative">
+      <div className="max-w-7xl mx-auto p-2 sm:p-3 md:p-4 lg:p-6 space-y-6">
         
-        {/* Add Wellness Header */}
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-white mb-2">
-            💪 Wellness & Health
-          </h1>
-          <p className="text-gray-400 text-sm">
-            Physical fitness and nutrition tracking for optimal health
-          </p>
-        </div>
-
-        <motion.div
+<motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <Card className="bg-red-900/20 border-red-700/50">
-        <CardHeader>
-          <CardTitle className="flex items-center text-red-400">
-            <Dumbbell className="h-5 w-5 mr-2" />
-            🏋️‍♂️ Home Workout Objective
-          </CardTitle>
+          <Card className="mb-24 bg-red-900/20 border-red-700/50">
+            <CardHeader>
+              <CardTitle className="flex items-center text-red-400">
+                <Dumbbell className="h-5 w-5 mr-2" />
+                🏋️‍♂️ Home Workout Objective
+              </CardTitle>
           
           {/* Progress Bar */}
           <div className="mt-4">
@@ -111,8 +101,8 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({
               />
             </div>
           </div>
-        </CardHeader>
-        <CardContent className="pb-24">
+            </CardHeader>
+            <CardContent className="pb-24">
           <div className="space-y-4">
             {workoutItems.map((item, index) => (
               <motion.div 
@@ -123,7 +113,7 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({
                 transition={{ delay: 0.1 * index, duration: 0.4 }}
               >
                 {/* Modern Glass Card Design */}
-                <div className="flex items-start space-x-4 p-4 bg-gradient-to-br from-red-900/20 via-red-800/15 to-red-700/10 backdrop-blur-sm border border-red-700/30 rounded-xl hover:border-red-600/50 transition-all duration-300 group hover:shadow-lg hover:shadow-red-900/20">
+                <div className="flex items-start space-x-3 p-3 bg-red-900/20 border border-red-700/30 rounded-xl hover:border-red-600/50 transition-all duration-300 group">
                   
                   {/* Custom Styled Checkbox */}
                   <div className="relative mt-1">
@@ -164,7 +154,7 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({
                     {item.logged !== undefined && (
                       <div className="space-y-4 mt-5">
                         {/* Quick Rep Buttons - Better spacing */}
-                        <div className="flex gap-2">
+                        <div className="flex gap-1.5 w-full">
                           {getQuickReps(item.title).map((rep) => (
                             <Button
                               key={rep}
@@ -208,8 +198,8 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({
               </motion.div>
             ))}
           </div>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
     </motion.div>
       </div>
     </div>
