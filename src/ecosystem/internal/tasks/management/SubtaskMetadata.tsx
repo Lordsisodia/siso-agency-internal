@@ -7,7 +7,6 @@
 
 import React from 'react';
 import { Calendar, X } from 'lucide-react';
-import { PrioritySelector } from '@/ecosystem/internal/tasks/components/PrioritySelector';
 
 interface SubtaskMetadataProps {
   subtask: {
@@ -30,12 +29,32 @@ export const SubtaskMetadata: React.FC<SubtaskMetadataProps> = ({
   onPriorityChange,
   children
 }) => {
-  // DEBUG: Log when component renders and check props
-  console.log('📊 SubtaskMetadata rendered:', { 
-    subtaskId: subtask.id, 
-    priority: subtask.priority,
-    hasOnPriorityChange: !!onPriorityChange 
-  });
+  const [priorityPopupId, setPriorityPopupId] = React.useState<string | null>(null);
+  
+
+  const handlePriorityToggle = (subtaskId: string) => {
+    setPriorityPopupId(priorityPopupId === subtaskId ? null : subtaskId);
+  };
+
+  const handlePrioritySelect = (priority: string) => {
+    if (onPriorityChange) {
+      onPriorityChange(subtask.id, priority);
+    }
+    setPriorityPopupId(null);
+  };
+
+  const getPriorityConfig = (priority?: string) => {
+    const TASK_PRIORITY_CONFIG = {
+      'low': { icon: '🟢', label: 'Low', bgColor: 'bg-green-600', textColor: 'text-white' },
+      'medium': { icon: '🟡', label: 'Medium', bgColor: 'bg-yellow-600', textColor: 'text-white' },
+      'high': { icon: '🔴', label: 'High', bgColor: 'bg-red-600', textColor: 'text-white' },
+      'urgent': { icon: '🚨', label: 'Urgent', bgColor: 'bg-purple-600', textColor: 'text-white' }
+    };
+    return TASK_PRIORITY_CONFIG[priority || 'medium'] || TASK_PRIORITY_CONFIG['medium'];
+  };
+
+  const priorityConfig = getPriorityConfig(subtask.priority);
+  
   return (
     <div className="flex items-center justify-between">
       {/* Left side: Due date and Priority */}
@@ -68,13 +87,45 @@ export const SubtaskMetadata: React.FC<SubtaskMetadataProps> = ({
           {calendarSubtaskId === subtask.id && children}
         </div>
         
-        {/* Priority Selector */}
+        {/* Priority Badge - similar to due date */}
         {onPriorityChange && (
-          <PrioritySelector 
-            value={subtask.priority || 'medium'} 
-            onChange={(priority) => onPriorityChange(subtask.id, priority)} 
-            size="sm" 
-          />
+          <div className="relative">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handlePriorityToggle(subtask.id);
+              }}
+              className={`flex items-center gap-1 text-xs font-medium cursor-pointer hover:opacity-80 transition-opacity px-2 py-1 rounded ${priorityConfig.bgColor} ${priorityConfig.textColor}`}
+              title="Click to change priority"
+            >
+              <span>{priorityConfig.icon}</span>
+              <span className="hidden sm:inline">{priorityConfig.label}</span>
+            </button>
+            
+            {/* Priority Popup */}
+            {priorityPopupId === subtask.id && (
+              <div className="absolute top-8 left-0 z-[99999] bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-2 min-w-[120px]">
+                {Object.entries({
+                  'low': { icon: '🟢', label: 'Low', bgColor: 'bg-green-600', textColor: 'text-white' },
+                  'medium': { icon: '🟡', label: 'Medium', bgColor: 'bg-yellow-600', textColor: 'text-white' },
+                  'high': { icon: '🔴', label: 'High', bgColor: 'bg-red-600', textColor: 'text-white' },
+                  'urgent': { icon: '🚨', label: 'Urgent', bgColor: 'bg-purple-600', textColor: 'text-white' }
+                }).map(([key, config]) => (
+                  <button
+                    key={key}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handlePrioritySelect(key);
+                    }}
+                    className="w-full flex items-center gap-2 px-2 py-1 text-xs text-white hover:bg-gray-700 rounded transition-colors"
+                  >
+                    <span>{config.icon}</span>
+                    <span>{config.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         )}
       </div>
       

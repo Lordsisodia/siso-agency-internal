@@ -8,6 +8,7 @@
 import React from 'react';
 import { Check, ChevronDown, ChevronRight, Clock, AlertCircle, Wrench } from 'lucide-react';
 import { SubtaskMetadata } from './SubtaskMetadata';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select';
 
 interface SubtaskItemProps {
   subtask: {
@@ -41,6 +42,7 @@ interface SubtaskItemProps {
   onKeyDown: (e: React.KeyboardEvent, type: 'subtask', taskId: string, subtaskId?: string) => void;
   onCalendarToggle: (subtaskId: string) => void;
   onDeleteSubtask: (subtaskId: string) => void;
+  onPriorityUpdate?: (subtaskId: string, priority: string) => void;
   children?: React.ReactNode; // For calendar popup
 }
 
@@ -60,6 +62,7 @@ export const SubtaskItem: React.FC<SubtaskItemProps> = ({
   onKeyDown,
   onCalendarToggle,
   onDeleteSubtask,
+  onPriorityUpdate,
   children
 }) => {
   return (
@@ -146,15 +149,52 @@ export const SubtaskItem: React.FC<SubtaskItemProps> = ({
                 
                 {/* Priority and Time */}
                 <div className="flex items-center gap-4">
-                  {subtask.priority && (
-                    <div className="flex items-center gap-1">
-                      <AlertCircle className={`h-3 w-3 ${
-                        subtask.priority === 'high' ? 'text-red-400' : 
-                        subtask.priority === 'medium' ? 'text-yellow-400' : 'text-green-400'
-                      }`} />
-                      <span className="text-gray-400 capitalize">{subtask.priority}</span>
-                    </div>
-                  )}
+                  {/* Priority Dropdown */}
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className={`h-3 w-3 ${
+                      subtask.priority === 'URGENT' ? 'text-red-500' : 
+                      subtask.priority === 'HIGH' ? 'text-red-400' : 
+                      subtask.priority === 'MEDIUM' ? 'text-yellow-400' : 'text-green-400'
+                    }`} />
+                    {onPriorityUpdate ? (
+                      <Select
+                        value={subtask.priority || 'MEDIUM'}
+                        onValueChange={(value) => onPriorityUpdate(subtask.id, value)}
+                      >
+                        <SelectTrigger className="w-20 h-6 text-xs border-gray-600 bg-gray-800/50 text-gray-300 hover:border-gray-500">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-gray-800 border-gray-600">
+                          <SelectItem value="LOW" className="text-xs">
+                            <span className="flex items-center gap-1">
+                              <span className="w-2 h-2 bg-green-400 rounded-full"></span>
+                              Low
+                            </span>
+                          </SelectItem>
+                          <SelectItem value="MEDIUM" className="text-xs">
+                            <span className="flex items-center gap-1">
+                              <span className="w-2 h-2 bg-yellow-400 rounded-full"></span>
+                              Medium
+                            </span>
+                          </SelectItem>
+                          <SelectItem value="HIGH" className="text-xs">
+                            <span className="flex items-center gap-1">
+                              <span className="w-2 h-2 bg-red-400 rounded-full"></span>
+                              High
+                            </span>
+                          </SelectItem>
+                          <SelectItem value="URGENT" className="text-xs">
+                            <span className="flex items-center gap-1">
+                              <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                              Urgent
+                            </span>
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <span className="text-gray-400 capitalize text-xs">{subtask.priority?.toLowerCase() || 'medium'}</span>
+                    )}
+                  </div>
                   
                   {subtask.estimatedTime && (
                     <div className="flex items-center gap-1">

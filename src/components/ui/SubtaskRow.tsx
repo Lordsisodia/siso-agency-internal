@@ -219,12 +219,15 @@ export const SubtaskRow: React.FC<SubtaskRowProps> = ({
           {showMetadata && (subtask.priority || subtask.estimatedTime) && (
             <div className="flex items-center space-x-3 mt-1">
               {subtask.priority && (
-                <span className={`
-                  text-xs px-1.5 py-0.5 rounded border text-center font-medium
-                  ${subtask.priority === 'high' ? 'bg-red-500/20 text-red-300 border-red-500/40' :
-                    subtask.priority === 'medium' ? 'bg-yellow-500/20 text-yellow-300 border-yellow-500/40' :
-                    'bg-green-500/20 text-green-300 border-green-500/40'}
-                `}>
+                <span 
+                  className={`
+                    text-xs px-1.5 py-0.5 rounded border text-center font-medium
+                    ${subtask.priority === 'high' ? 'bg-red-500/20 text-red-300 border-red-500/40' :
+                      subtask.priority === 'medium' ? 'bg-yellow-500/20 text-yellow-300 border-yellow-500/40' :
+                      'bg-green-500/20 text-green-300 border-green-500/40'}
+                  `}
+                  style={{ backgroundColor: 'orange', border: '3px solid lime' }} // DEBUG: SubtaskRow priority
+                >
                   {subtask.priority}
                 </span>
               )}

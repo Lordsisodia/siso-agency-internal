@@ -116,7 +116,7 @@ export const CleanDateNav: React.FC<CleanDateNavProps> = ({
   
   return (
     <motion.div
-      className={`bg-gradient-to-br from-gray-800/80 via-gray-900/80 to-gray-800/80 backdrop-blur-xl border border-gray-600/30 rounded-2xl shadow-2xl ${className}`}
+      className={`bg-transparent backdrop-blur-xl border border-gray-600/30 rounded-2xl shadow-2xl ${className}`}
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}

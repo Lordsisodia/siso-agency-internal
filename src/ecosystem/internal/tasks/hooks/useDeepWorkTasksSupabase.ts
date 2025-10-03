@@ -612,6 +612,46 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
     }
   }, [supabase]);
 
+  // Update subtask priority in Supabase
+  const updateSubtaskPriority = useCallback(async (subtaskId: string, priority: string) => {
+    if (!supabase) return null;
+    
+    try {
+      console.log(`🎯 Updating Deep Work subtask priority: ${subtaskId} -> ${priority}`);
+
+      const { error } = await supabase
+        .from('deep_work_subtasks')
+        .update({
+          priority: priority,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', subtaskId);
+      
+      if (error) {
+        throw new Error(`Supabase error: ${error.message}`);
+      }
+
+      console.log(`✅ Updated Deep Work subtask priority: ${subtaskId}`);
+      
+      // Update local state
+      setTasks(prev => prev.map(task => ({
+        ...task,
+        subtasks: task.subtasks.map(subtask => 
+          subtask.id === subtaskId 
+            ? { ...subtask, priority: priority }
+            : subtask
+        )
+      })));
+      
+      return true;
+      
+    } catch (error) {
+      console.error('❌ Error updating Deep Work subtask priority:', error);
+      setError(error instanceof Error ? error.message : 'Failed to update subtask priority');
+      return null;
+    }
+  }, [supabase]);
+
   // Update subtask due date in Supabase (dedicated function for subtasks only)
   const updateSubtaskDueDate = useCallback(async (subtaskId: string, dueDate: Date | null) => {
     if (!supabase) return null;
@@ -671,6 +711,7 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
     deleteSubtask,
     updateTaskTitle,
     updateSubtaskTitle,
+    updateSubtaskPriority,
     pushTaskToAnotherDay,
     updateTaskDueDate,
     updateSubtaskDueDate,

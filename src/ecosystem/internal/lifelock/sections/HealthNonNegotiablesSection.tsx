@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Heart, Plus, Minus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
@@ -41,7 +41,7 @@ export const HealthNonNegotiablesSection: React.FC<HealthNonNegotiablesSectionPr
   }, [nutrition.meals, nutrition.macros, loading]);
 
   // Handle saving with proper debouncing to prevent loops
-  const saveData = (newMeals: typeof meals, newMacros: typeof dailyTotals) => {
+  const saveData = useCallback(async (newMeals: typeof meals, newMacros: typeof dailyTotals) => {
     if (!hasLoadedInitialData.current || !internalUserId || saving) return;
     
     if (saveTimeoutRef.current) {
@@ -50,27 +50,32 @@ export const HealthNonNegotiablesSection: React.FC<HealthNonNegotiablesSectionPr
     
     saveTimeoutRef.current = setTimeout(async () => {
       try {
+        console.log('🍽️ [NUTRITION] Saving nutrition data:', { meals: newMeals, macros: newMacros });
         await updateMeals(newMeals);
         await updateMacros(newMacros);
+        console.log('✅ [NUTRITION] Successfully saved nutrition data');
       } catch (error) {
-        console.error('Error saving nutrition data:', error);
+        console.error('❌ [NUTRITION] Error saving nutrition data:', error);
       }
     }, 1000);
-  };
+  }, [internalUserId, saving, updateMeals, updateMacros]);
 
   // Save when meals change (from user input only)
   useEffect(() => {
     if (hasLoadedInitialData.current) {
+      console.log('🔄 [NUTRITION] Meals changed, saving...', meals);
       saveData(meals, dailyTotals);
     }
   }, [meals, dailyTotals, saveData]);
 
-  // Save when macros change (from user input only)
+  // Cleanup timeout on unmount
   useEffect(() => {
-    if (hasLoadedInitialData.current) {
-      saveData(meals, dailyTotals);
-    }
-  }, [dailyTotals, meals, saveData]);
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, []);
 
 
   return (

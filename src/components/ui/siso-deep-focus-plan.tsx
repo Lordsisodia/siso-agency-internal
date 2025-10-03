@@ -128,6 +128,7 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
     deleteSubtask,
     updateSubtaskDueDate,
     updateSubtaskTitle,
+    updateSubtaskPriority,
     updateTaskTitle
   } = taskType === 'light-work' ? lightWorkData : deepWorkData;
   
@@ -345,6 +346,15 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
 
   const handleDeleteSubtask = async (subtaskId: string) => {
     await deleteSubtask(subtaskId);
+  };
+
+  // Update subtask priority - use Supabase hook
+  const handleUpdateSubtaskPriority = async (subtaskId: string, priority: string) => {
+    try {
+      await updateSubtaskPriority(subtaskId, priority);
+    } catch (error) {
+      console.error('Error updating subtask priority:', error);
+    }
   };
 
   // New subtask creation handlers
@@ -661,6 +671,7 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
                                     onKeyDown={handleSubtaskKeyDown}
                                     onCalendarToggle={handleCalendarToggle}
                                     onDeleteSubtask={handleDeleteSubtask}
+                                    onPriorityUpdate={handleUpdateSubtaskPriority}
                                   >
                                     {/* Calendar popup */}
                                     {calendarSubtaskId === subtask.id && (

@@ -127,7 +127,7 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = React
       );
     });
     return reorderings;
-  }, [tasks.map(t => t.id).join(',')]); // Only recreate when task IDs change
+  }, [tasks]); // Fixed: include tasks dependency
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [editingSubtaskId, setEditingSubtaskId] = useState<string | null>(null);
   const [addingSubtaskToId, setAddingSubtaskToId] = useState<string | null>(null);

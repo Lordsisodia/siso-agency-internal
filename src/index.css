@@ -5,6 +5,7 @@
 @tailwind components;
 @tailwind utilities;
 
+
 /* Sign-in Component Animations */
 @keyframes fadeSlideIn {
   to {
@@ -232,7 +233,7 @@
   }
 
   body {
-    @apply font-['Inter'] antialiased bg-gradient-to-b from-gray-900 to-black text-gray-100;
+    @apply font-['Inter'] antialiased bg-transparent text-gray-100;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -1085,9 +1086,6 @@ th:hover .header-column-menu {
   body {
     /* Prevent zoom on inputs */
     -webkit-text-size-adjust: 100%;
-    /* Hide iOS status bar in PWA */
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
   }
 }
 

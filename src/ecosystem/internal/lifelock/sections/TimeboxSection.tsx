@@ -110,6 +110,23 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
   selectedDate,
   userId = 'demo-user' // Default for demo
 }) => {
+  // Move useImplementation calls to top of component
+  const containerClassName = useImplementation(
+    'useUnifiedThemeSystem',
+    // NEW: Unified theme system
+    `min-h-screen w-full mb-24 ${theme.gradients.diagonal.grayToBlack}`,
+    // OLD: Original classes (fallback for safety)
+    'min-h-screen w-full mb-24 bg-gradient-to-br from-black via-gray-900 to-black'
+  );
+  
+  const loadingClassName = useImplementation(
+    'useUnifiedThemeSystem',
+    // NEW: Unified theme system
+    `h-full w-full flex items-center justify-center ${theme.gradients.diagonal.grayToBlack}`,
+    // OLD: Original classes (fallback for safety)
+    'h-full w-full bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center'
+  );
+
   const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedTask, setSelectedTask] = useState<TimeboxTask | null>(null);
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
@@ -284,16 +301,27 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
 
   // Handle scheduling task from selection modal
   const handleScheduleTask = async (task: any, timeSlot: any, taskType: 'light' | 'deep') => {
-    const category = taskType === 'deep' ? 'DEEP_WORK' : 'LIGHT_WORK';
+    console.log('🎯 TimeboxSection: handleScheduleTask called:', {
+      task,
+      timeSlot,
+      taskType
+    });
     
-    const success = await createTimeBlock({
+    const category = taskType === 'deep' ? 'DEEP_WORK' : 'LIGHT_WORK';
+    console.log('📝 TimeboxSection: Creating time block with category:', category);
+    
+    const timeBlockData = {
       title: task.title,
       description: task.description || `Scheduled ${taskType} work task`,
       startTime: timeSlot.start,
       endTime: timeSlot.end,
       category: mapUIToCategory(category),
       notes: `Linked to ${taskType} work task: ${task.id}`
-    });
+    };
+    
+    console.log('⚡ TimeboxSection: Calling createTimeBlock with data:', timeBlockData);
+    const success = await createTimeBlock(timeBlockData);
+    console.log('🎉 TimeboxSection: createTimeBlock result:', success);
     
     if (success) {
       setIsQuickSchedulerOpen(false);
@@ -377,17 +405,9 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
   }, [tasks]);
   
   // Show loading state
-  const loadingImplementation = useImplementation(
-        'useUnifiedThemeSystem',
-        // NEW: Unified theme system
-        `h-full w-full flex items-center justify-center ${theme.gradients.diagonal.grayToBlack}`,
-        // OLD: Original classes (fallback for safety)
-        'h-full w-full bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center'
-      );
-  
   if (isLoading) {
     return (
-      <div className={loadingImplementation}>
+      <div className={loadingClassName}>
         <div className="text-center">
           <motion.div 
             className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full mx-auto mb-4"
@@ -401,47 +421,29 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
   }
 
   return (
-    <div className={useImplementation(
-      'useUnifiedThemeSystem',
-      // NEW: Unified theme system
-      `min-h-screen w-full mb-24 ${theme.gradients.diagonal.grayToBlack}`,
-      // OLD: Original classes (fallback for safety)
-      'min-h-screen w-full mb-24 bg-gradient-to-br from-black via-gray-900 to-black'
-    )}>
+    <div className={containerClassName}>
       <div className="w-full">
         
-        {/* Header with Add Tasks button */}
-        <div className="w-full px-4 py-4">
-          <div className="flex justify-end">
-            <Button
-              onClick={() => setIsQuickSchedulerOpen(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2"
-              size="sm"
-              title="Add tasks to timebox"
-            >
-              <Calendar className="h-4 w-4 mr-2" />
-              Add Tasks
-            </Button>
-          </div>
-        </div>
+        {/* Compact Header Section */}
+
 
         {/* Today's Focus Stats Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="mx-4 mb-4"
+          className="mx-4 mb-2"
         >
           <Card className="bg-gradient-to-r from-blue-900/40 via-purple-900/30 to-indigo-900/40 border-blue-700/50 shadow-2xl shadow-blue-500/20 rounded-2xl backdrop-blur-sm">
-            <CardContent className="p-4">
+            <CardContent className="p-3">
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center shadow-md">
-                    <Target className="h-5 w-5 text-white" />
+                <div className="flex items-center space-x-2.5">
+                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center shadow-md">
+                    <Target className="h-4 w-4 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-white">Today's Focus</h3>
-                    <div className="flex items-center space-x-4 text-sm text-gray-300">
+                    <h3 className="text-base font-semibold text-white">Today's Focus</h3>
+                    <div className="flex items-center space-x-3 text-xs text-gray-300">
                       <span className="flex items-center space-x-1">
                         <Target className="h-3 w-3 text-blue-400" />
                         <span>{validTasks.length} tasks</span>
@@ -458,7 +460,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-white">
+                  <div className="text-xl font-bold text-white">
                     {Math.round((validTasks.filter(task => task.completed).length / Math.max(validTasks.length, 1)) * 100)}%
                   </div>
                   <div className="text-xs text-gray-400">complete</div>
@@ -468,6 +470,24 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
           </Card>
         </motion.div>
         
+        {/* Prominent Add Tasks Button */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
+          className="mx-4 mb-3"
+        >
+          <Button
+            onClick={() => setIsQuickSchedulerOpen(true)}
+            className="w-full bg-gradient-to-r from-emerald-500 to-blue-600 hover:from-emerald-600 hover:to-blue-700 text-white py-3 text-base font-semibold shadow-xl hover:shadow-2xl border border-white/20 hover:border-white/30 transition-all duration-300 rounded-xl"
+            size="lg"
+            title="Add tasks to timebox"
+          >
+            <Calendar className="h-5 w-5 mr-3" />
+            Add Tasks to Timeline
+          </Button>
+        </motion.div>
+
         {/* TimeBox Card Wrapper */}
         <Card className="w-full bg-blue-900/20 border-blue-700/50 shadow-2xl shadow-blue-900/20 rounded-2xl backdrop-blur-sm mb-32">
           <CardContent className="p-0">
@@ -901,7 +921,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
       
       {/* Quick Task Scheduler */}
       {isQuickSchedulerOpen && (
-        <div className="fixed top-4 right-4 w-96 max-w-[90vw] z-50">
+        <div className="fixed inset-4 z-50 md:top-4 md:right-4 md:left-auto md:bottom-auto md:w-[480px] md:max-w-[90vw]">
           <QuickTaskScheduler
             isOpen={isQuickSchedulerOpen}
             onClose={() => setIsQuickSchedulerOpen(false)}

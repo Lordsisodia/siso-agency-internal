@@ -167,11 +167,21 @@ const QuickTaskScheduler: React.FC<QuickTaskSchedulerProps> = ({
   // Handle quick schedule with visual feedback
   const handleQuickSchedule = async (task: Task | Subtask, taskType: 'light' | 'deep') => {
     const taskId = task.id;
+    console.log('🚀 QuickTaskScheduler: Starting to add task to timebox:', {
+      taskId,
+      taskTitle: task.title,
+      taskType,
+      task
+    });
     setAddingTasks(prev => new Set([...prev, taskId]));
     
     try {
       const timeSlot = generateTimeSlot(task, taskType);
-      await onScheduleTask(task, timeSlot, taskType);
+      console.log('📅 QuickTaskScheduler: Generated time slot:', timeSlot);
+      
+      console.log('🔄 QuickTaskScheduler: Calling onScheduleTask...');
+      const result = await onScheduleTask(task, timeSlot, taskType);
+      console.log('✅ QuickTaskScheduler: onScheduleTask result:', result);
       
       // Success feedback - could add toast here
       setTimeout(() => {
@@ -359,7 +369,7 @@ const QuickTaskScheduler: React.FC<QuickTaskSchedulerProps> = ({
                 className="group bg-slate-800/40 border border-slate-600/30 rounded-xl p-4 hover:bg-slate-800/60 hover:border-slate-500/50 transition-all duration-200"
               >
                 {/* Main Task Header */}
-                <div className="flex items-start gap-4 mb-3">
+                <div className="flex flex-col sm:flex-row sm:items-start gap-4 mb-3">
                   <div className="flex-1 space-y-3">
                     {/* Title and Priority Row */}
                     <div className="flex items-start justify-between gap-3">
@@ -397,7 +407,7 @@ const QuickTaskScheduler: React.FC<QuickTaskSchedulerProps> = ({
                   <Button
                     onClick={() => handleQuickSchedule(task, activeTab)}
                     disabled={addingTasks.has(task.id)}
-                    className={`px-6 py-3.5 min-h-[48px] min-w-[140px] touch-manipulation rounded-xl font-medium transition-all duration-200 ${
+                    className={`w-full sm:w-auto px-4 py-3 min-h-[48px] touch-manipulation rounded-xl font-medium transition-all duration-200 ${
                       activeTab === 'light' 
                         ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl' 
                         : 'bg-purple-600 hover:bg-purple-700 text-white shadow-lg hover:shadow-xl'
@@ -411,7 +421,8 @@ const QuickTaskScheduler: React.FC<QuickTaskSchedulerProps> = ({
                     ) : (
                       <>
                         <Plus className="h-5 w-5 mr-2" />
-                        Add to Timebox
+                        <span className="hidden sm:inline">Add to Timebox</span>
+                        <span className="sm:hidden">Add</span>
                       </>
                     )}
                   </Button>

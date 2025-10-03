@@ -237,7 +237,7 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = memo(({
               className="h-full overflow-y-auto"
               style={{ 
                 // SINGLE SCROLL CONTAINER - this is the ONLY scrollable area
-                paddingBottom: isMobile ? '200px' : '180px',
+                paddingBottom: isMobile ? '300px' : '280px',
                 // PWA scroll optimization for mobile
                 WebkitOverflowScrolling: 'touch',
                 overscrollBehavior: 'contain',

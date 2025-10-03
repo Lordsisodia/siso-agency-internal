@@ -377,7 +377,7 @@ export const TaskManager: React.FC<TaskManagerProps> = ({
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="space-y-2"
+          className="space-y-2" style={{ paddingBottom: '800px' }}
         >
           {tasks.map((task) => (
             <motion.div

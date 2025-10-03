@@ -182,7 +182,7 @@ export default function SisoDeepFocusPlanV2({ onStartFocusSession }: SisoDeepFoc
       <TaskContainerV2
         taskType="deep-work"
         onStartFocusSession={onStartFocusSession}
-        className="px-2"
+        className="px-2" style={{ paddingBottom: '800px' }}
         showHeader={true}
         showSearch={true}
         showFilters={true}

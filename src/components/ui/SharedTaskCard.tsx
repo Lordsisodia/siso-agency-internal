@@ -106,6 +106,7 @@ export const SharedTaskCard: React.FC<SharedTaskCardProps> = ({
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 0.1 * index }}
+      style={{ border: '2px solid red' }} // DEBUG: SharedTaskCard marker
       className={`
         flex items-center justify-between p-3 rounded-lg border transition-all duration-200
         ${task.completed 
@@ -172,6 +173,7 @@ export const SharedTaskCard: React.FC<SharedTaskCardProps> = ({
               <Badge 
                 size="sm"
                 className={getPriorityColor(task.priority)}
+                style={{ backgroundColor: 'magenta', border: '2px solid cyan' }} // DEBUG: SharedTaskCard priority
               >
                 {task.priority}
               </Badge>
