@@ -1,20 +1,34 @@
 {
+  "cleanupPeriodDays": 30,
+  "env": {
+    "BASH_DEFAULT_TIMEOUT_MS": "300000",
+    "MAX_THINKING_TOKENS": "50000",
+    "DISABLE_TELEMETRY": "1"
+  },
+  "includeCoAuthoredBy": false,
   "permissions": {
     "allow": [
-      "Bash(gh auth:*)",
-      "Bash(brew install:*)",
-      "Bash(git init:*)",
-      "Bash(gh repo create:*)",
+      "*",
+      "Bash(xargs:*)",
+      "Read(//Users/shaansisodia/.claude/**)",
+      "Bash(npx tsc:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
+      "Bash(uniq -c echo \"\" echo \"=== TaskHeader ===\")",
+      "Bash(uniq:*)",
+      "Bash(for comp in \"TaskTable\" \"TaskHeader\" \"QuickActions\" \"BottomNavigation\" \"ImportProgress\")",
+      "Bash(do echo \"=== $comp ===\" find src -name \"$comp.tsx\" -exec md5 {})",
+      "Bash(awk:*)",
       "Bash(git push:*)",
-      "Bash(chmod:*)",
-      "Bash(grep:*)",
-      "mcp__sequential-thinking__sequentialthinking"
+      "Bash(cat:*)"
     ],
     "deny": [],
-    "ask": []
+    "ask": [],
+    "defaultMode": "bypassPermissions"
   },
-  "model": "opusplan",
-  "outputStyle": "siso-ultra-think"
+  "model": "claude-sonnet-4.5-20250514",
+  "enableAllProjectMcpServers": true,
+  "outputStyle": "siso-ultra-think",
+  "spinnerTipsEnabled": false,
+  "alwaysThinkingEnabled": false
 }
