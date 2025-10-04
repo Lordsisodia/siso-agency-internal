@@ -200,8 +200,8 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
       await saveTask('morning_routine_habits', habitData);
       
       // Update local state immediately for better UX
-      if (morningRoutine) {
-        const updatedItems = morningRoutine.items.map(item => 
+      if (morningRoutine && morningRoutine.items && Array.isArray(morningRoutine.items)) {
+        const updatedItems = morningRoutine.items.map(item =>
           item.name === habitKey ? { ...item, completed } : item
         );
         const completedCount = updatedItems.filter(item => item.completed).length;
