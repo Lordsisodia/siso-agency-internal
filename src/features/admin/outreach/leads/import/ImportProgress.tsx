@@ -1,22 +1,6 @@
-
-import React from 'react';
-import { Progress } from '@/shared/ui/progress';
-
-interface ImportProgressProps {
-  isProcessing: boolean;
-  importProgress: number;
-}
-
-export const ImportProgress = ({ isProcessing, importProgress }: ImportProgressProps) => {
-  if (!isProcessing) return null;
-
-  return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between text-sm">
-        <span>Importing leads...</span>
-        <span>{Math.round(importProgress)}%</span>
-      </div>
-      <Progress value={importProgress} className="h-2" />
-    </div>
-  );
-};
+// 🔄 DUPLICATE REDIRECT
+// This file has been consolidated to the canonical location
+// Canonical: src/ecosystem/internal/admin/dashboard/components/ImportProgress.tsx
+// Phase: 3.2 - ImportProgress Consolidation
+// Date: 2025-10-04
+export * from '@/ecosystem/internal/admin/dashboard/components/ImportProgress';
