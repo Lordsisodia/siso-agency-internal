@@ -358,9 +358,9 @@ export { TaskManager } from '@/ecosystem/internal/tasks/components/TaskManager';
 ## 📚 Additional Resources
 
 - [COMPONENT-REGISTRY.md](COMPONENT-REGISTRY.md) - Full component catalog
-- [AI-NAVIGATION-IMPROVEMENTS.md](AI-NAVIGATION-IMPROVEMENTS.md) - Status and progress
-- [BMAD-CONSOLIDATION-PLAN.md](BMAD-CONSOLIDATION-PLAN.md) - Architecture strategy
-- [PHASE1-COMPLETE.md](PHASE1-COMPLETE.md) - What's been consolidated
+- [AI-NAVIGATION-IMPROVEMENTS.md](docs/guides/AI-NAVIGATION-IMPROVEMENTS.md) - Status and progress
+- [BMAD-CONSOLIDATION-PLAN.md](docs/bmad-outputs/BMAD-CONSOLIDATION-PLAN.md) - Architecture strategy
+- [PHASE1-COMPLETE.md](docs/completion-reports/PHASE1-COMPLETE.md) - What's been consolidated
 
 ---
 
