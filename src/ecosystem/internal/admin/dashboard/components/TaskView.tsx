@@ -1,35 +1,12 @@
+// 🔄 DUPLICATE REDIRECT
+// This file was an exact duplicate (MD5: 44aa9acf9e7acc5815bef03d2abdf9d0)
+// Import from canonical location to maintain single source of truth.
+//
+// Canonical: src/ecosystem/internal/tasks/components/TaskView.tsx
+// Purpose: Task view component for displaying task details
+// Lines: 35
+//
+// This redirect maintains backward compatibility while eliminating duplication.
+// Phase 2 of consolidation - converting exact binary duplicates to redirects.
 
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card';
-import { TaskBank } from '../tasks/TaskBank';
-import { TeamMemberSelector } from '../tasks/TeamMemberSelector';
-
-export function TaskView() {
-  return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Team Member Tasks</CardTitle>
-          <CardDescription>
-            View and manage tasks for specific team members
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <TeamMemberSelector />
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Task Overview</CardTitle>
-          <CardDescription>
-            View and manage all tasks across different categories
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <TaskBank />
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
+export { TaskView } from '@/ecosystem/internal/tasks/components/TaskView';

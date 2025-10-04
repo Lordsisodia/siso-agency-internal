@@ -1,35 +1,12 @@
+// 🔄 DUPLICATE REDIRECT
+// This file was an exact duplicate (MD5: 58c58a42888f2a1f74744869fdcf6e65)
+// Import from canonical location to maintain single source of truth.
+//
+// Canonical: src/ecosystem/internal/admin/daily-planner/TaskView.tsx
+// Purpose: Task view for daily planner context
+// Lines: 35
+//
+// This redirect maintains backward compatibility while eliminating duplication.
+// Phase 2 of consolidation - converting exact binary duplicates to redirects.
 
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card';
-import { TaskBank } from './TaskBank';
-import { TeamMemberSelector } from '@/ecosystem/internal/admin/dashboard/components/TeamMemberSelector';
-
-export function TaskView() {
-  return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Team Member Tasks</CardTitle>
-          <CardDescription>
-            View and manage tasks for specific team members
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <TeamMemberSelector />
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Task Overview</CardTitle>
-          <CardDescription>
-            View and manage all tasks across different categories
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <TaskBank />
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
+export { TaskView } from '@/ecosystem/internal/admin/daily-planner/TaskView';
