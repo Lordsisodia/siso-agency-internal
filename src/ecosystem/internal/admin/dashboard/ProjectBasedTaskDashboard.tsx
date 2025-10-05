@@ -52,6 +52,10 @@ export function ProjectBasedTaskDashboard() {
   const projects = agent.getProjects();
   const workTypes = agent.getWorkTypes();
 
+  useEffect(() => {
+    loadDashboardData();
+  }, [loadDashboardData]);
+
   const loadDashboardData = useCallback(async () => {
     try {
       setLoading(true);
@@ -74,11 +78,7 @@ export function ProjectBasedTaskDashboard() {
     } finally {
       setLoading(false);
     }
-  }, [agent, toast]);
-
-  useEffect(() => {
-    loadDashboardData();
-  }, [loadDashboardData]);
+  }, []);
 
   const createProjectTask = async () => {
     if (!newTaskTitle.trim() || !selectedProject || !selectedWorkType) {

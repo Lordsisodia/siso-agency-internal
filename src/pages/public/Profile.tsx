@@ -2,13 +2,13 @@
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/shared/hooks/use-toast';
-import { ProfileHeader } from '@/features/profile/ProfileHeader';
-import { ProfileInfo } from '@/features/profile/ProfileInfo';
-import { PointsHistory } from '@/features/profile/PointsHistory';
-import { ProfileLayout } from '@/features/profile/ProfileLayout';
-import { ProfileSkeleton } from '@/features/profile/ProfileSkeleton';
-import { ProfileMetrics } from '@/features/profile/ProfileMetrics';
-import { ProfileProgress } from '@/features/profile/ProfileProgress';
+import { ProfileHeader } from '@/ecosystem/internal/profile/ProfileHeader';
+import { ProfileInfo } from '@/ecosystem/internal/profile/ProfileInfo';
+import { PointsHistory } from '@/ecosystem/internal/profile/PointsHistory';
+import { ProfileLayout } from '@/ecosystem/internal/profile/ProfileLayout';
+import { ProfileSkeleton } from '@/ecosystem/internal/profile/ProfileSkeleton';
+import { ProfileMetrics } from '@/ecosystem/internal/profile/ProfileMetrics';
+import { ProfileProgress } from '@/ecosystem/internal/profile/ProfileProgress';
 import { useProfileData } from '@/ecosystem/internal/profile/hooks/useProfileData';
 import { SignOutButton } from '@/shared/auth/SignOutButton';
 

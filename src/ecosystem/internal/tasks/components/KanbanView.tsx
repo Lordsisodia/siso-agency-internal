@@ -9,9 +9,9 @@ import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
 import { Plus, MoreHorizontal } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
-import { Task, TaskStatus } from '../../types/task.types';
-import { TASK_STATUS_CONFIG } from '../../constants/taskConstants';
-import { getStatusColor, getPriorityColor } from '../../utils/taskHelpers';
+import { Task, TaskStatus } from '@/ecosystem/internal/tasks/types/task.types';
+import { TASK_STATUS_CONFIG } from '@/ecosystem/internal/tasks/constants/taskConstants';
+import { getStatusColor, getPriorityColor } from '@/ecosystem/internal/tasks/utils/taskHelpers';
 
 interface KanbanViewProps {
   tasks: Task[];

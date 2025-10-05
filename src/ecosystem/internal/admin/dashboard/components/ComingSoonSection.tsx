@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Clock, 
@@ -110,7 +110,7 @@ export function ComingSoonSection() {
   const { toast } = useToast();
 
   // Countdown to next major release (February 1, 2025)
-  const targetDate = useMemo(() => new Date('2025-02-01T00:00:00Z'), []);
+  const targetDate = new Date('2025-02-01T00:00:00Z');
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -128,7 +128,7 @@ export function ComingSoonSection() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [targetDate]);
+  }, []);
 
   const handleBetaSignup = async (e: React.FormEvent) => {
     e.preventDefault();

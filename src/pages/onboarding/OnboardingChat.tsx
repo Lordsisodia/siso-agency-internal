@@ -7,7 +7,7 @@ import { MessageLoading } from '@/shared/ui/message-loading';
 import { useOnboardingAuth } from '@/shared/hooks/useOnboardingAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { SisoIcon } from '@/shared/ui/icons/SisoIcon';
-import { BusinessDataInput } from '@/features/app-plan/BusinessDataForm';
+import { BusinessDataInput } from '@/ecosystem/internal/app-plan/BusinessDataForm';
 import { appPlanAgent } from '@/services/core/ai.service';
 import { useToast } from '@/shared/hooks/use-toast';
 import { Input } from '@/shared/ui/input';

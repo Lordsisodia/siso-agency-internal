@@ -4,7 +4,7 @@ import { Card } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
 import { Home, Component, AlertCircle } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ProjectDirectoryCard } from '@/features/projects/ProjectDirectoryCard';
+import { ProjectDirectoryCard } from '@/ecosystem/internal/projects/ProjectDirectoryCard';
 // Modern Task System
 import { TasksProvider, ListView as ActiveTasksView } from '@/tasks';
 import { useProjects } from '@/ecosystem/internal/projects/hooks/useProjects';

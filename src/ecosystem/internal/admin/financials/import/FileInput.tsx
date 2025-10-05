@@ -43,7 +43,7 @@ export function FileInput({ onDataReady, isImporting }: FileInputProps) {
       };
       reader.readAsText(file);
     }
-  }, [processCSV]);
+  }, [onDataReady]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,

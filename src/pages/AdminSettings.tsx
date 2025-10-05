@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { AdminLayout } from '@/features/admin/layout/AdminLayout';
-import { AdminPageTitle } from '@/features/admin/layout/AdminPageTitle';
+import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
+import { AdminPageTitle } from '@/ecosystem/internal/admin/layout/AdminPageTitle';
 import { Settings } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/shared/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';

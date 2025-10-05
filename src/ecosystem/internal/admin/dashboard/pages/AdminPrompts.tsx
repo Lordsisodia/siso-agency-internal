@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/admin/layout/AdminLayout';
 import { AdminPageTitle } from '@/components/admin/layout/AdminPageTitle';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card';
@@ -70,7 +70,7 @@ export default function AdminPrompts() {
   });
 
   // Load prompts
-  const loadPrompts = useCallback(async () => {
+  const loadPrompts = async () => {
     setLoading(true);
     try {
       const { data, error } = await supabase
@@ -102,7 +102,7 @@ export default function AdminPrompts() {
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  };
 
   // Mark prompt as done/undone
   const togglePromptStatus = async (promptId: number, currentStatus: boolean) => {
@@ -225,7 +225,8 @@ export default function AdminPrompts() {
 
   useEffect(() => {
     loadPrompts();
-  }, [loadPrompts]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Load prompts once on mount
 
   return (
     <AdminLayout>

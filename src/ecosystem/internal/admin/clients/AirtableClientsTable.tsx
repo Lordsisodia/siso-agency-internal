@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useRef, useMemo, useState, useId, useCallback } from "react";
+import { useRef, useMemo, useState, useId } from "react";
 import {
   Table,
   TableBody,
@@ -754,7 +754,7 @@ export function AirtableClientsTable({
   const [sorting, setSorting] = useState<SortingState>([{ id: "full_name", desc: false }]);
 
   // Handle field updates
-  const handleUpdateField = useCallback(async (id: string, field: string, value: string) => {
+  const handleUpdateField = async (id: string, field: string, value: string) => {
     try {
       // TODO: Implement actual API call to update client
       console.log('Updating client:', { id, field, value });
@@ -773,7 +773,7 @@ export function AirtableClientsTable({
         variant: "destructive",
       });
     }
-  }, [toast, refetch]);
+  };
 
   // Handle adding new client
   const handleAddClient = async (clientData: Partial<ClientData>) => {

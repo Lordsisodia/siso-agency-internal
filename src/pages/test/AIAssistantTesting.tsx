@@ -6,11 +6,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
 import { AlertCircle, TestTube, Play, Settings } from 'lucide-react';
 
 // Import our enhanced components and utilities
-import { EnhancedAIAssistantTab } from '../../../ai-first/features/tasks/components/EnhancedAIAssistantTab';
-import { FeatureFlagTester } from '../../../ai-first/shared/components/FeatureFlagTester';
-import { APITester } from '../../../ai-first/shared/components/APITester';
-import { MorningRoutineTimer } from '../../../ai-first/shared/components/MorningRoutineTimer';
-import { AIAssistantFeatureFlags, getDefaultFeatureFlags } from '../../../ai-first/shared/utils/feature-flags';
+import { EnhancedAIAssistantTab } from '@/ecosystem/internal/tasks/components/EnhancedAIAssistantTab';
+import { FeatureFlagTester } from '@/test/utilities/FeatureFlagTester';
+import { APITester } from '@/test/utilities/APITester';
+import { MorningRoutineTimer } from '@/components/timers/MorningRoutineTimer';
+import { AIAssistantFeatureFlags, getDefaultFeatureFlags } from '@/shared/utils/feature-flags';
 
 /**
  * AI Assistant Testing Page

@@ -1,0 +1,34 @@
+{
+  "mcpServers": {
+    "supabase": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@supabase/mcp-server-supabase@latest",
+        "--project-ref=avdgyrepwrvsvwgxrccr"
+      ],
+      "env": {
+        "SUPABASE_ACCESS_TOKEN": "sbp_46f04e75f8bba39917efda341bbf260ac60d3c8d"
+      }
+    },
+    "neo4j-memory": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@smithery/cli@latest",
+        "run",
+        "@knowall-ai/mcp-neo4j-agent-memory"
+      ]
+    },
+    "memory-bank": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@aakarsh-sasi/memory-bank-mcp"
+      ],
+      "env": {
+        "MEMORY_BANK_PATH": "/Users/shaansisodia/DEV/SISO-ECOSYSTEM/SISO-INTERNAL/.claude/memory"
+      }
+    }
+  }
+}

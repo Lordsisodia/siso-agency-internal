@@ -13,14 +13,14 @@
  */
 
 import React from 'react';
-import { UnifiedTaskCard, TaskCardTask } from '@/features/tasks/components/UnifiedTaskCard';
+import { UnifiedTaskCard, TaskCardTask } from '@/ecosystem/internal/tasks/components/UnifiedTaskCard';
 import { 
   calculateTaskProgress, 
   getTaskTheme, 
   sortTasks, 
   filterTasks,
   taskBatchOperations 
-} from '@/features/tasks/utils/taskCardUtils';
+} from '@/ecosystem/internal/tasks/utils/taskCardUtils';
 import { isFeatureEnabled, useImplementation } from '@/migration/feature-flags';
 
 // ============================================================================

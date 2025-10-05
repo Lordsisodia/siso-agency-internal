@@ -3,7 +3,7 @@
  * Centralized constants for the task management system
  */
 
-import { TaskStatus, TaskPriority, TaskCategory, TaskViewType } from '../../../../features/tasks/types/task.types';
+import { TaskStatus, TaskPriority, TaskCategory, TaskViewType } from '@/ecosystem/internal/tasks/types/task.types';
 
 // Status configuration
 export const TASK_STATUS_CONFIG = {
@@ -74,17 +74,17 @@ export const TASK_STATUS_CONFIG = {
 
 // Priority configuration
 export const TASK_PRIORITY_CONFIG = {
-  ultra: {
-    label: 'Ultra',
+  [TaskPriority.CRITICAL]: {
+    label: 'Critical',
     color: 'red',
-    bgColor: 'bg-red-600',
+    bgColor: 'bg-red-500',
     textColor: 'text-white',
-    borderColor: 'border-red-600',
+    borderColor: 'border-red-500',
     icon: '🔥',
     order: 1,
     weight: 5
   },
-  high: {
+  [TaskPriority.HIGH]: {
     label: 'High',
     color: 'orange',
     bgColor: 'bg-orange-500',
@@ -94,7 +94,7 @@ export const TASK_PRIORITY_CONFIG = {
     order: 2,
     weight: 4
   },
-  medium: {
+  [TaskPriority.MEDIUM]: {
     label: 'Medium',
     color: 'yellow',
     bgColor: 'bg-yellow-500',
@@ -104,18 +104,18 @@ export const TASK_PRIORITY_CONFIG = {
     order: 3,
     weight: 3
   },
-  low: {
+  [TaskPriority.LOW]: {
     label: 'Low',
-    color: 'blue',
-    bgColor: 'bg-blue-500',
+    color: 'green',
+    bgColor: 'bg-green-500',
     textColor: 'text-white',
-    borderColor: 'border-blue-500',
+    borderColor: 'border-green-500',
     icon: '🟢',
     order: 4,
     weight: 2
   },
-  none: {
-    label: 'None',
+  [TaskPriority.BACKLOG]: {
+    label: 'Backlog',
     color: 'gray',
     bgColor: 'bg-gray-500',
     textColor: 'text-white',

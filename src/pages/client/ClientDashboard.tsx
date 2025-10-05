@@ -1,8 +1,8 @@
 
 import React from 'react';
 import { Helmet } from 'react-helmet';
-import { ClientDashboardContent } from '@/features/client/client/ClientDashboardContent';
-import { ClientDashboardLayout } from '@/features/client/client/ClientDashboardLayout';
+import { ClientDashboardContent } from '@/ecosystem/client/client/ClientDashboardContent';
+import { ClientDashboardLayout } from '@/ecosystem/client/client/ClientDashboardLayout';
 import { ProtectedRoute } from '@/shared/auth-supabase-backup/components/ProtectedRoute';
 
 /**

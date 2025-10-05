@@ -58,7 +58,7 @@ export const Sidebar = ({ onExpandedChange, onMobileMenuChange }: SidebarProps) 
     if (isMobile) {
       setIsMobileMenuOpen(false);
     }
-  }, [location.pathname, isMobile]);
+  }, [location.pathname]);
 
   const sidebarVariants = {
     expanded: {

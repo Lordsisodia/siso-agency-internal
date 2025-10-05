@@ -10,7 +10,7 @@ interface FileInputProps {
 }
 
 export function FileInput({ onDataReady, isImporting }: FileInputProps) {
-  const processCSV = useCallback((text: string) => {
+  const processCSV = (text: string) => {
     const lines = text.split('\n');
     const headers = lines[0].split(',').map(h => h.trim());
     
@@ -31,7 +31,7 @@ export function FileInput({ onDataReady, isImporting }: FileInputProps) {
       });
 
     onDataReady(expenses);
-  }, [onDataReady]);
+  };
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -43,7 +43,7 @@ export function FileInput({ onDataReady, isImporting }: FileInputProps) {
       };
       reader.readAsText(file);
     }
-  }, [processCSV]);
+  }, [onDataReady]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,

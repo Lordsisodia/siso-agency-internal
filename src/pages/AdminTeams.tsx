@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { AdminLayout } from '@/features/admin/layout/AdminLayout';
-import { AdminPageTitle } from '@/features/admin/layout/AdminPageTitle';
+import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
+import { AdminPageTitle } from '@/ecosystem/internal/admin/layout/AdminPageTitle';
 import { UsersIcon } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card';
@@ -9,10 +9,10 @@ import {
   Users, ListTodo, MessageCircle, BarChart3, Filter, 
   Settings, Download, Upload, HelpCircle, Plus
 } from 'lucide-react';
-import { TeamMembersSection } from '@/features/admin/teams/TeamMembersSection';
-import { TeamTasksSection } from '@/features/admin/teams/TeamTasksSection';
-import { TeamMessagingSection } from '@/features/admin/teams/TeamMessagingSection';
-import { TeamAnalyticsSection } from '@/features/admin/teams/TeamAnalyticsSection';
+import { TeamMembersSection } from '@/ecosystem/internal/admin/teams/TeamMembersSection';
+import { TeamTasksSection } from '@/ecosystem/internal/admin/teams/TeamTasksSection';
+import { TeamMessagingSection } from '@/ecosystem/internal/admin/teams/TeamMessagingSection';
+import { TeamAnalyticsSection } from '@/ecosystem/internal/admin/teams/TeamAnalyticsSection';
 import {
   DropdownMenu,
   DropdownMenuContent,

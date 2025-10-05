@@ -1,11 +1,11 @@
 import { useState, useCallback, useMemo } from 'react';
 import { Sheet, SheetContent } from "@/shared/ui/sheet";
 import { Sidebar } from '@/shared/Sidebar';
-import { AutomationDetails } from '@/features/automations/AutomationDetails';
-import { Automation, AutomationCategory } from '@/features/automations/types';
-import { AutomationSearch } from '@/features/automations/AutomationSearch';
-import { AutomationCategories } from '@/features/automations/AutomationCategories';
-import { AutomationGrid } from '@/features/automations/AutomationGrid';
+import { AutomationDetails } from '@/ecosystem/internal/automations/AutomationDetails';
+import { Automation, AutomationCategory } from '@/ecosystem/internal/automations/types';
+import { AutomationSearch } from '@/ecosystem/internal/automations/AutomationSearch';
+import { AutomationCategories } from '@/ecosystem/internal/automations/AutomationCategories';
+import { AutomationGrid } from '@/ecosystem/internal/automations/AutomationGrid';
 
 export default function Automations() {
   const [searchQuery, setSearchQuery] = useState('');

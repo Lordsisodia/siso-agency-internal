@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet';
-import { DashboardLayout } from '@/features/dashboard/layout/DashboardLayout';
-import { TimelineSection } from '@/features/projects/details/TimelineSection';
-import { TimelineHeader } from '@/features/projects/details/timeline/TimelineHeader';
+import { DashboardLayout } from '@/ecosystem/internal/admin/dashboard/layout/DashboardLayout';
+import { TimelineSection } from '@/ecosystem/internal/projects/details/TimelineSection';
+import { TimelineHeader } from '@/ecosystem/internal/projects/details/timeline/TimelineHeader';
 
 export default function TimelinePage() {
   return (

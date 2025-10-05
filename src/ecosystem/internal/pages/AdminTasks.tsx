@@ -1,6 +1,6 @@
 import React from 'react';
 import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
-import { TasksPage } from '@/features/tasks/pages/TasksPage';
+import { TasksPage } from '@/ecosystem/internal/tasks/pages/TasksPage';
 
 export default function AdminTasks() {
   return (

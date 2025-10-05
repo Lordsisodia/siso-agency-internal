@@ -10,7 +10,7 @@ import {
   Eye,
   EyeOff
 } from 'lucide-react';
-import { EnhancedTaskItem } from '@/features/admin/tasks/EnhancedTaskItem';
+import { EnhancedTaskItem } from '@/ecosystem/internal/admin/tasks/EnhancedTaskItem';
 
 // Types extracted from AdminTasks.tsx
 interface Subtask {

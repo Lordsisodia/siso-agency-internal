@@ -2,8 +2,8 @@
 import { useEffect, useState } from 'react';
 import { Sidebar } from '@/shared/Sidebar';
 import { SidebarProvider } from '@/shared/ui/sidebar';
-import { PointsExchange } from '@/features/client/crypto/PointsExchange';
-import { NFTGallery } from '@/features/client/crypto/NFTGallery';
+import { PointsExchange } from '@/ecosystem/client/crypto/PointsExchange';
+import { NFTGallery } from '@/ecosystem/client/crypto/NFTGallery';
 import { useToast } from '@/shared/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 

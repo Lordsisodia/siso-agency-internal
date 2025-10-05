@@ -108,7 +108,7 @@ export const DailyTrackerAIAssistant: React.FC<AIAssistantProps> = ({
       };
       setMessages([welcomeMessage]);
     }
-  }, [messages.length, voiceSupported]);
+  }, []);
 
   useEffect(() => {
     scrollToBottom();

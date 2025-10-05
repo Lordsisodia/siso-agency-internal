@@ -6,7 +6,7 @@
  */
 
 import React, { useEffect } from 'react';
-import { TabProps } from '../../ai-first/features/tasks/DayTabContainer';
+import { TabProps } from '../../types/DayTabContainer';
 import SisoLightWorkPlan from '@/components/ui/siso-light-work-plan';
 
 export const LightWorkTab: React.FC<TabProps> = ({

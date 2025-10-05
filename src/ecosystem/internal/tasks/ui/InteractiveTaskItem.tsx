@@ -12,7 +12,7 @@
  */
 
 import React from 'react';
-import { UnifiedTaskCard, TaskCardTask } from '@/features/tasks/components/UnifiedTaskCard';
+import { UnifiedTaskCard, TaskCardTask } from '@/ecosystem/internal/tasks/components/UnifiedTaskCard';
 import { useImplementation } from '@/migration/feature-flags';
 
 // LEGACY IMPORTS (kept for fallback)

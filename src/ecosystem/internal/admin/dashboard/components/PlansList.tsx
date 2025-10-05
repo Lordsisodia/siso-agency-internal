@@ -56,6 +56,10 @@ export const PlansList = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  useEffect(() => {
+    fetchPlans();
+  }, [fetchPlans]);
+
   const fetchPlans = useCallback(async () => {
     try {
       setLoading(true);
@@ -89,10 +93,6 @@ export const PlansList = () => {
       setLoading(false);
     }
   }, [toast]);
-
-  useEffect(() => {
-    fetchPlans();
-  }, [fetchPlans]);
 
   const handleCreatePlan = () => {
     navigate('/admin/plans/create');

@@ -12,12 +12,12 @@ import { Skeleton } from '@/shared/ui/skeleton';
 import { AlertCircle, RefreshCw, Inbox, Plus } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
 import { useTasks, useTasksView, useTasksSelection } from '../../../../stores/tasks/taskProviderCompat';
-import { TaskViewType } from '../../../../features/tasks/types/task.types';
+import { TaskViewType } from '@/ecosystem/internal/tasks/types/task.types';
 
 // Lazy load view components for better performance
-const ListView = React.lazy(() => import('../views/ListView'));
-const KanbanView = React.lazy(() => import('../views/KanbanView'));
-const CalendarView = React.lazy(() => import('../views/CalendarView'));
+const ListView = React.lazy(() => import('./ListView'));
+const KanbanView = React.lazy(() => import('./KanbanView'));
+const CalendarView = React.lazy(() => import('./CalendarView'));
 
 interface TasksContentProps {
   className?: string;

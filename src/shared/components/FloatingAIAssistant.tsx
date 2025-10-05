@@ -4,8 +4,8 @@ import { MessageSquare, X, ArrowLeft, Sparkles, Mic } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
 import { Badge } from '@/shared/ui/badge';
 import { SisoIcon } from '@/shared/ui/icons/SisoIcon';
-import { EnhancedAIAssistantTab } from '../../ai-first/features/tasks/components/EnhancedAIAssistantTab';
-import { AIAssistantFeatureFlags, getDefaultFeatureFlags } from '../../ai-first/shared/utils/feature-flags';
+import { EnhancedAIAssistantTab } from '@/ecosystem/internal/tasks/components/EnhancedAIAssistantTab';
+import { AIAssistantFeatureFlags, getDefaultFeatureFlags } from '@/shared/utils/feature-flags';
 
 interface FloatingAIAssistantProps {
   /** Current page context for contextual AI responses */

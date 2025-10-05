@@ -2,7 +2,11 @@ import React from 'react';
 import { CheckCircle2, Circle, Plus } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
 
-export const PriorityTasksSection: React.FC = () => {
+interface PriorityTasksSectionProps {
+  // Add props as needed for priority tasks functionality
+}
+
+export const PriorityTasksSection: React.FC<PriorityTasksSectionProps> = () => {
   return (
     <section className="relative">
       <div className="absolute inset-0 bg-gradient-to-r from-red-500/5 to-pink-500/5 rounded-2xl blur-sm"></div>

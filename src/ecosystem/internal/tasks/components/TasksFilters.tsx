@@ -46,12 +46,12 @@ import {
   TaskPriority, 
   TaskCategory, 
   TaskFilters 
-} from '../../../../features/tasks/types/task.types';
+} from '@/ecosystem/internal/tasks/types/task.types';
 import { 
   TASK_STATUS_CONFIG, 
   TASK_PRIORITY_CONFIG, 
   TASK_CATEGORY_CONFIG 
-} from '../../constants/taskConstants';
+} from '@/ecosystem/internal/tasks/constants/taskConstants';
 
 interface TasksFiltersProps {
   className?: string;

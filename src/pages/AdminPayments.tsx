@@ -1,21 +1,21 @@
 import { useState, useEffect } from "react";
-import { AdminLayout } from "@/features/admin/layout/AdminLayout";
-import { FinancialsHeader } from "@/features/admin/financials/FinancialsHeader";
-import { FinancialsDashboard } from "@/features/admin/financials/FinancialsDashboard";
-import { ExpensesTable } from "@/features/admin/financials/ExpensesTable";
-import { RevenueTable } from "@/features/admin/financials/RevenueTable";
-import { FinancialPipeline } from "@/features/admin/financials/FinancialPipeline";
+import { AdminLayout } from "@/ecosystem/internal/admin/layout/AdminLayout";
+import { FinancialsHeader } from "@/ecosystem/internal/admin/financials/FinancialsHeader";
+import { FinancialsDashboard } from "@/ecosystem/internal/admin/financials/FinancialsDashboard";
+import { ExpensesTable } from "@/ecosystem/internal/admin/financials/ExpensesTable";
+import { RevenueTable } from "@/ecosystem/internal/admin/financials/RevenueTable";
+import { FinancialPipeline } from "@/ecosystem/internal/admin/financials/FinancialPipeline";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 import { fetchTransactions, FinancialTransaction } from "@/shared/utils/financial";
 import { Button } from "@/shared/ui/button";
 import { seedInitialExpenses } from "@/shared/utils/financial/seedExpenses";
 import { toast } from "@/shared/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ImportExpensesButton } from "@/features/admin/financials/expense/ImportExpensesButton";
+import { ImportExpensesButton } from "@/ecosystem/internal/admin/financials/expense/ImportExpensesButton";
 import { Import, AlertCircle, Wallet } from "lucide-react";
 import { seedExpensesFromList } from "@/shared/utils/financial/bulkExpenseSeeder";
 import { Card } from "@/shared/ui/card";
-import { AdminPageTitle } from "@/features/admin/layout/AdminPageTitle";
+import { AdminPageTitle } from "@/ecosystem/internal/admin/layout/AdminPageTitle";
 import { Users } from "lucide-react";
 
 export default function AdminPayments() {

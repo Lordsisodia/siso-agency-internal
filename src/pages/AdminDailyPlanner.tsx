@@ -1,10 +1,10 @@
 import React from 'react';
-import { AdminLayout } from '@/features/admin/layout/AdminLayout';
-import { DailyPlannerHeader } from '@/features/admin/daily-planner/DailyPlannerHeader';
-import { DailyPlannerTabs } from '@/features/admin/daily-planner/DailyPlannerTabs';
+import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
+import { DailyPlannerHeader } from '@/ecosystem/internal/admin/daily-planner/DailyPlannerHeader';
+import { DailyPlannerTabs } from '@/ecosystem/internal/admin/daily-planner/DailyPlannerTabs';
 import { useAuthSession } from '@/shared/hooks/useAuthSession';
 import { useToast } from '@/shared/ui/use-toast';
-import { AdminPageTitle } from '@/features/admin/layout/AdminPageTitle';
+import { AdminPageTitle } from '@/ecosystem/internal/admin/layout/AdminPageTitle';
 import { CalendarClock } from 'lucide-react';
 
 export default function AdminDailyPlanner() {

@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
-import { AdminLayout } from '@/features/admin/layout/AdminLayout';
-import { WireframeAdmin } from '@/features/admin/projects/WireframeAdmin';
+import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
+import { WireframeAdmin } from '@/ecosystem/internal/admin/projects/WireframeAdmin';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card';
 
 export default function AdminWireframes() {

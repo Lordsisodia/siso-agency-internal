@@ -86,7 +86,7 @@ export const ENHANCED_TAB_CONFIG: Record<TabId, EnhancedTabConfig> = {
   'morning': {
     ...TAB_CONFIG['morning'],
     layoutType: 'standard',
-    backgroundClass: 'h-full bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24',
+    backgroundClass: 'min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24',
     showDateNav: true,
     components: [MorningRoutineSection],
   },
@@ -98,7 +98,7 @@ export const ENHANCED_TAB_CONFIG: Record<TabId, EnhancedTabConfig> = {
     color: TAB_CONFIG['work'].color,
     description: 'Deep focus work and light tasks',
     layoutType: 'standard',
-    backgroundClass: 'h-full bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24',
+    backgroundClass: 'min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24',
     showDateNav: true,
     components: [DeepFocusWorkSection, EnhancedLightWorkManager],
     additionalContent: QuickActionsSection,
@@ -111,7 +111,7 @@ export const ENHANCED_TAB_CONFIG: Record<TabId, EnhancedTabConfig> = {
     color: TAB_CONFIG['light-work'].color,
     description: 'Light focus work tasks',
     layoutType: 'standard',
-    backgroundClass: 'h-full bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24',
+    backgroundClass: 'min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24',
     showDateNav: true,
     components: [SisoDeepFocusPlan],
     componentProps: { taskType: 'light-work' },
@@ -120,7 +120,7 @@ export const ENHANCED_TAB_CONFIG: Record<TabId, EnhancedTabConfig> = {
   'light-work': {
     ...TAB_CONFIG['light-work'],
     layoutType: 'standard',
-    backgroundClass: 'h-full bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24',
+    backgroundClass: 'min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24',
     showDateNav: true,
     components: [SisoDeepFocusPlan],
     componentProps: { taskType: 'light-work' },
@@ -129,7 +129,7 @@ export const ENHANCED_TAB_CONFIG: Record<TabId, EnhancedTabConfig> = {
   'work': {
     ...TAB_CONFIG['work'],
     layoutType: 'standard',
-    backgroundClass: 'h-full bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24',
+    backgroundClass: 'min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24',
     showDateNav: true,
     components: [SisoDeepFocusPlan],
     componentProps: { taskType: 'deep-work' },
@@ -138,7 +138,7 @@ export const ENHANCED_TAB_CONFIG: Record<TabId, EnhancedTabConfig> = {
   'wellness': {
     ...TAB_CONFIG['wellness'],
     layoutType: 'standard',
-    backgroundClass: 'h-full bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24',
+    backgroundClass: 'min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24',
     showDateNav: true,
     components: [HomeWorkoutSection, HealthNonNegotiablesSection],
   },
@@ -146,7 +146,7 @@ export const ENHANCED_TAB_CONFIG: Record<TabId, EnhancedTabConfig> = {
   'timebox': {
     ...TAB_CONFIG['timebox'],
     layoutType: 'standard',
-    backgroundClass: 'h-full bg-gradient-to-br from-black via-gray-900 to-black',
+    backgroundClass: 'min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24',
     showDateNav: true,
     components: [TimeboxSection],
   },
@@ -154,7 +154,7 @@ export const ENHANCED_TAB_CONFIG: Record<TabId, EnhancedTabConfig> = {
   'checkout': {
     ...TAB_CONFIG['checkout'],
     layoutType: 'standard',
-    backgroundClass: 'h-full bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24',
+    backgroundClass: 'min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24',
     showDateNav: true,
     components: [NightlyCheckoutSection],
   },

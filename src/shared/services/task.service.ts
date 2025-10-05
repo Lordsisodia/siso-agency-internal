@@ -115,7 +115,7 @@ import { format, isSameDay, isAfter, isBefore, subDays, parseISO, addMinutes, di
 export const AI_INTERFACE = {
   purpose: "Unified task management - consolidated from 16 services",
   replaces: ["personalTaskService.ts","hybridTaskService.ts","realPrismaTaskService.ts","prismaTaskService.ts","neonTaskService.ts","clerkHybridTaskService.ts","personalTaskCloudService.ts","enhancedTaskService.ts","aiTaskAgent.ts","TaskManagementAgent.ts","ProjectBasedTaskAgent.ts","grokTaskService.ts","todayTasksService.ts","lifeLockService.ts","enhancedTimeBlockService.ts","eisenhowerMatrixOrganizer.ts"],
-  dependencies: ["@/shared/services/data.service", "@/shared/services/ai.service"],
+  dependencies: ["@/ai-first/core/data.service", "@/ai-first/core/ai.service"],
   exports: {
     functions: [],
     classes: ["PersonalTaskService","HybridTaskService","HybridUsageTracker","RealPrismaTaskService","PrismaTaskService","NeonTaskService","ClerkHybridTaskService","PersonalTaskCloudService","EnhancedTaskService","AITaskAgent","TaskManagementAgent","ProjectBasedTaskAgent","GrokTaskService","TodayTasksService","LifeLockService","EnhancedTimeBlockService","EisenhowerMatrixOrganizer"],

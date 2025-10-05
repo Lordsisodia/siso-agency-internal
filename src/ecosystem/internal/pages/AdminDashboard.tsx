@@ -3,7 +3,7 @@ import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
 import { StatsOverview } from '@/ecosystem/internal/admin/dashboard/components/StatsOverview';
 import { QuickActions } from '@/ecosystem/internal/admin/dashboard/ui/QuickActions';
 import { ClientsList } from '@/ecosystem/internal/admin/dashboard/components/ClientsList';
-import { AdminTasks } from '@/ecosystem/internal/admin/dashboard/components/AdminTasks';
+import { AdminTasks } from '@/ecosystem/internal/admin/dashboard/AdminTasks';
 import { AdminStats } from '@/ecosystem/internal/admin/dashboard/components/AdminStats';
 import { useAdminCheck } from '@/ecosystem/internal/admin/hooks/useAdminCheck';
 import { Loader2, Users, Target } from 'lucide-react';

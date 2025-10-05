@@ -143,7 +143,7 @@ export const DayTabContainer: React.FC<TabProps> = (props) => {
       newParams.set('date', format(props.selectedDate, 'yyyy-MM-dd'));
     }
     setSearchParams(newParams);
-  }, [activeTabId, props.selectedDate, setSearchParams, searchParams]);
+  }, [activeTabId, props.selectedDate, searchParams, setSearchParams]);
 
   // Day navigation
   const navigateDay = (direction: 'prev' | 'next') => {
@@ -306,7 +306,7 @@ export const DayTabContainer: React.FC<TabProps> = (props) => {
                 x: { type: "spring", stiffness: 300, damping: 30 },
                 opacity: { duration: 0.2 },
               }}
-              className="absolute inset-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent"
+              className="absolute inset-0 overflow-y-auto"
             >
               <ActiveTabComponent {...props} />
             </motion.div>

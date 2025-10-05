@@ -30,8 +30,8 @@ import {
 } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
 import { useTasks, useTasksFilters } from '../../../../stores/tasks/taskProviderCompat';
-import { TaskStatus, TaskPriority, TaskCategory } from '../../../../features/tasks/types/task.types';
-import { TASK_STATUS_CONFIG, TASK_PRIORITY_CONFIG, TASK_CATEGORY_CONFIG } from '../../constants/taskConstants';
+import { TaskStatus, TaskPriority, TaskCategory } from '@/ecosystem/internal/tasks/types/task.types';
+import { TASK_STATUS_CONFIG, TASK_PRIORITY_CONFIG, TASK_CATEGORY_CONFIG } from '@/ecosystem/internal/tasks/constants/taskConstants';
 
 interface TasksSidebarProps {
   className?: string;

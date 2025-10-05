@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
-import { WelcomeLoader } from '@/features/planning/components/WelcomeLoader';
+import { WelcomeLoader } from '@/ecosystem/internal/planning/components/WelcomeLoader';
 
 const DecoraPlan = () => {
   const navigate = useNavigate();

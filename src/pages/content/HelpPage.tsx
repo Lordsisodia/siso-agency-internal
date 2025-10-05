@@ -1,6 +1,6 @@
 
 import { MainLayout } from '@/shared/layout/MainLayout';
-import { DashboardHelpCenter } from '@/features/dashboard/DashboardHelpCenter';
+import { DashboardHelpCenter } from '@/ecosystem/internal/dashboard/DashboardHelpCenter';
 
 export default function HelpPage() {
   return (

@@ -49,8 +49,8 @@ import {
 } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
 import { useTasksStats, useTaskSelection, useCurrentFilters, useCurrentView, useFilterActions, useViewActions, useTasksStatus } from '../../../../stores/tasks/optimizedTaskHooks';
-import { TaskViewType, TaskStatus, TaskPriority, TaskCategory } from '../../../../features/tasks/types/task.types';
-import { TASK_STATUS_CONFIG, TASK_PRIORITY_CONFIG, TASK_CATEGORY_CONFIG } from '../../constants/taskConstants';
+import { TaskViewType, TaskStatus, TaskPriority, TaskCategory } from '@/ecosystem/internal/tasks/types/task.types';
+import { TASK_STATUS_CONFIG, TASK_PRIORITY_CONFIG, TASK_CATEGORY_CONFIG } from '@/ecosystem/internal/tasks/constants/taskConstants';
 
 interface TasksHeaderProps {
   className?: string;

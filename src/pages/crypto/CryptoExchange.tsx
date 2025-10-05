@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { ArrowRightLeft, Loader2, Wifi, Database, History, Filter } from 'lucide-react';
 import { AppLayout } from '@/shared/layout/AppLayout';
-import { PointsExchange } from "@/features/client/crypto/PointsExchange";
-import { NFTGallery } from "@/features/client/crypto/NFTGallery";
-import { WelcomeNFTStatus } from "@/features/client/crypto/WelcomeNFTStatus";
+import { PointsExchange } from "@/ecosystem/client/crypto/PointsExchange";
+import { NFTGallery } from "@/ecosystem/client/crypto/NFTGallery";
+import { WelcomeNFTStatus } from "@/ecosystem/client/crypto/WelcomeNFTStatus";
 import { useToast } from '@/shared/hooks/use-toast';
 import { Sidebar } from '@/shared/Sidebar';
 import { FloatingOrbs } from '@/shared/effects/FloatingOrbs';

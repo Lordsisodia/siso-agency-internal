@@ -6,7 +6,7 @@ import { Card } from '@/shared/ui/card';
 import { Checkbox } from '@/shared/ui/checkbox';
 import { Calendar, Clock, User, AlertTriangle, AlertCircle, Circle } from 'lucide-react';
 import { format } from 'date-fns';
-import { Task } from '@/ecosystem/internal/tasks/hooks/useTasks';
+import { Task } from '@/shared/hooks/useTasks';
 
 interface TaskItemProps {
   task: Task;

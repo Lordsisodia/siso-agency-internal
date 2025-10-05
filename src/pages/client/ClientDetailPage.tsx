@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useClientDetails } from '@/shared/hooks/client';
-import { AdminLayout } from '@/features/admin/layout/AdminLayout';
-import { ClientDetailHeader } from '@/features/admin/clients/detail/ClientDetailHeader';
-import { ClientProjectOverview } from '@/features/admin/clients/detail/ClientProjectOverview';
-import { ClientProjectTimeline } from '@/features/admin/clients/detail/ClientProjectTimeline';
-import { ClientInteractionLog } from '@/features/admin/clients/detail/ClientInteractionLog';
-import { ClientTasksList } from '@/features/admin/clients/detail/ClientTasksList';
-import { ClientFinancialSummary } from '@/features/admin/clients/detail/ClientFinancialSummary';
-import { ClientTeamAssignments } from '@/features/admin/clients/detail/ClientTeamAssignments';
-import { ClientRelatedDocuments } from '@/features/admin/clients/detail/ClientRelatedDocuments';
+import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
+import { ClientDetailHeader } from '@/ecosystem/internal/admin/clients/detail/ClientDetailHeader';
+import { ClientProjectOverview } from '@/ecosystem/internal/admin/clients/detail/ClientProjectOverview';
+import { ClientProjectTimeline } from '@/ecosystem/internal/admin/clients/detail/ClientProjectTimeline';
+import { ClientInteractionLog } from '@/ecosystem/internal/admin/clients/detail/ClientInteractionLog';
+import { ClientTasksList } from '@/ecosystem/internal/admin/clients/detail/ClientTasksList';
+import { ClientFinancialSummary } from '@/ecosystem/internal/admin/clients/detail/ClientFinancialSummary';
+import { ClientTeamAssignments } from '@/ecosystem/internal/admin/clients/detail/ClientTeamAssignments';
+import { ClientRelatedDocuments } from '@/ecosystem/internal/admin/clients/detail/ClientRelatedDocuments';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
 import { Card, CardContent } from '@/shared/ui/card';
 import { Skeleton } from '@/shared/ui/skeleton';
@@ -22,7 +22,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/shared/ui/breadcrumb";
-import { ClientDocuments } from '@/features/admin/clients/detail/ClientDocuments';
+import { ClientDocuments } from '@/ecosystem/internal/admin/clients/detail/ClientDocuments';
 import { Timeline } from '@/shared/ui/timeline';
 
 export default function ClientDetailPage() {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select';
-import { TASK_PRIORITY_CONFIG } from '../constants/taskConstants';
+import { TASK_PRIORITY_CONFIG } from '@/ecosystem/internal/tasks/constants/taskConstants';
 
 export type PriorityLevel = keyof typeof TASK_PRIORITY_CONFIG;
 

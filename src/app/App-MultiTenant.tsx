@@ -11,9 +11,9 @@ import { PageLoader } from '@/shared/ui/PageLoader';
 import { logger } from '@/shared/utils/logger';
 
 // 🆕 NEW: Multi-tenant components - ADDITIVE ONLY
-import { LandingPageRouter } from '@/features/multi-tenant/shared/LandingPageRouter';
-import { ClientPortal } from '@/features/multi-tenant/client/ClientPortal';
-import { PartnershipPortal } from '@/features/multi-tenant/partnership/PartnershipPortal';
+import { LandingPageRouter } from '@/ecosystem/internal/admin/routing/LandingPageRouter';
+import { ClientPortal } from '@/ecosystem/client/ClientPortal';
+import { PartnershipPortal } from '@/ecosystem/partnership/PartnershipPortal';
 
 // ✅ EXISTING: All your current imports - UNCHANGED
 // Critical pages loaded immediately (landing, auth, home)
@@ -114,8 +114,8 @@ const PartnerRegister = lazy(() => import('./pages/auth/PartnerRegister'));
 const PartnerPasswordReset = lazy(() => import('./pages/auth/PartnerPasswordReset'));
 const PartnerDashboard = lazy(() => import('./pages/dashboard/PartnerDashboard'));
 const PartnerAuthGuard = lazy(() => import('@/shared/auth/PartnerAuthGuard').then(m => ({ default: m.PartnerAuthGuard })));
-const PartnerLeaderboard = lazy(() => import('@/features/admin/dashboard/components/PartnerLeaderboard').then(m => ({ default: m.PartnerLeaderboard })));
-const ComingSoonSection = lazy(() => import('@/features/admin/dashboard/components/ComingSoonSection').then(m => ({ default: m.ComingSoonSection })));
+const PartnerLeaderboard = lazy(() => import('@/ecosystem/internal/admin/dashboard/components/PartnerLeaderboard').then(m => ({ default: m.PartnerLeaderboard })));
+const ComingSoonSection = lazy(() => import('@/ecosystem/internal/admin/dashboard/components/ComingSoonSection').then(m => ({ default: m.ComingSoonSection })));
 const EducationHub = lazy(() => import('./pages/dashboard/EducationHub'));
 const TrainingHub = lazy(() => import('./pages/dashboard/TrainingHub'));
 const ReferralsManagement = lazy(() => import('./pages/dashboard/ReferralsManagement'));

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { MainLayout } from '@/shared/layout/MainLayout';
-import { AppPlanGenerator } from '@/features/app-plan/AppPlanGenerator';
-import { BusinessDataForm, BusinessDataInput } from '@/features/app-plan/BusinessDataForm';
-import { AppPlanFeaturesOutput } from '@/features/app-plan/AppPlanFeaturesOutput';
+import { AppPlanGenerator } from '@/ecosystem/internal/app-plan/AppPlanGenerator';
+import { BusinessDataForm, BusinessDataInput } from '@/ecosystem/internal/app-plan/BusinessDataForm';
+import { AppPlanFeaturesOutput } from '@/ecosystem/internal/app-plan/AppPlanFeaturesOutput';
 import { Button } from '@/shared/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
 import { ArrowLeft, Wand2, FileText, FlaskConical, Search, BarChart3, MessageSquare, ExternalLink, Clock, DollarSign, CheckCircle } from 'lucide-react';

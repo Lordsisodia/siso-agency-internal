@@ -1,6 +1,6 @@
 import React from 'react';
-import { AdminLayout } from '@/features/admin/layout/AdminLayout';
-import { ClaudiaMain } from '@/features/claudia/components/ClaudiaMain';
+import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
+import { ClaudiaMain } from '@/ecosystem/internal/claudia/components/ClaudiaMain';
 
 export default function DevTools() {
   return (

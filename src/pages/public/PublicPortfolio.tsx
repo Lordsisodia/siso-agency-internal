@@ -4,9 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
 import { GridBackground } from "@/shared/ui/glowing-card";
 import { usePortfolioData } from '@/ecosystem/internal/projects/hooks/usePortfolioData';
-import { adaptPortfolioToLeaderboard } from '@/features/portfolio/PortfolioLeaderboardAdapter';
-import { PortfolioLeaderboardTable } from '@/features/portfolio/PortfolioLeaderboardTable';
-import { ProjectDetailsModal } from '@/features/portfolio/ProjectDetailsModal';
+import { adaptPortfolioToLeaderboard } from '@/ecosystem/client/portfolio/PortfolioLeaderboardAdapter';
+import { PortfolioLeaderboardTable } from '@/ecosystem/client/portfolio/PortfolioLeaderboardTable';
+import { ProjectDetailsModal } from '@/ecosystem/client/portfolio/ProjectDetailsModal';
 import CountUp from 'react-countup';
 
 export default function PublicPortfolio() {

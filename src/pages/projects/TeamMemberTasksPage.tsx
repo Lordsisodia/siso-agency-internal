@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { AdminLayout } from '@/features/admin/layout/AdminLayout';
+import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
 import { useParams } from 'react-router-dom';
 // Modern Task System  
 import { TasksProvider, ListView as TimelineTaskView } from '@/tasks';

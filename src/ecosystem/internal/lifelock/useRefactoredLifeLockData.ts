@@ -13,10 +13,10 @@
  */
 
 import { useMemo } from 'react';
-import { useTaskData, TaskCard } from '@/features/tasks/hooks/useTaskData';
-import { useTaskActions } from '@/features/tasks/hooks/useTaskActions';
+import { useTaskData, TaskCard } from '@/ecosystem/internal/tasks/hooks/useTaskData';
+import { useTaskActions } from '@/ecosystem/internal/tasks/hooks/useTaskActions';
 import { useVoiceProcessing } from '@/hooks/useVoiceProcessing';
-import { useTaskOrganization } from '@/features/tasks/hooks/useTaskOrganization';
+import { useTaskOrganization } from '@/ecosystem/internal/tasks/hooks/useTaskOrganization';
 import { useServiceInitialization } from '@/hooks/useServiceInitialization';
 
 // Re-export types for compatibility

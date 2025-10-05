@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/shared/ui/tabs';
-import { useTasks } from '@/ecosystem/internal/tasks/hooks/useTasks';
+import { useTasks } from '@/shared/hooks/useTasks';
 import { 
   BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, 
   Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell
