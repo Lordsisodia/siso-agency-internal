@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card } from '@/shared/ui/card';
-import { CircularProgress } from './CircularProgress';
+import { CircularProgress } from '@/ecosystem/internal/projects/details/CircularProgress';
 import { motion } from 'framer-motion';
 import { Calendar, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import { formatDate } from '@/shared/lib/formatters';

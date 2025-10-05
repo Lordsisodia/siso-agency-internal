@@ -1,37 +1,7 @@
-
-import { TabsContent } from '@/shared/ui/tabs';
-import { Textarea } from '@/shared/ui/textarea';
-
-interface TaskDescriptionTabProps {
-  description: string;
-  isEditing: boolean;
-  onDescriptionChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
-}
-
-export function TaskDescriptionTab({
-  description,
-  isEditing,
-  onDescriptionChange
-}: TaskDescriptionTabProps) {
-  return (
-    <TabsContent value="description" className="pb-6 focus-visible:outline-none focus-visible:ring-0">
-      <div className="space-y-4">
-        {isEditing ? (
-          <Textarea 
-            name="description"
-            placeholder="Add a more detailed description..."
-            className="min-h-[200px] bg-black/20"
-            value={description}
-            onChange={onDescriptionChange}
-          />
-        ) : (
-          <div className="min-h-[200px] bg-black/10 rounded-md p-4">
-            {description || (
-              <p className="text-gray-500 italic">No description provided.</p>
-            )}
-          </div>
-        )}
-      </div>
-    </TabsContent>
-  );
-}
+// 🔄 DUPLICATE REDIRECT
+// This file is an exact duplicate (MD5: 2ce05d79a2687a10)
+// Canonical: src/ecosystem/internal/tasks/components/TaskDescriptionTab.tsx
+// Phase: Duplicate cleanup batch
+// Date: 2025-10-05
+export * from '@/ecosystem/internal/tasks/components/TaskDescriptionTab';
+export { default } from '@/ecosystem/internal/tasks/components/TaskDescriptionTab';

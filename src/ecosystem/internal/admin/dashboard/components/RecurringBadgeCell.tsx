@@ -1,23 +1,7 @@
-
-import { Badge } from "@/shared/ui/badge";
-import { cn } from "@/shared/lib/utils";
-
-interface RecurringBadgeCellProps {
-  value: string | null;
-}
-
-export function RecurringBadgeCell({ value }: RecurringBadgeCellProps) {
-  const getBadgeColor = (type: string | null) => {
-    switch (type) {
-      case 'monthly': return 'bg-green-900/30 text-green-300 border-green-800/50';
-      case 'annual': return 'bg-purple-900/30 text-purple-300 border-purple-800/50';
-      default: return 'bg-amber-900/30 text-amber-300 border-amber-800/50';
-    }
-  };
-
-  return (
-    <Badge className={cn("font-medium px-2", getBadgeColor(value))}>
-      {value === 'monthly' ? 'Monthly' : value === 'annual' ? 'Annual' : 'One-Time'}
-    </Badge>
-  );
-}
+// 🔄 DUPLICATE REDIRECT
+// This file is an exact duplicate (MD5: 57249424512d7a31)
+// Canonical: src/ecosystem/internal/admin/financials/expense/RecurringBadgeCell.tsx
+// Phase: Duplicate cleanup batch
+// Date: 2025-10-05
+export * from '@/ecosystem/internal/admin/financials/expense/RecurringBadgeCell';
+export { default } from '@/ecosystem/internal/admin/financials/expense/RecurringBadgeCell';

@@ -41,20 +41,24 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
     tomorrowFocus: ''
   });
 
+  // Helper function to update checkout data and mark as edited
+  const updateCheckout = (updates: Partial<typeof nightlyCheckout>) => {
+    setNightlyCheckout(prev => ({ ...prev, ...updates }));
+    setHasUserEdited(true);
+  };
+
   // Helper functions for dynamic array management
   const addWentWellItem = () => {
-    setNightlyCheckout(prev => ({
-      ...prev,
-      wentWell: [...prev.wentWell, '']
-    }));
+    updateCheckout({
+      wentWell: [...nightlyCheckout.wentWell, '']
+    });
   };
 
   const removeWentWellItem = (index: number) => {
     if (nightlyCheckout.wentWell.length > 1) {
-      setNightlyCheckout(prev => ({
-        ...prev,
-        wentWell: prev.wentWell.filter((_, i) => i !== index)
-      }));
+      updateCheckout({
+        wentWell: nightlyCheckout.wentWell.filter((_, i) => i !== index)
+      });
     }
   };
 
@@ -75,15 +79,19 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
   }, [reflection]);
 
   // Save to Supabase with debouncing
+  const [hasUserEdited, setHasUserEdited] = useState(false);
+  
   useEffect(() => {
-    if (!userId || isLoading) return;
+    if (!userId || isLoading || !hasUserEdited) return;
     
     const saveTimer = setTimeout(async () => {
       await saveReflection(nightlyCheckout);
+      setHasUserEdited(false); // Reset after save
     }, 1000); // Debounce for 1 second
 
     return () => clearTimeout(saveTimer);
-  }, [nightlyCheckout, userId, isLoading, saveReflection]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nightlyCheckout, userId, isLoading, hasUserEdited]);
 
   // Get current time in 12-hour format
   const getCurrentTime = () => {
@@ -161,7 +169,7 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
   // Apply voice analysis results
   const applyVoiceAnalysis = () => {
     if (voiceAnalysisResult) {
-      setNightlyCheckout(prev => ({
+      updateCheckout({
         wentWell: [
           ...voiceAnalysisResult.wentWell,
           ...Array(Math.max(0, 3 - voiceAnalysisResult.wentWell.length)).fill('')
@@ -182,7 +190,7 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
           ...voiceAnalysisResult.changes,
           ...Array(Math.max(0, 3 - voiceAnalysisResult.changes.length)).fill('')
         ].slice(0, 3)
-      }));
+      });
       setShowVoicePreview(false);
       setVoiceAnalysisResult(null);
     }
@@ -430,7 +438,7 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
                       onChange={(e) => {
                         const newArray = [...nightlyCheckout.wentWell];
                         newArray[index] = e.target.value;
-                        setNightlyCheckout(prev => ({ ...prev, wentWell: newArray }));
+                        updateCheckout({ wentWell: newArray });
                       }}
                       className="bg-purple-900/20 border-purple-700/30 text-white placeholder:text-purple-200/50 focus:border-purple-400 focus:ring-purple-400/20 rounded-lg flex-1"
                       placeholder="Something positive that happened today..."
@@ -465,7 +473,7 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
                     onChange={(e) => {
                       const newArray = [...nightlyCheckout.evenBetterIf];
                       newArray[index] = e.target.value;
-                      setNightlyCheckout(prev => ({ ...prev, evenBetterIf: newArray }));
+                      updateCheckout({ evenBetterIf: newArray });
                     }}
                     className="bg-purple-900/20 border-purple-700/30 text-white placeholder:text-purple-200/50 focus:border-purple-400 focus:ring-purple-400/20 rounded-lg"
                     placeholder="Something that could have been improved..."
@@ -492,7 +500,7 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
                         onChange={(e) => {
                           const newArray = [...nightlyCheckout.analysis];
                           newArray[index] = e.target.value;
-                          setNightlyCheckout(prev => ({ ...prev, analysis: newArray }));
+                          updateCheckout({ analysis: newArray });
                         }}
                         className="bg-purple-900/20 border-purple-700/30 text-white placeholder:text-purple-200/50 focus:border-purple-400 focus:ring-purple-400/20 rounded-lg min-h-[80px]"
                         placeholder="Analyze your day and areas for improvement..."
@@ -511,7 +519,7 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
                         onChange={(e) => {
                           const newArray = [...nightlyCheckout.patterns];
                           newArray[index] = e.target.value;
-                          setNightlyCheckout(prev => ({ ...prev, patterns: newArray }));
+                          updateCheckout({ patterns: newArray });
                         }}
                         className="bg-purple-900/20 border-purple-700/30 text-white placeholder:text-purple-200/50 focus:border-purple-400 focus:ring-purple-400/20 rounded-lg min-h-[80px]"
                         placeholder="Identify recurring patterns or behaviors..."
@@ -530,7 +538,7 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
                         onChange={(e) => {
                           const newArray = [...nightlyCheckout.changes];
                           newArray[index] = e.target.value;
-                          setNightlyCheckout(prev => ({ ...prev, changes: newArray }));
+                          updateCheckout({ changes: newArray });
                         }}
                         className="bg-purple-900/20 border-purple-700/30 text-white placeholder:text-purple-200/50 focus:border-purple-400 focus:ring-purple-400/20 rounded-lg min-h-[80px]"
                         placeholder="What changes will you make to improve..."
@@ -556,7 +564,7 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
                     {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((rating) => (
                       <button
                         key={rating}
-                        onClick={() => setNightlyCheckout(prev => ({ ...prev, overallRating: rating }))}
+                        onClick={() => updateCheckout({ overallRating: rating })}
                         className={`w-10 h-10 rounded-full border-2 text-sm font-medium transition-all ${
                           nightlyCheckout.overallRating === rating
                             ? 'bg-purple-600 border-purple-400 text-white'
@@ -573,7 +581,7 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
                   <p className="text-purple-300/70 text-sm mb-4">Key learning from today:</p>
                   <Textarea
                     value={nightlyCheckout.keyLearnings}
-                    onChange={(e) => setNightlyCheckout(prev => ({ ...prev, keyLearnings: e.target.value }))}
+                    onChange={(e) => updateCheckout({ keyLearnings: e.target.value })}
                     className="bg-purple-900/20 border-purple-700/30 text-white placeholder:text-purple-200/50 focus:border-purple-400 focus:ring-purple-400/20 rounded-lg min-h-[100px]"
                     placeholder="What did you learn about yourself or life today?"
                   />
@@ -583,7 +591,7 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
                   <p className="text-purple-300/70 text-sm mb-4">Tomorrow's focus:</p>
                   <Textarea
                     value={nightlyCheckout.tomorrowFocus}
-                    onChange={(e) => setNightlyCheckout(prev => ({ ...prev, tomorrowFocus: e.target.value }))}
+                    onChange={(e) => updateCheckout({ tomorrowFocus: e.target.value })}
                     className="bg-purple-900/20 border-purple-700/30 text-white placeholder:text-purple-200/50 focus:border-purple-400 focus:ring-purple-400/20 rounded-lg min-h-[100px]"
                     placeholder="What's your main focus for tomorrow?"
                   />

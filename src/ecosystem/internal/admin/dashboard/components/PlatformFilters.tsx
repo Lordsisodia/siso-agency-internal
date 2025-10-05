@@ -1,36 +1,7 @@
-
-import React from 'react';
-import { Button } from '@/shared/ui/button';
-import { Instagram, Linkedin } from 'lucide-react';
-
-interface PlatformFiltersProps {
-  activePlatform?: 'instagram' | 'linkedin';
-  onPlatformChange: (platform?: 'instagram' | 'linkedin') => void;
-}
-
-export const PlatformFilters = ({ activePlatform, onPlatformChange }: PlatformFiltersProps) => {
-  return (
-    <div className="flex gap-2">
-      <Button
-        variant={!activePlatform ? "default" : "outline"}
-        onClick={() => onPlatformChange(undefined)}
-      >
-        All Platforms
-      </Button>
-      <Button
-        variant={activePlatform === 'instagram' ? "default" : "outline"}
-        onClick={() => onPlatformChange('instagram')}
-      >
-        <Instagram className="h-4 w-4 mr-2" />
-        Instagram
-      </Button>
-      <Button
-        variant={activePlatform === 'linkedin' ? "default" : "outline"}
-        onClick={() => onPlatformChange('linkedin')}
-      >
-        <Linkedin className="h-4 w-4 mr-2" />
-        LinkedIn
-      </Button>
-    </div>
-  );
-};
+// 🔄 DUPLICATE REDIRECT
+// This file is an exact duplicate (MD5: fb4e78f6ef0a66c9)
+// Canonical: src/ecosystem/internal/admin/outreach/accounts/PlatformFilters.tsx
+// Phase: Duplicate cleanup batch
+// Date: 2025-10-05
+export * from '@/ecosystem/internal/admin/outreach/accounts/PlatformFilters';
+export { default } from '@/ecosystem/internal/admin/outreach/accounts/PlatformFilters';

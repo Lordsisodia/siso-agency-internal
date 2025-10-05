@@ -1,21 +1,7 @@
-
-import React from 'react';
-import { CalendarClock } from 'lucide-react';
-
-interface DateCellProps {
-  date: string | null | undefined;
-  showIcon?: boolean;
-}
-
-export const DateCell = ({ date, showIcon }: DateCellProps) => {
-  if (!date) {
-    return <span>-</span>;
-  }
-
-  return (
-    <div className="flex items-center">
-      {showIcon && <CalendarClock className="h-4 w-4 mr-1" />}
-      {new Date(date).toLocaleDateString()}
-    </div>
-  );
-};
+// 🔄 DUPLICATE REDIRECT
+// This file is an exact duplicate (MD5: 9147d9e0f474f7a5)
+// Canonical: src/ecosystem/internal/admin/clients/components/table-cells/DateCell.tsx
+// Phase: Duplicate cleanup batch
+// Date: 2025-10-05
+export * from '@/ecosystem/internal/admin/clients/components/table-cells/DateCell';
+export { default } from '@/ecosystem/internal/admin/clients/components/table-cells/DateCell';

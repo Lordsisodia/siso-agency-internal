@@ -1,18 +1,7 @@
-
-import React, { createContext, useContext } from 'react';
-import { ClientViewPreference } from '@/types/client.types';
-
-interface ViewPreferenceContextType {
-  viewPreference: ClientViewPreference;
-  handleViewPreferenceChange: (updates: Partial<ClientViewPreference>) => void;
-}
-
-export const ViewPreferenceContext = createContext<ViewPreferenceContextType | undefined>(undefined);
-
-export function useViewPreference() {
-  const context = useContext(ViewPreferenceContext);
-  if (!context) {
-    throw new Error('useViewPreference must be used within a ViewPreferenceProvider');
-  }
-  return context;
-}
+// 🔄 DUPLICATE REDIRECT
+// This file is an exact duplicate (MD5: 1e7366bf2eb618d1)
+// Canonical: src/ecosystem/internal/admin/clients/context/ViewPreferenceContext.tsx
+// Phase: Duplicate cleanup batch
+// Date: 2025-10-05
+export * from '@/ecosystem/internal/admin/clients/context/ViewPreferenceContext';
+export { default } from '@/ecosystem/internal/admin/clients/context/ViewPreferenceContext';

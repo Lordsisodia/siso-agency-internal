@@ -1,27 +1,7 @@
-
-import React from 'react';
-import { AlertCircle } from 'lucide-react';
-
-interface ValidationErrorsProps {
-  errors: string[];
-}
-
-export const ValidationErrors = ({ errors }: ValidationErrorsProps) => {
-  if (!errors.length) return null;
-
-  return (
-    <div className="bg-destructive/10 p-4 rounded-md space-y-2">
-      <div className="font-medium text-destructive flex items-center gap-2">
-        <AlertCircle className="h-4 w-4" />
-        Validation Errors
-      </div>
-      <ul className="list-disc pl-5 space-y-1">
-        {errors.map((error, index) => (
-          <li key={index} className="text-sm text-destructive">
-            {error}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-};
+// 🔄 DUPLICATE REDIRECT
+// This file is an exact duplicate (MD5: 0c6801b9115244d1)
+// Canonical: src/ecosystem/internal/admin/outreach/leads/ValidationErrors.tsx
+// Phase: Duplicate cleanup batch
+// Date: 2025-10-05
+export * from '@/ecosystem/internal/admin/outreach/leads/ValidationErrors';
+export { default } from '@/ecosystem/internal/admin/outreach/leads/ValidationErrors';

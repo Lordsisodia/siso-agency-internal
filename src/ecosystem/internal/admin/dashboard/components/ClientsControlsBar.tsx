@@ -1,3 +1,7 @@
-// This file is now unused as the controls are moved into ClientsHeader.
-// Keeping just a minimal stub to prevent any import errors, but this should no longer be rendered.
-export {};
+// 🔄 DUPLICATE REDIRECT
+// This file is an exact duplicate (MD5: 44a5bc4b489882ec)
+// Canonical: src/ecosystem/internal/admin/clients/ClientsControlsBar.tsx
+// Phase: Duplicate cleanup batch
+// Date: 2025-10-05
+export * from '@/ecosystem/internal/admin/clients/ClientsControlsBar';
+export { default } from '@/ecosystem/internal/admin/clients/ClientsControlsBar';

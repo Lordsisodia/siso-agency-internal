@@ -1,30 +1,7 @@
-
-import { Button } from '@/shared/ui/button';
-
-interface ViewModeSwitcherProps {
-  viewMode: "table" | "cards";
-  setViewMode: (mode: "table" | "cards") => void;
-}
-
-export function ViewModeSwitcher({ viewMode, setViewMode }: ViewModeSwitcherProps) {
-  return (
-    <div className="flex items-center gap-2">
-      <Button
-        size="sm"
-        variant={viewMode === "table" ? "default" : "outline"}
-        className="rounded-md px-3 text-sm"
-        onClick={() => setViewMode("table")}
-      >
-        Table
-      </Button>
-      <Button
-        size="sm"
-        variant={viewMode === "cards" ? "default" : "outline"}
-        className="rounded-md px-3 text-sm"
-        onClick={() => setViewMode("cards")}
-      >
-        Cards
-      </Button>
-    </div>
-  );
-}
+// 🔄 DUPLICATE REDIRECT
+// This file is an exact duplicate (MD5: 5274a51e508df278)
+// Canonical: src/ecosystem/internal/admin/clients/ViewModeSwitcher.tsx
+// Phase: Duplicate cleanup batch
+// Date: 2025-10-05
+export * from '@/ecosystem/internal/admin/clients/ViewModeSwitcher';
+export { default } from '@/ecosystem/internal/admin/clients/ViewModeSwitcher';

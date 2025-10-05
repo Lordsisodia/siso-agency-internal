@@ -1,19 +1,7 @@
-
-import { TableRow, TableCell } from "@/shared/ui/table";
-import { Loader2 } from "lucide-react";
-
-interface ExpensesTableLoadingProps {
-  colSpan: number;
-}
-
-export function ExpensesTableLoading({ colSpan }: ExpensesTableLoadingProps) {
-  return (
-    <TableRow>
-      <TableCell colSpan={colSpan} className="text-center py-8">
-        <div className="flex justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
-      </TableCell>
-    </TableRow>
-  );
-}
+// 🔄 DUPLICATE REDIRECT
+// This file is an exact duplicate (MD5: 04e7831fc786afa5)
+// Canonical: src/ecosystem/internal/admin/financials/expense/ExpensesTableLoading.tsx
+// Phase: Duplicate cleanup batch
+// Date: 2025-10-05
+export * from '@/ecosystem/internal/admin/financials/expense/ExpensesTableLoading';
+export { default } from '@/ecosystem/internal/admin/financials/expense/ExpensesTableLoading';

@@ -1,37 +1,7 @@
-
-import { ScrollArea } from "@/shared/ui/scroll-area";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
-
-interface DataPreviewProps {
-  data: string[][];
-  columnMappings: { sourceColumn: string; targetField: string; }[];
-}
-
-export const DataPreview = ({ data, columnMappings }: DataPreviewProps) => {
-  if (!data.length) return null;
-
-  return (
-    <ScrollArea className="h-[300px] border rounded-md">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            {columnMappings.map((mapping, index) => (
-              <TableHead key={index}>
-                {mapping.targetField || 'Skip'}
-              </TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {data.slice(0, 5).map((row, rowIndex) => (
-            <TableRow key={rowIndex}>
-              {row.map((cell, cellIndex) => (
-                <TableCell key={cellIndex}>{cell}</TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </ScrollArea>
-  );
-};
+// 🔄 DUPLICATE REDIRECT
+// This file is an exact duplicate (MD5: 77ace4351bad4069)
+// Canonical: src/ecosystem/internal/admin/outreach/leads/DataPreview.tsx
+// Phase: Duplicate cleanup batch
+// Date: 2025-10-05
+export * from '@/ecosystem/internal/admin/outreach/leads/DataPreview';
+export { default } from '@/ecosystem/internal/admin/outreach/leads/DataPreview';

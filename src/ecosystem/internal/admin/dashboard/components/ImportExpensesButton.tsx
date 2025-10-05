@@ -1,45 +1,7 @@
-
-import React, { useState } from "react";
-import { Button } from "@/shared/ui/button";
-import { Import } from "lucide-react";
-import { toast } from "@/shared/ui/use-toast";
-import { seedExpensesFromList } from "@/shared/utils/financial/bulkExpenseSeeder";
-
-/**
- * Button to import hardcoded bulk expenses into the database.
- */
-export function ImportExpensesButton({ onImport }: { onImport?: () => void }) {
-  const [isImporting, setIsImporting] = useState(false);
-
-  const handleImport = async () => {
-    setIsImporting(true);
-    try {
-      await seedExpensesFromList();
-      toast({
-        title: "Expenses Imported",
-        description: "Sample expenses have been imported.",
-      });
-      onImport?.();
-    } catch (error: any) {
-      toast({
-        title: "Import Failed",
-        description: error?.message || "Failed to import expenses.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsImporting(false);
-    }
-  };
-
-  return (
-    <Button 
-      variant="outline"
-      onClick={handleImport}
-      disabled={isImporting}
-      className="ml-2"
-    >
-      <Import className="h-4 w-4 mr-2" />
-      {isImporting ? "Importing..." : "Import Demo Expenses"}
-    </Button>
-  );
-}
+// 🔄 DUPLICATE REDIRECT
+// This file is an exact duplicate (MD5: 2b970b7bfd2f0020)
+// Canonical: src/ecosystem/internal/admin/financials/expense/ImportExpensesButton.tsx
+// Phase: Duplicate cleanup batch
+// Date: 2025-10-05
+export * from '@/ecosystem/internal/admin/financials/expense/ImportExpensesButton';
+export { default } from '@/ecosystem/internal/admin/financials/expense/ImportExpensesButton';

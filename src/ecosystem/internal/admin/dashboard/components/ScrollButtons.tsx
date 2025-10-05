@@ -1,37 +1,7 @@
-
-import React from 'react';
-import { Button } from '@/shared/ui/button';
-import { ChevronUp, ChevronDown } from 'lucide-react';
-import { useIsMobile } from '@/shared/hooks/use-mobile';
-
-interface ScrollButtonsProps {
-  onScrollUp: () => void;
-  onScrollDown: () => void;
-}
-
-export function ScrollButtons({ onScrollUp, onScrollDown }: ScrollButtonsProps) {
-  const isMobile = useIsMobile();
-  
-  return (
-    <>
-      <Button
-        variant="ghost"
-        size={isMobile ? "default" : "icon"}
-        className={`absolute ${isMobile ? 'left-12' : 'left-16'} top-2 z-20`}
-        onClick={onScrollUp}
-        aria-label="Scroll up"
-      >
-        <ChevronUp className={`h-${isMobile ? '5' : '4'} w-${isMobile ? '5' : '4'}`} />
-      </Button>
-      <Button
-        variant="ghost"
-        size={isMobile ? "default" : "icon"}
-        className={`absolute ${isMobile ? 'left-12' : 'left-16'} bottom-2 z-20`}
-        onClick={onScrollDown}
-        aria-label="Scroll down"
-      >
-        <ChevronDown className={`h-${isMobile ? '5' : '4'} w-${isMobile ? '5' : '4'}`} />
-      </Button>
-    </>
-  );
-}
+// 🔄 DUPLICATE REDIRECT
+// This file is an exact duplicate (MD5: bf4c2b63274516b5)
+// Canonical: src/ecosystem/internal/teams/timeline/ScrollButtons.tsx
+// Phase: Duplicate cleanup batch
+// Date: 2025-10-05
+export * from '@/ecosystem/internal/teams/timeline/ScrollButtons';
+export { default } from '@/ecosystem/internal/teams/timeline/ScrollButtons';

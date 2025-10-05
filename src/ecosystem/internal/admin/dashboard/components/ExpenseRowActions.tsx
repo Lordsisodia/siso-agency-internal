@@ -1,45 +1,7 @@
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/shared/ui/dropdown-menu";
-import { Button } from "@/shared/ui/button";
-import { Eye, Edit, Trash, MoreHorizontal } from "lucide-react";
-
-interface ExpenseRowActionsProps {
-  expenseId: string;
-  onViewDetails: (id: string) => void;
-  onDelete: (id: string) => void;
-}
-
-export function ExpenseRowActions({ expenseId, onViewDetails, onDelete }: ExpenseRowActionsProps) {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
-          <MoreHorizontal className="h-4 w-4" />
-          <span className="sr-only">Open menu</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[160px]">
-        <DropdownMenuItem onClick={() => onViewDetails(expenseId)}>
-          <Eye className="mr-2 h-4 w-4" />
-          <span>View Details</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem>
-          <Edit className="mr-2 h-4 w-4" />
-          <span>Edit</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem 
-          onClick={() => onDelete(expenseId)}
-          className="text-destructive focus:text-destructive"
-        >
-          <Trash className="mr-2 h-4 w-4" />
-          <span>Delete</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
+// 🔄 DUPLICATE REDIRECT
+// This file is an exact duplicate (MD5: 2b2bb37be475423a)
+// Canonical: src/ecosystem/internal/admin/financials/ExpenseRowActions.tsx
+// Phase: Duplicate cleanup batch
+// Date: 2025-10-05
+export * from '@/ecosystem/internal/admin/financials/ExpenseRowActions';
+export { default } from '@/ecosystem/internal/admin/financials/ExpenseRowActions';

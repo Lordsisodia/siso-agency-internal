@@ -1,32 +1,7 @@
-
-import React from 'react';
-import { Card, CardContent } from '@/shared/ui/card';
-import { useParams, useNavigate } from 'react-router-dom';
-import { TaskBank } from './TaskBank';
-import { Button } from '@/shared/ui/button';
-import { ArrowLeft } from 'lucide-react';
-
-export function TeamMemberTasksView() {
-  const { userId } = useParams();
-  const navigate = useNavigate();
-  
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <Button 
-          variant="outline" 
-          onClick={() => navigate('/admin/tasks')}
-          className="flex items-center gap-2"
-        >
-          <ArrowLeft className="h-4 w-4" /> Back to All Tasks
-        </Button>
-      </div>
-      
-      <Card>
-        <CardContent className="p-6">
-          <TaskBank userId={userId} />
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
+// 🔄 DUPLICATE REDIRECT
+// This file is an exact duplicate (MD5: 1a1305b77d4c86b8)
+// Canonical: src/ecosystem/internal/tasks/components/TeamMemberTasksView.tsx
+// Phase: Duplicate cleanup batch
+// Date: 2025-10-05
+export * from '@/ecosystem/internal/tasks/components/TeamMemberTasksView';
+export { default } from '@/ecosystem/internal/tasks/components/TeamMemberTasksView';

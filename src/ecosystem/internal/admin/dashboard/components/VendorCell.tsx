@@ -1,17 +1,7 @@
-
-import { cn } from "@/shared/lib/utils";
-
-interface VendorCellProps {
-  name?: string;
-}
-
-export function VendorCell({ name }: VendorCellProps) {
-  return (
-    <span className={cn(
-      "text-primary-foreground/90 font-normal mr-1",
-      !name && "text-muted-foreground italic"
-    )}>
-      {name || "—"}
-    </span>
-  );
-}
+// 🔄 DUPLICATE REDIRECT
+// This file is an exact duplicate (MD5: 4244b4f1425655aa)
+// Canonical: src/ecosystem/internal/admin/financials/expense/VendorCell.tsx
+// Phase: Duplicate cleanup batch
+// Date: 2025-10-05
+export * from '@/ecosystem/internal/admin/financials/expense/VendorCell';
+export { default } from '@/ecosystem/internal/admin/financials/expense/VendorCell';

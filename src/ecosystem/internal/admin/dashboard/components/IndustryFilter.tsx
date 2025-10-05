@@ -1,34 +1,7 @@
-
-import React from 'react';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/ui/select";
-
-interface IndustryFilterProps {
-  selectedIndustry?: string;
-  onIndustryChange: (value: string) => void;
-}
-
-export const IndustryFilter = ({ selectedIndustry, onIndustryChange }: IndustryFilterProps) => {
-  return (
-    <Select 
-      value={selectedIndustry} 
-      onValueChange={onIndustryChange}
-    >
-      <SelectTrigger className="w-[200px] mt-4">
-        <SelectValue placeholder="Filter by industry" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="all">All Industries</SelectItem>
-        <SelectItem value="onlyfans">OnlyFans Management</SelectItem>
-        <SelectItem value="ecommerce">E-commerce</SelectItem>
-        <SelectItem value="saas">SaaS</SelectItem>
-        <SelectItem value="agency">Agency</SelectItem>
-      </SelectContent>
-    </Select>
-  );
-};
+// 🔄 DUPLICATE REDIRECT
+// This file is an exact duplicate (MD5: 7180bcad33f2b436)
+// Canonical: src/ecosystem/internal/admin/outreach/accounts/IndustryFilter.tsx
+// Phase: Duplicate cleanup batch
+// Date: 2025-10-05
+export * from '@/ecosystem/internal/admin/outreach/accounts/IndustryFilter';
+export { default } from '@/ecosystem/internal/admin/outreach/accounts/IndustryFilter';
