@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "supabase": {
+    "siso-internal-supabase": {
       "command": "npx",
       "args": [
         "-y",
@@ -11,7 +11,7 @@
         "SUPABASE_ACCESS_TOKEN": "sbp_46f04e75f8bba39917efda341bbf260ac60d3c8d"
       }
     },
-    "neo4j-memory": {
+    "neo4j-memory-siso": {
       "command": "npx",
       "args": [
         "-y",
@@ -20,7 +20,7 @@
         "@knowall-ai/mcp-neo4j-agent-memory"
       ]
     },
-    "memory-bank": {
+    "memory-bank-siso": {
       "command": "npx",
       "args": [
         "-y",
