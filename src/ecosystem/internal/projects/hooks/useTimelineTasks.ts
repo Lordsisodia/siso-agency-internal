@@ -270,7 +270,7 @@ export function useTimelineTasks(options: UseTimelineTasksOptions = {}) {
     currentDate: string;
     useAI?: boolean; // Optional: whether to use AI for priority/duration
   }) => {
-    let finalTaskData = {
+    const finalTaskData = {
       ...taskData,
       priority: 'medium' as const,
       estimatedDuration: 30
