@@ -31,6 +31,8 @@ export const DeepFocusWorkSection: React.FC<DeepFocusWorkSectionProps> = ({
     pushTaskToAnotherDay,
     updateTaskDueDate,
     updateSubtaskDueDate,
+    updateSubtaskPriority,
+    updateSubtaskEstimatedTime,
     refreshTasks
   } = useDeepWorkTasksSupabase({ selectedDate });
 
@@ -79,8 +81,8 @@ export const DeepFocusWorkSection: React.FC<DeepFocusWorkSectionProps> = ({
   };
 
   return (
-    <UnifiedWorkSection 
-      selectedDate={selectedDate} 
+    <UnifiedWorkSection
+      selectedDate={selectedDate}
       workType="DEEP"
       tasks={transformedTasks}
       loading={loading}
@@ -95,6 +97,8 @@ export const DeepFocusWorkSection: React.FC<DeepFocusWorkSectionProps> = ({
       pushTaskToAnotherDay={pushTaskToAnotherDay}
       updateTaskTitle={updateTaskTitle}
       updateSubtaskDueDate={updateSubtaskDueDate}
+      updateSubtaskPriority={updateSubtaskPriority}
+      updateSubtaskEstimatedTime={updateSubtaskEstimatedTime}
       updateTaskPriority={handleUpdateTaskPriority}
       reorderTasks={handleReorderTasks}
     />

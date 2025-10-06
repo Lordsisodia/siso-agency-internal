@@ -69,6 +69,7 @@ export interface TabLayoutProps {
   selectedDate: Date;
   dayCompletionPercentage: number;
   navigateDay?: (direction: 'prev' | 'next') => void;
+  userId?: string;
   // Handler props for interactive tabs
   handleQuickAdd?: (task: string) => void;
   handleOrganizeTasks?: () => void;

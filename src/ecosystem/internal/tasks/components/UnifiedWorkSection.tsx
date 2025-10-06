@@ -36,6 +36,7 @@ import { WORK_THEMES } from '@/config/work-themes';
 import { CustomCalendar } from '@/ecosystem/internal/calendar/ui/CustomCalendar';
 import { TaskStatsGrid } from '@/ecosystem/internal/tasks/management/TaskStatsGrid';
 import { WorkProtocolCard } from '@/ecosystem/internal/tasks/management/WorkProtocolCard';
+import { sortSubtasksHybrid } from '@/ecosystem/internal/tasks/utils/subtaskSorting';
 
 
 export type WorkType = keyof typeof WORK_THEMES;
@@ -58,6 +59,7 @@ interface UnifiedWorkSectionProps {
   updateTaskTitle: (taskId: string, title: string) => Promise<void>;
   updateTaskPriority?: (taskId: string, priority: string) => Promise<void>;
   updateSubtaskPriority?: (subtaskId: string, priority: string) => Promise<void>;
+  updateSubtaskEstimatedTime?: (subtaskId: string, estimatedTime: string) => Promise<void>;
   reorderTasks?: (tasks: any[]) => Promise<void>;
   // Optional features (for Light Work)
   showContextModal?: () => void;
@@ -88,6 +90,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
   updateTaskTitle,
   updateTaskPriority,
   updateSubtaskPriority,
+  updateSubtaskEstimatedTime,
   reorderTasks,
   showContextModal,
   showStats = false,
@@ -167,7 +170,21 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
       console.warn('⚠️ updateSubtaskPriority function not available');
     }
   };
-  
+
+  // Subtask estimated time handler
+  const handleSubtaskEstimatedTimeChange = async (subtaskId: string, estimatedTime: string) => {
+    if (updateSubtaskEstimatedTime) {
+      try {
+        await updateSubtaskEstimatedTime(subtaskId, estimatedTime);
+        console.log(`✅ Updated subtask ${subtaskId} estimated time to ${estimatedTime}`);
+      } catch (error) {
+        console.error(`❌ Failed to update subtask ${subtaskId} estimated time:`, error);
+      }
+    } else {
+      console.warn('⚠️ updateSubtaskEstimatedTime function not available');
+    }
+  };
+
   // Calendar loading state
   const [calendarLoading, setCalendarLoading] = useState(false);
 
@@ -331,7 +348,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                     {/* Subtasks */}
                     {isExpanded && (
                       <div className="space-y-3 px-1">
-                        {task.subtasks?.map((subtask) => (
+                        {sortSubtasksHybrid(task.subtasks || []).map((subtask) => (
                           <SubtaskItem
                             key={subtask.id}
                             subtask={subtask}
@@ -348,6 +365,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                             onCalendarToggle={setCalendarSubtaskId}
                             onDeleteSubtask={deleteSubtask}
                             onPriorityChange={handleSubtaskPriorityChange}
+                            onEstimatedTimeChange={handleSubtaskEstimatedTimeChange}
                           >
                             {/* Mobile-Optimized Calendar Modal with Backdrop */}
                             {calendarSubtaskId === subtask.id && (

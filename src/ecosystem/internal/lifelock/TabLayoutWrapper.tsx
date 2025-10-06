@@ -15,6 +15,7 @@ import { cn } from '@/shared/lib/utils';
 import { useIsMobile } from '@/shared/hooks/use-mobile';
 import { useLifeLockData } from '@/ecosystem/internal/lifelock/useLifeLockData';
 import { OfflineIndicator } from '@/shared/components/OfflineIndicator';
+import { BottomActionBars } from '@/shared/components/BottomActionBars';
 
 // Use centralized tab configuration to prevent routing inconsistencies
 const tabs = Object.values(TAB_CONFIG);
@@ -208,8 +209,8 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = memo(({
 
   return (
     <div className="flex flex-col h-screen w-full overflow-hidden">
-      {/* Clean Offline Indicator - Fixed at top */}
-      <OfflineIndicator />
+      {/* Clean Offline Indicator - Moved to bottom as part of BottomActionBars */}
+      {/* <OfflineIndicator /> */}
 
       {/* Hidden Header - Now using AnimatedDateHeader in each tab */}
 
@@ -272,6 +273,9 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = memo(({
         />
         </div>
       </div>
+
+      {/* Bottom Action Bars - Feedback + Sync Status */}
+      <BottomActionBars />
     </div>
   );
 });

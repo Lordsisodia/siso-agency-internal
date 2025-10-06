@@ -70,6 +70,49 @@ class FeedbackService {
     }
   }
 
+  // Create feedback with Clerk internal user ID (for Clerk-based auth)
+  async createFeedbackWithUserId(
+    userId: string,
+    feedbackData: CreateFeedbackRequest, 
+    browserInfo?: string, 
+    deviceInfo?: string
+  ): Promise<UserFeedback> {
+    try {
+      const feedbackPayload = {
+        user_id: userId,
+        title: feedbackData.title,
+        description: feedbackData.description,
+        category: feedbackData.category,
+        priority: feedbackData.priority,
+        feedback_type: feedbackData.feedbackType,
+        page: feedbackData.page,
+        browser_info: browserInfo,
+        device_info: deviceInfo,
+        screenshots: feedbackData.screenshots || [],
+        status: 'OPEN' as FeedbackStatus,
+        tags: [],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      const { data, error } = await supabase
+        .from(this.tableName)
+        .insert(feedbackPayload)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Supabase error:', error);
+        throw new Error(`Failed to create feedback: ${error.message}`);
+      }
+
+      return this.mapToFeedback(data);
+    } catch (error) {
+      console.error('Error creating feedback:', error);
+      throw error;
+    }
+  }
+
   async getUserFeedback(userId: string, limit = 50): Promise<UserFeedback[]> {
     try {
       const { data, error } = await supabase

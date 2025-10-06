@@ -128,6 +128,9 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
     deleteSubtask,
     updateSubtaskDueDate,
     updateSubtaskTitle,
+    updateSubtaskPriority,
+    updateSubtaskDescription,
+    updateSubtaskEstimatedTime,
     updateTaskTitle
   } = taskType === 'light-work' ? lightWorkData : deepWorkData;
   
@@ -345,6 +348,33 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
 
   const handleDeleteSubtask = async (subtaskId: string) => {
     await deleteSubtask(subtaskId);
+  };
+
+  // Update subtask priority - use Supabase hook
+  const handleUpdateSubtaskPriority = async (subtaskId: string, priority: string) => {
+    try {
+      await updateSubtaskPriority(subtaskId, priority);
+    } catch (error) {
+      console.error('Error updating subtask priority:', error);
+    }
+  };
+
+  // Update subtask description - use Supabase hook
+  const handleUpdateSubtaskDescription = async (subtaskId: string, description: string) => {
+    try {
+      await updateSubtaskDescription(subtaskId, description);
+    } catch (error) {
+      console.error('Error updating subtask description:', error);
+    }
+  };
+
+  // Update subtask estimated time - use Supabase hook
+  const handleUpdateSubtaskEstimatedTime = async (subtaskId: string, estimatedTime: string) => {
+    try {
+      await updateSubtaskEstimatedTime(subtaskId, estimatedTime);
+    } catch (error) {
+      console.error('Error updating subtask estimated time:', error);
+    }
   };
 
   // New subtask creation handlers
@@ -661,6 +691,9 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
                                     onKeyDown={handleSubtaskKeyDown}
                                     onCalendarToggle={handleCalendarToggle}
                                     onDeleteSubtask={handleDeleteSubtask}
+                                    onPriorityUpdate={handleUpdateSubtaskPriority}
+                                    onEstimatedTimeUpdate={handleUpdateSubtaskEstimatedTime}
+                                    onDescriptionUpdate={handleUpdateSubtaskDescription}
                                   >
                                     {/* Calendar popup */}
                                     {calendarSubtaskId === subtask.id && (
@@ -814,9 +847,9 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
         </CardContent>
       </Card>
 
-      {/* Feedback Button - Outside card on black background */}
-      <div className="mt-2 flex justify-center">
-        <SimpleFeedbackButton />
+      {/* Feedback Button - Bar below card */}
+      <div className="mt-4">
+        <SimpleFeedbackButton variant="bar" className="w-full" />
       </div>
 
       {/* Task Detail Modal */}

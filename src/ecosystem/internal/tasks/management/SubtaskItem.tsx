@@ -17,6 +17,7 @@ interface SubtaskItemProps {
     completed: boolean;
     dueDate?: string;
     priority?: string;
+    estimatedTime?: string;
   };
   taskId: string;
   themeConfig: {
@@ -38,6 +39,7 @@ interface SubtaskItemProps {
   onCalendarToggle: (subtaskId: string) => void;
   onDeleteSubtask: (subtaskId: string) => void;
   onPriorityChange?: (subtaskId: string, priority: string) => void;
+  onEstimatedTimeChange?: (subtaskId: string, estimatedTime: string) => void;
   children?: React.ReactNode; // For calendar popup
 }
 
@@ -56,6 +58,7 @@ export const SubtaskItem: React.FC<SubtaskItemProps> = ({
   onCalendarToggle,
   onDeleteSubtask,
   onPriorityChange,
+  onEstimatedTimeChange,
   children
 }) => {
   return (
@@ -111,13 +114,14 @@ export const SubtaskItem: React.FC<SubtaskItemProps> = ({
           {/* Light, thin separator line */}
           <TaskSeparator thickness="thin" opacity="light" spacing="tight" />
           
-          {/* Metadata row: Due date and Delete button */}
+          {/* Metadata row: Due date, priority, time, and Delete button */}
           <SubtaskMetadata
             subtask={subtask}
             calendarSubtaskId={calendarSubtaskId}
             onCalendarToggle={onCalendarToggle}
             onDeleteSubtask={onDeleteSubtask}
             onPriorityChange={onPriorityChange}
+            onEstimatedTimeChange={onEstimatedTimeChange}
           >
             {children}
           </SubtaskMetadata>

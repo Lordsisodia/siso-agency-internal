@@ -181,7 +181,7 @@ class OfflineManager {
       );
     } else {
       // Queue as generic action for other tables
-      await offlineDb.queueAction(table, 'create', data);
+      await offlineDb.queueAction('create', table as any, data);
     }
   }
 
@@ -218,8 +218,8 @@ class OfflineManager {
           } else {
             // For other tables, save as generic offline action
             await offlineDb.queueAction(
-              table,
               'create',
+              table,
               task
             );
           }
@@ -237,8 +237,8 @@ class OfflineManager {
       } else {
         // For other tables, save as pending action
         await offlineDb.queueAction(
-          table,
           'create',
+          table as any,
           task
         );
       }

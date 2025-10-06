@@ -1,14 +1,11 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { lazy, Suspense, useEffect } from 'react';
-import { ClerkHybridTaskService } from '@/services/core/auth.service';
+import { lazy, Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Toaster } from '@/shared/ui/toaster';
 import { ClerkProvider } from '@/shared/auth';
 import { ClerkAuthGuard } from '@/shared/auth/ClerkAuthGuard';
 import { AuthGuard } from '@/shared/auth/AuthGuard';
 import { PageLoader } from '@/shared/ui/PageLoader';
-
-import { logger } from '@/shared/utils/logger';
 
 // Critical pages loaded immediately (landing, auth, home)
 import Index from './pages/Index';
@@ -155,20 +152,8 @@ function ErrorFallback({error, resetErrorBoundary}: {error: Error, resetErrorBou
 }
 
 function App() {
-  // Initialize Clerk hybrid service on app startup
-  useEffect(() => {
-    const initializeClerkHybridService = async () => {
-      try {
-        await ClerkHybridTaskService.initialize();
-        logger.once('[APP] Automatic Clerk hybrid service initialization complete', 'info');
-      } catch (error) {
-        logger.error('[APP] Clerk hybrid service initialization failed:', error);
-      }
-    };
-    
-    initializeClerkHybridService();
-  }, []);
-  
+  // User sync now handled by ClerkProvider (no manual initialization needed)
+
   return (
     <ClerkProvider>
       <Toaster />

@@ -23,6 +23,7 @@ export interface EnhancedTimeBlock {
   sourceTaskIds: string[];        // Links to actual tasks from sections
   sourceSection: TaskSection;     // Which section this came from
   completionStatus: CompletionStatus;
+  subtaskCount?: number;          // Total number of subtasks from linked tasks
   
   // Smart Scheduling Properties
   energyRequirement: EnergyLevel;

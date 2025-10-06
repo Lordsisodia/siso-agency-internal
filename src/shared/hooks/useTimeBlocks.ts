@@ -1,19 +1,21 @@
 /**
- * 🕐 useTimeBlocks Hook
- * 
- * Custom React hook for time block management with real-time updates
- * Provides optimistic updates, conflict detection, and error handling
+ * 🕐 useTimeBlocks Hook - OFFLINE-FIRST PWA VERSION
+ *
+ * Offline-first time block management using IndexedDB + Supabase
+ * Works offline, syncs when online
+ *
+ * NO PRISMA - Browser-native only!
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { format } from 'date-fns';
-import { 
-  TimeBlocksAPI, 
-  TimeBlock, 
-  CreateTimeBlockInput, 
+import {
+  TimeBlocksAPI,
+  TimeBlock,
+  CreateTimeBlockInput,
   UpdateTimeBlockInput,
-  TimeBlockConflict 
-} from '@/api/timeblocksApi';
+  TimeBlockConflict
+} from '@/api/timeblocksApi.offline';
 
 export interface UseTimeBlocksOptions {
   userId: string;
@@ -164,11 +166,21 @@ export function useTimeBlocks(options: UseTimeBlocksOptions): TimeBlockState & T
           const tempId = Array.from(optimisticUpdatesRef.current.keys())[0];
           optimisticUpdatesRef.current.delete(tempId);
           
-          updateState({
-            timeBlocks: state.timeBlocks
-              .filter(block => !block.id.startsWith('temp-'))
-              .concat(result.data),
-            isCreating: false
+          // Use setState callback to avoid stale closure
+          setState(prev => {
+            const filteredBlocks = (Array.isArray(prev.timeBlocks) ? prev.timeBlocks : [])
+              .filter(block => {
+                // Skip API response objects that got added incorrectly
+                if (block.hasOwnProperty('success') && block.hasOwnProperty('data')) {
+                  return false;
+                }
+                return block.id && !block.id.startsWith('temp-');
+              });
+            return {
+              ...prev,
+              timeBlocks: [...filteredBlocks, result.data],
+              isCreating: false
+            };
           });
         } else {
           await loadTimeBlocks();

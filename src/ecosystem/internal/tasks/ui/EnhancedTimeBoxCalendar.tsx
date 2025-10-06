@@ -200,6 +200,16 @@ export const EnhancedTimeBoxCalendar: React.FC<EnhancedTimeBoxCalendarProps> = (
     }
   };
 
+  // Format duration for display
+  const formatDuration = (minutes: number): string => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+
+    if (hours === 0) return `${mins}m`;
+    if (mins === 0) return `${hours}h`;
+    return `${hours}h ${mins}m`;
+  };
+
   // Handle block click
   const handleBlockClick = (block: EnhancedTimeBlock) => {
     setSelectedBlock(selectedBlock === block.id ? null : block.id);
@@ -352,19 +362,40 @@ export const EnhancedTimeBoxCalendar: React.FC<EnhancedTimeBoxCalendarProps> = (
                       >
                         <div className="p-4 h-full flex flex-col">
                           {/* Block Header */}
-                          <div className="flex items-center justify-between mb-1">
-                            <div className="flex items-center gap-2 min-w-0">
-                              <Icon 
-                                className="h-4 w-4 flex-shrink-0" 
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                              <Icon
+                                className="h-4 w-4 flex-shrink-0"
                                 style={{ color: block.color }}
                               />
-                              <span 
+                              <span
                                 className="text-sm font-semibold truncate text-gray-800 dark:text-gray-100"
                               >
                                 {block.title}
                               </span>
+                              <div className="ml-auto flex items-center gap-1.5">
+                                {block.subtaskCount && block.subtaskCount > 0 && (
+                                  <Badge
+                                    variant="outline"
+                                    className="text-xs px-2 py-0.5 font-medium bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800"
+                                  >
+                                    📋 {block.subtaskCount}
+                                  </Badge>
+                                )}
+                                <Badge
+                                  variant="outline"
+                                  className="text-xs px-2 py-0.5 font-medium"
+                                  style={{
+                                    backgroundColor: `${block.color}15`,
+                                    color: block.color,
+                                    borderColor: `${block.color}40`
+                                  }}
+                                >
+                                  {formatDuration(block.duration)}
+                                </Badge>
+                              </div>
                             </div>
-                            
+
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <button
@@ -374,7 +405,7 @@ export const EnhancedTimeBoxCalendar: React.FC<EnhancedTimeBoxCalendarProps> = (
                                   }}
                                   className={cn(
                                     "flex-shrink-0 hover:scale-110 transition-all duration-200",
-                                    "rounded-full p-1 hover:bg-white/20",
+                                    "rounded-full p-1 hover:bg-white/20 ml-2",
                                     getStatusColor(block.completionStatus)
                                   )}
                                 >
@@ -387,11 +418,6 @@ export const EnhancedTimeBoxCalendar: React.FC<EnhancedTimeBoxCalendarProps> = (
                                 </p>
                               </TooltipContent>
                             </Tooltip>
-                          </div>
-
-                          {/* Time and Duration */}
-                          <div className="text-xs text-gray-600 dark:text-gray-400 mb-2 font-medium">
-                            {block.startTime} - {block.endTime} • {block.duration}m
                           </div>
 
                           {/* Tags and Priority */}

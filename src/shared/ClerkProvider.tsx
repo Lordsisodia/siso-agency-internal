@@ -1,9 +1,9 @@
-// Clerk Provider Component - Replaces Supabase Auth
-// Zero setup, automatic user sync to Prisma
+// Clerk Provider Component - PWA Offline-First Architecture
+// Auto-sync users to Supabase (NO Prisma - browser can't run Prisma!)
 
 import { ClerkProvider as BaseClerkProvider, useUser } from '@clerk/clerk-react';
 import { useEffect, useMemo } from 'react';
-// Supabase-only: remove Prisma user sync during development
+import { supabaseAnon } from '@/shared/lib/supabase-clerk';
 
 const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 

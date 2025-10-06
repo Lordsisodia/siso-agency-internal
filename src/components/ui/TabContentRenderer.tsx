@@ -73,6 +73,7 @@ export const TabContentRenderer: React.FC<{
         <Component
           key={`${activeTab}-component-${index}`}
           selectedDate={layoutProps.selectedDate}
+          userId={layoutProps.userId}
           {...config.componentProps}
         />
       ))}

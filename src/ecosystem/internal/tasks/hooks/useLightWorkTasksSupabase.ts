@@ -41,6 +41,7 @@ export interface LightWorkSubtask {
   completed: boolean;
   priority?: string;
   dueDate?: string;
+  estimatedTime?: string;
   createdAt: string;
   updatedAt: string;
   completedAt?: string;
@@ -117,6 +118,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
           completed: subtask.completed,
           priority: subtask.priority,
           dueDate: subtask.due_date, // Map snake_case to camelCase
+          estimatedTime: subtask.estimated_time, // Map snake_case to camelCase
           createdAt: subtask.created_at,
           updatedAt: subtask.updated_at,
           completedAt: subtask.completed_at
@@ -586,6 +588,126 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
     }
   }, [supabase]);
 
+  // Update subtask priority in Supabase
+  const updateSubtaskPriority = useCallback(async (subtaskId: string, priority: string) => {
+    if (!supabase) return null;
+    
+    try {
+      console.log(`🎯 Updating Light Work subtask priority: ${subtaskId} -> ${priority}`);
+
+      const { error } = await supabase
+        .from('light_work_subtasks')
+        .update({
+          priority: priority,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', subtaskId);
+      
+      if (error) {
+        throw new Error(`Supabase error: ${error.message}`);
+      }
+
+      console.log(`✅ Updated Light Work subtask priority: ${subtaskId}`);
+      
+      // Update local state
+      setTasks(prev => prev.map(task => ({
+        ...task,
+        subtasks: task.subtasks.map(subtask => 
+          subtask.id === subtaskId 
+            ? { ...subtask, priority: priority }
+            : subtask
+        )
+      })));
+      
+      return true;
+      
+    } catch (error) {
+      console.error('❌ Error updating Light Work subtask priority:', error);
+      setError(error instanceof Error ? error.message : 'Failed to update subtask priority');
+      return null;
+    }
+  }, [supabase]);
+
+  // Update subtask description (text field) in Supabase
+  const updateSubtaskDescription = useCallback(async (subtaskId: string, description: string) => {
+    if (!supabase) return null;
+    
+    try {
+      console.log(`📝 Updating Light Work subtask description: ${subtaskId}`);
+
+      const { error } = await supabase
+        .from('light_work_subtasks')
+        .update({
+          text: description,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', subtaskId);
+      
+      if (error) {
+        throw new Error(`Supabase error: ${error.message}`);
+      }
+
+      console.log(`✅ Updated Light Work subtask description: ${subtaskId}`);
+      
+      // Update local state
+      setTasks(prev => prev.map(task => ({
+        ...task,
+        subtasks: task.subtasks.map(subtask => 
+          subtask.id === subtaskId 
+            ? { ...subtask, text: description }
+            : subtask
+        )
+      })));
+      
+      return true;
+      
+    } catch (error) {
+      console.error('❌ Error updating Light Work subtask description:', error);
+      setError(error instanceof Error ? error.message : 'Failed to update subtask description');
+      return null;
+    }
+  }, [supabase]);
+
+  // Update subtask estimated time in Supabase
+  const updateSubtaskEstimatedTime = useCallback(async (subtaskId: string, estimatedTime: string) => {
+    if (!supabase) return null;
+
+    try {
+      console.log(`⏱️ Updating Light Work subtask estimated time: ${subtaskId} -> ${estimatedTime}`);
+
+      const { error } = await supabase
+        .from('light_work_subtasks')
+        .update({
+          estimated_time: estimatedTime,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', subtaskId);
+
+      if (error) {
+        throw new Error(`Supabase error: ${error.message}`);
+      }
+
+      console.log(`✅ Updated Light Work subtask estimated time: ${subtaskId}`);
+
+      // Update local state
+      setTasks(prev => prev.map(task => ({
+        ...task,
+        subtasks: task.subtasks.map(subtask =>
+          subtask.id === subtaskId
+            ? { ...subtask, estimatedTime: estimatedTime }
+            : subtask
+        )
+      })));
+
+      return true;
+
+    } catch (error) {
+      console.error('❌ Error updating Light Work subtask estimated time:', error);
+      setError(error instanceof Error ? error.message : 'Failed to update subtask estimated time');
+      return null;
+    }
+  }, [supabase]);
+
   // Load tasks when dependencies change
   useEffect(() => {
     loadTasks();
@@ -606,6 +728,9 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
     pushTaskToAnotherDay,
     updateTaskDueDate,
     updateSubtaskDueDate,
+    updateSubtaskPriority,
+    updateSubtaskEstimatedTime,
+    updateSubtaskDescription,
     refreshTasks: loadTasks
   };
 }

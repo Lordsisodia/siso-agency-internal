@@ -12,6 +12,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { TaskContainerV2 } from "../tasks/TaskContainerV2";
 import { Task } from "../tasks/TaskCard";
+import { SimpleFeedbackButton } from "@/ecosystem/internal/feedback/SimpleFeedbackButton";
 
 // SISO IDE focused tasks - cleaned up for new architecture
 const sisoTasks: Task[] = [
@@ -168,7 +169,7 @@ export default function SisoDeepFocusPlanV2({ onStartFocusSession }: SisoDeepFoc
         y: 0,
         transition: { duration: 0.3, ease: [0.2, 0.65, 0.3, 0.9] }
       }}
-      className="h-full overflow-hidden"
+      className="h-full overflow-hidden relative"
     >
       {/* 
         🎯 Deep Work Architecture V2 Benefits:
@@ -188,9 +189,11 @@ export default function SisoDeepFocusPlanV2({ onStartFocusSession }: SisoDeepFoc
         showFilters={true}
         showBulkActions={true}
       />
+      
+      {/* Feedback Button - Bar style, positioned 150px from bottom */}
+      <div className="fixed left-1/2 transform -translate-x-1/2 z-50" style={{ bottom: '150px' }}>
+        <SimpleFeedbackButton variant="bar" />
+      </div>
     </motion.div>
   );
 }
-
-// Export the new component as the default for testing
-export { SisoDeepFocusPlanV2 };

@@ -7,12 +7,13 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
+import {
   Clock,
   Calendar,
   AlertTriangle,
   Save,
   X,
+  Trash2,
   Zap,
   Target,
   Coffee,
@@ -27,20 +28,22 @@ import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
 import { Textarea } from '@/shared/ui/textarea';
 import { Badge } from '@/shared/ui/badge';
-import { TimeBlockCategory } from '../../../../generated/prisma/index.js';
-import { 
-  CreateTimeBlockInput, 
-  UpdateTimeBlockInput, 
-  TimeBlock, 
+import { cn } from '@/shared/lib/utils';
+import {
+  TimeBlockCategory,
+  CreateTimeBlockInput,
+  UpdateTimeBlockInput,
+  TimeBlock,
   TimeBlockConflict,
-  TimeBlockUtils 
-} from '@/api/timeblocksApi';
+  TimeBlockUtils
+} from '@/api/timeblocksApi.offline';
 
 export interface TimeBlockFormModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: Omit<CreateTimeBlockInput, 'userId' | 'date'>) => Promise<boolean>;
   onUpdate?: (id: string, data: UpdateTimeBlockInput) => Promise<boolean>;
+  onDelete?: (id: string) => Promise<boolean>;
   existingBlock?: TimeBlock;
   conflicts?: TimeBlockConflict[];
   onCheckConflicts?: (startTime: string, endTime: string, excludeId?: string) => Promise<TimeBlockConflict[]>;
@@ -73,6 +76,7 @@ export const TimeBlockFormModal: React.FC<TimeBlockFormModalProps> = ({
   onClose,
   onSubmit,
   onUpdate,
+  onDelete,
   existingBlock,
   conflicts = [],
   onCheckConflicts
@@ -206,6 +210,27 @@ export const TimeBlockFormModal: React.FC<TimeBlockFormModalProps> = ({
       setIsSubmitting(false);
     }
   }, [formData, validateForm, existingBlock, onUpdate, onSubmit, onClose]);
+
+  // Handle delete with confirmation
+  const handleDelete = useCallback(async () => {
+    if (!existingBlock || !onDelete) return;
+    
+    if (!confirm(`Delete time block "${formData.title}"? This cannot be undone.`)) {
+      return;
+    }
+    
+    setIsSubmitting(true);
+    try {
+      const success = await onDelete(existingBlock.id);
+      if (success) {
+        onClose();
+      }
+    } catch (error) {
+      console.error('Failed to delete time block:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [existingBlock, onDelete, formData.title, onClose]);
 
   // Handle input changes
   const handleInputChange = useCallback((field: string, value: string) => {
@@ -396,23 +421,40 @@ export const TimeBlockFormModal: React.FC<TimeBlockFormModalProps> = ({
                 )}
 
                 {/* Action Buttons */}
-                <div className="flex justify-end space-x-3 pt-4 border-t border-gray-700/30">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={onClose}
-                    className="border-gray-600 text-gray-300 hover:bg-gray-700/50"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting || checkingConflicts || validationErrors.length > 0}
-                    className="bg-purple-600 hover:bg-purple-700 text-white"
-                  >
-                    <Save className="h-4 w-4 mr-2" />
-                    {isSubmitting ? 'Saving...' : existingBlock ? 'Update Block' : 'Create Block'}
-                  </Button>
+                <div className="flex justify-between items-center pt-4 border-t border-gray-700/30">
+                  {/* Delete button (only for existing blocks) */}
+                  {existingBlock && onDelete && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleDelete}
+                      disabled={isSubmitting}
+                      className="border-red-600/50 text-red-400 hover:bg-red-600/20 hover:border-red-500"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete
+                    </Button>
+                  )}
+
+                  {/* Right-side buttons */}
+                  <div className={cn("flex space-x-3", !existingBlock && "ml-auto")}>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={onClose}
+                      className="border-gray-600 text-gray-300 hover:bg-gray-700/50"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting || checkingConflicts || validationErrors.length > 0}
+                      className="bg-purple-600 hover:bg-purple-700 text-white"
+                    >
+                      <Save className="h-4 w-4 mr-2" />
+                      {isSubmitting ? 'Saving...' : existingBlock ? 'Update Block' : 'Create Block'}
+                    </Button>
+                  </div>
                 </div>
               </form>
             </CardContent>

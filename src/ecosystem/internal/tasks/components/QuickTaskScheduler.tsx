@@ -167,23 +167,13 @@ const QuickTaskScheduler: React.FC<QuickTaskSchedulerProps> = ({
   // Handle quick schedule with visual feedback
   const handleQuickSchedule = async (task: Task | Subtask, taskType: 'light' | 'deep') => {
     const taskId = task.id;
-    console.log('🚀 QuickTaskScheduler: Starting to add task to timebox:', {
-      taskId,
-      taskTitle: task.title,
-      taskType,
-      task
-    });
     setAddingTasks(prev => new Set([...prev, taskId]));
-    
+
     try {
       const timeSlot = generateTimeSlot(task, taskType);
-      console.log('📅 QuickTaskScheduler: Generated time slot:', timeSlot);
-      
-      console.log('🔄 QuickTaskScheduler: Calling onScheduleTask...');
-      const result = await onScheduleTask(task, timeSlot, taskType);
-      console.log('✅ QuickTaskScheduler: onScheduleTask result:', result);
-      
-      // Success feedback - could add toast here
+      await onScheduleTask(task, timeSlot, taskType);
+
+      // Success feedback
       setTimeout(() => {
         setAddingTasks(prev => {
           const next = new Set(prev);

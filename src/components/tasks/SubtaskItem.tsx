@@ -5,7 +5,7 @@
  * Handles completion toggle, inline editing, and calendar popup
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Check, ChevronDown, ChevronRight, Clock, AlertCircle, Wrench } from 'lucide-react';
 import { SubtaskMetadata } from './SubtaskMetadata';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select';
@@ -43,6 +43,8 @@ interface SubtaskItemProps {
   onCalendarToggle: (subtaskId: string) => void;
   onDeleteSubtask: (subtaskId: string) => void;
   onPriorityUpdate?: (subtaskId: string, priority: string) => void;
+  onEstimatedTimeUpdate?: (subtaskId: string, estimatedTime: string) => void;
+  onDescriptionUpdate?: (subtaskId: string, description: string) => void;
   children?: React.ReactNode; // For calendar popup
 }
 
@@ -63,8 +65,36 @@ export const SubtaskItem: React.FC<SubtaskItemProps> = ({
   onCalendarToggle,
   onDeleteSubtask,
   onPriorityUpdate,
+  onEstimatedTimeUpdate,
+  onDescriptionUpdate,
   children
 }) => {
+  const [isEditingDescription, setIsEditingDescription] = useState(false);
+  const [editDescription, setEditDescription] = useState(subtask.description || '');
+
+  const handleDescriptionClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditDescription(subtask.description || '');
+    setIsEditingDescription(true);
+  };
+
+  const handleDescriptionSave = () => {
+    if (onDescriptionUpdate && editDescription !== subtask.description) {
+      onDescriptionUpdate(subtask.id, editDescription);
+    }
+    setIsEditingDescription(false);
+  };
+
+  const handleDescriptionKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleDescriptionSave();
+    } else if (e.key === 'Escape') {
+      setEditDescription(subtask.description || '');
+      setIsEditingDescription(false);
+    }
+  };
+
   return (
     <div className="group flex items-start gap-2 py-2 pl-1 pr-1 hover:bg-gray-700/20 rounded-lg transition-all duration-200 w-full">
       <button
@@ -141,61 +171,34 @@ export const SubtaskItem: React.FC<SubtaskItemProps> = ({
             <div className="mb-3 pl-4 border-l border-gray-600/50 ml-1">
               <div className="space-y-2 text-xs">
                 {/* Description */}
-                {subtask.description && (
+                {(subtask.description || isEditingDescription) && (
                   <div className="text-gray-300">
-                    <span className="text-gray-500">Description:</span> {subtask.description}
+                    <span className="text-gray-500">Description:</span>{' '}
+                    {isEditingDescription ? (
+                      <input
+                        type="text"
+                        value={editDescription}
+                        onChange={(e) => setEditDescription(e.target.value)}
+                        onKeyDown={handleDescriptionKeyDown}
+                        onBlur={handleDescriptionSave}
+                        autoFocus
+                        placeholder="Add a description..."
+                        className="bg-gray-700/50 border border-gray-600 rounded px-2 py-1 text-white focus:outline-none focus:ring-1 focus:ring-gray-500 text-xs w-full mt-1"
+                      />
+                    ) : (
+                      <span
+                        className="cursor-pointer hover:text-gray-100 transition-colors"
+                        onClick={handleDescriptionClick}
+                        title="Click to edit description"
+                      >
+                        {subtask.description || 'Add description...'}
+                      </span>
+                    )}
                   </div>
                 )}
                 
-                {/* Priority and Time */}
+                {/* Estimated Time only - Priority already shown in collapsed view */}
                 <div className="flex items-center gap-4">
-                  {/* Priority Dropdown */}
-                  <div className="flex items-center gap-2">
-                    <AlertCircle className={`h-3 w-3 ${
-                      subtask.priority === 'URGENT' ? 'text-red-500' : 
-                      subtask.priority === 'HIGH' ? 'text-red-400' : 
-                      subtask.priority === 'MEDIUM' ? 'text-yellow-400' : 'text-green-400'
-                    }`} />
-                    {onPriorityUpdate ? (
-                      <Select
-                        value={subtask.priority || 'MEDIUM'}
-                        onValueChange={(value) => onPriorityUpdate(subtask.id, value)}
-                      >
-                        <SelectTrigger className="w-20 h-6 text-xs border-gray-600 bg-gray-800/50 text-gray-300 hover:border-gray-500">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="bg-gray-800 border-gray-600">
-                          <SelectItem value="LOW" className="text-xs">
-                            <span className="flex items-center gap-1">
-                              <span className="w-2 h-2 bg-green-400 rounded-full"></span>
-                              Low
-                            </span>
-                          </SelectItem>
-                          <SelectItem value="MEDIUM" className="text-xs">
-                            <span className="flex items-center gap-1">
-                              <span className="w-2 h-2 bg-yellow-400 rounded-full"></span>
-                              Medium
-                            </span>
-                          </SelectItem>
-                          <SelectItem value="HIGH" className="text-xs">
-                            <span className="flex items-center gap-1">
-                              <span className="w-2 h-2 bg-red-400 rounded-full"></span>
-                              High
-                            </span>
-                          </SelectItem>
-                          <SelectItem value="URGENT" className="text-xs">
-                            <span className="flex items-center gap-1">
-                              <span className="w-2 h-2 bg-red-500 rounded-full"></span>
-                              Urgent
-                            </span>
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    ) : (
-                      <span className="text-gray-400 capitalize text-xs">{subtask.priority?.toLowerCase() || 'medium'}</span>
-                    )}
-                  </div>
-                  
                   {subtask.estimatedTime && (
                     <div className="flex items-center gap-1">
                       <Clock className="h-3 w-3 text-blue-400" />
@@ -227,12 +230,14 @@ export const SubtaskItem: React.FC<SubtaskItemProps> = ({
             </div>
           )}
           
-          {/* Metadata row: Due date and Delete button */}
+          {/* Metadata row: Due date, priority, estimated time, and Delete button */}
           <SubtaskMetadata
             subtask={subtask}
             calendarSubtaskId={calendarSubtaskId}
             onCalendarToggle={onCalendarToggle}
             onDeleteSubtask={onDeleteSubtask}
+            onPriorityUpdate={onPriorityUpdate}
+            onEstimatedTimeUpdate={onEstimatedTimeUpdate}
           >
             {children}
           </SubtaskMetadata>

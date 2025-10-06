@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useClerkUser } from '@/shared/ClerkProvider';
+import { useSupabaseUserId } from '@/shared/lib/supabase-clerk';
 import { SimpleFeedbackList } from './SimpleFeedbackList';
 import { Button } from '@/shared/ui/button';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/shared/ui/dialog';
@@ -15,19 +17,28 @@ interface FeedbackItem {
 
 interface SimpleFeedbackButtonProps {
   onSubmit?: (items: FeedbackItem[]) => Promise<void>;
+  variant?: 'icon' | 'bar';
+  className?: string;
 }
 
-export function SimpleFeedbackButton({ onSubmit }: SimpleFeedbackButtonProps) {
+export function SimpleFeedbackButton({ onSubmit, variant = 'icon', className = '' }: SimpleFeedbackButtonProps) {
+  const { user } = useClerkUser();
+  const internalUserId = useSupabaseUserId(user?.id || null);
   const [showFeedback, setShowFeedback] = useState(false);
 
   const handleFeedbackSubmission = async (items: FeedbackItem[]) => {
+    if (!internalUserId) {
+      console.error('User not authenticated');
+      return;
+    }
+
     if (onSubmit) {
       await onSubmit(items);
     } else {
       // Default: use existing feedback service
       for (const item of items) {
         try {
-          await feedbackService.createFeedback({
+          await feedbackService.createFeedbackWithUserId(internalUserId, {
             title: item.text,
             description: item.text,
             category: 'GENERAL',
@@ -48,14 +59,25 @@ export function SimpleFeedbackButton({ onSubmit }: SimpleFeedbackButtonProps) {
 
   return (
     <>
-      {/* Simple floating button */}
-      <Button
-        onClick={() => setShowFeedback(true)}
-        className="w-10 h-10 rounded-full shadow-lg bg-blue-600 hover:bg-blue-700 p-0"
-        size="sm"
-      >
-        <MessageSquare className="h-4 w-4" />
-      </Button>
+      {/* Feedback button - icon or bar variant */}
+      {variant === 'icon' ? (
+        <Button
+          onClick={() => setShowFeedback(true)}
+          className={`w-10 h-10 rounded-full shadow-lg bg-blue-600 hover:bg-blue-700 p-0 ${className}`}
+          size="sm"
+        >
+          <MessageSquare className="h-4 w-4" />
+        </Button>
+      ) : (
+        <Button
+          onClick={() => setShowFeedback(true)}
+          className={`shadow-lg bg-blue-600 hover:bg-blue-700 px-6 py-3 text-sm font-medium ${className}`}
+          size="default"
+        >
+          <MessageSquare className="h-4 w-4 mr-2" />
+          Feedback
+        </Button>
+      )}
 
       {/* Simple modal */}
       <Dialog open={showFeedback} onOpenChange={setShowFeedback}>

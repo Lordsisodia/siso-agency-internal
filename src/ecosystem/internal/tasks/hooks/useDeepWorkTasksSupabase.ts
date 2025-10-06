@@ -1,13 +1,16 @@
 /**
- * 🚀 Deep Work Tasks Hook - DIRECT SUPABASE VERSION
- * 
- * Eliminates Express API - connects directly to Supabase
- * Replaces useDeepWorkTasks.ts with pure Supabase implementation
+ * 🚀 Deep Work Tasks Hook - OFFLINE-FIRST PWA VERSION
+ *
+ * Architecture:
+ * 1. IndexedDB (offlineDb) - Primary storage, works offline
+ * 2. Supabase - Cloud sync when online
+ * 3. Auto-sync queue when offline
  */
 
 import { useState, useCallback, useEffect } from 'react';
 import { useClerkUser } from '@/shared/hooks/useClerkUser';
 import { useSupabaseClient, useSupabaseUserId } from '@/shared/lib/supabase-clerk';
+import { offlineDb } from '@/shared/offline/offlineDb';
 
 export interface DeepWorkTask {
   id: string;
@@ -43,6 +46,7 @@ export interface DeepWorkSubtask {
   completed: boolean;
   priority?: string;
   dueDate?: string;
+  estimatedTime?: string;
   requiresFocus: boolean;
   complexityLevel?: number;
   createdAt: string;
@@ -123,6 +127,7 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
           completed: subtask.completed,
           priority: subtask.priority,
           dueDate: subtask.due_date, // Map snake_case to camelCase
+          estimatedTime: subtask.estimated_time, // Map snake_case to camelCase
           requiresFocus: subtask.requires_focus || false,
           complexityLevel: subtask.complexity_level || 1,
           createdAt: subtask.created_at,
@@ -694,6 +699,86 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
     }
   }, [supabase]);
 
+  // Update subtask description (text field) in Supabase
+  const updateSubtaskDescription = useCallback(async (subtaskId: string, description: string) => {
+    if (!supabase) return null;
+    
+    try {
+      console.log(`📝 Updating Deep Work subtask description: ${subtaskId}`);
+
+      const { error } = await supabase
+        .from('deep_work_subtasks')
+        .update({
+          text: description,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', subtaskId);
+      
+      if (error) {
+        throw new Error(`Supabase error: ${error.message}`);
+      }
+
+      console.log(`✅ Updated Deep Work subtask description: ${subtaskId}`);
+      
+      // Update local state
+      setTasks(prev => prev.map(task => ({
+        ...task,
+        subtasks: task.subtasks.map(subtask => 
+          subtask.id === subtaskId 
+            ? { ...subtask, text: description }
+            : subtask
+        )
+      })));
+      
+      return true;
+      
+    } catch (error) {
+      console.error('❌ Error updating Deep Work subtask description:', error);
+      setError(error instanceof Error ? error.message : 'Failed to update subtask description');
+      return null;
+    }
+  }, [supabase]);
+
+  // Update subtask estimated time in Supabase
+  const updateSubtaskEstimatedTime = useCallback(async (subtaskId: string, estimatedTime: string) => {
+    if (!supabase) return null;
+
+    try {
+      console.log(`⏱️ Updating Deep Work subtask estimated time: ${subtaskId} -> ${estimatedTime}`);
+
+      const { error } = await supabase
+        .from('deep_work_subtasks')
+        .update({
+          estimated_time: estimatedTime,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', subtaskId);
+
+      if (error) {
+        throw new Error(`Supabase error: ${error.message}`);
+      }
+
+      console.log(`✅ Updated Deep Work subtask estimated time: ${subtaskId}`);
+
+      // Update local state
+      setTasks(prev => prev.map(task => ({
+        ...task,
+        subtasks: task.subtasks.map(subtask =>
+          subtask.id === subtaskId
+            ? { ...subtask, estimatedTime: estimatedTime }
+            : subtask
+        )
+      })));
+
+      return true;
+
+    } catch (error) {
+      console.error('❌ Error updating Deep Work subtask estimated time:', error);
+      setError(error instanceof Error ? error.message : 'Failed to update subtask estimated time');
+      return null;
+    }
+  }, [supabase]);
+
   // Load tasks when dependencies change
   useEffect(() => {
     loadTasks();
@@ -712,9 +797,11 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
     updateTaskTitle,
     updateSubtaskTitle,
     updateSubtaskPriority,
+    updateSubtaskEstimatedTime,
     pushTaskToAnotherDay,
     updateTaskDueDate,
     updateSubtaskDueDate,
+    updateSubtaskDescription,
     refreshTasks: loadTasks
   };
 }

@@ -94,7 +94,7 @@ async function apiCall<T>(
 
     return {
       success: true,
-      data: data.timeBlocks || data.timeBlock || data,
+      data: data.data || data.timeBlocks || data.timeBlock || data,
       conflicts: data.conflicts
     };
   } catch (error) {

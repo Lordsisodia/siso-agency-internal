@@ -15,13 +15,13 @@ import { Badge } from '@/shared/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { format } from 'date-fns';
 import { cn } from '@/shared/lib/utils';
-import { TaskDetailModal } from '@/ecosystem/internal/tasks/ui/task-detail-modal';
 import { TimeBlockFormModal } from '@/ecosystem/internal/tasks/components/TimeBlockFormModal';
 import QuickTaskScheduler from '@/ecosystem/internal/tasks/components/QuickTaskScheduler';
 import { useTimeBlocks } from '@/shared/hooks/useTimeBlocks';
-import { TimeBlockCategory } from '../../../../generated/prisma/index.js';
+import { TimeBlockCategory } from '@/api/timeblocksApi.offline';
 import { theme } from '@/styles/theme';
 import { useImplementation } from '@/migration/feature-flags';
+import { toast } from 'sonner';
 
 // Map database categories to UI categories
 const mapCategoryToUI = (dbCategory: TimeBlockCategory): string => {
@@ -245,11 +245,10 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
   const handleToggleComplete = useCallback(async (taskId: string) => {
     try {
       await toggleCompletion(taskId);
-      // Close modal after toggling for smoother UX
-      setSelectedTask(null);
+      toast.success('Time block updated');
     } catch (error) {
       console.error('Error toggling task completion:', error);
-      // Keep modal open on error so user can retry
+      toast.error('Failed to update time block');
     }
   }, [toggleCompletion]);
   
@@ -277,9 +276,12 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
       category: data.category,
       notes: data.notes
     });
-    
+
     if (success) {
       setIsFormModalOpen(false);
+      toast.success('Time block created');
+    } else {
+      toast.error('Failed to create time block');
     }
     return success;
   };
@@ -290,10 +292,24 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
     if (success) {
       setIsFormModalOpen(false);
       setEditingBlock(null);
+      toast.success('Time block updated');
+    } else {
+      toast.error('Failed to update time block');
     }
     return success;
   };
   
+  // Handle deleting a time block with toast notification
+  const handleDeleteBlock = useCallback(async (id: string): Promise<boolean> => {
+    const success = await deleteTimeBlock(id);
+    if (success) {
+      toast.success('Time block deleted');
+    } else {
+      toast.error('Failed to delete time block');
+    }
+    return success;
+  }, [deleteTimeBlock]);
+
   // Handle checking conflicts
   const handleCheckConflicts = async (startTime: string, endTime: string, excludeId?: string) => {
     return await checkConflicts(startTime, endTime, excludeId);
@@ -301,30 +317,24 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
 
   // Handle scheduling task from selection modal
   const handleScheduleTask = async (task: any, timeSlot: any, taskType: 'light' | 'deep') => {
-    console.log('🎯 TimeboxSection: handleScheduleTask called:', {
-      task,
-      timeSlot,
-      taskType
-    });
-    
-    const category = taskType === 'deep' ? 'DEEP_WORK' : 'LIGHT_WORK';
-    console.log('📝 TimeboxSection: Creating time block with category:', category);
-    
+    const category: TimeBlockCategory = taskType === 'deep' ? 'DEEP_WORK' : 'LIGHT_WORK';
+
     const timeBlockData = {
       title: task.title,
       description: task.description || `Scheduled ${taskType} work task`,
       startTime: timeSlot.start,
       endTime: timeSlot.end,
-      category: mapUIToCategory(category),
+      category: category,
       notes: `Linked to ${taskType} work task: ${task.id}`
     };
-    
-    console.log('⚡ TimeboxSection: Calling createTimeBlock with data:', timeBlockData);
+
     const success = await createTimeBlock(timeBlockData);
-    console.log('🎉 TimeboxSection: createTimeBlock result:', success);
-    
+
     if (success) {
       setIsQuickSchedulerOpen(false);
+      toast.success(`Added "${task.title}" to timeline`);
+    } else {
+      toast.error('Failed to add task to timeline');
     }
     return success;
   };
@@ -332,7 +342,16 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
   // Convert database time blocks to UI format
   const tasks = useMemo(() => {
     if (!Array.isArray(timeBlocks)) return [];
-    return timeBlocks.map(block => {
+    return timeBlocks
+      .filter(block => {
+        // Defensive check: ensure block has required fields
+        if (!block.startTime || !block.endTime) {
+          console.warn('⚠️ Skipping invalid time block:', block);
+          return false;
+        }
+        return true;
+      })
+      .map(block => {
       // Calculate duration from start and end times
       const [startHour, startMin] = block.startTime.split(':').map(Number);
       const [endHour, endMin] = block.endTime.split(':').map(Number);
@@ -479,12 +498,26 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
         >
           <Button
             onClick={() => setIsQuickSchedulerOpen(true)}
-            className="w-full bg-gradient-to-r from-emerald-500 to-blue-600 hover:from-emerald-600 hover:to-blue-700 text-white py-3 text-base font-semibold shadow-xl hover:shadow-2xl border border-white/20 hover:border-white/30 transition-all duration-300 rounded-xl"
+            disabled={isCreating || isUpdating}
+            className="w-full bg-gradient-to-r from-emerald-500 to-blue-600 hover:from-emerald-600 hover:to-blue-700 text-white py-3 text-base font-semibold shadow-xl hover:shadow-2xl border border-white/20 hover:border-white/30 transition-all duration-300 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
             size="lg"
             title="Add tasks to timebox"
           >
-            <Calendar className="h-5 w-5 mr-3" />
-            Add Tasks to Timeline
+            {isCreating || isUpdating ? (
+              <>
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full mr-3"
+                />
+                {isCreating ? 'Adding...' : 'Updating...'}
+              </>
+            ) : (
+              <>
+                <Calendar className="h-5 w-5 mr-3" />
+                Add Tasks to Timeline
+              </>
+            )}
           </Button>
         </motion.div>
 
@@ -652,12 +685,39 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                 {/* Enhanced Task Blocks Container - Adjusted for sidebar */}
                 <div className="absolute left-16 right-4 top-0 bottom-0 bg-gradient-to-r from-transparent via-black/5 to-transparent rounded-2xl shadow-inner" style={{ width: 'calc(100% - 80px)' }}>
                   {validTasks.length === 0 ? (
-                    /* Empty state */
+                    /* Enhanced Empty State */
                     <div className="flex items-center justify-center h-full">
-                      <div className="text-center p-8">
-                        <div className="text-gray-500 text-sm mb-2">No valid tasks for today</div>
-                        <div className="text-gray-600 text-xs">Tasks will appear here when you add them</div>
-                      </div>
+                      <motion.div 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="text-center p-8 max-w-md"
+                      >
+                        <motion.div
+                          animate={{ 
+                            rotate: [0, 10, -10, 0],
+                            scale: [1, 1.1, 1]
+                          }}
+                          transition={{ 
+                            duration: 2,
+                            repeat: Infinity,
+                            repeatDelay: 3
+                          }}
+                          className="mb-6"
+                        >
+                          <Calendar className="h-20 w-20 mx-auto text-blue-500/30" />
+                        </motion.div>
+                        <h3 className="text-white text-xl font-semibold mb-3">Your Timeline is Empty</h3>
+                        <p className="text-gray-400 text-sm mb-6 leading-relaxed">
+                          Start planning your day by adding tasks from Deep Work or Light Work sections
+                        </p>
+                        <Button
+                          onClick={() => setIsQuickSchedulerOpen(true)}
+                          className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl px-6 py-3"
+                        >
+                          <Plus className="h-5 w-5 mr-2" />
+                          Add Your First Task
+                        </Button>
+                      </motion.div>
                     </div>
                   ) : (
                     validTasks.map((task, index) => {
@@ -758,6 +818,23 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                           
                           {/* Task header section */}
                           <div className="relative z-10 mb-auto">
+                            {/* Time and Category Labels */}
+                            <div className="flex items-center justify-between mb-2">
+                              <Badge className="text-xs font-semibold bg-black/40 text-white/90 border-white/20 px-2 py-0.5">
+                                <Clock className="h-3 w-3 mr-1 inline" />
+                                {task.startTime} - {task.endTime}
+                              </Badge>
+                              <Badge className={cn(
+                                "text-xs font-semibold px-2 py-0.5 capitalize",
+                                task.category === 'deep-work' && "bg-blue-500/20 text-blue-200 border-blue-400/30",
+                                task.category === 'light-work' && "bg-emerald-500/20 text-emerald-200 border-emerald-400/30",
+                                task.category === 'wellness' && "bg-teal-500/20 text-teal-200 border-teal-400/30",
+                                task.category === 'admin' && "bg-indigo-500/20 text-indigo-200 border-indigo-400/30",
+                                task.category === 'morning' && "bg-amber-500/20 text-amber-200 border-amber-400/30"
+                              )}>
+                                {task.category.replace('-', ' ')}
+                              </Badge>
+                            </div>
                             <div className="flex items-start justify-between mb-2">
                               <div className="flex-1 pr-2">
                                 <h4 className={cn(
@@ -777,9 +854,14 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                                 )}
                               </div>
                               <motion.div
-                                className="flex-shrink-0 mt-0.5"
+                                className="flex-shrink-0 mt-0.5 cursor-pointer"
                                 whileHover={{ scale: 1.15, rotate: 5 }}
                                 whileTap={{ scale: 0.9 }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleToggleComplete(task.id);
+                                }}
+                                title={task.completed ? "Mark as incomplete" : "Mark as complete"}
                               >
                                 {task.completed ? (
                                   <motion.div
@@ -898,12 +980,27 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
         
       </div>
 
-      {/* Task Detail Modal */}
-      <TaskDetailModal
-        task={selectedTask}
-        onClose={() => setSelectedTask(null)}
-        onToggleComplete={handleToggleComplete}
-      />
+      {/* Time Block Detail Modal - Opens edit modal instead of TaskDetailModal */}
+      {selectedTask && (
+        <TimeBlockFormModal
+          isOpen={true}
+          onClose={() => setSelectedTask(null)}
+          onSubmit={handleCreateBlock}
+          onUpdate={(id, data) => handleUpdateBlock(id, data)}
+          onDelete={handleDeleteBlock}
+          existingBlock={{
+            id: selectedTask.id,
+            title: selectedTask.title,
+            description: selectedTask.description || '',
+            startTime: selectedTask.startTime,
+            endTime: selectedTask.endTime,
+            category: mapUIToCategory(selectedTask.category),
+            notes: ''
+          }}
+          conflicts={conflicts}
+          onCheckConflicts={handleCheckConflicts}
+        />
+      )}
       
       {/* Time Block Form Modal */}
       <TimeBlockFormModal
@@ -914,6 +1011,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
         }}
         onSubmit={handleCreateBlock}
         onUpdate={handleUpdateBlock}
+        onDelete={handleDeleteBlock}
         existingBlock={editingBlock}
         conflicts={conflicts}
         onCheckConflicts={handleCheckConflicts}

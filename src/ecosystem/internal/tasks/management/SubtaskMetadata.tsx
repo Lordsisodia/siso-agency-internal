@@ -1,23 +1,25 @@
 /**
  * 📊 SubtaskMetadata Component
- * 
- * Contains due date badge and delete button for subtasks
+ *
+ * Contains due date, priority, estimated time badges and delete button for subtasks
  * Includes calendar popup functionality for date selection
  */
 
 import React from 'react';
-import { Calendar, X } from 'lucide-react';
+import { Calendar, Clock, X } from 'lucide-react';
 
 interface SubtaskMetadataProps {
   subtask: {
     id: string;
     dueDate?: string;
     priority?: string;
+    estimatedTime?: string;
   };
   calendarSubtaskId: string | null;
   onCalendarToggle: (subtaskId: string) => void;
   onDeleteSubtask: (subtaskId: string) => void;
   onPriorityChange?: (subtaskId: string, priority: string) => void;
+  onEstimatedTimeChange?: (subtaskId: string, estimatedTime: string) => void;
   children?: React.ReactNode; // For calendar popup
 }
 
@@ -27,13 +29,15 @@ export const SubtaskMetadata: React.FC<SubtaskMetadataProps> = ({
   onCalendarToggle,
   onDeleteSubtask,
   onPriorityChange,
+  onEstimatedTimeChange,
   children
 }) => {
   const [priorityPopupId, setPriorityPopupId] = React.useState<string | null>(null);
-  
+  const [timePopupId, setTimePopupId] = React.useState<string | null>(null);
 
   const handlePriorityToggle = (subtaskId: string) => {
     setPriorityPopupId(priorityPopupId === subtaskId ? null : subtaskId);
+    setTimePopupId(null); // Close time popup if open
   };
 
   const handlePrioritySelect = (priority: string) => {
@@ -41,6 +45,18 @@ export const SubtaskMetadata: React.FC<SubtaskMetadataProps> = ({
       onPriorityChange(subtask.id, priority);
     }
     setPriorityPopupId(null);
+  };
+
+  const handleTimeToggle = (subtaskId: string) => {
+    setTimePopupId(timePopupId === subtaskId ? null : subtaskId);
+    setPriorityPopupId(null); // Close priority popup if open
+  };
+
+  const handleTimeSelect = (estimatedTime: string) => {
+    if (onEstimatedTimeChange) {
+      onEstimatedTimeChange(subtask.id, estimatedTime);
+    }
+    setTimePopupId(null);
   };
 
   const getPriorityConfig = (priority?: string) => {
@@ -87,40 +103,78 @@ export const SubtaskMetadata: React.FC<SubtaskMetadataProps> = ({
           {calendarSubtaskId === subtask.id && children}
         </div>
         
-        {/* Priority Badge - similar to due date */}
-        {onPriorityChange && (
+        {/* Priority Badge - Always visible, clickable only if handler provided */}
+        <div className="relative">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              if (onPriorityChange) {
+                handlePriorityToggle(subtask.id);
+              }
+            }}
+            className={`flex items-center gap-1 text-xs font-medium ${onPriorityChange ? 'cursor-pointer hover:opacity-80' : 'cursor-default'} transition-opacity px-2 py-1 rounded ${priorityConfig.bgColor} ${priorityConfig.textColor}`}
+            title={onPriorityChange ? "Click to change priority" : "Priority"}
+          >
+            <span>{priorityConfig.icon}</span>
+            <span className="hidden sm:inline">{priorityConfig.label}</span>
+          </button>
+
+          {/* Priority Popup - Only if handler provided */}
+          {onPriorityChange && priorityPopupId === subtask.id && (
+            <div className="absolute top-8 left-0 z-[99999] bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-2 min-w-[120px]">
+              {Object.entries({
+                'low': { icon: '🟢', label: 'Low', bgColor: 'bg-green-600', textColor: 'text-white' },
+                'medium': { icon: '🟡', label: 'Medium', bgColor: 'bg-yellow-600', textColor: 'text-white' },
+                'high': { icon: '🔴', label: 'High', bgColor: 'bg-red-600', textColor: 'text-white' },
+                'urgent': { icon: '🚨', label: 'Urgent', bgColor: 'bg-purple-600', textColor: 'text-white' }
+              }).map(([key, config]) => (
+                <button
+                  key={key}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handlePrioritySelect(key);
+                  }}
+                  className="w-full flex items-center gap-2 px-2 py-1 text-xs text-white hover:bg-gray-700 rounded transition-colors"
+                >
+                  <span>{config.icon}</span>
+                  <span>{config.label}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Estimated Time Badge - Show in expanded dropdown only, not in collapsed view */}
+        {subtask.estimatedTime && (
           <div className="relative">
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                handlePriorityToggle(subtask.id);
+                if (onEstimatedTimeChange) {
+                  handleTimeToggle(subtask.id);
+                }
               }}
-              className={`flex items-center gap-1 text-xs font-medium cursor-pointer hover:opacity-80 transition-opacity px-2 py-1 rounded ${priorityConfig.bgColor} ${priorityConfig.textColor}`}
-              title="Click to change priority"
+              className={`flex items-center gap-1 text-xs font-normal ${onEstimatedTimeChange ? 'cursor-pointer hover:opacity-80' : 'cursor-default'} transition-opacity px-2 py-1 rounded bg-blue-600/80 text-white`}
+              title={onEstimatedTimeChange ? "Click to set estimated time" : "Estimated time"}
             >
-              <span>{priorityConfig.icon}</span>
-              <span className="hidden sm:inline">{priorityConfig.label}</span>
+              <Clock className="h-3 w-3" />
+              <span>{subtask.estimatedTime}</span>
             </button>
-            
-            {/* Priority Popup */}
-            {priorityPopupId === subtask.id && (
-              <div className="absolute top-8 left-0 z-[99999] bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-2 min-w-[120px]">
-                {Object.entries({
-                  'low': { icon: '🟢', label: 'Low', bgColor: 'bg-green-600', textColor: 'text-white' },
-                  'medium': { icon: '🟡', label: 'Medium', bgColor: 'bg-yellow-600', textColor: 'text-white' },
-                  'high': { icon: '🔴', label: 'High', bgColor: 'bg-red-600', textColor: 'text-white' },
-                  'urgent': { icon: '🚨', label: 'Urgent', bgColor: 'bg-purple-600', textColor: 'text-white' }
-                }).map(([key, config]) => (
+
+            {/* Time Popup - Only if handler provided */}
+            {onEstimatedTimeChange && timePopupId === subtask.id && (
+              <div className="absolute top-8 left-0 z-[99999] bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-2 min-w-[100px]">
+                {['15min', '30min', '45min', '1h', '1.5h', '2h', '3h'].map((time) => (
                   <button
-                    key={key}
+                    key={time}
                     onClick={(e) => {
                       e.stopPropagation();
-                      handlePrioritySelect(key);
+                      handleTimeSelect(time);
                     }}
                     className="w-full flex items-center gap-2 px-2 py-1 text-xs text-white hover:bg-gray-700 rounded transition-colors"
                   >
-                    <span>{config.icon}</span>
-                    <span>{config.label}</span>
+                    <Clock className="h-3 w-3" />
+                    <span>{time}</span>
                   </button>
                 ))}
               </div>

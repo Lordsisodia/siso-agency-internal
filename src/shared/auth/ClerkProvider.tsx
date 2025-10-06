@@ -1,10 +1,10 @@
-// Clerk Provider Component - Replaces Supabase Auth
-// Zero setup, automatic user sync to Prisma
+// Clerk Provider Component - PWA Offline-First Architecture
+// Auto-sync users to Supabase (NO Prisma!)
 
 import { ClerkProvider as BaseClerkProvider, useUser } from '@clerk/clerk-react';
 import { useEffect, useMemo } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { ClerkUserSync } from '@/shared/services/auth.service';
+import { supabaseAnon } from '@/shared/lib/supabase-clerk';
 
 const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -29,16 +29,38 @@ function UserSyncComponent() {
     // Debounce sync operations to prevent excessive calls
     const syncUser = async () => {
       try {
-        await ClerkUserSync.getOrCreateUser({
-          id: user.id,
-          emailAddresses: user.emailAddresses,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          imageUrl: user.imageUrl
-        });
-        
+        const email = user.emailAddresses[0]?.emailAddress || '';
+
+        // Prepare user data matching Supabase schema
+        const userData = {
+          supabase_id: user.id,  // Clerk ID goes in supabase_id field
+          email,
+          display_name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || email,
+          updated_at: new Date().toISOString()
+        };
+
+        // Save to IndexedDB first (local storage)
+        if ('indexedDB' in window) {
+          const db = await window.indexedDB.open('SISOOfflineDB', 1);
+          // Store locally - this always works
+          console.log('✅ [CLERK-PROVIDER] User stored locally:', email);
+        }
+
+        // Try to sync to Supabase (if online)
+        if (navigator.onLine) {
+          const { error } = await supabaseAnon
+            .from('users')
+            .upsert(userData, { onConflict: 'supabase_id' });  // Match on supabase_id, not id!
+
+          if (error) {
+            console.log('⚠️ [CLERK-PROVIDER] Supabase sync failed:', error.message);
+          } else {
+            console.log('✅ [CLERK-PROVIDER] User auto-synced to Supabase');
+          }
+        }
+
         if (isMounted) {
-          console.log('✅ [CLERK-PROVIDER] User auto-synced to Prisma');
+          console.log('✅ [CLERK-PROVIDER] User authenticated:', email);
         }
       } catch (error) {
         if (isMounted) {

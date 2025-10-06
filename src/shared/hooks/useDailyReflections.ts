@@ -1,13 +1,16 @@
 /**
- * 🌙 Daily Reflections Hook - DIRECT SUPABASE VERSION
- * 
- * Connects nightly checkout directly to Supabase daily_reflections table
- * Replaces broken Prisma API with direct Supabase implementation
+ * 🌙 Daily Reflections Hook - OFFLINE-FIRST PWA VERSION
+ *
+ * Architecture:
+ * 1. IndexedDB (offlineDb) - Primary storage, works offline
+ * 2. Supabase - Cloud sync when online
+ * 3. Auto-sync queue when offline
  */
 
 import { useState, useCallback, useEffect } from 'react';
 import { useClerkUser } from './useClerkUser';
 import { useSupabaseClient, useSupabaseUserId } from '@/shared/lib/supabase-clerk';
+import { unifiedDataService } from '@/shared/services/unified-data.service';
 
 export interface DailyReflection {
   id: string;
@@ -15,9 +18,8 @@ export interface DailyReflection {
   date: string;
   wentWell: string[];
   evenBetterIf: string[];
-  analysis: string[];
-  patterns: string[];
-  changes: string[];
+  dailyAnalysis: string;
+  actionItems: string;
   overallRating?: number;
   keyLearnings?: string;
   tomorrowFocus?: string;
@@ -40,9 +42,9 @@ export function useDailyReflections({ selectedDate }: UseDailyReflectionsProps) 
 
   const dateString = selectedDate?.toISOString()?.split('T')[0] || new Date().toISOString().split('T')[0];
 
-  // Load daily reflection from Supabase
+  // Load daily reflection - OFFLINE-FIRST
   const loadReflection = useCallback(async () => {
-    if (!isSignedIn || !internalUserId || !supabase) {
+    if (!isSignedIn || !internalUserId) {
       setLoading(false);
       return;
     }
@@ -51,40 +53,29 @@ export function useDailyReflections({ selectedDate }: UseDailyReflectionsProps) 
       setLoading(true);
       setError(null);
 
-      console.log(`🌙 Loading daily reflection from Supabase for ${dateString}...`);
+      console.log(`🌙 Loading daily reflection (offline-first) for ${dateString}...`);
 
-      // Query Supabase directly
-      const { data, error: reflectionError } = await supabase
-        .from('daily_reflections')
-        .select('*')
-        .eq('user_id', internalUserId)
-        .eq('date', dateString)
-        .single();
-
-      if (reflectionError && reflectionError.code !== 'PGRST116') {
-        // PGRST116 = no rows found, which is OK for new dates
-        throw new Error(`Supabase error: ${reflectionError.message}`);
-      }
+      // Use unified data service (IndexedDB first, then Supabase if online)
+      const data = await unifiedDataService.getDailyReflection(internalUserId, dateString);
 
       if (data) {
-        // Transform Supabase data to match our interface
+        // Transform to match our interface
         const transformedReflection: DailyReflection = {
-          id: data.id,
+          id: data.id || '',
           userId: data.user_id,
           date: data.date,
-          wentWell: data.went_well || [],
-          evenBetterIf: data.even_better_if || [],
-          analysis: data.analysis || [],
-          patterns: data.patterns || [],
-          changes: data.changes || [],
-          overallRating: data.overall_rating,
-          keyLearnings: data.key_learnings || '',
-          tomorrowFocus: data.tomorrow_focus || '',
-          createdAt: data.created_at,
-          updatedAt: data.updated_at
+          wentWell: data.wentWell || [],
+          evenBetterIf: data.evenBetterIf || [],
+          dailyAnalysis: data.dailyAnalysis || '',
+          actionItems: data.actionItems || '',
+          overallRating: data.overallRating,
+          keyLearnings: data.keyLearnings || '',
+          tomorrowFocus: data.tomorrowFocus || '',
+          createdAt: data.created_at || new Date().toISOString(),
+          updatedAt: data.updated_at || new Date().toISOString()
         };
 
-        console.log(`✅ Loaded daily reflection from Supabase for ${dateString}`);
+        console.log(`✅ Loaded daily reflection (${navigator.onLine ? 'online' : 'offline'}) for ${dateString}`);
         setReflection(transformedReflection);
       } else {
         console.log(`📝 No reflection found for ${dateString}, will create on save`);
@@ -92,74 +83,62 @@ export function useDailyReflections({ selectedDate }: UseDailyReflectionsProps) 
       }
 
     } catch (error) {
-      console.error('❌ Error loading daily reflection from Supabase:', error);
-      setError(error instanceof Error ? error.message : 'Failed to load reflection from Supabase');
+      console.error('❌ Error loading daily reflection:', error);
+      setError(error instanceof Error ? error.message : 'Failed to load reflection');
     } finally {
       setLoading(false);
     }
-  }, [isSignedIn, internalUserId, dateString, supabase]);
+  }, [isSignedIn, internalUserId, dateString]);
 
-  // Save daily reflection to Supabase
+  // Save daily reflection - OFFLINE-FIRST
   const saveReflection = useCallback(async (reflectionData: Partial<DailyReflection>) => {
-    if (!internalUserId || !supabase) return null;
+    if (!internalUserId) return null;
 
     try {
       setSaving(true);
       setError(null);
-      console.log(`🌙 Saving daily reflection to Supabase for ${dateString}...`);
+      console.log(`🌙 Saving daily reflection (offline-first) for ${dateString}...`);
 
-      const { data, error } = await supabase
-        .from('daily_reflections')
-        .upsert({
-          user_id: internalUserId,
-          date: dateString,
-          went_well: reflectionData.wentWell || [],
-          even_better_if: reflectionData.evenBetterIf || [],
-          analysis: reflectionData.analysis || [],
-          patterns: reflectionData.patterns || [],
-          changes: reflectionData.changes || [],
-          overall_rating: reflectionData.overallRating,
-          key_learnings: reflectionData.keyLearnings || '',
-          tomorrow_focus: reflectionData.tomorrowFocus || '',
-          updated_at: new Date().toISOString()
-        }, {
-          onConflict: 'user_id,date'
-        })
-        .select()
-        .single();
-
-      if (error) {
-        throw new Error(`Supabase error: ${error.message}`);
-      }
+      // Use unified data service (saves to IndexedDB + syncs to Supabase if online)
+      await unifiedDataService.saveDailyReflection({
+        user_id: internalUserId,
+        date: dateString,
+        wentWell: reflectionData.wentWell || [],
+        evenBetterIf: reflectionData.evenBetterIf || [],
+        dailyAnalysis: reflectionData.dailyAnalysis || '',
+        actionItems: reflectionData.actionItems || '',
+        overallRating: reflectionData.overallRating,
+        keyLearnings: reflectionData.keyLearnings || '',
+        tomorrowFocus: reflectionData.tomorrowFocus || ''
+      });
 
       const savedReflection: DailyReflection = {
-        id: data.id,
-        userId: data.user_id,
-        date: data.date,
-        wentWell: data.went_well || [],
-        evenBetterIf: data.even_better_if || [],
-        analysis: data.analysis || [],
-        patterns: data.patterns || [],
-        changes: data.changes || [],
-        overallRating: data.overall_rating,
-        keyLearnings: data.key_learnings || '',
-        tomorrowFocus: data.tomorrow_focus || '',
-        createdAt: data.created_at,
-        updatedAt: data.updated_at
+        id: reflection?.id || '',
+        userId: internalUserId,
+        date: dateString,
+        wentWell: reflectionData.wentWell || [],
+        evenBetterIf: reflectionData.evenBetterIf || [],
+        dailyAnalysis: reflectionData.dailyAnalysis || '',
+        actionItems: reflectionData.actionItems || '',
+        overallRating: reflectionData.overallRating,
+        keyLearnings: reflectionData.keyLearnings || '',
+        tomorrowFocus: reflectionData.tomorrowFocus || '',
+        createdAt: reflection?.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       };
 
-      console.log(`✅ Saved daily reflection to Supabase for ${dateString}`);
+      console.log(`✅ Saved daily reflection (${navigator.onLine ? 'online' : 'offline'}) for ${dateString}`);
       setReflection(savedReflection);
       return savedReflection;
 
     } catch (error) {
-      console.error('❌ Error saving daily reflection to Supabase:', error);
-      setError(error instanceof Error ? error.message : 'Failed to save reflection to Supabase');
+      console.error('❌ Error saving daily reflection:', error);
+      setError(error instanceof Error ? error.message : 'Failed to save reflection');
       return null;
     } finally {
       setSaving(false);
     }
-  }, [internalUserId, dateString, supabase]);
+  }, [internalUserId, dateString, reflection]);
 
   // Load reflection when dependencies change
   useEffect(() => {

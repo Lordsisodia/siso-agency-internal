@@ -189,15 +189,20 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
       localStorage.setItem(`lifelock-${dateKey}-${habitKey}`, completed.toString());
       
       // Use offline manager for persistent storage and sync
-      const habitData = {
+      // Transform to daily_health schema structure
+      const healthData = {
+        id: `${internalUserId}-${format(selectedDate, 'yyyy-MM-dd')}`, // Composite key
         user_id: internalUserId,
         date: format(selectedDate, 'yyyy-MM-dd'),
-        habit_key: habitKey,
-        completed: completed,
+        health_checklist: {
+          morning_routine: {
+            [habitKey]: completed
+          }
+        },
         updated_at: new Date().toISOString()
       };
       
-      await saveTask('morning_routine_habits', habitData);
+      await saveTask('morning_routine', healthData);
       
       // Update local state immediately for better UX
       if (morningRoutine && morningRoutine.items && Array.isArray(morningRoutine.items)) {

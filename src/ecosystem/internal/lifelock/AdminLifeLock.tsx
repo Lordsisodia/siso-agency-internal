@@ -173,9 +173,8 @@ const AdminLifeLock: React.FC = memo(() => {
 
   return (
     <TasksProvider>
-      <div className="h-full bg-gradient-to-br from-black via-gray-900 to-black">
-        <div className="container mx-auto px-4 py-8">
-          <TabLayoutWrapper 
+      <div className="h-full w-full bg-gradient-to-br from-black via-gray-900 to-black">
+        <TabLayoutWrapper 
             selectedDate={dateNavigation.currentDate} 
             onDateChange={dateNavigation.setCurrentDate}
           >
@@ -190,7 +189,8 @@ const AdminLifeLock: React.FC = memo(() => {
                 isAnalyzingTasks: lifeLockHook?.isAnalyzingTasks,
                 isProcessingVoice: lifeLockHook?.isProcessingVoice,
                 handleVoiceCommand: lifeLockHook?.handleVoiceCommand,
-                todayCard: lifeLockHook?.todayCard
+                todayCard: lifeLockHook?.todayCard,
+                userId: user?.id
               });
               
               return (
@@ -202,35 +202,34 @@ const AdminLifeLock: React.FC = memo(() => {
             }}
           </TabLayoutWrapper>
 
-          {/* Modals */}
-          {modalHandlers.isCreateTaskModalOpen && (
-            <CreateTaskModal
-              currentDate={dateNavigation.currentDate}
-              onClose={modalHandlers.closeCreateTaskModal}
-            />
-          )}
+        {/* Modals - Moved outside TabLayoutWrapper to avoid scroll interference */}
+        {modalHandlers.isCreateTaskModalOpen && (
+          <CreateTaskModal
+            currentDate={dateNavigation.currentDate}
+            onClose={modalHandlers.closeCreateTaskModal}
+          />
+        )}
 
-          {modalHandlers.isCreateHabitModalOpen && (
-            <CreateHabitModal
-              currentDate={dateNavigation.currentDate}
-              onClose={modalHandlers.closeCreateHabitModal}
-            />
-          )}
+        {modalHandlers.isCreateHabitModalOpen && (
+          <CreateHabitModal
+            currentDate={dateNavigation.currentDate}
+            onClose={modalHandlers.closeCreateHabitModal}
+          />
+        )}
 
-          {modalHandlers.isCreateGoalModalOpen && (
-            <CreateGoalModal
-              currentDate={dateNavigation.currentDate}
-              onClose={modalHandlers.closeCreateGoalModal}
-            />
-          )}
+        {modalHandlers.isCreateGoalModalOpen && (
+          <CreateGoalModal
+            currentDate={dateNavigation.currentDate}
+            onClose={modalHandlers.closeCreateGoalModal}
+          />
+        )}
 
-          {modalHandlers.isCreateJournalModalOpen && (
-            <CreateJournalEntryModal
-              currentDate={dateNavigation.currentDate}
-              onClose={modalHandlers.closeCreateJournalModal}
-            />
-          )}
-        </div>
+        {modalHandlers.isCreateJournalModalOpen && (
+          <CreateJournalEntryModal
+            currentDate={dateNavigation.currentDate}
+            onClose={modalHandlers.closeCreateJournalModal}
+          />
+        )}
       </div>
     </TasksProvider>
   );
