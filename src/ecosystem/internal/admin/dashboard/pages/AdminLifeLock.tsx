@@ -92,7 +92,7 @@ const AdminLifeLock: React.FC = () => {
           if (isCancelled) return; // Exit early if component unmounted
 
           try {
-            const dayTasks = await personalTaskService.getTasksForDate(day);
+            const dayTasks = await personalTaskService.getTasksForDate(user.id, day);
             const tasksArray = Array.isArray(dayTasks) ? dayTasks : [];
             const taskCard: TaskCard = {
               id: format(day, 'yyyy-MM-dd'),

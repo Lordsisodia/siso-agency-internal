@@ -6,8 +6,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence, useDragControls } from 'framer-motion';
 import { format, addMinutes, parseISO, differenceInMinutes, isToday } from 'date-fns';
-import { 
-  Clock, 
+import {
+  Clock,
   Calendar,
   CheckCircle2,
   Circle,
@@ -27,7 +27,8 @@ import {
   AlertCircle,
   TrendingUp,
   RotateCcw,
-  Settings
+  Settings,
+  AlertTriangle
 } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui/button';
@@ -35,13 +36,17 @@ import { Badge } from '@/shared/ui/badge';
 import { Card, CardContent, CardHeader } from '@/shared/ui/card';
 import { ScrollArea } from '@/shared/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/shared/ui/tooltip';
-import { 
-  EnhancedTimeBlock, 
-  DaySchedule, 
+import {
+  EnhancedTimeBlock,
+  DaySchedule,
   CalendarViewSettings,
   TimeBlockCategory,
-  CompletionStatus 
+  CompletionStatus,
+  Priority
 } from '@/types/timeblock.types';
+import { TimeBlockOverlapUtils } from '@/shared/utils/timeblock-overlap.utils';
+import { EnhancedTaskDetailModal } from '@/shared/components/ui/EnhancedTaskDetailModal';
+import { EnhancedTask } from '@/shared/services/task.service';
 
 interface EnhancedTimeBoxCalendarProps {
   schedule: DaySchedule | null;
@@ -65,6 +70,8 @@ export const EnhancedTimeBoxCalendar: React.FC<EnhancedTimeBoxCalendarProps> = (
   const [selectedBlock, setSelectedBlock] = useState<string | null>(null);
   const [draggedBlock, setDraggedBlock] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [modalTask, setModalTask] = useState<EnhancedTask | null>(null);
   const calendarRef = useRef<HTMLDivElement>(null);
 
   // Default settings
@@ -210,10 +217,45 @@ export const EnhancedTimeBoxCalendar: React.FC<EnhancedTimeBoxCalendarProps> = (
     return `${hours}h ${mins}m`;
   };
 
-  // Handle block click
+  // Get priority border style
+  const getPriorityBorderStyle = (priority: Priority) => {
+    const borderStyles = {
+      critical: { width: '4px', color: '#ef4444' }, // Red
+      high: { width: '3px', color: '#f97316' },     // Orange
+      medium: { width: '2px', color: '#eab308' },   // Yellow
+      low: { width: '1px', color: '#6b7280' }       // Gray
+    };
+    return borderStyles[priority] || borderStyles.low;
+  };
+
+  // Handle block click - open detail modal
   const handleBlockClick = (block: EnhancedTimeBlock) => {
     setSelectedBlock(selectedBlock === block.id ? null : block.id);
     onBlockClick?.(block);
+
+    // Convert timeblock to EnhancedTask format for modal
+    const taskForModal: EnhancedTask = {
+      id: block.id,
+      title: block.title,
+      description: block.description || '',
+      status: block.completionStatus === 'completed' ? 'completed' : 'pending',
+      priority: block.priority,
+      estimated_duration: block.duration,
+      actual_duration: block.actualEndTime && block.actualStartTime
+        ? TimeBlockOverlapUtils.timeToMinutes(block.actualEndTime) - TimeBlockOverlapUtils.timeToMinutes(block.actualStartTime)
+        : undefined,
+      subtasks: [], // TODO: Fetch actual subtasks from sourceTaskIds
+      task_context: block.category as any,
+      focus_intensity: block.focusRequirement as any,
+      effort_points: block.estimatedDifficulty || 5,
+      flow_state_potential: block.focusRequirement || 3,
+      context_switching_cost: 5,
+      created_at: block.createdAt.toISOString(),
+      updated_at: block.updatedAt.toISOString()
+    };
+
+    setModalTask(taskForModal);
+    setShowDetailModal(true);
   };
 
   // Handle block completion
@@ -222,17 +264,36 @@ export const EnhancedTimeBoxCalendar: React.FC<EnhancedTimeBoxCalendarProps> = (
     onBlockComplete?.(block.id);
   };
 
+  // Detect overlapping blocks
+  const blockConflicts = useMemo(() => {
+    if (!schedule) return new Map<string, boolean>();
+
+    const conflictMap = new Map<string, boolean>();
+    const blocks = schedule.timeBlocks;
+
+    blocks.forEach(block => {
+      const conflicts = TimeBlockOverlapUtils.findConflicts(
+        { start: block.startTime, end: block.endTime },
+        blocks,
+        block.id
+      );
+      conflictMap.set(block.id, conflicts.length > 0);
+    });
+
+    return conflictMap;
+  }, [schedule]);
+
   // Calculate schedule stats
   const stats = useMemo(() => {
     if (!schedule) return null;
-    
+
     const blocks = schedule.timeBlocks;
     const completedBlocks = blocks.filter(b => b.completionStatus === 'completed');
     const inProgressBlocks = blocks.filter(b => b.completionStatus === 'in-progress');
     const totalWorkTime = blocks
       .filter(b => ['deep-focus', 'light-focus'].includes(b.category))
       .reduce((sum, b) => sum + b.duration, 0);
-    
+
     return {
       total: blocks.length,
       completed: completedBlocks.length,
@@ -330,25 +391,32 @@ export const EnhancedTimeBoxCalendar: React.FC<EnhancedTimeBoxCalendarProps> = (
                     const StatusIcon = getCompletionIcon(block.completionStatus);
                     const isSelected = selectedBlock === block.id;
                     const isDragged = draggedBlock === block.id;
+                    const hasConflict = blockConflicts.get(block.id) || false;
+                    const priorityBorder = getPriorityBorderStyle(block.priority);
 
                     return (
                       <motion.div
                         key={block.id}
                         className={cn(
-                          "absolute left-3 right-3 rounded-lg border-2 cursor-pointer z-10",
+                          "absolute left-3 right-3 rounded-lg cursor-pointer z-10",
                           "transition-all duration-200 hover:shadow-lg hover:shadow-black/10",
                           "backdrop-blur-sm mb-1",
                           isSelected && "ring-2 ring-blue-500 z-20 shadow-lg",
                           isDragged && "opacity-50 z-30",
-                          block.completionStatus === 'completed' && "opacity-80"
+                          block.completionStatus === 'completed' && "opacity-80",
+                          hasConflict && "ring-2 ring-red-500/30"
                         )}
-                        style={{ 
-                          top: `${top}px`, 
+                        style={{
+                          top: `${top}px`,
                           height: `${height}px`,
                           background: `linear-gradient(135deg, ${block.color}45, ${block.color}35)`,
-                          borderColor: block.color,
+                          borderWidth: hasConflict ? '2px' : priorityBorder.width,
+                          borderColor: hasConflict ? '#ef4444' : priorityBorder.color,
+                          borderStyle: 'solid',
                           minHeight: '48px',
-                          boxShadow: `0 2px 8px ${block.color}15`
+                          boxShadow: hasConflict
+                            ? '0 0 0 2px rgba(239, 68, 68, 0.3)'
+                            : `0 2px 8px ${block.color}15`
                         }}
                         onClick={() => handleBlockClick(block)}
                         initial={{ opacity: 0, scale: 0.95 }}
@@ -374,6 +442,19 @@ export const EnhancedTimeBoxCalendar: React.FC<EnhancedTimeBoxCalendarProps> = (
                                 {block.title}
                               </span>
                               <div className="ml-auto flex items-center gap-1.5">
+                                {hasConflict && (
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <div className="flex items-center">
+                                        <AlertTriangle className="h-4 w-4 text-red-500 animate-pulse" />
+                                      </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p className="text-red-500 font-medium">Time conflict detected!</p>
+                                      <p className="text-xs text-gray-400">This block overlaps with another</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                )}
                                 {block.subtaskCount && block.subtaskCount > 0 && (
                                   <Badge
                                     variant="outline"
@@ -483,6 +564,51 @@ export const EnhancedTimeBoxCalendar: React.FC<EnhancedTimeBoxCalendarProps> = (
             </div>
           </ScrollArea>
         </div>
+
+        {/* Task Detail Modal */}
+        <EnhancedTaskDetailModal
+          task={modalTask}
+          isOpen={showDetailModal}
+          onClose={() => {
+            setShowDetailModal(false);
+            setModalTask(null);
+          }}
+          onTaskUpdate={(taskId, updates) => {
+            // Handle task updates
+            console.log('Update task:', taskId, updates);
+            setShowDetailModal(false);
+          }}
+          onSubtaskToggle={(taskId, subtaskId, completed) => {
+            // Handle subtask toggle
+            console.log('Toggle subtask:', taskId, subtaskId, completed);
+          }}
+          onAddSubtask={(taskId, subtaskTitle) => {
+            // Handle add subtask
+            console.log('Add subtask:', taskId, subtaskTitle);
+          }}
+          onDeleteSubtask={(taskId, subtaskId) => {
+            // Handle delete subtask
+            console.log('Delete subtask:', taskId, subtaskId);
+          }}
+          onTaskToggle={(taskId, completed) => {
+            // Find the block and toggle completion
+            const block = schedule?.timeBlocks.find(b => b.id === taskId);
+            if (block) {
+              handleBlockComplete(block);
+            }
+            setShowDetailModal(false);
+          }}
+          onReschedule={(taskId) => {
+            // TODO: Open reschedule modal/picker
+            console.log('Reschedule task:', taskId);
+            setShowDetailModal(false);
+          }}
+          onAdjustDuration={(taskId, newDuration) => {
+            // TODO: Update block duration
+            console.log('Adjust duration:', taskId, newDuration);
+            setShowDetailModal(false);
+          }}
+        />
       </Card>
     </TooltipProvider>
   );

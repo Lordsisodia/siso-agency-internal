@@ -4,9 +4,10 @@ import { format } from 'date-fns';
 import { Sparkles, Settings, RefreshCw } from 'lucide-react';
 import { EnhancedTimeBoxCalendar } from '../ui/EnhancedTimeBoxCalendar';
 import { enhancedTimeBlockService } from '@/shared/services/task.service';
-import { DaySchedule, WorkSchedulePreferences } from '@/types/timeblock.types';
+import { DaySchedule, WorkSchedulePreferences, EnhancedTimeBlock } from '@/types/timeblock.types';
 import { supabaseAnon } from '@/shared/lib/supabase-clerk';
 import { useUser } from '@clerk/clerk-react';
+import { TimeBlockOverlapUtils } from '@/shared/utils/timeblock-overlap.utils';
 
 interface TimeBlockViewProps {
   currentDate: Date;
@@ -220,8 +221,106 @@ export function TimeBlockView({
     await saveSchedule(updatedSchedule); // Persist the change
   };
 
+  // Auto-fix overlapping blocks
+  const autoFixConflicts = async () => {
+    if (!schedule) return;
+
+    const fixedBlocks: EnhancedTimeBlock[] = [];
+    const processedBlocks = new Set<string>();
+
+    // Sort blocks by start time
+    const sortedBlocks = [...schedule.timeBlocks].sort((a, b) =>
+      TimeBlockOverlapUtils.timeToMinutes(a.startTime) - TimeBlockOverlapUtils.timeToMinutes(b.startTime)
+    );
+
+    for (const block of sortedBlocks) {
+      if (processedBlocks.has(block.id)) continue;
+
+      const conflicts = TimeBlockOverlapUtils.findConflicts(
+        { start: block.startTime, end: block.endTime },
+        fixedBlocks,
+        block.id
+      );
+
+      if (conflicts.length === 0) {
+        fixedBlocks.push(block);
+      } else {
+        // Auto-adjust the block to next available slot
+        const adjusted = TimeBlockOverlapUtils.autoAdjustBlock(
+          { start: block.startTime, end: block.endTime },
+          block.duration,
+          fixedBlocks,
+          'find-gap'
+        );
+
+        if (adjusted) {
+          fixedBlocks.push({
+            ...block,
+            startTime: adjusted.start,
+            endTime: adjusted.end,
+            updatedAt: new Date()
+          });
+        } else {
+          // If no slot found, keep original (user will need to manually fix)
+          fixedBlocks.push(block);
+        }
+      }
+
+      processedBlocks.add(block.id);
+    }
+
+    const updatedSchedule = {
+      ...schedule,
+      timeBlocks: fixedBlocks
+    };
+
+    setSchedule(updatedSchedule);
+    await saveSchedule(updatedSchedule);
+  };
+
+  // Check if there are any conflicts
+  const hasConflicts = useMemo(() => {
+    if (!schedule) return false;
+
+    return schedule.timeBlocks.some(block => {
+      const conflicts = TimeBlockOverlapUtils.findConflicts(
+        { start: block.startTime, end: block.endTime },
+        schedule.timeBlocks,
+        block.id
+      );
+      return conflicts.length > 0;
+    });
+  }, [schedule]);
+
   return (
     <div className="h-full flex flex-col pb-20">
+      {/* Conflict Warning Banner */}
+      {hasConflicts && (
+        <div className="bg-red-50 dark:bg-red-950 border-l-4 border-red-500 p-3 mb-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="text-red-500">⚠️</div>
+              <div>
+                <p className="text-sm font-medium text-red-800 dark:text-red-200">
+                  Schedule conflicts detected
+                </p>
+                <p className="text-xs text-red-600 dark:text-red-400">
+                  Some time blocks overlap. Click to auto-fix.
+                </p>
+              </div>
+            </div>
+            <Button
+              onClick={autoFixConflicts}
+              variant="outline"
+              size="sm"
+              className="border-red-500 text-red-700 hover:bg-red-100 dark:text-red-300 dark:hover:bg-red-900"
+            >
+              🔧 Auto-Fix
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Calendar View - Full height timeline */}
       <div className="flex-1 overflow-hidden pt-2">
         {schedule ? (

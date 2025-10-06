@@ -300,9 +300,9 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   }
 
   return (
-    <div className="min-h-screen w-full relative">
-      
-      <div className="max-w-7xl mx-auto space-y-6 pb-24">
+    <div className="w-full relative bg-gray-900">
+
+      <div className="max-w-7xl mx-auto space-y-6 p-4">
         
         {/* Morning Routine Card */}
         <Card className="bg-yellow-900/20 border-yellow-700/50">
@@ -348,7 +348,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
             </div>
             <div className="border-t border-yellow-600/50 my-3 sm:my-4"></div>
           </CardHeader>
-          <CardContent className="p-6 pt-0 pb-24">
+          <CardContent className="p-6 pt-0">
             
 
             {/* Morning Routine Tasks */}

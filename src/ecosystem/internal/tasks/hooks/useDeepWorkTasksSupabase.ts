@@ -11,6 +11,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useClerkUser } from '@/shared/hooks/useClerkUser';
 import { useSupabaseClient, useSupabaseUserId } from '@/shared/lib/supabase-clerk';
 import { offlineDb } from '@/shared/offline/offlineDb';
+import { diff, logDiff } from '@/shared/utils/diff';
 
 export interface DeepWorkTask {
   id: string;
@@ -68,142 +69,224 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
 
   const dateString = selectedDate?.toISOString()?.split('T')[0] || new Date().toISOString().split('T')[0];
 
-  // Load deep work tasks from Supabase
+  // Load deep work tasks - INSTANT CACHE + BACKGROUND SYNC
   const loadTasks = useCallback(async () => {
-    if (!isSignedIn || !internalUserId || !supabase) {
+    if (!isSignedIn || !internalUserId) {
       setLoading(false);
       return;
     }
 
     try {
-      setLoading(true);
+      // Don't show loading for cached data!
       setError(null);
 
-      console.log('🧠 Loading Deep Work tasks from Supabase...');
+      console.log('🧠 Loading Deep Work tasks (instant cache)...');
 
-      // Query Supabase directly
-      const { data: tasksData, error: tasksError } = await supabase
-        .from('deep_work_tasks')
-        .select(`
-          *,
-          subtasks:deep_work_subtasks(*)
-        `)
-        .eq('user_id', internalUserId)
-        .eq('completed', false)
-        .order('created_at', { ascending: false });
+      // 1. Load from IndexedDB INSTANTLY (no loading state)
+      const localTasks = await offlineDb.getDeepWorkTasks(dateString);
 
-      if (tasksError) {
-        throw new Error(`Supabase error: ${tasksError.message}`);
+      if (localTasks && localTasks.length > 0) {
+        console.log(`⚡ INSTANT: Loaded ${localTasks.length} tasks from IndexedDB (${navigator.onLine ? 'online' : 'offline'})`);
+        // Transform and set local tasks IMMEDIATELY (no loading!)
+        const transformedLocal = localTasks.map(task => ({
+          id: task.id,
+          userId: task.user_id,
+          title: task.title,
+          description: task.description,
+          priority: task.priority || 'MEDIUM' as const,
+          completed: task.completed,
+          originalDate: task.original_date,
+          currentDate: task.task_date || task.original_date,
+          estimatedDuration: task.estimated_duration,
+          focusBlocks: task.focus_blocks || 4,
+          breakDuration: 15,
+          interruptionMode: false,
+          rollovers: 0,
+          tags: [],
+          createdAt: task.created_at,
+          updatedAt: task.updated_at,
+          completedAt: task.completed_at,
+          subtasks: []
+        }));
+        setTasks(transformedLocal);
+        setLoading(false); // Instant load complete!
+      } else {
+        setLoading(false); // No local data, load complete
       }
 
-      // Transform Supabase data to match our interface
-      const transformedTasks: DeepWorkTask[] = tasksData?.map(task => ({
-        id: task.id,
-        userId: task.user_id,
-        title: task.title,
-        description: task.description,
-        priority: task.priority,
-        completed: task.completed,
-        originalDate: task.original_date,
-        currentDate: task.task_date || task.original_date,
-        estimatedDuration: task.estimated_duration,
-        focusBlocks: task.focus_blocks || 4,
-        breakDuration: task.break_duration || 15,
-        interruptionMode: task.interruption_mode || false,
-        rollovers: task.rollovers || 0,
-        tags: task.tags || [],
-        category: task.category,
-        createdAt: task.created_at,
-        updatedAt: task.updated_at,
-        completedAt: task.completed_at,
-        startedAt: task.started_at,
-        actualDurationMin: task.actual_duration_min,
-        timeEstimate: task.time_estimate,
-        subtasks: task.subtasks?.map((subtask: any) => ({
-          id: subtask.id,
-          taskId: subtask.task_id,
-          title: subtask.title,
-          text: subtask.text || subtask.title,
-          completed: subtask.completed,
-          priority: subtask.priority,
-          dueDate: subtask.due_date, // Map snake_case to camelCase
-          estimatedTime: subtask.estimated_time, // Map snake_case to camelCase
-          requiresFocus: subtask.requires_focus || false,
-          complexityLevel: subtask.complexity_level || 1,
-          createdAt: subtask.created_at,
-          updatedAt: subtask.updated_at,
-          completedAt: subtask.completed_at
-        })) || []
-      })) || [];
+      // 2. If online, sync with Supabase in BACKGROUND (doesn't block UI)
+      if (navigator.onLine && supabase) {
+        const { data: tasksData, error: tasksError } = await supabase
+          .from('deep_work_tasks')
+          .select(`
+            *,
+            subtasks:deep_work_subtasks(*)
+          `)
+          .eq('user_id', internalUserId)
+          .eq('completed', false)
+          .order('created_at', { ascending: false });
 
-      console.log(`✅ Loaded ${transformedTasks.length} Deep Work tasks from Supabase`);
-      setTasks(transformedTasks);
+        if (tasksError) {
+          console.warn('⚠️ Supabase sync failed (using offline data):', tasksError.message);
+          // Don't throw - we have offline data
+          return;
+        }
+
+        // Transform Supabase data and cache locally
+        const transformedTasks: DeepWorkTask[] = tasksData?.map(task => ({
+          id: task.id,
+          userId: task.user_id,
+          title: task.title,
+          description: task.description,
+          priority: task.priority,
+          completed: task.completed,
+          originalDate: task.original_date,
+          currentDate: task.task_date || task.original_date,
+          estimatedDuration: task.estimated_duration,
+          focusBlocks: task.focus_blocks || 4,
+          breakDuration: task.break_duration || 15,
+          interruptionMode: task.interruption_mode || false,
+          rollovers: task.rollovers || 0,
+          tags: task.tags || [],
+          category: task.category,
+          createdAt: task.created_at,
+          updatedAt: task.updated_at,
+          completedAt: task.completed_at,
+          startedAt: task.started_at,
+          actualDurationMin: task.actual_duration_min,
+          timeEstimate: task.time_estimate,
+          subtasks: task.subtasks?.map((subtask: any) => ({
+            id: subtask.id,
+            taskId: subtask.task_id,
+            title: subtask.title,
+            text: subtask.text || subtask.title,
+            completed: subtask.completed,
+            priority: subtask.priority,
+            dueDate: subtask.due_date,
+            estimatedTime: subtask.estimated_time,
+            requiresFocus: subtask.requires_focus || false,
+            complexityLevel: subtask.complexity_level || 1,
+            createdAt: subtask.created_at,
+            updatedAt: subtask.updated_at,
+            completedAt: subtask.completed_at
+          })) || []
+        })) || [];
+
+        // Cache to offlineDb for offline access
+        for (const task of tasksData || []) {
+          await offlineDb.saveDeepWorkTask({
+            id: task.id,
+            user_id: task.user_id,
+            title: task.title,
+            description: task.description,
+            priority: task.priority,
+            completed: task.completed,
+            original_date: task.original_date,
+            task_date: task.task_date || task.original_date,
+            estimated_duration: task.estimated_duration,
+            focus_blocks: task.focus_blocks,
+            created_at: task.created_at,
+            updated_at: task.updated_at,
+            completed_at: task.completed_at,
+            _needs_sync: false,
+            _sync_status: 'synced'
+          }, false);
+        }
+
+        console.log(`✅ Loaded ${transformedTasks.length} Deep Work tasks from Supabase + cached locally`);
+        setTasks(transformedTasks);
+      }
 
     } catch (error) {
-      console.error('❌ Error loading Deep Work tasks from Supabase:', error);
-      setError(error instanceof Error ? error.message : 'Failed to load tasks from Supabase');
-    } finally {
+      console.error('❌ Error loading Deep Work tasks:', error);
+      setError(error instanceof Error ? error.message : 'Failed to load tasks');
       setLoading(false);
     }
+    // No finally block - loading is set false immediately after IndexedDB load
   }, [isSignedIn, internalUserId, dateString, supabase]);
 
-  // Create new deep work task in Supabase
+  // Create new deep work task - OFFLINE-FIRST
   const createTask = useCallback(async (taskData: Partial<DeepWorkTask>) => {
-    if (!internalUserId || !supabase) return null;
+    if (!internalUserId) return null;
 
     try {
-      console.log('➕ Creating Deep Work task in Supabase...');
+      console.log('➕ Creating Deep Work task (offline-first)...');
 
-      const { data, error } = await supabase
-        .from('deep_work_tasks')
-        .insert({
-          user_id: internalUserId,
-          title: taskData.title,
-          description: taskData.description,
-          priority: taskData.priority || 'HIGH',
-          original_date: dateString,
-          task_date: dateString,
-          completed: false,
-          focus_blocks: taskData.focusBlocks || 4,
-          break_duration: taskData.breakDuration || 15,
-          interruption_mode: taskData.interruptionMode || false,
-          rollovers: 0,
-          tags: taskData.tags || [],
-          category: taskData.category,
-          estimated_duration: taskData.estimatedDuration,
-          time_estimate: taskData.timeEstimate
-        })
-        .select()
-        .single();
+      const taskId = `deep-${Date.now()}`;
+      const now = new Date().toISOString();
 
-      if (error) {
-        throw new Error(`Supabase error: ${error.message}`);
-      }
+      // 1. Create task in offlineDb FIRST (always works)
+      const localTask = {
+        id: taskId,
+        user_id: internalUserId,
+        title: taskData.title || '',
+        description: taskData.description,
+        priority: taskData.priority || 'HIGH',
+        original_date: dateString,
+        task_date: dateString,
+        completed: false,
+        focus_blocks: taskData.focusBlocks || 4,
+        estimated_duration: taskData.estimatedDuration,
+        created_at: now,
+        updated_at: now,
+        _needs_sync: true,
+        _sync_status: 'pending' as const
+      };
+
+      await offlineDb.saveDeepWorkTask(localTask, true);
+      console.log('✅ Task saved to IndexedDB');
 
       const newTask: DeepWorkTask = {
-        id: data.id,
-        userId: data.user_id,
-        title: data.title,
-        description: data.description,
-        priority: data.priority,
-        completed: data.completed,
-        originalDate: data.original_date,
-        currentDate: data.task_date,
-        estimatedDuration: data.estimated_duration,
-        focusBlocks: data.focus_blocks || 4,
-        breakDuration: data.break_duration || 15,
-        interruptionMode: data.interruption_mode || false,
-        rollovers: data.rollovers || 0,
-        tags: data.tags || [],
-        category: data.category,
-        createdAt: data.created_at,
-        updatedAt: data.updated_at,
-        completedAt: data.completed_at,
-        startedAt: data.started_at,
-        actualDurationMin: data.actual_duration_min,
-        timeEstimate: data.time_estimate,
+        id: localTask.id,
+        userId: localTask.user_id,
+        title: localTask.title,
+        description: localTask.description,
+        priority: localTask.priority as any,
+        completed: localTask.completed,
+        originalDate: localTask.original_date,
+        currentDate: localTask.task_date,
+        estimatedDuration: localTask.estimated_duration,
+        focusBlocks: localTask.focus_blocks || 4,
+        breakDuration: 15,
+        interruptionMode: false,
+        rollovers: 0,
+        tags: [],
+        createdAt: localTask.created_at,
+        updatedAt: localTask.updated_at,
         subtasks: []
       };
+
+      // 2. If online, sync to Supabase in background
+      if (navigator.onLine && supabase) {
+        supabase
+          .from('deep_work_tasks')
+          .insert({
+            id: taskId,
+            user_id: internalUserId,
+            title: taskData.title,
+            description: taskData.description,
+            priority: taskData.priority || 'HIGH',
+            original_date: dateString,
+            task_date: dateString,
+            completed: false,
+            focus_blocks: taskData.focusBlocks || 4,
+            break_duration: 15,
+            interruption_mode: false,
+            rollovers: 0,
+            tags: taskData.tags || [],
+            category: taskData.category,
+            estimated_duration: taskData.estimatedDuration
+          })
+          .then(({ error }) => {
+            if (error) {
+              console.warn('⚠️ Supabase sync failed (queued for retry):', error.message);
+            } else {
+              console.log('✅ Task synced to Supabase');
+              // Mark as synced in offlineDb
+              offlineDb.markTaskSynced(taskId, 'deepWorkTasks');
+            }
+          });
+      }
 
       console.log(`✅ Created Deep Work task in Supabase: ${newTask.title}`);
       setTasks(prev => [...prev, newTask]);

@@ -42,14 +42,6 @@ export function BottomActionBars() {
     return 'Synced';
   };
 
-  const getSyncButtonStyle = () => {
-    const baseStyle = "w-full py-3 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer";
-
-    if (!isOnline) return `${baseStyle} bg-red-500 text-white`;
-    if (pendingCount > 0) return `${baseStyle} bg-orange-500 text-white`;
-    return `${baseStyle} bg-green-500 text-white`;
-  };
-
   const getSyncIcon = () => {
     if (!isOnline) return <WifiOff className="w-4 h-4" />;
     if (pendingCount > 0) return <RefreshCw className="w-4 h-4" />;
@@ -57,69 +49,77 @@ export function BottomActionBars() {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 pointer-events-none">
-      <div className="max-w-7xl mx-auto px-4 pb-20 space-y-2 pointer-events-auto">
-        {/* Feedback Bar */}
-        <div className="w-full">
-          <SimpleFeedbackButton variant="bar" className="w-full" />
-        </div>
+    <div className="w-full mt-4 mb-6 bg-transparent">
+      <div className="max-w-7xl mx-auto px-4 bg-transparent">
+        {/* Side-by-side buttons with half-transparent backgrounds */}
+        <div className="flex gap-3 justify-center">
+          {/* Feedback Button */}
+          <SimpleFeedbackButton
+            variant="bar"
+            className="flex-1 max-w-xs bg-blue-500/20 backdrop-blur-md border border-blue-400/30 hover:bg-blue-500/30 transition-all duration-200 text-white"
+          />
 
-        {/* Sync Status Bar */}
-        <div className="w-full">
+          {/* Sync Status Button */}
           <button
             onClick={() => setShowSyncDetails(!showSyncDetails)}
-            className={getSyncButtonStyle()}
+            className={`flex-1 max-w-xs py-3 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer backdrop-blur-md border text-white ${
+              !isOnline
+                ? 'bg-red-500/20 border-red-400/30 hover:bg-red-500/30'
+                : pendingCount > 0
+                  ? 'bg-orange-500/20 border-orange-400/30 hover:bg-orange-500/30'
+                  : 'bg-green-500/20 border-green-400/30 hover:bg-green-500/30'
+            }`}
           >
             {getSyncIcon()}
             {getSyncButtonText()}
           </button>
-
-          {/* Expandable Sync Details */}
-          {showSyncDetails && (
-            <div className="mt-2 bg-white border border-gray-200 rounded-lg shadow-xl p-4">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-medium text-gray-900">Sync Status</h3>
-                <button
-                  onClick={() => setShowSyncDetails(false)}
-                  className="text-gray-400 hover:text-gray-600 text-lg leading-none"
-                >
-                  ×
-                </button>
-              </div>
-
-              <div className="space-y-2 text-sm text-gray-600">
-                <div className="flex justify-between">
-                  <span>Connection:</span>
-                  <span className={isOnline ? 'text-green-600' : 'text-red-600'}>
-                    {isOnline ? 'Online' : 'Offline'}
-                  </span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span>Pending:</span>
-                  <span>{pendingCount} changes</span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span>Status:</span>
-                  <span className={isOnline ? 'text-green-600' : 'text-orange-600'}>
-                    {isOnline ? 'All synced' : 'Working offline'}
-                  </span>
-                </div>
-              </div>
-
-              {isOnline && pendingCount > 0 && (
-                <button
-                  onClick={() => setShowSyncDetails(false)}
-                  className="mt-3 w-full bg-blue-500 text-white py-2 px-3 rounded-lg text-sm font-medium hover:bg-blue-600 flex items-center justify-center gap-2"
-                >
-                  <RefreshCw className="w-4 h-4" />
-                  Sync Now
-                </button>
-              )}
-            </div>
-          )}
         </div>
+
+        {/* Expandable Sync Details */}
+        {showSyncDetails && (
+          <div className="mt-3 max-w-md mx-auto bg-gray-900/80 backdrop-blur-md border border-gray-700/50 rounded-lg shadow-xl p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-medium text-gray-100">Sync Status</h3>
+              <button
+                onClick={() => setShowSyncDetails(false)}
+                className="text-gray-400 hover:text-gray-200 text-lg leading-none"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="space-y-2 text-sm text-gray-300">
+              <div className="flex justify-between">
+                <span>Connection:</span>
+                <span className={isOnline ? 'text-green-400' : 'text-red-400'}>
+                  {isOnline ? 'Online' : 'Offline'}
+                </span>
+              </div>
+
+              <div className="flex justify-between">
+                <span>Pending:</span>
+                <span>{pendingCount} changes</span>
+              </div>
+
+              <div className="flex justify-between">
+                <span>Status:</span>
+                <span className={isOnline ? 'text-green-400' : 'text-orange-400'}>
+                  {isOnline ? 'All synced' : 'Working offline'}
+                </span>
+              </div>
+            </div>
+
+            {isOnline && pendingCount > 0 && (
+              <button
+                onClick={() => setShowSyncDetails(false)}
+                className="mt-3 w-full bg-blue-500/20 backdrop-blur-md border border-blue-400/30 text-blue-400 py-2 px-3 rounded-lg text-sm font-medium hover:bg-blue-500/30 flex items-center justify-center gap-2 transition-all duration-200"
+              >
+                <RefreshCw className="w-4 h-4" />
+                Sync Now
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

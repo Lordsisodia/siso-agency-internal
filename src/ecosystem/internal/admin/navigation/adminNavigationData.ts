@@ -1,7 +1,7 @@
-import { 
+import {
   LayoutDashboard, Users, UserCheck,
-  ListTodo, Building2, 
-  Lock, Settings
+  ListTodo, Building2,
+  Lock, Settings, ShoppingCart
 } from 'lucide-react';
 import { MenuSection } from './types';
 
@@ -43,9 +43,14 @@ export const getAdminMenuSections = (): MenuSection[] => {
       icon: Settings,
       items: [
         {
-          href: '/admin/life-lock',
+          href: '/admin/life-lock-overview',
           icon: Lock,
           label: 'Life Lock',
+        },
+        {
+          href: '/xp-store',
+          icon: ShoppingCart,
+          label: 'XP Store',
         }
       ]
     }

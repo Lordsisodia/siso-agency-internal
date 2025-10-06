@@ -113,7 +113,7 @@ const AdminLifeLockDay: React.FC = () => {
   }
 
   return (
-    <div className="h-full w-full bg-gradient-to-br from-black via-gray-900 to-black">
+    <>
       <TabLayoutWrapper
         selectedDate={selectedDate}
         onDateChange={handleDateChange}
@@ -123,11 +123,7 @@ const AdminLifeLockDay: React.FC = () => {
             case 'morning':
               return (
                 <MorningRoutineSection
-                  todayCard={todayCard}
-                  onViewDetails={handleCardClick}
-                  onQuickAdd={handleQuickAdd}
-                  onTaskToggle={handleTaskToggle}
-                  onCustomTaskAdd={handleCustomTaskAdd}
+                  selectedDate={selectedDate}
                 />
               );
             
@@ -203,7 +199,7 @@ const AdminLifeLockDay: React.FC = () => {
           onReanalyze={handleReanalyze}
         />
       )}
-    </div>
+    </>
   );
 };
 

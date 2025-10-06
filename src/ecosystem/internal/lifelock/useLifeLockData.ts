@@ -58,7 +58,7 @@ export const useLifeLockData = (selectedDate: Date) => {
           console.log(`📅 Loading tasks for ${format(selectedDate, 'yyyy-MM-dd')}`);
         }
 
-        const dayTasks = await personalTaskService.getTasksForDate(selectedDate);
+        const dayTasks = await personalTaskService.getTasksForDate(user.id, selectedDate);
         
         if (isCancelled) return; // Exit early if component unmounted
         
@@ -90,7 +90,7 @@ export const useLifeLockData = (selectedDate: Date) => {
           if (isCancelled) return; // Exit early if component unmounted
           
           try {
-            const weekDayTasks = await personalTaskService.getTasksForDate(day);
+            const weekDayTasks = await personalTaskService.getTasksForDate(user.id, day);
             // Defensive programming: ensure weekDayTasks is always an array
             const safeWeekTaskArray = Array.isArray(weekDayTasks) ? weekDayTasks : [];
             weekTaskCards.push({

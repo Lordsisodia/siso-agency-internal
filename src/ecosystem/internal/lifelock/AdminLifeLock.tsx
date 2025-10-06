@@ -173,8 +173,8 @@ const AdminLifeLock: React.FC = memo(() => {
 
   return (
     <TasksProvider>
-      <div className="h-full w-full bg-gradient-to-br from-black via-gray-900 to-black">
-        <TabLayoutWrapper 
+      {/* Removed wrapper div - TabLayoutWrapper handles full-screen layout */}
+      <TabLayoutWrapper 
             selectedDate={dateNavigation.currentDate} 
             onDateChange={dateNavigation.setCurrentDate}
           >
@@ -202,7 +202,7 @@ const AdminLifeLock: React.FC = memo(() => {
             }}
           </TabLayoutWrapper>
 
-        {/* Modals - Moved outside TabLayoutWrapper to avoid scroll interference */}
+      {/* Modals */}
         {modalHandlers.isCreateTaskModalOpen && (
           <CreateTaskModal
             currentDate={dateNavigation.currentDate}
@@ -230,7 +230,6 @@ const AdminLifeLock: React.FC = memo(() => {
             onClose={modalHandlers.closeCreateJournalModal}
           />
         )}
-      </div>
     </TasksProvider>
   );
 });

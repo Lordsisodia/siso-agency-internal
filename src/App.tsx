@@ -1,11 +1,12 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Toaster } from '@/shared/ui/toaster';
 import { ClerkProvider } from '@/shared/auth';
 import { ClerkAuthGuard } from '@/shared/auth/ClerkAuthGuard';
 import { AuthGuard } from '@/shared/auth/AuthGuard';
 import { PageLoader } from '@/shared/ui/PageLoader';
+import { workerSyncManager } from '@/shared/services/workerSyncManager';
 
 // Critical pages loaded immediately (landing, auth, home)
 import Index from './pages/Index';
@@ -61,6 +62,7 @@ const AdminPayments = lazy(() => import('@/ecosystem/internal/pages/AdminPayment
 const AdminDailyPlanner = lazy(() => import('@/ecosystem/internal/pages/AdminDailyPlanner.tsx'));
 const AdminLifeLock = lazy(() => import('@/ecosystem/internal/lifelock/AdminLifeLock.tsx'));
 const AdminLifeLockDay = lazy(() => import('@/ecosystem/internal/lifelock/AdminLifeLockDay.tsx'));
+const AdminLifeLockOverview = lazy(() => import('@/ecosystem/internal/admin/dashboard/pages/AdminLifeLockOverview'));
 const ClientDetailPage = lazy(() => import('./pages/ClientDetailPage'));
 const AdminSettings = lazy(() => import('@/ecosystem/internal/pages/AdminSettings.tsx'));
 const AdminPrompts = lazy(() => import('@/ecosystem/internal/pages/AdminPrompts.tsx'));
@@ -152,7 +154,22 @@ function ErrorFallback({error, resetErrorBoundary}: {error: Error, resetErrorBou
 }
 
 function App() {
-  // User sync now handled by ClerkProvider (no manual initialization needed)
+  // Background sync via Web Worker (ZERO UI blocking!) ⚡
+  useEffect(() => {
+    // Start periodic background sync (every 30 seconds)
+    const syncInterval = setInterval(() => {
+      workerSyncManager.syncAll(); // Runs in background thread!
+    }, 30000);
+
+    // Initial sync
+    workerSyncManager.syncAll();
+    console.log('🔄 Background sync enabled (Web Worker - zero UI blocking!)');
+
+    return () => {
+      clearInterval(syncInterval);
+      workerSyncManager.terminate();
+    };
+  }, []);
 
   return (
     <ClerkProvider>
@@ -170,7 +187,7 @@ function App() {
           <Route path="/working-ui-test" element={<WorkingUITestPage />} />
           
           {/* Public routes - redirect root to LifeLock */}
-          <Route path="/" element={<Navigate to="/admin/life-lock" replace />} />
+          <Route path="/" element={<Navigate to="/admin/life-lock-overview" replace />} />
           <Route path="/index" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/admin-login" element={<AdminAutoLogin />} />
@@ -246,6 +263,7 @@ function App() {
           <Route path="/admin/payments" element={<AuthGuard adminOnly={true}><AdminPayments /></AuthGuard>} />
           <Route path="/admin/daily-planner" element={<AuthGuard adminOnly={true}><AdminDailyPlanner /></AuthGuard>} />
           */}
+          <Route path="/admin/life-lock-overview" element={<ClerkAuthGuard><AdminLifeLockOverview /></ClerkAuthGuard>} />
           <Route path="/admin/lifelock" element={<ClerkAuthGuard><AdminLifeLock /></ClerkAuthGuard>} />
           <Route path="/admin/life-lock" element={<ClerkAuthGuard><AdminLifeLock /></ClerkAuthGuard>} />
           <Route path="/admin/lifelock/day/:date" element={<ClerkAuthGuard><AdminLifeLockDay /></ClerkAuthGuard>} />

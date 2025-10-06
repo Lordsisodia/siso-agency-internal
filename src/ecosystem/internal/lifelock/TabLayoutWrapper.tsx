@@ -212,7 +212,18 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = memo(({
       {/* Clean Offline Indicator - Moved to bottom as part of BottomActionBars */}
       {/* <OfflineIndicator /> */}
 
-      {/* Hidden Header - Now using AnimatedDateHeader in each tab */}
+      {/* Back to Overview Button */}
+      <div className="flex-shrink-0 px-4 py-3 border-b border-siso-border bg-siso-bg">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate('/admin/life-lock-overview')}
+          className="text-siso-text-muted hover:text-siso-text"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Overview
+        </Button>
+      </div>
 
       {/* UNIFIED SCROLL CONTAINER - Single scroll area for entire screen */}
       <div className="flex-1 relative overflow-hidden">
@@ -235,7 +246,7 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = memo(({
                 x: { type: "spring", stiffness: 300, damping: 30 },
                 opacity: { duration: 0.2 },
               }}
-              className="h-full overflow-y-auto"
+              className="h-full overflow-y-auto bg-gray-900"
               style={{ 
                 // SINGLE SCROLL CONTAINER - this is the ONLY scrollable area
                 paddingBottom: isMobile ? '300px' : '280px',
@@ -248,6 +259,9 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = memo(({
             >
               {/* Render tab content via children function */}
               {children(activeTabId, navigateDay)}
+
+              {/* Bottom Action Bars - inside scroll container */}
+              <BottomActionBars />
             </motion.div>
           </AnimatePresence>
         </motion.div>
@@ -274,8 +288,6 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = memo(({
         </div>
       </div>
 
-      {/* Bottom Action Bars - Feedback + Sync Status */}
-      <BottomActionBars />
     </div>
   );
 });

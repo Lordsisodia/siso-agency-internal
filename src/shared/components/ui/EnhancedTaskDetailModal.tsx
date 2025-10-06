@@ -33,6 +33,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { EnhancedTask, SubTask, FocusIntensity, TaskContext } from '@/shared/services/task.service';
 import { FlowStateTimer, FlowSession, FlowState } from '@/shared/components/ui/FlowStateTimer';
 import { FlowStatsService } from '@/services/flowStatsService';
+import { TaskTimer } from '@/shared/components/tasks/TaskTimer';
+import { useUser } from '@clerk/clerk-react';
 
 interface EnhancedTaskDetailModalProps {
   task: EnhancedTask | null;
@@ -43,6 +45,9 @@ interface EnhancedTaskDetailModalProps {
   onAddSubtask: (taskId: string, subtaskTitle: string) => void;
   onDeleteSubtask: (taskId: string, subtaskId: string) => void;
   onTaskToggle: (taskId: string, completed: boolean) => void;
+  onReschedule?: (taskId: string) => void;
+  onAdjustDuration?: (taskId: string, newDuration: number) => void;
+  parentTask?: EnhancedTask | null; // For displaying parent context
 }
 
 const priorityColors = {
@@ -68,17 +73,19 @@ export const EnhancedTaskDetailModal: React.FC<EnhancedTaskDetailModalProps> = (
   onSubtaskToggle,
   onAddSubtask,
   onDeleteSubtask,
-  onTaskToggle
+  onTaskToggle,
+  onReschedule,
+  onAdjustDuration,
+  parentTask
 }) => {
+  const { user } = useUser();
   const [activeTab, setActiveTab] = useState('overview');
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState('');
   const [editDescription, setEditDescription] = useState('');
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   const [showAddSubtask, setShowAddSubtask] = useState(false);
-  const [showFlowTimer, setShowFlowTimer] = useState(false);
-  const [flowState, setFlowState] = useState<FlowState>('not-started');
-  
+
   const taskSessions = task ? FlowStatsService.getSessionsForTask(task.id) : [];
   const flowStats = FlowStatsService.getFlowStats();
 
@@ -116,24 +123,6 @@ export const EnhancedTaskDetailModal: React.FC<EnhancedTaskDetailModalProps> = (
     }
   };
 
-  const handleFlowSessionComplete = (session: FlowSession) => {
-    FlowStatsService.saveFlowSession(session);
-    setShowFlowTimer(false);
-    onTaskUpdate(task.id, {
-      actual_duration: (task.actual_duration || 0) + session.duration
-    });
-  };
-
-  const getFlowStateColor = (state: FlowState): string => {
-    const colors = {
-      'not-started': 'bg-gray-500',
-      'warming-up': 'bg-yellow-500',
-      'in-flow': 'bg-green-500',
-      'disrupted': 'bg-orange-500',
-      'broken': 'bg-red-500'
-    };
-    return colors[state];
-  };
 
   const calculateQualityScore = (): number => {
     if (taskSessions.length === 0) return 0;
@@ -198,28 +187,29 @@ export const EnhancedTaskDetailModal: React.FC<EnhancedTaskDetailModalProps> = (
                     </Button>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2 flex-1">
-                    <span className={cn('line-clamp-2', isCompleted && 'line-through opacity-60')}>
-                      {task.title}
-                    </span>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => setIsEditing(true)}
-                      className="text-gray-400 hover:text-white"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                    </Button>
+                  <div className="flex flex-col gap-1 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className={cn('line-clamp-2', isCompleted && 'line-through opacity-60')}>
+                        {task.title}
+                      </span>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setIsEditing(true)}
+                        className="text-gray-400 hover:text-white"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    {/* Parent Context */}
+                    {parentTask && (
+                      <div className="text-sm text-gray-400 italic">
+                        Part of: {parentTask.title}
+                      </div>
+                    )}
                   </div>
                 )}
-                
-                {/* Flow State Indicator */}
-                <div className="flex items-center gap-2">
-                  <div className={cn('w-3 h-3 rounded-full', getFlowStateColor(flowState))} />
-                  <span className="text-sm text-gray-400 capitalize">
-                    {flowState.replace('-', ' ')}
-                  </span>
-                </div>
+
               </DialogTitle>
               
               {/* Quick Stats */}
@@ -317,58 +307,82 @@ export const EnhancedTaskDetailModal: React.FC<EnhancedTaskDetailModalProps> = (
                 )}
               </div>
               
-              {/* Enhanced Subtasks */}
+              {/* Enhanced Subtasks - Clean & Scannable */}
               <div>
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="font-semibold text-gray-200">Subtasks</h4>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <h4 className="font-semibold text-gray-200 text-lg">Subtasks</h4>
+                    {totalSubtasks > 0 && (
+                      <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30">
+                        {completedSubtasks}/{totalSubtasks} Complete
+                      </Badge>
+                    )}
+                  </div>
                   <Button
                     size="sm"
                     onClick={() => setShowAddSubtask(true)}
-                    className="bg-orange-600 hover:bg-orange-700 text-white"
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
                   >
                     <Plus className="w-4 h-4 mr-1" />
-                    Add
+                    Add Subtask
                   </Button>
                 </div>
-                
-                <div className="space-y-2">
-                  {subtasks.map((subtask) => (
+
+                <div className="space-y-3">
+                  {subtasks.map((subtask, index) => (
                     <motion.div
                       key={subtask.id}
                       layout
-                      className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg"
+                      className={cn(
+                        "flex items-center gap-4 p-4 rounded-lg transition-all",
+                        subtask.completed
+                          ? "bg-green-900/20 border border-green-500/30"
+                          : "bg-gray-800/50 border border-gray-700/50 hover:border-gray-600/80"
+                      )}
                     >
+                      {/* Index Number */}
+                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center text-xs font-bold text-gray-300">
+                        {index + 1}
+                      </div>
+
+                      {/* Checkbox */}
                       <button
                         onClick={() => onSubtaskToggle(task.id, subtask.id, !subtask.completed)}
                         className={cn(
-                          'w-5 h-5 rounded border-2 flex items-center justify-center transition-colors',
-                          subtask.completed 
-                            ? 'bg-green-500 border-green-500 text-white' 
-                            : 'border-orange-400 hover:border-orange-300'
+                          'flex-shrink-0 w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all',
+                          subtask.completed
+                            ? 'bg-green-500 border-green-500 text-white'
+                            : 'border-blue-400 hover:border-blue-300 hover:bg-blue-500/10'
                         )}
                       >
-                        {subtask.completed && <CheckCircle2 className="w-3 h-3" />}
+                        {subtask.completed && <CheckCircle2 className="w-4 h-4" />}
                       </button>
-                      
+
+                      {/* Subtask Title */}
                       <span className={cn(
-                        'flex-1 text-sm transition-all',
-                        subtask.completed 
-                          ? 'line-through opacity-60 text-gray-400' 
-                          : 'text-gray-200'
+                        'flex-1 text-base font-medium transition-all',
+                        subtask.completed
+                          ? 'line-through opacity-60 text-gray-400'
+                          : 'text-gray-100'
                       )}>
                         {subtask.title}
                       </span>
-                      
+
+                      {/* Duration Badge */}
                       {subtask.estimated_duration && (
-                        <div className="flex items-center gap-1 text-xs text-gray-500">
-                          <Clock className="w-3 h-3" />
-                          <span>{subtask.estimated_duration}m</span>
-                        </div>
+                        <Badge
+                          variant="outline"
+                          className="text-xs px-2 py-1 bg-purple-500/10 text-purple-300 border-purple-500/30"
+                        >
+                          <Clock className="w-3 h-3 mr-1" />
+                          {subtask.estimated_duration}m
+                        </Badge>
                       )}
-                      
+
+                      {/* Delete Button */}
                       <button
                         onClick={() => onDeleteSubtask(task.id, subtask.id)}
-                        className="text-gray-500 hover:text-red-400 transition-colors"
+                        className="flex-shrink-0 text-gray-500 hover:text-red-400 transition-colors p-1 rounded hover:bg-red-500/10"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -419,43 +433,51 @@ export const EnhancedTaskDetailModal: React.FC<EnhancedTaskDetailModalProps> = (
                 </div>
               </div>
 
-              {/* Flow Timer Integration */}
+              {/* Simple Timer */}
+              {user?.id && (
+                <TaskTimer
+                  taskId={task.id}
+                  userId={user.id}
+                  estimatedDuration={task.estimated_duration}
+                  onSessionComplete={(totalSeconds) => {
+                    // Update task with actual duration
+                    onTaskUpdate(task.id, {
+                      actual_duration: (task.actual_duration || 0) + Math.round(totalSeconds / 60)
+                    });
+                  }}
+                />
+              )}
+
+              {/* Quick Actions */}
               <div className="bg-gray-800/30 rounded-lg p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="font-semibold text-gray-200">Flow Session</h4>
-                  <Button
-                    onClick={() => setShowFlowTimer(!showFlowTimer)}
-                    className={cn(
-                      'text-sm',
-                      showFlowTimer 
-                        ? 'bg-red-600 hover:bg-red-700' 
-                        : 'bg-green-600 hover:bg-green-700'
-                    )}
-                  >
-                    {showFlowTimer ? (
-                      <>
-                        <Pause className="w-4 h-4 mr-2" />
-                        Hide Timer
-                      </>
-                    ) : (
-                      <>
-                        <Play className="w-4 h-4 mr-2" />
-                        Start Session
-                      </>
-                    )}
-                  </Button>
+                <h4 className="font-semibold text-gray-200 mb-3">⚡ Quick Actions</h4>
+                <div className="grid grid-cols-2 gap-3">
+                  {onReschedule && (
+                    <Button
+                      onClick={() => onReschedule(task.id)}
+                      variant="outline"
+                      className="border-blue-500/40 text-blue-300 hover:bg-blue-500/20"
+                    >
+                      <Clock className="w-4 h-4 mr-2" />
+                      Reschedule
+                    </Button>
+                  )}
+                  {onAdjustDuration && (
+                    <Button
+                      onClick={() => {
+                        const newDuration = prompt('Enter new duration (minutes):', task.estimated_duration?.toString() || '60');
+                        if (newDuration) {
+                          onAdjustDuration(task.id, parseInt(newDuration));
+                        }
+                      }}
+                      variant="outline"
+                      className="border-purple-500/40 text-purple-300 hover:bg-purple-500/20"
+                    >
+                      <Timer className="w-4 h-4 mr-2" />
+                      Adjust Duration
+                    </Button>
+                  )}
                 </div>
-                
-                {showFlowTimer && (
-                  <FlowStateTimer
-                    taskId={task.id}
-                    taskTitle={task.title}
-                    taskContext={task.task_context || inferTaskContext()}
-                    focusIntensity={task.focus_intensity || 2}
-                    onSessionComplete={handleFlowSessionComplete}
-                    onFlowStateChange={setFlowState}
-                  />
-                )}
               </div>
             </TabsContent>
             

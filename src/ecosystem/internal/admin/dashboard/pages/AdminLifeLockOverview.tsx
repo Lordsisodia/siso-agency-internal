@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AdminLayout } from '@/components/admin/layout/AdminLayout';
-import { AdminPageTitle } from '@/components/admin/layout/AdminPageTitle';
+import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
+import { AdminPageTitle } from '@/ecosystem/internal/admin/layout/AdminPageTitle';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
 import { Sidebar, SidebarContent, SidebarTrigger, SidebarProvider } from '@/shared/ui/sidebar';
@@ -27,7 +27,7 @@ export default function AdminLifeLockOverview() {
   // Sidebar navigation items
   const sidebarItems = [
     { icon: Bot, label: 'AI Assistant', href: '/admin/ai-assistant' },
-    { icon: Store, label: 'XP Shop', href: '/admin/xp-shop' },  
+    { icon: Store, label: 'XP Store', href: '/xp-store' },
     { icon: Settings, label: 'Settings', href: '/admin/settings' },
     { icon: User, label: 'Profile', href: '/admin/profile' }
   ];
