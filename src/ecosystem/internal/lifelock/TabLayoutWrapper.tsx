@@ -5,7 +5,8 @@ import { format, addDays, subDays } from 'date-fns';
 import { 
   ChevronLeft,
   ChevronRight,
-  ArrowLeft
+  ArrowLeft,
+  Menu
 } from 'lucide-react';
 import { TAB_CONFIG, TabId, getAllTabIds } from '@/shared/services/tab-config';
 import { Button } from '@/shared/ui/button';
@@ -23,14 +24,19 @@ const tabs = Object.values(TAB_CONFIG);
 interface TabLayoutWrapperProps {
   selectedDate: Date;
   onDateChange: (date: Date) => void;
+  userId?: string | null;  // Add userId prop
   children: (activeTab: string, navigateDay?: (direction: 'prev' | 'next') => void) => ReactNode;
 }
 
-export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = memo(({ 
-  selectedDate, 
-  onDateChange, 
-  children 
+export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
+  selectedDate,
+  onDateChange,
+  userId,
+  children
 }) => {
+  // Debug: Log every render
+  console.log('🔍 [TAB-WRAPPER] RENDER:', { selectedDate: format(selectedDate, 'yyyy-MM-dd'), userId });
+  
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -212,44 +218,31 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = memo(({
       {/* Clean Offline Indicator - Moved to bottom as part of BottomActionBars */}
       {/* <OfflineIndicator /> */}
 
-      {/* Back to Overview Button */}
-      <div className="flex-shrink-0 px-4 py-3 border-b border-siso-border bg-siso-bg">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => navigate('/admin/life-lock-overview')}
-          className="text-siso-text-muted hover:text-siso-text"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Overview
-        </Button>
-      </div>
-
       {/* UNIFIED SCROLL CONTAINER - Single scroll area for entire screen */}
-      <div className="flex-1 relative overflow-hidden">
+      <div className="flex-1 relative overflow-hidden bg-gray-900">
         <motion.div
-          className="h-full relative z-10"
-          style={{ 
+          className="h-full relative z-10 bg-gray-900"
+          style={{
             // PWA-optimized touch handling - full scroll freedom
             touchAction: 'auto'
           }}
         >
-          <AnimatePresence mode="wait" custom={activeTabIndex}>
+          <AnimatePresence mode="popLayout" custom={activeTabIndex}>
             <motion.div
-              key={activeTabId}
+              key={`${activeTabId}-${userId || 'loading'}`}
               custom={activeTabIndex}
               variants={slideVariants}
               initial="enter"
               animate="center"
               exit="exit"
               transition={{
-                x: { type: "spring", stiffness: 300, damping: 30 },
-                opacity: { duration: 0.2 },
+                x: { type: "spring", stiffness: 400, damping: 35 },
+                opacity: { duration: 0.15 },
               }}
               className="h-full overflow-y-auto bg-gray-900"
-              style={{ 
+              style={{
                 // SINGLE SCROLL CONTAINER - this is the ONLY scrollable area
-                paddingBottom: isMobile ? '300px' : '280px',
+                paddingBottom: '140px', // Optimized: BottomActionBars (48px) + ExpandableTabs (50px) + gaps (42px)
                 // PWA scroll optimization for mobile
                 WebkitOverflowScrolling: 'touch',
                 overscrollBehavior: 'contain',
@@ -257,6 +250,28 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = memo(({
                 overscrollBehaviorY: 'contain'
               }}
             >
+              {/* Header with Back and Hamburger */}
+              <div className="px-4 pt-2 pb-2 bg-black flex items-center justify-between">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate('/admin/life-lock/weekly')}
+                  className="text-siso-text-muted hover:text-siso-text hover:bg-transparent -ml-2"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back to Weekly
+                </Button>
+                
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate('/admin/dashboard')}
+                  className="text-siso-text-muted hover:text-siso-text hover:bg-transparent"
+                >
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </div>
+
               {/* Render tab content via children function */}
               {children(activeTabId, navigateDay)}
 
@@ -290,6 +305,6 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = memo(({
 
     </div>
   );
-});
+};
 
 TabLayoutWrapper.displayName = 'TabLayoutWrapper';

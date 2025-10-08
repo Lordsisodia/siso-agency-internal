@@ -1,8 +1,9 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
 import { format, addWeeks, subWeeks, getYear } from 'date-fns';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useClerkUser } from '@/shared/ClerkProvider';
+import { useSupabaseUserId } from '@/shared/lib/supabase-clerk';
 import { ThoughtDumpResults } from "@/shared/components/ui";
 import { EisenhowerMatrixModal } from "@/shared/components/ui";
 import { TabLayoutWrapper } from '@/internal/lifelock/TabLayoutWrapper';
@@ -27,7 +28,19 @@ import { useImplementation } from '@/migration/feature-flags';
 const AdminLifeLockDay: React.FC = () => {
   const navigate = useNavigate();
   const { date } = useParams<{ date: string }>();
-  const { isSignedIn, isLoaded } = useClerkUser();
+  const { isSignedIn, isLoaded, user } = useClerkUser();
+
+  // Debug logging
+  useEffect(() => {
+    console.log('🔍 [ADMIN-DAY] Clerk user:', { isSignedIn, isLoaded, userId: user?.id });
+  }, [isSignedIn, isLoaded, user?.id]);
+
+  const internalUserId = useSupabaseUserId(user?.id || null);
+  
+  // Debug logging for internalUserId
+  useEffect(() => {
+    console.log('🔍 [ADMIN-DAY] internalUserId changed:', internalUserId);
+  }, [internalUserId]);
   
   // Parse date from URL or default to today - memoized to prevent infinite re-renders
   const selectedDate = useMemo(() => {
@@ -112,13 +125,18 @@ const AdminLifeLockDay: React.FC = () => {
     return null;
   }
 
+  // Debug: Log every render of AdminLifeLockDay
+  console.log('🔍 [ADMIN-DAY] RENDER:', { internalUserId, selectedDate: format(selectedDate, 'yyyy-MM-dd') });
+
   return (
     <>
       <TabLayoutWrapper
         selectedDate={selectedDate}
         onDateChange={handleDateChange}
+        userId={internalUserId}
       >
         {(activeTab) => {
+          console.log('🔍 [ADMIN-DAY] Children function called:', { activeTab, internalUserId });
           switch (activeTab) {
             case 'morning':
               return (
@@ -129,23 +147,17 @@ const AdminLifeLockDay: React.FC = () => {
             
             case 'work':
               return (
-                <div style={{ border: '2px solid red', padding: '20px', backgroundColor: 'yellow' }}>
-                  <h1 style={{ color: 'black', fontSize: '24px' }}>DEBUG: Deep Work Section</h1>
-                  <DeepFocusWorkSection selectedDate={selectedDate} />
-                </div>
+                <DeepFocusWorkSection selectedDate={selectedDate} />
               );
-            
+
             case 'light-work':
               return (
-                <div style={{ border: '2px solid blue', padding: '20px', backgroundColor: 'lightgreen' }}>
-                  <h1 style={{ color: 'black', fontSize: '24px' }}>DEBUG: Light Work Section</h1>
-                  <LightFocusWorkSection selectedDate={selectedDate} />
-                </div>
+                <LightFocusWorkSection selectedDate={selectedDate} />
               );
             
             case 'timebox':
               return (
-                <TimeboxSection selectedDate={selectedDate} />
+                <TimeboxSection selectedDate={selectedDate} userId={internalUserId || undefined} />
               );
             
             case 'wellness':

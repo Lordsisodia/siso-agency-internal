@@ -108,8 +108,11 @@ interface TimeboxSectionProps {
 
 const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
   selectedDate,
-  userId = 'demo-user' // Default for demo
+  userId
 }) => {
+  // Debug: Log every render
+  console.log('🔍 [TIMEBOX] RENDER with userId:', userId, 'date:', format(selectedDate, 'yyyy-MM-dd'));
+  
   // Move useImplementation calls to top of component
   const containerClassName = useImplementation(
     'useUnifiedThemeSystem',
@@ -132,7 +135,13 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [isQuickSchedulerOpen, setIsQuickSchedulerOpen] = useState(false);
   const [editingBlock, setEditingBlock] = useState(null);
+  const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
   
+  // Debug logging
+  useEffect(() => {
+    console.log('🔍 [TIMEBOX] userId:', userId, 'selectedDate:', format(selectedDate, 'yyyy-MM-dd'));
+  }, [userId, selectedDate]);
+
   // Use the database-backed hook instead of localStorage
   const {
     timeBlocks,
@@ -152,6 +161,11 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
     selectedDate,
     enableOptimisticUpdates: true
   });
+
+  // Debug logging for hook state
+  useEffect(() => {
+    console.log('🔍 [TIMEBOX] isLoading:', isLoading, 'timeBlocks:', timeBlocks?.length, 'error:', error);
+  }, [isLoading, timeBlocks, error]);
   
   // Generate hour slots from 12am to 11pm (full 24 hours) with enhanced formatting
   const timeSlots = useMemo(() => {
@@ -315,31 +329,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
     return await checkConflicts(startTime, endTime, excludeId);
   };
 
-  // Handle scheduling task from selection modal
-  const handleScheduleTask = async (task: any, timeSlot: any, taskType: 'light' | 'deep') => {
-    const category: TimeBlockCategory = taskType === 'deep' ? 'DEEP_WORK' : 'LIGHT_WORK';
-
-    const timeBlockData = {
-      title: task.title,
-      description: task.description || `Scheduled ${taskType} work task`,
-      startTime: timeSlot.start,
-      endTime: timeSlot.end,
-      category: category,
-      notes: `Linked to ${taskType} work task: ${task.id}`
-    };
-
-    const success = await createTimeBlock(timeBlockData);
-
-    if (success) {
-      setIsQuickSchedulerOpen(false);
-      toast.success(`Added "${task.title}" to timeline`);
-    } else {
-      toast.error('Failed to add task to timeline');
-    }
-    return success;
-  };
-  
-  // Convert database time blocks to UI format
+  // Convert database time blocks to UI format (moved before handleDragEnd to fix initialization order)
   const tasks = useMemo(() => {
     if (!Array.isArray(timeBlocks)) return [];
     return timeBlocks
@@ -387,6 +377,73 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
     });
   }, [timeBlocks]);
 
+  // Handle drag-and-drop repositioning
+  const handleDragEnd = useCallback(async (taskId: string, info: any) => {
+    const dragDistance = info.offset.y;
+    const PIXELS_PER_MINUTE = 80 / 60;
+    const minutesMoved = Math.round(dragDistance / PIXELS_PER_MINUTE);
+
+    // Find the task from tasks array
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+
+    // Calculate new times
+    const [startHour, startMin] = task.startTime.split(':').map(Number);
+    const [endHour, endMin] = task.endTime.split(':').map(Number);
+
+    const newStartMinutes = startHour * 60 + startMin + minutesMoved;
+    const newEndMinutes = endHour * 60 + endMin + minutesMoved;
+
+    // Validate bounds (0-24 hours)
+    if (newStartMinutes < 0 || newEndMinutes > 24 * 60) {
+      toast.error('Cannot move task outside timeline');
+      setDraggingTaskId(null);
+      return;
+    }
+
+    // Convert back to time strings
+    const newStartTime = `${Math.floor(newStartMinutes / 60).toString().padStart(2, '0')}:${(newStartMinutes % 60).toString().padStart(2, '0')}`;
+    const newEndTime = `${Math.floor(newEndMinutes / 60).toString().padStart(2, '0')}:${(newEndMinutes % 60).toString().padStart(2, '0')}`;
+
+    // Update the time block
+    const success = await updateTimeBlock(taskId, {
+      startTime: newStartTime,
+      endTime: newEndTime
+    });
+
+    if (success) {
+      toast.success('Time block moved');
+    } else {
+      toast.error('Failed to move time block');
+    }
+
+    setDraggingTaskId(null);
+  }, [tasks, updateTimeBlock]);
+
+  // Handle scheduling task from selection modal
+  const handleScheduleTask = async (task: any, timeSlot: any, taskType: 'light' | 'deep') => {
+    const category: TimeBlockCategory = taskType === 'deep' ? 'DEEP_WORK' : 'LIGHT_WORK';
+
+    const timeBlockData = {
+      title: task.title,
+      description: task.description || `Scheduled ${taskType} work task`,
+      startTime: timeSlot.start,
+      endTime: timeSlot.end,
+      category: category,
+      notes: `Linked to ${taskType} work task: ${task.id}`
+    };
+
+    const success = await createTimeBlock(timeBlockData);
+
+    if (success) {
+      setIsQuickSchedulerOpen(false);
+      toast.success(`Added "${task.title}" to timeline`);
+    } else {
+      toast.error('Failed to add task to timeline');
+    }
+    return success;
+  };
+
   // Auto-scroll to current time on page load
   useEffect(() => {
     const timelineContainer = document.querySelector('[data-timeline-container]');
@@ -428,7 +485,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
     return (
       <div className={loadingClassName}>
         <div className="text-center">
-          <motion.div 
+          <motion.div
             className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full mx-auto mb-4"
             animate={{ rotate: 360 }}
             transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
@@ -455,34 +512,26 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
         >
           <Card className="bg-gradient-to-r from-blue-900/40 via-purple-900/30 to-indigo-900/40 border-blue-700/50 shadow-2xl shadow-blue-500/20 rounded-2xl backdrop-blur-sm">
             <CardContent className="p-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2.5">
-                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center shadow-md">
-                    <Target className="h-4 w-4 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-semibold text-white">Today's Focus</h3>
-                    <div className="flex items-center space-x-3 text-xs text-gray-300">
-                      <span className="flex items-center space-x-1">
-                        <Target className="h-3 w-3 text-blue-400" />
-                        <span>{validTasks.length} tasks</span>
-                      </span>
-                      <span className="flex items-center space-x-1">
-                        <Clock className="h-3 w-3 text-purple-400" />
-                        <span>{Math.round(validTasks.reduce((acc, task) => acc + task.duration, 0) / 60)}h planned</span>
-                      </span>
-                      <span className="flex items-center space-x-1">
-                        <Zap className="h-3 w-3 text-orange-400" />
-                        <span>{validTasks.filter(task => task.category === 'deep-work').length} deep</span>
-                      </span>
-                    </div>
-                  </div>
+              <div className="flex items-center space-x-2.5">
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center shadow-md">
+                  <Target className="h-4 w-4 text-white" />
                 </div>
-                <div className="text-right">
-                  <div className="text-xl font-bold text-white">
-                    {Math.round((validTasks.filter(task => task.completed).length / Math.max(validTasks.length, 1)) * 100)}%
+                <div>
+                  <h3 className="text-base font-semibold text-white">Today's Focus</h3>
+                  <div className="flex items-center space-x-3 text-xs text-gray-300">
+                    <span className="flex items-center space-x-1">
+                      <Target className="h-3 w-3 text-blue-400" />
+                      <span>{validTasks.length} tasks</span>
+                    </span>
+                    <span className="flex items-center space-x-1">
+                      <Clock className="h-3 w-3 text-purple-400" />
+                      <span>{Math.round(validTasks.reduce((acc, task) => acc + task.duration, 0) / 60)}h planned</span>
+                    </span>
+                    <span className="flex items-center space-x-1">
+                      <Zap className="h-3 w-3 text-orange-400" />
+                      <span>{validTasks.filter(task => task.category === 'deep-work').length} deep</span>
+                    </span>
                   </div>
-                  <div className="text-xs text-gray-400">complete</div>
                 </div>
               </div>
             </CardContent>
@@ -612,7 +661,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                 {/* Current Time Indicator */}
                 {currentTimePosition >= 0 && (
                   <motion.div
-                    className="absolute left-0 right-0 z-20 flex items-center"
+                    className="absolute left-0 right-0 z-30 flex items-center pointer-events-none"
                     style={{ top: `${currentTimePosition}px` }}
                     initial={{ opacity: 0, x: -100 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -623,15 +672,11 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                       damping: 20
                     }}
                   >
-                    {/* Animated blue line with pulse effect */}
+                    {/* Subtle blue line with reduced opacity */}
                     <motion.div 
                       className="flex-1 relative"
                       animate={{ 
-                        boxShadow: [
-                          "0 0 10px rgba(59, 130, 246, 0.5)",
-                          "0 0 20px rgba(59, 130, 246, 0.8)",
-                          "0 0 10px rgba(59, 130, 246, 0.5)"
-                        ]
+                        opacity: [0.6, 0.8, 0.6]
                       }}
                       transition={{
                         duration: 2,
@@ -639,18 +684,18 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                         ease: "easeInOut"
                       }}
                     >
-                      <div className="h-0.5 bg-gradient-to-r from-blue-400 to-blue-500" />
-                      {/* Glowing effect */}
+                      <div className="h-[2px] bg-gradient-to-r from-transparent via-blue-400/60 to-transparent" />
+                      {/* Glowing effect - more subtle */}
                       <motion.div 
-                        className="absolute inset-0 h-0.5 bg-blue-400 blur-sm opacity-60"
-                        animate={{ opacity: [0.6, 1, 0.6] }}
+                        className="absolute inset-0 h-[2px] bg-blue-400/40 blur-md"
+                        animate={{ opacity: [0.3, 0.5, 0.3] }}
                         transition={{ duration: 1.5, repeat: Infinity }}
                       />
                     </motion.div>
                     
-                    {/* Animated time bubble */}
+                    {/* Animated time bubble with pointer events - MOVED TO LEFT */}
                     <motion.div 
-                      className="absolute right-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-xl border border-blue-400/30"
+                      className="absolute left-20 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-xl border border-blue-400/30 pointer-events-auto cursor-default"
                       whileHover={{ scale: 1.1 }}
                       animate={{ 
                         boxShadow: [
@@ -667,7 +712,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                       {format(currentTime, 'HH:mm')}
                       {/* Pulse dot indicator */}
                       <motion.div
-                        className="absolute -top-1 -right-1 w-2 h-2 bg-blue-300 rounded-full"
+                        className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-blue-300 rounded-full"
                         animate={{ 
                           scale: [1, 1.5, 1],
                           opacity: [1, 0.5, 1]
@@ -726,13 +771,20 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                     return (
                       <motion.div
                         key={task.id}
+                        drag="y"
+                        dragConstraints={{ top: -position.top, bottom: (23 * 80) - position.top - position.height }}
+                        dragElastic={0.1}
+                        dragMomentum={false}
+                        onDragStart={() => setDraggingTaskId(task.id)}
+                        onDragEnd={(e, info) => handleDragEnd(task.id, info)}
                         className={cn(
-                          "absolute rounded-xl cursor-pointer z-10 group",
+                          "absolute rounded-xl cursor-move z-10 group touch-pan-y active:cursor-grabbing",
                           "bg-gradient-to-br backdrop-blur-md shadow-xl border-2",
                           "transition-all duration-500 hover:shadow-2xl overflow-hidden",
                           "ring-0 ring-transparent hover:ring-2 hover:ring-white/20",
-                          task.completed 
-                            ? "bg-gradient-to-br from-green-900/40 via-emerald-900/30 to-green-800/40" 
+                          draggingTaskId === task.id && "scale-105 shadow-2xl ring-2 ring-blue-400/50 z-50",
+                          task.completed
+                            ? "bg-gradient-to-br from-green-900/40 via-emerald-900/30 to-green-800/40"
                             : task.color,
                           categoryStyles.border,
                           categoryStyles.shadow,
@@ -747,13 +799,13 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                           right: '4px',
                           width: 'calc(100% - 8px)'
                         }}
-                        initial={{ 
-                          opacity: 0, 
+                        initial={{
+                          opacity: 0,
                           scale: 0.9,
                           y: 20
                         }}
-                        animate={{ 
-                          opacity: 1, 
+                        animate={{
+                          opacity: 1,
                           scale: 1,
                           y: 0,
                           // Add subtle pulse for tasks near current time
@@ -765,7 +817,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                             ]
                           } : {})
                         }}
-                        transition={{ 
+                        transition={{
                           duration: 0.4,
                           delay: index * 0.1,
                           type: "spring",
@@ -773,23 +825,25 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                           damping: 25,
                           boxShadow: { duration: 2, repeat: Infinity, ease: "easeInOut" }
                         }}
-                        whileHover={{ 
-                          scale: 1.03, 
+                        whileHover={{
+                          scale: 1.03,
                           y: -3,
                           rotateX: 5,
                           boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
-                          transition: { 
+                          transition: {
                             duration: 0.2,
                             type: "spring",
                             stiffness: 400
                           }
                         }}
-                        whileTap={{ 
+                        whileTap={{
                           scale: 0.97,
-                          y: -1,
                           transition: { duration: 0.1 }
                         }}
-                        onClick={() => setSelectedTask(task)}
+                        onClick={(e) => {
+                          if (draggingTaskId) return; // Don't open modal while dragging
+                          setSelectedTask(task);
+                        }}
                         onDoubleClick={() => handleEditBlock(task)}
                         layout
                       >
@@ -816,45 +870,39 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                             />
                           )}
                           
-                          {/* Task header section */}
-                          <div className="relative z-10 mb-auto">
-                            {/* Time and Category Labels */}
-                            <div className="flex items-center justify-between mb-2">
-                              <Badge className="text-xs font-semibold bg-black/40 text-white/90 border-white/20 px-2 py-0.5">
-                                <Clock className="h-3 w-3 mr-1 inline" />
-                                {task.startTime} - {task.endTime}
-                              </Badge>
-                              <Badge className={cn(
-                                "text-xs font-semibold px-2 py-0.5 capitalize",
-                                task.category === 'deep-work' && "bg-blue-500/20 text-blue-200 border-blue-400/30",
-                                task.category === 'light-work' && "bg-emerald-500/20 text-emerald-200 border-emerald-400/30",
-                                task.category === 'wellness' && "bg-teal-500/20 text-teal-200 border-teal-400/30",
-                                task.category === 'admin' && "bg-indigo-500/20 text-indigo-200 border-indigo-400/30",
-                                task.category === 'morning' && "bg-amber-500/20 text-amber-200 border-amber-400/30"
-                              )}>
-                                {task.category.replace('-', ' ')}
-                              </Badge>
-                            </div>
-                            <div className="flex items-start justify-between mb-2">
-                              <div className="flex-1 pr-2">
+                          {/* Task header section - Compact & Clean */}
+                          <div className="relative z-10 mb-auto space-y-2">
+                            {/* Compact Top Row: Title + Checkbox + Duration Badge */}
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex-1 min-w-0">
                                 <h4 className={cn(
-                                  "font-bold text-sm leading-tight transition-all duration-300 group-hover:text-white",
-                                  task.completed ? "text-green-100 line-through decoration-2 decoration-green-400/60" : "text-white",
-                                  task.duration >= 120 && "text-base" // Larger text for longer tasks
+                                  "font-semibold text-sm leading-snug transition-all duration-300 group-hover:text-white",
+                                  task.completed ? "text-green-100 line-through decoration-2 decoration-green-400/60" : "text-white"
                                 )}>
                                   {task.title}
                                 </h4>
-                                {task.description && task.duration >= 60 && (
-                                  <p className={cn(
-                                    "text-xs mt-1.5 leading-relaxed transition-all duration-300 line-clamp-2",
-                                    task.completed ? "text-green-200/70" : "text-white/70 group-hover:text-white/85"
-                                  )}>
-                                    {task.description}
-                                  </p>
-                                )}
+                                {/* Time slot in tiny text */}
+                                <p className="text-[10px] text-white/50 mt-0.5 font-medium">
+                                  {task.startTime} - {task.endTime}
+                                </p>
                               </div>
+                              
+                              {/* Duration bubble - Small & Compact */}
                               <motion.div
-                                className="flex-shrink-0 mt-0.5 cursor-pointer"
+                                whileHover={{ scale: 1.05 }}
+                                className={cn(
+                                  "px-2 py-0.5 rounded-full text-[10px] font-bold whitespace-nowrap flex-shrink-0",
+                                  task.completed 
+                                    ? "bg-green-500/30 text-green-200 border border-green-400/50" 
+                                    : "bg-white/25 text-white border border-white/40"
+                                )}
+                              >
+                                {task.duration}m
+                              </motion.div>
+                              
+                              {/* Completion Checkbox */}
+                              <motion.div
+                                className="flex-shrink-0 cursor-pointer"
                                 whileHover={{ scale: 1.15, rotate: 5 }}
                                 whileTap={{ scale: 0.9 }}
                                 onClick={(e) => {
@@ -876,95 +924,19 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                                 )}
                               </motion.div>
                             </div>
-                          </div>
 
-                          {/* Smart content display based on card size */}
-                          <div className="relative z-10 mt-auto">
-                            <div className="flex items-center justify-between">
-                              {/* Smart duration display - simple for short tasks, detailed for long ones */}
-                              {task.duration <= 45 ? (
-                                /* Short tasks: Just duration */
-                                <motion.div
-                                  whileHover={{ scale: 1.05 }}
-                                  transition={{ duration: 0.2 }}
-                                  className="ml-auto"
-                                >
-                                  <Badge className={cn(
-                                    "text-xs font-bold transition-all duration-300 px-2.5 py-1 shadow-sm",
-                                    task.completed 
-                                      ? "bg-green-500/25 text-green-100 border border-green-400/50 shadow-green-500/30" 
-                                      : "bg-white/20 text-white border border-white/30 group-hover:bg-white/30 group-hover:border-white/40 shadow-black/20"
-                                  )}>
-                                    {task.duration}m
-                                  </Badge>
-                                </motion.div>
-                              ) : (
-                                /* Longer tasks: More detailed info */
-                                <div className="flex items-center justify-between w-full">
-                                  {task.category && (
-                                    <div className={cn(
-                                      "flex items-center space-x-1 text-xs font-medium transition-all duration-300",
-                                      task.completed ? "text-green-200/80" : "text-white/80 group-hover:text-white/95"
-                                    )}>
-                                      <div className={cn(
-                                        "w-2 h-2 rounded-full",
-                                        task.category === 'morning' && "bg-amber-400",
-                                        task.category === 'deep-work' && "bg-blue-500",
-                                        task.category === 'light-work' && "bg-emerald-400",
-                                        task.category === 'wellness' && "bg-teal-500",
-                                        task.category === 'admin' && "bg-indigo-500"
-                                      )} />
-                                      <span className="capitalize text-xs">
-                                        {task.category.replace('-', ' ')}
-                                      </span>
-                                    </div>
-                                  )}
-                                  
-                                  <motion.div
-                                    whileHover={{ scale: 1.05 }}
-                                    transition={{ duration: 0.2 }}
-                                  >
-                                    <Badge className={cn(
-                                      "text-xs font-bold transition-all duration-300 px-2.5 py-1 shadow-sm",
-                                      task.completed 
-                                        ? "bg-green-500/25 text-green-100 border border-green-400/50 shadow-green-500/30" 
-                                        : "bg-white/20 text-white border border-white/30 group-hover:bg-white/30 group-hover:border-white/40 shadow-black/20",
-                                      task.duration > 90 && "text-sm font-extrabold"
-                                    )}>
-                                      {task.duration < 60 
-                                        ? `${task.duration}m`
-                                        : task.duration % 60 === 0
-                                          ? `${Math.floor(task.duration / 60)}h`
-                                          : `${Math.floor(task.duration / 60)}h ${task.duration % 60}m`
-                                      }
-                                    </Badge>
-                                  </motion.div>
-                                </div>
-                              )}
-                            
-                            {/* Enhanced intensity indicators - only for long tasks */}
-                            {task.duration >= 90 && (
-                              <div className="flex items-center justify-center space-x-1 mt-2">
-                                {Array.from({ length: Math.min(4, Math.ceil(task.duration / 60)) }).map((_, i) => (
-                                  <motion.div
-                                    key={i}
-                                    className={cn(
-                                      "rounded-full transition-all duration-300",
-                                      task.completed 
-                                        ? "bg-green-300/70 shadow-sm" 
-                                        : "bg-white/70 group-hover:bg-white/90",
-                                      i < 2 ? "w-1.5 h-1.5" : "w-1 h-1" // Vary sizes for visual interest
-                                    )}
-                                    initial={{ scale: 0, opacity: 0 }}
-                                    animate={{ scale: 1, opacity: 1 }}
-                                    transition={{ delay: i * 0.08, duration: 0.4 }}
-                                    whileHover={{ scale: 1.2 }}
-                                  />
-                                ))}
+                            {/* Description in Subtle Box - Only if exists and card is tall enough */}
+                            {task.description && task.duration >= 45 && (
+                              <div className="bg-black/20 border border-white/10 rounded-lg px-2 py-1.5 backdrop-blur-sm mt-1">
+                                <p className={cn(
+                                  "text-[10px] leading-relaxed transition-all duration-300 line-clamp-2",
+                                  task.completed ? "text-green-200/70" : "text-white/60 group-hover:text-white/75"
+                                )}>
+                                  {task.description}
+                                </p>
                               </div>
                             )}
                           </div>
-                        </div>
                         </div>
                       </motion.div>
                     );
@@ -1034,6 +1006,8 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
 
 // Memoized export for performance optimization
 export const TimeboxSection = memo(TimeboxSectionComponent, (prevProps, nextProps) => {
-  // Only re-render if selectedDate changes
-  return format(prevProps.selectedDate, 'yyyy-MM-dd') === format(nextProps.selectedDate, 'yyyy-MM-dd');
+  // Re-render if selectedDate OR userId changes
+  const dateEqual = format(prevProps.selectedDate, 'yyyy-MM-dd') === format(nextProps.selectedDate, 'yyyy-MM-dd');
+  const userIdEqual = prevProps.userId === nextProps.userId;
+  return dateEqual && userIdEqual;
 });

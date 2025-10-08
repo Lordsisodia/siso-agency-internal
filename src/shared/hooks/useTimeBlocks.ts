@@ -88,11 +88,17 @@ export function useTimeBlocks(options: UseTimeBlocksOptions): TimeBlockState & T
 
   // Load time blocks from API
   const loadTimeBlocks = useCallback(async () => {
+    // Don't load if userId is not available yet
+    if (!userId) {
+      updateState({ isLoading: false, timeBlocks: [] });
+      return;
+    }
+
     updateState({ isLoading: true, error: null });
-    
+
     try {
       const result = await TimeBlocksAPI.getTimeBlocks(userId, dateKey);
-      
+
       if (result.success && result.data) {
         updateState({
           timeBlocks: result.data,
@@ -131,8 +137,14 @@ export function useTimeBlocks(options: UseTimeBlocksOptions): TimeBlockState & T
   const createTimeBlock = useCallback(async (
     data: Omit<CreateTimeBlockInput, 'userId' | 'date'>
   ): Promise<boolean> => {
+    // Don't create if userId is not available yet
+    if (!userId) {
+      updateState({ error: 'User not authenticated' });
+      return false;
+    }
+
     updateState({ isCreating: true, error: null });
-    
+
     const createData: CreateTimeBlockInput = {
       ...data,
       userId,
@@ -369,6 +381,9 @@ export function useTimeBlocks(options: UseTimeBlocksOptions): TimeBlockState & T
     endTime: string,
     excludeId?: string
   ): Promise<TimeBlockConflict[]> => {
+    // Don't check conflicts if userId is not available yet
+    if (!userId) return [];
+
     try {
       const result = await TimeBlocksAPI.checkConflicts(
         userId,
@@ -377,11 +392,11 @@ export function useTimeBlocks(options: UseTimeBlocksOptions): TimeBlockState & T
         endTime,
         excludeId
       );
-      
+
       if (result.success && result.data) {
         return result.data.conflicts;
       }
-      
+
       return [];
     } catch (error) {
       console.error('Failed to check conflicts:', error);
