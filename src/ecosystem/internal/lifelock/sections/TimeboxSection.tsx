@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { motion } from 'framer-motion';
-import { 
+import {
   Clock,
   Calendar,
   CheckCircle2,
@@ -22,6 +22,7 @@ import { TimeBlockCategory } from '@/api/timeblocksApi.offline';
 import { theme } from '@/styles/theme';
 import { useImplementation } from '@/migration/feature-flags';
 import { toast } from 'sonner';
+import { AnimatedDateHeader } from '@/shared/ui/animated-date-header-v2';
 
 // Map database categories to UI categories
 const mapCategoryToUI = (dbCategory: TimeBlockCategory): string => {
@@ -498,13 +499,27 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
 
   return (
     <div className={containerClassName}>
-      <div className="w-full">
-        
-        {/* Compact Header Section */}
+      <div className="w-full relative">
+        {/* Progress Line */}
+        <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500/50"></div>
+
+        <div className="max-w-7xl mx-auto p-3 sm:p-4 md:p-6 space-y-6">
+          {/* Animated Date Header */}
+          <AnimatedDateHeader
+            selectedDate={selectedDate}
+            earnedXP={0}
+            potentialXP={0}
+            currentLevel={1}
+            streakDays={0}
+            badgeCount={0}
+            colorScheme="blue"
+          />
+
+          {/* Compact Header Section */}
 
 
-        {/* Today's Focus Stats Card */}
-        <motion.div
+          {/* Today's Focus Stats Card */}
+          <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
@@ -1000,6 +1015,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
           />
         </div>
       )}
+      </div>
     </div>
   );
 };

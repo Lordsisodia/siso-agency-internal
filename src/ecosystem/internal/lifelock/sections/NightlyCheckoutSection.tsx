@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
 import { Textarea } from '@/shared/ui/textarea';
+import { AnimatedDateHeader } from '@/shared/ui/animated-date-header-v2';
 
 import { format } from 'date-fns';
 import { useAuth } from '@clerk/clerk-react';
@@ -12,10 +13,14 @@ import { useDailyReflections } from '@/shared/hooks/useDailyReflections';
 
 interface NightlyCheckoutSectionProps {
   selectedDate: Date;
+  onPreviousDate?: () => void;
+  onNextDate?: () => void;
 }
 
 export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
-  selectedDate
+  selectedDate,
+  onPreviousDate,
+  onNextDate
 }) => {
   const { userId } = useAuth();
   const dateKey = format(selectedDate, 'yyyy-MM-dd');
@@ -140,7 +145,23 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
 
   return (
     <div className="min-h-screen w-full bg-gray-900 relative">
+      {/* Progress Line */}
+      <div className="absolute left-0 top-0 bottom-0 w-1 bg-purple-500/50"></div>
+
       <div className="max-w-7xl mx-auto p-3 sm:p-4 md:p-6 lg:p-8 space-y-6">
+        {/* Animated Date Header */}
+        <AnimatedDateHeader
+          selectedDate={selectedDate}
+          earnedXP={0}
+          potentialXP={0}
+          currentLevel={1}
+          streakDays={0}
+          badgeCount={0}
+          onPreviousDate={onPreviousDate}
+          onNextDate={onNextDate}
+          colorScheme="purple"
+        />
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

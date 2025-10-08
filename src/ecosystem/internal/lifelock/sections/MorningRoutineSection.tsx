@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { 
+import {
   Sun,
   CheckCircle2,
   Circle,
@@ -301,9 +301,8 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
 
   return (
     <div className="w-full relative bg-gray-900">
-
       <div className="max-w-7xl mx-auto space-y-6 p-4">
-        
+
         {/* Morning Routine Card */}
         <Card className="bg-yellow-900/20 border-yellow-700/50">
           <CardHeader className="p-6">

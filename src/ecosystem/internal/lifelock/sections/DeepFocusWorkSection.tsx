@@ -1,422 +1,110 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { 
-  Target,
-  Brain,
-  Timer,
-  Play,
-  Pause,
-  Square,
-  Zap,
-  TrendingUp,
-  CheckCircle2,
-  Circle,
-  Plus,
-  Settings,
-  BarChart3,
-  Clock
-} from 'lucide-react';
-import { Card, CardContent, CardHeader } from '@/shared/ui/card';
-import { Button } from '@/shared/ui/button';
-import { Badge } from '@/shared/ui/badge';
-import { SharedTaskCard, TaskData } from '@/components/ui/SharedTaskCard';
-import { Progress } from '@/shared/ui/progress';
-import { FlowStateTimer } from '@/shared/components/ui/FlowStateTimer';
-import { FocusSessionTimer } from '../ui/FocusSessionTimer';
-import { DeepFocusSessionCard } from '@/ecosystem/internal/tasks/ui/DeepFocusSessionCard';
-import { TabProps } from '@/ecosystem/internal/tasks/DayTabContainer';
-import { PrioritySelector, PriorityLevel } from '@/ecosystem/internal/tasks/components/PrioritySelector';
-import { useTaskReordering } from '@/ecosystem/internal/tasks/hooks/useTaskReordering';
-import { GripVertical } from 'lucide-react';
+/**
+ * 🚀 Deep Focus Work Section - Clean Architecture
+ * 
+ * Uses dedicated Deep Work API and hooks
+ * No more workType filtering confusion
+ */
 
-interface FocusSession {
-  id: string;
-  name: string;
-  duration: number;
-  completed: boolean;
-  flowState: 'warming-up' | 'in-flow' | 'completed';
-  startTime?: Date;
-  quality?: number;
+import React from 'react';
+import { UnifiedWorkSection } from '@/ecosystem/internal/tasks/components/UnifiedWorkSection';
+import { useDeepWorkTasksSupabase } from '@/ecosystem/internal/tasks/hooks/useDeepWorkTasksSupabase';
+
+interface DeepFocusWorkSectionProps {
+  selectedDate: Date;
+  onPreviousDate?: () => void;
+  onNextDate?: () => void;
 }
 
-interface PriorityTask {
-  id: string;
-  title: string;
-  priority: PriorityLevel;
-  estimatedTime: string;
-  completed: boolean;
-  sessionId?: string;
-  sortOrder?: number;
-}
-
-const mockPriorityTasks: PriorityTask[] = [
-  { id: '1', title: 'Complete quarterly review', priority: 'ultra', estimatedTime: '2h', completed: false, sortOrder: 0 },
-  { id: '2', title: 'Finish client presentation', priority: 'high', estimatedTime: '1.5h', completed: false, sortOrder: 1 },
-  { id: '3', title: 'Code review for API changes', priority: 'medium', estimatedTime: '45m', completed: false, sortOrder: 2 },
-  { id: '4', title: 'Write technical documentation', priority: 'low', estimatedTime: '1h', completed: true, sortOrder: 3 },
-];
-
-export const DeepFocusWorkSection: React.FC<TabProps> = React.memo(({
-  user,
-  todayCard,
-  refreshTrigger,
-  onRefresh,
-  onTaskToggle,
-  onQuickAdd,
-  onOrganizeTasks,
-  isAnalyzingTasks
+export const DeepFocusWorkSection: React.FC<DeepFocusWorkSectionProps> = ({
+  selectedDate,
+  onPreviousDate,
+  onNextDate
 }) => {
-  const [activeSession, setActiveSession] = useState<FocusSession | null>(null);
-  const [priorityTasks, setPriorityTasks] = useState<PriorityTask[]>(mockPriorityTasks);
-  const [sessionType, setSessionType] = useState<'pomodoro' | 'flow' | 'custom'>('flow');
-  const [totalFocusTime, setTotalFocusTime] = useState(125); // minutes today
-  const [focusGoal] = useState(240); // 4 hours
+  const {
+    tasks,
+    loading,
+    error,
+    createTask,
+    toggleTaskCompletion,
+    toggleSubtaskCompletion,
+    addSubtask,
+    deleteTask,
+    deleteSubtask,
+    updateTaskTitle,
+    updateTask,
+    pushTaskToAnotherDay,
+    updateTaskDueDate,
+    updateSubtaskDueDate,
+    updateSubtaskPriority,
+    updateSubtaskEstimatedTime,
+    refreshTasks
+  } = useDeepWorkTasksSupabase({ selectedDate });
 
-  // Drag and drop for priority tasks
-  const taskReordering = useTaskReordering(priorityTasks, setPriorityTasks);
+  // Transform data to match UnifiedWorkSection interface
+  const transformedTasks = tasks.map(task => ({
+    ...task,
+    workType: 'DEEP', // For backward compatibility with UnifiedWorkSection
+    subtasks: task.subtasks.map(subtask => ({
+      ...subtask,
+      workType: 'DEEP'
+    }))
+  }));
 
-  const completedTasks = priorityTasks.filter(t => t.completed).length;
-  const highPriorityTasks = priorityTasks.filter(t => (t.priority === 'ultra' || t.priority === 'high') && !t.completed);
-  const focusProgress = (totalFocusTime / focusGoal) * 100;
+  const handleCreateTask = async (taskData: any) => {
+    return await createTask({
+      title: taskData.title,
+      description: taskData.description,
+      priority: taskData.priority || 'HIGH',
+      estimatedDuration: taskData.estimatedDuration || 120, // Default 2 hours for deep work
+      focusBlocks: taskData.focusBlocks || 1,
+      breakDuration: taskData.breakDuration || 15,
+      tags: taskData.tags || [],
+      subtasks: taskData.subtasks || []
+    });
+  };
 
-  const startFocusSession = (type: 'pomodoro' | 'flow' | 'custom', taskId?: string) => {
-    const session: FocusSession = {
-      id: Date.now().toString(),
-      name: type === 'pomodoro' ? 'Pomodoro Session' : type === 'flow' ? 'Deep Flow Session' : 'Custom Session',
-      duration: type === 'pomodoro' ? 25 : type === 'flow' ? 90 : 60,
-      completed: false,
-      flowState: 'warming-up',
-      startTime: new Date()
-    };
-    setActiveSession(session);
-    
-    if (taskId) {
-      setPriorityTasks(prev => prev.map(task => 
-        task.id === taskId ? { ...task, sessionId: session.id } : task
-      ));
+  const handleToggleTaskCompletion = async (taskId: string) => {
+    return await toggleTaskCompletion(taskId);
+  };
+
+  const handleAddSubtask = async (taskId: string, subtaskTitle: string) => {
+    // Deep work subtasks default to high priority
+    return await addSubtask(taskId, subtaskTitle, 'HIGH');
+  };
+
+  const handleUpdateTaskPriority = async (taskId: string, priority: string) => {
+    if (updateTask) {
+      await updateTask(taskId, { priority: priority.toUpperCase() });
     }
   };
 
-  const toggleTaskComplete = (taskId: string) => {
-    setPriorityTasks(prev => prev.map(task => 
-      task.id === taskId ? { ...task, completed: !task.completed } : task
-    ));
-    onTaskToggle?.(taskId);
+  const handleReorderTasks = async (reorderedTasks: any[]) => {
+    // Update task order in state/database
+    console.log('Reordering deep work tasks:', reorderedTasks);
+    // TODO: Implement actual reordering logic when backend supports it
   };
-
-  const updateTaskPriority = (taskId: string, priority: PriorityLevel) => {
-    setPriorityTasks(prev => prev.map(task => 
-      task.id === taskId ? { ...task, priority } : task
-    ));
-  };
-
-
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-black via-gray-900 to-black relative">
-      <div className="max-w-7xl mx-auto p-3 sm:p-4 md:p-6 lg:p-8 space-y-6">
-      {/* Header */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center space-y-4"
-      >
-        <div className="flex items-center justify-center space-x-3">
-          <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center shadow-lg">
-            <Target className="h-6 w-6 text-white" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-white">Deep Focus</h1>
-            <p className="text-gray-400 text-sm">Enter the flow state</p>
-          </div>
-        </div>
-        
-        {/* Focus Stats */}
-        <div className="flex items-center justify-center space-x-6 text-sm text-gray-300">
-          <div className="flex items-center space-x-2">
-            <Clock className="h-4 w-4 text-blue-400" />
-            <span>{Math.floor(totalFocusTime / 60)}h {totalFocusTime % 60}m today</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <TrendingUp className="h-4 w-4 text-green-400" />
-            <span>Goal: {Math.round(focusProgress)}%</span>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Focus Time Progress */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-      >
-        <Card className="bg-gradient-to-br from-gray-900/80 via-gray-800/60 to-gray-900/80 border-blue-400/30 shadow-xl">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <BarChart3 className="h-5 w-5 text-blue-400" />
-                <h3 className="text-lg font-semibold text-white">Focus Progress</h3>
-              </div>
-              <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/40">
-                {totalFocusTime}min / {focusGoal}min
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <Progress 
-              value={focusProgress} 
-              className="h-3 bg-gray-800/60"
-            />
-            <div className="flex justify-between text-xs text-gray-400 mt-2">
-              <span>Daily Goal</span>
-              <span>{Math.round(focusProgress)}% Complete</span>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-
-      {/* Active Session or Session Selector */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-      >
-        {activeSession ? (
-          <Card className="bg-gradient-to-br from-purple-900/80 via-blue-800/60 to-purple-900/80 border-purple-400/30 shadow-xl">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Timer className="h-5 w-5 text-purple-400" />
-                  <h3 className="text-lg font-semibold text-white">{activeSession.name}</h3>
-                </div>
-                <Badge className={`${
-                  activeSession.flowState === 'warming-up' ? 'bg-yellow-500/20 text-yellow-300 border-yellow-500/40' :
-                  activeSession.flowState === 'in-flow' ? 'bg-green-500/20 text-green-300 border-green-500/40' :
-                  'bg-blue-500/20 text-blue-300 border-blue-500/40'
-                }`}>
-                  {activeSession.flowState === 'warming-up' ? 'Warming Up' :
-                   activeSession.flowState === 'in-flow' ? 'In Flow' : 'Completed'}
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <FlowStateTimer 
-                duration={activeSession.duration}
-                onComplete={() => {
-                  setActiveSession(null);
-                  setTotalFocusTime(prev => prev + activeSession.duration);
-                }}
-              />
-            </CardContent>
-          </Card>
-        ) : (
-          <Card className="bg-gradient-to-br from-gray-900/80 via-gray-800/60 to-gray-900/80 border-green-400/30 shadow-xl">
-            <CardHeader className="pb-3">
-              <div className="flex items-center space-x-2">
-                <Play className="h-5 w-5 text-green-400" />
-                <h3 className="text-lg font-semibold text-white">Start Focus Session</h3>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="grid grid-cols-1 gap-3">
-                <Button 
-                  onClick={() => startFocusSession('flow')}
-                  className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-semibold py-4 rounded-xl shadow-lg"
-                >
-                  <Brain className="h-5 w-5 mr-2" />
-                  Deep Flow Session (90min)
-                </Button>
-                
-                <Button 
-                  onClick={() => startFocusSession('pomodoro')}
-                  variant="outline"
-                  className="border-orange-400/50 text-orange-300 hover:bg-orange-500/20 font-semibold py-4 rounded-xl"
-                >
-                  <Timer className="h-5 w-5 mr-2" />
-                  Pomodoro Session (25min)
-                </Button>
-                
-                <Button 
-                  onClick={() => startFocusSession('custom')}
-                  variant="outline"
-                  className="border-gray-500/50 text-gray-300 hover:bg-gray-500/20 font-semibold py-4 rounded-xl"
-                >
-                  <Settings className="h-5 w-5 mr-2" />
-                  Custom Session
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-      </motion.div>
-
-      {/* Priority Tasks */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-      >
-        <Card className="bg-gradient-to-br from-gray-900/80 via-gray-800/60 to-gray-900/80 border-red-400/30 shadow-xl">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Zap className="h-5 w-5 text-red-400" />
-                <h3 className="text-lg font-semibold text-white">Priority Tasks</h3>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Badge className="bg-red-500/20 text-red-300 border-red-500/40">
-                  {completedTasks}/{priorityTasks.length}
-                </Badge>
-                <Button
-                  size="sm"
-                  onClick={onOrganizeTasks}
-                  disabled={isAnalyzingTasks}
-                  className="bg-red-500/20 border border-red-400/50 text-red-300 hover:bg-red-500/30 hover:border-red-400/70 text-xs"
-                >
-                  {isAnalyzingTasks ? (
-                    <motion.div 
-                      className="h-3 w-3 mr-1 border border-red-300 border-t-transparent rounded-full" 
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                    />
-                  ) : (
-                    <Target className="h-3 w-3 mr-1" />
-                  )}
-                  {isAnalyzingTasks ? 'Organizing...' : 'Organize'}
-                </Button>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {priorityTasks.map((task) => (
-              <div
-                key={task.id}
-                className="flex items-center gap-3 p-3 rounded-lg bg-gray-800/50 border border-gray-700/50 hover:border-purple-500/50 transition-all"
-              >
-                <div
-                  className="flex-shrink-0 p-1 hover:bg-gray-700/50 rounded cursor-grab active:cursor-grabbing transition-colors"
-                  draggable
-                  onDragStart={taskReordering.handleDragStart}
-                  onDragOver={taskReordering.handleDragOver}
-                  onDrop={taskReordering.handleDrop}
-                  onDragEnd={taskReordering.handleDragEnd}
-                  data-item-id={task.id}
-                  title="Drag to reorder"
-                >
-                  <GripVertical className="h-4 w-4 text-gray-400" />
-                </div>
-                
-                <button
-                  onClick={() => toggleTaskComplete(task.id)}
-                  className="flex-shrink-0 hover:scale-110 transition-transform"
-                >
-                  {task.completed ? (
-                    <CheckCircle2 className="h-5 w-5 text-green-400" />
-                  ) : (
-                    <Circle className="h-5 w-5 text-gray-400 hover:text-purple-400" />
-                  )}
-                </button>
-                
-                <div className="flex-1 min-w-0">
-                  <h4 className={`font-medium text-sm ${task.completed ? 'line-through text-gray-500' : 'text-white'}`}>
-                    {task.title}
-                  </h4>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs text-gray-400">{task.estimatedTime}</span>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-2">
-                  <PrioritySelector
-                    value={task.priority}
-                    onChange={(priority) => updateTaskPriority(task.id, priority)}
-                    size="xs"
-                  />
-                  
-                  {!activeSession && (
-                    <Button
-                      size="sm"
-                      onClick={() => startFocusSession('flow', task.id)}
-                      className="bg-purple-500/20 border border-purple-400/50 text-purple-300 hover:bg-purple-500/30 hover:border-purple-400/70 text-xs"
-                    >
-                      <Play className="h-3 w-3 mr-1" />
-                      Focus
-                    </Button>
-                  )}
-                </div>
-              </div>
-            ))}
-            
-            {priorityTasks.length === 0 && (
-              <div className="text-center py-8 text-gray-400">
-                <Target className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                <p className="text-sm">No priority tasks yet</p>
-                <Button 
-                  onClick={onQuickAdd}
-                  className="mt-3 bg-gradient-to-r from-red-500 to-pink-500 text-white"
-                  size="sm"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Priority Task
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </motion.div>
-
-      {/* High Priority Alert */}
-      {highPriorityTasks.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.4 }}
-        >
-          <Card className="bg-gradient-to-r from-red-900/50 to-orange-900/50 border-red-500/50 shadow-xl">
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-red-500/30 rounded-full flex items-center justify-center">
-                  <Zap className="h-4 w-4 text-red-400" />
-                </div>
-                <div>
-                  <h4 className="font-semibold text-red-300">
-                    {highPriorityTasks.length} High Priority Task{highPriorityTasks.length > 1 ? 's' : ''} Pending
-                  </h4>
-                  <p className="text-xs text-red-400/80">
-                    Consider starting a focus session for maximum productivity
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      )}
-
-      {/* Focus Actions */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-        className="flex flex-col sm:flex-row gap-3 pt-4"
-      >
-        <Button 
-          onClick={onQuickAdd}
-          className="flex-1 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white font-semibold py-3 rounded-xl shadow-lg"
-        >
-          <Plus className="h-5 w-5 mr-2" />
-          Add Priority Task
-        </Button>
-        
-        <Button 
-          onClick={() => startFocusSession('flow')}
-          disabled={!!activeSession}
-          className="flex-1 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 disabled:opacity-50 text-white font-semibold py-3 rounded-xl shadow-lg"
-        >
-          <Brain className="h-5 w-5 mr-2" />
-          Start Deep Focus
-        </Button>
-      </motion.div>
-      </div>
-    </div>
+    <UnifiedWorkSection
+          selectedDate={selectedDate}
+          workType="DEEP"
+      tasks={transformedTasks}
+      loading={loading}
+      error={error}
+      createTask={handleCreateTask}
+      toggleTaskCompletion={handleToggleTaskCompletion}
+      toggleSubtaskCompletion={toggleSubtaskCompletion}
+      addSubtask={handleAddSubtask}
+      deleteTask={deleteTask}
+      deleteSubtask={deleteSubtask}
+      analyzeTaskWithAI={async () => {}} // TODO: Implement (AI feature)
+      pushTaskToAnotherDay={pushTaskToAnotherDay}
+      updateTaskTitle={updateTaskTitle}
+      updateSubtaskDueDate={updateSubtaskDueDate}
+      updateSubtaskPriority={updateSubtaskPriority}
+      updateSubtaskEstimatedTime={updateSubtaskEstimatedTime}
+      updateTaskPriority={handleUpdateTaskPriority}
+      reorderTasks={handleReorderTasks}
+    />
   );
-});
+};

@@ -1,12 +1,11 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Toaster } from '@/shared/ui/toaster';
 import { ClerkProvider } from '@/shared/auth';
 import { ClerkAuthGuard } from '@/shared/auth/ClerkAuthGuard';
 import { AuthGuard } from '@/shared/auth/AuthGuard';
 import { PageLoader } from '@/shared/ui/PageLoader';
-import { workerSyncManager } from '@/shared/services/workerSyncManager';
 
 // Critical pages loaded immediately (landing, auth, home)
 import Index from './pages/Index';
@@ -154,23 +153,6 @@ function ErrorFallback({error, resetErrorBoundary}: {error: Error, resetErrorBou
 }
 
 function App() {
-  // Background sync via Web Worker (ZERO UI blocking!) ⚡
-  useEffect(() => {
-    // Start periodic background sync (every 30 seconds)
-    const syncInterval = setInterval(() => {
-      workerSyncManager.syncAll(); // Runs in background thread!
-    }, 30000);
-
-    // Initial sync
-    workerSyncManager.syncAll();
-    console.log('🔄 Background sync enabled (Web Worker - zero UI blocking!)');
-
-    return () => {
-      clearInterval(syncInterval);
-      workerSyncManager.terminate();
-    };
-  }, []);
-
   return (
     <ClerkProvider>
       <Toaster />
