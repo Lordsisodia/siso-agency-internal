@@ -1,9 +1,28 @@
 # SISO Internal - Intelligent Development Assistant
 
 ## 🎯 Core Context (Always Active)
-**Stack**: React + TypeScript + Vite + Supabase + Tailwind + PWA  
-**Commands**: `npm run dev` | `npm run build` | `npm run typecheck`  
+**Stack**: React + TypeScript + Vite + Supabase + Tailwind + PWA
+**Commands**: `npm run dev` | `npm run build` | `npm run typecheck`
 **Rules**: Mobile-first | Auto-test | Copy existing patterns | NO abstractions
+
+## 🛡️ MANDATORY: AI Session Protection (DO THIS FIRST!)
+
+**⚠️ CRITICAL**: Before making ANY changes, run:
+```bash
+bash scripts/ai-session-snapshot.sh
+```
+
+**Why**: On 2025-10-08, an AI session modified 240+ files and broke the entire app. This snapshot system prevents that from ever happening again.
+
+**Rules**:
+- ❌ NEVER modify 100+ files in one session
+- ❌ NEVER change core routing without explicit approval
+- ❌ NEVER remove export statements across multiple files
+- ✅ ALWAYS create snapshot before starting
+- ✅ ALWAYS commit every 30 minutes
+- ✅ ALWAYS test changes before moving to next task
+
+**Full Guide**: See `docs/AI-SESSION-PROTECTION.md`
 
 ## ⚡ Quick Actions
 <details><summary>Emergency Fixes</summary>

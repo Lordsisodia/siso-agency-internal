@@ -39,7 +39,12 @@
     "check:mcp": "node scripts/mcp/check-codecs.mjs",
     "security:scan": "snyk test --org=27f2978d-30d9-46a5-b982-64e7055a8a61",
     "security:monitor": "snyk monitor --org=27f2978d-30d9-46a5-b982-64e7055a8a61",
-    "security:fix": "snyk fix --org=27f2978d-30d9-46a5-b982-64e7055a8a61"
+    "security:fix": "snyk fix --org=27f2978d-30d9-46a5-b982-64e7055a8a61",
+    "validate:files": "node scripts/validate-files.mjs",
+    "validate": "npm run validate:files && npm run typecheck",
+    "ai:snapshot": "bash scripts/ai-session-snapshot.sh",
+    "ai:restore": "ls -lt .git/ai-snapshots/ && echo '\nRun: bash .git/ai-snapshots/restore_TIMESTAMP.sh'",
+    "ai:protect": "bash scripts/ai-session-snapshot.sh && echo '\n✅ Safe to start AI session'"
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.30",
