@@ -25,6 +25,9 @@ import { useClerkUser } from '@/shared/ClerkProvider';
 import { useSupabaseUserId } from '@/shared/lib/supabase-clerk';
 import { workTypeApiClient } from '@/services/workTypeApiClient';
 import { useOfflineManager } from '@/shared/hooks/useOfflineManager';
+import { MobileMicrophoneButton } from '@/ecosystem/internal/tasks/ui/MobileMicrophoneButton';
+import { ThoughtDumpResults } from '@/shared/components/ui/ThoughtDumpResults';
+import { lifeLockVoiceTaskProcessor, ThoughtDumpResult } from '@/services/lifeLockVoiceTaskProcessor';
 
 interface MorningRoutineHabit {
   name: string;
@@ -128,6 +131,10 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   const [morningRoutine, setMorningRoutine] = useState<MorningRoutineData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Thought Dump AI state
+  const [thoughtDumpResult, setThoughtDumpResult] = useState<ThoughtDumpResult | null>(null);
+  const [isProcessingVoice, setIsProcessingVoice] = useState(false);
 
   const [wakeUpTime, setWakeUpTime] = useState<string>(() => {
     const dateKey = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd');
@@ -282,6 +289,19 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   const morningRoutineProgress = useMemo(() => {
     return getRoutineProgress();
   }, [getRoutineProgress]);
+
+  // Voice command handler for thought dump
+  const handleVoiceCommand = async (command: string) => {
+    setIsProcessingVoice(true);
+    try {
+      const result = await lifeLockVoiceTaskProcessor.processThoughtDump(command);
+      setThoughtDumpResult(result);
+    } catch (error) {
+      console.error('Voice processing failed:', error);
+    } finally {
+      setIsProcessingVoice(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -481,8 +501,26 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
             </div>
           </CardContent>
         </Card>
-        
+
       </div>
+
+      {/* Thought Dump AI Button */}
+      <MobileMicrophoneButton
+        onVoiceCommand={handleVoiceCommand}
+        disabled={isProcessingVoice}
+      />
+
+      {/* Thought Dump Results Modal */}
+      {thoughtDumpResult && (
+        <ThoughtDumpResults
+          result={thoughtDumpResult}
+          onClose={() => setThoughtDumpResult(null)}
+          onAddToSchedule={() => {
+            // Tasks already processed, just close modal
+            setThoughtDumpResult(null);
+          }}
+        />
+      )}
     </div>
   );
 });
