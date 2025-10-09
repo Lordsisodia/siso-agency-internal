@@ -2,7 +2,7 @@ import React, { useMemo, useEffect } from 'react';
 import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
 import { format, addWeeks, subWeeks, getYear } from 'date-fns';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useClerkUser } from '@/shared/ClerkProvider';
+import { useClerkUser } from '@/shared/hooks/useClerkUser';
 import { useSupabaseUserId } from '@/shared/lib/supabase-clerk';
 import { ThoughtDumpResults } from "@/shared/components/ui";
 import { EisenhowerMatrixModal } from "@/shared/components/ui";

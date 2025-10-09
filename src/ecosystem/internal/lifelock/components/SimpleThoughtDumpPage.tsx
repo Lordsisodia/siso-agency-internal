@@ -1,199 +1,275 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/shared/ui/button';
-import { Card } from '@/shared/ui/card';
 import { Mic, MicOff, ArrowLeft } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { voiceService } from '@/services/voiceService';
 import { lifeLockVoiceTaskProcessor } from '@/services/lifeLockVoiceTaskProcessor';
+import { gpt5NanoService } from '@/services/gpt5NanoService';
+import { MORNING_ROUTINE_TOOLS, MorningRoutineToolExecutor } from '@/services/morningRoutineTools';
+import { chatMemoryService } from '@/services/chatMemoryService';
+import { useClerkUser } from '@/shared/ClerkProvider';
+import { useSupabaseUserId } from '@/shared/lib/supabase-clerk';
 
 interface SimpleThoughtDumpPageProps {
+  selectedDate: Date;
   onBack: () => void;
   onComplete?: (tasks: any) => void;
 }
 
+interface Message {
+  role: 'user' | 'assistant' | 'tool';
+  content: string;
+  timestamp: Date;
+  tool_call_id?: string;
+  name?: string;
+}
+
 export const SimpleThoughtDumpPage: React.FC<SimpleThoughtDumpPageProps> = ({
+  selectedDate,
   onBack,
   onComplete
 }) => {
+  const { user } = useClerkUser();
+  const internalUserId = useSupabaseUserId(user?.id || null);
+
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
-  const [aiResponse, setAiResponse] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [parsedTasks, setParsedTasks] = useState<any>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const toolExecutor = useRef<MorningRoutineToolExecutor | null>(null);
 
-  const handleStartListening = async () => {
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  useEffect(() => {
+    const init = async () => {
+      await chatMemoryService.initialize();
+
+      if (internalUserId) {
+        toolExecutor.current = new MorningRoutineToolExecutor(internalUserId, selectedDate);
+      }
+
+      const greeting = "Good morning! I'm here to help organize your day. What's on your mind?";
+      setMessages([{ role: 'assistant', content: greeting, timestamp: new Date() }]);
+
+      if (voiceService.isTTSSupported()) {
+        setIsSpeaking(true);
+        voiceService.speak(greeting, {}, () => {}, () => setIsSpeaking(false), () => setIsSpeaking(false));
+      }
+    };
+    init();
+  }, [internalUserId, selectedDate]);
+
+  const getAIResponse = async (userMessage: string) => {
+    setIsProcessing(true);
+    setMessages(prev => [...prev, { role: 'user', content: userMessage, timestamp: new Date() }]);
+
+    try {
+      const gptMessages = messages.map(m => ({
+        role: m.role,
+        content: m.content,
+        ...(m.tool_call_id && { tool_call_id: m.tool_call_id, name: m.name })
+      }));
+      gptMessages.push({ role: 'user', content: userMessage });
+
+      const response = await gpt5NanoService.chat({
+        messages: gptMessages,
+        tools: MORNING_ROUTINE_TOOLS,
+        temperature: 0.7,
+        max_tokens: 300
+      });
+
+      const assistantMessage = response.choices[0]?.message;
+
+      if (assistantMessage.tool_calls?.length > 0) {
+        console.log('🤖 [AI] Calling tools:', assistantMessage.tool_calls.map(tc => tc.function.name));
+
+        const toolResults = await Promise.all(
+          assistantMessage.tool_calls.map(async (toolCall) => {
+            const args = JSON.parse(toolCall.function.arguments);
+            const result = await toolExecutor.current?.executeTool(toolCall.function.name, args);
+            return {
+              role: 'tool' as const,
+              tool_call_id: toolCall.id,
+              name: toolCall.function.name,
+              content: JSON.stringify(result)
+            };
+          })
+        );
+
+        const finalResponse = await gpt5NanoService.chat({
+          messages: [
+            ...gptMessages,
+            { role: 'assistant', content: assistantMessage.content || '', tool_calls: assistantMessage.tool_calls },
+            ...toolResults
+          ],
+          temperature: 0.7,
+          max_tokens: 300
+        });
+
+        const finalMessage = finalResponse.choices[0]?.message?.content || "I understand. What else?";
+        setMessages(prev => [...prev, { role: 'assistant', content: finalMessage, timestamp: new Date() }]);
+
+        if (voiceService.isTTSSupported()) {
+          setIsSpeaking(true);
+          await voiceService.speak(finalMessage, {}, () => {}, () => setIsSpeaking(false), () => setIsSpeaking(false));
+        }
+
+        await chatMemoryService.saveMessage({
+          id: Date.now().toString(),
+          content: userMessage,
+          sender: 'user',
+          timestamp: new Date()
+        });
+        await chatMemoryService.saveMessage({
+          id: (Date.now() + 1).toString(),
+          content: finalMessage,
+          sender: 'assistant',
+          timestamp: new Date()
+        });
+
+      } else {
+        const aiMessage = assistantMessage.content || "I understand. What else?";
+        setMessages(prev => [...prev, { role: 'assistant', content: aiMessage, timestamp: new Date() }]);
+
+        if (voiceService.isTTSSupported()) {
+          setIsSpeaking(true);
+          await voiceService.speak(aiMessage, {}, () => {}, () => setIsSpeaking(false), () => setIsSpeaking(false));
+        }
+      }
+
+    } catch (error) {
+      console.error('❌ [AI] Error:', error);
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: "I'm having trouble connecting. Could you repeat that?",
+        timestamp: new Date()
+      }]);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleMicToggle = async () => {
     if (isListening) {
       voiceService.stopListening();
       setIsListening(false);
-
-      // Process the transcript
       if (transcript.trim()) {
-        setIsProcessing(true);
-        try {
-          const result = await lifeLockVoiceTaskProcessor.processThoughtDump(transcript);
-          setParsedTasks(result);
-          setAiResponse(`Got it! I've organized ${result.totalTasks} tasks:\n• Deep Work: ${result.deepTasks.length}\n• Light Work: ${result.lightTasks.length}`);
-        } catch (error) {
-          setAiResponse('Sorry, I had trouble processing that. Please try again.');
-        } finally {
-          setIsProcessing(false);
-        }
+        await getAIResponse(transcript);
+        setTranscript('');
       }
     } else {
       setTranscript('');
-      setAiResponse('');
-      setParsedTasks(null);
-
       try {
         await voiceService.startListening(
-          (text, isFinal) => {
-            setTranscript(text);
-            if (isFinal) {
-              console.log('Final transcript:', text);
+          (text) => setTranscript(text),
+          (error) => {
+            if (!error.includes('no-speech')) {
+              setIsListening(false);
             }
           },
-          (error) => {
-            console.error('Voice error:', error);
-            setIsListening(false);
-          },
-          {
-            language: 'en-US',
-            continuous: true,
-            interimResults: true
-          }
+          { language: 'en-US', continuous: true, interimResults: true }
         );
         setIsListening(true);
       } catch (error) {
-        console.error('Failed to start listening:', error);
+        console.error('Failed:', error);
       }
     }
   };
 
-  const handleComplete = () => {
-    if (onComplete && parsedTasks) {
-      onComplete(parsedTasks);
+  const handleComplete = async () => {
+    const fullTranscript = messages.filter(m => m.role === 'user').map(m => m.content).join('. ');
+    if (fullTranscript.trim()) {
+      const result = await lifeLockVoiceTaskProcessor.processThoughtDump(fullTranscript);
+      if (onComplete) onComplete(result);
     }
     onBack();
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-gradient-to-br from-black via-gray-900 to-black">
-      {/* Back Button */}
-      <div className="absolute top-4 left-4">
-        <Button
-          variant="ghost"
-          onClick={onBack}
-          className="text-white hover:bg-white/10"
-        >
+    <div className="fixed inset-0 z-50 bg-gradient-to-br from-gray-900 via-black to-gray-900 flex flex-col">
+      <div className="flex items-center justify-between p-4 border-b border-gray-700/50 bg-black/50 backdrop-blur-sm">
+        <Button variant="ghost" onClick={onBack} className="text-white hover:bg-white/10">
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Morning Routine
+          Back
         </Button>
+        <div className="text-center flex-1">
+          <h1 className="text-lg font-bold text-white">🧠 AI Thought Dump</h1>
+          <p className="text-xs text-gray-400">GPT-5 Nano • Function Calling</p>
+        </div>
+        <div className="w-20"></div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex flex-col items-center justify-center min-h-screen p-6 max-w-2xl mx-auto">
-
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
-        >
-          <h1 className="text-4xl font-bold text-white mb-2">🧠 AI Thought Dump</h1>
-          <p className="text-gray-400">
-            Speak your thoughts - I'll organize them into your timebox
-          </p>
-        </motion.div>
-
-        {/* Microphone Button */}
-        <motion.button
-          onClick={handleStartListening}
-          disabled={isProcessing}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className={`relative w-32 h-32 rounded-full mb-8 transition-all duration-300 ${
-            isListening
-              ? 'bg-red-500 shadow-lg shadow-red-500/50 animate-pulse'
-              : 'bg-gradient-to-r from-yellow-500 to-orange-500 shadow-lg shadow-orange-500/50'
-          }`}
-        >
-          <AnimatePresence mode="wait">
-            {isListening ? (
-              <motion.div
-                key="listening"
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                exit={{ scale: 0 }}
-              >
-                <MicOff className="h-12 w-12 text-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-              </motion.div>
-            ) : (
-              <motion.div
-                key="idle"
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                exit={{ scale: 0 }}
-              >
-                <Mic className="h-12 w-12 text-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.button>
-
-        <div className="text-center text-sm text-gray-400 mb-8">
-          {isListening ? '🎤 Listening... (tap to stop)' : 'Tap to start speaking'}
-        </div>
-
-        {/* Real-Time Transcript - Always visible */}
-        <div className="w-full mb-6">
-          <Card className="bg-gray-800/50 border-blue-500/30 p-4 min-h-[120px]">
-            <div className="text-blue-400 text-sm font-medium mb-2">📝 Real-Time Transcript:</div>
-            <div className="text-white text-base leading-relaxed">
-              {transcript || (
-                <span className="text-gray-500 italic">
-                  Your words will appear here as you speak...
-                </span>
-              )}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {messages.filter(m => m.role !== 'tool').map((msg, idx) => (
+          <motion.div
+            key={idx}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+          >
+            <div className={`max-w-[80%] rounded-2xl p-4 ${
+              msg.role === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-100 border border-gray-700'
+            }`}>
+              <div className="text-sm leading-relaxed">{msg.content}</div>
+              <div className={`text-xs mt-2 ${msg.role === 'user' ? 'text-blue-200' : 'text-gray-500'}`}>
+                {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </div>
             </div>
-          </Card>
-        </div>
+          </motion.div>
+        ))}
 
-        {/* AI Response - Always visible */}
-        <div className="w-full mb-6">
-          <Card className="bg-gray-800/50 border-green-500/30 p-4 min-h-[120px]">
-            <div className="text-green-400 text-sm font-medium mb-2">🤖 AI Response:</div>
-            <div className="text-white text-base leading-relaxed whitespace-pre-line">
-              {aiResponse || (
-                <span className="text-gray-500 italic">
-                  AI will organize your tasks here...
-                </span>
-              )}
+        {isListening && transcript && (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex justify-end">
+            <div className="max-w-[80%] rounded-2xl p-4 bg-blue-600/50 text-white border-2 border-blue-400 animate-pulse">
+              <div className="text-sm">{transcript}</div>
+              <div className="text-xs mt-2 text-blue-200">🎤 Listening...</div>
             </div>
-          </Card>
-        </div>
+          </motion.div>
+        )}
 
-        {/* Processing Indicator */}
         {isProcessing && (
-          <div className="text-yellow-400 text-sm animate-pulse">
-            🧠 Processing your thoughts...
+          <div className="flex justify-start">
+            <div className="bg-gray-800 border border-gray-700 rounded-2xl p-4">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <span className="text-sm text-gray-400 ml-2">AI is thinking...</span>
+              </div>
+            </div>
           </div>
         )}
 
-        {/* Complete Button */}
-        {parsedTasks && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="w-full"
-          >
-            <Button
-              onClick={handleComplete}
-              className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold py-6 text-lg"
-            >
-              ✓ Done - Add to Timebox
-            </Button>
-          </motion.div>
+        {isSpeaking && (
+          <div className="flex justify-start">
+            <div className="bg-green-900/30 border border-green-600/50 rounded-2xl px-4 py-2">
+              <span className="text-sm text-green-400">🔊 AI is speaking...</span>
+            </div>
+          </div>
         )}
+
+        <div ref={messagesEndRef} />
+      </div>
+
+      <div className="border-t border-gray-700/50 bg-black/50 backdrop-blur-sm p-4">
+        <div className="max-w-4xl mx-auto flex items-center gap-3">
+          <Button
+            onClick={handleMicToggle}
+            disabled={isProcessing || isSpeaking}
+            className={`${isListening ? 'bg-red-500 hover:bg-red-600 animate-pulse' : 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600'} h-12 px-6`}
+          >
+            {isListening ? <><MicOff className="h-5 w-5 mr-2" />Stop</> : <><Mic className="h-5 w-5 mr-2" />Speak</>}
+          </Button>
+          {messages.length > 2 && (
+            <Button onClick={handleComplete} className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 h-12">
+              ✓ Done - Organize into Timebox
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );
