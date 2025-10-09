@@ -20,6 +20,7 @@ import { NightlyCheckoutSection } from './sections/NightlyCheckoutSection';
 import { HomeWorkoutSection } from './sections/HomeWorkoutSection';
 import { HealthNonNegotiablesSection } from './sections/HealthNonNegotiablesSection';
 import { TimeboxSection } from './sections/TimeboxSection';
+import { AnimatedDateHeader } from '@/shared/ui/animated-date-header-v2';
 import { useLifeLockData } from '@/ecosystem/internal/lifelock/useLifeLockData';
 import { useRefactoredLifeLockData } from '@/ecosystem/internal/lifelock/useRefactoredLifeLockData';
 import { LoadingState } from '@/shared/ui/loading-state';
@@ -163,6 +164,15 @@ const AdminLifeLockDay: React.FC = () => {
             case 'wellness':
               return (
                 <div className="space-y-6">
+                  <AnimatedDateHeader
+                    selectedDate={selectedDate}
+                    earnedXP={0}
+                    potentialXP={0}
+                    currentLevel={1}
+                    streakDays={0}
+                    badgeCount={0}
+                    colorScheme="green"
+                  />
                   <HomeWorkoutSection selectedDate={selectedDate} />
                   <HealthNonNegotiablesSection selectedDate={selectedDate} />
                 </div>

@@ -73,14 +73,14 @@ const USER_SPECIFIC_FLAGS: Record<string, Partial<AIAssistantFeatureFlags>> = {
 // Environment-based feature flags
 const ENV_FEATURE_FLAGS: Partial<AIAssistantFeatureFlags> = {
   // Development environment - enable more features for testing
-  ...(process.env.NODE_ENV === 'development' && {
+  ...(import.meta.env.DEV && {
     enableChatThreads: true,
     enableConversationHistory: true,
     enableMorningRoutineTimer: true,
   }),
-  
+
   // Staging environment - enable subset for testing
-  ...(process.env.VERCEL_ENV === 'preview' && {
+  ...(import.meta.env.VITE_VERCEL_ENV === 'preview' && {
     enableConversationHistory: true,
   }),
 };
@@ -161,7 +161,7 @@ export class FeatureFlagService {
   public debugFlags(): void {
     console.log('🚩 [FEATURE FLAGS] Current flags:', this.flags);
     console.log('🚩 [FEATURE FLAGS] User ID:', this.getCurrentUserId());
-    console.log('🚩 [FEATURE FLAGS] Environment:', process.env.NODE_ENV);
+    console.log('🚩 [FEATURE FLAGS] Environment:', import.meta.env.MODE);
   }
 }
 
@@ -179,7 +179,7 @@ export const isFeatureEnabled = (feature: keyof AIAssistantFeatureFlags): boolea
 
 // Development helper functions
 export const devEnableAllFeatures = (): void => {
-  if (process.env.NODE_ENV === 'development') {
+  if (import.meta.env.DEV) {
     const flagService = FeatureFlagService.getInstance();
     const allFeatures = Object.keys(DEFAULT_FEATURE_FLAGS) as (keyof AIAssistantFeatureFlags)[];
     flagService.enableFeatures(allFeatures);
@@ -187,14 +187,14 @@ export const devEnableAllFeatures = (): void => {
 };
 
 export const devDisableAllFeatures = (): void => {
-  if (process.env.NODE_ENV === 'development') {
+  if (import.meta.env.DEV) {
     const flagService = FeatureFlagService.getInstance();
     flagService.resetFlags();
   }
 };
 
 // Console commands for easy testing (development only)
-if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
+if (import.meta.env.DEV && typeof window !== 'undefined') {
   (window as any).enableAIFeature = (feature: string) => {
     const flagService = FeatureFlagService.getInstance();
     flagService.enableFeature(feature as keyof AIAssistantFeatureFlags);

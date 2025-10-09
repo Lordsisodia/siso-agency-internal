@@ -114,22 +114,10 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
   // Debug: Log every render
   console.log('🔍 [TIMEBOX] RENDER with userId:', userId, 'date:', format(selectedDate, 'yyyy-MM-dd'));
   
-  // Move useImplementation calls to top of component
-  const containerClassName = useImplementation(
-    'useUnifiedThemeSystem',
-    // NEW: Unified theme system
-    `min-h-screen w-full mb-24 ${theme.gradients.diagonal.grayToBlack}`,
-    // OLD: Original classes (fallback for safety)
-    'min-h-screen w-full mb-24 bg-gradient-to-br from-black via-gray-900 to-black'
-  );
+  // Clean black background
+  const containerClassName = 'min-h-screen w-full mb-24 bg-black';
   
-  const loadingClassName = useImplementation(
-    'useUnifiedThemeSystem',
-    // NEW: Unified theme system
-    `h-full w-full flex items-center justify-center ${theme.gradients.diagonal.grayToBlack}`,
-    // OLD: Original classes (fallback for safety)
-    'h-full w-full bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center'
-  );
+  const loadingClassName = 'h-full w-full bg-black flex items-center justify-center';
 
   const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedTask, setSelectedTask] = useState<TimeboxTask | null>(null);
@@ -500,20 +488,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
   return (
     <div className={containerClassName}>
       <div className="w-full relative">
-        {/* Progress Line */}
-        <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500/50"></div>
-
-        <div className="max-w-7xl mx-auto p-3 sm:p-4 md:p-6 space-y-6">
-          {/* Animated Date Header */}
-          <AnimatedDateHeader
-            selectedDate={selectedDate}
-            earnedXP={0}
-            potentialXP={0}
-            currentLevel={1}
-            streakDays={0}
-            badgeCount={0}
-            colorScheme="blue"
-          />
+        <div className="max-w-7xl mx-auto px-2 sm:px-3 md:px-4 space-y-6">
 
           {/* Compact Header Section */}
 
@@ -523,9 +498,9 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="mx-4 mb-2"
+          className="mx-2 mb-2"
         >
-          <Card className="bg-gradient-to-r from-blue-900/40 via-purple-900/30 to-indigo-900/40 border-blue-700/50 shadow-2xl shadow-blue-500/20 rounded-2xl backdrop-blur-sm">
+          <Card className="bg-transparent border-gray-800/30 rounded-2xl">
             <CardContent className="p-3">
               <div className="flex items-center space-x-2.5">
                 <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center shadow-md">
@@ -586,7 +561,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
         </motion.div>
 
         {/* TimeBox Card Wrapper */}
-        <Card className="w-full bg-blue-900/20 border-blue-700/50 shadow-2xl shadow-blue-900/20 rounded-2xl backdrop-blur-sm mb-32">
+        <Card className="w-full bg-transparent border-gray-800/30 rounded-2xl mb-32">
           <CardContent className="p-0">
             {/* Full Width Timeline */}
             <div className="w-full">
@@ -602,7 +577,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
               <div className="relative" style={{ height: `${(23 - 0 + 1) * 80}px` }}>
                 
                 {/* Clean Time Sidebar */}
-                <div className="absolute left-0 top-0 w-16 h-full bg-gray-900/50 border-r border-gray-600/30 rounded-l-2xl shadow-inner">
+                <div className="absolute left-0 top-0 w-16 h-full bg-gray-950/80 border-r border-gray-700/30 rounded-l-2xl">
                   {timeSlots.map((slot, index) => (
                     <motion.div
                       key={slot.hour}
@@ -622,9 +597,9 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                       {/* Compact Time Label */}
                       <motion.div 
                         className={cn(
-                          "bg-gray-800/60 backdrop-blur-sm border border-gray-600/40 rounded-md px-2 py-1 shadow-sm",
+                          "bg-gray-950/90 border border-gray-700/40 rounded-md px-2 py-1",
                           slot.isCurrentHour 
-                            ? "border-blue-400/50 bg-blue-900/30 shadow-blue-500/20" 
+                            ? "border-blue-400/50 bg-blue-950/80" 
                             : "group-hover/hour:border-gray-500/60"
                         )}
                         whileHover={{ scale: 1.05 }}
@@ -743,7 +718,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                 )}
 
                 {/* Enhanced Task Blocks Container - Adjusted for sidebar */}
-                <div className="absolute left-16 right-4 top-0 bottom-0 bg-gradient-to-r from-transparent via-black/5 to-transparent rounded-2xl shadow-inner" style={{ width: 'calc(100% - 80px)' }}>
+                <div className="absolute left-16 right-4 top-0 bottom-0" style={{ width: 'calc(100% - 80px)' }}>
                   {validTasks.length === 0 ? (
                     /* Enhanced Empty State */
                     <div className="flex items-center justify-center h-full">
@@ -794,7 +769,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                         onDragEnd={(e, info) => handleDragEnd(task.id, info)}
                         className={cn(
                           "absolute rounded-xl cursor-move z-10 group touch-pan-y active:cursor-grabbing",
-                          "bg-gradient-to-br backdrop-blur-md shadow-xl border-2",
+                          "bg-gradient-to-br shadow-xl border-2",
                           "transition-all duration-500 hover:shadow-2xl overflow-hidden",
                           "ring-0 ring-transparent hover:ring-2 hover:ring-white/20",
                           draggingTaskId === task.id && "scale-105 shadow-2xl ring-2 ring-blue-400/50 z-50",
@@ -870,7 +845,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                           {/* Enhanced completion overlay effect */}
                           {task.completed && (
                             <motion.div
-                              className="absolute inset-0 bg-gradient-to-br from-green-400/20 via-emerald-400/15 to-green-500/20 backdrop-blur-[1px] border-l-2 border-green-400/40"
+                              className="absolute inset-0 bg-gradient-to-br from-green-400/20 via-emerald-400/15 to-green-500/20 border-l-2 border-green-400/40"
                               initial={{ opacity: 0, scale: 0.95, x: -20 }}
                               animate={{ opacity: 1, scale: 1, x: 0 }}
                               transition={{ duration: 0.6, ease: "easeOut" }}
@@ -942,7 +917,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
 
                             {/* Description in Subtle Box - Only if exists and card is tall enough */}
                             {task.description && task.duration >= 45 && (
-                              <div className="bg-black/20 border border-white/10 rounded-lg px-2 py-1.5 backdrop-blur-sm mt-1">
+                              <div className="bg-black/20 border border-white/10 rounded-lg px-2 py-1.5 mt-1">
                                 <p className={cn(
                                   "text-[10px] leading-relaxed transition-all duration-300 line-clamp-2",
                                   task.completed ? "text-green-200/70" : "text-white/60 group-hover:text-white/75"

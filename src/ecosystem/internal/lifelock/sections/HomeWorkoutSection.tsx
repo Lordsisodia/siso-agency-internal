@@ -175,21 +175,7 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({
 
   return (
     <div className="w-full relative bg-gray-900">
-      {/* Progress Line */}
-      <div className="absolute left-0 top-0 bottom-0 w-1 bg-red-500/50"></div>
-
       <div className="max-w-7xl mx-auto p-2 sm:p-3 md:p-4 lg:p-6 space-y-6">
-        {/* Animated Date Header */}
-        <AnimatedDateHeader
-          selectedDate={selectedDate}
-          earnedXP={0}
-          potentialXP={0}
-          currentLevel={1}
-          streakDays={0}
-          badgeCount={0}
-          colorScheme="red"
-        />
-
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

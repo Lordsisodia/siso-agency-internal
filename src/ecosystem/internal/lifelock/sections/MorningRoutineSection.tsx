@@ -25,7 +25,7 @@ import { useClerkUser } from '@/shared/ClerkProvider';
 import { useSupabaseUserId } from '@/shared/lib/supabase-clerk';
 import { workTypeApiClient } from '@/services/workTypeApiClient';
 import { useOfflineManager } from '@/shared/hooks/useOfflineManager';
-import { MobileMicrophoneButton } from '@/ecosystem/internal/tasks/ui/MobileMicrophoneButton';
+import { SimpleThoughtDumpPage } from '../components/SimpleThoughtDumpPage';
 import { ThoughtDumpResults } from '@/shared/components/ui/ThoughtDumpResults';
 import { lifeLockVoiceTaskProcessor, ThoughtDumpResult } from '@/services/lifeLockVoiceTaskProcessor';
 
@@ -100,16 +100,11 @@ const MORNING_ROUTINE_TASKS = [
   {
     key: 'planDay' as const,
     title: 'Plan Day (15 min)',
-    description: 'Go through tasks, prioritize, and allocate time slots.',
+    description: 'Use AI Thought Dump to organize tasks and set timebox.',
     timeEstimate: '15 min',
     icon: CalendarIcon,
     hasTimeTracking: false,
-    subtasks: [
-      { key: 'thoughtDump', title: 'Thought dump' },
-      { key: 'planDeepWork', title: 'Plan deep work' },
-      { key: 'planLightWork', title: 'Plan light work' },
-      { key: 'setTimebox', title: 'Set timebox' }
-    ]
+    subtasks: []
   },
   {
     key: 'meditation' as const,
@@ -133,6 +128,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   const [error, setError] = useState<string | null>(null);
 
   // Thought Dump AI state
+  const [showThoughtDumpChat, setShowThoughtDumpChat] = useState(false);
   const [thoughtDumpResult, setThoughtDumpResult] = useState<ThoughtDumpResult | null>(null);
   const [isProcessingVoice, setIsProcessingVoice] = useState(false);
 
@@ -290,14 +286,14 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
     return getRoutineProgress();
   }, [getRoutineProgress]);
 
-  // Voice command handler for thought dump
-  const handleVoiceCommand = async (command: string) => {
+  // Thought dump handler
+  const handleThoughtDumpSubmit = async (input: string) => {
     setIsProcessingVoice(true);
     try {
-      const result = await lifeLockVoiceTaskProcessor.processThoughtDump(command);
+      const result = await lifeLockVoiceTaskProcessor.processThoughtDump(input);
       setThoughtDumpResult(result);
     } catch (error) {
-      console.error('Voice processing failed:', error);
+      console.error('Thought dump processing failed:', error);
     } finally {
       setIsProcessingVoice(false);
     }
@@ -320,12 +316,12 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   }
 
   return (
-    <div className="w-full relative bg-gray-900">
-      <div className="max-w-7xl mx-auto space-y-6 p-4">
+    <div className="min-h-screen w-full relative">
+      <div className="w-full max-w-none p-2 sm:p-3 md:p-4 lg:p-6 space-y-6">
 
         {/* Morning Routine Card */}
-        <Card className="bg-yellow-900/20 border-yellow-700/50">
-          <CardHeader className="p-6">
+        <Card className="w-full bg-yellow-900/20 border-yellow-700/50">
+          <CardHeader className="p-3 sm:p-4 md:p-6">
             <CardTitle className="flex items-center justify-between text-yellow-400 text-base sm:text-lg">
               <div className="flex items-center">
                 <Sun className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
@@ -367,7 +363,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
             </div>
             <div className="border-t border-yellow-600/50 my-3 sm:my-4"></div>
           </CardHeader>
-          <CardContent className="p-6 pt-0">
+          <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
             
 
             {/* Morning Routine Tasks */}
@@ -483,7 +479,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                             <span className={cn(
                               "text-sm font-medium transition-all duration-200 flex-1",
                               isHabitCompleted(subtask.key)
-                                ? "text-gray-500 line-through" 
+                                ? "text-gray-500 line-through"
                                 : "text-yellow-100/90 group-hover:text-yellow-50"
                             )}>
                               {subtask.title}
@@ -495,6 +491,24 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                         ))}
                       </div>
                     )}
+
+                    {/* AI Thought Dump Button - Clean & Simple */}
+                    {task.key === 'planDay' && (
+                      <div className="mt-3 ml-8">
+                        <div
+                          className="p-3 bg-gradient-to-r from-yellow-900/20 to-orange-900/20 border border-yellow-600/40 rounded-lg hover:border-yellow-500/60 transition-all cursor-pointer"
+                          onClick={() => setShowThoughtDumpChat(true)}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="text-2xl">🎤</div>
+                            <div className="flex-1">
+                              <div className="text-yellow-300 font-medium text-sm">🧠 AI Thought Dump</div>
+                              <p className="text-xs text-yellow-400/60">Talk → Auto-organize → Timebox</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -504,21 +518,23 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
 
       </div>
 
-      {/* Thought Dump AI Button */}
-      <MobileMicrophoneButton
-        onVoiceCommand={handleVoiceCommand}
-        disabled={isProcessingVoice}
-      />
+      {/* Simple AI Thought Dump Page */}
+      {showThoughtDumpChat && (
+        <SimpleThoughtDumpPage
+          onBack={() => setShowThoughtDumpChat(false)}
+          onComplete={(tasks) => {
+            setThoughtDumpResult(tasks);
+            setShowThoughtDumpChat(false);
+          }}
+        />
+      )}
 
       {/* Thought Dump Results Modal */}
       {thoughtDumpResult && (
         <ThoughtDumpResults
           result={thoughtDumpResult}
           onClose={() => setThoughtDumpResult(null)}
-          onAddToSchedule={() => {
-            // Tasks already processed, just close modal
-            setThoughtDumpResult(null);
-          }}
+          onAddToSchedule={() => setThoughtDumpResult(null)}
         />
       )}
     </div>
