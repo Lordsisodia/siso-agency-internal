@@ -190,17 +190,26 @@ export const SimpleThoughtDumpPage: React.FC<SimpleThoughtDumpPageProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-gradient-to-br from-gray-900 via-black to-gray-900 flex flex-col">
-      <div className="flex items-center justify-between p-4 border-b border-gray-700/50 bg-black/50 backdrop-blur-sm">
-        <Button variant="ghost" onClick={onBack} className="text-white hover:bg-white/10">
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back
+    <div className="fixed inset-0 z-[100] bg-gradient-to-br from-gray-900 via-black to-gray-900 flex flex-col">
+      {/* Cleaner Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800/50 bg-black/80 backdrop-blur-md">
+        <Button 
+          variant="ghost" 
+          onClick={onBack} 
+          className="text-gray-400 hover:text-white hover:bg-white/5 -ml-2"
+        >
+          <ArrowLeft className="h-5 w-5" />
         </Button>
-        <div className="text-center flex-1">
-          <h1 className="text-lg font-bold text-white">🧠 AI Thought Dump</h1>
-          <p className="text-xs text-gray-400">GPT-5 Nano • Function Calling</p>
+        
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">🧠</span>
+          <div>
+            <h1 className="text-base font-semibold text-white">AI Thought Dump</h1>
+            <p className="text-xs text-gray-500">GPT-5 Nano</p>
+          </div>
         </div>
-        <div className="w-20"></div>
+        
+        <div className="w-10"></div>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -255,7 +264,7 @@ export const SimpleThoughtDumpPage: React.FC<SimpleThoughtDumpPageProps> = ({
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="border-t border-gray-700/50 bg-black/50 backdrop-blur-sm p-4">
+      <div className="border-t border-gray-800/50 bg-black/80 backdrop-blur-md p-4 safe-area-inset-bottom">
         <div className="max-w-4xl mx-auto flex items-center gap-3">
           <Button
             onClick={handleMicToggle}
