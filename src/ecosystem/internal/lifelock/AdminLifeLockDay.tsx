@@ -31,19 +31,9 @@ const AdminLifeLockDay: React.FC = () => {
   const { date } = useParams<{ date: string }>();
   const { isSignedIn, isLoaded, user } = useClerkUser();
 
-  // Debug logging
-  useEffect(() => {
-    console.log('🔍 [ADMIN-DAY] Clerk user:', { isSignedIn, isLoaded, userId: user?.id });
-  }, [isSignedIn, isLoaded, user?.id]);
-
-  const internalUserId = useSupabaseUserId(user?.id || null);
+const internalUserId = useSupabaseUserId(user?.id || null);
   
-  // Debug logging for internalUserId
-  useEffect(() => {
-    console.log('🔍 [ADMIN-DAY] internalUserId changed:', internalUserId);
-  }, [internalUserId]);
-  
-  // Parse date from URL or default to today - memoized to prevent infinite re-renders
+// Parse date from URL or default to today - memoized to prevent infinite re-renders
   const selectedDate = useMemo(() => {
     return date ? new Date(date) : new Date();
   }, [date]);
@@ -126,10 +116,7 @@ const AdminLifeLockDay: React.FC = () => {
     return null;
   }
 
-  // Debug: Log every render of AdminLifeLockDay
-  console.log('🔍 [ADMIN-DAY] RENDER:', { internalUserId, selectedDate: format(selectedDate, 'yyyy-MM-dd') });
-
-  return (
+return (
     <>
       <TabLayoutWrapper
         selectedDate={selectedDate}
@@ -137,8 +124,7 @@ const AdminLifeLockDay: React.FC = () => {
         userId={internalUserId}
       >
         {(activeTab) => {
-          console.log('🔍 [ADMIN-DAY] Children function called:', { activeTab, internalUserId });
-          switch (activeTab) {
+switch (activeTab) {
             case 'morning':
               return (
                 <MorningRoutineSection

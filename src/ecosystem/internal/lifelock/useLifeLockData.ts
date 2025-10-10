@@ -53,12 +53,7 @@ export const useLifeLockData = (selectedDate: Date) => {
 
     const loadDayTasks = async () => {
       try {
-        // Only log once per date change, not on every refresh
-        if (refreshTrigger === 0) {
-          console.log(`📅 Loading tasks for ${format(selectedDate, 'yyyy-MM-dd')}`);
-        }
-
-        const dayTasks = await personalTaskService.getTasksForDate(user.id, selectedDate);
+const dayTasks = await personalTaskService.getTasksForDate(user.id, selectedDate);
         
         if (isCancelled) return; // Exit early if component unmounted
         

@@ -34,10 +34,7 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
   userId,
   children
 }) => {
-  // Debug: Log every render
-  console.log('🔍 [TAB-WRAPPER] RENDER:', { selectedDate: format(selectedDate, 'yyyy-MM-dd'), userId });
-  
-  const [searchParams, setSearchParams] = useSearchParams();
+const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { data } = useLifeLockData(selectedDate);
@@ -229,7 +226,7 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
         >
           <AnimatePresence mode="popLayout" custom={activeTabIndex}>
             <motion.div
-              key={`${activeTabId}-${userId || 'loading'}`}
+              key={activeTabId}
               custom={activeTabIndex}
               variants={slideVariants}
               initial="enter"
@@ -250,8 +247,8 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
                 overscrollBehaviorY: 'contain'
               }}
             >
-              {/* Header with Back and Hamburger */}
-              <div className="px-4 py-1 flex items-center justify-between" style={{ backgroundColor: '#111827' }}>
+              {/* Header with Back and Hamburger - Scrollable */}
+              <div className="flex items-center justify-between px-4 pt-2 pb-4">
                 <Button
                   variant="ghost"
                   size="sm"

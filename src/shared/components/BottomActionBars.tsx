@@ -49,20 +49,20 @@ export function BottomActionBars() {
   };
 
   return (
-    <div className="w-full mt-4 mb-6 bg-transparent">
-      <div className="max-w-7xl mx-auto px-4 bg-transparent">
+    <div className="w-full mt-4 mb-6 bg-gray-900">
+      <div className="max-w-7xl mx-auto px-4 bg-gray-900">
         {/* Side-by-side buttons with half-transparent backgrounds */}
         <div className="flex gap-3 justify-center">
           {/* Feedback Button */}
           <SimpleFeedbackButton
             variant="bar"
-            className="flex-1 max-w-xs bg-blue-500/20 backdrop-blur-md border border-blue-400/30 hover:bg-blue-500/30 transition-all duration-200 text-white"
+            className="flex-1 max-w-xs h-12 bg-blue-500/20 backdrop-blur-md border border-blue-400/30 hover:bg-blue-500/30 transition-all duration-200 text-white"
           />
 
           {/* Sync Status Button */}
           <button
             onClick={() => setShowSyncDetails(!showSyncDetails)}
-            className={`flex-1 max-w-xs py-3 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer backdrop-blur-md border text-white ${
+            className={`flex-1 max-w-xs h-12 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer backdrop-blur-md border text-white ${
               !isOnline
                 ? 'bg-red-500/20 border-red-400/30 hover:bg-red-500/30'
                 : pendingCount > 0
