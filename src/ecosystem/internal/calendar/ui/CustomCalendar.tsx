@@ -69,21 +69,21 @@ export const CustomCalendar: React.FC<CustomCalendarProps> = ({
   };
   
   return (
-    <div className="bg-gray-800 rounded-lg p-3 w-64">
+    <div className="bg-[#1e293b] rounded-2xl p-4 w-[280px] shadow-2xl border border-slate-700/50 backdrop-blur-sm">
       {/* Header */}
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-4">
         <button 
           onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1))}
-          className="text-gray-400 hover:text-white p-1 text-lg font-bold"
+          className="text-slate-400 hover:text-white hover:bg-slate-700/50 p-2 rounded-lg text-xl font-bold transition-all duration-200"
         >
           ‹
         </button>
-        <div className="text-white font-medium text-sm">
+        <div className="text-white font-semibold text-base">
           {monthNames[viewDate.getMonth()]} {viewDate.getFullYear()}
         </div>
         <button 
           onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1))}
-          className="text-gray-400 hover:text-white p-1 text-lg font-bold"
+          className="text-slate-400 hover:text-white hover:bg-slate-700/50 p-2 rounded-lg text-xl font-bold transition-all duration-200"
         >
           ›
         </button>
@@ -92,14 +92,14 @@ export const CustomCalendar: React.FC<CustomCalendarProps> = ({
       {/* Day headers */}
       <div className="grid grid-cols-7 gap-1 mb-2">
         {dayNames.map(day => (
-          <div key={day} className="text-center text-xs text-gray-400 py-1">
+          <div key={day} className="text-center text-xs font-medium text-slate-400 py-1">
             {day}
           </div>
         ))}
       </div>
       
       {/* Calendar grid */}
-      <div className="grid grid-cols-7 gap-1">
+      <div className="grid grid-cols-7 gap-1.5">
         {days.map(date => (
           <button
             key={date.toISOString()}
@@ -125,11 +125,12 @@ export const CustomCalendar: React.FC<CustomCalendarProps> = ({
             }}
             disabled={isPastDate(date)}
             className={`
-              w-8 h-8 text-xs rounded-full flex items-center justify-center transition-colors
-              ${!isCurrentMonth(date) ? 'text-gray-600' : 'text-gray-300'}
-              ${isToday(date) ? 'bg-white text-black font-medium' : ''}
-              ${isSelected(date) ? 'bg-gray-600 text-white' : ''}
-              ${!isPastDate(date) ? 'hover:bg-gray-700' : 'opacity-50 cursor-not-allowed'}
+              w-9 h-9 text-sm rounded-xl flex items-center justify-center transition-all duration-200
+              ${!isCurrentMonth(date) ? 'text-slate-600' : 'text-slate-200 font-medium'}
+              ${isToday(date) && !isSelected(date) ? 'ring-2 ring-blue-400 ring-offset-2 ring-offset-[#1e293b] text-white font-semibold' : ''}
+              ${isSelected(date) ? 'bg-blue-500 text-white font-semibold shadow-lg shadow-blue-500/50 scale-105' : ''}
+              ${!isPastDate(date) && !isSelected(date) ? 'hover:bg-slate-700/60 hover:scale-105 active:scale-95' : ''}
+              ${isPastDate(date) ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}
             `}
           >
             {date.getDate()}
@@ -138,16 +139,16 @@ export const CustomCalendar: React.FC<CustomCalendarProps> = ({
       </div>
       
       {/* Actions */}
-      <div className="flex gap-2 mt-3">
+      <div className="flex gap-2 mt-4 pt-3 border-t border-slate-700/50">
         <button
           onClick={() => onDateSelect(null)}
-          className="flex-1 px-3 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-white rounded"
+          className="flex-1 px-3 py-2 text-sm text-slate-400 hover:text-white hover:bg-slate-700/30 rounded-lg transition-all duration-200"
         >
           Clear Date
         </button>
         <button
           onClick={onClose}
-          className="flex-1 px-3 py-1 text-xs bg-gray-600 hover:bg-gray-500 text-white rounded"
+          className="flex-1 px-3 py-2 text-sm border border-slate-600 hover:border-slate-500 hover:bg-slate-700/30 text-white rounded-lg transition-all duration-200"
         >
           Cancel
         </button>

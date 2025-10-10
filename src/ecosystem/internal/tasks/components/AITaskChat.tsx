@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 // Removed framer-motion for performance optimization
 import { PromptInputBox } from '@/shared/ui/ai-prompt-box';
 import { grokTaskService } from '@/shared/services/task.service';
-import { voiceService } from '@/services/voiceService';
+import { voiceService } from '@/services/voice';
 import { aiTaskAgent } from '@/shared/services/task.service';
 import { chatMemoryService } from '@/services/chatMemoryService';
 import { useQueryClient } from '@tanstack/react-query';

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/shared/ui/button';
 import { Mic, MicOff, Volume2, VolumeX, HelpCircle } from 'lucide-react';
-import { voiceService } from '@/services/voiceService';
+import { voiceService } from '@/services/voice';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MicrophonePermissionGuide } from './MicrophonePermissionGuide';
 

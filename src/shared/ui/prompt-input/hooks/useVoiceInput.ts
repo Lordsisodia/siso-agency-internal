@@ -1,5 +1,5 @@
 import React from 'react';
-import { voiceService } from '@/services/voiceService';
+import { voiceService } from '@/services/voice';
 
 export interface UseVoiceInputReturn {
   isRecording: boolean;

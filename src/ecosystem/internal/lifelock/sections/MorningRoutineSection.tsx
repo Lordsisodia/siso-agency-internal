@@ -25,9 +25,8 @@ import { useClerkUser } from '@/shared/hooks/useClerkUser';
 import { useSupabaseUserId } from '@/shared/lib/supabase-clerk';
 import { workTypeApiClient } from '@/services/workTypeApiClient';
 import { useOfflineManager } from '@/shared/hooks/useOfflineManager';
-import { SimpleThoughtDumpPage } from '../components/SimpleThoughtDumpPage';
-import { ThoughtDumpResults } from '@/shared/components/ui/ThoughtDumpResults';
-import { lifeLockVoiceTaskProcessor, ThoughtDumpResult } from '@/services/lifeLockVoiceTaskProcessor';
+import { SimpleThoughtDumpPage, ThoughtDumpResults, lifeLockVoiceTaskProcessor } from '../features/ai-thought-dump';
+import type { ThoughtDumpResult } from '../features/ai-thought-dump';
 import { getRotatingQuotes } from '@/data/motivational-quotes';
 
 interface MorningRoutineHabit {

@@ -28,7 +28,7 @@ import { motion } from 'framer-motion';
 import { format, addDays, subDays, parseISO } from 'date-fns';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { TodayTasksService, TodayTask } from '@/shared/services/task.service';
-import { voiceService } from '@/services/voiceService';
+import { voiceService } from '@/services/voice';
 import DailyTrackerAIAssistant from '@/components/admin/lifelock/DailyTrackerAIAssistant';
 import {
   DailyTrackerCard,

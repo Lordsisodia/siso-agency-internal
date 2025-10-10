@@ -3,7 +3,7 @@ import { Button } from '@/shared/ui/button';
 import { Mic, MicOff } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
-import { voiceService } from '@/services/voiceService';
+import { voiceService } from '@/services/voice';
 
 interface MobileMicrophoneButtonProps {
   onVoiceCommand?: (command: string) => void;

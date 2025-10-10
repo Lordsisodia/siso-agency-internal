@@ -7,6 +7,7 @@
 
 import React from 'react';
 import { Calendar, Clock, X } from 'lucide-react';
+import { PrioritySelector, PriorityLevel } from '@/ecosystem/internal/tasks/components/PrioritySelector';
 
 interface SubtaskMetadataProps {
   subtask: {
@@ -32,24 +33,10 @@ export const SubtaskMetadata: React.FC<SubtaskMetadataProps> = ({
   onEstimatedTimeChange,
   children
 }) => {
-  const [priorityPopupId, setPriorityPopupId] = React.useState<string | null>(null);
   const [timePopupId, setTimePopupId] = React.useState<string | null>(null);
-
-  const handlePriorityToggle = (subtaskId: string) => {
-    setPriorityPopupId(priorityPopupId === subtaskId ? null : subtaskId);
-    setTimePopupId(null); // Close time popup if open
-  };
-
-  const handlePrioritySelect = (priority: string) => {
-    if (onPriorityChange) {
-      onPriorityChange(subtask.id, priority);
-    }
-    setPriorityPopupId(null);
-  };
 
   const handleTimeToggle = (subtaskId: string) => {
     setTimePopupId(timePopupId === subtaskId ? null : subtaskId);
-    setPriorityPopupId(null); // Close priority popup if open
   };
 
   const handleTimeSelect = (estimatedTime: string) => {
@@ -59,18 +46,7 @@ export const SubtaskMetadata: React.FC<SubtaskMetadataProps> = ({
     setTimePopupId(null);
   };
 
-  const getPriorityConfig = (priority?: string) => {
-    const TASK_PRIORITY_CONFIG = {
-      'low': { icon: '🟢', label: 'Low', bgColor: 'bg-green-600', textColor: 'text-white' },
-      'medium': { icon: '🟡', label: 'Medium', bgColor: 'bg-yellow-600', textColor: 'text-white' },
-      'high': { icon: '🔴', label: 'High', bgColor: 'bg-red-600', textColor: 'text-white' },
-      'urgent': { icon: '🚨', label: 'Urgent', bgColor: 'bg-purple-600', textColor: 'text-white' }
-    };
-    return TASK_PRIORITY_CONFIG[priority || 'medium'] || TASK_PRIORITY_CONFIG['medium'];
-  };
 
-  const priorityConfig = getPriorityConfig(subtask.priority);
-  
   return (
     <div className="flex items-center justify-between">
       {/* Left side: Due date and Priority */}
@@ -103,46 +79,23 @@ export const SubtaskMetadata: React.FC<SubtaskMetadataProps> = ({
           {calendarSubtaskId === subtask.id && children}
         </div>
         
-        {/* Priority Badge - Always visible, clickable only if handler provided */}
-        <div className="relative">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              if (onPriorityChange) {
-                handlePriorityToggle(subtask.id);
-              }
-            }}
-            className={`flex items-center gap-1 text-xs font-medium ${onPriorityChange ? 'cursor-pointer hover:opacity-80' : 'cursor-default'} transition-opacity px-2 py-1 rounded ${priorityConfig.bgColor} ${priorityConfig.textColor}`}
-            title={onPriorityChange ? "Click to change priority" : "Priority"}
-          >
-            <span>{priorityConfig.icon}</span>
-            <span className="hidden sm:inline">{priorityConfig.label}</span>
-          </button>
-
-          {/* Priority Popup - Only if handler provided */}
-          {onPriorityChange && priorityPopupId === subtask.id && (
-            <div className="absolute top-8 left-0 z-[99999] bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-2 min-w-[120px]">
-              {Object.entries({
-                'low': { icon: '🟢', label: 'Low', bgColor: 'bg-green-600', textColor: 'text-white' },
-                'medium': { icon: '🟡', label: 'Medium', bgColor: 'bg-yellow-600', textColor: 'text-white' },
-                'high': { icon: '🔴', label: 'High', bgColor: 'bg-red-600', textColor: 'text-white' },
-                'urgent': { icon: '🚨', label: 'Urgent', bgColor: 'bg-purple-600', textColor: 'text-white' }
-              }).map(([key, config]) => (
-                <button
-                  key={key}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handlePrioritySelect(key);
-                  }}
-                  className="w-full flex items-center gap-2 px-2 py-1 text-xs text-white hover:bg-gray-700 rounded transition-colors"
-                >
-                  <span>{config.icon}</span>
-                  <span>{config.label}</span>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+        {/* Priority Badge - Always visible, uses PrioritySelector if handler provided */}
+        {onPriorityChange ? (
+          <PrioritySelector
+            value={(subtask.priority || 'medium') as PriorityLevel}
+            onChange={(priority) => onPriorityChange(subtask.id, priority)}
+            size="sm"
+          />
+        ) : (
+          <div className="flex items-center gap-1 text-xs font-medium px-2 py-1 rounded bg-yellow-600 text-white">
+            <span>🟡</span>
+            <span className="hidden sm:inline">
+              {subtask.priority === 'low' ? 'Low' : 
+               subtask.priority === 'high' ? 'High' : 
+               subtask.priority === 'urgent' ? 'Urgent' : 'Medium'}
+            </span>
+          </div>
+        )}
 
         {/* Estimated Time Badge - Show in expanded dropdown only, not in collapsed view */}
         {subtask.estimatedTime && (
