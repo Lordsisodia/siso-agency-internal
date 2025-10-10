@@ -48,8 +48,10 @@ export const SimpleThoughtDumpPage: React.FC<SimpleThoughtDumpPageProps> = ({
     const init = async () => {
       await chatMemoryService.initialize();
 
-      if (internalUserId) {
+      if (internalUserId && selectedDate) {
         toolExecutor.current = new MorningThoughtDumpToolExecutor(internalUserId, selectedDate);
+      } else {
+        console.error('❌ Missing internalUserId or selectedDate:', { internalUserId, selectedDate });
       }
 
       const greeting = "Good morning! I'm here to help organize your day. What's on your mind?";
@@ -186,12 +188,28 @@ Be conversational and helpful. Reference specific task names when relevant.`
         setTranscript('');
       }
     } else {
-      setTranscript('');
+      setTranscript(''); // Clear for new input
       try {
+        let accumulatedTranscript = '';
+
         await voiceService.startListening(
-          (text) => setTranscript(text),
+          (text, isFinal) => {
+            // Accumulate text, don't replace
+            accumulatedTranscript = text;
+            setTranscript(text);
+
+            // Auto-send when final
+            if (isFinal && text.trim()) {
+              console.log('🎤 Final transcript received:', text);
+              voiceService.stopListening();
+              setIsListening(false);
+              getAIResponse(text);
+              setTranscript('');
+            }
+          },
           (error) => {
             if (!error.includes('no-speech')) {
+              console.error('Voice error:', error);
               setIsListening(false);
             }
           },

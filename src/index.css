@@ -229,11 +229,11 @@
   }
 
   html {
-    @apply scroll-smooth;
+    @apply scroll-smooth bg-gray-900;
   }
 
   body {
-    @apply font-['Inter'] antialiased bg-transparent text-gray-100;
+    @apply font-['Inter'] antialiased bg-gray-900 text-gray-100;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -251,7 +251,7 @@
   }
 
   #root {
-    @apply min-h-screen;
+    @apply min-h-screen bg-gray-900;
   }
 
   img {
