@@ -190,21 +190,15 @@ Be conversational and helpful. Reference specific task names when relevant.`
     } else {
       setTranscript(''); // Clear for new input
       try {
-        let accumulatedTranscript = '';
-
         await voiceService.startListening(
           (text, isFinal) => {
-            // Accumulate text, don't replace
-            accumulatedTranscript = text;
+            // Always show the complete accumulated transcript
             setTranscript(text);
-
-            // Auto-send when final
-            if (isFinal && text.trim()) {
-              console.log('🎤 Final transcript received:', text);
-              voiceService.stopListening();
-              setIsListening(false);
-              getAIResponse(text);
-              setTranscript('');
+            
+            // Log progress but DON'T auto-stop - let user control when to stop
+            if (isFinal) {
+              console.log('🎤 Sentence completed:', text);
+              // Keep listening for more sentences!
             }
           },
           (error) => {
@@ -278,11 +272,11 @@ Be conversational and helpful. Reference specific task names when relevant.`
           </motion.div>
         ))}
 
-        {isListening && transcript && (
+        {isListening && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex justify-end">
             <div className="max-w-[80%] rounded-2xl p-4 bg-blue-600/50 text-white border-2 border-blue-400 animate-pulse">
-              <div className="text-sm">{transcript}</div>
-              <div className="text-xs mt-2 text-blue-200">🎤 Listening...</div>
+              <div className="text-sm">{transcript || 'Listening... speak now'}</div>
+              <div className="text-xs mt-2 text-blue-200">🎤 Microphone Active</div>
             </div>
           </motion.div>
         )}

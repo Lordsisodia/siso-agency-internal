@@ -192,79 +192,104 @@ export class VoiceService {
       };
 
       this.recognition.onresult = (event) => {
+        // Build full transcript from ALL results (not just new ones)
         let finalTranscript = '';
         let interimTranscript = '';
 
         logger.debug('📝 [VOICE AI] Processing speech results...');
-        logger.debug('📊 [VOICE AI] Results count:', event.results.length);
-        logger.debug('📍 [VOICE AI] Result index:', event.resultIndex);
+        logger.debug('📊 [VOICE AI] Total results:', event.results.length);
+        logger.debug('📍 [VOICE AI] New result index:', event.resultIndex);
 
-        for (let i = event.resultIndex; i < event.results.length; i++) {
+        // Process ALL results from beginning to get complete transcript
+        for (let i = 0; i < event.results.length; i++) {
           const transcript = event.results[i][0].transcript;
           const confidence = event.results[i][0].confidence;
           const isFinal = event.results[i].isFinal;
           
-          logger.debug(`📋 [VOICE AI] Result ${i}:`, {
-            transcript,
-            confidence,
-            isFinal,
-            alternatives: event.results[i].length
-          });
+          if (i >= event.resultIndex) {
+            logger.debug(`📋 [VOICE AI] New result ${i}:`, {
+              transcript,
+              confidence,
+              isFinal,
+              alternatives: event.results[i].length
+            });
+          }
 
           if (isFinal) {
-            finalTranscript += transcript;
-            logger.debug('✅ [VOICE AI] Final transcript:', finalTranscript);
+            finalTranscript += transcript + ' ';
           } else {
-            interimTranscript += transcript;
-            logger.debug('⏳ [VOICE AI] Interim transcript:', interimTranscript);
+            interimTranscript += transcript + ' ';
           }
         }
 
-        if (finalTranscript) {
-          logger.debug('🎯 [VOICE AI] Sending final result:', finalTranscript);
-          onResult(finalTranscript, true);
-        } else if (interimTranscript) {
-          logger.debug('📝 [VOICE AI] Sending interim result:', interimTranscript);
-          onResult(interimTranscript, false);
+        // Build complete transcript (accumulated final + current interim)
+        const completeTranscript = (finalTranscript + interimTranscript).trim();
+        const hasFinalResult = finalTranscript.trim().length > 0;
+
+        logger.debug('🎯 [VOICE AI] Complete transcript:', completeTranscript);
+        logger.debug('✅ [VOICE AI] Final parts:', finalTranscript.trim());
+        logger.debug('⏳ [VOICE AI] Interim parts:', interimTranscript.trim());
+
+        // Send the complete transcript
+        if (completeTranscript) {
+          onResult(completeTranscript, hasFinalResult);
         }
       };
 
       this.recognition.onerror = (event) => {
-        this.isListening = false;
         let errorMsg = '';
         
         switch (event.error) {
           case 'no-speech':
+            // Don't stop listening - this is just a timeout warning
             errorMsg = 'No speech detected. Please try speaking again.';
             console.warn('⚠️ [VOICE AI] No speech detected');
-            break;
+            onError(errorMsg);
+            // Restart recognition to keep listening
+            if (this.recognition && !this.isListening) {
+              logger.debug('🔄 [VOICE AI] Restarting recognition after no-speech timeout...');
+              try {
+                this.recognition.start();
+              } catch (e) {
+                console.error('❌ [VOICE AI] Failed to restart recognition:', e);
+              }
+            }
+            return; // Don't reject promise for no-speech
+          break;
           case 'audio-capture':
+            this.isListening = false;
             errorMsg = 'No microphone found. Please check your microphone connection.';
             console.error('❌ [VOICE AI] Audio capture failed');
             break;
           case 'not-allowed':
+            this.isListening = false;
             errorMsg = 'Microphone access denied. Click the microphone icon 🎤 in your browser address bar and select "Allow", then try again.';
             console.error('❌ [VOICE AI] Permission denied - browser blocked microphone access');
             // Try to provide more context about the permission state
             this.logPermissionDiagnostics();
             break;
           case 'network':
+            this.isListening = false;
             errorMsg = 'Network error occurred. Please check your internet connection.';
             console.error('❌ [VOICE AI] Network error');
             break;
           case 'aborted':
+            this.isListening = false;
             errorMsg = 'Speech recognition was aborted.';
             console.warn('⚠️ [VOICE AI] Recognition aborted');
             break;
           case 'bad-grammar':
+            this.isListening = false;
             errorMsg = 'Grammar error in speech recognition.';
             console.error('❌ [VOICE AI] Grammar error');
             break;
           case 'language-not-supported':
+            this.isListening = false;
             errorMsg = 'Language not supported. Please try English.';
             console.error('❌ [VOICE AI] Language not supported');
             break;
           default:
+            this.isListening = false;
             errorMsg = `Speech recognition error: ${event.error}`;
             console.error('❌ [VOICE AI] Unknown error:', event.error);
         }

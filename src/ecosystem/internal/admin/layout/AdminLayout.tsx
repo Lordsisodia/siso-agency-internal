@@ -32,12 +32,12 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   };
 
   return (
-    <div className="min-h-screen w-full relative" style={{ backgroundColor: '#18181b' }}>
+    <div className="min-h-screen w-full relative" style={{ backgroundColor: '#121212' }}>
       <Sidebar
         onExpandedChange={setSidebarExpanded}
         onMobileMenuChange={setMobileMenuOpen}
       />
-      <main className={`${getMainMargin()} overflow-y-auto admin-scrollbar min-h-screen transition-all duration-100 relative`} style={{ backgroundColor: '#18181b' }}>
+      <main className={`${getMainMargin()} overflow-y-auto admin-scrollbar min-h-screen transition-all duration-100 relative`} style={{ backgroundColor: '#121212' }}>
         {children}
         {/* Global Feedback Button - appears on every page */}
         <div className="fixed bottom-48 left-1/2 transform -translate-x-1/2 z-[100]">

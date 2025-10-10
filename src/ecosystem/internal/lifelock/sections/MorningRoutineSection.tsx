@@ -562,6 +562,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
       {/* Simple AI Thought Dump Page */}
       {showThoughtDumpChat && (
         <SimpleThoughtDumpPage
+          selectedDate={selectedDate}
           onBack={() => setShowThoughtDumpChat(false)}
           onComplete={(tasks) => {
             setThoughtDumpResult(tasks);

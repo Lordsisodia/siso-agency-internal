@@ -4,4 +4,3 @@
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
 export * from '@/ecosystem/internal/admin/dashboard/ClientsList';
-export { default } from '@/ecosystem/internal/admin/dashboard/ClientsList';

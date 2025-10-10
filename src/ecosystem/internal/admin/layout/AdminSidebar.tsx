@@ -106,9 +106,10 @@ export const Sidebar = ({ onExpandedChange, onMobileMenuChange }: SidebarProps) 
     return (
       <>
         <Button
+          type="button"
           variant="ghost"
           size="icon"
-          className="fixed top-4 right-4 z-50 bg-siso-bg/90 backdrop-blur-sm border border-siso-border"
+          className="fixed top-4 right-4 z-50 bg-black/40 backdrop-blur-sm border border-gray-800/50"
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();

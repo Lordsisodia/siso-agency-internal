@@ -230,12 +230,12 @@
 
   html {
     @apply scroll-smooth;
-    background-color: #18181b !important;
+    background-color: #121212 !important;
   }
 
   body {
     @apply font-['Inter'] antialiased text-gray-100;
-    background-color: #18181b !important;
+    background-color: #121212 !important;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -254,7 +254,7 @@
 
   #root {
     @apply min-h-screen;
-    background-color: #18181b !important;
+    background-color: #121212 !important;
   }
 
   img {

@@ -1,4 +1,3 @@
-import React from "react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/ui/tooltip";
 import { cn } from "@/shared/lib/utils";
 import { Link } from "react-router-dom";
@@ -53,19 +52,21 @@ export function AdminSidebarLogo({
   // Convert collapsed to expanded for internal use
   const expanded = !collapsed;
   
-  const handleLogoClick = () => {
+  const handleClick = (e: React.MouseEvent) => {
+    // If onLogoClick is provided (sidebar toggle mode), use that and prevent navigation
     if (onLogoClick) {
+      e.preventDefault();
+      e.stopPropagation();
       onLogoClick();
     }
-  };
-
-  const handleToggleCollapse = () => {
-    if (setCollapsed) {
+    // Otherwise, if setCollapsed exists, toggle collapse
+    else if (setCollapsed) {
       setCollapsed(!collapsed);
     }
+    // If neither, it will use the Link navigation (handled by LogoLink component)
   };
 
-  const Logo = () => (
+  const LogoContent = () => (
     <div
       className={cn(
         "flex items-center px-4 py-1.5 min-h-14",
@@ -73,7 +74,6 @@ export function AdminSidebarLogo({
         !expanded && "px-2",
         className
       )}
-      onClick={handleToggleCollapse}
       role="button"
       {...props}
     >
@@ -108,14 +108,41 @@ export function AdminSidebarLogo({
     </div>
   );
 
+  // If onLogoClick is provided, don't use navigation - just use click handler
+  if (onLogoClick) {
+    if (tooltip && !expanded) {
+      return (
+        <TooltipProvider>
+          <Tooltip delayDuration={0}>
+            <TooltipTrigger asChild>
+              <div className="cursor-pointer" onClick={handleClick}>
+                <LogoContent />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="right" sideOffset={5} className="bg-primary text-primary-foreground">
+              SISO ADMIN
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
+    }
+
+    return (
+      <div className="cursor-pointer" onClick={handleClick}>
+        <LogoContent />
+      </div>
+    );
+  }
+
+  // Otherwise use navigation link
   if (tooltip && !expanded) {
     return (
       <TooltipProvider>
         <Tooltip delayDuration={0}>
           <TooltipTrigger asChild>
             <div className="cursor-pointer">
-              <LogoLink href={link} onClick={handleLogoClick}>
-                <Logo />
+              <LogoLink href={link} onClick={handleClick}>
+                <LogoContent />
               </LogoLink>
             </div>
           </TooltipTrigger>
@@ -128,8 +155,8 @@ export function AdminSidebarLogo({
   }
 
   return (
-    <LogoLink href={link} onClick={handleLogoClick}>
-      <Logo />
+    <LogoLink href={link} onClick={handleClick}>
+      <LogoContent />
     </LogoLink>
   );
 }

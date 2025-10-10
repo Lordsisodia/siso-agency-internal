@@ -5,6 +5,9 @@
 import '@testing-library/jest-dom';
 import { vi } from 'vitest';
 
+// Setup IndexedDB for offline tests
+import 'fake-indexeddb/auto';
+
 // Enhanced fetch mock for Supabase operations
 if (!(global as any).fetch) {
   (global as any).fetch = vi.fn(async (url: string, options?: any) => {
