@@ -293,7 +293,7 @@ Be conversational and helpful. Reference specific task names when relevant.`
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="border-t border-gray-800/50 bg-black/80 backdrop-blur-md p-4 safe-area-inset-bottom">
+      <div className="border-t border-gray-800/50 bg-black/80 backdrop-blur-md p-4 pb-20 safe-area-inset-bottom">
         <div className="max-w-4xl mx-auto flex items-center gap-3">
           <Button
             onClick={handleMicToggle}
