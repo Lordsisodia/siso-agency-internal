@@ -122,6 +122,7 @@ return (
         selectedDate={selectedDate}
         onDateChange={handleDateChange}
         userId={internalUserId}
+        hideBottomNav={false}
       >
         {(activeTab) => {
 switch (activeTab) {

@@ -16,7 +16,6 @@ import { cn } from '@/shared/lib/utils';
 import { useIsMobile } from '@/shared/hooks/use-mobile';
 import { useLifeLockData } from '@/ecosystem/internal/lifelock/useLifeLockData';
 import { OfflineIndicator } from '@/shared/components/OfflineIndicator';
-import { BottomActionBars } from '@/shared/components/BottomActionBars';
 
 // Use centralized tab configuration to prevent routing inconsistencies
 const tabs = Object.values(TAB_CONFIG);
@@ -25,6 +24,7 @@ interface TabLayoutWrapperProps {
   selectedDate: Date;
   onDateChange: (date: Date) => void;
   userId?: string | null;  // Add userId prop
+  hideBottomNav?: boolean;  // Hide navigation when AI chat is open
   children: (activeTab: string, navigateDay?: (direction: 'prev' | 'next') => void) => ReactNode;
 }
 
@@ -32,6 +32,7 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
   selectedDate,
   onDateChange,
   userId,
+  hideBottomNav = false,
   children
 }) => {
 const [searchParams, setSearchParams] = useSearchParams();
@@ -240,7 +241,7 @@ const [searchParams, setSearchParams] = useSearchParams();
               className="h-full overflow-y-auto"
               style={{
                 // SINGLE SCROLL CONTAINER - this is the ONLY scrollable area
-                paddingBottom: '140px', // Optimized: BottomActionBars (48px) + ExpandableTabs (50px) + gaps (42px)
+                paddingBottom: '92px', // Optimized: ExpandableTabs (50px) + gaps (42px)
                 // PWA scroll optimization for mobile
                 WebkitOverflowScrolling: 'touch',
                 overscrollBehavior: 'contain',
@@ -272,19 +273,17 @@ const [searchParams, setSearchParams] = useSearchParams();
 
               {/* Render tab content via children function */}
               {children(activeTabId, navigateDay)}
-
-              {/* Bottom Action Bars - inside scroll container */}
-              <BottomActionBars />
             </motion.div>
           </AnimatePresence>
         </motion.div>
       </div>
 
-      {/* Bottom Tab Navigation - Transparent Floating */}
-      <div className="fixed bottom-4 left-4 right-4 z-50 flex justify-center pointer-events-none">
-        <div className="pointer-events-auto">
-        {/* Swipe-Style Interface for All Devices */}
-        <ExpandableTabs
+      {/* Bottom Tab Navigation - Hidden when AI chat is open */}
+      {!hideBottomNav && (
+        <div className="fixed bottom-4 left-4 right-4 z-50 flex justify-center pointer-events-none">
+          <div className="pointer-events-auto">
+          {/* Swipe-Style Interface for All Devices */}
+          <ExpandableTabs
           tabs={tabs.map(tab => ({
             title: tab.name,
             icon: tab.icon
@@ -297,9 +296,10 @@ const [searchParams, setSearchParams] = useSearchParams();
               handleTabClick(tabs[index].id);
             }
           }}
-        />
+          />
+          </div>
         </div>
-      </div>
+      )}
 
     </div>
   );
