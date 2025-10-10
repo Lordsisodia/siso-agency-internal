@@ -700,6 +700,7 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
                                     {calendarSubtaskId === subtask.id && (
                                       <div className="calendar-popup fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 bg-gray-800 border border-gray-600 rounded-lg shadow-xl p-3 min-w-[280px] max-w-[90vw] max-h-[90vh] overflow-auto">
                                         <CustomCalendar
+                                          theme={isLightWork ? 'LIGHT' : 'DEEP'}
                                           subtask={subtask}
                                           onDateSelect={async (date) => {
                                             try {

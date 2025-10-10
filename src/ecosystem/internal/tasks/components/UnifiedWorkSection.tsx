@@ -97,6 +97,9 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
   statsData,
   updateSubtaskDueDate
 }) => {
+  // Debug: Log workType
+  console.log('🔧 UnifiedWorkSection workType:', workType);
+  
   // Task editing hook
   const {
     editingTaskId,
@@ -406,6 +409,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                                     </div>
                                     <p className="text-sm text-gray-300 mb-4">{subtask.title}</p>
                                     <CustomCalendar
+                                      theme={workType}
                                       subtask={subtask}
                                       onDateSelect={async (date) => {
                                         try {

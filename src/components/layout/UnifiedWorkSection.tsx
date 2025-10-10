@@ -27,7 +27,6 @@ import { SubtaskMetadata } from '@/components/tasks/SubtaskMetadata';
 import { TaskHeader } from '@/components/tasks/TaskHeader';
 import { SubtaskItem } from '@/components/tasks/SubtaskItem';
 import { AddSubtaskInput } from '@/components/tasks/AddSubtaskInput';
-import { SimpleFeedbackButton } from '@/components/feedback/SimpleFeedbackButton';
 import { useTaskEditing } from '@/hooks/useTaskEditing';
 import { useThoughtDump } from '@/hooks/useThoughtDump';
 import { useTaskFiltering } from '@/hooks/useTaskFiltering';
@@ -345,6 +344,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
                                     </div>
                                     <p className="text-sm text-gray-300 mb-4">{subtask.title}</p>
                                     <CustomCalendar
+                                      theme={workType}
                                       subtask={subtask}
                                       onDateSelect={async (date) => {
                                         try {
@@ -443,10 +443,6 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
               </button>
             </div>
 
-            {/* Feedback Button */}
-            <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-[100]">
-              <SimpleFeedbackButton />
-            </div>
             </div>
           </CardContent>
         </Card>

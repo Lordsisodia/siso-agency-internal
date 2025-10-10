@@ -17,12 +17,14 @@ export interface CustomCalendarProps {
   subtask?: any;
   onDateSelect: (date: Date | null) => void;
   onClose: () => void;
+  theme?: 'DEEP' | 'LIGHT'; // Optional theme for color theming
 }
 
 export const CustomCalendar: React.FC<CustomCalendarProps> = ({ 
   subtask, 
   onDateSelect, 
-  onClose 
+  onClose,
+  theme = 'DEEP' // Default to DEEP theme
 }) => {
   const [viewDate, setViewDate] = useState(() => {
     const now = new Date();
@@ -68,8 +70,14 @@ export const CustomCalendar: React.FC<CustomCalendarProps> = ({
     return checkDate < today;
   };
   
+  // Debug logging
+  console.log('🎨 CustomCalendar received theme:', theme);
+  console.log('🎨 Is Light Theme:', theme === 'LIGHT');
+  
+  const isLightTheme = theme === 'LIGHT';
+  
   return (
-    <div className="bg-[#1e293b] rounded-2xl p-4 w-[280px] shadow-2xl border border-slate-700/50 backdrop-blur-sm">
+    <div className={`${isLightTheme ? 'bg-[#1e3a2e] border-emerald-700/50' : 'bg-[#1e293b] border-slate-700/50'} rounded-2xl p-4 w-[280px] shadow-2xl border backdrop-blur-sm`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <button 
@@ -118,9 +126,15 @@ export const CustomCalendar: React.FC<CustomCalendarProps> = ({
             className={`
               w-9 h-9 text-sm rounded-xl flex items-center justify-center transition-all duration-200
               ${!isCurrentMonth(date) ? 'text-slate-600' : 'text-slate-200 font-medium'}
-              ${isToday(date) && !isSelected(date) ? 'ring-2 ring-blue-400 ring-offset-2 ring-offset-[#1e293b] text-white font-semibold' : ''}
-              ${isSelected(date) ? 'bg-blue-500 text-white font-semibold shadow-lg shadow-blue-500/50 scale-105' : ''}
-              ${!isPastDate(date) && !isSelected(date) ? 'hover:bg-slate-700/60 hover:scale-105 active:scale-95' : ''}
+              ${isToday(date) && !isSelected(date) ? (isLightTheme 
+                ? 'ring-2 ring-emerald-400 ring-offset-2 ring-offset-[#1e3a2e] text-white font-semibold' 
+                : 'ring-2 ring-blue-400 ring-offset-2 ring-offset-[#1e293b] text-white font-semibold') : ''}
+              ${isSelected(date) ? (isLightTheme 
+                ? 'bg-emerald-500 text-white font-semibold shadow-lg shadow-emerald-500/50 scale-105' 
+                : 'bg-blue-500 text-white font-semibold shadow-lg shadow-blue-500/50 scale-105') : ''}
+              ${!isPastDate(date) && !isSelected(date) ? (isLightTheme 
+                ? 'hover:bg-emerald-700/60 hover:scale-105 active:scale-95' 
+                : 'hover:bg-slate-700/60 hover:scale-105 active:scale-95') : ''}
               ${isPastDate(date) ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}
             `}
           >
@@ -140,70 +154,6 @@ export const CustomCalendar: React.FC<CustomCalendarProps> = ({
         <button
           onClick={onClose}
           className="flex-1 px-3 py-2 text-sm border border-slate-600 hover:border-slate-500 hover:bg-slate-700/30 text-white rounded-lg transition-all duration-200"
-        >
-          Cancel
-        </button>
-      </div>
-    </div>
-  );
-} => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1))}
-          className="text-gray-400 hover:text-white p-2 rounded-md hover:bg-gray-700 transition-colors"
-        >
-          <span className="text-lg font-bold">›</span>
-        </button>
-      </div>
-      
-      {/* Day headers */}
-      <div className="grid grid-cols-7 gap-1 mb-3">
-        {dayNames.map(day => (
-          <div key={day} className="text-center text-xs text-gray-400 py-2 font-medium">
-            {day}
-          </div>
-        ))}
-      </div>
-      
-      {/* Calendar grid */}
-      <div className="grid grid-cols-7 gap-1 mb-4">
-        {days.map(date => (
-          <button
-            key={date.toISOString()}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              
-              try {
-                // Call onDateSelect with proper error handling
-                onDateSelect(date);
-              } catch (error) {
-                console.error('Error selecting date:', error);
-              }
-            }}
-            disabled={isPastDate(date)}
-            className={`
-              w-9 h-9 text-sm rounded-lg flex items-center justify-center transition-all duration-200
-              ${!isCurrentMonth(date) ? 'text-gray-600' : 'text-gray-300'}
-              ${isToday(date) ? 'bg-blue-500 text-white font-semibold shadow-md' : ''}
-              ${isSelected(date) ? 'bg-blue-600 text-white font-medium' : ''}
-              ${!isPastDate(date) && !isToday(date) && !isSelected(date) ? 'hover:bg-gray-700 hover:text-white' : ''}
-              ${isPastDate(date) ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}
-            `}
-          >
-            {date.getDate()}
-          </button>
-        ))}
-      </div>
-      
-      {/* Actions */}
-      <div className="flex gap-3 mt-4">
-        <button
-          onClick={() => onDateSelect(null)}
-          className="flex-1 px-4 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors font-medium"
-        >
-          Clear Date
-        </button>
-        <button
-          onClick={onClose}
-          className="flex-1 px-4 py-2 text-sm bg-gray-600 hover:bg-gray-500 text-white rounded-lg transition-colors font-medium"
         >
           Cancel
         </button>
