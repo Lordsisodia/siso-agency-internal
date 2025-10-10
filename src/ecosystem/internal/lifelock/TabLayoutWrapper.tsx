@@ -248,7 +248,7 @@ const [searchParams, setSearchParams] = useSearchParams();
               }}
             >
               {/* Header with Back and Hamburger - Scrollable */}
-              <div className="flex items-center justify-between px-4 pt-2 pb-4">
+              <div className="flex items-center justify-between px-4 py-1 bg-gray-900">
                 <Button
                   variant="ghost"
                   size="sm"

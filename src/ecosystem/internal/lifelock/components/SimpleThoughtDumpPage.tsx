@@ -68,11 +68,35 @@ export const SimpleThoughtDumpPage: React.FC<SimpleThoughtDumpPageProps> = ({
     setMessages(prev => [...prev, { role: 'user', content: userMessage, timestamp: new Date() }]);
 
     try {
-      const gptMessages = messages.map(m => ({
+      // System prompt to guide conversation
+      const systemPrompt = {
+        role: 'system',
+        content: `You are a morning routine planning assistant. Your goal: Help user organize their day in 3-5 minutes.
+
+Conversation flow:
+1. Gather: Ask what's on their mind, use get_todays_tasks() to see existing tasks
+2. Prioritize: Ask which tasks are urgent/important
+3. Time: Ask when they have focus time and energy levels
+4. Schedule: Use schedule_task_to_timebox() to add tasks to specific times
+5. Confirm: Review the schedule with them
+
+Keep responses brief (1-2 sentences max). Ask one question at a time.
+
+When user mentions a task name, use get_task_by_title() to check if it exists.
+When user says how long something takes, use update_task_duration().
+When user says "schedule everything", use bulk_schedule_tasks().
+
+Be conversational and helpful. Reference specific task names when relevant.`
+      };
+
+      const gptMessages = [systemPrompt];
+
+      gptMessages.push(...messages.map(m => ({
         role: m.role,
         content: m.content,
         ...(m.tool_call_id && { tool_call_id: m.tool_call_id, name: m.name })
-      }));
+      })));
+
       gptMessages.push({ role: 'user', content: userMessage });
 
       const response = await gpt5NanoService.chat({
