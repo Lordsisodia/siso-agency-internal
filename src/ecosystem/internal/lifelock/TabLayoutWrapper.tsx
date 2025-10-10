@@ -212,7 +212,7 @@ const [searchParams, setSearchParams] = useSearchParams();
   const isToday = format(selectedDate, 'yyyy-MM-dd') === format(today, 'yyyy-MM-dd');
 
   return (
-    <div className="flex flex-col h-screen w-full overflow-hidden" style={{ backgroundColor: '#111827' }}>
+    <div className="flex flex-col h-screen w-full overflow-hidden" style={{ backgroundColor: '#18181b' }}>
       {/* Clean Offline Indicator - Moved to bottom as part of BottomActionBars */}
       {/* <OfflineIndicator /> */}
 
@@ -249,29 +249,7 @@ const [searchParams, setSearchParams] = useSearchParams();
                 overscrollBehaviorY: 'contain'
               }}
             >
-              {/* Header with Back and Hamburger - Scrollable */}
-              <div className="flex items-center justify-between px-4 py-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => navigate('/admin/life-lock/weekly')}
-                  className="text-siso-text-muted hover:text-siso-text hover:bg-transparent -ml-2"
-                >
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Weekly
-                </Button>
-                
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => navigate('/admin/dashboard')}
-                  className="text-siso-text-muted hover:text-siso-text hover:bg-transparent"
-                >
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </div>
-
-              {/* Render tab content via children function */}
+{/* Render tab content via children function */}
               {children(activeTabId, navigateDay)}
             </motion.div>
           </AnimatePresence>
