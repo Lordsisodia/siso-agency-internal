@@ -1,7 +1,7 @@
 import React, { useState, useEffect, memo, useCallback } from 'react';
 
 
-import { useClerkUser } from '@/shared/ClerkProvider';
+import { useClerkUser } from '@/shared/hooks/useClerkUser';
 import { TabLayoutWrapper } from './TabLayoutWrapper';
 
 import { getTaskService } from '@/services/database/TaskServiceRegistry';

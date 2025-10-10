@@ -7,7 +7,7 @@ import { Checkbox } from '@/shared/ui/checkbox';
 import { Button } from '@/shared/ui/button';
 import { format } from 'date-fns';
 import { supabaseWorkoutService } from '@/services/supabaseWorkoutService';
-import { useClerkUser } from '@/shared/ClerkProvider';
+import { useClerkUser } from '@/shared/hooks/useClerkUser';
 import { useSupabaseUserId } from '@/shared/lib/supabase-clerk';
 import { AnimatedDateHeader } from '@/shared/ui/animated-date-header-v2';
 

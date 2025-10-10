@@ -214,7 +214,7 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
   const isToday = format(selectedDate, 'yyyy-MM-dd') === format(today, 'yyyy-MM-dd');
 
   return (
-    <div className="flex flex-col h-screen w-full overflow-hidden">
+    <div className="flex flex-col h-screen w-full overflow-hidden" style={{ backgroundColor: '#111827' }}>
       {/* Clean Offline Indicator - Moved to bottom as part of BottomActionBars */}
       {/* <OfflineIndicator /> */}
 
@@ -251,7 +251,7 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
               }}
             >
               {/* Header with Back and Hamburger */}
-              <div className="px-4 pt-2 pb-2 bg-black flex items-center justify-between">
+              <div className="px-4 py-1 flex items-center justify-between" style={{ backgroundColor: '#111827' }}>
                 <Button
                   variant="ghost"
                   size="sm"

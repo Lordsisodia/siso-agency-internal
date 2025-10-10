@@ -5,9 +5,9 @@ import { motion } from 'framer-motion';
 import { voiceService } from '@/services/voiceService';
 import { lifeLockVoiceTaskProcessor } from '@/services/lifeLockVoiceTaskProcessor';
 import { gpt5NanoService } from '@/services/gpt5NanoService';
-import { MORNING_ROUTINE_TOOLS, MorningRoutineToolExecutor } from '@/services/morningRoutineTools';
+import { ALL_MORNING_AI_TOOLS, MorningThoughtDumpToolExecutor } from '@/services/morning-thought-dump/tools';
 import { chatMemoryService } from '@/services/chatMemoryService';
-import { useClerkUser } from '@/shared/ClerkProvider';
+import { useClerkUser } from '@/shared/hooks/useClerkUser';
 import { useSupabaseUserId } from '@/shared/lib/supabase-clerk';
 
 interface SimpleThoughtDumpPageProps {
@@ -38,7 +38,7 @@ export const SimpleThoughtDumpPage: React.FC<SimpleThoughtDumpPageProps> = ({
   const [messages, setMessages] = useState<Message[]>([]);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const toolExecutor = useRef<MorningRoutineToolExecutor | null>(null);
+  const toolExecutor = useRef<MorningThoughtDumpToolExecutor | null>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -49,7 +49,7 @@ export const SimpleThoughtDumpPage: React.FC<SimpleThoughtDumpPageProps> = ({
       await chatMemoryService.initialize();
 
       if (internalUserId) {
-        toolExecutor.current = new MorningRoutineToolExecutor(internalUserId, selectedDate);
+        toolExecutor.current = new MorningThoughtDumpToolExecutor(internalUserId, selectedDate);
       }
 
       const greeting = "Good morning! I'm here to help organize your day. What's on your mind?";
@@ -77,7 +77,7 @@ export const SimpleThoughtDumpPage: React.FC<SimpleThoughtDumpPageProps> = ({
 
       const response = await gpt5NanoService.chat({
         messages: gptMessages,
-        tools: MORNING_ROUTINE_TOOLS,
+        tools: ALL_MORNING_AI_TOOLS,
         temperature: 0.7,
         max_tokens: 300
       });

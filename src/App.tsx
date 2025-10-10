@@ -15,6 +15,7 @@ import { AdminAutoLogin } from '@/ecosystem/internal/admin/auth/AdminAutoLogin';
 
 // Lazy load all other pages for super-fast initial load
 const TestPage = lazy(() => import('./pages/TestPage'));
+const TestMorningAI = lazy(() => import('./pages/TestMorningAI'));
 const FeedbackTestPage = lazy(() => import('./pages/FeedbackTestPage'));
 const FeedbackDemo = lazy(() => import('./pages/FeedbackDemo'));
 const WorkingUITestPage = lazy(() => import('./pages/WorkingUITestPage'));
@@ -164,6 +165,7 @@ function App() {
           <Routes>
           {/* Test route for diagnosis */}
           <Route path="/test" element={<TestPage />} />
+          <Route path="/test-morning-ai" element={<ClerkAuthGuard><TestMorningAI /></ClerkAuthGuard>} />
           <Route path="/feedback-test" element={<FeedbackTestPage />} />
           <Route path="/feedback-demo" element={<FeedbackDemo />} />
           <Route path="/working-ui-test" element={<WorkingUITestPage />} />

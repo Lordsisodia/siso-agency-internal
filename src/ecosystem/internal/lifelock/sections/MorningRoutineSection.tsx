@@ -21,13 +21,14 @@ import { Checkbox } from '@/shared/ui/checkbox';
 import { Input } from '@/shared/ui/input';
 import { format } from 'date-fns';
 import { cn } from '@/shared/lib/utils';
-import { useClerkUser } from '@/shared/ClerkProvider';
+import { useClerkUser } from '@/shared/hooks/useClerkUser';
 import { useSupabaseUserId } from '@/shared/lib/supabase-clerk';
 import { workTypeApiClient } from '@/services/workTypeApiClient';
 import { useOfflineManager } from '@/shared/hooks/useOfflineManager';
 import { SimpleThoughtDumpPage } from '../components/SimpleThoughtDumpPage';
 import { ThoughtDumpResults } from '@/shared/components/ui/ThoughtDumpResults';
 import { lifeLockVoiceTaskProcessor, ThoughtDumpResult } from '@/services/lifeLockVoiceTaskProcessor';
+import { getRotatingQuotes } from '@/data/motivational-quotes';
 
 interface MorningRoutineHabit {
   name: string;
@@ -286,6 +287,11 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
     return getRoutineProgress();
   }, [getRoutineProgress]);
 
+  // Get today's rotating motivational quotes
+  const todaysQuotes = useMemo(() => {
+    return getRotatingQuotes(selectedDate);
+  }, [selectedDate]);
+
   // Thought dump handler
   const handleThoughtDumpSubmit = async (input: string) => {
     setIsProcessingVoice(true);
@@ -359,6 +365,33 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                   <li>• No vapes or drugs (including weed).</li>
                   <li>• No more than 5 seconds until the next action.</li>
                 </ul>
+              </div>
+              <div className="border-t border-yellow-600/50 my-4"></div>
+              <div>
+                <h3 className="font-bold text-yellow-300 mb-3 text-sm sm:text-base">💪 Daily Mindset</h3>
+                <div className="space-y-3">
+                  {todaysQuotes.map((quote, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="bg-gradient-to-br from-yellow-900/10 to-orange-900/10 border border-yellow-600/30 rounded-lg p-4 hover:border-yellow-500/50 transition-all duration-300"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="text-2xl">💡</div>
+                        <div className="flex-1">
+                          <p className="text-yellow-100/90 text-sm leading-relaxed font-medium">
+                            "{quote.text}"
+                          </p>
+                          <p className="text-yellow-400/60 text-xs mt-2 font-semibold">
+                            — {quote.author}
+                          </p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
               </div>
             </div>
             <div className="border-t border-yellow-600/50 my-3 sm:my-4"></div>

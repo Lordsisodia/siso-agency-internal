@@ -30,7 +30,7 @@ export class SupabaseMCPClient {
   /**
    * Minimal, read-only SQL executor. Only supports SELECT from allowlisted tables with optional
    * simple WHERE (eq) and LIMIT. Example:
-   *   SELECT id, email FROM users WHERE supabase_id = 'prisma-user-123' LIMIT 5
+   *   SELECT id, email FROM users WHERE supabase_id = 'user_123abc' LIMIT 5
    */
   async executeSql(params: ExecuteSqlParams): Promise<any[]> {
     const { query } = params || {};

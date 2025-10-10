@@ -38,7 +38,7 @@ export function useSupabaseUserId(clerkUserId: string | null): string | null {
         const { data, error } = await supabaseAnon
           .from('users')
           .select('id')
-          .eq('supabase_id', `prisma-user-${clerkUserId}`)
+          .eq('supabase_id', clerkUserId)
           .maybeSingle();
 
         if (error) {

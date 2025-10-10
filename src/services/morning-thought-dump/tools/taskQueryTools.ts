@@ -25,15 +25,15 @@ export class TaskQueryTools {
       supabase
         .from('deep_work_tasks')
         .select('*, subtasks:deep_work_subtasks(*)')
-        .eq('userId', this.userId)
-        .eq('currentDate', this.dateString)
+        .eq('user_id', this.userId)
+        .eq('current_date', this.dateString)
         .eq('completed', includeCompleted ? undefined : false),
 
       supabase
         .from('light_work_tasks')
         .select('*, subtasks:light_work_subtasks(*)')
-        .eq('userId', this.userId)
-        .eq('currentDate', this.dateString)
+        .eq('user_id', this.userId)
+        .eq('current_date', this.dateString)
         .eq('completed', includeCompleted ? undefined : false)
     ]);
 
@@ -70,7 +70,7 @@ export class TaskQueryTools {
       supabase
         .from('deep_work_tasks')
         .select('*, subtasks:deep_work_subtasks(*)')
-        .eq('userId', this.userId)
+        .eq('user_id', this.userId)
         .ilike('title', searchPattern)
         .limit(1)
         .maybeSingle(),
@@ -78,7 +78,7 @@ export class TaskQueryTools {
       supabase
         .from('light_work_tasks')
         .select('*, subtasks:light_work_subtasks(*)')
-        .eq('userId', this.userId)
+        .eq('user_id', this.userId)
         .ilike('title', searchPattern)
         .limit(1)
         .maybeSingle()
@@ -108,16 +108,16 @@ export class TaskQueryTools {
       supabase
         .from('deep_work_tasks')
         .select('*, subtasks:deep_work_subtasks(*)')
-        .eq('userId', this.userId)
-        .eq('currentDate', this.dateString)
+        .eq('user_id', this.userId)
+        .eq('current_date', this.dateString)
         .in('priority', ['HIGH', 'URGENT'])
         .eq('completed', false),
 
       supabase
         .from('light_work_tasks')
         .select('*, subtasks:light_work_subtasks(*)')
-        .eq('userId', this.userId)
-        .eq('currentDate', this.dateString)
+        .eq('user_id', this.userId)
+        .eq('current_date', this.dateString)
         .in('priority', ['HIGH', 'URGENT'])
         .eq('completed', false)
     ]);
@@ -144,8 +144,8 @@ export class TaskQueryTools {
     const { data } = await supabase
       .from('deep_work_tasks')
       .select('*, subtasks:deep_work_subtasks(*)')
-      .eq('userId', this.userId)
-      .eq('currentDate', this.dateString)
+      .eq('user_id', this.userId)
+      .eq('current_date', this.dateString)
       .eq('completed', false)
       .order('priority', { ascending: false });
 
@@ -169,8 +169,8 @@ export class TaskQueryTools {
     const { data } = await supabase
       .from('light_work_tasks')
       .select('*, subtasks:light_work_subtasks(*)')
-      .eq('userId', this.userId)
-      .eq('currentDate', this.dateString)
+      .eq('user_id', this.userId)
+      .eq('current_date', this.dateString)
       .eq('completed', false)
       .order('priority', { ascending: false });
 
@@ -195,8 +195,8 @@ export class TaskQueryTools {
     const { data: deepSubtasks } = await supabase
       .from('deep_work_subtasks')
       .select('*')
-      .eq('taskId', taskId)
-      .order('createdAt');
+      .eq('task_id', taskId)
+      .order('created_at');
 
     if (deepSubtasks && deepSubtasks.length > 0) {
       console.log(`✅ [TOOL] Found ${deepSubtasks.length} deep work subtasks`);
@@ -212,8 +212,8 @@ export class TaskQueryTools {
     const { data: lightSubtasks } = await supabase
       .from('light_work_subtasks')
       .select('*')
-      .eq('taskId', taskId)
-      .order('createdAt');
+      .eq('task_id', taskId)
+      .order('created_at');
 
     if (lightSubtasks && lightSubtasks.length > 0) {
       console.log(`✅ [TOOL] Found ${lightSubtasks.length} light work subtasks`);
@@ -239,17 +239,17 @@ export class TaskQueryTools {
       supabase
         .from('deep_work_tasks')
         .select('*')
-        .eq('userId', this.userId)
-        .eq('currentDate', this.dateString)
-        .lte('estimatedDuration', maxMinutes)
+        .eq('user_id', this.userId)
+        .eq('current_date', this.dateString)
+        .lte('estimated_duration', maxMinutes)
         .eq('completed', false),
 
       supabase
         .from('light_work_tasks')
         .select('*')
-        .eq('userId', this.userId)
-        .eq('currentDate', this.dateString)
-        .lte('estimatedDuration', maxMinutes)
+        .eq('user_id', this.userId)
+        .eq('current_date', this.dateString)
+        .lte('estimated_duration', maxMinutes)
         .eq('completed', false)
     ]);
 
@@ -279,13 +279,13 @@ export class TaskQueryTools {
       supabase
         .from('deep_work_tasks')
         .select('*, subtasks:deep_work_subtasks(*)')
-        .eq('userId', this.userId)
+        .eq('user_id', this.userId)
         .or(`title.ilike.${searchPattern},description.ilike.${searchPattern}`),
 
       supabase
         .from('light_work_tasks')
         .select('*, subtasks:light_work_subtasks(*)')
-        .eq('userId', this.userId)
+        .eq('user_id', this.userId)
         .or(`title.ilike.${searchPattern},description.ilike.${searchPattern}`)
     ]);
 

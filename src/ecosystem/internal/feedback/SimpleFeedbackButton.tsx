@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useClerkUser } from '@/shared/ClerkProvider';
+import { useClerkUser } from '@/shared/hooks/useClerkUser';
 import { useSupabaseUserId } from '@/shared/lib/supabase-clerk';
 import { SimpleFeedbackList } from './SimpleFeedbackList';
 import { Button } from '@/shared/ui/button';

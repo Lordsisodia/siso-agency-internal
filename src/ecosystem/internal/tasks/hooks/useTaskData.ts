@@ -13,7 +13,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval } from 'date-fns';
-import { useClerkUser } from '@/shared/ClerkProvider';
+import { useClerkUser } from '@/shared/hooks/useClerkUser';
 import { personalTaskService } from '@/services/workTypeApiClient';
 
 export interface TaskCard {
