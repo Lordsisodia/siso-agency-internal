@@ -128,10 +128,18 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Thought Dump AI state
-  const [showThoughtDumpChat, setShowThoughtDumpChat] = useState(false);
+  // Thought Dump AI state (persist across HMR refreshes)
+  const [showThoughtDumpChat, setShowThoughtDumpChat] = useState(() => {
+    // Check sessionStorage to preserve state during HMR
+    return sessionStorage.getItem('thoughtDumpOpen') === 'true';
+  });
   const [thoughtDumpResult, setThoughtDumpResult] = useState<ThoughtDumpResult | null>(null);
   const [isProcessingVoice, setIsProcessingVoice] = useState(false);
+
+  // Persist thought dump open state
+  useEffect(() => {
+    sessionStorage.setItem('thoughtDumpOpen', showThoughtDumpChat ? 'true' : 'false');
+  }, [showThoughtDumpChat]);
 
   const [wakeUpTime, setWakeUpTime] = useState<string>(() => {
     const dateKey = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd');

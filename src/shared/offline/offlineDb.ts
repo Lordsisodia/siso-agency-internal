@@ -60,12 +60,77 @@ interface OfflineDB extends DBSchema {
       _sync_status?: 'pending' | 'syncing' | 'synced' | 'error';
     };
   };
+  morningRoutines: {
+    key: string;
+    value: {
+      id: string;
+      user_id: string;
+      date: string;
+      routine_type: string;
+      items: any;
+      completed_count: number;
+      total_count: number;
+      completion_percentage: number;
+      created_at: string;
+      updated_at: string;
+      _needs_sync?: boolean;
+      _last_synced?: string;
+      _sync_status?: 'pending' | 'syncing' | 'synced' | 'error';
+    };
+  };
+  workoutSessions: {
+    key: string;
+    value: {
+      id: string;
+      user_id: string;
+      workout_date: string;
+      items: any;
+      total_exercises: number;
+      completed_exercises: number;
+      created_at: string;
+      updated_at: string;
+      _needs_sync?: boolean;
+      _last_synced?: string;
+      _sync_status?: 'pending' | 'syncing' | 'synced' | 'error';
+    };
+  };
+  healthHabits: {
+    key: string;
+    value: {
+      id: string;
+      user_id: string;
+      habit_date: string;
+      habits: any;
+      created_at: string;
+      updated_at: string;
+      _needs_sync?: boolean;
+      _last_synced?: string;
+      _sync_status?: 'pending' | 'syncing' | 'synced' | 'error';
+    };
+  };
+  nightlyCheckouts: {
+    key: string;
+    value: {
+      id: string;
+      user_id: string;
+      checkout_date: string;
+      reflection: string;
+      wins: string[];
+      improvements: string[];
+      tomorrow_focus: string;
+      created_at: string;
+      updated_at: string;
+      _needs_sync?: boolean;
+      _last_synced?: string;
+      _sync_status?: 'pending' | 'syncing' | 'synced' | 'error';
+    };
+  };
   offlineActions: {
     key: string;
     value: {
       id: string;
       action: 'create' | 'update' | 'delete';
-      table: 'lightWorkTasks' | 'deepWorkTasks';
+      table: string;
       data: any;
       timestamp: string;
       retry_count: number;
@@ -85,7 +150,7 @@ interface OfflineDB extends DBSchema {
 class OfflineDatabase {
   private db: IDBPDatabase<OfflineDB> | null = null;
   private readonly DB_NAME = 'SISOOfflineDB';
-  private readonly DB_VERSION = 1;
+  private readonly DB_VERSION = 2; // v2: Added morning routines, workouts, health habits, nightly checkout
 
   async init(): Promise<void> {
     if (this.db) return;
@@ -120,6 +185,38 @@ class OfflineDatabase {
         // Settings store
         if (!db.objectStoreNames.contains('settings')) {
           db.createObjectStore('settings', { keyPath: 'key' });
+        }
+
+        // Morning routines store
+        if (!db.objectStoreNames.contains('morningRoutines')) {
+          const morningStore = db.createObjectStore('morningRoutines', { keyPath: 'id' });
+          morningStore.createIndex('date', 'date');
+          morningStore.createIndex('user_id', 'user_id');
+          morningStore.createIndex('needs_sync', '_needs_sync');
+        }
+
+        // Workout sessions store
+        if (!db.objectStoreNames.contains('workoutSessions')) {
+          const workoutStore = db.createObjectStore('workoutSessions', { keyPath: 'id' });
+          workoutStore.createIndex('workout_date', 'workout_date');
+          workoutStore.createIndex('user_id', 'user_id');
+          workoutStore.createIndex('needs_sync', '_needs_sync');
+        }
+
+        // Health habits store
+        if (!db.objectStoreNames.contains('healthHabits')) {
+          const healthStore = db.createObjectStore('healthHabits', { keyPath: 'id' });
+          healthStore.createIndex('habit_date', 'habit_date');
+          healthStore.createIndex('user_id', 'user_id');
+          healthStore.createIndex('needs_sync', '_needs_sync');
+        }
+
+        // Nightly checkout store
+        if (!db.objectStoreNames.contains('nightlyCheckouts')) {
+          const checkoutStore = db.createObjectStore('nightlyCheckouts', { keyPath: 'id' });
+          checkoutStore.createIndex('checkout_date', 'checkout_date');
+          checkoutStore.createIndex('user_id', 'user_id');
+          checkoutStore.createIndex('needs_sync', '_needs_sync');
         }
       },
     });
@@ -193,6 +290,126 @@ class OfflineDatabase {
     if (markForSync) {
       await this.queueAction('update', 'deepWorkTasks', task);
     }
+  }
+
+  // ===== MORNING ROUTINES =====
+  async getMorningRoutines(date?: string): Promise<OfflineDB['morningRoutines']['value'][]> {
+    if (!this.db) await this.init();
+    
+    const tx = this.db!.transaction('morningRoutines', 'readonly');
+    const store = tx.objectStore('morningRoutines');
+    
+    if (date) {
+      const index = store.index('date');
+      return await index.getAll(date);
+    }
+    
+    return await store.getAll();
+  }
+
+  async saveMorningRoutine(routine: OfflineDB['morningRoutines']['value'], markForSync = true): Promise<void> {
+    if (!this.db) await this.init();
+
+    const routineWithMeta = {
+      ...routine,
+      _needs_sync: markForSync,
+      _sync_status: markForSync ? 'pending' as const : 'synced' as const,
+      updated_at: new Date().toISOString()
+    };
+
+    const tx = this.db!.transaction('morningRoutines', 'readwrite');
+    await tx.objectStore('morningRoutines').put(routineWithMeta);
+    await tx.done;
+  }
+
+  // ===== WORKOUT SESSIONS =====
+  async getWorkoutSessions(date?: string): Promise<OfflineDB['workoutSessions']['value'][]> {
+    if (!this.db) await this.init();
+    
+    const tx = this.db!.transaction('workoutSessions', 'readonly');
+    const store = tx.objectStore('workoutSessions');
+    
+    if (date) {
+      const index = store.index('workout_date');
+      return await index.getAll(date);
+    }
+    
+    return await store.getAll();
+  }
+
+  async saveWorkoutSession(workout: OfflineDB['workoutSessions']['value'], markForSync = true): Promise<void> {
+    if (!this.db) await this.init();
+
+    const workoutWithMeta = {
+      ...workout,
+      _needs_sync: markForSync,
+      _sync_status: markForSync ? 'pending' as const : 'synced' as const,
+      updated_at: new Date().toISOString()
+    };
+
+    const tx = this.db!.transaction('workoutSessions', 'readwrite');
+    await tx.objectStore('workoutSessions').put(workoutWithMeta);
+    await tx.done;
+  }
+
+  // ===== HEALTH HABITS =====
+  async getHealthHabits(date?: string): Promise<OfflineDB['healthHabits']['value'][]> {
+    if (!this.db) await this.init();
+    
+    const tx = this.db!.transaction('healthHabits', 'readonly');
+    const store = tx.objectStore('healthHabits');
+    
+    if (date) {
+      const index = store.index('habit_date');
+      return await index.getAll(date);
+    }
+    
+    return await store.getAll();
+  }
+
+  async saveHealthHabit(habit: OfflineDB['healthHabits']['value'], markForSync = true): Promise<void> {
+    if (!this.db) await this.init();
+
+    const habitWithMeta = {
+      ...habit,
+      _needs_sync: markForSync,
+      _sync_status: markForSync ? 'pending' as const : 'synced' as const,
+      updated_at: new Date().toISOString()
+    };
+
+    const tx = this.db!.transaction('healthHabits', 'readwrite');
+    await tx.objectStore('healthHabits').put(habitWithMeta);
+    await tx.done;
+  }
+
+  // ===== NIGHTLY CHECKOUTS =====
+  async getNightlyCheckouts(date?: string): Promise<OfflineDB['nightlyCheckouts']['value'][]> {
+    if (!this.db) await this.init();
+    
+    const tx = this.db!.transaction('nightlyCheckouts', 'readonly');
+    const store = tx.objectStore('nightlyCheckouts');
+    
+    if (date) {
+      const index = store.index('checkout_date');
+      return await index.getAll(date);
+    }
+    
+    return await store.getAll();
+  }
+
+  async saveNightlyCheckout(checkout: OfflineDB['nightlyCheckouts']['value'], markForSync = true): Promise<void> {
+    if (!this.db) await this.init();
+
+    const checkoutWithMeta = {
+      ...checkout,
+      _needs_sync: markForSync,
+      _sync_status: markForSync ? 'pending' as const : 'synced' as const,
+      updated_at: new Date().toISOString()
+    };
+
+    const tx = this.db!.transaction('nightlyCheckouts', 'readwrite');
+    await tx.objectStore('nightlyCheckouts').put(checkoutWithMeta);
+    await tx.done;
   }
 
   // ===== OFFLINE ACTIONS QUEUE =====
@@ -295,7 +512,7 @@ class OfflineDatabase {
   async clear(): Promise<void> {
     if (!this.db) await this.init();
 
-    const stores = ['lightWorkTasks', 'deepWorkTasks', 'offlineActions', 'settings'] as const;
+    const stores = ['lightWorkTasks', 'deepWorkTasks', 'morningRoutines', 'workoutSessions', 'healthHabits', 'nightlyCheckouts', 'offlineActions', 'settings'] as const;
     
     for (const storeName of stores) {
       const tx = this.db!.transaction(storeName, 'readwrite');
@@ -309,6 +526,10 @@ class OfflineDatabase {
   async getStats(): Promise<{
     lightWorkTasks: number;
     deepWorkTasks: number;
+    morningRoutines: number;
+    workoutSessions: number;
+    healthHabits: number;
+    nightlyCheckouts: number;
     pendingActions: number;
     lastSync?: string;
   }> {
@@ -316,12 +537,20 @@ class OfflineDatabase {
 
     const lightWorkCount = await this.db!.count('lightWorkTasks');
     const deepWorkCount = await this.db!.count('deepWorkTasks');
+    const morningRoutinesCount = await this.db!.count('morningRoutines');
+    const workoutSessionsCount = await this.db!.count('workoutSessions');
+    const healthHabitsCount = await this.db!.count('healthHabits');
+    const nightlyCheckoutsCount = await this.db!.count('nightlyCheckouts');
     const pendingActionsCount = await this.db!.count('offlineActions');
     const lastSync = await this.getSetting('lastSync');
 
     return {
       lightWorkTasks: lightWorkCount,
       deepWorkTasks: deepWorkCount,
+      morningRoutines: morningRoutinesCount,
+      workoutSessions: workoutSessionsCount,
+      healthHabits: healthHabitsCount,
+      nightlyCheckouts: nightlyCheckoutsCount,
       pendingActions: pendingActionsCount,
       lastSync
     };

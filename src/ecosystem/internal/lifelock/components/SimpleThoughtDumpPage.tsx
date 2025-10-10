@@ -210,6 +210,8 @@ Be conversational and helpful. Reference specific task names when relevant.`
       const result = await lifeLockVoiceTaskProcessor.processThoughtDump(fullTranscript);
       if (onComplete) onComplete(result);
     }
+    // Clear session storage before closing
+    sessionStorage.removeItem('thoughtDumpOpen');
     onBack();
   };
 
@@ -217,9 +219,12 @@ Be conversational and helpful. Reference specific task names when relevant.`
     <div className="fixed inset-0 z-[100] bg-gradient-to-br from-gray-900 via-black to-gray-900 flex flex-col">
       {/* Cleaner Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800/50 bg-black/80 backdrop-blur-md">
-        <Button 
-          variant="ghost" 
-          onClick={onBack} 
+        <Button
+          variant="ghost"
+          onClick={() => {
+            sessionStorage.removeItem('thoughtDumpOpen');
+            onBack();
+          }}
           className="text-gray-400 hover:text-white hover:bg-white/5 -ml-2"
         >
           <ArrowLeft className="h-5 w-5" />

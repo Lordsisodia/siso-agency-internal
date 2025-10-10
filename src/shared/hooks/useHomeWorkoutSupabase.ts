@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/shared/lib/supabase';
 import { useClerkUser } from './useClerkUser';
 import { useSupabaseClient, useSupabaseUserId } from '@/shared/lib/supabase-clerk';
+import { offlineDb } from '@/shared/offline/offlineDb';
 
 interface WorkoutItem {
   id: string;
@@ -62,57 +63,94 @@ export function useHomeWorkoutSupabase(selectedDate: Date) {
     }
 
     try {
-      setIsLoading(true);
       setError(null);
       
-      console.log('🏋️‍♂️ Loading home workout from Supabase...');
-
-      // Query for existing workout
-      const { data, error: queryError } = await supabaseClient
-        .from('home_workouts')
-        .select('*')
-        .eq('user_id', internalUserId)
-        .eq('date', dateString)
-        .maybeSingle();
-
-      if (queryError) {
-        throw queryError;
+      // 🚀 STEP 1: Load from IndexedDB INSTANTLY
+      const cachedWorkouts = await offlineDb.getWorkoutSessions(dateString);
+      
+      if (cachedWorkouts && cachedWorkouts.length > 0) {
+        console.log(`⚡ INSTANT: Loaded workout from IndexedDB`);
+        const cached = cachedWorkouts[0];
+        setWorkout({
+          id: cached.id,
+          user_id: cached.user_id,
+          date: cached.workout_date,
+          workout_items: cached.items,
+          completed_count: cached.completed_exercises,
+          total_count: cached.total_exercises,
+          completion_percentage: Math.round((cached.completed_exercises / cached.total_exercises) * 100),
+          created_at: cached.created_at,
+          updated_at: cached.updated_at
+        });
+        setIsLoading(false); // Instant load!
+      } else {
+        setIsLoading(false); // No cache, but don't block UI
       }
 
-      // If no workout exists, create default one
-      if (!data) {
-        console.log('📝 Creating default home workout...');
-        
-        const defaultWorkout = {
-          user_id: internalUserId,
-          date: dateString,
-          workout_items: DEFAULT_WORKOUT_ITEMS,
-          completed_count: 0,
-          total_count: DEFAULT_WORKOUT_ITEMS.length,
-          completion_percentage: 0
-        };
-
-        const { data: createdData, error: insertError } = await supabaseClient
+      // 🚀 STEP 2: Sync with Supabase in background (if online)
+      if (navigator.onLine && supabaseClient) {
+        const { data, error: queryError } = await supabaseClient
           .from('home_workouts')
-          .insert(defaultWorkout)
-          .select()
-          .single();
+          .select('*')
+          .eq('user_id', internalUserId)
+          .eq('date', dateString)
+          .maybeSingle();
 
-        if (insertError) {
-          throw insertError;
+        if (queryError) {
+          console.warn('⚠️ Supabase sync failed (using cached data):', queryError.message);
+          return;
         }
 
-        setWorkout(createdData);
-        console.log('✅ Created default home workout');
-      } else {
-        setWorkout(data);
-        console.log('✅ Loaded existing home workout');
+        // If no workout exists, create default one
+        if (!data) {
+          const defaultWorkout = {
+            user_id: internalUserId,
+            date: dateString,
+            workout_items: DEFAULT_WORKOUT_ITEMS,
+            completed_count: 0,
+            total_count: DEFAULT_WORKOUT_ITEMS.length,
+            completion_percentage: 0
+          };
+
+          const { data: createdData, error: insertError } = await supabaseClient
+            .from('home_workouts')
+            .insert(defaultWorkout)
+            .select()
+            .single();
+
+          if (!insertError && createdData) {
+            // Cache the newly created workout
+            await offlineDb.saveWorkoutSession({
+              id: createdData.id,
+              user_id: createdData.user_id,
+              workout_date: createdData.date,
+              items: createdData.workout_items,
+              total_exercises: createdData.total_count,
+              completed_exercises: createdData.completed_count,
+              created_at: createdData.created_at,
+              updated_at: createdData.updated_at
+            }, false);
+            setWorkout(createdData);
+          }
+        } else {
+          // Cache the fetched workout
+          await offlineDb.saveWorkoutSession({
+            id: data.id,
+            user_id: data.user_id,
+            workout_date: data.date,
+            items: data.workout_items,
+            total_exercises: data.total_count,
+            completed_exercises: data.completed_count,
+            created_at: data.created_at,
+            updated_at: data.updated_at
+          }, false);
+          setWorkout(data);
+        }
       }
 
     } catch (err) {
       console.error('❌ Failed to load home workout:', err);
       setError(err instanceof Error ? err.message : 'Failed to load home workout');
-    } finally {
       setIsLoading(false);
     }
   };
@@ -123,7 +161,6 @@ export function useHomeWorkoutSupabase(selectedDate: Date) {
 
     try {
       setIsSaving(true);
-      console.log(`🔄 Toggling exercise ${exerciseId}`);
       
       // Update local state immediately for responsiveness
       const updatedItems = workout.workout_items.map(item =>
@@ -137,35 +174,55 @@ export function useHomeWorkoutSupabase(selectedDate: Date) {
         ...workout,
         workout_items: updatedItems,
         completed_count: completedCount,
-        completion_percentage: completionPercentage
+        completion_percentage: completionPercentage,
+        updated_at: new Date().toISOString()
       };
       
       setWorkout(updatedWorkout);
 
-      // Update database
-      const { error: updateError } = await supabaseClient
-        .from('home_workouts')
-        .update({
-          workout_items: updatedItems,
-          completed_count: completedCount,
-          completion_percentage: completionPercentage,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', workout.id);
+      // 🚀 STEP 1: Save to cache immediately
+      await offlineDb.saveWorkoutSession({
+        id: updatedWorkout.id,
+        user_id: updatedWorkout.user_id,
+        workout_date: updatedWorkout.date,
+        items: updatedWorkout.workout_items,
+        total_exercises: updatedWorkout.total_count,
+        completed_exercises: updatedWorkout.completed_count,
+        created_at: updatedWorkout.created_at,
+        updated_at: updatedWorkout.updated_at
+      }, true);
 
-      if (updateError) {
-        // Revert local state on error
-        setWorkout(workout);
-        throw updateError;
+      // 🚀 STEP 2: Sync to Supabase if online
+      if (navigator.onLine && supabaseClient) {
+        const { error: updateError } = await supabaseClient
+          .from('home_workouts')
+          .update({
+            workout_items: updatedItems,
+            completed_count: completedCount,
+            completion_percentage: completionPercentage,
+            updated_at: updatedWorkout.updated_at
+          })
+          .eq('id', workout.id);
+
+        if (updateError) {
+          console.warn('⚠️ Supabase sync failed (queued for retry):', updateError.message);
+        } else {
+          await offlineDb.saveWorkoutSession({
+            id: updatedWorkout.id,
+            user_id: updatedWorkout.user_id,
+            workout_date: updatedWorkout.date,
+            items: updatedWorkout.workout_items,
+            total_exercises: updatedWorkout.total_count,
+            completed_exercises: updatedWorkout.completed_count,
+            created_at: updatedWorkout.created_at,
+            updated_at: updatedWorkout.updated_at
+          }, false);
+        }
       }
-
-      console.log(`✅ Successfully toggled exercise ${exerciseId}`);
 
     } catch (err) {
       console.error('❌ Failed to toggle exercise:', err);
       setError(err instanceof Error ? err.message : 'Failed to update exercise');
-      
-      // Revert optimistic update on error
       setWorkout(workout);
     } finally {
       setIsSaving(false);

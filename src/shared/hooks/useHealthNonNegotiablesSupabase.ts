@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/shared/lib/supabase';
 import { useClerkUser } from './useClerkUser';
 import { useSupabaseClient, useSupabaseUserId } from '@/shared/lib/supabase-clerk';
+import { offlineDb } from '@/shared/offline/offlineDb';
 
 interface MealPlan {
   breakfast: string;
@@ -72,55 +73,86 @@ export function useHealthNonNegotiablesSupabase(selectedDate: Date) {
     }
 
     try {
-      setIsLoading(true);
       setError(null);
       
-      console.log('💖 Loading health non-negotiables from Supabase...');
-
-      // Query for existing health data
-      const { data, error: queryError } = await supabaseClient
-        .from('health_non_negotiables')
-        .select('*')
-        .eq('user_id', internalUserId)
-        .eq('date', dateString)
-        .maybeSingle();
-
-      if (queryError) {
-        throw queryError;
+      // 🚀 STEP 1: Load from IndexedDB INSTANTLY
+      const cachedHabits = await offlineDb.getHealthHabits(dateString);
+      
+      if (cachedHabits && cachedHabits.length > 0) {
+        console.log(`⚡ INSTANT: Loaded health habits from IndexedDB`);
+        const cached = cachedHabits[0];
+        setHealthData({
+          id: cached.id,
+          user_id: cached.user_id,
+          date: cached.habit_date,
+          meals: cached.habits?.meals || DEFAULT_MEALS,
+          daily_totals: cached.habits?.daily_totals || DEFAULT_DAILY_TOTALS,
+          created_at: cached.created_at,
+          updated_at: cached.updated_at
+        });
+        setIsLoading(false); // Instant load!
+      } else {
+        setIsLoading(false); // No cache, but don't block UI
       }
 
-      // If no data exists, create default entry
-      if (!data) {
-        console.log('📝 Creating default health non-negotiables...');
-        
-        const defaultHealthData = {
-          user_id: internalUserId,
-          date: dateString,
-          meals: DEFAULT_MEALS,
-          daily_totals: DEFAULT_DAILY_TOTALS
-        };
-
-        const { data: createdData, error: insertError } = await supabaseClient
+      // 🚀 STEP 2: Sync with Supabase in background (if online)
+      if (navigator.onLine && supabaseClient) {
+        const { data, error: queryError } = await supabaseClient
           .from('health_non_negotiables')
-          .insert(defaultHealthData)
-          .select()
-          .single();
+          .select('*')
+          .eq('user_id', internalUserId)
+          .eq('date', dateString)
+          .maybeSingle();
 
-        if (insertError) {
-          throw insertError;
+        if (queryError) {
+          console.warn('⚠️ Supabase sync failed (using cached data):', queryError.message);
+          return;
         }
 
-        setHealthData(createdData);
-        console.log('✅ Created default health non-negotiables');
-      } else {
-        setHealthData(data);
-        console.log('✅ Loaded existing health non-negotiables');
+        // If no data exists, create default entry
+        if (!data) {
+          const defaultHealthData = {
+            user_id: internalUserId,
+            date: dateString,
+            meals: DEFAULT_MEALS,
+            daily_totals: DEFAULT_DAILY_TOTALS
+          };
+
+          const { data: createdData, error: insertError } = await supabaseClient
+            .from('health_non_negotiables')
+            .insert(defaultHealthData)
+            .select()
+            .single();
+
+          if (!insertError && createdData) {
+            // Cache the newly created data
+            await offlineDb.saveHealthHabit({
+              id: createdData.id,
+              user_id: createdData.user_id,
+              habit_date: createdData.date,
+              habits: { meals: createdData.meals, daily_totals: createdData.daily_totals },
+              created_at: createdData.created_at,
+              updated_at: createdData.updated_at
+            }, false);
+            setHealthData(createdData);
+          }
+        } else {
+          // Cache the fetched data
+          await offlineDb.saveHealthHabit({
+            id: data.id,
+            user_id: data.user_id,
+            habit_date: data.date,
+            habits: { meals: data.meals, daily_totals: data.daily_totals },
+            created_at: data.created_at,
+            updated_at: data.updated_at
+          }, false);
+          setHealthData(data);
+        }
       }
 
     } catch (err) {
       console.error('❌ Failed to load health non-negotiables:', err);
       setError(err instanceof Error ? err.message : 'Failed to load health data');
-    } finally {
       setIsLoading(false);
     }
   };
@@ -131,7 +163,6 @@ export function useHealthNonNegotiablesSupabase(selectedDate: Date) {
 
     try {
       setIsSaving(true);
-      console.log(`🔄 Updating meal ${mealType}`);
       
       // Update local state immediately for responsiveness
       const updatedMeals = {
@@ -141,33 +172,45 @@ export function useHealthNonNegotiablesSupabase(selectedDate: Date) {
       
       const updatedHealthData = {
         ...healthData,
-        meals: updatedMeals
+        meals: updatedMeals,
+        updated_at: new Date().toISOString()
       };
       
       setHealthData(updatedHealthData);
 
-      // Update database with debounce (1000ms delay for text fields)
+      // 🚀 Save to cache immediately
+      await offlineDb.saveHealthHabit({
+        id: updatedHealthData.id,
+        user_id: updatedHealthData.user_id,
+        habit_date: updatedHealthData.date,
+        habits: { meals: updatedHealthData.meals, daily_totals: updatedHealthData.daily_totals },
+        created_at: updatedHealthData.created_at,
+        updated_at: updatedHealthData.updated_at
+      }, true);
+
+      // 🚀 Sync to Supabase if online (with debounce)
       setTimeout(async () => {
-        try {
+        if (navigator.onLine && supabaseClient) {
           const { error: updateError } = await supabaseClient
             .from('health_non_negotiables')
             .update({
               meals: updatedMeals,
-              updated_at: new Date().toISOString()
+              updated_at: updatedHealthData.updated_at
             })
             .eq('id', healthData.id);
 
-          if (updateError) {
-            throw updateError;
+          if (!updateError) {
+            await offlineDb.saveHealthHabit({
+              id: updatedHealthData.id,
+              user_id: updatedHealthData.user_id,
+              habit_date: updatedHealthData.date,
+              habits: { meals: updatedHealthData.meals, daily_totals: updatedHealthData.daily_totals },
+              created_at: updatedHealthData.created_at,
+              updated_at: updatedHealthData.updated_at
+            }, false);
           }
-
-          console.log(`✅ Successfully updated meal ${mealType}`);
-        } catch (err) {
-          console.error('❌ Failed to update meal:', err);
-          setError(err instanceof Error ? err.message : 'Failed to update meal');
-        } finally {
-          setIsSaving(false);
         }
+        setIsSaving(false);
       }, 1000);
 
     } catch (err) {

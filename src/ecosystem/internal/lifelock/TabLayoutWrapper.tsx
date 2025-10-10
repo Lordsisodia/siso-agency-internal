@@ -216,12 +216,13 @@ const [searchParams, setSearchParams] = useSearchParams();
       {/* <OfflineIndicator /> */}
 
       {/* UNIFIED SCROLL CONTAINER - Single scroll area for entire screen */}
-      <div className="flex-1 relative overflow-hidden bg-gray-900">
+      <div className="flex-1 relative overflow-hidden">
         <motion.div
-          className="h-full relative z-10 bg-gray-900"
+          className="h-full relative z-10"
           style={{
             // PWA-optimized touch handling - full scroll freedom
-            touchAction: 'auto'
+            touchAction: 'auto',
+            backgroundColor: 'transparent'
           }}
         >
           <AnimatePresence mode="popLayout" custom={activeTabIndex}>
@@ -236,7 +237,7 @@ const [searchParams, setSearchParams] = useSearchParams();
                 x: { type: "spring", stiffness: 400, damping: 35 },
                 opacity: { duration: 0.15 },
               }}
-              className="h-full overflow-y-auto bg-gray-900"
+              className="h-full overflow-y-auto"
               style={{
                 // SINGLE SCROLL CONTAINER - this is the ONLY scrollable area
                 paddingBottom: '140px', // Optimized: BottomActionBars (48px) + ExpandableTabs (50px) + gaps (42px)
@@ -248,7 +249,7 @@ const [searchParams, setSearchParams] = useSearchParams();
               }}
             >
               {/* Header with Back and Hamburger - Scrollable */}
-              <div className="flex items-center justify-between px-4 py-1 bg-gray-900">
+              <div className="flex items-center justify-between px-4 pt-2 pb-4">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -290,7 +291,7 @@ const [searchParams, setSearchParams] = useSearchParams();
           }))}
           activeIndex={activeTabIndex}
           activeColor="text-orange-400"
-          className="bg-white/10 backdrop-blur-md border-white/20 shadow-lg rounded-2xl"
+          className="bg-gray-800 border-gray-700 shadow-lg rounded-2xl"
           onChange={(index) => {
             if (index !== null) {
               handleTabClick(tabs[index].id);

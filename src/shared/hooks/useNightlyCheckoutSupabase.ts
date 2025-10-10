@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/shared/lib/supabase';
 import { useClerkUser } from './useClerkUser';
 import { useSupabaseClient, useSupabaseUserId } from '@/shared/lib/supabase-clerk';
+import { offlineDb } from '@/shared/offline/offlineDb';
 
 export interface NightlyCheckoutData {
   wentWell: string[];
@@ -73,40 +74,77 @@ export function useNightlyCheckoutSupabase(selectedDate: Date) {
 
     try {
       setError(null);
-      setIsLoading(true);
 
-      const { data, error: fetchError } = await supabaseClient
-        .from('daily_reflections')
-        .select('*')
-        .eq('user_id', internalUserId)
-        .eq('date', dateKey)
-        .single();
-
-      if (fetchError && fetchError.code !== 'PGRST116') {
-        throw fetchError;
+      // 🚀 STEP 1: Load from IndexedDB INSTANTLY
+      const cachedCheckouts = await offlineDb.getNightlyCheckouts(dateKey);
+      
+      if (cachedCheckouts && cachedCheckouts.length > 0) {
+        console.log(`⚡ INSTANT: Loaded nightly checkout from IndexedDB`);
+        const cached = cachedCheckouts[0];
+        setNightlyCheckout({
+          wentWell: cached.wins || ['', '', ''],
+          evenBetterIf: cached.improvements || ['', '', '', '', ''],
+          analysis: [],
+          patterns: [],
+          changes: [],
+          overallRating: undefined,
+          keyLearnings: cached.reflection || '',
+          tomorrowFocus: cached.tomorrow_focus || '',
+          bedTime: ''
+        });
+        setIsLoading(false); // Instant load!
+      } else {
+        setNightlyCheckout(DEFAULT_NIGHTLY_CHECKOUT);
+        setIsLoading(false); // No cache, but don't block UI
       }
 
-      if (data) {
-        setNightlyCheckout({
-          wentWell: data.went_well || ['', '', ''],
-          evenBetterIf: data.even_better_if || ['', '', '', '', ''],
-          analysis: data.analysis || ['', '', ''],
-          patterns: data.patterns || ['', '', ''],
-          changes: data.changes || ['', '', ''],
-          overallRating: data.overall_rating,
-          keyLearnings: data.key_learnings || '',
-          tomorrowFocus: data.tomorrow_focus || '',
-          bedTime: data.bed_time || ''
-        });
-      } else {
-        // No data found, use defaults
-        setNightlyCheckout(DEFAULT_NIGHTLY_CHECKOUT);
+      // 🚀 STEP 2: Sync with Supabase in background (if online)
+      if (navigator.onLine && supabaseClient) {
+        const { data, error: fetchError } = await supabaseClient
+          .from('daily_reflections')
+          .select('*')
+          .eq('user_id', internalUserId)
+          .eq('date', dateKey)
+          .single();
+
+        if (fetchError && fetchError.code !== 'PGRST116') {
+          console.warn('⚠️ Supabase sync failed (using cached data):', fetchError.message);
+          return;
+        }
+
+        if (data) {
+          const checkoutData = {
+            wentWell: data.went_well || ['', '', ''],
+            evenBetterIf: data.even_better_if || ['', '', '', '', ''],
+            analysis: data.analysis || ['', '', ''],
+            patterns: data.patterns || ['', '', ''],
+            changes: data.changes || ['', '', ''],
+            overallRating: data.overall_rating,
+            keyLearnings: data.key_learnings || '',
+            tomorrowFocus: data.tomorrow_focus || '',
+            bedTime: data.bed_time || ''
+          };
+
+          // Cache the fetched data
+          await offlineDb.saveNightlyCheckout({
+            id: data.id,
+            user_id: data.user_id,
+            checkout_date: data.date,
+            reflection: data.key_learnings || '',
+            wins: data.went_well || [],
+            improvements: data.even_better_if || [],
+            tomorrow_focus: data.tomorrow_focus || '',
+            created_at: data.created_at,
+            updated_at: data.updated_at
+          }, false);
+          
+          setNightlyCheckout(checkoutData);
+        }
       }
     } catch (err) {
       console.error('Error loading nightly checkout:', err);
       setError(err instanceof Error ? err.message : 'Failed to load nightly checkout data');
       setNightlyCheckout(DEFAULT_NIGHTLY_CHECKOUT);
-    } finally {
       setIsLoading(false);
     }
   };
@@ -136,18 +174,6 @@ export function useNightlyCheckoutSupabase(selectedDate: Date) {
         updated_at: new Date().toISOString()
       };
 
-      const { data: result, error: saveError } = await supabaseClient
-        .from('daily_reflections')
-        .upsert(updateData, {
-          onConflict: 'user_id,date'
-        })
-        .select()
-        .single();
-
-      if (saveError) {
-        throw saveError;
-      }
-
       // Update local state
       const newData = {
         wentWell: updateData.went_well,
@@ -162,7 +188,50 @@ export function useNightlyCheckoutSupabase(selectedDate: Date) {
       };
 
       setNightlyCheckout(newData);
-      return result;
+
+      // 🚀 STEP 1: Save to cache immediately
+      const checkoutId = `checkout-${dateKey}-${internalUserId}`;
+      await offlineDb.saveNightlyCheckout({
+        id: checkoutId,
+        user_id: internalUserId,
+        checkout_date: dateKey,
+        reflection: updateData.key_learnings,
+        wins: updateData.went_well,
+        improvements: updateData.even_better_if,
+        tomorrow_focus: updateData.tomorrow_focus,
+        created_at: new Date().toISOString(),
+        updated_at: updateData.updated_at
+      }, true);
+
+      // 🚀 STEP 2: Sync to Supabase if online
+      if (navigator.onLine && supabaseClient) {
+        const { data: result, error: saveError } = await supabaseClient
+          .from('daily_reflections')
+          .upsert(updateData, {
+            onConflict: 'user_id,date'
+          })
+          .select()
+          .single();
+
+        if (saveError) {
+          console.warn('⚠️ Supabase sync failed (queued for retry):', saveError.message);
+        } else {
+          // Mark as synced
+          await offlineDb.saveNightlyCheckout({
+            id: result.id,
+            user_id: result.user_id,
+            checkout_date: result.date,
+            reflection: result.key_learnings || '',
+            wins: result.went_well || [],
+            improvements: result.even_better_if || [],
+            tomorrow_focus: result.tomorrow_focus || '',
+            created_at: result.created_at,
+            updated_at: result.updated_at
+          }, false);
+          return result;
+        }
+      }
+
     } catch (err) {
       console.error('Error saving nightly checkout:', err);
       setError(err instanceof Error ? err.message : 'Failed to save nightly checkout data');

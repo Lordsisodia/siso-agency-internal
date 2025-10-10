@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/shared/lib/supabase';
 import { useClerkUser } from './useClerkUser';
 import { useSupabaseClient, useSupabaseUserId } from '@/shared/lib/supabase-clerk';
+import { offlineDb } from '@/shared/offline/offlineDb';
 
 interface MorningRoutineItem {
   name: string;
@@ -73,59 +74,67 @@ export function useMorningRoutineSupabase(selectedDate: Date) {
     }
 
     try {
-      setIsLoading(true);
       setError(null);
       
-      console.log('🌅 Loading morning routine from Supabase...');
-
-      // Query for existing routine
-      const { data, error: queryError } = await supabaseClient
-        .from('daily_routines')
-        .select('*')
-        .eq('user_id', internalUserId)
-        .eq('date', dateString)
-        .eq('routine_type', 'morning')
-        .maybeSingle(); // Use maybeSingle to handle no results gracefully
-
-      if (queryError) {
-        throw queryError;
+      // 🚀 STEP 1: Load from IndexedDB INSTANTLY (no loading state)
+      const cachedRoutines = await offlineDb.getMorningRoutines(dateString);
+      
+      if (cachedRoutines && cachedRoutines.length > 0) {
+        console.log(`⚡ INSTANT: Loaded morning routine from IndexedDB`);
+        setMorningRoutine(cachedRoutines[0]);
+        setIsLoading(false); // Instant load!
+      } else {
+        setIsLoading(false); // No cache, but don't block UI
       }
 
-      // If no routine exists, create default one
-      if (!data) {
-        console.log('📝 Creating default morning routine...');
-        
-        const defaultRoutine = {
-          user_id: internalUserId,
-          date: dateString,
-          routine_type: 'morning' as const,
-          items: DEFAULT_MORNING_ROUTINE_ITEMS,
-          completed_count: 0,
-          total_count: DEFAULT_MORNING_ROUTINE_ITEMS.length,
-          completion_percentage: 0
-        };
-
-        const { data: createdData, error: insertError } = await supabaseClient
+      // 🚀 STEP 2: Sync with Supabase in background (if online)
+      if (navigator.onLine && supabaseClient) {
+        const { data, error: queryError } = await supabaseClient
           .from('daily_routines')
-          .insert(defaultRoutine)
-          .select()
-          .single();
+          .select('*')
+          .eq('user_id', internalUserId)
+          .eq('date', dateString)
+          .eq('routine_type', 'morning')
+          .maybeSingle();
 
-        if (insertError) {
-          throw insertError;
+        if (queryError) {
+          console.warn('⚠️ Supabase sync failed (using cached data):', queryError.message);
+          return;
         }
 
-        setMorningRoutine(createdData);
-        console.log('✅ Created default morning routine');
-      } else {
-        setMorningRoutine(data);
-        console.log('✅ Loaded existing morning routine');
+        // If no routine exists in Supabase, create default one
+        if (!data) {
+          const defaultRoutine = {
+            user_id: internalUserId,
+            date: dateString,
+            routine_type: 'morning' as const,
+            items: DEFAULT_MORNING_ROUTINE_ITEMS,
+            completed_count: 0,
+            total_count: DEFAULT_MORNING_ROUTINE_ITEMS.length,
+            completion_percentage: 0
+          };
+
+          const { data: createdData, error: insertError } = await supabaseClient
+            .from('daily_routines')
+            .insert(defaultRoutine)
+            .select()
+            .single();
+
+          if (!insertError && createdData) {
+            // Cache the newly created routine
+            await offlineDb.saveMorningRoutine(createdData, false);
+            setMorningRoutine(createdData);
+          }
+        } else {
+          // Cache the fetched routine
+          await offlineDb.saveMorningRoutine(data, false);
+          setMorningRoutine(data);
+        }
       }
 
     } catch (err) {
       console.error('❌ Failed to load morning routine:', err);
       setError(err instanceof Error ? err.message : 'Failed to load morning routine');
-    } finally {
       setIsLoading(false);
     }
   };
@@ -135,8 +144,6 @@ export function useMorningRoutineSupabase(selectedDate: Date) {
     if (!morningRoutine) return;
 
     try {
-      console.log(`🔄 Toggling habit ${habitName} to ${completed ? 'completed' : 'incomplete'}`);
-      
       // Update local state immediately for responsiveness
       const updatedItems = morningRoutine.items.map(item =>
         item.name === habitName ? { ...item, completed } : item
@@ -149,29 +156,35 @@ export function useMorningRoutineSupabase(selectedDate: Date) {
         ...morningRoutine,
         items: updatedItems,
         completed_count: completedCount,
-        completion_percentage: completionPercentage
+        completion_percentage: completionPercentage,
+        updated_at: new Date().toISOString()
       };
       
       setMorningRoutine(updatedRoutine);
 
-      // Update database - use snake_case column names to match schema
-      const { error: updateError } = await supabaseClient
-        .from('daily_routines')
-        .update({
-          items: updatedItems,
-          completed_count: completedCount,
-          completion_percentage: completionPercentage,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', morningRoutine.id);
+      // 🚀 STEP 1: Save to cache immediately
+      await offlineDb.saveMorningRoutine(updatedRoutine, true);
 
-      if (updateError) {
-        // Revert local state on error
-        setMorningRoutine(morningRoutine);
-        throw updateError;
+      // 🚀 STEP 2: Sync to Supabase if online
+      if (navigator.onLine && supabaseClient) {
+        const { error: updateError } = await supabaseClient
+          .from('daily_routines')
+          .update({
+            items: updatedItems,
+            completed_count: completedCount,
+            completion_percentage: completionPercentage,
+            updated_at: updatedRoutine.updated_at
+          })
+          .eq('id', morningRoutine.id);
+
+        if (updateError) {
+          console.warn('⚠️ Supabase sync failed (queued for retry):', updateError.message);
+          // Don't revert - cache has it, will sync later
+        } else {
+          // Mark as synced
+          await offlineDb.saveMorningRoutine(updatedRoutine, false);
+        }
       }
-
-      console.log(`✅ Successfully toggled habit ${habitName}`);
 
     } catch (err) {
       console.error('❌ Failed to toggle habit:', err);
