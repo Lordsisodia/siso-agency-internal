@@ -163,6 +163,19 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
     return saved ? parseInt(saved) : 0;
   });
 
+  // Push-ups tracking state
+  const [pushupReps, setPushupReps] = useState<number>(() => {
+    const dateKey = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd');
+    const saved = localStorage.getItem(`lifelock-${dateKey}-pushupReps`);
+    return saved ? parseInt(saved) : 0;
+  });
+
+  const [pushupPB, setPushupPB] = useState<number>(() => {
+    // PB is global, not per day
+    const saved = localStorage.getItem('lifelock-pushupPB');
+    return saved ? parseInt(saved) : 30; // Default PB is 30
+  });
+
   // Load morning routine data
   useEffect(() => {
     const loadMorningRoutine = async () => {
@@ -218,6 +231,18 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
     localStorage.setItem(`lifelock-${dateKey}-meditationDuration`, meditationDuration);
   }, [meditationDuration, selectedDate]);
 
+  // Save push-up reps to localStorage
+  useEffect(() => {
+    if (!selectedDate || isNaN(selectedDate.getTime())) return;
+    const dateKey = format(selectedDate, 'yyyy-MM-dd');
+    localStorage.setItem(`lifelock-${dateKey}-pushupReps`, pushupReps.toString());
+  }, [pushupReps, selectedDate]);
+
+  // Save push-up PB to localStorage (global, not per day)
+  useEffect(() => {
+    localStorage.setItem('lifelock-pushupPB', pushupPB.toString());
+  }, [pushupPB]);
+
   // Water tracking functions
   const incrementWater = () => {
     setWaterAmount(prev => prev + 100);
@@ -225,6 +250,15 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
 
   const decrementWater = () => {
     setWaterAmount(prev => Math.max(0, prev - 100)); // Don't go below 0
+  };
+
+  // Push-up tracking functions
+  const updatePushupReps = (reps: number) => {
+    setPushupReps(reps);
+    // Update PB if new record!
+    if (reps > pushupPB) {
+      setPushupPB(reps);
+    }
   };
 
   // Handle habit toggle
@@ -238,18 +272,18 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
       
       // Use offline manager for persistent storage and sync
       // Transform to daily_health schema structure
+      // NOTE: Don't specify ID - database will auto-generate or match existing record
+      // UNIQUE constraint (user_id, date) means only ONE record per user per day
       const healthData = {
-        id: crypto.randomUUID(), // Generate proper UUID for database
         user_id: internalUserId,
         date: format(selectedDate, 'yyyy-MM-dd'),
         health_checklist: {
           morning_routine: {
             [habitKey]: completed
           }
-        },
-        updated_at: new Date().toISOString()
+        }
       };
-      
+
       await saveTask('morning_routine', healthData);
       
       // Update local state immediately for better UX
@@ -613,6 +647,43 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                                 <CheckCircle2 className="h-3.5 w-3.5 text-green-400 animate-in zoom-in-50 duration-200" />
                               )}
                             </div>
+
+                            {/* Push-ups Tracking UI - Special case for pushups subtask */}
+                            {subtask.key === 'pushups' && (
+                              <div className="mt-2 mb-3 flex justify-center">
+                                <div className="w-64">
+                                  <div className="space-y-2">
+                                    {/* Rep input */}
+                                    <div className="flex items-center space-x-2 p-2 bg-yellow-900/20 border border-yellow-600/30 rounded-lg">
+                                      <Input
+                                        type="number"
+                                        placeholder="How many?"
+                                        value={pushupReps || ''}
+                                        onChange={(e) => updatePushupReps(parseInt(e.target.value) || 0)}
+                                        className="bg-transparent border-yellow-700/50 text-yellow-100 text-center text-base font-bold placeholder:text-gray-400 focus:border-yellow-600 h-8"
+                                      />
+                                      <span className="text-yellow-400 text-sm whitespace-nowrap">reps</span>
+                                    </div>
+
+                                    {/* PB Display */}
+                                    <div className="flex items-center justify-between text-xs">
+                                      <span className="text-yellow-400/60">Personal Best:</span>
+                                      <span className="text-yellow-300 font-bold">{pushupPB} reps</span>
+                                    </div>
+
+                                    {/* New PB celebration */}
+                                    {pushupReps > 0 && pushupReps === pushupPB && pushupReps > 30 && (
+                                      <div className="text-center text-xs text-green-400 font-semibold animate-pulse">
+                                        🎉 New Personal Best!
+                                      </div>
+                                    )}
+                                  </div>
+                                  <p className="text-[10px] text-yellow-400/50 mt-1 text-center">
+                                    Enter reps done today - PB auto-updates when beaten
+                                  </p>
+                                </div>
+                              </div>
+                            )}
 
                             {/* Water Tracking UI - Special case for water subtask */}
                             {subtask.key === 'water' && (
