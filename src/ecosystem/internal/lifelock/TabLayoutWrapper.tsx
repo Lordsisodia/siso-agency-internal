@@ -254,11 +254,11 @@ const [searchParams, setSearchParams] = useSearchParams();
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => navigate('/admin/life-lock/weekly')}
+                  onClick={() => navigate('/admin/life-lock-overview')}
                   className="text-siso-text-muted hover:text-siso-text hover:bg-transparent -ml-2"
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Weekly
+                  Back to Overview
                 </Button>
               </div>
 

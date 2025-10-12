@@ -15,7 +15,6 @@ import { AdminAutoLogin } from '@/ecosystem/internal/admin/auth/AdminAutoLogin';
 
 // Lazy load all other pages for super-fast initial load
 const TestPage = lazy(() => import('./pages/TestPage'));
-const TestMorningAI = lazy(() => import('./pages/TestMorningAI'));
 const OfflineTestPage = lazy(() => import('./pages/OfflineTestPage'));
 const FeedbackTestPage = lazy(() => import('./pages/FeedbackTestPage'));
 const FeedbackDemo = lazy(() => import('./pages/FeedbackDemo'));
@@ -166,7 +165,6 @@ function App() {
           <Routes>
           {/* Test route for diagnosis */}
           <Route path="/test" element={<TestPage />} />
-          <Route path="/test-morning-ai" element={<ClerkAuthGuard><TestMorningAI /></ClerkAuthGuard>} />
           <Route path="/test-offline" element={<ClerkAuthGuard><OfflineTestPage /></ClerkAuthGuard>} />
           <Route path="/feedback-test" element={<FeedbackTestPage />} />
           <Route path="/feedback-demo" element={<FeedbackDemo />} />
@@ -252,6 +250,11 @@ function App() {
           <Route path="/admin/life-lock-overview" element={<ClerkAuthGuard><AdminLifeLockOverview /></ClerkAuthGuard>} />
           <Route path="/admin/lifelock" element={<ClerkAuthGuard><AdminLifeLock /></ClerkAuthGuard>} />
           <Route path="/admin/life-lock" element={<ClerkAuthGuard><AdminLifeLock /></ClerkAuthGuard>} />
+
+          {/* Daily view routes - new clean URL structure */}
+          <Route path="/admin/life-lock/daily/:date" element={<ClerkAuthGuard><AdminLifeLockDay /></ClerkAuthGuard>} />
+
+          {/* Legacy routes - keep for backward compatibility */}
           <Route path="/admin/lifelock/day/:date" element={<ClerkAuthGuard><AdminLifeLockDay /></ClerkAuthGuard>} />
           <Route path="/admin/life-lock/day/:date" element={<ClerkAuthGuard><AdminLifeLockDay /></ClerkAuthGuard>} />
           <Route path="/admin/light-work" element={<ClerkAuthGuard><AdminLightWork /></ClerkAuthGuard>} />

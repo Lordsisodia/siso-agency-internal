@@ -51,19 +51,6 @@ export const DEFAULT_MORNING_ROUTINE_TASKS: MorningTask[] = [
     subtasks: []
   },
   {
-    key: 'getBloodFlowing' as const,
-    title: 'Get Blood Flowing',
-    description: 'Max rep push-ups (Target PB: 30) - Physical activation to wake up the body.',
-    timeEstimate: '5 min',
-    icon: Dumbbell,
-    hasTimeTracking: false,
-    subtasks: [
-      { key: 'pushups', title: 'Push-ups (PB 30)' },
-      { key: 'situps', title: 'Sit-ups' },
-      { key: 'pullups', title: 'Pull-ups' }
-    ]
-  },
-  {
     key: 'freshenUp' as const,
     title: 'Freshen Up (25 min)',
     description: 'Cold shower to wake up - Personal hygiene and cleanliness.',
@@ -77,6 +64,17 @@ export const DEFAULT_MORNING_ROUTINE_TASKS: MorningTask[] = [
     ]
   },
   {
+    key: 'getBloodFlowing' as const,
+    title: 'Get Blood Flowing',
+    description: 'Max rep push-ups (Target PB: 30) - Physical activation to wake up the body.',
+    timeEstimate: '5 min',
+    icon: Dumbbell,
+    hasTimeTracking: false,
+    subtasks: [
+      { key: 'pushups', title: 'Push-ups (PB 30)' }
+    ]
+  },
+  {
     key: 'powerUpBrain' as const,
     title: 'Power Up Brain (5 min)',
     description: 'Hydrate and fuel the body and mind.',
@@ -84,9 +82,8 @@ export const DEFAULT_MORNING_ROUTINE_TASKS: MorningTask[] = [
     icon: Brain,
     hasTimeTracking: false,
     subtasks: [
-      { key: 'water', title: 'Water (5 glasses)' },
-      { key: 'supplements', title: 'Supplements' },
-      { key: 'preworkout', title: 'Pre-workout' }
+      { key: 'water', title: 'Water (500ml)' },
+      { key: 'supplements', title: 'Supplements' }
     ]
   },
   {

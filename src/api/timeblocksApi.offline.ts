@@ -10,7 +10,7 @@
 import { unifiedDataService } from '@/shared/services/unified-data.service';
 
 // Types (no Prisma dependency)
-export type TimeBlockCategory = 'DEEP_WORK' | 'LIGHT_WORK' | 'BREAK' | 'MEETING';
+export type TimeBlockCategory = 'DEEP_WORK' | 'LIGHT_WORK' | 'MEETING' | 'BREAK' | 'PERSONAL' | 'HEALTH' | 'LEARNING' | 'ADMIN';
 
 export interface TimeBlock {
   id: string;
@@ -114,7 +114,7 @@ export class TimeBlocksAPI {
           ...block,
           id: block.id || '',
           userId: block.user_id,
-          category: (block.type as TimeBlockCategory) || 'LIGHT_WORK',
+          category: (block.category as TimeBlockCategory) || 'LIGHT_WORK',
           completed: false,
           createdAt: block.created_at || new Date().toISOString(),
           updatedAt: block.updated_at || new Date().toISOString()
@@ -136,14 +136,14 @@ export class TimeBlocksAPI {
   ): Promise<ApiResponse<TimeBlock>> {
     try {
       const newBlock = {
-        id: `block-${Date.now()}`,
+        id: crypto.randomUUID(),
         user_id: input.userId,
         date: input.date,
         start_time: input.startTime,
         end_time: input.endTime,
         title: input.title,
         description: input.description,
-        type: input.category,
+        category: input.category,  // Fixed: changed from 'type' to 'category'
         task_id: undefined,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
@@ -158,7 +158,7 @@ export class TimeBlocksAPI {
           userId: newBlock.user_id,
           startTime: newBlock.start_time,
           endTime: newBlock.end_time,
-          category: newBlock.type as TimeBlockCategory,
+          category: newBlock.category,
           completed: false,
           createdAt: newBlock.created_at,
           updatedAt: newBlock.updated_at

@@ -375,9 +375,18 @@ class OfflineManager {
       switch (action.action) {
         case 'create':
         case 'update':
+          // Use proper upsert with conflict resolution
+          const upsertOptions = tableName === 'daily_health'
+            ? { onConflict: 'user_id,date', ignoreDuplicates: false }
+            : {};
+
           const { error } = await supabase
             .from(tableName)
-            .upsert(action.data);
+            .upsert(action.data, upsertOptions);
+
+          if (error) {
+            console.error(`❌ Sync upsert failed for ${tableName}:`, error);
+          }
           return !error;
 
         case 'delete':
@@ -442,9 +451,15 @@ class OfflineManager {
         sampleData: { id: task.id, title: task.title, user_id: task.user_id }
       });
       
+      // Use upsert with proper conflict resolution
+      // For daily_health, the unique key is (user_id, date)
+      const upsertOptions = tableName === 'daily_health'
+        ? { onConflict: 'user_id,date', ignoreDuplicates: false }
+        : {};
+
       const { data, error } = await supabase
         .from(tableName)
-        .upsert(task)
+        .upsert(task, upsertOptions)
         .select(); // Add select to get better error info
 
       // 🐛 ENHANCED DEBUG: Log response
@@ -565,7 +580,7 @@ class OfflineManager {
     cacheSize: number;
   }> {
     const dbStats = await offlineDb.getStats();
-    
+
     // Estimate cache size (rough calculation)
     const cacheSize = (dbStats.lightWorkTasks + dbStats.deepWorkTasks) * 1024; // Rough estimate
 
@@ -574,6 +589,19 @@ class OfflineManager {
       network: this.status,
       cacheSize
     };
+  }
+
+  // Clear only pending sync actions (keeps cached data)
+  async clearPendingActions(): Promise<void> {
+    const pending = await offlineDb.getPendingActions();
+    console.log(`🗑️ Clearing ${pending.length} pending actions...`);
+
+    for (const action of pending) {
+      await offlineDb.removeAction(action.id);
+    }
+
+    await this.checkStatus();
+    console.log('✅ Pending actions cleared');
   }
 
   // Clean up
@@ -596,6 +624,13 @@ class OfflineManager {
 
 // Export singleton instance
 export const offlineManager = new OfflineManager();
+
+// Make available globally for debugging
+if (typeof window !== 'undefined') {
+  (window as any).offlineManager = offlineManager;
+  console.log('🔧 [OFFLINE] offlineManager available globally as window.offlineManager');
+  console.log('💡 [OFFLINE] Run offlineManager.clearPendingActions() to clear failed sync queue');
+}
 
 // Export types
 export type { OfflineStatus };

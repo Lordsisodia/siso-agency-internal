@@ -2,6 +2,7 @@
 // Handles speech-to-text and text-to-speech functionality
 
 import { logger } from '@/shared/utils/logger';
+import { deepgramService } from './deepgram.service';
 
 export interface VoiceConfig {
   language?: string;
@@ -22,11 +23,21 @@ export class VoiceService {
   private synthesis: SpeechSynthesis | null = null;
   private isListening = false;
   private groqApiKey: string | null = null;
+  private openaiApiKey: string | null = null;
+  private mediaRecorder: MediaRecorder | null = null;
+  private audioChunks: Blob[] = [];
+  private currentStream: MediaStream | null = null;
 
   constructor() {
     this.initializeSpeechRecognition();
     this.initializeSpeechSynthesis();
     this.groqApiKey = import.meta.env.VITE_GROQ_API_KEY || null;
+    this.openaiApiKey = import.meta.env.VITE_OPENAI_API_KEY || null;
+
+    logger.debug('🔑 [VOICE AI] API Keys loaded:', {
+      groq: !!this.groqApiKey,
+      openai: !!this.openaiApiKey
+    });
   }
 
   private initializeSpeechRecognition() {
@@ -131,27 +142,13 @@ export class VoiceService {
     return this.synthesis !== null || this.groqApiKey !== null;
   }
 
-  // Start listening for speech input
+  // Start listening for speech input - REAL-TIME with Deepgram!
   public async startListening(
     onResult: (transcript: string, isFinal: boolean) => void,
     onError: (error: string) => void,
     config: VoiceConfig = {}
   ): Promise<void> {
     logger.debug('🎤 [VOICE AI] Starting speech recognition...');
-    logger.debug('🎤 [VOICE AI] Config:', { 
-      language: config.language || 'en-US',
-      continuous: config.continuous || false,
-      interimResults: config.interimResults || true,
-      maxAlternatives: config.maxAlternatives || 1 
-    });
-
-    // Check if speech recognition is supported
-    if (!this.isSpeechRecognitionSupported()) {
-      const error = 'Speech recognition not supported in this browser. Please use Chrome, Edge, or Safari.';
-      console.error('❌ [VOICE AI] Recognition not supported:', error);
-      onError(error);
-      throw new Error(error);
-    }
 
     // Check if already listening
     if (this.isListening) {
@@ -161,163 +158,326 @@ export class VoiceService {
       throw new Error(error);
     }
 
-    // Check microphone permissions (but don't fail immediately - let SpeechRecognition handle it)
-    try {
-      const hasPermission = await this.checkMicrophonePermissions();
-      if (!hasPermission) {
-        console.warn('⚠️ [VOICE AI] Microphone permission check failed, but continuing with SpeechRecognition API...');
-        // Don't throw error here - let the SpeechRecognition API handle permission requests
-      } else {
-        logger.debug('✅ [VOICE AI] Microphone permission verified');
+    // Priority: Deepgram (real-time) > Web Speech API (fallback)
+    if (deepgramService.isConfigured()) {
+      logger.debug('🌟 [VOICE AI] Using Deepgram Real-Time (Premium - WebSocket streaming)');
+      try {
+        this.isListening = true;
+        await deepgramService.startRealTimeTranscription(
+          onResult,
+          (error) => {
+            this.isListening = false;
+            onError(error);
+          },
+          {
+            language: config.language || 'en-US',
+            punctuate: true,
+            interimResults: true,
+            endpointing: 300 // 300ms silence before finalizing
+          }
+        );
+        return;
+      } catch (error) {
+        this.isListening = false;
+        console.warn('⚠️ [VOICE AI] Deepgram failed, falling back to Web Speech API:', error);
       }
-    } catch (permissionError) {
-      console.warn('⚠️ [VOICE AI] Permission check failed, proceeding with SpeechRecognition:', permissionError);
-      // Continue anyway - SpeechRecognition might handle permissions differently
+    }
+
+    // Fallback to Web Speech API
+    logger.debug('🔄 [VOICE AI] Using Web Speech API (Fallback)');
+    if (!deepgramService.isConfigured()) {
+      console.warn('⚠️ [VOICE AI] No Deepgram key - using Web Speech API. For better accuracy, add VITE_DEEPGRAM_API_KEY');
+    }
+    return this.startListeningWithWebAPI(onResult, onError, config);
+  }
+
+  // Whisper-based speech recognition (OpenAI)
+  private async startListeningWithWhisper(
+    onResult: (transcript: string, isFinal: boolean) => void,
+    onError: (error: string) => void,
+    config: VoiceConfig = {}
+  ): Promise<void> {
+    try {
+      // Get microphone access
+      this.currentStream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        }
+      });
+
+      this.audioChunks = [];
+
+      // Force WebM format
+      const options: MediaRecorderOptions = {};
+      if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+        options.mimeType = 'audio/webm;codecs=opus';
+      } else if (MediaRecorder.isTypeSupported('audio/webm')) {
+        options.mimeType = 'audio/webm';
+      } else {
+        options.mimeType = 'audio/webm';
+      }
+
+      this.mediaRecorder = new MediaRecorder(this.currentStream, options);
+      logger.debug('🎵 [VOICE AI] Using audio format:', options.mimeType);
+
+      // ACCUMULATE chunks - don't send until user stops
+      this.mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          this.audioChunks.push(event.data);
+          logger.debug('🎵 [VOICE AI] Audio chunk collected:', event.data.size, 'bytes', `(total: ${this.audioChunks.length} chunks)`);
+        }
+      };
+
+      // When recording stops, send COMPLETE audio file to Whisper
+      this.mediaRecorder.onstop = async () => {
+        logger.debug('🛑 [VOICE AI] Recording stopped, processing complete audio...');
+
+        if (this.audioChunks.length === 0) {
+          logger.debug('⚠️ [VOICE AI] No audio chunks to process');
+          return;
+        }
+
+        try {
+          // Combine all chunks into complete audio file
+          const audioBlob = new Blob(this.audioChunks, { type: options.mimeType });
+          logger.debug('🎵 [VOICE AI] Complete audio file created:', audioBlob.size, 'bytes');
+
+          // Send complete file to Whisper
+          const transcript = await this.transcribeWithWhisper(audioBlob);
+          if (transcript && transcript.trim()) {
+            onResult(transcript.trim(), true); // Mark as final
+          }
+        } catch (error) {
+          console.error('❌ [VOICE AI] Whisper transcription error:', error);
+          onError(error instanceof Error ? error.message : 'Transcription failed');
+        }
+      };
+
+      // Collect audio in continuous stream (don't create chunks until stopped)
+      this.mediaRecorder.start();
+      this.isListening = true;
+
+      logger.debug('✅ [VOICE AI] Whisper recording started - speak then click Stop');
+
+    } catch (error) {
+      this.isListening = false;
+      console.error('❌ [VOICE AI] Failed to start Whisper recording:', error);
+      onError(error instanceof Error ? error.message : 'Microphone access failed');
+      throw error;
+    }
+  }
+
+  // Groq Whisper API transcription
+  private async startListeningWithGroqWhisper(
+    onResult: (transcript: string, isFinal: boolean) => void,
+    onError: (error: string) => void,
+    config: VoiceConfig = {}
+  ): Promise<void> {
+    try {
+      this.currentStream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        }
+      });
+
+      this.audioChunks = [];
+
+      // Force WebM format
+      const options: MediaRecorderOptions = {};
+      if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+        options.mimeType = 'audio/webm;codecs=opus';
+      } else if (MediaRecorder.isTypeSupported('audio/webm')) {
+        options.mimeType = 'audio/webm';
+      } else {
+        options.mimeType = 'audio/webm';
+      }
+
+      this.mediaRecorder = new MediaRecorder(this.currentStream, options);
+      logger.debug('🎵 [VOICE AI] Using audio format:', options.mimeType);
+
+      // ACCUMULATE chunks - don't send until user stops
+      this.mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          this.audioChunks.push(event.data);
+          logger.debug('🎵 [VOICE AI] Audio chunk collected:', event.data.size, 'bytes');
+        }
+      };
+
+      // When recording stops, send COMPLETE audio file
+      this.mediaRecorder.onstop = async () => {
+        logger.debug('🛑 [VOICE AI] Recording stopped, processing complete audio...');
+
+        if (this.audioChunks.length === 0) return;
+
+        try {
+          const audioBlob = new Blob(this.audioChunks, { type: options.mimeType });
+          logger.debug('🎵 [VOICE AI] Complete audio file created:', audioBlob.size, 'bytes');
+
+          const transcript = await this.transcribeWithGroqWhisper(audioBlob);
+          if (transcript && transcript.trim()) {
+            onResult(transcript.trim(), true);
+          }
+        } catch (error) {
+          console.error('❌ [VOICE AI] Groq Whisper error:', error);
+          onError(error instanceof Error ? error.message : 'Transcription failed');
+        }
+      };
+
+      this.mediaRecorder.start();
+      this.isListening = true;
+
+      logger.debug('✅ [VOICE AI] Groq Whisper recording started');
+    } catch (error) {
+      this.isListening = false;
+      console.error('❌ [VOICE AI] Failed to start Groq Whisper:', error);
+      onError(error instanceof Error ? error.message : 'Microphone access failed');
+      throw error;
+    }
+  }
+
+  // OpenAI Whisper transcription
+  private async transcribeWithWhisper(audioBlob: Blob): Promise<string | null> {
+    if (!this.openaiApiKey) return null;
+
+    try {
+      // Determine file extension - WebM is now standard
+      const mimeType = audioBlob.type;
+      let fileExtension = 'webm';
+      if (mimeType.includes('webm')) fileExtension = 'webm';
+      else if (mimeType.includes('ogg')) fileExtension = 'ogg';
+      else if (mimeType.includes('wav')) fileExtension = 'wav';
+      else if (mimeType.includes('mp3')) fileExtension = 'mp3';
+
+      const formData = new FormData();
+      formData.append('file', audioBlob, `audio.${fileExtension}`);
+      formData.append('model', 'whisper-1');
+      formData.append('response_format', 'json');
+
+      logger.debug('🎤 [VOICE AI] Sending to OpenAI Whisper:', {
+        size: audioBlob.size,
+        type: audioBlob.type,
+        filename: `audio.${fileExtension}`
+      });
+
+      const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.openaiApiKey}`
+        },
+        body: formData
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        logger.debug('❌ [VOICE AI] Whisper API error response:', errorText);
+        throw new Error(`Whisper API error: ${response.status} ${errorText}`);
+      }
+
+      const result = await response.json();
+      logger.debug('✅ [VOICE AI] Whisper transcript:', result.text);
+      return result.text;
+    } catch (error) {
+      console.error('❌ [VOICE AI] Whisper API failed:', error);
+      return null;
+    }
+  }
+
+  // Groq Whisper transcription
+  private async transcribeWithGroqWhisper(audioBlob: Blob): Promise<string | null> {
+    if (!this.groqApiKey) return null;
+
+    try {
+      // Determine file extension - WebM is standard
+      const mimeType = audioBlob.type;
+      let fileExtension = 'webm';
+      if (mimeType.includes('webm')) fileExtension = 'webm';
+      else if (mimeType.includes('ogg')) fileExtension = 'ogg';
+      else if (mimeType.includes('wav')) fileExtension = 'wav';
+      else if (mimeType.includes('mp3')) fileExtension = 'mp3';
+
+      const formData = new FormData();
+      formData.append('file', audioBlob, `audio.${fileExtension}`);
+      formData.append('model', 'whisper-large-v3-turbo');
+      formData.append('response_format', 'json');
+
+      logger.debug('🎤 [VOICE AI] Sending to Groq Whisper:', {
+        size: audioBlob.size,
+        type: audioBlob.type,
+        filename: `audio.${fileExtension}`
+      });
+
+      const response = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.groqApiKey}`
+        },
+        body: formData
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        logger.debug('❌ [VOICE AI] Groq Whisper error response:', errorText);
+        throw new Error(`Groq Whisper error: ${response.status} ${errorText}`);
+      }
+
+      const result = await response.json();
+      logger.debug('✅ [VOICE AI] Groq Whisper transcript:', result.text);
+      return result.text;
+    } catch (error) {
+      console.error('❌ [VOICE AI] Groq Whisper failed:', error);
+      return null;
+    }
+  }
+
+  // Fallback to Web Speech API (kept for compatibility)
+  private async startListeningWithWebAPI(
+    onResult: (transcript: string, isFinal: boolean) => void,
+    onError: (error: string) => void,
+    config: VoiceConfig = {}
+  ): Promise<void> {
+    if (!this.isSpeechRecognitionSupported()) {
+      const error = 'Speech recognition not supported and no Whisper API key configured';
+      onError(error);
+      throw new Error(error);
     }
 
     return new Promise((resolve, reject) => {
+      this.recognition!.lang = config.language || 'en-US';
+      this.recognition!.continuous = true;
+      this.recognition!.interimResults = true;
 
-      // Configure recognition - Enable continuous mode for longer recordings
-      this.recognition.lang = config.language || 'en-US';
-      this.recognition.continuous = config.continuous !== undefined ? config.continuous : true; // Default to continuous
-      this.recognition.interimResults = config.interimResults || true;
-      this.recognition.maxAlternatives = config.maxAlternatives || 1;
-
-      // Set up event handlers
-      this.recognition.onstart = () => {
+      this.recognition!.onstart = () => {
         this.isListening = true;
-        logger.debug('✅ [VOICE AI] Speech recognition started successfully');
-        logger.debug('🎯 [VOICE AI] Listening state:', this.isListening);
+        logger.debug('✅ [VOICE AI] Web Speech API started');
         resolve();
       };
 
-      this.recognition.onresult = (event) => {
-        // Build full transcript from ALL results (not just new ones)
-        let finalTranscript = '';
-        let interimTranscript = '';
-
-        logger.debug('📝 [VOICE AI] Processing speech results...');
-        logger.debug('📊 [VOICE AI] Total results:', event.results.length);
-        logger.debug('📍 [VOICE AI] New result index:', event.resultIndex);
-
-        // Process ALL results from beginning to get complete transcript
+      this.recognition!.onresult = (event) => {
+        let transcript = '';
         for (let i = 0; i < event.results.length; i++) {
-          const transcript = event.results[i][0].transcript;
-          const confidence = event.results[i][0].confidence;
-          const isFinal = event.results[i].isFinal;
-          
-          if (i >= event.resultIndex) {
-            logger.debug(`📋 [VOICE AI] New result ${i}:`, {
-              transcript,
-              confidence,
-              isFinal,
-              alternatives: event.results[i].length
-            });
-          }
-
-          if (isFinal) {
-            finalTranscript += transcript + ' ';
-          } else {
-            interimTranscript += transcript + ' ';
-          }
+          transcript += event.results[i][0].transcript + ' ';
         }
-
-        // Build complete transcript (accumulated final + current interim)
-        const completeTranscript = (finalTranscript + interimTranscript).trim();
-        const hasFinalResult = finalTranscript.trim().length > 0;
-
-        logger.debug('🎯 [VOICE AI] Complete transcript:', completeTranscript);
-        logger.debug('✅ [VOICE AI] Final parts:', finalTranscript.trim());
-        logger.debug('⏳ [VOICE AI] Interim parts:', interimTranscript.trim());
-
-        // Send the complete transcript
-        if (completeTranscript) {
-          onResult(completeTranscript, hasFinalResult);
-        }
+        onResult(transcript.trim(), event.results[event.results.length - 1].isFinal);
       };
 
-      this.recognition.onerror = (event) => {
-        let errorMsg = '';
-        
-        switch (event.error) {
-          case 'no-speech':
-            // Don't stop listening - this is just a timeout warning
-            errorMsg = 'No speech detected. Please try speaking again.';
-            console.warn('⚠️ [VOICE AI] No speech detected');
-            onError(errorMsg);
-            // Restart recognition to keep listening
-            if (this.recognition && !this.isListening) {
-              logger.debug('🔄 [VOICE AI] Restarting recognition after no-speech timeout...');
-              try {
-                this.recognition.start();
-              } catch (e) {
-                console.error('❌ [VOICE AI] Failed to restart recognition:', e);
-              }
-            }
-            return; // Don't reject promise for no-speech
-          break;
-          case 'audio-capture':
-            this.isListening = false;
-            errorMsg = 'No microphone found. Please check your microphone connection.';
-            console.error('❌ [VOICE AI] Audio capture failed');
-            break;
-          case 'not-allowed':
-            this.isListening = false;
-            errorMsg = 'Microphone access denied. Click the microphone icon 🎤 in your browser address bar and select "Allow", then try again.';
-            console.error('❌ [VOICE AI] Permission denied - browser blocked microphone access');
-            // Try to provide more context about the permission state
-            this.logPermissionDiagnostics();
-            break;
-          case 'network':
-            this.isListening = false;
-            errorMsg = 'Network error occurred. Please check your internet connection.';
-            console.error('❌ [VOICE AI] Network error');
-            break;
-          case 'aborted':
-            this.isListening = false;
-            errorMsg = 'Speech recognition was aborted.';
-            console.warn('⚠️ [VOICE AI] Recognition aborted');
-            break;
-          case 'bad-grammar':
-            this.isListening = false;
-            errorMsg = 'Grammar error in speech recognition.';
-            console.error('❌ [VOICE AI] Grammar error');
-            break;
-          case 'language-not-supported':
-            this.isListening = false;
-            errorMsg = 'Language not supported. Please try English.';
-            console.error('❌ [VOICE AI] Language not supported');
-            break;
-          default:
-            this.isListening = false;
-            errorMsg = `Speech recognition error: ${event.error}`;
-            console.error('❌ [VOICE AI] Unknown error:', event.error);
-        }
-        
-        console.error('❌ [VOICE AI] Recognition error details:', {
-          error: event.error,
-          message: event.message,
-          timestamp: new Date().toISOString(),
-          userAgent: navigator.userAgent
-        });
-        
-        onError(errorMsg);
-        reject(new Error(errorMsg));
-      };
-
-      this.recognition.onend = () => {
+      this.recognition!.onerror = (event) => {
         this.isListening = false;
-        logger.debug('🔚 [VOICE AI] Speech recognition ended');
-        logger.debug('🎯 [VOICE AI] Final listening state:', this.isListening);
+        onError(event.error);
+        reject(new Error(event.error));
       };
 
-      // Start recognition
+      this.recognition!.onend = () => {
+        this.isListening = false;
+      };
+
       try {
-        logger.debug('🚀 [VOICE AI] Attempting to start recognition...');
-        this.recognition.start();
+        this.recognition!.start();
       } catch (error) {
         this.isListening = false;
-        console.error('❌ [VOICE AI] Failed to start recognition:', error);
         reject(error);
       }
     });
@@ -325,10 +485,40 @@ export class VoiceService {
 
   // Stop listening
   public stopListening(): void {
-    if (this.recognition && this.isListening) {
-      this.recognition.stop();
-      this.isListening = false;
+    this.isListening = false;
+
+    // Stop Deepgram if active
+    if (deepgramService.isTranscribing()) {
+      deepgramService.stop();
+      logger.debug('🛑 [VOICE AI] Deepgram stopped');
     }
+
+    // Stop MediaRecorder if using Whisper
+    if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+      this.mediaRecorder.stop();
+      logger.debug('🛑 [VOICE AI] MediaRecorder stopped');
+    }
+
+    // Stop audio stream
+    if (this.currentStream) {
+      this.currentStream.getTracks().forEach(track => {
+        track.stop();
+        logger.debug('🛑 [VOICE AI] Audio track stopped');
+      });
+      this.currentStream = null;
+    }
+
+    // Stop Web Speech API if active
+    if (this.recognition && this.recognition) {
+      try {
+        this.recognition.stop();
+        logger.debug('🛑 [VOICE AI] Web Speech API stopped');
+      } catch (e) {
+        // Ignore errors when stopping
+      }
+    }
+
+    logger.debug('✅ [VOICE AI] All recording stopped');
   }
 
   // Check if currently listening
@@ -350,32 +540,101 @@ export class VoiceService {
     logger.debug('🔑 [VOICE AI] Groq API available:', !!this.groqApiKey);
 
     try {
+      // Try OpenAI TTS first (most reliable), then Groq, then Web Speech API
+      if (this.openaiApiKey && text.length <= 4096) {
+        logger.debug('🌟 [VOICE AI] Using OpenAI TTS (Premium)');
+        try {
+          await this.speakWithOpenAITTS(text, config, onStart, onEnd, onError);
+          return;
+        } catch (error) {
+          console.warn('⚠️ [VOICE AI] OpenAI TTS failed, trying Groq:', error);
+        }
+      }
+
       if (this.groqApiKey && text.length <= 10000) {
-        logger.debug('🌟 [VOICE AI] Using Groq TTS (Premium)');
-        await this.speakWithGroqTTS(text, config, onStart, onEnd, onError);
-      } else {
-        logger.debug('🔄 [VOICE AI] Using Web Speech API (Fallback)');
-        if (!this.groqApiKey) {
-          console.warn('⚠️ [VOICE AI] No Groq API key configured');
+        logger.debug('🌟 [VOICE AI] Using Groq TTS');
+        try {
+          await this.speakWithGroqTTS(text, config, onStart, onEnd, onError);
+          return;
+        } catch (error) {
+          console.warn('⚠️ [VOICE AI] Groq TTS failed, falling back to Web Speech:', error);
         }
-        if (text.length > 10000) {
-          console.warn('⚠️ [VOICE AI] Text too long for Groq TTS:', text.length);
-        }
-        await this.speakWithWebAPI(text, config, onStart, onEnd, onError);
       }
+
+      // Final fallback to Web Speech API
+      logger.debug('🔄 [VOICE AI] Using Web Speech API (Fallback)');
+      await this.speakWithWebAPI(text, config, onStart, onEnd, onError);
+
     } catch (error) {
-      console.error('❌ [VOICE AI] TTS failed, falling back to Web Speech API:', error);
-      try {
-        await this.speakWithWebAPI(text, config, onStart, onEnd, onError);
-      } catch (fallbackError) {
-        console.error('❌ [VOICE AI] All TTS methods failed:', fallbackError);
-        onError?.(fallbackError instanceof Error ? fallbackError.message : 'TTS failed');
-        throw fallbackError;
-      }
+      console.error('❌ [VOICE AI] All TTS methods failed:', error);
+      onError?.(error instanceof Error ? error.message : 'TTS failed');
+      throw error;
     }
   }
 
-  // Speak using Groq TTS API
+  // Speak using OpenAI TTS API
+  private async speakWithOpenAITTS(
+    text: string,
+    config: TTSConfig = {},
+    onStart?: () => void,
+    onEnd?: () => void,
+    onError?: (error: string) => void
+  ): Promise<void> {
+    if (!this.openaiApiKey) {
+      throw new Error('OpenAI API key not configured');
+    }
+
+    try {
+      onStart?.();
+      logger.debug('🚀 [VOICE AI] Calling OpenAI TTS API...');
+
+      const response = await fetch('https://api.openai.com/v1/audio/speech', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.openaiApiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'tts-1',
+          input: text.substring(0, 4096),
+          voice: config.voice || 'alloy',
+          response_format: 'mp3',
+          speed: config.rate || 1.0
+        })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ [VOICE AI] OpenAI TTS Error:', errorText);
+        throw new Error(`OpenAI TTS error: ${response.statusText}`);
+      }
+
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+
+      audio.onended = () => {
+        logger.debug('🏁 [VOICE AI] OpenAI TTS playback completed');
+        URL.revokeObjectURL(audioUrl);
+        onEnd?.();
+      };
+
+      audio.onerror = () => {
+        console.error('❌ [VOICE AI] Audio playback failed');
+        URL.revokeObjectURL(audioUrl);
+        onError?.('Audio playback failed');
+      };
+
+      await audio.play();
+      logger.debug('▶️ [VOICE AI] OpenAI TTS playback started');
+
+    } catch (error) {
+      console.error('❌ [VOICE AI] OpenAI TTS Error:', error);
+      onError?.(error instanceof Error ? error.message : 'TTS failed');
+      throw error;
+    }
+  }
+
   private async speakWithGroqTTS(
     text: string,
     config: TTSConfig = {},

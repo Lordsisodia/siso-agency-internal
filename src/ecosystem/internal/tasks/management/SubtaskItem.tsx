@@ -62,13 +62,28 @@ export const SubtaskItem: React.FC<SubtaskItemProps> = ({
   children
 }) => {
   return (
-    <div className="group flex items-start gap-3 py-2 px-3 hover:bg-gray-700/20 rounded-lg transition-all duration-200 w-full">
+    <div
+      className="group flex items-start gap-3 py-2 px-3 hover:bg-gray-700/20 rounded-lg transition-all duration-200 w-full"
+      onClick={(e) => {
+        console.log('🔍 [SubtaskItem] Top-level container clicked!', {
+          subtaskId: subtask.id,
+          target: e.target,
+          currentTarget: e.currentTarget,
+          targetTagName: (e.target as HTMLElement).tagName
+        });
+      }}
+    >
       <button
         onClick={(e) => {
+          console.log('✅ [SubtaskItem] Checkbox clicked! (stopPropagation called)', {
+            subtaskId: subtask.id,
+            completed: subtask.completed
+          });
           e.stopPropagation();
           onToggleCompletion(taskId, subtask.id);
         }}
         onTouchStart={(e) => {
+          console.log('👆 [SubtaskItem] Checkbox touch started! (stopPropagation called)');
           e.stopPropagation();
         }}
         className="flex-shrink-0 hover:scale-105 active:scale-95 transition-all duration-150 min-h-[32px] min-w-[32px] flex items-center justify-center mt-0.5 hover:bg-gray-600/30 active:bg-gray-500/40 rounded-md touch-manipulation"
@@ -94,7 +109,17 @@ export const SubtaskItem: React.FC<SubtaskItemProps> = ({
           className={`flex-1 text-xs bg-gray-700/50 border ${themeConfig.colors.input} rounded px-2 py-1 text-white focus:outline-none focus:ring-1 min-h-[32px]`}
         />
       ) : (
-        <div className="flex-1 min-w-0 pr-1">
+        <div
+          className="flex-1 min-w-0 pr-1"
+          onClick={(e) => {
+            console.log('🔍 [SubtaskItem] Content container (flex-1) clicked!', {
+              subtaskId: subtask.id,
+              target: e.target,
+              targetTagName: (e.target as HTMLElement).tagName,
+              targetClassName: (e.target as HTMLElement).className
+            });
+          }}
+        >
           {/* Subtask Title */}
           <div className="w-full mb-1.5">
             <span 

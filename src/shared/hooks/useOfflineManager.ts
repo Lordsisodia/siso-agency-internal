@@ -24,7 +24,8 @@ interface UseOfflineManagerReturn {
   // Sync operations
   sync: () => Promise<{ synced: number; failed: number }>;
   clearOfflineData: () => Promise<void>;
-  
+  clearPendingActions: () => Promise<void>;
+
   // Stats
   getStats: () => Promise<any>;
 }
@@ -65,6 +66,10 @@ export function useOfflineManager(): UseOfflineManagerReturn {
     await offlineManager.clearOfflineData();
   }, []);
 
+  const clearPendingActions = useCallback(async () => {
+    await offlineManager.clearPendingActions();
+  }, []);
+
   const getStats = useCallback(async () => {
     return await offlineManager.getOfflineStats();
   }, []);
@@ -75,12 +80,13 @@ export function useOfflineManager(): UseOfflineManagerReturn {
     isOnline: status.isOnline,
     isOffline: !status.isOnline,
     canSync: status.isOnline && status.isSupabaseConnected && !status.syncInProgress,
-    
+
     // Operations
     saveTask,
     loadTasks,
     sync,
     clearOfflineData,
+    clearPendingActions,
     getStats
   };
 }

@@ -32,6 +32,7 @@ export const SimpleThoughtDumpPage: React.FC<SimpleThoughtDumpPageProps> = ({
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false); // NEW: Whisper is processing audio
   const [messages, setMessages] = useState<Message[]>([]);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -43,23 +44,20 @@ export const SimpleThoughtDumpPage: React.FC<SimpleThoughtDumpPageProps> = ({
 
   useEffect(() => {
     const init = async () => {
+      // Same pattern as MorningRoutineSection - early return if no user ID
+      if (!internalUserId || !selectedDate) return;
+
       await chatMemoryService.initialize();
+      toolExecutor.current = new MorningThoughtDumpToolExecutor(internalUserId, selectedDate);
 
-      if (internalUserId && selectedDate) {
-        toolExecutor.current = new MorningThoughtDumpToolExecutor(internalUserId, selectedDate);
-      } else {
-        console.error('❌ Missing internalUserId or selectedDate:', { internalUserId, selectedDate });
-      }
-
-      setMessages([{ role: 'assistant', content: GREETING_MESSAGE, timestamp: new Date() }]);
-
-      if (voiceService.isTTSSupported()) {
-        setIsSpeaking(true);
-        voiceService.speak(GREETING_MESSAGE, {}, () => {}, () => setIsSpeaking(false), () => setIsSpeaking(false));
+      // Set initial greeting message only once (text only - no autoplay)
+      if (messages.length === 0) {
+        setMessages([{ role: 'assistant', content: GREETING_MESSAGE, timestamp: new Date() }]);
+        // Don't autoplay audio - browsers block it without user interaction
       }
     };
     init();
-  }, [internalUserId, selectedDate]);
+  }, [internalUserId, selectedDate, messages.length]);
 
   const getAIResponse = async (userMessage: string) => {
     setIsProcessing(true);
@@ -160,37 +158,45 @@ export const SimpleThoughtDumpPage: React.FC<SimpleThoughtDumpPageProps> = ({
 
   const handleMicToggle = async () => {
     if (isListening) {
+      // Stop continuous listening
       voiceService.stopListening();
       setIsListening(false);
-      if (transcript.trim()) {
-        await getAIResponse(transcript);
-        setTranscript('');
-      }
+      setTranscript('');
     } else {
-      setTranscript(''); // Clear for new input
+      // Start continuous real-time transcription
+      setTranscript('');
+      setIsTranscribing(false);
+
       try {
         await voiceService.startListening(
           (text, isFinal) => {
-            // Always show the complete accumulated transcript
+            // Real-time: Show words as they appear (interim results)
             setTranscript(text);
-            
-            // Log progress but DON'T auto-stop - let user control when to stop
-            if (isFinal) {
-              console.log('🎤 Sentence completed:', text);
-              // Keep listening for more sentences!
+
+            // When sentence is finalized, send to AI and keep listening
+            if (isFinal && text.trim()) {
+              console.log('🎤 [CONVERSATION] Sentence finalized:', text);
+
+              // Send to AI
+              getAIResponse(text);
+
+              // Clear transcript for next sentence (but keep listening!)
+              setTranscript('');
             }
           },
           (error) => {
             if (!error.includes('no-speech')) {
               console.error('Voice error:', error);
               setIsListening(false);
+              setTranscript('');
             }
           },
           VOICE_CONFIG_DEFAULTS
         );
         setIsListening(true);
       } catch (error) {
-        console.error('Failed:', error);
+        console.error('Failed to start listening:', error);
+        setIsListening(false);
       }
     }
   };
@@ -254,8 +260,9 @@ export const SimpleThoughtDumpPage: React.FC<SimpleThoughtDumpPageProps> = ({
         {isListening && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex justify-end">
             <div className="max-w-[80%] rounded-2xl p-4 bg-blue-600/50 text-white border-2 border-blue-400 animate-pulse">
-              <div className="text-sm">{transcript || 'Listening... speak now'}</div>
-              <div className="text-xs mt-2 text-blue-200">🎤 Microphone Active</div>
+              <div className="text-sm font-semibold">{transcript || '🎤 Listening... speak naturally'}</div>
+              <div className="text-xs mt-2 text-blue-200">Words appear as you speak • Pause to send</div>
+              <div className="text-xs mt-1 text-blue-200/70">Using Deepgram real-time AI</div>
             </div>
           </motion.div>
         )}
@@ -289,12 +296,12 @@ export const SimpleThoughtDumpPage: React.FC<SimpleThoughtDumpPageProps> = ({
           <Button
             onClick={handleMicToggle}
             disabled={isProcessing || isSpeaking}
-            className={`${isListening ? 'bg-red-500 hover:bg-red-600 animate-pulse' : 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600'} h-12 px-6`}
+            className={`${isListening ? 'bg-red-500 hover:bg-red-600' : 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600'} h-12 px-6`}
           >
-            {isListening ? <><MicOff className="h-5 w-5 mr-2" />Stop</> : <><Mic className="h-5 w-5 mr-2" />Speak</>}
+            {isListening ? <><MicOff className="h-5 w-5 mr-2" />End Conversation</> : <><Mic className="h-5 w-5 mr-2" />Start Talking</>}
           </Button>
           {messages.length > 2 && (
-            <Button onClick={handleComplete} className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 h-12">
+            <Button onClick={handleComplete} disabled={isTranscribing} className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 h-12">
               ✓ Done - Organize into Timebox
             </Button>
           )}

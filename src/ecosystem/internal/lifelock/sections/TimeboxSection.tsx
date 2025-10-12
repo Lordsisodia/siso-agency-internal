@@ -23,6 +23,9 @@ import { theme } from '@/styles/theme';
 import { useImplementation } from '@/migration/feature-flags';
 import { toast } from 'sonner';
 import { AnimatedDateHeader } from '@/shared/ui/animated-date-header-v2';
+// Add Clerk authentication hooks - same pattern as working sections
+import { useClerkUser } from '@/shared/hooks/useClerkUser';
+import { useSupabaseUserId } from '@/shared/lib/supabase-clerk';
 
 // Map database categories to UI categories
 const mapCategoryToUI = (dbCategory: TimeBlockCategory): string => {
@@ -104,15 +107,18 @@ const getCategoryStyles = (category: TimeboxTask['category'], completed: boolean
 
 interface TimeboxSectionProps {
   selectedDate: Date;
-  userId?: string; // Add userId for database operations
+  // userId removed - we get it internally like working sections
 }
 
 const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
-  selectedDate,
-  userId
+  selectedDate
 }) => {
+  // Get user authentication internally - same pattern as DeepWorkSection/LightWorkSection
+  const { user, isSignedIn } = useClerkUser();
+  const internalUserId = useSupabaseUserId(user?.id || null);
+  
   // Debug: Log every render
-  console.log('🔍 [TIMEBOX] RENDER with userId:', userId, 'date:', format(selectedDate, 'yyyy-MM-dd'));
+  console.log('🔍 [TIMEBOX] RENDER with internalUserId:', internalUserId, 'isSignedIn:', isSignedIn, 'date:', format(selectedDate, 'yyyy-MM-dd'));
   
   // Clean black background
   const containerClassName = 'min-h-screen w-full mb-24 bg-black';
@@ -128,8 +134,8 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
   
   // Debug logging
   useEffect(() => {
-    console.log('🔍 [TIMEBOX] userId:', userId, 'selectedDate:', format(selectedDate, 'yyyy-MM-dd'));
-  }, [userId, selectedDate]);
+    console.log('🔍 [TIMEBOX] internalUserId:', internalUserId, 'selectedDate:', format(selectedDate, 'yyyy-MM-dd'));
+  }, [internalUserId, selectedDate]);
 
   // Use the database-backed hook instead of localStorage
   const {
@@ -146,7 +152,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
     checkConflicts,
     clearError
   } = useTimeBlocks({
-    userId,
+    userId: internalUserId,
     selectedDate,
     enableOptimisticUpdates: true
   });
@@ -997,8 +1003,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
 
 // Memoized export for performance optimization
 export const TimeboxSection = memo(TimeboxSectionComponent, (prevProps, nextProps) => {
-  // Re-render if selectedDate OR userId changes
+  // Re-render only if selectedDate changes (userId is now internal)
   const dateEqual = format(prevProps.selectedDate, 'yyyy-MM-dd') === format(nextProps.selectedDate, 'yyyy-MM-dd');
-  const userIdEqual = prevProps.userId === nextProps.userId;
-  return dateEqual && userIdEqual;
+  return dateEqual;
 });
