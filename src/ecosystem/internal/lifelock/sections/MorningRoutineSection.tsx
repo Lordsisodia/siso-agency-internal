@@ -557,32 +557,34 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
 
                             {/* Water Tracking UI - Special case for water subtask */}
                             {subtask.key === 'water' && (
-                              <div className="ml-12 mt-2 mb-3">
-                                <div className="flex items-center space-x-3 p-3 bg-yellow-900/20 border border-yellow-600/30 rounded-lg">
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={decrementWater}
-                                    className="border-yellow-600 text-yellow-400 hover:bg-yellow-900/30 h-8 w-8 p-0"
-                                  >
-                                    <Minus className="h-4 w-4" />
-                                  </Button>
-                                  <div className="flex-1 text-center">
-                                    <div className="text-yellow-100 font-bold text-lg">{waterAmount}ml</div>
-                                    <div className="text-xs text-yellow-400/60">Daily intake</div>
+                              <div className="mt-2 mb-3 flex justify-center">
+                                <div className="w-64">
+                                  <div className="flex items-center space-x-2 p-2 bg-yellow-900/20 border border-yellow-600/30 rounded-lg">
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={decrementWater}
+                                      className="border-yellow-600 text-yellow-400 hover:bg-yellow-900/30 h-7 w-7 p-0 flex-shrink-0"
+                                    >
+                                      <Minus className="h-3 w-3" />
+                                    </Button>
+                                    <div className="flex-1 text-center">
+                                      <div className="text-yellow-100 font-bold text-base">{waterAmount}ml</div>
+                                      <div className="text-[10px] text-yellow-400/60">Daily intake</div>
+                                    </div>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={incrementWater}
+                                      className="border-yellow-600 text-yellow-400 hover:bg-yellow-900/30 h-7 w-7 p-0 flex-shrink-0"
+                                    >
+                                      <Plus className="h-3 w-3" />
+                                    </Button>
                                   </div>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={incrementWater}
-                                    className="border-yellow-600 text-yellow-400 hover:bg-yellow-900/30 h-8 w-8 p-0"
-                                  >
-                                    <Plus className="h-4 w-4" />
-                                  </Button>
+                                  <p className="text-[10px] text-yellow-400/50 mt-1 text-center">
+                                    Click + to add 100ml or - to remove 100ml
+                                  </p>
                                 </div>
-                                <p className="text-xs text-yellow-400/50 mt-1 text-center">
-                                  Click + to add 100ml or - to remove 100ml
-                                </p>
                               </div>
                             )}
                           </div>
