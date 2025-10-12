@@ -11,6 +11,7 @@ import { format } from 'date-fns';
 import { useAuth } from '@clerk/clerk-react';
 import { useDailyReflections } from '@/shared/hooks/useDailyReflections';
 import { BedTimeTracker } from './components/BedTimeTracker';
+import { ReflectionQuestions } from './components/ReflectionQuestions';
 
 interface NightlyCheckoutSectionProps {
   selectedDate: Date;
