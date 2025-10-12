@@ -13,7 +13,9 @@ import {
   Target,
   Calendar as CalendarIcon,
   Activity,
-  Heart
+  Heart,
+  Plus,
+  Minus
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
@@ -146,6 +148,13 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   const [isEditingWakeTime, setIsEditingWakeTime] = useState(false);
   const [localProgressTrigger, setLocalProgressTrigger] = useState(0);
 
+  // Water tracking state
+  const [waterAmount, setWaterAmount] = useState<number>(() => {
+    const dateKey = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd');
+    const saved = localStorage.getItem(`lifelock-${dateKey}-waterAmount`);
+    return saved ? parseInt(saved) : 0;
+  });
+
   // Load morning routine data
   useEffect(() => {
     const loadMorningRoutine = async () => {
@@ -186,6 +195,22 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
     const dateKey = format(selectedDate, 'yyyy-MM-dd');
     localStorage.setItem(`lifelock-${dateKey}-wakeUpTime`, wakeUpTime);
   }, [wakeUpTime, selectedDate]);
+
+  // Save water amount to localStorage
+  useEffect(() => {
+    if (!selectedDate || isNaN(selectedDate.getTime())) return;
+    const dateKey = format(selectedDate, 'yyyy-MM-dd');
+    localStorage.setItem(`lifelock-${dateKey}-waterAmount`, waterAmount.toString());
+  }, [waterAmount, selectedDate]);
+
+  // Water tracking functions
+  const incrementWater = () => {
+    setWaterAmount(prev => prev + 100);
+  };
+
+  const decrementWater = () => {
+    setWaterAmount(prev => Math.max(0, prev - 100)); // Don't go below 0
+  };
 
   // Handle habit toggle
   const handleHabitToggle = async (habitKey: string, completed: boolean) => {
@@ -506,29 +531,59 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                     {task.subtasks.length > 0 && (
                       <div className="mt-4 ml-8 space-y-3">
                         {task.subtasks.map((subtask) => (
-                          <div
-                            key={subtask.key}
-                            className="group flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 hover:scale-[1.01]"
-                          >
-                            {/* Visual connector line */}
-                            <div className="relative">
-                              <div className="absolute -left-4 top-1/2 w-3 h-px bg-yellow-500/30"></div>
-                              <Checkbox
-                                checked={isHabitCompleted(subtask.key)}
-                                onCheckedChange={(checked) => handleHabitToggle(subtask.key, !!checked)}
-                                className="h-4 w-4 border-yellow-400/70 data-[state=checked]:bg-yellow-500 data-[state=checked]:border-yellow-500 transition-all duration-200 group-hover:border-yellow-400"
-                              />
+                          <div key={subtask.key}>
+                            <div className="group flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 hover:scale-[1.01]">
+                              {/* Visual connector line */}
+                              <div className="relative">
+                                <div className="absolute -left-4 top-1/2 w-3 h-px bg-yellow-500/30"></div>
+                                <Checkbox
+                                  checked={isHabitCompleted(subtask.key)}
+                                  onCheckedChange={(checked) => handleHabitToggle(subtask.key, !!checked)}
+                                  className="h-4 w-4 border-yellow-400/70 data-[state=checked]:bg-yellow-500 data-[state=checked]:border-yellow-500 transition-all duration-200 group-hover:border-yellow-400"
+                                />
+                              </div>
+                              <span className={cn(
+                                "text-sm font-medium transition-all duration-200 flex-1",
+                                isHabitCompleted(subtask.key)
+                                  ? "text-gray-500 line-through"
+                                  : "text-yellow-100/90 group-hover:text-yellow-50"
+                              )}>
+                                {subtask.title}
+                              </span>
+                              {isHabitCompleted(subtask.key) && (
+                                <CheckCircle2 className="h-3.5 w-3.5 text-green-400 animate-in zoom-in-50 duration-200" />
+                              )}
                             </div>
-                            <span className={cn(
-                              "text-sm font-medium transition-all duration-200 flex-1",
-                              isHabitCompleted(subtask.key)
-                                ? "text-gray-500 line-through"
-                                : "text-yellow-100/90 group-hover:text-yellow-50"
-                            )}>
-                              {subtask.title}
-                            </span>
-                            {isHabitCompleted(subtask.key) && (
-                              <CheckCircle2 className="h-3.5 w-3.5 text-green-400 animate-in zoom-in-50 duration-200" />
+
+                            {/* Water Tracking UI - Special case for water subtask */}
+                            {subtask.key === 'water' && (
+                              <div className="ml-12 mt-2 mb-3">
+                                <div className="flex items-center space-x-3 p-3 bg-yellow-900/20 border border-yellow-600/30 rounded-lg">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={decrementWater}
+                                    className="border-yellow-600 text-yellow-400 hover:bg-yellow-900/30 h-8 w-8 p-0"
+                                  >
+                                    <Minus className="h-4 w-4" />
+                                  </Button>
+                                  <div className="flex-1 text-center">
+                                    <div className="text-yellow-100 font-bold text-lg">{waterAmount}ml</div>
+                                    <div className="text-xs text-yellow-400/60">Daily intake</div>
+                                  </div>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={incrementWater}
+                                    className="border-yellow-600 text-yellow-400 hover:bg-yellow-900/30 h-8 w-8 p-0"
+                                  >
+                                    <Plus className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                                <p className="text-xs text-yellow-400/50 mt-1 text-center">
+                                  Click + to add 100ml or - to remove 100ml
+                                </p>
+                              </div>
                             )}
                           </div>
                         ))}
