@@ -81,24 +81,39 @@
 
 ## 🔧 REMAINING TASKS
 
-### Power Up Brain Section
-- **Issue**: Progress bar not showing for this section
-- **Fix**: Verify why progress bar isn't visible (should show since it has subtasks)
+### UI/UX Improvements
+
+#### 1. Remove Main Task Checkboxes (HIGH - Easy Win)
+- **Issue**: Main tasks have checkboxes on left side creating uneven padding
+- **Problem**: Redundant when tasks have subtasks with their own checkboxes
+- **Fix**: Remove main checkboxes for tasks with subtasks (Freshen Up, Get Blood Flowing, Power Up Brain)
+- **Result**: Cleaner layout, more space, less redundancy
+- **Priority**: HIGH (Easy Win - Better UX)
+
+#### 2. Meditation Time - Buttons Instead of Typing (MEDIUM)
+- **Issue**: Don't like typing minutes - prefer button controls
+- **Fix**: Add +1 min and +5 min buttons (like water tracker style)
+- **Remove**: Text input for meditation duration
 - **Priority**: MEDIUM
 
-### Push-ups PB Tracking
-- **Issue**: No way to track/change personal best for push-ups
-- **Fix**: Add PB tracking UI and functionality
+#### 3. Push-ups - Buttons Instead of Typing (MEDIUM)
+- **Issue**: Typing reps is less convenient than buttons
+- **Fix**: Add +1 and +5 buttons to increment reps
+- **Remove**: Number input field
+- **Keep**: PB display and auto-update logic
 - **Priority**: MEDIUM
 
-### Meditation Time Tracking
-- **Issue**: Fixed 2 min duration - need actual time tracker
-- **Fix**: Add time tracking (similar to wake-up time) to track actual meditation time
-- **Priority**: MEDIUM
+#### 4. Completion State Rethink (LOW)
+- **Issue**: Tasks like Plan Day and Meditation (no subtasks) just have checkbox
+- **Idea**: Maybe show completion bar when data is input instead of checkbox
+- **Priority**: LOW (Exploratory)
 
-### Wake Up Time Picker
+### Features to Add
+
+#### 5. Wake Up Time Picker (LOW)
 - **Issue**: Only has text input, missing scroll picker
-- **Fix**: Restore scroll-to-time picker functionality
+- **Fix**: Add scroll-to-time picker functionality
+- **IMPORTANT**: KEEP the "Use Now" button - user really likes this!
 - **Priority**: LOW
 
 ---
