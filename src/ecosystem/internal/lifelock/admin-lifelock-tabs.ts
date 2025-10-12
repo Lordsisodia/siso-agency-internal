@@ -24,10 +24,10 @@ import SisoDeepFocusPlan from '@/components/ui/siso-deep-focus-plan';
 // ✅ Components from unified /sections/ directory  
 import { LightFocusWorkSection } from './views/daily/light-work/LightFocusWorkSection';
 import { EnhancedLightWorkManager } from '@/shared/ui/enhanced-light-work-manager';
-import { HomeWorkoutSection } from './sections/HomeWorkoutSection';
-import { HealthNonNegotiablesSection } from './sections/HealthNonNegotiablesSection';
-import { TimeboxSection } from './sections/TimeboxSection';
-import { NightlyCheckoutSection } from './sections/NightlyCheckoutSection';
+import { HomeWorkoutSection } from './views/daily/wellness/home-workout/HomeWorkoutSection';
+import { HealthNonNegotiablesSection } from './views/daily/wellness/health-non-negotiables/HealthNonNegotiablesSection';
+import { TimeboxSection } from './views/daily/timebox/TimeboxSection';
+import { NightlyCheckoutSection } from './views/daily/checkout/NightlyCheckoutSection';
 import { QuickActionsSection } from '@/ecosystem/internal/tasks/ui/QuickActionsSection';
 
 // Import existing tab config
