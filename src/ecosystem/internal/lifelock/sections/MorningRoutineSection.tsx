@@ -434,7 +434,10 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                 const IconComponent = task.icon;
                 const isMainTaskCompleted = isHabitCompleted(task.key);
                 const completedSubtasks = task.subtasks.filter(subtask => isHabitCompleted(subtask.key)).length;
-                
+
+                // Debug logging
+                console.log(`Task: ${task.key}, Subtasks: ${task.subtasks.length}, Completed: ${completedSubtasks}`);
+
                 return (
                   <div key={task.key} className="group py-3 transition-all duration-300">
                     {/* Progress Bar for tasks with subtasks */}
