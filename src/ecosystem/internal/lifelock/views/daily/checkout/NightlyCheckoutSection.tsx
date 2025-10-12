@@ -10,6 +10,7 @@ import { AnimatedDateHeader } from '@/shared/ui/animated-date-header-v2';
 import { format } from 'date-fns';
 import { useAuth } from '@clerk/clerk-react';
 import { useDailyReflections } from '@/shared/hooks/useDailyReflections';
+import { BedTimeTracker } from './components/BedTimeTracker';
 
 interface NightlyCheckoutSectionProps {
   selectedDate: Date;
