@@ -60,7 +60,7 @@ const MORNING_ROUTINE_TASKS = [
   },
   {
     key: 'freshenUp' as const,
-    title: 'Freshen Up (25 min)',
+    title: 'Freshen Up',
     description: 'Cold shower to wake up - Personal hygiene and cleanliness.',
     timeEstimate: '25 min',
     icon: Droplets,
@@ -73,7 +73,7 @@ const MORNING_ROUTINE_TASKS = [
   },
   {
     key: 'getBloodFlowing' as const,
-    title: 'Get Blood Flowing (5 min)',
+    title: 'Get Blood Flowing',
     description: 'Max rep push-ups (Target PB: 30) - Physical activation to wake up the body.',
     timeEstimate: '5 min',
     icon: Dumbbell,
@@ -84,7 +84,7 @@ const MORNING_ROUTINE_TASKS = [
   },
   {
     key: 'powerUpBrain' as const,
-    title: 'Power Up Brain (5 min)',
+    title: 'Power Up Brain',
     description: 'Hydrate and fuel the body and mind.',
     timeEstimate: '5 min',
     icon: Brain,
@@ -96,7 +96,7 @@ const MORNING_ROUTINE_TASKS = [
   },
   {
     key: 'planDay' as const,
-    title: 'Plan Day (15 min)',
+    title: 'Plan Day',
     description: 'Use AI Thought Dump to organize tasks and set timebox.',
     timeEstimate: '15 min',
     icon: CalendarIcon,
@@ -105,7 +105,7 @@ const MORNING_ROUTINE_TASKS = [
   },
   {
     key: 'meditation' as const,
-    title: 'Meditation (2 min)',
+    title: 'Meditation',
     description: 'Meditate to set an innovative mindset for creating business value.',
     timeEstimate: '2 min',
     icon: Heart,
@@ -424,7 +424,9 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                           <div className="flex items-center space-x-2">
                             <IconComponent className="h-5 w-5 text-yellow-400" />
                             <h4 className="text-yellow-100 font-semibold text-sm sm:text-base">{task.title}</h4>
-                            <span className="text-xs text-gray-400">({task.timeEstimate})</span>
+                            <div className="bg-yellow-500/20 border border-yellow-400/40 rounded-full px-2.5 py-0.5">
+                              <span className="text-xs text-yellow-300 font-medium">{task.timeEstimate}</span>
+                            </div>
                           </div>
                           {task.subtasks.length > 0 && (
                             <div className="relative">
