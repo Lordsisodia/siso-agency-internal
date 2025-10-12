@@ -207,98 +207,15 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({
             </CardHeader>
             <CardContent className="pb-24">
           <div className="space-y-4">
-            {workoutItems.map((item, index) => (
-              <motion.div 
-                key={item.id} 
-                className="relative"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1 * index, duration: 0.4 }}
-              >
-                {/* Modern Glass Card Design */}
-                <div className="flex items-start space-x-3 p-3 bg-red-900/20 border border-red-700/30 rounded-xl hover:border-red-600/50 transition-all duration-300 group">
-                  
-                  {/* Custom Styled Checkbox */}
-                  <div className="relative mt-1">
-                    <Checkbox
-                      checked={item.completed}
-                      onCheckedChange={() => toggleItem(item.id)}
-                      className="w-5 h-5 border-2 border-red-400/60 data-[state=checked]:bg-red-500 data-[state=checked]:border-red-400 rounded-md transition-all duration-200 hover:border-red-400 hover:shadow-sm hover:shadow-red-400/20"
-                    />
-                  </div>
-                  
-                  {/* Content Section */}
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className={`font-semibold transition-colors duration-200 ${
-                        item.completed 
-                          ? 'text-red-300 line-through' 
-                          : 'text-white group-hover:text-red-100'
-                      }`}>
-                        {item.title}
-                      </h4>
-                      {item.completed && (
-                        <motion.div
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          className="text-red-400 text-sm font-medium"
-                        >
-                          ✓ Done
-                        </motion.div>
-                      )}
-                    </div>
-                    
-                    {item.target && (
-                      <p className="text-red-300/70 text-sm mb-3 flex items-center">
-                        🎯 Target: <span className="ml-1 font-medium text-red-200">{item.target}</span>
-                      </p>
-                    )}
-                    
-                    {item.logged !== undefined && (
-                      <div className="space-y-4 mt-5">
-                        {/* Quick Rep Buttons - Better spacing */}
-                        <div className="flex gap-1.5 w-full">
-                          {getQuickReps(item.title).map((rep) => (
-                            <Button
-                              key={rep}
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                const current = parseInt(item.logged || '0');
-                                updateItemField(item.id, 'logged', (current + rep).toString());
-                              }}
-                              className="flex-1 h-8 px-3 text-sm font-medium bg-red-900/20 border-red-600/40 text-red-200 hover:bg-red-800/30 hover:border-red-500/60 transition-all duration-200 rounded-md"
-                            >
-                              +{rep}
-                            </Button>
-                          ))}
-                        </div>
-                        
-                        {/* Display current vs target - Better styling */}
-                        {item.logged && item.target && (
-                          <div className="text-center mt-1">
-                            <div className="inline-flex items-center px-4 py-2 bg-red-900/20 border border-red-700/30 rounded-full text-sm text-red-300">
-                              <span className="font-medium text-red-200">{item.logged}</span>
-                              <span className="mx-1 text-red-400">/</span>
-                              <span className="text-red-300">{item.target}</span>
-                              <span className="ml-1 text-red-400">completed</span>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* Completion Glow Effect */}
-                  {item.completed && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="absolute inset-0 bg-gradient-to-r from-red-500/10 to-red-400/5 rounded-xl pointer-events-none"
-                    />
-                  )}
-                </div>
-              </motion.div>
+            {workoutItems.map((item) => (
+              <WorkoutItemCard
+                key={item.id}
+                item={item}
+                quickReps={getQuickReps(item.title)}
+                onToggle={() => toggleItem(item.id)}
+                onUpdateTarget={(value) => updateItemField(item.id, 'target', value)}
+                onUpdateLogged={(value) => updateItemField(item.id, 'logged', value)}
+              />
             ))}
           </div>
             </CardContent>
