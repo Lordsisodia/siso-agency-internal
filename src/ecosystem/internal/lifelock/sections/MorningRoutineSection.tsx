@@ -30,6 +30,7 @@ import { useOfflineManager } from '@/shared/hooks/useOfflineManager';
 import { SimpleThoughtDumpPage, ThoughtDumpResults, lifeLockVoiceTaskProcessor } from '../features/ai-thought-dump';
 import type { ThoughtDumpResult } from '../features/ai-thought-dump';
 import { getRotatingQuotes } from '@/data/motivational-quotes';
+import { TimeScrollPicker } from '../components/TimeScrollPicker';
 
 interface MorningRoutineHabit {
   name: string;
@@ -146,6 +147,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   });
 
   const [isEditingWakeTime, setIsEditingWakeTime] = useState(false);
+  const [showTimeScrollPicker, setShowTimeScrollPicker] = useState(false);
 
   const [meditationDuration, setMeditationDuration] = useState<string>(() => {
     const dateKey = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd');
@@ -527,7 +529,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                           <p className="text-gray-300 text-xs sm:text-sm mt-1 leading-relaxed">{task.description}</p>
                         )}
                         
-                        {/* Time tracking interface - for wake-up and meditation */}
+                        {/* Time tracking interface - for wake-up */}
                         {task.hasTimeTracking && task.key === 'wakeUp' && (
                           <div className="mt-2">
                             <div className="space-y-2">
@@ -542,7 +544,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    onClick={() => setIsEditingWakeTime(!isEditingWakeTime)}
+                                    onClick={() => setShowTimeScrollPicker(true)}
                                     className="border-yellow-600 text-yellow-400 hover:bg-yellow-900/20"
                                   >
                                     Edit
@@ -550,14 +552,17 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                                 </div>
                               ) : null}
 
-                              {(!wakeUpTime || isEditingWakeTime) && (
+                              {!wakeUpTime && (
                                 <div className="flex items-center space-x-2">
-                                  <Input
-                                    placeholder="Enter wake-up time (e.g., 7:30 AM)"
-                                    value={wakeUpTime}
-                                    onChange={(e) => setWakeUpTime(e.target.value)}
-                                    className="bg-transparent border-yellow-700/50 text-yellow-100 text-sm placeholder:text-gray-400 focus:border-yellow-600 flex-1"
-                                  />
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => setShowTimeScrollPicker(true)}
+                                    className="border-yellow-600 text-yellow-400 hover:bg-yellow-900/20 flex-1"
+                                  >
+                                    <Clock className="h-4 w-4 mr-2" />
+                                    Set Wake-up Time
+                                  </Button>
                                   <Button
                                     size="sm"
                                     onClick={setCurrentTimeAsWakeUp}
@@ -766,6 +771,18 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
           result={thoughtDumpResult}
           onClose={() => setThoughtDumpResult(null)}
           onAddToSchedule={() => setThoughtDumpResult(null)}
+        />
+      )}
+
+      {/* Time Scroll Picker Modal */}
+      {showTimeScrollPicker && (
+        <TimeScrollPicker
+          value={wakeUpTime}
+          onChange={(time) => {
+            setWakeUpTime(time);
+            setIsEditingWakeTime(false);
+          }}
+          onClose={() => setShowTimeScrollPicker(false)}
         />
       )}
     </div>
