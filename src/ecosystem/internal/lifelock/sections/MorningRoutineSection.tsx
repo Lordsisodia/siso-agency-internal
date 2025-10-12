@@ -92,8 +92,8 @@ const MORNING_ROUTINE_TASKS = [
     icon: Brain,
     hasTimeTracking: false,
     subtasks: [
-      { key: 'water', title: 'Water (500ml)' },
-      { key: 'supplements', title: 'Supplements' }
+      { key: 'supplements', title: 'Supplements' },
+      { key: 'water', title: 'Water (500ml)' }
     ]
   },
   {
