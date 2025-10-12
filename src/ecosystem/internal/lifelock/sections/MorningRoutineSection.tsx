@@ -670,15 +670,12 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                         {task.subtasks.map((subtask) => (
                           <div key={subtask.key}>
                             <div className="group flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 hover:scale-[1.01]">
-                              {/* Visual connector line */}
-                              <div className="relative">
-                                <div className="absolute -left-4 top-1/2 w-3 h-px bg-yellow-500/30"></div>
-                                <Checkbox
-                                  checked={isHabitCompleted(subtask.key)}
-                                  onCheckedChange={(checked) => handleHabitToggle(subtask.key, !!checked)}
-                                  className="h-4 w-4 border-yellow-400/70 data-[state=checked]:bg-yellow-500 data-[state=checked]:border-yellow-500 transition-all duration-200 group-hover:border-yellow-400"
-                                />
-                              </div>
+                              {/* Checkbox without connector line */}
+                              <Checkbox
+                                checked={isHabitCompleted(subtask.key)}
+                                onCheckedChange={(checked) => handleHabitToggle(subtask.key, !!checked)}
+                                className="h-4 w-4 border-yellow-400/70 data-[state=checked]:bg-yellow-500 data-[state=checked]:border-yellow-500 transition-all duration-200 group-hover:border-yellow-400"
+                              />
                               <span className={cn(
                                 "text-sm font-medium transition-all duration-200 flex-1",
                                 isHabitCompleted(subtask.key)
