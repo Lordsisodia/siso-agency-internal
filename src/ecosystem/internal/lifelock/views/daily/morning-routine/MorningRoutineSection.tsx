@@ -32,6 +32,7 @@ import type { ThoughtDumpResult } from '../features/ai-thought-dump';
 import { getRotatingQuotes } from '@/data/motivational-quotes';
 import { TimeScrollPicker } from '../components/TimeScrollPicker';
 import { WaterTracker } from './components/WaterTracker';
+import { PushUpTracker } from './components/PushUpTracker';
 
 interface MorningRoutineHabit {
   name: string;
@@ -692,61 +693,11 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
 
                             {/* Push-ups Tracking UI - Special case for pushups subtask */}
                             {subtask.key === 'pushups' && (
-                              <div className="mt-2 mb-3 flex justify-center">
-                                <div className="w-64">
-                                  <div className="space-y-2">
-                                    {/* Rep counter with buttons */}
-                                    <div className="flex items-center space-x-2 p-2 bg-yellow-900/20 border border-yellow-600/30 rounded-lg">
-                                      <Button
-                                        size="sm"
-                                        variant="outline"
-                                        onClick={() => updatePushupReps(Math.max(0, pushupReps - 1))}
-                                        className="border-yellow-600 text-yellow-400 hover:bg-yellow-900/30 h-7 px-2 flex-shrink-0 text-xs"
-                                      >
-                                        -1
-                                      </Button>
-                                      <div className="flex-1 text-center">
-                                        <div className="text-yellow-100 font-bold text-base">
-                                          {pushupReps} reps
-                                        </div>
-                                        <div className="text-[10px] text-yellow-400/60">Today</div>
-                                      </div>
-                                      <Button
-                                        size="sm"
-                                        variant="outline"
-                                        onClick={() => updatePushupReps(pushupReps + 1)}
-                                        className="border-yellow-600 text-yellow-400 hover:bg-yellow-900/30 h-7 px-2 flex-shrink-0 text-xs"
-                                      >
-                                        +1
-                                      </Button>
-                                      <Button
-                                        size="sm"
-                                        variant="outline"
-                                        onClick={() => updatePushupReps(pushupReps + 5)}
-                                        className="border-yellow-600 text-yellow-400 hover:bg-yellow-900/30 h-7 px-2 flex-shrink-0 text-xs"
-                                      >
-                                        +5
-                                      </Button>
-                                    </div>
-
-                                    {/* PB Display */}
-                                    <div className="flex items-center justify-between text-xs px-1">
-                                      <span className="text-yellow-400/60">Personal Best:</span>
-                                      <span className="text-yellow-300 font-bold">{pushupPB} reps</span>
-                                    </div>
-
-                                    {/* New PB celebration */}
-                                    {pushupReps > 0 && pushupReps === pushupPB && pushupReps > 30 && (
-                                      <div className="text-center text-xs text-green-400 font-semibold animate-pulse">
-                                        🎉 New Personal Best!
-                                      </div>
-                                    )}
-                                  </div>
-                                  <p className="text-[10px] text-yellow-400/50 mt-1 text-center">
-                                    Use buttons to track reps - PB auto-updates when beaten
-                                  </p>
-                                </div>
-                              </div>
+                              <PushUpTracker
+                                reps={pushupReps}
+                                personalBest={pushupPB}
+                                onUpdateReps={updatePushupReps}
+                              />
                             )}
 
                             {/* Water Tracking UI - Special case for water subtask */}
