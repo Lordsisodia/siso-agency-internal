@@ -59,19 +59,6 @@ const MORNING_ROUTINE_TASKS = [
     subtasks: []
   },
   {
-    key: 'getBloodFlowing' as const,
-    title: 'Get Blood Flowing (5 min)',
-    description: 'Max rep push-ups (Target PB: 30) - Physical activation to wake up the body.',
-    timeEstimate: '5 min',
-    icon: Dumbbell,
-    hasTimeTracking: false,
-    subtasks: [
-      { key: 'pushups', title: 'Push-ups (PB 30)' },
-      { key: 'situps', title: 'Sit-ups' },
-      { key: 'pullups', title: 'Pull-ups' }
-    ]
-  },
-  {
     key: 'freshenUp' as const,
     title: 'Freshen Up (25 min)',
     description: 'Cold shower to wake up - Personal hygiene and cleanliness.',
@@ -85,6 +72,17 @@ const MORNING_ROUTINE_TASKS = [
     ]
   },
   {
+    key: 'getBloodFlowing' as const,
+    title: 'Get Blood Flowing (5 min)',
+    description: 'Max rep push-ups (Target PB: 30) - Physical activation to wake up the body.',
+    timeEstimate: '5 min',
+    icon: Dumbbell,
+    hasTimeTracking: false,
+    subtasks: [
+      { key: 'pushups', title: 'Push-ups (PB 30)' }
+    ]
+  },
+  {
     key: 'powerUpBrain' as const,
     title: 'Power Up Brain (5 min)',
     description: 'Hydrate and fuel the body and mind.',
@@ -92,9 +90,8 @@ const MORNING_ROUTINE_TASKS = [
     icon: Brain,
     hasTimeTracking: false,
     subtasks: [
-      { key: 'water', title: 'Water (5 glasses)' },
-      { key: 'supplements', title: 'Supplements' },
-      { key: 'preworkout', title: 'Pre-workout' }
+      { key: 'water', title: 'Water (500ml)' },
+      { key: 'supplements', title: 'Supplements' }
     ]
   },
   {
@@ -202,7 +199,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
       // Use offline manager for persistent storage and sync
       // Transform to daily_health schema structure
       const healthData = {
-        id: `${internalUserId}-${format(selectedDate, 'yyyy-MM-dd')}`, // Composite key
+        id: crypto.randomUUID(), // Generate proper UUID for database
         user_id: internalUserId,
         date: format(selectedDate, 'yyyy-MM-dd'),
         health_checklist: {
