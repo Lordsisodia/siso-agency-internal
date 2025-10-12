@@ -111,7 +111,7 @@ const MORNING_ROUTINE_TASKS = [
     description: 'Meditate to set an innovative mindset for creating business value.',
     timeEstimate: '2 min',
     icon: Heart,
-    hasTimeTracking: false,
+    hasTimeTracking: true,
     subtasks: []
   }
 ];
@@ -146,6 +146,14 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   });
 
   const [isEditingWakeTime, setIsEditingWakeTime] = useState(false);
+
+  const [meditationDuration, setMeditationDuration] = useState<string>(() => {
+    const dateKey = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd');
+    const saved = localStorage.getItem(`lifelock-${dateKey}-meditationDuration`);
+    return saved || '';
+  });
+
+  const [isEditingMeditationTime, setIsEditingMeditationTime] = useState(false);
   const [localProgressTrigger, setLocalProgressTrigger] = useState(0);
 
   // Water tracking state
@@ -202,6 +210,13 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
     const dateKey = format(selectedDate, 'yyyy-MM-dd');
     localStorage.setItem(`lifelock-${dateKey}-waterAmount`, waterAmount.toString());
   }, [waterAmount, selectedDate]);
+
+  // Save meditation duration to localStorage
+  useEffect(() => {
+    if (!selectedDate || isNaN(selectedDate.getTime())) return;
+    const dateKey = format(selectedDate, 'yyyy-MM-dd');
+    localStorage.setItem(`lifelock-${dateKey}-meditationDuration`, meditationDuration);
+  }, [meditationDuration, selectedDate]);
 
   // Water tracking functions
   const incrementWater = () => {
@@ -478,8 +493,8 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                           <p className="text-gray-300 text-xs sm:text-sm mt-1 leading-relaxed">{task.description}</p>
                         )}
                         
-                        {/* Special wake-up time interface */}
-                        {task.hasTimeTracking && (
+                        {/* Time tracking interface - for wake-up and meditation */}
+                        {task.hasTimeTracking && task.key === 'wakeUp' && (
                           <div className="mt-2">
                             <div className="space-y-2">
                               {wakeUpTime ? (
@@ -500,7 +515,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                                   </Button>
                                 </div>
                               ) : null}
-                              
+
                               {(!wakeUpTime || isEditingWakeTime) && (
                                 <div className="flex items-center space-x-2">
                                   <Input
@@ -518,9 +533,52 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                                   </Button>
                                 </div>
                               )}
-                              
+
                               <p className="text-xs text-gray-400 italic">
                                 Track your wake-up time to build better morning routine habits.
+                              </p>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Meditation time tracking */}
+                        {task.hasTimeTracking && task.key === 'meditation' && (
+                          <div className="mt-2">
+                            <div className="space-y-2">
+                              {meditationDuration ? (
+                                <div className="flex items-center space-x-2">
+                                  <div className="flex items-center space-x-1 bg-transparent border border-yellow-700/50 rounded-md px-3 py-2">
+                                    <Clock className="h-4 w-4 text-yellow-400" />
+                                    <span className="text-yellow-100 font-semibold">
+                                      Meditated for: {meditationDuration} min
+                                    </span>
+                                  </div>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => setIsEditingMeditationTime(!isEditingMeditationTime)}
+                                    className="border-yellow-600 text-yellow-400 hover:bg-yellow-900/20"
+                                  >
+                                    Edit
+                                  </Button>
+                                </div>
+                              ) : null}
+
+                              {(!meditationDuration || isEditingMeditationTime) && (
+                                <div className="flex items-center space-x-2">
+                                  <Input
+                                    type="number"
+                                    placeholder="Enter duration (e.g., 5)"
+                                    value={meditationDuration}
+                                    onChange={(e) => setMeditationDuration(e.target.value)}
+                                    className="bg-transparent border-yellow-700/50 text-yellow-100 text-sm placeholder:text-gray-400 focus:border-yellow-600 flex-1"
+                                  />
+                                  <span className="text-yellow-400 text-sm">minutes</span>
+                                </div>
+                              )}
+
+                              <p className="text-xs text-gray-400 italic">
+                                Track actual meditation duration - it doesn't have to be exactly 2 minutes.
                               </p>
                             </div>
                           </div>
