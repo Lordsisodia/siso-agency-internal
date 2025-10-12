@@ -666,7 +666,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                     
                     {/* Sub-tasks - Enhanced with better visual hierarchy */}
                     {task.subtasks.length > 0 && (
-                      <div className="mt-4 ml-8 space-y-3">
+                      <div className="mt-4 ml-4 space-y-3">
                         {task.subtasks.map((subtask) => (
                           <div key={subtask.key}>
                             <div className="group flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 hover:scale-[1.01]">
