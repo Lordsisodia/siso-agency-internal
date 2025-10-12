@@ -34,6 +34,7 @@ import { TimeScrollPicker } from '../components/TimeScrollPicker';
 import { WaterTracker } from './components/WaterTracker';
 import { PushUpTracker } from './components/PushUpTracker';
 import { MeditationTracker } from './components/MeditationTracker';
+import { WakeUpTimeTracker } from './components/WakeUpTimeTracker';
 
 interface MorningRoutineHabit {
   name: string;
@@ -561,53 +562,13 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                         
                         {/* Time tracking interface - for wake-up */}
                         {task.hasTimeTracking && task.key === 'wakeUp' && (
-                          <div className="mt-2">
-                            <div className="space-y-2">
-                              {wakeUpTime ? (
-                                <div className="flex items-center space-x-2">
-                                  <div className="flex items-center space-x-1 bg-transparent border border-yellow-700/50 rounded-md px-3 py-2">
-                                    <Clock className="h-4 w-4 text-yellow-400" />
-                                    <span className="text-yellow-100 font-semibold">
-                                      Woke up at: {wakeUpTime}
-                                    </span>
-                                  </div>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => setShowTimeScrollPicker(true)}
-                                    className="border-yellow-600 text-yellow-400 hover:bg-yellow-900/20"
-                                  >
-                                    Edit
-                                  </Button>
-                                </div>
-                              ) : null}
-
-                              {!wakeUpTime && (
-                                <div className="flex items-center space-x-2">
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => setShowTimeScrollPicker(true)}
-                                    className="border-yellow-600 text-yellow-400 hover:bg-yellow-900/20 flex-1"
-                                  >
-                                    <Clock className="h-4 w-4 mr-2" />
-                                    Set Wake-up Time
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    onClick={setCurrentTimeAsWakeUp}
-                                    className="bg-yellow-600 hover:bg-yellow-700 text-white whitespace-nowrap"
-                                  >
-                                    Use Now ({getCurrentTime()})
-                                  </Button>
-                                </div>
-                              )}
-
-                              <p className="text-xs text-gray-400 italic">
-                                Track your wake-up time to build better morning routine habits.
-                              </p>
-                            </div>
-                          </div>
+                          <WakeUpTimeTracker
+                            time={wakeUpTime}
+                            onTimeChange={setWakeUpTime}
+                            onOpenPicker={() => setShowTimeScrollPicker(true)}
+                            onUseNow={setCurrentTimeAsWakeUp}
+                            getCurrentTime={getCurrentTime}
+                          />
                         )}
 
                         {/* Meditation time tracking with buttons */}
