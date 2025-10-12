@@ -18,11 +18,11 @@ import { LucideIcon } from 'lucide-react';
 // Import tab components - UPDATED FOR UNIFIED ARCHITECTURE
 // ✅ Components from unified /sections/ directory
 import { MorningRoutineSection } from './views/daily/morning-routine/MorningRoutineSection';
-import { DeepFocusWorkSection } from './sections/DeepFocusWorkSection';
+import { DeepFocusWorkSection } from './views/daily/deep-work/DeepFocusWorkSection';
 import SisoDeepFocusPlan from '@/components/ui/siso-deep-focus-plan';
 
 // ✅ Components from unified /sections/ directory  
-import { LightFocusWorkSection } from './sections/LightFocusWorkSection';
+import { LightFocusWorkSection } from './views/daily/light-work/LightFocusWorkSection';
 import { EnhancedLightWorkManager } from '@/shared/ui/enhanced-light-work-manager';
 import { HomeWorkoutSection } from './sections/HomeWorkoutSection';
 import { HealthNonNegotiablesSection } from './sections/HealthNonNegotiablesSection';
