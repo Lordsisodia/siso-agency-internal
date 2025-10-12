@@ -63,6 +63,46 @@
 
 ---
 
+---
+
+## ✅ COMPLETED TASKS
+
+1. ✅ Remove unused items (sit-ups, pull-ups, pre-workout)
+2. ✅ Reorder sections (Freshen Up after Wake Up)
+3. ✅ Change water to 500ml
+4. ✅ Fix duplicate time display with pill badges
+5. ✅ Replace task counters with progress bars
+6. ✅ Fix progress bar not updating (critical bug)
+7. ✅ Add water tracking with ±100ml buttons
+8. ✅ Optimize water tracking for mobile
+9. ✅ Reorder subtasks (Supplements before Water)
+
+---
+
+## 🔧 REMAINING TASKS
+
+### Power Up Brain Section
+- **Issue**: Progress bar not showing for this section
+- **Fix**: Verify why progress bar isn't visible (should show since it has subtasks)
+- **Priority**: MEDIUM
+
+### Push-ups PB Tracking
+- **Issue**: No way to track/change personal best for push-ups
+- **Fix**: Add PB tracking UI and functionality
+- **Priority**: MEDIUM
+
+### Meditation Time Tracking
+- **Issue**: Fixed 2 min duration - need actual time tracker
+- **Fix**: Add time tracking (similar to wake-up time) to track actual meditation time
+- **Priority**: MEDIUM
+
+### Wake Up Time Picker
+- **Issue**: Only has text input, missing scroll picker
+- **Fix**: Restore scroll-to-time picker functionality
+- **Priority**: LOW
+
+---
+
 ## Notes
 - Some of this functionality existed before and disappeared
 - Worth searching codebase for previous implementations before rebuilding

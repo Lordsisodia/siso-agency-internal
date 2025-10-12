@@ -440,7 +440,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                     {/* Progress Bar for tasks with subtasks */}
                     {task.subtasks.length > 0 && (
                       <div className="mb-2 px-2">
-                        <div className="w-full bg-yellow-900/20 rounded-full h-1.5">
+                        <div className="w-full bg-yellow-900/30 border border-yellow-600/20 rounded-full h-1.5">
                           <motion.div
                             className="bg-gradient-to-r from-yellow-400 to-yellow-600 h-1.5 rounded-full transition-all duration-500"
                             initial={{ width: 0 }}
@@ -448,7 +448,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                           />
                         </div>
                         <div className="flex justify-between items-center mt-1">
-                          <span className="text-xs text-yellow-400/60">{completedSubtasks}/{task.subtasks.length} completed</span>
+                          <span className="text-xs text-yellow-400/70 font-medium">{completedSubtasks}/{task.subtasks.length} completed</span>
                           {completedSubtasks === task.subtasks.length && (
                             <span className="text-xs text-green-400 font-semibold">✓ Complete</span>
                           )}
