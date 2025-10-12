@@ -36,6 +36,7 @@ import { PushUpTracker } from './components/PushUpTracker';
 import { MeditationTracker } from './components/MeditationTracker';
 import { WakeUpTimeTracker } from './components/WakeUpTimeTracker';
 import { PlanDayActions } from './components/PlanDayActions';
+import { MotivationalQuotes } from './components/MotivationalQuotes';
 
 interface MorningRoutineHabit {
   name: string;
@@ -468,32 +469,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                 </ul>
               </div>
               <div className="border-t border-yellow-600/50 my-4"></div>
-              <div>
-                <h3 className="font-bold text-yellow-300 mb-3 text-sm sm:text-base">💪 Daily Mindset</h3>
-                <div className="space-y-3">
-                  {todaysQuotes.map((quote, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className="bg-gradient-to-br from-yellow-900/10 to-orange-900/10 border border-yellow-600/30 rounded-lg p-4 hover:border-yellow-500/50 transition-all duration-300"
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="text-2xl">💡</div>
-                        <div className="flex-1">
-                          <p className="text-yellow-100/90 text-sm leading-relaxed font-medium">
-                            "{quote.text}"
-                          </p>
-                          <p className="text-yellow-400/60 text-xs mt-2 font-semibold">
-                            — {quote.author}
-                          </p>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
+              <MotivationalQuotes quotes={todaysQuotes} />
             </div>
             <div className="border-t border-yellow-600/50 my-3 sm:my-4"></div>
           </CardHeader>
