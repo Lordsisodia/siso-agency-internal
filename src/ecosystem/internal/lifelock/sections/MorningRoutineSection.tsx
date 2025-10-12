@@ -607,44 +607,56 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                           </div>
                         )}
 
-                        {/* Meditation time tracking */}
+                        {/* Meditation time tracking with buttons */}
                         {task.hasTimeTracking && task.key === 'meditation' && (
-                          <div className="mt-2">
-                            <div className="space-y-2">
-                              {meditationDuration ? (
-                                <div className="flex items-center space-x-2">
-                                  <div className="flex items-center space-x-1 bg-transparent border border-yellow-700/50 rounded-md px-3 py-2">
-                                    <Clock className="h-4 w-4 text-yellow-400" />
-                                    <span className="text-yellow-100 font-semibold">
-                                      Meditated for: {meditationDuration} min
-                                    </span>
+                          <div className="mt-2 flex justify-center">
+                            <div className="w-64">
+                              <div className="space-y-2">
+                                {/* Duration display and controls */}
+                                <div className="flex items-center space-x-2 p-2 bg-yellow-900/20 border border-yellow-600/30 rounded-lg">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => setMeditationDuration(prev => {
+                                      const current = parseInt(prev) || 0;
+                                      return Math.max(0, current - 1).toString();
+                                    })}
+                                    className="border-yellow-600 text-yellow-400 hover:bg-yellow-900/30 h-7 px-2 flex-shrink-0 text-xs"
+                                  >
+                                    -1
+                                  </Button>
+                                  <div className="flex-1 text-center">
+                                    <div className="text-yellow-100 font-bold text-base">
+                                      {meditationDuration || '0'} min
+                                    </div>
+                                    <div className="text-[10px] text-yellow-400/60">Duration</div>
                                   </div>
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    onClick={() => setIsEditingMeditationTime(!isEditingMeditationTime)}
-                                    className="border-yellow-600 text-yellow-400 hover:bg-yellow-900/20"
+                                    onClick={() => setMeditationDuration(prev => {
+                                      const current = parseInt(prev) || 0;
+                                      return (current + 1).toString();
+                                    })}
+                                    className="border-yellow-600 text-yellow-400 hover:bg-yellow-900/30 h-7 px-2 flex-shrink-0 text-xs"
                                   >
-                                    Edit
+                                    +1
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => setMeditationDuration(prev => {
+                                      const current = parseInt(prev) || 0;
+                                      return (current + 5).toString();
+                                    })}
+                                    className="border-yellow-600 text-yellow-400 hover:bg-yellow-900/30 h-7 px-2 flex-shrink-0 text-xs"
+                                  >
+                                    +5
                                   </Button>
                                 </div>
-                              ) : null}
-
-                              {(!meditationDuration || isEditingMeditationTime) && (
-                                <div className="flex items-center space-x-2">
-                                  <Input
-                                    type="number"
-                                    placeholder="Enter duration (e.g., 5)"
-                                    value={meditationDuration}
-                                    onChange={(e) => setMeditationDuration(e.target.value)}
-                                    className="bg-transparent border-yellow-700/50 text-yellow-100 text-sm placeholder:text-gray-400 focus:border-yellow-600 flex-1"
-                                  />
-                                  <span className="text-yellow-400 text-sm">minutes</span>
-                                </div>
-                              )}
-
-                              <p className="text-xs text-gray-400 italic">
-                                Track actual meditation duration - it doesn't have to be exactly 2 minutes.
+                              </div>
+                              <p className="text-[10px] text-yellow-400/50 mt-1 text-center">
+                                Track actual meditation time - use buttons to adjust
                               </p>
                             </div>
                           </div>
@@ -685,20 +697,42 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                               <div className="mt-2 mb-3 flex justify-center">
                                 <div className="w-64">
                                   <div className="space-y-2">
-                                    {/* Rep input */}
+                                    {/* Rep counter with buttons */}
                                     <div className="flex items-center space-x-2 p-2 bg-yellow-900/20 border border-yellow-600/30 rounded-lg">
-                                      <Input
-                                        type="number"
-                                        placeholder="How many?"
-                                        value={pushupReps || ''}
-                                        onChange={(e) => updatePushupReps(parseInt(e.target.value) || 0)}
-                                        className="bg-transparent border-yellow-700/50 text-yellow-100 text-center text-base font-bold placeholder:text-gray-400 focus:border-yellow-600 h-8"
-                                      />
-                                      <span className="text-yellow-400 text-sm whitespace-nowrap">reps</span>
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => updatePushupReps(Math.max(0, pushupReps - 1))}
+                                        className="border-yellow-600 text-yellow-400 hover:bg-yellow-900/30 h-7 px-2 flex-shrink-0 text-xs"
+                                      >
+                                        -1
+                                      </Button>
+                                      <div className="flex-1 text-center">
+                                        <div className="text-yellow-100 font-bold text-base">
+                                          {pushupReps} reps
+                                        </div>
+                                        <div className="text-[10px] text-yellow-400/60">Today</div>
+                                      </div>
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => updatePushupReps(pushupReps + 1)}
+                                        className="border-yellow-600 text-yellow-400 hover:bg-yellow-900/30 h-7 px-2 flex-shrink-0 text-xs"
+                                      >
+                                        +1
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => updatePushupReps(pushupReps + 5)}
+                                        className="border-yellow-600 text-yellow-400 hover:bg-yellow-900/30 h-7 px-2 flex-shrink-0 text-xs"
+                                      >
+                                        +5
+                                      </Button>
                                     </div>
 
                                     {/* PB Display */}
-                                    <div className="flex items-center justify-between text-xs">
+                                    <div className="flex items-center justify-between text-xs px-1">
                                       <span className="text-yellow-400/60">Personal Best:</span>
                                       <span className="text-yellow-300 font-bold">{pushupPB} reps</span>
                                     </div>
@@ -711,7 +745,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                                     )}
                                   </div>
                                   <p className="text-[10px] text-yellow-400/50 mt-1 text-center">
-                                    Enter reps done today - PB auto-updates when beaten
+                                    Use buttons to track reps - PB auto-updates when beaten
                                   </p>
                                 </div>
                               </div>
