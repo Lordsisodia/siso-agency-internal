@@ -412,6 +412,25 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                 
                 return (
                   <div key={task.key} className="group py-3 transition-all duration-300">
+                    {/* Progress Bar for tasks with subtasks */}
+                    {task.subtasks.length > 0 && (
+                      <div className="mb-2 px-2">
+                        <div className="w-full bg-yellow-900/20 rounded-full h-1.5">
+                          <motion.div
+                            className="bg-gradient-to-r from-yellow-400 to-yellow-600 h-1.5 rounded-full transition-all duration-500"
+                            initial={{ width: 0 }}
+                            animate={{ width: `${(completedSubtasks / task.subtasks.length) * 100}%` }}
+                          />
+                        </div>
+                        <div className="flex justify-between items-center mt-1">
+                          <span className="text-xs text-yellow-400/60">{completedSubtasks}/{task.subtasks.length} completed</span>
+                          {completedSubtasks === task.subtasks.length && (
+                            <span className="text-xs text-green-400 font-semibold">✓ Complete</span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
                     {/* Main Task Header */}
                     <div className="flex items-start space-x-2 sm:space-x-3 p-2 sm:p-3">
                       <Checkbox
@@ -428,21 +447,6 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                               <span className="text-xs text-yellow-300 font-medium">{task.timeEstimate}</span>
                             </div>
                           </div>
-                          {task.subtasks.length > 0 && (
-                            <div className="relative">
-                              <div className="bg-gradient-to-r from-yellow-500/20 to-yellow-400/20 border border-yellow-400/40 rounded-full px-3 py-1.5 ml-2 shadow-sm">
-                                <span className="text-xs text-yellow-300 font-semibold tracking-wide">
-                                  {completedSubtasks}/{task.subtasks.length}
-                                </span>
-                              </div>
-                              {/* Progress completion indicator */}
-                              {completedSubtasks === task.subtasks.length && task.subtasks.length > 0 && (
-                                <div className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full animate-pulse shadow-lg">
-                                  <div className="absolute inset-0.5 bg-green-300 rounded-full animate-ping"></div>
-                                </div>
-                              )}
-                            </div>
-                          )}
                         </div>
                         {task.description && (
                           <p className="text-gray-300 text-xs sm:text-sm mt-1 leading-relaxed">{task.description}</p>
