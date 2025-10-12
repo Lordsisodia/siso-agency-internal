@@ -158,6 +158,13 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   const [isEditingMeditationTime, setIsEditingMeditationTime] = useState(false);
   const [localProgressTrigger, setLocalProgressTrigger] = useState(0);
 
+  // Plan Day completion state
+  const [isPlanDayComplete, setIsPlanDayComplete] = useState<boolean>(() => {
+    const dateKey = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd');
+    const saved = localStorage.getItem(`lifelock-${dateKey}-planDayComplete`);
+    return saved === 'true';
+  });
+
   // Water tracking state
   const [waterAmount, setWaterAmount] = useState<number>(() => {
     const dateKey = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd');
@@ -244,6 +251,13 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   useEffect(() => {
     localStorage.setItem('lifelock-pushupPB', pushupPB.toString());
   }, [pushupPB]);
+
+  // Save Plan Day completion to localStorage
+  useEffect(() => {
+    if (!selectedDate || isNaN(selectedDate.getTime())) return;
+    const dateKey = format(selectedDate, 'yyyy-MM-dd');
+    localStorage.setItem(`lifelock-${dateKey}-planDayComplete`, isPlanDayComplete.toString());
+  }, [isPlanDayComplete, selectedDate]);
 
   // Water tracking functions
   const incrementWater = () => {
@@ -336,32 +350,34 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
     }
   }, [morningRoutine, selectedDate]);
 
-  // Calculate progress based on completed tasks and subtasks
-  const getRoutineProgress = useCallback(() => {
-    if (!morningRoutine) {
-      // If no API data, calculate locally based on MORNING_ROUTINE_TASKS
-      let totalTasks = 0;
-      let completedTasks = 0;
-
-      MORNING_ROUTINE_TASKS.forEach(task => {
-        // Count main task
-        totalTasks += 1;
-        if (isHabitCompleted(task.key)) completedTasks += 1;
-
-        // Count subtasks
-        if (task.subtasks && task.subtasks.length > 0) {
-          task.subtasks.forEach(subtask => {
-            totalTasks += 1;
-            if (isHabitCompleted(subtask.key)) completedTasks += 1;
-          });
-        }
-      });
-
-      return totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+  // Smart completion check based on data, not checkboxes
+  const isTaskComplete = useCallback((taskKey: string, subtasks: any[]): boolean => {
+    switch (taskKey) {
+      case 'wakeUp':
+        return wakeUpTime !== ''; // Complete when time is set
+      case 'freshenUp':
+      case 'getBloodFlowing':
+      case 'powerUpBrain':
+        // Complete when all subtasks are checked
+        return subtasks.length > 0 && subtasks.every(subtask => isHabitCompleted(subtask.key));
+      case 'planDay':
+        return isPlanDayComplete; // Complete when manually marked or AI marks it
+      case 'meditation':
+        return meditationDuration !== ''; // Complete when duration is entered
+      default:
+        return false;
     }
+  }, [wakeUpTime, meditationDuration, isPlanDayComplete, isHabitCompleted]);
 
-    return morningRoutine.completionPercentage || 0;
-  }, [morningRoutine, isHabitCompleted, localProgressTrigger]);
+  // Calculate progress based on smart completion logic
+  const getRoutineProgress = useCallback(() => {
+    const totalTasks = MORNING_ROUTINE_TASKS.length;
+    const completedTasks = MORNING_ROUTINE_TASKS.filter(task =>
+      isTaskComplete(task.key, task.subtasks)
+    ).length;
+
+    return totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+  }, [isTaskComplete, localProgressTrigger, wakeUpTime, meditationDuration, isPlanDayComplete]);
 
   const morningRoutineProgress = useMemo(() => {
     return getRoutineProgress();
@@ -483,18 +499,18 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
             <div className="space-y-2 sm:space-y-3">
               {MORNING_ROUTINE_TASKS.map((task) => {
                 const IconComponent = task.icon;
-                const isMainTaskCompleted = isHabitCompleted(task.key);
                 const completedSubtasks = task.subtasks.filter(subtask => isHabitCompleted(subtask.key)).length;
+                const taskComplete = isTaskComplete(task.key, task.subtasks);
+
+                // Calculate progress percentage
+                const progressPercent = task.subtasks.length > 0
+                  ? (completedSubtasks / task.subtasks.length) * 100
+                  : (taskComplete ? 100 : 0);
 
                 return (
                   <div key={task.key} className="group py-3 transition-all duration-300">
-                    {/* Main Task Header */}
-                    <div className="flex items-start space-x-2 sm:space-x-3 p-2 sm:p-3">
-                      <Checkbox
-                        checked={isMainTaskCompleted}
-                        onCheckedChange={(checked) => handleHabitToggle(task.key, !!checked)}
-                        className="mt-1 border-yellow-600 data-[state=checked]:bg-yellow-600 data-[state=checked]:border-yellow-600"
-                      />
+                    {/* Main Task Header - NO CHECKBOX */}
+                    <div className="p-2 sm:p-3">
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-2">
@@ -506,24 +522,35 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                           </div>
                         </div>
 
-                        {/* Progress Bar for tasks with subtasks - positioned below title */}
-                        {task.subtasks.length > 0 && (
-                          <div className="mt-2 mb-1">
-                            <div className="w-full bg-yellow-900/30 border border-yellow-600/20 rounded-full h-1.5">
-                              <motion.div
-                                className="bg-gradient-to-r from-yellow-400 to-yellow-600 h-1.5 rounded-full transition-all duration-500"
-                                initial={{ width: 0 }}
-                                animate={{ width: `${(completedSubtasks / task.subtasks.length) * 100}%` }}
-                              />
-                            </div>
-                            <div className="flex justify-between items-center mt-1">
-                              <span className="text-xs text-yellow-400/70 font-medium">{completedSubtasks}/{task.subtasks.length} completed</span>
-                              {completedSubtasks === task.subtasks.length && (
-                                <span className="text-xs text-green-400 font-semibold">✓ Complete</span>
-                              )}
-                            </div>
+                        {/* Universal Progress Bar - ALL TASKS */}
+                        <div className="mt-2 mb-1">
+                          <div className="w-full bg-yellow-900/30 border border-yellow-600/20 rounded-full h-1.5">
+                            <motion.div
+                              className="bg-gradient-to-r from-yellow-400 to-yellow-600 h-1.5 rounded-full transition-all duration-500"
+                              initial={{ width: 0 }}
+                              animate={{ width: `${progressPercent}%` }}
+                            />
                           </div>
-                        )}
+                          <div className="flex justify-between items-center mt-1">
+                            {task.subtasks.length > 0 ? (
+                              <>
+                                <span className="text-xs text-yellow-400/70 font-medium">{completedSubtasks}/{task.subtasks.length} completed</span>
+                                {taskComplete && (
+                                  <span className="text-xs text-green-400 font-semibold">✓ Complete</span>
+                                )}
+                              </>
+                            ) : (
+                              <>
+                                <span className="text-xs text-yellow-400/70 font-medium">
+                                  {taskComplete ? 'Completed' : 'Not started'}
+                                </span>
+                                {taskComplete && (
+                                  <span className="text-xs text-green-400 font-semibold">✓ Complete</span>
+                                )}
+                              </>
+                            )}
+                          </div>
+                        </div>
 
                         {task.description && (
                           <p className="text-gray-300 text-xs sm:text-sm mt-1 leading-relaxed">{task.description}</p>
@@ -727,9 +754,10 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                       </div>
                     )}
 
-                    {/* AI Thought Dump Button - Clean & Simple */}
+                    {/* Plan Day Actions */}
                     {task.key === 'planDay' && (
-                      <div className="mt-3 ml-8">
+                      <div className="mt-3 space-y-2">
+                        {/* AI Thought Dump Button */}
                         <div
                           className="p-3 bg-gradient-to-r from-yellow-900/20 to-orange-900/20 border border-yellow-600/40 rounded-lg hover:border-yellow-500/60 transition-all cursor-pointer"
                           onClick={() => setShowThoughtDumpChat(true)}
@@ -742,6 +770,16 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                             </div>
                           </div>
                         </div>
+
+                        {/* Mark Complete Button */}
+                        {!isPlanDayComplete && (
+                          <Button
+                            onClick={() => setIsPlanDayComplete(true)}
+                            className="w-full bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-600/40 text-yellow-300 text-sm"
+                          >
+                            ✓ Mark Plan Day Complete
+                          </Button>
+                        )}
                       </div>
                     )}
                   </div>
