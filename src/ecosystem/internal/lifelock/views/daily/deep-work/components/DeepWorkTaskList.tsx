@@ -73,7 +73,7 @@ interface UnifiedWorkSectionProps {
   updateSubtaskDueDate?: (subtaskId: string, dueDate: Date | null) => Promise<void>;
 }
 
-export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
+export const DeepWorkTaskList: React.FC<UnifiedWorkSectionProps> = ({
   workType,
   selectedDate,
   tasks,
