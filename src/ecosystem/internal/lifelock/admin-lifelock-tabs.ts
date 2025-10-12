@@ -17,7 +17,7 @@ import { LucideIcon } from 'lucide-react';
 
 // Import tab components - UPDATED FOR UNIFIED ARCHITECTURE
 // ✅ Components from unified /sections/ directory
-import { MorningRoutineSection } from './sections/MorningRoutineSection';
+import { MorningRoutineSection } from './views/daily/morning-routine/MorningRoutineSection';
 import { DeepFocusWorkSection } from './sections/DeepFocusWorkSection';
 import SisoDeepFocusPlan from '@/components/ui/siso-deep-focus-plan';
 
