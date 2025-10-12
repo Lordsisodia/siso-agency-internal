@@ -435,30 +435,8 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                 const isMainTaskCompleted = isHabitCompleted(task.key);
                 const completedSubtasks = task.subtasks.filter(subtask => isHabitCompleted(subtask.key)).length;
 
-                // Debug logging
-                console.log(`Task: ${task.key}, Subtasks: ${task.subtasks.length}, Completed: ${completedSubtasks}`);
-
                 return (
                   <div key={task.key} className="group py-3 transition-all duration-300">
-                    {/* Progress Bar for tasks with subtasks */}
-                    {task.subtasks.length > 0 && (
-                      <div className="mb-2 px-2">
-                        <div className="w-full bg-yellow-900/30 border border-yellow-600/20 rounded-full h-1.5">
-                          <motion.div
-                            className="bg-gradient-to-r from-yellow-400 to-yellow-600 h-1.5 rounded-full transition-all duration-500"
-                            initial={{ width: 0 }}
-                            animate={{ width: `${(completedSubtasks / task.subtasks.length) * 100}%` }}
-                          />
-                        </div>
-                        <div className="flex justify-between items-center mt-1">
-                          <span className="text-xs text-yellow-400/70 font-medium">{completedSubtasks}/{task.subtasks.length} completed</span>
-                          {completedSubtasks === task.subtasks.length && (
-                            <span className="text-xs text-green-400 font-semibold">✓ Complete</span>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
                     {/* Main Task Header */}
                     <div className="flex items-start space-x-2 sm:space-x-3 p-2 sm:p-3">
                       <Checkbox
@@ -476,6 +454,26 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                             </div>
                           </div>
                         </div>
+
+                        {/* Progress Bar for tasks with subtasks - positioned below title */}
+                        {task.subtasks.length > 0 && (
+                          <div className="mt-2 mb-1">
+                            <div className="w-full bg-yellow-900/30 border border-yellow-600/20 rounded-full h-1.5">
+                              <motion.div
+                                className="bg-gradient-to-r from-yellow-400 to-yellow-600 h-1.5 rounded-full transition-all duration-500"
+                                initial={{ width: 0 }}
+                                animate={{ width: `${(completedSubtasks / task.subtasks.length) * 100}%` }}
+                              />
+                            </div>
+                            <div className="flex justify-between items-center mt-1">
+                              <span className="text-xs text-yellow-400/70 font-medium">{completedSubtasks}/{task.subtasks.length} completed</span>
+                              {completedSubtasks === task.subtasks.length && (
+                                <span className="text-xs text-green-400 font-semibold">✓ Complete</span>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
                         {task.description && (
                           <p className="text-gray-300 text-xs sm:text-sm mt-1 leading-relaxed">{task.description}</p>
                         )}
