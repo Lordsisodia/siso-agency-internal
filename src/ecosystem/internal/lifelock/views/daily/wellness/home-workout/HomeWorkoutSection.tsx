@@ -10,6 +10,7 @@ import { supabaseWorkoutService } from '@/services/supabaseWorkoutService';
 import { useClerkUser } from '@/shared/hooks/useClerkUser';
 import { useSupabaseUserId } from '@/shared/lib/supabase-clerk';
 import { AnimatedDateHeader } from '@/shared/ui/animated-date-header-v2';
+import { WorkoutItemCard } from './components/WorkoutItemCard';
 
 interface WorkoutItem {
   id: string;
