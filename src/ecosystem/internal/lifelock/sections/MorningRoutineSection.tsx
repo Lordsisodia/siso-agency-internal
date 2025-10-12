@@ -266,12 +266,12 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
       // If no API data, calculate locally based on MORNING_ROUTINE_TASKS
       let totalTasks = 0;
       let completedTasks = 0;
-      
+
       MORNING_ROUTINE_TASKS.forEach(task => {
         // Count main task
         totalTasks += 1;
         if (isHabitCompleted(task.key)) completedTasks += 1;
-        
+
         // Count subtasks
         if (task.subtasks && task.subtasks.length > 0) {
           task.subtasks.forEach(subtask => {
@@ -280,16 +280,16 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
           });
         }
       });
-      
+
       return totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
     }
-    
+
     return morningRoutine.completionPercentage || 0;
-  }, [morningRoutine, isHabitCompleted]);
-  
+  }, [morningRoutine, isHabitCompleted, localProgressTrigger]);
+
   const morningRoutineProgress = useMemo(() => {
     return getRoutineProgress();
-  }, [getRoutineProgress]);
+  }, [getRoutineProgress, localProgressTrigger]);
 
   // Get today's rotating motivational quotes
   const todaysQuotes = useMemo(() => {
