@@ -100,11 +100,11 @@ if (tableName === 'daily_health' && action.data.id) {
 
 **Risk**: ⚠️ LOW - Database uses composite key, id field is not needed
 
-**Next Steps for User**:
-Run in browser console to clear stuck queue:
-```javascript
-window.offlineManager.clearPendingActions()
-```
+**Bonus Auto-Cleanup**:
+- Added automatic cleanup on app initialization
+- Detects and removes broken daily_health actions with malformed UUIDs
+- Runs once on startup - no manual intervention needed
+- User will see: `🧹 [AUTO-CLEANUP] Removing X broken daily_health sync actions...`
 
 ---
 
@@ -209,6 +209,8 @@ window.offlineManager.clearPendingActions()
 
 ### Manual Testing:
 1. **Reload the app** - Check console for:
+   - ✅ Should see: `🧹 [AUTO-CLEANUP] Removing X broken daily_health sync actions...`
+   - ✅ Should see: `✅ [AUTO-CLEANUP] Broken actions cleared - sync will work now!`
    - ❌ No more "Multiple GoTrueClient instances" warning
    - ❌ No more CustomCalendar theme spam
    - ❌ No more 20+ nutrition save loops
@@ -220,12 +222,12 @@ window.offlineManager.clearPendingActions()
    - Should save once per change (not 20+ times)
    - Check console: Should see single `🔄 [NUTRITION] Meals changed` per edit
 
-3. **Test Offline Sync**:
-   - Open browser console
-   - Run: `window.offlineManager.clearPendingActions()`
+3. **Test Offline Sync** (AUTOMATIC NOW):
+   - Broken queue will auto-clear on app load
    - Make offline changes (turn off network)
    - Go back online
    - Check: Should sync without UUID errors
+   - No manual console commands needed!
 
 4. **Test Daily Reflections**:
    - Navigate to reflection section

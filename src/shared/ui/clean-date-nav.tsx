@@ -25,65 +25,65 @@ export const CleanDateNav: React.FC<CleanDateNavProps> = ({
     switch (activeTab) {
       case 'morning':
         return {
-          primary: 'from-yellow-500 via-yellow-400 to-amber-300',
-          glow: 'bg-yellow-300/40',
-          shimmer: 'via-yellow-200/30',
-          pulse: 'bg-yellow-400/30',
-          ring: 'bg-yellow-400/20',
-          light: 'yellow-300'
+          primary: 'from-orange-500 via-yellow-400 to-amber-300',
+          glow: 'bg-orange-300/50',
+          shimmer: 'via-yellow-200/40',
+          pulse: 'bg-orange-400/40',
+          ring: 'bg-orange-400/30',
+          light: 'orange-300'
         };
       case 'work':
         return {
-          primary: 'from-blue-500 via-blue-400 to-blue-300',
-          glow: 'bg-blue-300/40',
-          shimmer: 'via-blue-200/30',
-          pulse: 'bg-blue-400/30',
-          ring: 'bg-blue-400/20',
+          primary: 'from-blue-600 via-blue-400 to-cyan-300',
+          glow: 'bg-blue-300/50',
+          shimmer: 'via-cyan-200/40',
+          pulse: 'bg-blue-400/40',
+          ring: 'bg-blue-400/30',
           light: 'blue-300'
         };
       case 'light-work':
         return {
-          primary: 'from-emerald-500 via-emerald-400 to-emerald-300',
-          glow: 'bg-emerald-300/40',
-          shimmer: 'via-emerald-200/30',
-          pulse: 'bg-emerald-400/30',
-          ring: 'bg-emerald-400/20',
+          primary: 'from-green-500 via-emerald-400 to-teal-300',
+          glow: 'bg-emerald-300/50',
+          shimmer: 'via-teal-200/40',
+          pulse: 'bg-emerald-400/40',
+          ring: 'bg-emerald-400/30',
           light: 'emerald-300'
         };
       case 'timebox':
         return {
-          primary: 'from-blue-500 via-blue-400 to-cyan-300',
-          glow: 'bg-blue-300/40',
-          shimmer: 'via-blue-200/30',
-          pulse: 'bg-blue-400/30',
-          ring: 'bg-blue-400/20',
+          primary: 'from-indigo-500 via-blue-400 to-cyan-300',
+          glow: 'bg-blue-300/50',
+          shimmer: 'via-cyan-200/40',
+          pulse: 'bg-indigo-400/40',
+          ring: 'bg-indigo-400/30',
           light: 'blue-300'
         };
       case 'wellness':
         return {
-          primary: 'from-red-500 via-red-400 to-pink-300',
-          glow: 'bg-red-300/40',
-          shimmer: 'via-red-200/30',
-          pulse: 'bg-red-400/30',
-          ring: 'bg-red-400/20',
-          light: 'red-300'
+          primary: 'from-rose-500 via-pink-400 to-pink-300',
+          glow: 'bg-pink-300/50',
+          shimmer: 'via-pink-200/40',
+          pulse: 'bg-rose-400/40',
+          ring: 'bg-rose-400/30',
+          light: 'pink-300'
         };
       case 'checkout':
         return {
-          primary: 'from-indigo-500 via-indigo-400 to-indigo-300',
-          glow: 'bg-indigo-300/40',
-          shimmer: 'via-indigo-200/30',
-          pulse: 'bg-indigo-400/30',
-          ring: 'bg-indigo-400/20',
-          light: 'indigo-300'
+          primary: 'from-purple-500 via-purple-400 to-pink-300',
+          glow: 'bg-purple-300/50',
+          shimmer: 'via-purple-200/40',
+          pulse: 'bg-purple-400/40',
+          ring: 'bg-purple-400/30',
+          light: 'purple-300'
         };
       default:
         return {
-          primary: 'from-emerald-500 via-emerald-400 to-emerald-300',
-          glow: 'bg-emerald-300/40',
-          shimmer: 'via-emerald-200/30',
-          pulse: 'bg-emerald-400/30',
-          ring: 'bg-emerald-400/20',
+          primary: 'from-green-500 via-emerald-400 to-teal-300',
+          glow: 'bg-emerald-300/50',
+          shimmer: 'via-teal-200/40',
+          pulse: 'bg-emerald-400/40',
+          ring: 'bg-emerald-400/30',
           light: 'emerald-300'
         };
     }
@@ -193,7 +193,7 @@ export const CleanDateNav: React.FC<CleanDateNavProps> = ({
             </div>
             
             {/* Progress Bar Container with Enhanced Neon Effect */}
-            <div className="w-full bg-gray-700/40 rounded-full h-3 overflow-hidden relative shadow-inner">
+            <div className="w-full bg-gray-700/60 rounded-full h-3 overflow-hidden relative shadow-inner">
               {/* Main Progress Bar with Dynamic Colors */}
               <motion.div
                 className={`h-full bg-gradient-to-r ${getTabColors.primary} rounded-full relative overflow-hidden shadow-lg`}
@@ -205,8 +205,8 @@ export const CleanDateNav: React.FC<CleanDateNavProps> = ({
                 <motion.div 
                   className={`absolute inset-0 ${getTabColors.glow} blur-sm rounded-full`}
                   animate={{ 
-                    opacity: [0.5, 1, 0.5],
-                    scale: [1, 1.08, 1]
+                    opacity: [0.6, 1, 0.6],
+                    scale: [1, 1.1, 1]
                   }}
                   transition={{ 
                     duration: 1.8,
@@ -246,8 +246,8 @@ export const CleanDateNav: React.FC<CleanDateNavProps> = ({
                 <motion.div
                   className={`absolute -inset-1 ${getTabColors.ring} blur-lg rounded-full`}
                   animate={{ 
-                    opacity: [0.3, 0.7, 0.3],
-                    scale: [1, 1.15, 1]
+                    opacity: [0.4, 0.8, 0.4],
+                    scale: [1, 1.2, 1]
                   }}
                   transition={{
                     duration: 2.5,

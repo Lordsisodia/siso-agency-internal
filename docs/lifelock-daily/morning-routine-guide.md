@@ -1,8 +1,8 @@
-# 🌅 Morning Routine Section
+# 🌅 Morning Routine Section - Complete Guide
 
 ## Overview
 
-The Morning Routine section helps users start their day with intention and structure. It tracks essential morning habits, provides motivational content, and integrates AI-powered thought dumping for daily planning.
+The Morning Routine section is designed to help users start their day with intention and structure. It tracks essential morning habits, provides motivational content, and integrates AI-powered thought dumping for daily planning.
 
 ## Purpose & Philosophy
 
@@ -16,7 +16,7 @@ The Morning Routine is built on the principle that a structured start to the day
   - Time scroll picker for precise selection
   - "Use Now" button for current time logging
   - Visual time display with progress tracking
-- **Implementation**: `components/WakeUpTimeTracker.tsx`
+- **Implementation**: [`WakeUpTimeTracker.tsx`](../../src/ecosystem/internal/lifelock/views/daily/morning-routine/components/WakeUpTimeTracker.tsx)
 
 ### 2. Hydration Tracking
 - **Purpose**: Monitor daily water intake
@@ -24,7 +24,7 @@ The Morning Routine is built on the principle that a structured start to the day
   - Increment/decrement buttons (100ml increments)
   - Visual progress display
   - Daily goal tracking
-- **Implementation**: `components/WaterTracker.tsx`
+- **Implementation**: [`WaterTracker.tsx`](../../src/ecosystem/internal/lifelock/views/daily/morning-routine/components/WaterTracker.tsx)
 
 ### 3. Physical Activity (Push-ups)
 - **Purpose**: Track morning exercise and personal records
@@ -32,7 +32,7 @@ The Morning Routine is built on the principle that a structured start to the day
   - Rep counting with +1, +5, -1 buttons
   - Personal Best (PB) tracking and celebration
   - Visual progress indicators
-- **Implementation**: `components/PushUpTracker.tsx`
+- **Implementation**: [`PushUpTracker.tsx`](../../src/ecosystem/internal/lifelock/views/daily/morning-routine/components/PushUpTracker.tsx)
 
 ### 4. Meditation Tracking
 - **Purpose**: Monitor meditation practice
@@ -40,7 +40,7 @@ The Morning Routine is built on the principle that a structured start to the day
   - Duration tracking with minute adjustments
   - -1, +1, +5 minute buttons
   - Session history
-- **Implementation**: `components/MeditationTracker.tsx`
+- **Implementation**: [`MeditationTracker.tsx`](../../src/ecosystem/internal/lifelock/views/daily/morning-routine/components/MeditationTracker.tsx)
 
 ### 5. AI Thought Dump & Planning
 - **Purpose**: Organize thoughts and plan the day using AI
@@ -48,7 +48,7 @@ The Morning Routine is built on the principle that a structured start to the day
   - Voice-enabled thought capture
   - AI-powered task organization
   - Automatic timebox generation
-- **Implementation**: `components/PlanDayActions.tsx`
+- **Implementation**: [`PlanDayActions.tsx`](../../src/ecosystem/internal/lifelock/views/daily/morning-routine/components/PlanDayActions.tsx)
 
 ### 6. Motivational Content
 - **Purpose**: Provide daily inspiration
@@ -56,7 +56,7 @@ The Morning Routine is built on the principle that a structured start to the day
   - Rotating quotes based on date
   - Animated display with visual effects
   - Author attribution
-- **Implementation**: `components/MotivationalQuotes.tsx`
+- **Implementation**: [`MotivationalQuotes.tsx`](../../src/ecosystem/internal/lifelock/views/daily/morning-routine/components/MotivationalQuotes.tsx)
 
 ## Task Structure
 
@@ -104,7 +104,7 @@ User Action → Local State → localStorage → Supabase (when online)
 ## Component Architecture
 
 ### Main Component
-- **File**: `MorningRoutineSection.tsx`
+- **File**: [`MorningRoutineSection.tsx`](../../src/ecosystem/internal/lifelock/views/daily/morning-routine/MorningRoutineSection.tsx)
 - **Lines**: 658
 - **Responsibilities**: State management, data coordination, layout
 
@@ -117,6 +117,7 @@ User Action → Local State → localStorage → Supabase (when online)
 - **config.ts**: Task definitions and defaults
 - **types.ts**: TypeScript interfaces
 - **utils.ts**: Progress calculation utilities
+- **README.md**: Component documentation
 
 ## Theme & Design
 
@@ -236,26 +237,9 @@ const getRoutineProgress = useCallback(() => {
 - Network tab shows API requests
 - LocalStorage can be inspected in dev tools
 
-## Related Components
+## Conclusion
 
-- `TimeScrollPicker` - Used for wake time selection
-- `SimpleThoughtDumpPage` - AI thought dump interface
-- `ThoughtDumpResults` - Results display for AI processing
-
-## Dependencies
-
-```typescript
-// External dependencies
-import { motion } from 'framer-motion';
-import { format } from 'date-fns';
-import { useClerkUser } from '@/shared/hooks/useClerkUser';
-import { useSupabaseUserId } from '@/shared/lib/supabase-clerk';
-
-// Internal dependencies
-import { workTypeApiClient } from '@/services/workTypeApiClient';
-import { useOfflineManager } from '@/shared/hooks/useOfflineManager';
-import { SimpleThoughtDumpPage } from '@/ecosystem/internal/lifelock/features/ai-thought-dump';
-```
+The Morning Routine section serves as the foundation for a productive day, combining habit tracking, AI-powered planning, and motivational content into a cohesive experience. Its modular architecture ensures maintainability while providing a rich, interactive user experience.
 
 ---
 

@@ -33,6 +33,28 @@ class OfflineManager {
     // Initialize offline database
     await offlineDb.init();
 
+    // 🔧 AUTO-CLEANUP: Clear broken daily_health sync actions (one-time fix)
+    // This removes any pending actions with malformed UUIDs that would fail
+    try {
+      const pending = await offlineDb.getPendingActions();
+      const brokenActions = pending.filter(action =>
+        action.table === 'daily_health' &&
+        action.data?.id &&
+        typeof action.data.id === 'string' &&
+        action.data.id.includes('-2025-') // Detect malformed "userId-date" format
+      );
+
+      if (brokenActions.length > 0) {
+        console.log(`🧹 [AUTO-CLEANUP] Removing ${brokenActions.length} broken daily_health sync actions...`);
+        for (const action of brokenActions) {
+          await offlineDb.removeAction(action.id);
+        }
+        console.log('✅ [AUTO-CLEANUP] Broken actions cleared - sync will work now!');
+      }
+    } catch (error) {
+      console.warn('⚠️ Auto-cleanup failed (non-critical):', error);
+    }
+
     // Set up network listeners
     window.addEventListener('online', this.handleOnline.bind(this));
     window.addEventListener('offline', this.handleOffline.bind(this));
