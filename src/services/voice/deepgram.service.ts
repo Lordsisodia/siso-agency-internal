@@ -88,7 +88,13 @@ export class DeepgramService {
           const data = JSON.parse(event.data);
 
           // Log ALL messages from Deepgram for debugging
-          logger.debug('📨 [DEEPGRAM] Raw message:', data);
+          console.log('📨 [DEEPGRAM] Raw message received:', data);
+
+          // Check for metadata (connection confirmation, etc)
+          if (data.type === 'Metadata') {
+            console.log('📋 [DEEPGRAM] Metadata:', data);
+            return;
+          }
 
           // Check for errors in response
           if (data.error) {
@@ -98,17 +104,23 @@ export class DeepgramService {
             return;
           }
 
+          // Check for transcripts
           if (data.channel?.alternatives?.[0]?.transcript) {
             const transcript = data.channel.alternatives[0].transcript;
             const isFinal = data.is_final || false;
 
+            console.log(`📝 [DEEPGRAM] ${isFinal ? 'FINAL' : 'interim'}:`, transcript);
+
             if (transcript.trim()) {
-              logger.debug(`📝 [DEEPGRAM] ${isFinal ? 'Final' : 'Interim'}:`, transcript);
               onTranscript(transcript, isFinal);
             }
+          } else {
+            // Log when we get a message but no transcript
+            console.log('⚠️ [DEEPGRAM] Message received but no transcript:', data);
           }
         } catch (error) {
           console.error('❌ [DEEPGRAM] Message parse error:', error);
+          console.error('❌ [DEEPGRAM] Raw event.data:', event.data);
         }
       };
 

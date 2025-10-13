@@ -7,7 +7,7 @@
 
 import React from 'react';
 import { Brain, Mic, MicOff, Calendar, Eye, X, Zap } from 'lucide-react';
-import { PrioritySelector } from '../../_shared/components/PrioritySelector';
+import { PrioritySelector } from '../ui/PrioritySelector';
 
 interface TaskActionButtonsProps {
   task: {

@@ -6,22 +6,32 @@
  *
  * These components are used across multiple daily views within the LifeLock domain
  * to maintain consistency and reduce duplication.
+ *
+ * Structure:
+ * - navigation/ - Navigation components (bottom nav, etc.)
+ * - task/ - Task-level components (header, actions, progress, etc.)
+ * - subtask/ - Subtask-level components (items, metadata, input)
+ * - ui/ - Reusable UI elements (selectors, calendars, cards)
  */
 
-// Core Components
-export { DailyBottomNav } from './DailyBottomNav';
-export type { DailyBottomNavTab, DailyBottomNavProps } from './DailyBottomNav';
+// Navigation Components
+export { DailyBottomNav } from './navigation/DailyBottomNav';
+export type { DailyBottomNavTab, DailyBottomNavProps } from './navigation/DailyBottomNav';
 
-export { PrioritySelector } from './PrioritySelector';
-export type { PriorityLevel } from './PrioritySelector';
+// Task Components
+export { TaskHeader } from './task/TaskHeader';
+export { TaskActionButtons } from './task/TaskActionButtons';
+export { TaskProgress } from './task/TaskProgress';
+export { TaskSeparator } from './task/TaskSeparator';
+export { TaskStatsGrid } from './task/TaskStatsGrid';
 
-export { AddSubtaskInput } from './AddSubtaskInput';
-export { CustomCalendar } from './CustomCalendar';
-export { SubtaskItem } from './SubtaskItem';
-export { SubtaskMetadata } from './SubtaskMetadata';
-export { TaskActionButtons } from './TaskActionButtons';
-export { TaskHeader } from './TaskHeader';
-export { TaskProgress } from './TaskProgress';
-export { TaskSeparator } from './TaskSeparator';
-export { TaskStatsGrid } from './TaskStatsGrid';
-export { WorkProtocolCard } from './WorkProtocolCard';
+// Subtask Components
+export { SubtaskItem } from './subtask/SubtaskItem';
+export { SubtaskMetadata } from './subtask/SubtaskMetadata';
+export { AddSubtaskInput } from './subtask/AddSubtaskInput';
+
+// Shared UI Components
+export { PrioritySelector } from './ui/PrioritySelector';
+export type { PriorityLevel } from './ui/PrioritySelector';
+export { CustomCalendar } from './ui/CustomCalendar';
+export { WorkProtocolCard } from './ui/WorkProtocolCard';
