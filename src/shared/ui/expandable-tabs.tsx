@@ -79,7 +79,7 @@ export const ExpandableTabs = React.memo(function ExpandableTabs({
     <div
       ref={outsideClickRef}
       className={cn(
-        "flex flex-wrap items-center gap-2 rounded-2xl border bg-background p-1 shadow-sm",
+        "flex flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-gray-900/30 backdrop-blur-xl p-1 shadow-2xl",
         className
       )}
     >

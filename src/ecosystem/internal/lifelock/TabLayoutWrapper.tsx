@@ -281,7 +281,7 @@ const [searchParams, setSearchParams] = useSearchParams();
           }))}
           activeIndex={activeTabIndex}
           activeColor="text-orange-400"
-          className="bg-gray-800 border-gray-700 shadow-lg rounded-2xl"
+          className="bg-gray-900/30 backdrop-blur-xl border-white/10 shadow-2xl rounded-2xl"
           onChange={(index) => {
             if (index !== null) {
               handleTabClick(tabs[index].id);

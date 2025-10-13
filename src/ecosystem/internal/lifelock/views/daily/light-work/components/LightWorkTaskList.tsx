@@ -20,22 +20,24 @@ import { useImplementation } from '@/migration/feature-flags';
 import { theme } from '@/styles/theme';
 import { LoadingState } from '@/shared/ui/loading-state';
 import { ErrorState } from '@/shared/ui/error-state';
-import { TaskActionButtons } from './TaskActionButtons';
-import { TaskSeparator } from './TaskSeparator';
-import { TaskProgress } from './TaskProgress';
-import { SubtaskMetadata } from './SubtaskMetadata';
-import { TaskHeader } from './TaskHeader';
-import { SubtaskItem } from './SubtaskItem';
-import { AddSubtaskInput } from './AddSubtaskInput';
+import {
+  TaskActionButtons,
+  TaskSeparator,
+  TaskProgress,
+  SubtaskMetadata,
+  TaskHeader,
+  SubtaskItem,
+  AddSubtaskInput,
+  CustomCalendar,
+  TaskStatsGrid,
+  WorkProtocolCard
+} from '../../_shared/components';
 import { SimpleFeedbackButton } from '@/internal/feedback/SimpleFeedbackButton';
 import { useTaskEditing } from '../hooks/useTaskEditing';
 import { useThoughtDump } from '@/shared/hooks/useThoughtDump';
 import { useTaskFiltering } from '../hooks/useTaskFiltering';
 import { useTaskReordering } from '../hooks/useTaskReordering';
 import { WORK_THEMES } from '@/config/work-themes';
-import { CustomCalendar } from './CustomCalendar';
-import { TaskStatsGrid } from './TaskStatsGrid';
-import { WorkProtocolCard } from './WorkProtocolCard';
 import { sortSubtasksHybrid } from '../utils/subtaskSorting';
 
 

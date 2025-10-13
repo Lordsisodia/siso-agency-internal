@@ -41,6 +41,12 @@ export class DeepgramService {
       throw new Error('Already transcribing');
     }
 
+    // Log key format for debugging (first/last 4 chars only)
+    const keyPreview = this.apiKey.length > 8
+      ? `${this.apiKey.slice(0, 4)}...${this.apiKey.slice(-4)}`
+      : '[too short]';
+    logger.debug('🔑 [DEEPGRAM] Using API key:', keyPreview, `(${this.apiKey.length} chars)`);
+
     try {
       // Get microphone access
       this.stream = await navigator.mediaDevices.getUserMedia({
@@ -80,6 +86,17 @@ export class DeepgramService {
         try {
           const data = JSON.parse(event.data);
 
+          // Log ALL messages from Deepgram for debugging
+          logger.debug('📨 [DEEPGRAM] Raw message:', data);
+
+          // Check for errors in response
+          if (data.error) {
+            console.error('❌ [DEEPGRAM] API Error:', data.error);
+            onError(`Deepgram error: ${data.error}`);
+            this.stop();
+            return;
+          }
+
           if (data.channel?.alternatives?.[0]?.transcript) {
             const transcript = data.channel.alternatives[0].transcript;
             const isFinal = data.is_final || false;
@@ -96,12 +113,18 @@ export class DeepgramService {
 
       this.ws.onerror = (error) => {
         console.error('❌ [DEEPGRAM] WebSocket error:', error);
+        console.error('❌ [DEEPGRAM] Error details:', JSON.stringify(error));
         onError('Deepgram connection error');
         this.stop();
       };
 
-      this.ws.onclose = () => {
+      this.ws.onclose = (event) => {
         logger.debug('🔌 [DEEPGRAM] WebSocket closed');
+        console.log('📋 [DEEPGRAM] Close details:', {
+          code: event.code,
+          reason: event.reason,
+          wasClean: event.wasClean
+        });
         this.isActive = false;
       };
 
@@ -129,10 +152,20 @@ export class DeepgramService {
       this.mediaRecorder = new MediaRecorder(this.stream, options);
 
       this.mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0 && this.ws && this.ws.readyState === WebSocket.OPEN) {
-          // Send audio chunks directly to Deepgram WebSocket
-          this.ws.send(event.data);
+        if (event.data.size > 0) {
+          logger.debug('🎵 [DEEPGRAM] Audio chunk captured:', event.data.size, 'bytes');
+
+          if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+            this.ws.send(event.data);
+            logger.debug('📤 [DEEPGRAM] Sent chunk to WebSocket');
+          } else {
+            console.warn('⚠️ [DEEPGRAM] WebSocket not ready, state:', this.ws?.readyState);
+          }
         }
+      };
+
+      this.mediaRecorder.onerror = (event) => {
+        console.error('❌ [DEEPGRAM] MediaRecorder error:', event);
       };
 
       // Send audio in small chunks for real-time processing
@@ -150,6 +183,8 @@ export class DeepgramService {
    * Stop transcription and clean up
    */
   stop(): void {
+    // Log stack trace to see WHO called stop()
+    console.trace('🛑 [DEEPGRAM] stop() called from:');
     logger.debug('🛑 [DEEPGRAM] Stopping transcription...');
 
     this.isActive = false;

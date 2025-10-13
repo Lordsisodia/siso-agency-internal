@@ -161,8 +161,14 @@ export class VoiceService {
     // Priority: Deepgram (real-time) > Web Speech API (fallback)
     if (deepgramService.isConfigured()) {
       logger.debug('🌟 [VOICE AI] Using Deepgram Real-Time (Premium - WebSocket streaming)');
+      console.log('📊 [VOICE AI] Deepgram configured:', {
+        isConfigured: deepgramService.isConfigured(),
+        currentlyListening: this.isListening
+      });
+
       try {
         this.isListening = true;
+        console.log('✅ [VOICE AI] Set isListening = true, about to start Deepgram...');
         await deepgramService.startRealTimeTranscription(
           onResult,
           (error) => {

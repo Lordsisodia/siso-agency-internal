@@ -157,13 +157,17 @@ export const SimpleThoughtDumpPage: React.FC<SimpleThoughtDumpPageProps> = ({
   };
 
   const handleMicToggle = async () => {
+    console.log('🎤 [UI] handleMicToggle called, current isListening:', isListening);
+
     if (isListening) {
       // Stop continuous listening
+      console.log('🛑 [UI] User clicked stop - stopping listening');
       voiceService.stopListening();
       setIsListening(false);
       setTranscript('');
     } else {
       // Start continuous real-time transcription
+      console.log('▶️ [UI] User clicked start - starting listening');
       setTranscript('');
       setIsTranscribing(false);
 

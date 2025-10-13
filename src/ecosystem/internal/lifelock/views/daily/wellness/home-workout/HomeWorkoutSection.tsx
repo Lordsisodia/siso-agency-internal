@@ -67,8 +67,9 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({
         // Fallback to default items if database fails (using temp UUIDs)
         setWorkoutItems([
           { id: 'temp-' + Date.now() + '-1', title: 'Push-ups', completed: false, target: '50 reps', logged: '0' },
-          { id: 'temp-' + Date.now() + '-2', title: 'Squats', completed: false, target: '100 reps', logged: '0' },
-          { id: 'temp-' + Date.now() + '-3', title: 'Plank', completed: false, target: '2 minutes', logged: null },
+          { id: 'temp-' + Date.now() + '-2', title: 'Sit-ups', completed: false, target: '50 reps', logged: '0' },
+          { id: 'temp-' + Date.now() + '-3', title: 'Squats', completed: false, target: '100 reps', logged: '0' },
+          { id: 'temp-' + Date.now() + '-4', title: 'Planks', completed: false, target: '2 minutes', logged: '0' },
         ]);
       } finally {
         setIsLoading(false);
