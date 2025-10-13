@@ -176,7 +176,7 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({
   }
 
   return (
-    <div className="w-full relative bg-gray-900">
+    <div className="min-h-screen w-full bg-gray-900">
       <div className="max-w-7xl mx-auto p-2 sm:p-3 md:p-4 lg:p-6 space-y-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
