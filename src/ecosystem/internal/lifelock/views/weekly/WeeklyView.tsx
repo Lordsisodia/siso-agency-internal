@@ -11,7 +11,8 @@
 
 import React, { useState } from 'react';
 import { addWeeks, subWeeks, startOfWeek, format } from 'date-fns';
-import { BarChart3, Briefcase, Heart, Clock, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { BarChart3, Briefcase, Heart, Clock, CheckCircle, ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/shared/ui/button';
 import { WeeklyBottomNav } from './_shared/WeeklyBottomNav';
 import { WeeklyOverviewSection } from './overview/WeeklyOverviewSection';
@@ -22,6 +23,7 @@ import { WeeklyCheckoutSection } from './checkout/WeeklyCheckoutSection';
 import { mockWeeklyData, mockProductivityData, mockWellnessData, mockTimeAnalysisData, mockInsightsData } from './_shared/mockData';
 
 export const WeeklyView: React.FC = () => {
+  const navigate = useNavigate();
   const [selectedWeek, setSelectedWeek] = useState<Date>(startOfWeek(new Date(), { weekStartsOn: 1 }));
   const [activeTab, setActiveTab] = useState<number>(0);
 
@@ -56,6 +58,28 @@ export const WeeklyView: React.FC = () => {
       {/* Week Selector - Fixed at top */}
       <div className="sticky top-0 z-40 bg-gray-900/80 backdrop-blur-md border-b border-gray-800/50">
         <div className="max-w-7xl mx-auto px-4 py-3">
+          {/* Back to Daily Button */}
+          <div className="flex items-center justify-between mb-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate(`/admin/lifelock/daily/${format(new Date(), 'yyyy-MM-dd')}`)}
+              className="text-gray-400 hover:text-blue-400 hover:bg-transparent"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Daily View
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/admin/lifelock/monthly')}
+              className="text-gray-400 hover:text-purple-400 hover:bg-transparent"
+            >
+              Monthly View
+              <ChevronRight className="h-4 w-4 ml-2" />
+            </Button>
+          </div>
+          
           <div className="flex items-center justify-between">
             {/* Previous Week Button */}
             <Button

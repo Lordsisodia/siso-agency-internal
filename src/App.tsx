@@ -63,6 +63,9 @@ const AdminDailyPlanner = lazy(() => import('@/ecosystem/internal/pages/AdminDai
 const AdminLifeLock = lazy(() => import('@/ecosystem/internal/lifelock/AdminLifeLock.tsx'));
 const AdminLifeLockDay = lazy(() => import('@/ecosystem/internal/lifelock/AdminLifeLockDay.tsx'));
 const AdminLifeLockOverview = lazy(() => import('@/ecosystem/internal/admin/dashboard/pages/AdminLifeLockOverview'));
+const WeeklyView = lazy(() => import('@/ecosystem/internal/lifelock/views/weekly/WeeklyView'));
+const MonthlyView = lazy(() => import('@/ecosystem/internal/lifelock/views/monthly/MonthlyView'));
+const YearlyView = lazy(() => import('@/ecosystem/internal/lifelock/views/yearly/YearlyView'));
 const ClientDetailPage = lazy(() => import('./pages/ClientDetailPage'));
 const AdminSettings = lazy(() => import('@/ecosystem/internal/pages/AdminSettings.tsx'));
 const AdminPrompts = lazy(() => import('@/ecosystem/internal/pages/AdminPrompts.tsx'));
@@ -251,7 +254,13 @@ function App() {
           <Route path="/admin/lifelock" element={<ClerkAuthGuard><AdminLifeLock /></ClerkAuthGuard>} />
           <Route path="/admin/life-lock" element={<ClerkAuthGuard><AdminLifeLock /></ClerkAuthGuard>} />
 
-          {/* Daily view routes - new clean URL structure */}
+          {/* LifeLock View Hierarchy: Daily → Weekly → Monthly → Yearly → Life */}
+          <Route path="/admin/lifelock/daily/:date" element={<ClerkAuthGuard><AdminLifeLockDay /></ClerkAuthGuard>} />
+          <Route path="/admin/lifelock/weekly" element={<ClerkAuthGuard><WeeklyView /></ClerkAuthGuard>} />
+          <Route path="/admin/lifelock/monthly" element={<ClerkAuthGuard><MonthlyView /></ClerkAuthGuard>} />
+          <Route path="/admin/lifelock/yearly" element={<ClerkAuthGuard><YearlyView /></ClerkAuthGuard>} />
+          
+          {/* Daily view routes - legacy clean URL structure */}
           <Route path="/admin/life-lock/daily/:date" element={<ClerkAuthGuard><AdminLifeLockDay /></ClerkAuthGuard>} />
 
           {/* Legacy routes - keep for backward compatibility */}
