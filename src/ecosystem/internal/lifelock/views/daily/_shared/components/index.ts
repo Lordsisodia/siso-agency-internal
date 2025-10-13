@@ -9,6 +9,9 @@
  */
 
 // Core Components
+export { DailyBottomNav } from './DailyBottomNav';
+export type { DailyBottomNavTab, DailyBottomNavProps } from './DailyBottomNav';
+
 export { PrioritySelector } from './PrioritySelector';
 export type { PriorityLevel } from './PrioritySelector';
 

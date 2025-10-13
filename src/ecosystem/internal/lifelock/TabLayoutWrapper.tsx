@@ -11,7 +11,7 @@ import {
 import { TAB_CONFIG, TabId, getAllTabIds } from '@/shared/services/tab-config';
 import { Button } from '@/shared/ui/button';
 import { Badge } from '@/shared/ui/badge';
-import { ExpandableTabs } from '@/shared/ui/expandable-tabs';
+import { DailyBottomNav } from './views/daily/_shared/components/DailyBottomNav';
 import { cn } from '@/shared/lib/utils';
 import { useIsMobile } from '@/shared/hooks/use-mobile';
 import { useLifeLockData } from '@/ecosystem/internal/lifelock/useLifeLockData';
@@ -271,25 +271,19 @@ const [searchParams, setSearchParams] = useSearchParams();
 
       {/* Bottom Tab Navigation - Hidden when AI chat is open */}
       {!hideBottomNav && (
-        <div className="fixed bottom-4 left-4 right-4 z-50 flex justify-center pointer-events-none">
-          <div className="pointer-events-auto">
-          {/* Swipe-Style Interface for All Devices */}
-          <ExpandableTabs
+        <DailyBottomNav
           tabs={tabs.map(tab => ({
             title: tab.name,
             icon: tab.icon
           }))}
           activeIndex={activeTabIndex}
           activeColor="text-orange-400"
-          className="bg-gray-900/30 backdrop-blur-xl border-white/10 shadow-2xl rounded-2xl"
           onChange={(index) => {
             if (index !== null) {
               handleTabClick(tabs[index].id);
             }
           }}
-          />
-          </div>
-        </div>
+        />
       )}
 
     </div>

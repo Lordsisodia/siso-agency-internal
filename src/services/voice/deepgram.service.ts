@@ -59,14 +59,15 @@ export class DeepgramService {
       });
 
       // Build WebSocket URL with parameters
+      // NOTE: Don't specify encoding - let Deepgram auto-detect from WebM container
       const params = new URLSearchParams({
         language: config.language || 'en-US',
         model: config.model || 'nova-2', // Latest model
         punctuate: String(config.punctuate !== false),
         interim_results: String(config.interimResults !== false),
         endpointing: String(config.endpointing || 300), // 300ms silence = finalize
-        encoding: 'linear16',
-        sample_rate: '16000'
+        // encoding: 'linear16',  // REMOVED - Deepgram auto-detects from WebM
+        // sample_rate: '16000'   // REMOVED - Let Deepgram detect from audio
       });
 
       const wsUrl = `wss://api.deepgram.com/v1/listen?${params}`;
@@ -138,15 +139,15 @@ export class DeepgramService {
 
   /**
    * Stream audio from microphone to Deepgram
+   * Sends WebM audio - Deepgram auto-detects format
    */
   private startStreaming() {
     if (!this.stream || !this.ws) return;
 
     try {
-      // Create MediaRecorder to capture audio
+      // Use MediaRecorder with WebM format (Deepgram supports this)
       const options: MediaRecorderOptions = {
-        mimeType: 'audio/webm;codecs=opus',
-        audioBitsPerSecond: 16000
+        mimeType: 'audio/webm;codecs=opus'
       };
 
       this.mediaRecorder = new MediaRecorder(this.stream, options);
@@ -157,7 +158,7 @@ export class DeepgramService {
 
           if (this.ws && this.ws.readyState === WebSocket.OPEN) {
             this.ws.send(event.data);
-            logger.debug('📤 [DEEPGRAM] Sent chunk to WebSocket');
+            logger.debug('📤 [DEEPGRAM] Sent WebM chunk to WebSocket');
           } else {
             console.warn('⚠️ [DEEPGRAM] WebSocket not ready, state:', this.ws?.readyState);
           }
@@ -171,7 +172,7 @@ export class DeepgramService {
       // Send audio in small chunks for real-time processing
       this.mediaRecorder.start(250); // 250ms chunks for ultra-responsive transcription
 
-      logger.debug('✅ [DEEPGRAM] Streaming started (250ms chunks)');
+      logger.debug('✅ [DEEPGRAM] Streaming started (WebM format, 250ms chunks)');
 
     } catch (error) {
       console.error('❌ [DEEPGRAM] Failed to start streaming:', error);
@@ -193,18 +194,21 @@ export class DeepgramService {
     if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
       this.mediaRecorder.stop();
       this.mediaRecorder = null;
+      logger.debug('🛑 [DEEPGRAM] MediaRecorder stopped');
     }
 
     // Stop media stream
     if (this.stream) {
       this.stream.getTracks().forEach(track => track.stop());
       this.stream = null;
+      logger.debug('🛑 [DEEPGRAM] Media stream stopped');
     }
 
     // Close WebSocket
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.ws.close();
       this.ws = null;
+      logger.debug('🛑 [DEEPGRAM] WebSocket closed');
     }
 
     logger.debug('✅ [DEEPGRAM] Stopped and cleaned up');
