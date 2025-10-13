@@ -174,6 +174,41 @@ export class ChatMemoryService {
   }
 
   // Get conversation summary for context
+
+  // Get recent conversations from past days for context
+  async getRecentConversations(userId: string, daysBack: number = 7): Promise<string[]> {
+    try {
+      const pastDate = new Date();
+      pastDate.setDate(pastDate.getDate() - daysBack);
+
+      const { data } = await supabase
+        .from('agent_conversations')
+        .select('conversation_history, updated_at')
+        .eq('user_id', userId)
+        .gte('updated_at', pastDate.toISOString())
+        .order('updated_at', { ascending: false })
+        .limit(daysBack);
+
+      if (!data || data.length === 0) return [];
+
+      // Extract key insights from each conversation
+      const insights: string[] = [];
+      data.forEach(conv => {
+        const history = this.parseConversationHistory(conv.conversation_history);
+        const userMsgs = history.filter(m => m.sender === 'user');
+        if (userMsgs.length > 0) {
+          const summary = userMsgs.slice(0, 3).map(m => m.content).join('; ');
+          insights.push(summary);
+        }
+      });
+
+      return insights.slice(0, 5); // Last 5 conversation summaries
+    } catch (error) {
+      console.error('❌ [CHAT MEMORY] Failed to load recent conversations:', error);
+      return [];
+    }
+  }
+
   getConversationSummary(): string {
     if (this.memoryCache.length === 0) return '';
     

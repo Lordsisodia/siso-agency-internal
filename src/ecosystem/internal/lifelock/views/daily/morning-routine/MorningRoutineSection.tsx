@@ -30,7 +30,7 @@ import { useOfflineManager } from '@/shared/hooks/useOfflineManager';
 import { SimpleThoughtDumpPage, ThoughtDumpResults, lifeLockVoiceTaskProcessor } from '@/ecosystem/internal/lifelock/features/ai-thought-dump';
 import type { ThoughtDumpResult } from '@/ecosystem/internal/lifelock/features/ai-thought-dump';
 import { getRotatingQuotes } from '@/data/motivational-quotes';
-import { TimeScrollPicker } from '@/ecosystem/internal/lifelock/components/TimeScrollPicker';
+import { TimeScrollPicker } from './components/TimeScrollPicker';
 import { WaterTracker } from './components/WaterTracker';
 import { PushUpTracker } from './components/PushUpTracker';
 import { MeditationTracker } from './components/MeditationTracker';
@@ -191,6 +191,13 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
     return saved ? parseInt(saved) : 30; // Default PB is 30
   });
 
+  // Top 3 Daily Priorities (after meditation)
+  const [dailyPriorities, setDailyPriorities] = useState<string[]>(() => {
+    const dateKey = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd');
+    const saved = localStorage.getItem(`lifelock-${dateKey}-dailyPriorities`);
+    return saved ? JSON.parse(saved) : ['', '', ''];
+  });
+
   // Load morning routine data
   useEffect(() => {
     const loadMorningRoutine = async () => {
@@ -257,6 +264,13 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   useEffect(() => {
     localStorage.setItem('lifelock-pushupPB', pushupPB.toString());
   }, [pushupPB]);
+
+  // Save daily priorities to localStorage
+  useEffect(() => {
+    if (!selectedDate || isNaN(selectedDate.getTime())) return;
+    const dateKey = format(selectedDate, 'yyyy-MM-dd');
+    localStorage.setItem(`lifelock-${dateKey}-dailyPriorities`, JSON.stringify(dailyPriorities));
+  }, [dailyPriorities, selectedDate]);
 
   // Save Plan Day completion to localStorage
   useEffect(() => {
@@ -617,6 +631,51 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                 );
               })}
             </div>
+
+            {/* Top 3 Daily Priorities - After Meditation */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="mt-8"
+            >
+              <Card className="bg-gradient-to-r from-yellow-900/30 to-amber-900/30 border-yellow-700/40">
+                <CardHeader className="p-4">
+                  <CardTitle className="flex items-center text-yellow-300 text-base">
+                    <Target className="h-5 w-5 mr-2" />
+                    🎯 Top 3 Things I Want to Complete Today
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 pt-0">
+                  <p className="text-xs text-yellow-400 mb-4">
+                    Not everything - just the 3 that matter most. Be specific.
+                  </p>
+                  <div className="space-y-3">
+                    {dailyPriorities.map((priority, idx) => (
+                      <div key={idx} className="flex items-center space-x-2">
+                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-yellow-600/30 border-2 border-yellow-500/50 flex items-center justify-center">
+                          <span className="text-yellow-300 font-bold text-sm">#{idx + 1}</span>
+                        </div>
+                        <Input
+                          value={priority}
+                          onChange={(e) => {
+                            const newPriorities = [...dailyPriorities];
+                            newPriorities[idx] = e.target.value;
+                            setDailyPriorities(newPriorities);
+                          }}
+                          placeholder={`Priority ${idx + 1}...`}
+                          className="bg-yellow-900/20 border-yellow-700/30 text-white placeholder:text-yellow-300/40 focus:border-yellow-400 focus:ring-yellow-400/20 rounded-lg"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-yellow-400/70 mt-3 italic">
+                    💡 Tip: Make them specific and actionable!
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+
           </CardContent>
         </Card>
 

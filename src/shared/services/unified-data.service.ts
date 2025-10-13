@@ -18,13 +18,17 @@ export interface DailyReflection {
   id?: string;
   user_id: string;
   date: string;
+  winOfDay?: string; // NEW: Biggest win of the day
+  mood?: string; // NEW: Quick mood selector
   wentWell?: string[];
   evenBetterIf?: string[];
   dailyAnalysis?: string;
   actionItems?: string;
   overallRating?: number;
+  energyLevel?: number; // NEW: Energy rating 1-10
   keyLearnings?: string;
   tomorrowFocus?: string;
+  tomorrowTopTasks?: string[]; // NEW: Top 3 specific tasks
   created_at?: string;
   updated_at?: string;
 }

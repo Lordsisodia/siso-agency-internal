@@ -23,13 +23,14 @@ import { Badge } from '@/shared/ui/badge';
 import { SharedTaskCard, TaskData } from '@/components/ui/SharedTaskCard';
 import { Progress } from '@/shared/ui/progress';
 import { useLightWorkTasksSupabase } from '@/ecosystem/internal/tasks/hooks/useLightWorkTasksSupabase';
+import { useTaskReordering } from '@/ecosystem/internal/tasks/hooks/useTaskReordering';
 
 interface LightWorkSectionProps {
   onStartFocusSession?: (taskId: string, intensity: number) => void;
   selectedDate?: Date;
 }
 
-export default function SisoLightWorkPlanV2({ 
+export default function SisoLightWorkPlan({ 
   onStartFocusSession, 
   selectedDate = new Date() 
 }: LightWorkSectionProps) {
@@ -39,7 +40,8 @@ export default function SisoLightWorkPlanV2({
     error,
     toggleTaskCompletion,
     createTask,
-    deleteTask
+    deleteTask,
+    updateTask
   } = useLightWorkTasksSupabase({ selectedDate });
 
   const [totalFocusTime, setTotalFocusTime] = useState(85); // minutes today
@@ -49,10 +51,28 @@ export default function SisoLightWorkPlanV2({
   const taskData: TaskData[] = lightWorkTasks.map(task => ({
     id: task.id,
     title: task.title,
-    priority: (task.priority.toLowerCase() as 'high' | 'medium' | 'low') || 'medium',
+    priority: (task.priority?.toLowerCase() as 'ultra' | 'high' | 'medium' | 'low' | 'none') || 'medium',
     estimatedTime: task.estimatedDuration ? `${task.estimatedDuration}min` : '30min',
     completed: task.completed
   }));
+
+  // Task reordering hook
+  const {
+    isDragging,
+    draggedId,
+    handleDragStart,
+    handleDragEnd,
+    getDropZoneProps
+  } = useTaskReordering(
+    taskData,
+    (reorderedTasks) => {
+      // Handle reordering - update task sort order
+      console.log('Reordering tasks:', reorderedTasks);
+    },
+    (taskId, newIndex) => {
+      console.log(`Task ${taskId} moved to position ${newIndex}`);
+    }
+  );
 
   const completedTasks = taskData.filter(t => t.completed).length;
   const highPriorityTasks = taskData.filter(t => t.priority === 'high' && !t.completed);
@@ -60,6 +80,12 @@ export default function SisoLightWorkPlanV2({
 
   const toggleTaskComplete = async (taskId: string) => {
     await toggleTaskCompletion(taskId);
+  };
+
+  const handlePriorityChange = async (taskId: string, priority: string) => {
+    if (updateTask) {
+      await updateTask(taskId, { priority: priority.toUpperCase() });
+    }
   };
 
   const handleQuickAdd = async () => {
@@ -88,7 +114,7 @@ export default function SisoLightWorkPlanV2({
             <Zap className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-white">Light Work</h1>
+            <h1 className="text-2xl font-bold text-white">🔥 CLAUDE EDITED THIS - Light Work</h1>
             <p className="text-gray-400 text-sm">Quick wins & momentum</p>
           </div>
         </div>
@@ -167,15 +193,24 @@ export default function SisoLightWorkPlanV2({
           </CardHeader>
           <CardContent className="space-y-3">
             {taskData.map((task, index) => (
-              <SharedTaskCard
-                key={task.id}
-                task={task}
-                index={index}
-                theme="light-work"
-                onToggleComplete={(taskId) => toggleTaskComplete(taskId)}
-                onStartFocus={(taskId) => onStartFocusSession?.(taskId, 2)}
-                showFocusButton={true}
-              />
+              <div key={task.id} {...getDropZoneProps(index)}>
+                <SharedTaskCard
+                  task={task}
+                  index={index}
+                  theme="light-work"
+                  onToggleComplete={(taskId) => toggleTaskComplete(taskId)}
+                  onStartFocus={(taskId) => onStartFocusSession?.(taskId, 2)}
+                  onPriorityChange={handlePriorityChange}
+                  showFocusButton={true}
+                  showDragHandle={true}
+                  showPrioritySelector={true}
+                  dragHandleProps={{
+                    draggable: true,
+                    onDragStart: (e) => handleDragStart(e, task),
+                    onDragEnd: handleDragEnd
+                  }}
+                />
+              </div>
             ))}
             
             {taskData.length === 0 && (

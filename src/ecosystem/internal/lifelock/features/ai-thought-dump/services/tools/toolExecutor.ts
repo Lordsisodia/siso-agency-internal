@@ -45,6 +45,9 @@ export class MorningThoughtDumpToolExecutor {
       case 'search_tasks':
         return await this.queryTools.searchTasksByKeyword(args.keyword);
 
+      case 'check_upcoming_deadlines':
+        return await this.queryTools.checkUpcomingDeadlines(args?.daysAhead || 3);
+
       // UPDATE TOOLS
       case 'update_task_duration':
         return await this.updateTools.updateTaskDuration(args.taskId, args.durationMinutes);
@@ -63,6 +66,9 @@ export class MorningThoughtDumpToolExecutor {
 
       case 'update_subtask_time':
         return await this.updateTools.updateSubtaskTime(args.subtaskId, args.estimatedTime);
+
+      case 'save_energy_level':
+        return await this.updateTools.saveEnergyLevel(args.energyLevel);
 
       default:
         console.error(`❌ [EXECUTOR] Unknown tool: ${toolName}`);

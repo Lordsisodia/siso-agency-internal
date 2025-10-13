@@ -139,6 +139,23 @@ export const MORNING_AI_UPDATE_TOOLS = [
         required: ['subtaskId', 'estimatedTime']
       }
     }
+  },
+  {
+    type: 'function' as const,
+    function: {
+      name: 'save_energy_level',
+      description: 'Save user\'s current energy level rating. CALL THIS at the start of planning to understand their state. Use for smart task scheduling.',
+      parameters: {
+        type: 'object',
+        properties: {
+          energyLevel: {
+            type: 'number',
+            description: 'Energy level from 1-10 (1=exhausted, 10=peak energy)'
+          }
+        },
+        required: ['energyLevel']
+      }
+    }
   }
 ];
 

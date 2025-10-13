@@ -13,7 +13,7 @@
 import React from 'react';
 import { ViewType, getViewConfig } from './view-configs';
 import { TabLayoutWrapper } from '../TabLayoutWrapper';
-import { SafeTabContentRenderer } from '@/components/ui/TabContentRenderer';
+import { SafeTabContentRenderer } from './TabContentRenderer';
 import { TabId } from '@/shared/services/tab-config';
 
 interface LifeLockViewRendererProps {

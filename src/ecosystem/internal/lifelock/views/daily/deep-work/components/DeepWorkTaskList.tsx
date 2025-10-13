@@ -30,7 +30,7 @@ import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { SimpleFeedbackButton } from "@/ecosystem/internal/feedback/SimpleFeedbackButton";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
-import { TaskDetailModal } from "@/components/ui/task-detail-modal";
+import { TaskDetailModal } from "@/ecosystem/internal/lifelock/components/TaskDetailModal";
 import { CustomCalendar } from "@/components/ui/CustomCalendar";
 import { SubtaskItem } from "@/components/tasks/SubtaskItem";
 import { useDeepWorkTasksSupabase, DeepWorkTask, DeepWorkSubtask } from "@/ecosystem/internal/tasks/hooks/useDeepWorkTasksSupabase";

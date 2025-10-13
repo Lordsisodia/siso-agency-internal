@@ -22,7 +22,7 @@ import { TimeBlockCategory } from '@/api/timeblocksApi.offline';
 import { theme } from '@/styles/theme';
 import { useImplementation } from '@/migration/feature-flags';
 import { toast } from 'sonner';
-import { AnimatedDateHeader } from '@/shared/ui/animated-date-header-v2';
+import { AnimatedDateHeader } from '@/ecosystem/internal/lifelock/components/AnimatedDateHeader';
 // Add Clerk authentication hooks - same pattern as working sections
 import { useClerkUser } from '@/shared/hooks/useClerkUser';
 import { useSupabaseUserId } from '@/shared/lib/supabase-clerk';
@@ -134,6 +134,10 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
   const [dragPreview, setDragPreview] = useState<{ startTime: string; endTime: string; top: number } | null>(null);
   const [showSprintMenu, setShowSprintMenu] = useState(false);
   const [showComparison, setShowComparison] = useState(true);
+  const [swipingTaskId, setSwipingTaskId] = useState<string | null>(null);
+  const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
+  const [gapFiller, setGapFiller] = useState<{ startTime: string; duration: number; top: number } | null>(null);
+  const [gapSuggestions, setGapSuggestions] = useState<any[]>([]);
   
   // Debug logging
   useEffect(() => {
@@ -561,6 +565,177 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
       toast.error('Failed to add follow-up');
     }
   }, [createTimeBlock]);
+
+
+  // Handle snooze (move +1 hour)
+  const handleSnooze = useCallback(async (taskId: string) => {
+    const task = validTasks.find(t => t.id === taskId);
+    if (!task) return;
+
+    const [startHour, startMin] = task.startTime.split(':').map(Number);
+    const [endHour, endMin] = task.endTime.split(':').map(Number);
+    
+    const newStartMinutes = startHour * 60 + startMin + 60; // +1 hour
+    const newEndMinutes = endHour * 60 + endMin + 60;
+    
+    // Check bounds
+    if (newEndMinutes >= 24 * 60) {
+      toast.error('Cannot snooze - would exceed midnight');
+      return;
+    }
+    
+    const formatTime = (m: number) => `${Math.floor(m / 60).toString().padStart(2, '0')}:${(m % 60).toString().padStart(2, '0')}`;
+    
+    const success = await updateTimeBlock(taskId, {
+      startTime: formatTime(newStartMinutes),
+      endTime: formatTime(newEndMinutes)
+    });
+    
+    if (success) {
+      toast.success('Snoozed +1 hour 📅');
+      if (navigator.vibrate) navigator.vibrate([30, 10, 30]);
+    }
+  }, [validTasks, updateTimeBlock]);
+
+  // Handle swipe gestures on tasks
+  const handlePan = useCallback((taskId: string, info: any) => {
+    const swipeThreshold = 50;
+    
+    if (Math.abs(info.offset.x) < swipeThreshold) {
+      setSwipingTaskId(null);
+      setSwipeDirection(null);
+      return;
+    }
+    
+    setSwipingTaskId(taskId);
+    
+    if (info.offset.x < -swipeThreshold) {
+      setSwipeDirection('left');
+    } else if (info.offset.x > swipeThreshold) {
+      setSwipeDirection('right');
+    }
+  }, []);
+
+  const handlePanEnd = useCallback(async (taskId: string, info: any) => {
+    const swipeThreshold = 50;
+    
+    if (info.offset.x < -swipeThreshold) {
+      // Swipe left - complete
+      await handleToggleComplete(taskId);
+      if (navigator.vibrate) navigator.vibrate([50]);
+    } else if (info.offset.x > swipeThreshold) {
+      // Swipe right - snooze
+      await handleSnooze(taskId);
+    }
+    
+    setSwipingTaskId(null);
+    setSwipeDirection(null);
+  }, [handleToggleComplete, handleSnooze]);
+
+
+  // Smart Gap Filler - Calculate gap and suggest tasks
+  const handleTimelineClick = useCallback(async (e: React.MouseEvent) => {
+    // Only respond to clicks on the container itself (not on tasks)
+    if ((e.target as HTMLElement).closest('.group')) return;
+    
+    const container = e.currentTarget as HTMLElement;
+    const rect = container.getBoundingClientRect();
+    const clickY = e.clientY - rect.top;
+    
+    const PIXELS_PER_MINUTE = 80 / 60;
+    const clickedMinute = Math.round(clickY / PIXELS_PER_MINUTE);
+    const clickedHour = Math.floor(clickedMinute / 60);
+    const clickedMin = clickedMinute % 60;
+    
+    // Find next task after this time
+    const formatTime = (m: number) => `${Math.floor(m / 60).toString().padStart(2, '0')}:${(m % 60).toString().padStart(2, '0')}`;
+    const clickedTime = formatTime(clickedMinute);
+    
+    const nextTask = validTasks
+      .filter(t => t.startTime > clickedTime)
+      .sort((a, b) => a.startTime.localeCompare(b.startTime))[0];
+    
+    // Calculate gap duration
+    const gapEnd = nextTask ? nextTask.startTime : '23:59';
+    const [gapEndHour, gapEndMin] = gapEnd.split(':').map(Number);
+    const gapEndMinutes = gapEndHour * 60 + gapEndMin;
+    const gapDuration = gapEndMinutes - clickedMinute;
+    
+    if (gapDuration < 15) {
+      toast.info('Gap too small - minimum 15 minutes');
+      return;
+    }
+    
+    // Fetch and score tasks
+    try {
+      const { unifiedDataService } = await import('@/shared/services/unified-data.service');
+      const [deepTasks, lightTasks] = await Promise.all([
+        unifiedDataService.getDeepWorkTasks(),
+        unifiedDataService.getLightWorkTasks()
+      ]);
+      
+      const allTasks = [...deepTasks, ...lightTasks].filter(t => !t.completed);
+      
+      // Score tasks for this gap
+      const scored = allTasks.map(t => {
+        const estimatedDuration = t.estimatedDuration || 60;
+        
+        // Duration fit score (0-40)
+        const durationDiff = Math.abs(estimatedDuration - gapDuration);
+        const durationScore = Math.max(0, 40 - durationDiff);
+        
+        // Priority score (0-30)
+        const priorityScores = { HIGH: 30, MEDIUM: 15, LOW: 5 };
+        const priorityScore = priorityScores[t.priority as keyof typeof priorityScores] || 10;
+        
+        // Total score
+        const totalScore = durationScore + priorityScore;
+        
+        return { task: t, score: totalScore, estimatedDuration };
+      });
+      
+      // Top 3 suggestions
+      const suggestions = scored
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 3)
+        .map(s => s.task);
+      
+      setGapFiller({ startTime: clickedTime, duration: gapDuration, top: clickY });
+      setGapSuggestions(suggestions);
+      
+    } catch (error) {
+      console.error('Failed to fetch tasks for gap:', error);
+      toast.error('Failed to load task suggestions');
+    }
+  }, [validTasks]);
+
+  // Schedule task from gap filler
+  const handleGapSchedule = useCallback(async (task: any) => {
+    if (!gapFiller) return;
+    
+    const estimatedDuration = Math.min(task.estimatedDuration || 60, gapFiller.duration);
+    const [startHour, startMin] = gapFiller.startTime.split(':').map(Number);
+    const startMinutes = startHour * 60 + startMin;
+    const endMinutes = startMinutes + estimatedDuration;
+    
+    const formatTime = (m: number) => `${Math.floor(m / 60).toString().padStart(2, '0')}:${(m % 60).toString().padStart(2, '0')}`;
+    
+    const success = await createTimeBlock({
+      title: task.title,
+      description: task.description || '',
+      startTime: gapFiller.startTime,
+      endTime: formatTime(endMinutes),
+      category: task.category === 'deep-work' ? 'DEEP_WORK' : 'LIGHT_WORK',
+      taskId: task.id,
+      notes: `Gap-filled: ${task.id}`
+    });
+    
+    if (success) {
+      toast.success(`Added "${task.title}" to gap 🧩`);
+      setGapFiller(null);
+      setGapSuggestions([]);
+    }
+  }, [gapFiller, createTimeBlock]);
 
   // Focus Sprint Generator - Create Pomodoro-style work/break chains
   const createFocusSprint = useCallback(async (startTime: string, templateType: 'pomodoro' | 'extended' | 'deep') => {
@@ -1217,7 +1392,11 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                 )}
 
                 {/* Enhanced Task Blocks Container - Adjusted for sidebar */}
-                <div className="absolute left-16 right-4 top-0 bottom-0" style={{ width: 'calc(100% - 80px)' }}>
+                <div 
+                  className="absolute left-16 right-4 top-0 bottom-0" 
+                  style={{ width: 'calc(100% - 80px)' }}
+                  onClick={handleTimelineClick}
+                >
                   
                   {/* Drag Time Preview */}
                   {dragPreview && (
@@ -1230,6 +1409,78 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                     >
                       <div className="px-4 py-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white text-xs font-bold shadow-xl border-2 border-white/40">
                         {dragPreview.startTime} → {dragPreview.endTime}
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Smart Gap Filler Suggestions */}
+                  {gapFiller && gapSuggestions.length > 0 && (
+                    <motion.div
+                      className="absolute right-6 z-50"
+                      style={{ top: `${gapFiller.top}px`, transform: 'translateY(-50%)' }}
+                      initial={{ opacity: 0, scale: 0.9, x: 20 }}
+                      animate={{ opacity: 1, scale: 1, x: 0 }}
+                      exit={{ opacity: 0, scale: 0.9, x: 20 }}
+                    >
+                      <div className="bg-gray-900/95 border border-emerald-500/40 rounded-xl p-3 shadow-2xl backdrop-blur-md min-w-[280px]">
+                        <div className="flex items-center justify-between mb-3">
+                          <div>
+                            <h4 className="text-white font-semibold text-sm flex items-center">
+                              <Lightbulb className="h-4 w-4 mr-2 text-emerald-400" />
+                              Smart Suggestions
+                            </h4>
+                            <p className="text-xs text-gray-400 mt-0.5">
+                              {gapFiller.duration}min gap at {gapFiller.startTime}
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => {
+                              setGapFiller(null);
+                              setGapSuggestions([]);
+                            }}
+                            className="text-gray-400 hover:text-white transition-colors"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
+
+                        <div className="space-y-2">
+                          {gapSuggestions.map((task, idx) => (
+                            <motion.button
+                              key={task.id}
+                              onClick={() => handleGapSchedule(task)}
+                              className="w-full bg-gray-800/50 hover:bg-gray-700/70 border border-gray-600/40 hover:border-emerald-500/60 rounded-lg p-3 text-left transition-all"
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: idx * 0.1 }}
+                              whileHover={{ scale: 1.02 }}
+                              whileTap={{ scale: 0.98 }}
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-white font-medium text-sm">{task.title}</p>
+                                  {task.description && (
+                                    <p className="text-gray-400 text-xs mt-1 line-clamp-1">{task.description}</p>
+                                  )}
+                                </div>
+                                <Badge className={cn(
+                                  "text-[10px] flex-shrink-0",
+                                  task.priority === 'HIGH' ? "bg-red-500/20 text-red-300" :
+                                  task.priority === 'MEDIUM' ? "bg-yellow-500/20 text-yellow-300" :
+                                  "bg-gray-500/20 text-gray-300"
+                                )}>
+                                  {task.estimatedDuration || 60}m
+                                </Badge>
+                              </div>
+                            </motion.button>
+                          ))}
+                        </div>
+
+                        <div className="mt-3 pt-3 border-t border-gray-700/30">
+                          <p className="text-xs text-gray-500 text-center">
+                            💡 Tap a task to schedule it in this gap
+                          </p>
+                        </div>
                       </div>
                     </motion.div>
                   )}
@@ -1276,13 +1527,15 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                     return (
                       <motion.div
                         key={task.id}
-                        drag="y"
+                        drag={draggingTaskId === task.id ? "y" : false}
                         dragConstraints={{ top: -position.top, bottom: (23 * 80) - position.top - position.height }}
                         dragElastic={0.1}
                         dragMomentum={false}
                         onDragStart={() => setDraggingTaskId(task.id)}
                         onDrag={(e, info) => handleDrag(task.id, info)}
                         onDragEnd={(e, info) => handleDragEnd(task.id, info)}
+                        onPan={(e, info) => handlePan(task.id, info)}
+                        onPanEnd={(e, info) => handlePanEnd(task.id, info)}
                         className={cn(
                           "absolute rounded-xl cursor-move z-10 group touch-pan-y active:cursor-grabbing",
                           "bg-gradient-to-br shadow-xl border-2",
@@ -1354,6 +1607,22 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                         layout
                       >
                         <div className="p-3 h-full flex flex-col justify-between relative overflow-hidden">
+                          {/* Swipe Action Visual Feedback */}
+                          {swipingTaskId === task.id && swipeDirection && (
+                            <motion.div
+                              className={cn(
+                                "absolute inset-0 flex items-center justify-center z-20",
+                                swipeDirection === 'left' && "bg-green-500/30",
+                                swipeDirection === 'right' && "bg-blue-500/30"
+                              )}
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                            >
+                              {swipeDirection === 'left' && <CheckCircle2 className="h-12 w-12 text-green-400" />}
+                              {swipeDirection === 'right' && <Calendar className="h-12 w-12 text-blue-400" />}
+                            </motion.div>
+                          )}
+
                           {/* Enhanced background pattern with depth */}
                           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.08)_0%,transparent_40%)] opacity-60" />
                           <div className="absolute inset-0 bg-[linear-gradient(135deg,transparent_0%,rgba(255,255,255,0.03)_50%,transparent_100%)]" />

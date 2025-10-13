@@ -9,6 +9,7 @@ export interface Message {
   timestamp: Date;
   tool_call_id?: string;
   name?: string;
+  toolCalls?: string[]; // Track which tools AI called for this message
 }
 
 export interface VoiceConfig {

@@ -16,13 +16,17 @@ export interface DailyReflection {
   id: string;
   userId: string;
   date: string;
+  winOfDay?: string; // NEW: Biggest win of the day
+  mood?: string; // NEW: Quick mood selector
   wentWell: string[];
   evenBetterIf: string[];
   dailyAnalysis: string;
   actionItems: string;
   overallRating?: number;
+  energyLevel?: number; // NEW: 1-10 energy rating
   keyLearnings?: string;
   tomorrowFocus?: string;
+  tomorrowTopTasks?: string[]; // NEW: Top 3 specific tasks
   createdAt: string;
   updatedAt: string;
 }
@@ -64,13 +68,17 @@ export function useDailyReflections({ selectedDate }: UseDailyReflectionsProps) 
           id: data.id || '',
           userId: data.user_id,
           date: data.date,
+          winOfDay: data.winOfDay || '',
+          mood: data.mood || '',
           wentWell: data.wentWell || [],
           evenBetterIf: data.evenBetterIf || [],
           dailyAnalysis: data.dailyAnalysis || '',
           actionItems: data.actionItems || '',
           overallRating: data.overallRating,
+          energyLevel: data.energyLevel,
           keyLearnings: data.keyLearnings || '',
           tomorrowFocus: data.tomorrowFocus || '',
+          tomorrowTopTasks: data.tomorrowTopTasks || [],
           createdAt: data.created_at || new Date().toISOString(),
           updatedAt: data.updated_at || new Date().toISOString()
         };
@@ -103,26 +111,34 @@ export function useDailyReflections({ selectedDate }: UseDailyReflectionsProps) 
       await unifiedDataService.saveDailyReflection({
         user_id: internalUserId,
         date: dateString,
+        winOfDay: reflectionData.winOfDay || '',
+        mood: reflectionData.mood || '',
         wentWell: reflectionData.wentWell || [],
         evenBetterIf: reflectionData.evenBetterIf || [],
         dailyAnalysis: reflectionData.dailyAnalysis || '',
         actionItems: reflectionData.actionItems || '',
         overallRating: reflectionData.overallRating,
+        energyLevel: reflectionData.energyLevel,
         keyLearnings: reflectionData.keyLearnings || '',
-        tomorrowFocus: reflectionData.tomorrowFocus || ''
+        tomorrowFocus: reflectionData.tomorrowFocus || '',
+        tomorrowTopTasks: reflectionData.tomorrowTopTasks || []
       });
 
       const savedReflection: DailyReflection = {
         id: reflection?.id || '',
         userId: internalUserId,
         date: dateString,
+        winOfDay: reflectionData.winOfDay || '',
+        mood: reflectionData.mood || '',
         wentWell: reflectionData.wentWell || [],
         evenBetterIf: reflectionData.evenBetterIf || [],
         dailyAnalysis: reflectionData.dailyAnalysis || '',
         actionItems: reflectionData.actionItems || '',
         overallRating: reflectionData.overallRating,
+        energyLevel: reflectionData.energyLevel,
         keyLearnings: reflectionData.keyLearnings || '',
         tomorrowFocus: reflectionData.tomorrowFocus || '',
+        tomorrowTopTasks: reflectionData.tomorrowTopTasks || [],
         createdAt: reflection?.createdAt || new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };

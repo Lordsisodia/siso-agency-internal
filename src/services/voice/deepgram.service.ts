@@ -59,15 +59,40 @@ export class DeepgramService {
       });
 
       // Build WebSocket URL with parameters
-      // NOTE: Don't specify encoding - let Deepgram auto-detect from WebM container
+      // Expanded vocabulary for better tech/productivity term recognition
+      const keywords = [
+        // Database & Backend (High Priority)
+        'Supabase:3', 'database:2', 'PostgreSQL:2', 'SQL:2', 'API:2',
+
+        // Task Management
+        'task:2', 'tasks:2', 'subtask:2', 'subtasks:2',
+        'deep work:3', 'light work:3', 'focus:2', 'priority:2',
+
+        // Tech Stack
+        'React:2', 'TypeScript:2', 'JavaScript:2', 'Vite:2',
+        'Tailwind:2', 'shadcn:2', 'Prisma:2',
+
+        // Development
+        'frontend:2', 'backend:2', 'fullstack:2', 'deployment:2',
+        'build:2', 'debug:2', 'refactor:2', 'optimize:2',
+
+        // Productivity
+        'schedule:2', 'timebox:2', 'deadline:2', 'urgent:2',
+        'important:2', 'complete:2', 'finish:2',
+
+        // Common Actions
+        'create:1', 'update:1', 'delete:1', 'query:1',
+        'check:1', 'review:1', 'analyze:1'
+      ].join(',');
+
       const params = new URLSearchParams({
         language: config.language || 'en-US',
         model: config.model || 'nova-2', // Latest model
         punctuate: String(config.punctuate !== false),
         interim_results: String(config.interimResults !== false),
         endpointing: String(config.endpointing || 300), // 300ms silence = finalize
-        // encoding: 'linear16',  // REMOVED - Deepgram auto-detects from WebM
-        // sample_rate: '16000'   // REMOVED - Let Deepgram detect from audio
+        smart_format: 'true', // Better formatting, capitalization, numbers
+        keywords: keywords
       });
 
       const wsUrl = `wss://api.deepgram.com/v1/listen?${params}`;

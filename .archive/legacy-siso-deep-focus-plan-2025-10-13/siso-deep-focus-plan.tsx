@@ -25,6 +25,7 @@ import { CustomCalendar } from "./CustomCalendar";
 import { SubtaskItem } from "../tasks/SubtaskItem";
 import { useDeepWorkTasksSupabase, DeepWorkTask, DeepWorkSubtask } from "@/ecosystem/internal/tasks/hooks/useDeepWorkTasksSupabase";
 import { useLightWorkTasksSupabase, LightWorkTask, LightWorkSubtask } from "@/ecosystem/internal/tasks/hooks/useLightWorkTasksSupabase";
+import { sortSubtasksHybrid } from "@/ecosystem/internal/tasks/utils/subtaskSorting";
 
 // Type definitions - keeping original UI types
 interface Subtask {
@@ -78,7 +79,7 @@ function transformSupabaseToUITasks(tasks: DeepWorkTask[] | LightWorkTask[]): Ta
       description: subtask.text || subtask.title,
       status: subtask.completed ? "completed" : "pending",
       priority: subtask.priority || "medium",
-      estimatedTime: "30min", // Default estimate
+      estimatedTime: subtask.estimatedTime, // From database
       tools: [], // Empty array for tools
       completed: subtask.completed,
       dueDate: subtask.dueDate
@@ -116,9 +117,9 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
   const lightWorkData = useLightWorkTasksSupabase({ selectedDate });
   
   // Select the appropriate hook data based on taskType
-  const { 
-    tasks: rawTasks, 
-    loading, 
+  const {
+    tasks: rawTasks,
+    loading,
     error,
     toggleTaskCompletion,
     toggleSubtaskCompletion,
@@ -129,8 +130,8 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
     updateSubtaskDueDate,
     updateSubtaskTitle,
     updateSubtaskPriority,
-    updateSubtaskDescription,
     updateSubtaskEstimatedTime,
+    updateSubtaskDescription,
     updateTaskTitle
   } = taskType === 'light-work' ? lightWorkData : deepWorkData;
   
@@ -503,7 +504,7 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
 
   return (
     <div className={`${isLightWork ? "text-green-50" : "text-blue-50"} h-full`}>
-      <Card className={isLightWork ? "bg-green-900/20 border-green-700/50" : "bg-blue-900/20 border-blue-700/50"}>
+      <Card className={`${isLightWork ? "bg-green-900/20 border-green-700/50" : "bg-blue-900/20 border-blue-700/50"}`}>
         <CardHeader className="p-3 sm:p-4">
           <CardTitle className={`flex items-center ${isLightWork ? "text-green-400" : "text-blue-400"} text-base sm:text-lg`}>
             <Brain className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
@@ -651,12 +652,12 @@ export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = 
 
                           {task.subtasks.length > 0 && (
                             <ul className="mt-1 mr-2 mb-2 ml-2 space-y-1">
-                              {task.subtasks.filter((subtask) => {
+                              {sortSubtasksHybrid(task.subtasks.filter((subtask) => {
                                 // Show incomplete subtasks by default, toggle to show completed when clicked
                                 const shouldShowCompleted = showCompletedSubtasks[task.id];
                                 if (shouldShowCompleted === undefined) return subtask.status !== "completed"; // Show incomplete by default
                                 return shouldShowCompleted ? subtask.status === "completed" : subtask.status !== "completed";
-                              }).map((subtask) => {
+                              })).map((subtask) => {
                               return (
                                 <motion.li
                                   key={subtask.id}

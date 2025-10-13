@@ -12,14 +12,15 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle2, Circle, Play } from 'lucide-react';
+import { CheckCircle2, Circle, Play, GripVertical } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
 import { Badge } from '@/shared/ui/badge';
+import { PrioritySelector } from '@/ecosystem/internal/tasks/components/PrioritySelector';
 
 export interface TaskData {
   id: string;
   title: string;
-  priority: 'high' | 'medium' | 'low';
+  priority: 'ultra' | 'high' | 'medium' | 'low' | 'none';
   estimatedTime: string;
   completed: boolean;
   sessionId?: string;
@@ -33,12 +34,22 @@ export interface SharedTaskCardProps {
   // Event handlers
   onToggleComplete: (taskId: string) => void;
   onStartFocus?: (taskId: string) => void;
+  onPriorityChange?: (taskId: string, priority: string) => void;
   
   // UI state
   showFocusButton?: boolean;
+  showDragHandle?: boolean;
+  showPrioritySelector?: boolean;
   isEditing?: boolean;
   editValue?: string;
   onEdit?: (taskId: string, title: string) => void;
+  
+  // Drag and drop
+  dragHandleProps?: {
+    draggable: boolean;
+    onDragStart: (e: React.DragEvent) => void;
+    onDragEnd: (e: React.DragEvent) => void;
+  };
 }
 
 /**
@@ -56,13 +67,15 @@ const THEMES = {
 };
 
 /**
- * Priority color function (same as Deep Work)
+ * Priority color function (updated for 5-level system)
  */
 const getPriorityColor = (priority: string) => {
   switch (priority) {
-    case 'high': return 'text-red-400 bg-red-500/20 border-red-400/50';
+    case 'ultra': return 'text-red-400 bg-red-500/20 border-red-400/50';
+    case 'high': return 'text-orange-400 bg-orange-500/20 border-orange-400/50';
     case 'medium': return 'text-yellow-400 bg-yellow-500/20 border-yellow-400/50';
     case 'low': return 'text-blue-400 bg-blue-500/20 border-blue-400/50';
+    case 'none': return 'text-gray-400 bg-gray-500/20 border-gray-400/50';
     default: return 'text-gray-400 bg-gray-500/20 border-gray-400/50';
   }
 };
@@ -76,10 +89,14 @@ export const SharedTaskCard: React.FC<SharedTaskCardProps> = ({
   theme,
   onToggleComplete,
   onStartFocus,
+  onPriorityChange,
   showFocusButton = true,
+  showDragHandle = false,
+  showPrioritySelector = false,
   isEditing = false,
   editValue = '',
-  onEdit
+  onEdit,
+  dragHandleProps
 }) => {
   const themeConfig = THEMES[theme];
 
@@ -89,6 +106,7 @@ export const SharedTaskCard: React.FC<SharedTaskCardProps> = ({
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 0.1 * index }}
+      style={{ border: '2px solid red' }} // DEBUG: SharedTaskCard marker
       className={`
         flex items-center justify-between p-3 rounded-lg border transition-all duration-200
         ${task.completed 
@@ -98,6 +116,17 @@ export const SharedTaskCard: React.FC<SharedTaskCardProps> = ({
       `}
     >
       <div className="flex items-center space-x-3 flex-1">
+        {/* Drag Handle */}
+        {showDragHandle && dragHandleProps && (
+          <div
+            className="flex-shrink-0 p-1 hover:bg-gray-700/50 rounded cursor-grab active:cursor-grabbing transition-colors"
+            title="Drag to reorder"
+            {...dragHandleProps}
+          >
+            <GripVertical className="h-4 w-4 text-gray-400" />
+          </div>
+        )}
+        
         <button
           onClick={() => onToggleComplete(task.id)}
           className="p-1 hover:bg-gray-700/50 rounded transition-colors"
@@ -130,16 +159,25 @@ export const SharedTaskCard: React.FC<SharedTaskCardProps> = ({
               `}
               onClick={() => onEdit?.(task.id, task.title)}
             >
-              {task.title}
+{task.title}
             </h4>
           )}
           <div className="flex items-center space-x-3 mt-1">
-            <Badge 
-              size="sm"
-              className={getPriorityColor(task.priority)}
-            >
-              {task.priority}
-            </Badge>
+            {showPrioritySelector && onPriorityChange ? (
+              <PrioritySelector
+                value={task.priority}
+                onChange={(priority) => onPriorityChange(task.id, priority)}
+                size="sm"
+              />
+            ) : (
+              <Badge 
+                size="sm"
+                className={getPriorityColor(task.priority)}
+                style={{ backgroundColor: 'magenta', border: '2px solid cyan' }} // DEBUG: SharedTaskCard priority
+              >
+                {task.priority}
+              </Badge>
+            )}
             <span className="text-xs text-gray-400">
               {task.estimatedTime}
             </span>

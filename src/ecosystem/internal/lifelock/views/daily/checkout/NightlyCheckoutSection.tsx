@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { subDays } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Moon, Clock, CheckCircle, Plus, X } from 'lucide-react';
+import { Moon, Clock, CheckCircle, Plus, X, Mic, TrendingUp, Zap, Award } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
@@ -29,19 +30,75 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
   // Use the new Supabase hook for data persistence
   const { reflection, loading: isLoading, saving: isSaving, saveReflection } = useDailyReflections({ selectedDate });
   
+  // Fetch yesterday's reflection for accountability
+  const yesterday = subDays(selectedDate, 1);
+  const { reflection: yesterdayReflection } = useDailyReflections({ selectedDate: yesterday });
+  
   const [bedTime, setBedTime] = useState<string>('');
   const [isEditingBedTime, setIsEditingBedTime] = useState(false);
-
-
+  const [isRecordingVoice, setIsRecordingVoice] = useState(false);
+  
+  // STATE FIRST - Define nightlyCheckout before any functions that use it
   const [nightlyCheckout, setNightlyCheckout] = useState({
+    winOfDay: '',
+    mood: '',
     wentWell: [''] as string[],
     evenBetterIf: [''] as string[],
     dailyAnalysis: '',
     actionItems: '',
     overallRating: undefined as number | undefined,
+    energyLevel: undefined as number | undefined,
     keyLearnings: '',
-    tomorrowFocus: ''
+    tomorrowFocus: '',
+    tomorrowTopTasks: ['', '', ''] as string[]
   });
+  
+  // Moods for quick selector
+  const moods = [
+    { emoji: '😊', label: 'Great', value: 'great' },
+    { emoji: '😐', label: 'Okay', value: 'okay' },
+    { emoji: '😰', label: 'Stressed', value: 'stressed' },
+    { emoji: '😤', label: 'Frustrated', value: 'frustrated' },
+    { emoji: '😔', label: 'Down', value: 'down' },
+    { emoji: '😌', label: 'Peaceful', value: 'peaceful' }
+  ];
+  
+  // NOW calculate values that depend on state
+  
+  // Calculate streak (count consecutive days with reflections)
+  const currentStreak = useMemo(() => {
+    // For now, return a placeholder - we'll implement proper streak calculation
+    // This would need to fetch multiple days of reflections
+    return reflection?.overallRating ? 1 : 0;
+  }, [reflection]);
+  
+  // Calculate completion progress (depends on nightlyCheckout state)
+  const checkoutProgress = useMemo(() => {
+    let completed = 0;
+    const total = 8; // Updated to include new fields
+    
+    // New priority fields
+    if (nightlyCheckout.winOfDay?.trim()) completed++;
+    if (nightlyCheckout.mood) completed++;
+    
+    // Original fields
+    if (nightlyCheckout.wentWell.some(item => item.trim() !== '')) completed++;
+    if (nightlyCheckout.evenBetterIf.some(item => item.trim() !== '')) completed++;
+    if (nightlyCheckout.dailyAnalysis?.trim()) completed++;
+    if (nightlyCheckout.actionItems?.trim()) completed++;
+    if (nightlyCheckout.keyLearnings?.trim()) completed++;
+    if (nightlyCheckout.tomorrowTopTasks.some(task => task.trim() !== '')) completed++;
+    
+    return total > 0 ? (completed / total) * 100 : 0;
+  }, [nightlyCheckout]);
+  
+  // Calculate XP for this checkout (depends on both streak and progress)
+  const checkoutXP = useMemo(() => {
+    const baseXP = 8; // Base checkout XP
+    const streakBonus = Math.min(currentStreak * 2, 50); // Up to +50 XP for streak
+    const completionBonus = checkoutProgress === 100 ? 25 : 0; // +25 for perfect completion
+    return baseXP + streakBonus + completionBonus;
+  }, [currentStreak, checkoutProgress]);
 
   // Helper function to update checkout data and mark as edited
   const updateCheckout = (updates: Partial<typeof nightlyCheckout>) => {
@@ -82,13 +139,17 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
   useEffect(() => {
     if (reflection) {
       setNightlyCheckout({
+        winOfDay: reflection.winOfDay || '',
+        mood: reflection.mood || '',
         wentWell: reflection.wentWell && reflection.wentWell.length > 0 ? reflection.wentWell : [''],
         evenBetterIf: reflection.evenBetterIf && reflection.evenBetterIf.length > 0 ? reflection.evenBetterIf : [''],
         dailyAnalysis: reflection.dailyAnalysis || '',
         actionItems: reflection.actionItems || '',
         overallRating: reflection.overallRating,
+        energyLevel: reflection.energyLevel,
         keyLearnings: reflection.keyLearnings || '',
-        tomorrowFocus: reflection.tomorrowFocus || ''
+        tomorrowFocus: reflection.tomorrowFocus || '',
+        tomorrowTopTasks: reflection.tomorrowTopTasks && reflection.tomorrowTopTasks.length > 0 ? reflection.tomorrowTopTasks : ['', '', '']
       });
     }
   }, [reflection]);
@@ -122,27 +183,7 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
 
 
 
-  // Calculate completion progress
-  const calculateProgress = () => {
-    let completed = 0;
-    const total = 6;
-    
-    // Check if wentWell has at least one non-empty item
-    if (nightlyCheckout.wentWell.some(item => item.trim() !== '')) completed++;
-    
-    // Check if evenBetterIf has at least one non-empty item
-    if (nightlyCheckout.evenBetterIf.some(item => item.trim() !== '')) completed++;
-    
-    // Check other fields
-    if (nightlyCheckout.dailyAnalysis?.trim()) completed++;
-    if (nightlyCheckout.actionItems?.trim()) completed++;
-    if (nightlyCheckout.keyLearnings?.trim()) completed++;
-    if (nightlyCheckout.tomorrowFocus?.trim()) completed++;
-    
-    return total > 0 ? (completed / total) * 100 : 0;
-  };
-  
-  const checkoutProgress = calculateProgress();
+
 
   return (
     <div className="min-h-screen w-full bg-gray-900 relative">
@@ -178,6 +219,148 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
           </div>
         </CardHeader>
         <CardContent className="pb-24">
+          {/* Streak Counter + XP Display */}
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6"
+          >
+            <div className="flex items-center justify-between bg-gradient-to-r from-purple-900/40 to-pink-900/40 p-4 rounded-xl border border-purple-700/30">
+              <div className="flex items-center space-x-4">
+                <div className="text-center">
+                  <div className="flex items-center space-x-2 mb-1">
+                    <span className="text-3xl">🔥</span>
+                    <span className="text-3xl font-bold text-purple-200">{currentStreak}</span>
+                  </div>
+                  <p className="text-xs text-purple-400">Day Streak</p>
+                </div>
+                <div className="h-12 w-px bg-purple-700/50"></div>
+                <div className="text-center">
+                  <div className="flex items-center space-x-2 mb-1">
+                    <Zap className="h-6 w-6 text-yellow-400" />
+                    <span className="text-3xl font-bold text-yellow-400">+{checkoutXP}</span>
+                  </div>
+                  <p className="text-xs text-yellow-300">XP Tonight</p>
+                </div>
+              </div>
+              <Award className="h-8 w-8 text-purple-400 opacity-50" />
+            </div>
+          </motion.div>
+
+          {/* Yesterday's Focus - Accountability Check */}
+          {yesterdayReflection?.tomorrowFocus && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="mb-6"
+            >
+              <Card className="bg-yellow-900/20 border-l-4 border-yellow-500">
+                <CardContent className="p-4">
+                  <div className="flex items-start space-x-3">
+                    <TrendingUp className="h-5 w-5 text-yellow-400 mt-1 flex-shrink-0" />
+                    <div className="flex-1">
+                      <h4 className="text-yellow-300 font-semibold mb-2 text-sm">
+                        Yesterday you said you'd focus on:
+                      </h4>
+                      <p className="text-yellow-100 font-medium italic">
+                        "{yesterdayReflection.tomorrowFocus}"
+                      </p>
+                      <p className="text-yellow-400 text-xs mt-2">
+                        Did you follow through? 🎯
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+
+          {/* Voice Reflection Button - Prominent CTA */}
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="mb-6"
+          >
+            <Button
+              onClick={() => setIsRecordingVoice(!isRecordingVoice)}
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-6 text-lg font-semibold"
+              disabled={isRecordingVoice}
+            >
+              {isRecordingVoice ? (
+                <>
+                  <div className="animate-pulse mr-2">🎤</div>
+                  <span>Listening...</span>
+                </>
+              ) : (
+                <>
+                  <Mic className="h-5 w-5 mr-2" />
+                  Voice Reflection (3 min)
+                </>
+              )}
+            </Button>
+            <p className="text-xs text-purple-400 text-center mt-2">
+              Talk instead of type - 70% faster! ⚡
+            </p>
+          </motion.div>
+
+          {/* Win of the Day - Primary Focus */}
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="mb-8"
+          >
+            <div className="bg-gradient-to-r from-purple-900/30 to-pink-900/30 p-6 rounded-xl border border-purple-700/30">
+              <h3 className="text-xl font-bold text-purple-200 mb-3 flex items-center">
+                <span className="text-2xl mr-2">🏆</span>
+                What was your BIGGEST win today?
+              </h3>
+              <Input
+                value={nightlyCheckout.winOfDay}
+                onChange={(e) => updateCheckout({ winOfDay: e.target.value })}
+                className="bg-purple-900/20 border-purple-700/50 text-white text-lg font-medium placeholder:text-purple-300/40 focus:border-purple-400 focus:ring-purple-400/20"
+                placeholder="The ONE thing that made today successful..."
+                autoFocus
+              />
+              <p className="text-xs text-purple-400 mt-2">
+                Force yourself to pick just one - builds clarity 💎
+              </p>
+            </div>
+          </motion.div>
+
+          {/* Quick Mood Selector */}
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="mb-8"
+          >
+            <h4 className="font-semibold text-purple-300 mb-3 text-base">
+              How are you feeling right now?
+            </h4>
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+              {moods.map((moodOption) => (
+                <button
+                  key={moodOption.value}
+                  onClick={() => updateCheckout({ mood: moodOption.value })}
+                  className={`flex flex-col items-center p-3 rounded-lg border-2 transition-all ${
+                    nightlyCheckout.mood === moodOption.value
+                      ? 'border-purple-400 bg-purple-900/40 scale-105'
+                      : 'border-purple-700/30 hover:border-purple-600 hover:bg-purple-900/20'
+                  }`}
+                >
+                  <span className="text-3xl mb-1">{moodOption.emoji}</span>
+                  <span className="text-xs text-purple-300">{moodOption.label}</span>
+                </button>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Divider */}
+          <div className="border-t border-purple-700/20 mb-8" />
+
           {/* Bedtime Tracking Section - Hybrid Design */}
           <div className="mb-8">
             {!bedTime && !isEditingBedTime ? (
@@ -405,6 +588,39 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
             {/* Divider */}
             <div className="border-t border-purple-700/20" />
 
+            {/* Energy Level Tracker */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.55 }}
+              className="mb-6"
+            >
+              <h4 className="font-semibold text-purple-300 mb-3 text-base">
+                How was your energy today?
+              </h4>
+              <div className="flex items-center space-x-4">
+                <span className="text-sm text-purple-400">Drained</span>
+                <input
+                  type="range"
+                  min="1"
+                  max="10"
+                  value={nightlyCheckout.energyLevel || 5}
+                  onChange={(e) => updateCheckout({ energyLevel: parseInt(e.target.value) })}
+                  className="flex-1 h-2 bg-purple-900/30 rounded-lg appearance-none cursor-pointer accent-purple-500"
+                />
+                <span className="text-sm text-purple-400">Energized</span>
+                <div className="min-w-[60px] text-center">
+                  <span className="text-2xl font-bold text-purple-100">
+                    {nightlyCheckout.energyLevel || 5}
+                  </span>
+                  <span className="text-purple-400">/10</span>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Divider */}
+            <div className="border-t border-purple-700/20 mb-6" />
+
             {/* Overall Reflection */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -442,13 +658,27 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
               </div>
 
               <div>
-                <h4 className="font-semibold text-purple-300 mb-3 text-base">Tomorrow's focus:</h4>
-                <Textarea
-                  value={nightlyCheckout.tomorrowFocus}
-                  onChange={(e) => updateCheckout({ tomorrowFocus: e.target.value })}
-                  className="bg-purple-900/10 border-purple-700/30 text-white placeholder:text-purple-300/40 focus:border-purple-400 focus:ring-purple-400/20 rounded-lg min-h-[100px]"
-                  placeholder="What's your main focus for tomorrow?"
-                />
+                <h4 className="font-semibold text-purple-300 mb-3 text-base">Tomorrow's Top 3 Tasks:</h4>
+                <p className="text-xs text-purple-400 mb-3">
+                  Specific {'>'}  Vague. What are the 3 most important things?
+                </p>
+                <div className="space-y-2">
+                  {nightlyCheckout.tomorrowTopTasks.map((task, idx) => (
+                    <div key={idx} className="flex items-center space-x-2">
+                      <span className="text-purple-400 font-bold text-lg">#{idx + 1}</span>
+                      <Input
+                        value={task}
+                        onChange={(e) => {
+                          const newTasks = [...nightlyCheckout.tomorrowTopTasks];
+                          newTasks[idx] = e.target.value;
+                          updateCheckout({ tomorrowTopTasks: newTasks });
+                        }}
+                        placeholder={`Task ${idx + 1}...`}
+                        className="bg-purple-900/10 border-purple-700/30 text-white placeholder:text-purple-300/40 focus:border-purple-400 focus:ring-purple-400/20 rounded-lg"
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
             </motion.div>
           </div>

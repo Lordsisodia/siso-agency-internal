@@ -27,6 +27,8 @@ export class VoiceService {
   private mediaRecorder: MediaRecorder | null = null;
   private audioChunks: Blob[] = [];
   private currentStream: MediaStream | null = null;
+  private currentAudio: HTMLAudioElement | null = null; // Track active TTS audio
+  private currentUtterance: SpeechSynthesisUtterance | null = null; // Track Web Speech TTS
 
   constructor() {
     this.initializeSpeechRecognition();
@@ -532,6 +534,28 @@ export class VoiceService {
     return this.isListening;
   }
 
+  // Stop any currently playing TTS
+  public stopTTS(): void {
+    console.log('🛑 [VOICE AI] stopTTS() called');
+
+    // Stop OpenAI/Groq TTS audio
+    if (this.currentAudio) {
+      this.currentAudio.pause();
+      this.currentAudio.currentTime = 0;
+      this.currentAudio = null;
+      logger.debug('🛑 [TTS] Stopped audio playback');
+    }
+
+    // Stop Web Speech API TTS
+    if (this.synthesis) {
+      this.synthesis.cancel();
+      this.currentUtterance = null;
+      logger.debug('🛑 [TTS] Cancelled Web Speech synthesis');
+    }
+
+    logger.debug('✅ [TTS] All TTS stopped');
+  }
+
   // Speak text using available TTS
   public async speak(
     text: string,
@@ -619,15 +643,20 @@ export class VoiceService {
       const audioUrl = URL.createObjectURL(audioBlob);
       const audio = new Audio(audioUrl);
 
+      // Store reference so we can stop it if user interrupts
+      this.currentAudio = audio;
+
       audio.onended = () => {
         logger.debug('🏁 [VOICE AI] OpenAI TTS playback completed');
         URL.revokeObjectURL(audioUrl);
+        this.currentAudio = null;
         onEnd?.();
       };
 
       audio.onerror = () => {
         console.error('❌ [VOICE AI] Audio playback failed');
         URL.revokeObjectURL(audioUrl);
+        this.currentAudio = null;
         onError?.('Audio playback failed');
       };
 
@@ -737,30 +766,22 @@ export class VoiceService {
     onEnd?: () => void,
     onError?: (error: string) => void
   ): Promise<void> {
-    logger.debug('🔄 [VOICE AI] Web Speech API TTS Starting...');
-    logger.debug('📊 [VOICE AI] Web API details:', {
-      textLength: text.length,
-      rate: config.rate || 1,
-      pitch: config.pitch || 1,
-      volume: config.volume || 1,
-      voice: config.voice || 'default'
-    });
-
     return new Promise((resolve, reject) => {
       if (!this.synthesis) {
-        const error = 'Text-to-speech not supported';
-        console.error('❌ [VOICE AI] Web Speech API not supported:', error);
+        const error = 'Web Speech API not supported';
         onError?.(error);
         reject(new Error(error));
         return;
       }
 
       // Cancel any ongoing speech
-      logger.debug('🛑 [VOICE AI] Canceling any existing speech...');
       this.synthesis.cancel();
 
       const utterance = new SpeechSynthesisUtterance(text);
-      
+
+      // Store reference for interruption
+      this.currentUtterance = utterance;
+
       // Configure utterance
       utterance.rate = config.rate || 1;
       utterance.pitch = config.pitch || 1;
@@ -776,7 +797,7 @@ export class VoiceService {
       if (config.voice) {
         const voices = this.synthesis.getVoices();
         logger.debug('🎭 [VOICE AI] Available voices:', voices.length);
-        const selectedVoice = voices.find(voice => 
+        const selectedVoice = voices.find(voice =>
           voice.name.includes(config.voice!) || voice.lang.includes(config.voice!)
         );
         if (selectedVoice) {
@@ -798,6 +819,7 @@ export class VoiceService {
 
       utterance.onend = () => {
         logger.debug('🏁 [VOICE AI] Web Speech API playback completed');
+        this.currentUtterance = null;
         onEnd?.();
         resolve();
       };
@@ -809,6 +831,7 @@ export class VoiceService {
           message: event.message,
           timestamp: new Date().toISOString()
         });
+        this.currentUtterance = null;
         onError?.(error);
         reject(new Error(error));
       };
