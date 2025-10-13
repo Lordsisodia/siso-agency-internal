@@ -310,7 +310,13 @@ export const TimeBlockFormModal: React.FC<TimeBlockFormModalProps> = ({
     }
     
     toast?.error?.('No free slot found in next 3 hours');
-  }, [formData, onCheckConflicts, existingBlock?.id, handleInputChange]);
+  }, [formData, onCheckConflicts, existingBlock?.id]); // Removed handleInputChange - not needed in deps
+
+  // Handle input changes (MOVED HERE before functions that use it)
+  const handleInputChange = useCallback((field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    setValidationErrors([]);
+  }, []);
 
   // Handle form submission
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
@@ -358,12 +364,6 @@ export const TimeBlockFormModal: React.FC<TimeBlockFormModalProps> = ({
       setIsSubmitting(false);
     }
   }, [existingBlock, onDelete, formData.title, onClose]);
-
-  // Handle input changes
-  const handleInputChange = useCallback((field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    setValidationErrors([]);
-  }, []);
 
   if (!isOpen) return null;
 
