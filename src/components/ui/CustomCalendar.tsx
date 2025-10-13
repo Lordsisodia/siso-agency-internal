@@ -69,11 +69,7 @@ export const CustomCalendar: React.FC<CustomCalendarProps> = ({
     checkDate.setHours(0, 0, 0, 0);
     return checkDate < today;
   };
-  
-  // Debug logging
-  console.log('🎨 CustomCalendar received theme:', theme);
-  console.log('🎨 Is Light Theme:', theme === 'LIGHT');
-  
+
   const isLightTheme = theme === 'LIGHT';
   
   return (
