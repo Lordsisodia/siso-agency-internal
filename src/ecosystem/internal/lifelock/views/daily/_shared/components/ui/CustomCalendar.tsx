@@ -14,7 +14,7 @@
 import React, { useState } from 'react';
 
 export interface CustomCalendarProps {
-  subtask: any;
+  subtask?: any;
   onDateSelect: (date: Date | null) => void;
   onClose: () => void;
   theme?: 'DEEP' | 'LIGHT'; // Optional theme for color theming
@@ -24,11 +24,11 @@ export const CustomCalendar: React.FC<CustomCalendarProps> = ({
   subtask, 
   onDateSelect, 
   onClose,
-  theme = 'LIGHT' // LIGHT WORK = GREEN theme
+  theme = 'DEEP' // Default to DEEP theme
 }) => {
   const [viewDate, setViewDate] = useState(() => {
     const now = new Date();
-    const currentDate = subtask.dueDate ? new Date(subtask.dueDate) : now;
+    const currentDate = subtask?.dueDate ? new Date(subtask.dueDate) : now;
     return new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
   });
 
@@ -55,7 +55,7 @@ export const CustomCalendar: React.FC<CustomCalendarProps> = ({
   };
   
   const isSelected = (date: Date) => {
-    return subtask.dueDate && date.toDateString() === new Date(subtask.dueDate).toDateString();
+    return subtask?.dueDate && date.toDateString() === new Date(subtask.dueDate).toDateString();
   };
   
   const isCurrentMonth = (date: Date) => {
@@ -69,11 +69,7 @@ export const CustomCalendar: React.FC<CustomCalendarProps> = ({
     checkDate.setHours(0, 0, 0, 0);
     return checkDate < today;
   };
-  
-  // Debug logging
-  console.log('🎨 CustomCalendar received theme:', theme);
-  console.log('🎨 Is Light Theme:', theme === 'LIGHT');
-  
+
   const isLightTheme = theme === 'LIGHT';
   
   return (
@@ -111,25 +107,16 @@ export const CustomCalendar: React.FC<CustomCalendarProps> = ({
         {days.map(date => (
           <button
             key={date.toISOString()}
-            onMouseDown={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              console.log('🔍 Calendar Debug: MouseDown on date:', date.toISOString().split('T')[0]);
-            }}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              console.log('📅 CustomCalendar: Date clicked:', date.toISOString().split('T')[0]);
-              console.log('🔍 Calendar Debug: Event details:', {
-                target: e.target,
-                currentTarget: e.currentTarget,
-                bubbles: e.bubbles,
-                cancelable: e.cancelable
-              });
               
-              // Call onDateSelect immediately
-              onDateSelect(date);
-              return false;
+              try {
+                // Call onDateSelect with proper error handling
+                onDateSelect(date);
+              } catch (error) {
+                console.error('Error selecting date:', error);
+              }
             }}
             disabled={isPastDate(date)}
             className={`
@@ -169,4 +156,5 @@ export const CustomCalendar: React.FC<CustomCalendarProps> = ({
       </div>
     </div>
   );
-}; 
+};
+

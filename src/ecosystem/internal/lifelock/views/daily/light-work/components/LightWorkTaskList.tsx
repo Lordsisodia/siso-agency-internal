@@ -31,7 +31,7 @@ import { SimpleFeedbackButton } from "@/ecosystem/internal/feedback/SimpleFeedba
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
 import { TaskDetailModal } from "@/ecosystem/internal/lifelock/components/TaskDetailModal";
-import { CustomCalendar } from "@/components/ui/CustomCalendar";
+import { CustomCalendar } from "../../_shared/components";
 import { SubtaskItem } from "@/components/tasks/SubtaskItem";
 import { useLightWorkTasksSupabase, LightWorkTask, LightWorkSubtask } from "@/ecosystem/internal/tasks/hooks/useLightWorkTasksSupabase";
 import { sortSubtasksHybrid } from "@/ecosystem/internal/tasks/utils/subtaskSorting";
