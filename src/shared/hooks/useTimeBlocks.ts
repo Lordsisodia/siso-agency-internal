@@ -260,7 +260,11 @@ export function useTimeBlocks(options: UseTimeBlocksOptions): TimeBlockState & T
     }
     
     try {
-      const result = await TimeBlocksAPI.updateTimeBlock(id, data);
+      const result = await TimeBlocksAPI.updateTimeBlock(id, {
+        ...data,
+        userId,
+        date: dateKey
+      });
       
       if (result.success) {
         if (!enableOptimisticUpdates) {
@@ -369,7 +373,9 @@ export function useTimeBlocks(options: UseTimeBlocksOptions): TimeBlockState & T
     const updateData: UpdateTimeBlockInput = {
       completed: !timeBlock.completed,
       actualStart: actualTime?.start,
-      actualEnd: actualTime?.end
+      actualEnd: actualTime?.end,
+      userId,
+      date: dateKey
     };
     
     return await updateTimeBlock(id, updateData);

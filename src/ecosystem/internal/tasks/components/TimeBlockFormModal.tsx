@@ -21,8 +21,11 @@ import {
   Heart,
   Users,
   Settings,
-  Lightbulb
+  Lightbulb,
+  CheckCircle2,
+  Circle
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
@@ -94,6 +97,8 @@ export const TimeBlockFormModal: React.FC<TimeBlockFormModalProps> = ({
   const [checkingConflicts, setCheckingConflicts] = useState(false);
   const [currentConflicts, setCurrentConflicts] = useState<TimeBlockConflict[]>([]);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [linkedTask, setLinkedTask] = useState<any>(null);
+  const [loadingTask, setLoadingTask] = useState(false);
 
   // Initialize form data when modal opens or existing block changes
   useEffect(() => {
@@ -106,6 +111,13 @@ export const TimeBlockFormModal: React.FC<TimeBlockFormModalProps> = ({
         category: existingBlock.category,
         notes: existingBlock.notes || ''
       });
+      
+      // Fetch linked task if taskId exists
+      if (existingBlock.taskId) {
+        fetchLinkedTask(existingBlock.taskId);
+      } else {
+        setLinkedTask(null);
+      }
     } else {
       // Reset form for new block
       const now = new Date();
@@ -121,11 +133,35 @@ export const TimeBlockFormModal: React.FC<TimeBlockFormModalProps> = ({
         category: 'DEEP_WORK',
         notes: ''
       });
+      setLinkedTask(null);
     }
     
     setCurrentConflicts([]);
     setValidationErrors([]);
   }, [existingBlock, isOpen]);
+
+  // Fetch linked task data
+  const fetchLinkedTask = async (taskId: string) => {
+    setLoadingTask(true);
+    try {
+      // Import the tasks service
+      const { unifiedDataService } = await import('@/shared/services/unified-data.service');
+      
+      // Fetch the task - we need to find it in deep work or light work tasks
+      const deepWorkTasks = await unifiedDataService.getDeepWorkTasks();
+      const lightWorkTasks = await unifiedDataService.getLightWorkTasks();
+      
+      const task = [...deepWorkTasks, ...lightWorkTasks].find(t => t.id === taskId);
+      
+      if (task) {
+        setLinkedTask(task);
+      }
+    } catch (error) {
+      console.error('Failed to fetch linked task:', error);
+    } finally {
+      setLoadingTask(false);
+    }
+  };
 
   // Update conflicts from props
   useEffect(() => {
@@ -184,6 +220,51 @@ export const TimeBlockFormModal: React.FC<TimeBlockFormModalProps> = ({
     const timeoutId = setTimeout(checkConflicts, 300);
     return () => clearTimeout(timeoutId);
   }, [checkConflicts]);
+
+  // Auto-fit: Find next free slot by shifting +15min
+  const autoFit = useCallback(async () => {
+    if (!onCheckConflicts || !formData.startTime || !formData.endTime) return;
+    
+    const duration = TimeBlockUtils.calculateDuration(formData.startTime, formData.endTime);
+    let attempts = 0;
+    const maxAttempts = 12; // Search up to 3 hours ahead
+    
+    let currentStart = formData.startTime;
+    
+    while (attempts < maxAttempts) {
+      const [hour, min] = currentStart.split(':').map(Number);
+      const startMinutes = hour * 60 + min;
+      const endMinutes = startMinutes + duration;
+      
+      // Check if we'd go past midnight
+      if (endMinutes >= 24 * 60) {
+        toast?.error?.('No free slot found before midnight');
+        return;
+      }
+      
+      const formatTime = (m: number) => `${Math.floor(m / 60).toString().padStart(2, '0')}:${(m % 60).toString().padStart(2, '0')}`;
+      const testEnd = formatTime(endMinutes);
+      
+      // Check for conflicts
+      const conflicts = await onCheckConflicts(currentStart, testEnd, existingBlock?.id);
+      
+      if (!conflicts || conflicts.length === 0) {
+        // Found a free slot!
+        handleInputChange('startTime', currentStart);
+        handleInputChange('endTime', testEnd);
+        setCurrentConflicts([]);
+        toast?.success?.(`Auto-fit: Moved to ${currentStart}`);
+        return;
+      }
+      
+      // Try next 15-minute slot
+      const nextStartMinutes = startMinutes + 15;
+      currentStart = formatTime(nextStartMinutes);
+      attempts++;
+    }
+    
+    toast?.error?.('No free slot found in next 3 hours');
+  }, [formData, onCheckConflicts, existingBlock?.id, handleInputChange]);
 
   // Handle form submission
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
@@ -322,37 +403,84 @@ export const TimeBlockFormModal: React.FC<TimeBlockFormModalProps> = ({
                   </div>
                 )}
 
-                {/* Category Selection */}
-                <div className="space-y-3">
-                  <label className="text-white font-medium">Category</label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {Object.entries(categoryIcons).map(([category, Icon]) => (
-                      <motion.button
-                        key={category}
+                {/* Quick Duration Buttons */}
+                <div className="space-y-2">
+                  <label className="text-white font-medium text-sm">Quick Duration</label>
+                  <div className="grid grid-cols-5 gap-2">
+                    {[
+                      { label: '15m', minutes: 15 },
+                      { label: '30m', minutes: 30 },
+                      { label: '1h', minutes: 60 },
+                      { label: '2h', minutes: 120 },
+                      { label: '3h', minutes: 180 }
+                    ].map(({ label, minutes }) => (
+                      <Button
+                        key={label}
                         type="button"
-                        onClick={() => handleInputChange('category', category)}
-                        className={`p-3 rounded-lg border-2 transition-all duration-200 ${
-                          formData.category === category
-                            ? `bg-gradient-to-r ${categoryColors[category as TimeBlockCategory]} shadow-lg scale-105`
-                            : 'bg-gray-800/30 border-gray-600/30 hover:border-gray-500/50'
-                        }`}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          if (!formData.startTime) return;
+                          const [startHour, startMin] = formData.startTime.split(':').map(Number);
+                          const totalMinutes = startHour * 60 + startMin + minutes;
+                          const endHour = Math.floor(totalMinutes / 60);
+                          const endMin = totalMinutes % 60;
+                          if (endHour >= 24) return; // Don't go past midnight
+                          handleInputChange('endTime', `${endHour.toString().padStart(2, '0')}:${endMin.toString().padStart(2, '0')}`);
+                        }}
+                        className="bg-gray-800/50 border-gray-600/50 text-white hover:bg-purple-600/20 hover:border-purple-500"
+                        disabled={!formData.startTime}
                       >
-                        <div className="flex items-center space-x-2">
-                          <Icon className={`h-5 w-5 ${
-                            formData.category === category ? 'text-white' : 'text-gray-400'
-                          }`} />
-                          <span className={`text-sm font-medium ${
-                            formData.category === category ? 'text-white' : 'text-gray-300'
-                          }`}>
-                            {TimeBlockUtils.getCategoryLabel(category as TimeBlockCategory)}
-                          </span>
-                        </div>
-                      </motion.button>
+                        {label}
+                      </Button>
                     ))}
                   </div>
                 </div>
+
+                {/* Duration Adjustment Buttons */}
+                <div className="space-y-2">
+                  <label className="text-white font-medium text-sm">Adjust Duration</label>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        if (!formData.endTime) return;
+                        const [endHour, endMin] = formData.endTime.split(':').map(Number);
+                        const totalMinutes = endHour * 60 + endMin - 15;
+                        if (totalMinutes < 0) return;
+                        const newHour = Math.floor(totalMinutes / 60);
+                        const newMin = totalMinutes % 60;
+                        handleInputChange('endTime', `${newHour.toString().padStart(2, '0')}:${newMin.toString().padStart(2, '0')}`);
+                      }}
+                      className="flex-1 bg-gray-800/50 border-gray-600/50 text-white hover:bg-red-600/20 hover:border-red-500"
+                      disabled={!formData.endTime}
+                    >
+                      -15 min
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        if (!formData.endTime) return;
+                        const [endHour, endMin] = formData.endTime.split(':').map(Number);
+                        const totalMinutes = endHour * 60 + endMin + 15;
+                        if (totalMinutes >= 24 * 60) return; // Don't go past midnight
+                        const newHour = Math.floor(totalMinutes / 60);
+                        const newMin = totalMinutes % 60;
+                        handleInputChange('endTime', `${newHour.toString().padStart(2, '0')}:${newMin.toString().padStart(2, '0')}`);
+                      }}
+                      className="flex-1 bg-gray-800/50 border-gray-600/50 text-white hover:bg-green-600/20 hover:border-green-500"
+                      disabled={!formData.endTime}
+                    >
+                      +15 min
+                    </Button>
+                  </div>
+                </div>
+
+
 
                 {/* Description */}
                 <div className="space-y-2">
@@ -376,6 +504,56 @@ export const TimeBlockFormModal: React.FC<TimeBlockFormModalProps> = ({
                   />
                 </div>
 
+                {/* Linked Task Subtasks */}
+                {linkedTask && linkedTask.subtasks && linkedTask.subtasks.length > 0 && (
+                  <div className="space-y-2">
+                    <label className="text-white font-medium flex items-center">
+                      <BookOpen className="h-4 w-4 mr-2 text-purple-400" />
+                      Subtasks ({linkedTask.subtasks.length})
+                    </label>
+                    <div className="bg-gray-800/30 border border-gray-700/50 rounded-lg p-4 space-y-2 max-h-[200px] overflow-y-auto">
+                      {linkedTask.subtasks.map((subtask: any) => (
+                        <motion.div
+                          key={subtask.id}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          className="flex items-start space-x-3 p-2 rounded-md hover:bg-gray-700/30 transition-colors"
+                        >
+                          {subtask.completed ? (
+                            <CheckCircle2 className="h-4 w-4 text-green-400 flex-shrink-0 mt-0.5" />
+                          ) : (
+                            <Circle className="h-4 w-4 text-gray-400 flex-shrink-0 mt-0.5" />
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className={cn(
+                              "text-sm",
+                              subtask.completed 
+                                ? "text-gray-400 line-through" 
+                                : "text-gray-200"
+                            )}>
+                              {subtask.title}
+                            </p>
+                            {subtask.description && (
+                              <p className="text-xs text-gray-500 mt-1">{subtask.description}</p>
+                            )}
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {loadingTask && (
+                  <div className="text-center py-2">
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      className="inline-block h-5 w-5 border-2 border-purple-500/30 border-t-purple-500 rounded-full"
+                    />
+                    <p className="text-gray-400 text-sm mt-2">Loading subtasks...</p>
+                  </div>
+                )}
+
                 {/* Conflicts Warning */}
                 {currentConflicts.length > 0 && (
                   <motion.div
@@ -385,8 +563,19 @@ export const TimeBlockFormModal: React.FC<TimeBlockFormModalProps> = ({
                   >
                     <div className="flex items-start space-x-3">
                       <AlertTriangle className="h-5 w-5 text-red-400 flex-shrink-0 mt-0.5" />
-                      <div>
-                        <h4 className="text-red-300 font-medium mb-2">Time Conflicts Detected</h4>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="text-red-300 font-medium">Time Conflicts Detected</h4>
+                          <Button
+                            type="button"
+                            size="sm"
+                            onClick={autoFit}
+                            className="bg-yellow-600 hover:bg-yellow-700 text-white text-xs px-3 py-1"
+                          >
+                            <Zap className="h-3 w-3 mr-1" />
+                            Auto-fit
+                          </Button>
+                        </div>
                         <div className="space-y-1">
                           {currentConflicts.map(conflict => (
                             <p key={conflict.id} className="text-red-200/80 text-sm">

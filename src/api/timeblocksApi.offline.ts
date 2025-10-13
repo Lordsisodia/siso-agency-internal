@@ -25,6 +25,7 @@ export interface TimeBlock {
   actualStart?: string;
   actualEnd?: string;
   notes?: string;
+  taskId?: string; // Link to original task
   createdAt: string;
   updatedAt: string;
 }
@@ -38,6 +39,7 @@ export interface CreateTimeBlockInput {
   category: TimeBlockCategory;
   userId: string;
   notes?: string;
+  taskId?: string; // Link to original task
 }
 
 export interface UpdateTimeBlockInput {
@@ -51,6 +53,8 @@ export interface UpdateTimeBlockInput {
   actualStart?: string;
   actualEnd?: string;
   notes?: string;
+  userId?: string; // Need this to fetch the existing block
+  taskId?: string;
 }
 
 export interface TimeBlockConflict {
@@ -108,14 +112,28 @@ export class TimeBlocksAPI {
     try {
       const blocks = await unifiedDataService.getTimeBlocks(userId, date);
 
+      // Map database types to API categories
+      const typeToCategory: Record<string, TimeBlockCategory> = {
+        'deep_focus': 'DEEP_WORK',
+        'light_focus': 'LIGHT_WORK',
+        'meeting': 'MEETING',
+        'break': 'BREAK',
+        'personal': 'PERSONAL',
+        'health': 'HEALTH',
+        'learning': 'LEARNING',
+        'admin': 'ADMIN',
+        'work': 'LIGHT_WORK' // Default fallback
+      };
+
       return {
         success: true,
         data: blocks.map(block => ({
           ...block,
           id: block.id || '',
           userId: block.user_id,
-          category: (block.category as TimeBlockCategory) || 'LIGHT_WORK',
+          category: typeToCategory[block.type || ''] || 'LIGHT_WORK', // Map database 'type' to API 'category'
           completed: false,
+          taskId: Array.isArray(block.task_ids) && block.task_ids.length > 0 ? block.task_ids[0] : undefined, // Extract first task_id from array
           createdAt: block.created_at || new Date().toISOString(),
           updatedAt: block.updated_at || new Date().toISOString()
         }))
@@ -143,8 +161,8 @@ export class TimeBlocksAPI {
         end_time: input.endTime,
         title: input.title,
         description: input.description,
-        category: input.category,  // Fixed: changed from 'type' to 'category'
-        task_id: undefined,
+        category: input.category,  // Will be mapped to 'type' in unified service
+        task_id: input.taskId,  // Will be mapped to 'task_ids' array in unified service
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
@@ -160,6 +178,7 @@ export class TimeBlocksAPI {
           endTime: newBlock.end_time,
           category: newBlock.category,
           completed: false,
+          taskId: newBlock.task_id,
           createdAt: newBlock.created_at,
           updatedAt: newBlock.updated_at
         }
@@ -180,26 +199,55 @@ export class TimeBlocksAPI {
     input: UpdateTimeBlockInput
   ): Promise<ApiResponse<TimeBlock>> {
     try {
-      // For now, this is a simplified implementation
-      // In a full implementation, you'd fetch the existing block, update it, and save
-      console.log('Update time block:', id, input);
+      // We need userId and date to fetch the existing block
+      if (!input.userId || !input.date) {
+        return {
+          success: false,
+          error: 'userId and date are required for updates'
+        };
+      }
 
+      // Fetch existing blocks for this date
+      const existingBlocks = await unifiedDataService.getTimeBlocks(input.userId, input.date);
+      const existingBlock = existingBlocks.find(b => b.id === id);
+      
+      if (!existingBlock) {
+        return {
+          success: false,
+          error: 'Time block not found'
+        };
+      }
+
+      // Prepare update data
+      const updateData = {
+        start_time: input.startTime,
+        end_time: input.endTime,
+        title: input.title,
+        description: input.description,
+        category: input.category,
+        task_id: input.taskId
+      };
+
+      await unifiedDataService.updateTimeBlock(input.userId, input.date, id, updateData);
+
+      // Return updated block
       return {
         success: true,
         data: {
           id,
-          userId: '',
-          date: input.date || '',
-          startTime: input.startTime || '',
-          endTime: input.endTime || '',
-          title: input.title || '',
-          description: input.description,
-          category: (input.category as TimeBlockCategory) || 'LIGHT_WORK',
+          userId: input.userId,
+          date: input.date,
+          startTime: input.startTime || existingBlock.start_time,
+          endTime: input.endTime || existingBlock.end_time,
+          title: input.title || existingBlock.title,
+          description: input.description !== undefined ? input.description : existingBlock.description,
+          category: (input.category || existingBlock.type) as TimeBlockCategory,
           completed: input.completed || false,
           actualStart: input.actualStart,
           actualEnd: input.actualEnd,
           notes: input.notes,
-          createdAt: new Date().toISOString(),
+          taskId: input.taskId || (Array.isArray(existingBlock.task_ids) && existingBlock.task_ids.length > 0 ? existingBlock.task_ids[0] : undefined),
+          createdAt: existingBlock.created_at || new Date().toISOString(),
           updatedAt: new Date().toISOString()
         }
       };
@@ -216,8 +264,7 @@ export class TimeBlocksAPI {
    */
   static async deleteTimeBlock(id: string): Promise<ApiResponse<void>> {
     try {
-      // Simplified implementation
-      console.log('Delete time block:', id);
+      await unifiedDataService.deleteTimeBlock(id);
 
       return {
         success: true

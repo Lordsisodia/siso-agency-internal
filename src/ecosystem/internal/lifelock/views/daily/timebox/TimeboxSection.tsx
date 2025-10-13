@@ -131,6 +131,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
   const [isQuickSchedulerOpen, setIsQuickSchedulerOpen] = useState(false);
   const [editingBlock, setEditingBlock] = useState(null);
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
+  const [dragPreview, setDragPreview] = useState<{ startTime: string; endTime: string; top: number } | null>(null);
   
   // Debug logging
   useEffect(() => {
@@ -372,6 +373,40 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
     });
   }, [timeBlocks]);
 
+  // Handle live drag preview with 15-minute snapping
+  const handleDrag = useCallback((taskId: string, info: any) => {
+    const PIXELS_PER_MINUTE = 80 / 60;
+    const minutesMoved = Math.round(info.offset.y / PIXELS_PER_MINUTE);
+    
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+    
+    const [startHour, startMin] = task.startTime.split(':').map(Number);
+    const [endHour, endMin] = task.endTime.split(':').map(Number);
+    
+    const newStartMinutes = startHour * 60 + startMin + minutesMoved;
+    const newEndMinutes = endHour * 60 + endMin + minutesMoved;
+    
+    // Snap to 15-minute increments
+    const snapTo15 = (minutes: number) => Math.round(minutes / 15) * 15;
+    const snappedStart = snapTo15(newStartMinutes);
+    const snappedEnd = snappedStart + task.duration;
+    
+    // Validate bounds
+    if (snappedStart < 0 || snappedEnd > 24 * 60) {
+      setDragPreview(null);
+      return;
+    }
+    
+    const formatTime = (m: number) => `${Math.floor(m / 60).toString().padStart(2, '0')}:${(m % 60).toString().padStart(2, '0')}`;
+    
+    setDragPreview({
+      startTime: formatTime(snappedStart),
+      endTime: formatTime(snappedEnd),
+      top: info.point.y
+    });
+  }, [tasks]);
+
   // Handle drag-and-drop repositioning
   const handleDragEnd = useCallback(async (taskId: string, info: any) => {
     const dragDistance = info.offset.y;
@@ -389,16 +424,22 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
     const newStartMinutes = startHour * 60 + startMin + minutesMoved;
     const newEndMinutes = endHour * 60 + endMin + minutesMoved;
 
+    // Snap to 15-minute increments
+    const snapTo15 = (minutes: number) => Math.round(minutes / 15) * 15;
+    const snappedStart = snapTo15(newStartMinutes);
+    const snappedEnd = snappedStart + task.duration;
+
     // Validate bounds (0-24 hours)
-    if (newStartMinutes < 0 || newEndMinutes > 24 * 60) {
+    if (snappedStart < 0 || snappedEnd > 24 * 60) {
       toast.error('Cannot move task outside timeline');
       setDraggingTaskId(null);
+      setDragPreview(null);
       return;
     }
 
     // Convert back to time strings
-    const newStartTime = `${Math.floor(newStartMinutes / 60).toString().padStart(2, '0')}:${(newStartMinutes % 60).toString().padStart(2, '0')}`;
-    const newEndTime = `${Math.floor(newEndMinutes / 60).toString().padStart(2, '0')}:${(newEndMinutes % 60).toString().padStart(2, '0')}`;
+    const newStartTime = `${Math.floor(snappedStart / 60).toString().padStart(2, '0')}:${(snappedStart % 60).toString().padStart(2, '0')}`;
+    const newEndTime = `${Math.floor(snappedEnd / 60).toString().padStart(2, '0')}:${(snappedEnd % 60).toString().padStart(2, '0')}`;
 
     // Update the time block
     const success = await updateTimeBlock(taskId, {
@@ -413,6 +454,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
     }
 
     setDraggingTaskId(null);
+    setDragPreview(null);
   }, [tasks, updateTimeBlock]);
 
   // Handle scheduling task from selection modal
@@ -425,6 +467,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
       startTime: timeSlot.start,
       endTime: timeSlot.end,
       category: category,
+      taskId: task.id, // Link to original task for subtask display
       notes: `Linked to ${taskType} work task: ${task.id}`
     };
 
@@ -438,6 +481,36 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
     }
     return success;
   };
+
+  // Handle adding a follow-up block after an existing block
+  const handleAddAfter = useCallback(async (task: TimeboxTask, minutes = 60) => {
+    const [endHour, endMin] = task.endTime.split(':').map(Number);
+    const startMinutes = endHour * 60 + endMin;
+    const endMinutes = Math.min(24 * 60 - 1, startMinutes + minutes);
+    
+    // Check if we can fit the block
+    if (startMinutes >= 24 * 60 - 15) {
+      toast.error('Cannot add block - too close to midnight');
+      return;
+    }
+    
+    const formatTime = (m: number) => `${Math.floor(m / 60).toString().padStart(2, '0')}:${(m % 60).toString().padStart(2, '0')}`;
+    
+    const success = await createTimeBlock({
+      title: task.title + ' — follow-up',
+      description: task.description || '',
+      startTime: formatTime(startMinutes),
+      endTime: formatTime(endMinutes),
+      category: mapUIToCategory(task.category),
+      notes: `Auto-created after: ${task.id}`
+    });
+    
+    if (success) {
+      toast.success('Added follow-up block');
+    } else {
+      toast.error('Failed to add follow-up');
+    }
+  }, [createTimeBlock]);
 
   // Auto-scroll to current time on page load
   useEffect(() => {
@@ -725,6 +798,22 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
 
                 {/* Enhanced Task Blocks Container - Adjusted for sidebar */}
                 <div className="absolute left-16 right-4 top-0 bottom-0" style={{ width: 'calc(100% - 80px)' }}>
+                  
+                  {/* Drag Time Preview */}
+                  {dragPreview && (
+                    <motion.div
+                      className="absolute left-6 z-50 pointer-events-none"
+                      style={{ top: `${dragPreview.top}px`, transform: 'translateY(-50%)' }}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                    >
+                      <div className="px-4 py-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white text-xs font-bold shadow-xl border-2 border-white/40">
+                        {dragPreview.startTime} → {dragPreview.endTime}
+                      </div>
+                    </motion.div>
+                  )}
+                  
                   {validTasks.length === 0 ? (
                     /* Enhanced Empty State */
                     <div className="flex items-center justify-center h-full">
@@ -772,6 +861,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                         dragElastic={0.1}
                         dragMomentum={false}
                         onDragStart={() => setDraggingTaskId(task.id)}
+                        onDrag={(e, info) => handleDrag(task.id, info)}
                         onDragEnd={(e, info) => handleDragEnd(task.id, info)}
                         className={cn(
                           "absolute rounded-xl cursor-move z-10 group touch-pan-y active:cursor-grabbing",
@@ -895,6 +985,21 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                               >
                                 {task.duration}m
                               </motion.div>
+                              
+                              {/* Add After button */}
+                              <motion.button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAddAfter(task, 60);
+                                }}
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                                className="p-1 rounded-full bg-white/20 hover:bg-white/30 border border-white/40 transition-colors flex-shrink-0"
+                                title="Add follow-up block"
+                              >
+                                <Plus className="h-3 w-3 text-white" />
+                              </motion.button>
                               
                               {/* Completion Checkbox */}
                               <motion.div

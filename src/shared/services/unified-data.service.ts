@@ -37,8 +37,10 @@ export interface TimeBlock {
   end_time: string;
   title: string;
   description?: string;
-  type?: 'DEEP_WORK' | 'LIGHT_WORK' | 'BREAK' | 'MEETING';
-  task_id?: string;
+  type?: 'DEEP_WORK' | 'LIGHT_WORK' | 'BREAK' | 'MEETING'; // This maps to 'category' in the API
+  category?: string; // Alias for compatibility
+  task_ids?: string[]; // Database uses array
+  task_id?: string; // API uses single string
   created_at?: string;
   updated_at?: string;
 }
@@ -121,7 +123,10 @@ class UnifiedDataService {
     try {
       const key = `timeblocks:${userId}:${date}`;
       const local = await offlineDb.getSetting(key);
-      if (local) return local;
+      if (local && Array.isArray(local)) {
+        console.log('📦 Loaded time blocks from cache:', local.length);
+        return local;
+      }
     } catch (error) {
       console.warn('Failed to get local timeblocks:', error);
     }
@@ -129,17 +134,22 @@ class UnifiedDataService {
     // If online, try Supabase
     if (this.isOnline()) {
       try {
+        console.log('🌐 Fetching time blocks from Supabase...');
         const { data, error } = await supabaseAnon
           .from('time_blocks')
           .select('*')
           .eq('user_id', userId)
-          .eq('date', date);
+          .eq('date', date)
+          .order('start_time', { ascending: true });
 
         if (!error && data) {
+          console.log('✅ Fetched time blocks from Supabase:', data.length);
           // Cache locally
           const key = `timeblocks:${userId}:${date}`;
           await offlineDb.setSetting(key, data);
           return data;
+        } else if (error) {
+          console.warn('⚠️ Supabase fetch error:', error);
         }
       } catch (error) {
         console.warn('Failed to get Supabase timeblocks:', error);
@@ -150,12 +160,63 @@ class UnifiedDataService {
   }
 
   async saveTimeBlock(timeBlock: TimeBlock): Promise<void> {
-    const key = `timeblock:${timeBlock.id || Date.now()}`;
+    // Map category to database type format
+    const categoryToTypeMap: Record<string, string> = {
+      'DEEP_WORK': 'deep_focus',
+      'LIGHT_WORK': 'light_focus',
+      'MEETING': 'meeting',
+      'BREAK': 'break',
+      'PERSONAL': 'personal',
+      'HEALTH': 'health',
+      'LEARNING': 'learning',
+      'ADMIN': 'admin'
+    };
 
-    // Always save locally first
-    await offlineDb.setSetting(key, {
-      ...timeBlock,
+    const dbType = categoryToTypeMap[timeBlock.category || ''] || timeBlock.type || 'work';
+
+    // Validate UUID format for task_ids (database expects uuid[])
+    const isValidUUID = (str: string): boolean => {
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      return uuidRegex.test(str);
+    };
+
+    // Filter task_ids to only include valid UUIDs
+    let validTaskIds: string[] = [];
+    if (timeBlock.task_id && isValidUUID(timeBlock.task_id)) {
+      validTaskIds = [timeBlock.task_id];
+    } else if (Array.isArray(timeBlock.task_ids)) {
+      validTaskIds = timeBlock.task_ids.filter(isValidUUID);
+    }
+
+    // Map API fields to database schema
+    const dbRecord = {
+      id: timeBlock.id,
+      user_id: timeBlock.user_id,
+      date: timeBlock.date,
+      start_time: timeBlock.start_time,
+      end_time: timeBlock.end_time,
+      title: timeBlock.title,
+      description: timeBlock.description,
+      type: dbType, // Map 'category' to database type format
+      task_ids: validTaskIds, // Only valid UUIDs
+      created_at: timeBlock.created_at || new Date().toISOString(),
       updated_at: new Date().toISOString()
+    };
+
+    // Always save to local cache using date-based key for easy retrieval
+    const cacheKey = `timeblocks:${timeBlock.user_id}:${timeBlock.date}`;
+    const existingBlocks = await this.getTimeBlocks(timeBlock.user_id, timeBlock.date);
+    
+    // Update or add the block
+    const updatedBlocks = existingBlocks.filter(b => b.id !== timeBlock.id);
+    updatedBlocks.push(dbRecord);
+    await offlineDb.setSetting(cacheKey, updatedBlocks);
+
+    console.log('💾 Saving time block to Supabase:', {
+      title: dbRecord.title,
+      userId: dbRecord.user_id,
+      type: dbRecord.type,
+      taskIds: dbRecord.task_ids
     });
 
     // If online, sync to Supabase
@@ -163,18 +224,132 @@ class UnifiedDataService {
       try {
         const { error } = await supabaseAnon
           .from('time_blocks')
-          .upsert(timeBlock);
+          .upsert(dbRecord);
 
         if (error) {
-          console.warn('Failed to sync timeblock to Supabase:', error);
-          await this.queueForSync('time_blocks', 'upsert', timeBlock);
+          console.warn('❌ Failed to sync timeblock to Supabase:', error);
+          await this.queueForSync('time_blocks', 'upsert', dbRecord);
+        } else {
+          console.log('✅ Time block synced to Supabase:', timeBlock.title);
         }
       } catch (error) {
-        console.warn('Supabase sync error:', error);
-        await this.queueForSync('time_blocks', 'upsert', timeBlock);
+        console.warn('❌ Supabase sync error:', error);
+        await this.queueForSync('time_blocks', 'upsert', dbRecord);
       }
     } else {
-      await this.queueForSync('time_blocks', 'upsert', timeBlock);
+      console.log('📴 Offline - queued for sync');
+      await this.queueForSync('time_blocks', 'upsert', dbRecord);
+    }
+  }
+
+  async updateTimeBlock(userId: string, date: string, id: string, updates: Partial<TimeBlock>): Promise<void> {
+    console.log('📝 Updating time block:', id, updates);
+
+    // Get existing blocks for this date
+    const existingBlocks = await this.getTimeBlocks(userId, date);
+    const blockIndex = existingBlocks.findIndex(b => b.id === id);
+    
+    if (blockIndex === -1) {
+      throw new Error('Time block not found');
+    }
+
+    // Merge updates
+    const updatedBlock = {
+      ...existingBlocks[blockIndex],
+      ...updates,
+      updated_at: new Date().toISOString()
+    };
+
+    // Map category to database type format
+    const categoryToTypeMap: Record<string, string> = {
+      'DEEP_WORK': 'deep_focus',
+      'LIGHT_WORK': 'light_focus',
+      'MEETING': 'meeting',
+      'BREAK': 'break',
+      'PERSONAL': 'personal',
+      'HEALTH': 'health',
+      'LEARNING': 'learning',
+      'ADMIN': 'admin'
+    };
+
+    const dbType = updates.category ? categoryToTypeMap[updates.category] : (updatedBlock.type || 'work');
+
+    // Validate UUID format for task_ids
+    const isValidUUID = (str: string): boolean => {
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      return uuidRegex.test(str);
+    };
+
+    // Filter task_ids to only include valid UUIDs
+    let validTaskIds: string[] = [];
+    if (updates.task_id && isValidUUID(updates.task_id)) {
+      validTaskIds = [updates.task_id];
+    } else if (Array.isArray(updatedBlock.task_ids)) {
+      validTaskIds = updatedBlock.task_ids.filter(isValidUUID);
+    }
+
+    // Map to database schema
+    const dbRecord = {
+      id: updatedBlock.id,
+      user_id: updatedBlock.user_id,
+      date: updatedBlock.date,
+      start_time: updates.start_time || updatedBlock.start_time,
+      end_time: updates.end_time || updatedBlock.end_time,
+      title: updates.title || updatedBlock.title,
+      description: updates.description !== undefined ? updates.description : updatedBlock.description,
+      type: dbType,
+      task_ids: validTaskIds, // Only valid UUIDs
+      updated_at: updatedBlock.updated_at
+    };
+
+    // Update local cache
+    const cacheKey = `timeblocks:${userId}:${date}`;
+    existingBlocks[blockIndex] = dbRecord;
+    await offlineDb.setSetting(cacheKey, existingBlocks);
+
+    // Sync to Supabase if online
+    if (this.isOnline()) {
+      try {
+        const { error } = await supabaseAnon
+          .from('time_blocks')
+          .update(dbRecord)
+          .eq('id', id);
+
+        if (error) {
+          console.warn('❌ Failed to update in Supabase:', error);
+          await this.queueForSync('time_blocks', 'update', { id, data: dbRecord });
+        } else {
+          console.log('✅ Time block updated in Supabase');
+        }
+      } catch (error) {
+        console.warn('❌ Supabase update error:', error);
+        await this.queueForSync('time_blocks', 'update', { id, data: dbRecord });
+      }
+    }
+  }
+
+  async deleteTimeBlock(id: string): Promise<void> {
+    console.log('🗑️ Deleting time block:', id);
+
+    // Remove from all local caches (we need to find which date it belongs to)
+    // For now, we'll just try to delete from Supabase and invalidate all caches
+    
+    // If online, delete from Supabase
+    if (this.isOnline()) {
+      try {
+        const { error } = await supabaseAnon
+          .from('time_blocks')
+          .delete()
+          .eq('id', id);
+
+        if (error) {
+          console.warn('❌ Failed to delete from Supabase:', error);
+        } else {
+          console.log('✅ Time block deleted from Supabase');
+        }
+      } catch (error) {
+        console.warn('❌ Supabase delete error:', error);
+      }
     }
   }
 
