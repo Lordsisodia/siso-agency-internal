@@ -28,7 +28,7 @@
 
 ### Issue #1: "Use Now" Button Overflow on Mobile
 
-**Status**: 🔴 NEEDS FIX
+**Status**: ✅ FIXED
 
 **Description**:
 - "Use Now (13:29)" button extends off screen on mobile
@@ -60,7 +60,7 @@
 
 ### Issue #2: TimeScrollPicker Scrolling Difficult
 
-**Status**: 🔴 NEEDS FIX
+**Status**: ✅ FIXED
 
 **Description**:
 - Scroll wheel time picker is hard to scroll
