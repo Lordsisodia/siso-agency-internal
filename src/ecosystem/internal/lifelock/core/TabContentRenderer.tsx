@@ -13,7 +13,7 @@
  */
 
 import React from 'react';
-// import { LifeLockDateNavigation } from '@/ecosystem/internal/lifelock/components/LifeLockDateNavigation';
+import { CleanDateNav } from '@/ecosystem/internal/lifelock/views/daily/_shared/components';
 import { 
   TabId, 
   EnhancedTabConfig, 
@@ -36,9 +36,8 @@ const StandardTabLayout: React.FC<{
 
   return (
     <div className={config.backgroundClass}>
-      {/* Date navigation temporarily disabled - component interface mismatch */}
-      {/* {config.showDateNav && (
-        <LifeLockDateNavigation 
+      {config.showDateNav && (
+        <CleanDateNav 
           selectedDate={selectedDate}
           completionPercentage={dayCompletionPercentage}
           className="mb-6"
@@ -46,7 +45,7 @@ const StandardTabLayout: React.FC<{
           onNextDate={() => navigateDay?.('next')}
           activeTab={activeTab}
         />
-      )} */}
+      )}
       
       <div className="space-y-6">
         {children}

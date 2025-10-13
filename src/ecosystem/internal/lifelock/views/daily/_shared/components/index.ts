@@ -17,6 +17,7 @@
 // Navigation Components
 export { DailyBottomNav } from './navigation/DailyBottomNav';
 export type { DailyBottomNavTab, DailyBottomNavProps } from './navigation/DailyBottomNav';
+export { CleanDateNav } from './CleanDateNav';
 
 // Task Components
 export { TaskHeader } from './task/TaskHeader';

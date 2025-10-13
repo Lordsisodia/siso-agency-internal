@@ -9,7 +9,7 @@ import { format } from 'date-fns';
 import { useClerkUser } from '@/shared/hooks/useClerkUser';
 import { useSupabaseUserId } from '@/shared/lib/supabase-clerk';
 import { useNutritionSupabase } from '@/shared/hooks/useNutritionSupabase';
-import { AnimatedDateHeader } from '@/ecosystem/internal/lifelock/components/AnimatedDateHeader';
+import { CleanDateNav } from '@/ecosystem/internal/lifelock/views/daily/_shared/components';
 import { MealInput } from './components/MealInput';
 import { MacroTracker } from './components/MacroTracker';
 

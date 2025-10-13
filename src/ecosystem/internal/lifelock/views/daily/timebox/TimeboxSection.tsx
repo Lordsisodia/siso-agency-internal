@@ -24,7 +24,7 @@ import { TimeBlockCategory } from '@/api/timeblocksApi.offline';
 import { theme } from '@/styles/theme';
 import { useImplementation } from '@/migration/feature-flags';
 import { toast } from 'sonner';
-import { AnimatedDateHeader } from '@/ecosystem/internal/lifelock/components/AnimatedDateHeader';
+import { CleanDateNav } from '@/ecosystem/internal/lifelock/views/daily/_shared/components';
 // Add Clerk authentication hooks - same pattern as working sections
 import { useClerkUser } from '@/shared/hooks/useClerkUser';
 import { useSupabaseUserId } from '@/shared/lib/supabase-clerk';

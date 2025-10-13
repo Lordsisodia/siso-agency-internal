@@ -9,7 +9,7 @@ import { format } from 'date-fns';
 import { supabaseWorkoutService } from '@/services/supabaseWorkoutService';
 import { useClerkUser } from '@/shared/hooks/useClerkUser';
 import { useSupabaseUserId } from '@/shared/lib/supabase-clerk';
-import { AnimatedDateHeader } from '@/ecosystem/internal/lifelock/components/AnimatedDateHeader';
+import { CleanDateNav } from '@/ecosystem/internal/lifelock/views/daily/_shared/components';
 import { WorkoutItemCard } from './components/WorkoutItemCard';
 
 interface WorkoutItem {
