@@ -16,19 +16,14 @@ import React from 'react';
 import { LucideIcon } from 'lucide-react';
 
 // Import tab components - UPDATED FOR UNIFIED ARCHITECTURE
-// ✅ Components from unified /sections/ directory
+// ✅ Components from unified /sections/ directory - ALL NOW USE PROPER SECTIONS
 import { MorningRoutineSection } from './views/daily/morning-routine/MorningRoutineSection';
 import { DeepFocusWorkSection } from './views/daily/deep-work/DeepFocusWorkSection';
-import SisoDeepFocusPlan from '@/components/ui/siso-deep-focus-plan';
-
-// ✅ Components from unified /sections/ directory  
 import { LightFocusWorkSection } from './views/daily/light-work/LightFocusWorkSection';
-import { EnhancedLightWorkManager } from '@/shared/ui/enhanced-light-work-manager';
 import { HomeWorkoutSection } from './views/daily/wellness/home-workout/HomeWorkoutSection';
 import { HealthNonNegotiablesSection } from './views/daily/wellness/health-non-negotiables/HealthNonNegotiablesSection';
 import { TimeboxSection } from './views/daily/timebox/TimeboxSection';
 import { NightlyCheckoutSection } from './views/daily/checkout/NightlyCheckoutSection';
-import { QuickActionsSection } from '@/ecosystem/internal/tasks/ui/QuickActionsSection';
 
 // Import existing tab config
 import { TabId, TAB_CONFIG } from '@/shared/services/tab-config';
@@ -91,49 +86,21 @@ export const ENHANCED_TAB_CONFIG: Record<TabId, EnhancedTabConfig> = {
     showDateNav: true,
     components: [MorningRoutineSection],
   },
-  
-  'focus': {
-    id: 'focus' as TabId, // This might need to be mapped to 'work'
-    name: 'Focus',
-    icon: TAB_CONFIG['work'].icon,
-    color: TAB_CONFIG['work'].color,
-    description: 'Deep focus work and light tasks',
-    layoutType: 'standard',
-    backgroundClass: 'min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24',
-    showDateNav: true,
-    components: [DeepFocusWorkSection, EnhancedLightWorkManager],
-    additionalContent: QuickActionsSection,
-  },
-  
-  'light': {
-    id: 'light' as TabId, // This might need to be mapped to 'light-work'  
-    name: 'Light Work',
-    icon: TAB_CONFIG['light-work'].icon,
-    color: TAB_CONFIG['light-work'].color,
-    description: 'Light focus work tasks',
-    layoutType: 'standard',
-    backgroundClass: 'min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24',
-    showDateNav: true,
-    components: [SisoDeepFocusPlan],
-    componentProps: { taskType: 'light-work' },
-  },
-  
+
   'light-work': {
     ...TAB_CONFIG['light-work'],
     layoutType: 'standard',
     backgroundClass: 'min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24',
     showDateNav: true,
-    components: [SisoDeepFocusPlan],
-    componentProps: { taskType: 'light-work' },
+    components: [LightFocusWorkSection],
   },
-  
+
   'work': {
     ...TAB_CONFIG['work'],
     layoutType: 'standard',
     backgroundClass: 'min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24',
     showDateNav: true,
-    components: [SisoDeepFocusPlan],
-    componentProps: { taskType: 'deep-work' },
+    components: [DeepFocusWorkSection],
   },
   
   'wellness': {

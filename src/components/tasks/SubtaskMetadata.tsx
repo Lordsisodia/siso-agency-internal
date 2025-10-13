@@ -183,11 +183,11 @@ export const SubtaskMetadata: React.FC<SubtaskMetadataProps> = ({
               }}
             />
             <motion.div
-              initial={{ opacity: 0, y: 10, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 5, scale: 0.98 }}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.98 }}
               transition={{ duration: 0.15, ease: [0.2, 0.65, 0.3, 0.9] }}
-              className="absolute bottom-full left-0 mb-2 z-[9999] backdrop-blur-xl bg-gray-900/90 border-2 border-gray-600/40 rounded-xl shadow-2xl shadow-black/50 p-2 min-w-[140px]"
+              className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[9999] backdrop-blur-xl bg-gray-900/95 border-2 border-gray-600/50 rounded-xl shadow-2xl shadow-black/60 p-3 min-w-[160px]"
             >
               {Object.entries({
                 'low': { icon: '🟢', label: 'Low', gradient: 'hover:bg-gradient-to-r hover:from-green-900/30 hover:to-green-800/20' },

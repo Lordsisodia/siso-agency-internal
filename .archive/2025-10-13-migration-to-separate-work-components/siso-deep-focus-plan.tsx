@@ -1,15 +1,5 @@
 "use client";
 
-/**
- * 🌱 Light Work Task List - PIXEL-PERFECT Green Theme
- *
- * Exact copy of siso-deep-focus-plan.tsx with GREEN theme hardcoded
- * Zero modifications to functionality - this is the perfect working version!
- *
- * Source: /components/ui/siso-deep-focus-plan.tsx (light-work variant)
- * ⚠️ DO NOT MODIFY - Pixel-perfect from working version
- */
-
 import React, { useState, useMemo } from "react";
 import {
   CheckCircle2,
@@ -25,28 +15,29 @@ import {
   ChevronDown,
   ChevronRight
 } from "lucide-react";
-import { TaskSeparator } from "@/components/tasks/TaskSeparator";
+import { TaskSeparator } from "../tasks/TaskSeparator";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
-import { SimpleFeedbackButton } from "@/ecosystem/internal/feedback/SimpleFeedbackButton";
+import { SimpleFeedbackButton } from "../../ecosystem/internal/feedback/SimpleFeedbackButton";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
-import { TaskDetailModal } from "@/components/ui/task-detail-modal";
-import { CustomCalendar } from "@/components/ui/CustomCalendar";
-import { SubtaskItem } from "@/components/tasks/SubtaskItem";
+import { TaskDetailModal } from "./task-detail-modal";
+import { CustomCalendar } from "./CustomCalendar";
+import { SubtaskItem } from "../tasks/SubtaskItem";
+import { useDeepWorkTasksSupabase, DeepWorkTask, DeepWorkSubtask } from "@/ecosystem/internal/tasks/hooks/useDeepWorkTasksSupabase";
 import { useLightWorkTasksSupabase, LightWorkTask, LightWorkSubtask } from "@/ecosystem/internal/tasks/hooks/useLightWorkTasksSupabase";
 import { sortSubtasksHybrid } from "@/ecosystem/internal/tasks/utils/subtaskSorting";
 
-// Type definitions - exact same as original
+// Type definitions - keeping original UI types
 interface Subtask {
   id: string;
   title: string;
   description: string;
   status: string;
   priority: string;
-  estimatedTime?: string;
-  tools?: string[];
-  completed: boolean;
-  dueDate?: string;
+  estimatedTime?: string; // Deep focus time estimate
+  tools?: string[]; // Optional array of MCP server tools
+  completed: boolean; // Calendar functionality requires this
+  dueDate?: string; // Calendar functionality - ISO date string
 }
 
 interface Task {
@@ -60,16 +51,17 @@ interface Task {
   subtasks: Subtask[];
   focusIntensity?: 1 | 2 | 3 | 4;
   context?: string;
-  dueDate?: string;
+  dueDate?: string; // Calendar functionality - ISO date string
 }
 
-interface LightWorkTaskListProps {
+interface SisoDeepFocusPlanProps {
   onStartFocusSession?: (taskId: string, intensity: number) => void;
-  selectedDate?: Date;
+  selectedDate?: Date; // Add selectedDate prop for the hook
+  taskType?: 'deep-work' | 'light-work'; // NEW: Optional taskType prop
 }
 
-// Transform Supabase data - EXACT COPY
-function transformSupabaseToUITasks(tasks: LightWorkTask[]): Task[] {
+// Transform Supabase data to match original UI format
+function transformSupabaseToUITasks(tasks: DeepWorkTask[] | LightWorkTask[]): Task[] {
   return tasks.map(task => ({
     id: task.id,
     title: task.title,
@@ -87,29 +79,44 @@ function transformSupabaseToUITasks(tasks: LightWorkTask[]): Task[] {
       description: subtask.text || subtask.title,
       status: subtask.completed ? "completed" : "pending",
       priority: subtask.priority || "medium",
-      estimatedTime: subtask.estimatedTime,
-      tools: [],
+      estimatedTime: subtask.estimatedTime, // From database
+      tools: [], // Empty array for tools
       completed: subtask.completed,
       dueDate: subtask.dueDate
     }))
   }));
 }
 
-export default function LightWorkTaskList({ onStartFocusSession, selectedDate = new Date() }: LightWorkTaskListProps) {
-  // GREEN THEME - Hardcoded from working version
+export default function SisoDeepFocusPlan({ onStartFocusSession, selectedDate = new Date(), taskType = 'deep-work' }: SisoDeepFocusPlanProps) {
+  // Theme configuration - using conditional complete class names for Tailwind
+  const isLightWork = taskType === 'light-work';
+  
   const theme = {
-    title: '🌱 Light Work Tasks',
-    subtitle: 'Light Focus Work',
-    description: 'Light work sessions require focused attention without deep cognitive load. These blocks are designed for your routine, administrative, and quick-turnaround work that creates steady progress.',
-    rules: [
-      '• Light interruptions allowed for urgent matters',
-      '• Phone on normal mode - check periodically',
-      '• Work in 1-2 hour focused blocks',
-      '• Quick breaks encouraged between tasks'
-    ]
+    title: isLightWork ? '🌱 Light Work Tasks' : '🧠 Deep Work Sessions',
+    subtitle: isLightWork ? 'Light Focus Work' : 'Deep Focus Work',
+    description: isLightWork 
+      ? 'Light work sessions require focused attention without deep cognitive load. These blocks are designed for your routine, administrative, and quick-turnaround work that creates steady progress.'
+      : 'Deep work sessions require sustained focus without interruption. These blocks are designed for your most important, cognitively demanding work that creates maximum value.',
+    rules: isLightWork 
+      ? [
+          '• Light interruptions allowed for urgent matters',
+          '• Phone on normal mode - check periodically',
+          '• Work in 1-2 hour focused blocks',
+          '• Quick breaks encouraged between tasks'
+        ]
+      : [
+          '• No interruptions or task switching allowed',
+          '• Phone on airplane mode or Do Not Disturb',
+          '• Work in 2-4 hour focused blocks',
+          '• Deep cognitive work only'
+        ]
   };
-
-  // Use Light Work Supabase hook
+  // Use the Supabase hook
+  // Conditional hook usage based on taskType
+  const deepWorkData = useDeepWorkTasksSupabase({ selectedDate });
+  const lightWorkData = useLightWorkTasksSupabase({ selectedDate });
+  
+  // Select the appropriate hook data based on taskType
   const {
     tasks: rawTasks,
     loading,
@@ -126,30 +133,39 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
     updateSubtaskEstimatedTime,
     updateSubtaskDescription,
     updateTaskTitle
-  } = useLightWorkTasksSupabase({ selectedDate });
-
-  // Transform data
+  } = taskType === 'light-work' ? lightWorkData : deepWorkData;
+  
+  // Transform Supabase data to UI format
   const tasks = useMemo(() => transformSupabaseToUITasks(rawTasks), [rawTasks]);
-
-  // State - EXACT COPY
-  const [expandedTasks, setExpandedTasks] = useState<string[]>(["1", "2", "3"]);
+  
+  const [expandedTasks, setExpandedTasks] = useState<string[]>(["1", "2", "3"]); // Expand all by default
   const [expandedSubtasks, setExpandedSubtasks] = useState<{
     [key: string]: boolean;
   }>({});
   const [activeFocusSession, setActiveFocusSession] = useState<string | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Calendar functionality states
   const [calendarSubtaskId, setCalendarSubtaskId] = useState<string | null>(null);
   const [calendarLoading, setCalendarLoading] = useState(false);
+  
+  // Editing states for subtasks
   const [editingSubtask, setEditingSubtask] = useState<string | null>(null);
   const [editSubtaskTitle, setEditSubtaskTitle] = useState('');
+  
+  // Editing states for main tasks
   const [editingMainTask, setEditingMainTask] = useState<string | null>(null);
   const [editMainTaskTitle, setEditMainTaskTitle] = useState('');
+  
+  // Adding new subtask states
   const [addingSubtaskToTask, setAddingSubtaskToTask] = useState<string | null>(null);
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
+  
+  // Subtask visibility toggle state
   const [showCompletedSubtasks, setShowCompletedSubtasks] = useState<{[taskId: string]: boolean}>({});
-
-  // Theme config for SubtaskItem - GREEN
+  
+  // Theme configuration for SubtaskItem
   const themeConfig = {
     colors: {
       text: 'text-green-400',
@@ -159,10 +175,10 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
     }
   };
 
-  // Reduced motion support
-  const prefersReducedMotion =
-    typeof window !== 'undefined'
-      ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  // Add support for reduced motion preference
+  const prefersReducedMotion = 
+    typeof window !== 'undefined' 
+      ? window.matchMedia('(prefers-reduced-motion: reduce)').matches 
       : false;
 
   // Close calendar when clicking outside
@@ -178,8 +194,7 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
     }
   }, [calendarSubtaskId]);
 
-  // Handlers - EXACT COPY
-
+  // Toggle task expansion
   const toggleTaskExpansion = (taskId: string) => {
     setExpandedTasks((prev) =>
       prev.includes(taskId)
@@ -188,6 +203,7 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
     );
   };
 
+  // Toggle subtask expansion
   const toggleSubtaskExpansion = (taskId: string, subtaskId: string) => {
     const key = `${taskId}-${subtaskId}`;
     setExpandedSubtasks((prev) => ({
@@ -196,19 +212,23 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
     }));
   };
 
+  // Toggle task status - use Supabase hook
   const handleToggleTaskStatus = async (taskId: string) => {
     try {
       await toggleTaskCompletion(taskId);
     } catch (error) {
       console.error('Error toggling task completion:', error);
+      // Optional: Show user feedback
     }
   };
 
+  // Toggle subtask status - use Supabase hook
   const handleToggleSubtaskStatus = async (taskId: string, subtaskId: string) => {
     try {
       await toggleSubtaskCompletion(taskId, subtaskId);
     } catch (error) {
       console.error('Error toggling subtask completion:', error);
+      // Optional: Show user feedback
     }
   };
 
@@ -218,7 +238,8 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
       try {
         setActiveFocusSession(subtaskId ? `${taskId}-${subtaskId}` : taskId);
         onStartFocusSession?.(taskId, task.focusIntensity || 2);
-
+        
+        // Update status to in-progress
         if (subtaskId) {
           await handleToggleSubtaskStatus(taskId, subtaskId);
         } else {
@@ -226,6 +247,7 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
         }
       } catch (error) {
         console.error('Error starting focus session:', error);
+        // Reset focus session if there was an error
         setActiveFocusSession(null);
       }
     }
@@ -237,18 +259,22 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
   };
 
   const updateTask = (updatedTask: Task) => {
+    // This would need to be implemented with Supabase operations
     console.log('Update task:', updatedTask);
   };
 
+  // Update subtask due date - use Supabase hook
   const handleUpdateSubtaskDueDate = async (taskId: string, subtaskId: string, dueDate: Date | null) => {
     try {
       await updateSubtaskDueDate(subtaskId, dueDate);
     } catch (error) {
       console.error('Error updating subtask due date:', error);
+      // Don't close calendar if there's an error, let user try again
       return;
     }
   };
 
+  // Subtask editing handlers
   const handleSubtaskStartEditing = (subtaskId: string, currentTitle: string) => {
     setEditingSubtask(subtaskId);
     setEditSubtaskTitle(currentTitle);
@@ -287,6 +313,7 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
     setCalendarSubtaskId(prev => prev === subtaskId ? null : subtaskId);
   };
 
+  // Main task editing handlers
   const handleMainTaskStartEditing = (taskId: string, currentTitle: string) => {
     setEditingMainTask(taskId);
     setEditMainTaskTitle(currentTitle);
@@ -324,6 +351,7 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
     await deleteSubtask(subtaskId);
   };
 
+  // Update subtask priority - use Supabase hook
   const handleUpdateSubtaskPriority = async (subtaskId: string, priority: string) => {
     try {
       await updateSubtaskPriority(subtaskId, priority);
@@ -332,6 +360,7 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
     }
   };
 
+  // Update subtask description - use Supabase hook
   const handleUpdateSubtaskDescription = async (subtaskId: string, description: string) => {
     try {
       await updateSubtaskDescription(subtaskId, description);
@@ -340,6 +369,7 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
     }
   };
 
+  // Update subtask estimated time - use Supabase hook
   const handleUpdateSubtaskEstimatedTime = async (subtaskId: string, estimatedTime: string) => {
     try {
       await updateSubtaskEstimatedTime(subtaskId, estimatedTime);
@@ -348,6 +378,7 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
     }
   };
 
+  // New subtask creation handlers
   const handleStartAddingSubtask = (taskId: string) => {
     setAddingSubtaskToTask(taskId);
     setNewSubtaskTitle('');
@@ -380,6 +411,7 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
     }
   };
 
+  // Toggle subtask visibility
   const toggleSubtaskVisibility = (taskId: string) => {
     setShowCompletedSubtasks(prev => ({
       ...prev,
@@ -387,15 +419,15 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
     }));
   };
 
-  // Animation variants - EXACT COPY
+  // Animation variants with reduced motion support
   const taskVariants = {
     hidden: { opacity: 0, y: prefersReducedMotion ? 0 : -5 },
-    visible: {
-      opacity: 1,
+    visible: { 
+      opacity: 1, 
       y: 0,
-      transition: {
-        type: prefersReducedMotion ? "tween" : "spring",
-        stiffness: 500,
+      transition: { 
+        type: prefersReducedMotion ? "tween" : "spring", 
+        stiffness: 500, 
         damping: 30,
         duration: prefersReducedMotion ? 0.2 : undefined
       }
@@ -404,12 +436,12 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
 
   const subtaskListVariants = {
     hidden: { opacity: 0, height: 0, overflow: "hidden" },
-    visible: {
-      height: "auto",
+    visible: { 
+      height: "auto", 
       opacity: 1,
       overflow: "visible",
-      transition: {
-        duration: 0.25,
+      transition: { 
+        duration: 0.25, 
         staggerChildren: prefersReducedMotion ? 0 : 0.05,
         when: "beforeChildren",
         ease: [0.2, 0.65, 0.3, 0.9]
@@ -419,27 +451,27 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
 
   const subtaskVariants = {
     hidden: { opacity: 0, x: prefersReducedMotion ? 0 : -10 },
-    visible: {
-      opacity: 1,
+    visible: { 
+      opacity: 1, 
       x: 0,
-      transition: {
-        type: prefersReducedMotion ? "tween" : "spring",
-        stiffness: 500,
+      transition: { 
+        type: prefersReducedMotion ? "tween" : "spring", 
+        stiffness: 500, 
         damping: 25,
         duration: prefersReducedMotion ? 0.2 : undefined
       }
     },
   };
 
-  // Loading state - GREEN THEME
+  // Show loading state
   if (loading) {
     return (
-      <div className="text-green-50 h-full">
-        <Card className="bg-green-900/20 border-green-700/50">
+      <div className={`${isLightWork ? "text-green-50" : "text-blue-50"} h-full`}>
+        <Card className={isLightWork ? "bg-green-900/20 border-green-700/50" : "bg-blue-900/20 border-blue-700/50"}>
           <CardContent className="p-4 text-center">
             <div className="flex items-center justify-center space-x-2">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-400"></div>
-              <span className="text-green-300">Loading {theme.subtitle} tasks...</span>
+              <div className={`animate-spin rounded-full h-6 w-6 border-b-2 ${isLightWork ? "border-green-400" : "border-blue-400"}`}></div>
+              <span className={isLightWork ? "text-green-300" : "text-blue-300"}>Loading {theme.subtitle} tasks...</span>
             </div>
           </CardContent>
         </Card>
@@ -447,20 +479,20 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
     );
   }
 
-  // Error state - GREEN THEME
+  // Show error state
   if (error) {
     return (
-      <div className="text-green-50 h-full">
-        <Card className="bg-green-900/20 border-green-700/50">
+      <div className={`${isLightWork ? "text-green-50" : "text-blue-50"} h-full`}>
+        <Card className={isLightWork ? "bg-green-900/20 border-green-700/50" : "bg-blue-900/20 border-blue-700/50"}>
           <CardContent className="p-4 text-center">
             <div className="text-red-400 mb-4">
               <CircleAlert className="h-8 w-8 mx-auto mb-2" />
-              Error loading Light Work tasks
+              Error loading Deep Work tasks
             </div>
-            <p className="text-sm text-green-200 mb-4">{error}</p>
-            <Button
-              onClick={() => window.location.reload()}
-              className="bg-green-600 hover:bg-green-700"
+            <p className={`text-sm ${isLightWork ? "text-green-200" : "text-blue-200"} mb-4`}>{error}</p>
+            <Button 
+              onClick={() => window.location.reload()} 
+              className={isLightWork ? "bg-green-600 hover:bg-green-700" : "bg-blue-600 hover:bg-blue-700"}
             >
               Retry
             </Button>
@@ -471,39 +503,40 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
   }
 
   return (
-    <div className="text-green-50 h-full">
-      <Card className="bg-green-900/20 border-green-700/50">
+    <div className={`${isLightWork ? "text-green-50" : "text-blue-50"} h-full`}>
+      <Card className={`${isLightWork ? "bg-green-900/20 border-green-700/50" : "bg-blue-900/20 border-blue-700/50"}`}>
         <CardHeader className="p-3 sm:p-4">
-          <CardTitle className="flex items-center text-green-400 text-base sm:text-lg">
+          <CardTitle className={`flex items-center ${isLightWork ? "text-green-400" : "text-blue-400"} text-base sm:text-lg`}>
             <Brain className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
             {theme.title}
           </CardTitle>
-          <div className="border-t border-green-600/50 my-4"></div>
+          <div className={`border-t ${isLightWork ? "border-green-600/50" : "border-blue-600/50"} my-4`}></div>
           <div className="space-y-4">
             <div>
-              <h3 className="font-bold text-green-300 mb-2 text-sm sm:text-base">Flow State Protocol</h3>
-              <p className="text-green-200 text-xs sm:text-sm leading-relaxed">
-                {theme.description}
+              <h3 className={`font-bold ${isLightWork ? "text-green-300" : "text-blue-300"} mb-2 text-sm sm:text-base`}>Flow State Protocol</h3>
+              <p className={`${isLightWork ? "text-green-200" : "text-blue-200"} text-xs sm:text-sm leading-relaxed`}>
+                Deep work sessions require sustained focus without interruption. These blocks are designed for your most 
+                important, cognitively demanding work that creates maximum value.
               </p>
             </div>
-            <div className="border-t border-green-600/50 my-4"></div>
+            <div className={`border-t ${isLightWork ? "border-green-600/50" : "border-blue-600/50"} my-4`}></div>
             <div>
-              <h3 className="font-bold text-green-300 mb-2 text-sm sm:text-base">{theme.subtitle} Rules</h3>
-              <ul className="text-green-200 text-xs sm:text-sm space-y-1">
+              <h3 className={`font-bold ${isLightWork ? "text-green-300" : "text-blue-300"} mb-2 text-sm sm:text-base`}>{theme.subtitle} Rules</h3>
+              <ul className={`${isLightWork ? "text-green-200" : "text-blue-200"} text-xs sm:text-sm space-y-1`}>
                 {theme.rules.map((rule, index) => (
                   <li key={index}>{rule}</li>
                 ))}
               </ul>
             </div>
           </div>
-          <div className="border-t border-green-600/50 my-3 sm:my-4"></div>
+          <div className={`border-t ${isLightWork ? "border-green-600/50" : "border-blue-600/50"} my-3 sm:my-4`}></div>
         </CardHeader>
         <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
 
-          <motion.div
+          <motion.div 
             initial={{ opacity: 0, y: 10 }}
-            animate={{
-              opacity: 1,
+            animate={{ 
+              opacity: 1, 
               y: 0,
               transition: { duration: 0.3, ease: [0.2, 0.65, 0.3, 0.9] }
             }}
@@ -523,8 +556,8 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
                     animate="visible"
                     variants={taskVariants}
                   >
-                    {/* Task Container */}
-                    <div className="group bg-green-900/10 border-green-700/30 hover:bg-green-900/15 hover:border-green-600/40 hover:shadow-green-500/5 rounded-xl transition-all duration-300 hover:shadow-lg">
+                    {/* Task Container - Wraps entire task including subtasks */}
+                    <div className={`group ${isLightWork ? "bg-green-900/10 border-green-700/30 hover:bg-green-900/15 hover:border-green-600/40 hover:shadow-green-500/5" : "bg-blue-900/10 border-blue-700/30 hover:bg-blue-900/15 hover:border-blue-600/40 hover:shadow-blue-500/5"} rounded-xl transition-all duration-300 hover:shadow-lg`}>
                       {/* Task Header */}
                       <div className="p-3 sm:p-4">
                         <div className="flex items-center gap-3">
@@ -549,7 +582,7 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
                                 {task.status === "completed" ? (
                                   <CheckCircle2 className="h-5 w-5 text-green-400" />
                                 ) : task.status === "in-progress" ? (
-                                  <CircleDotDashed className="h-5 w-5 text-green-400" />
+                                  <CircleDotDashed className={`h-5 w-5 ${isLightWork ? "text-green-400" : "text-blue-400"}`} />
                                 ) : task.status === "need-help" ? (
                                   <CircleAlert className="h-5 w-5 text-yellow-400" />
                                 ) : (
@@ -569,23 +602,23 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
                                 onChange={(e) => handleMainTaskEditTitleChange(e.target.value)}
                                 onKeyDown={(e) => handleMainTaskKeyDown(e, task.id)}
                                 onBlur={() => handleMainTaskSaveEdit(task.id)}
-                                className="w-full bg-green-900/40 text-green-100 font-semibold text-sm sm:text-base px-2 py-1 rounded border border-green-600/50 focus:border-green-400 focus:outline-none"
+                                className={`w-full ${isLightWork ? "bg-green-900/40 text-green-100" : "bg-blue-900/40 text-blue-100"} font-semibold text-sm sm:text-base px-2 py-1 rounded border ${isLightWork ? "border-green-600/50 focus:border-green-400" : "border-blue-600/50 focus:border-blue-400"} focus:outline-none`}
                                 autoFocus
                               />
                             ) : (
-                              <h4
-                                className="text-green-100 hover:text-green-50 font-semibold text-sm sm:text-base cursor-pointer transition-colors truncate"
+                              <h4 
+                                className={`${isLightWork ? "text-green-100 hover:text-green-50" : "text-blue-100 hover:text-blue-50"} font-semibold text-sm sm:text-base cursor-pointer transition-colors truncate`}
                                 onClick={() => handleMainTaskStartEditing(task.id, task.title)}
                               >
                                 {task.title}
                               </h4>
                             )}
                           </div>
-
-                          {/* Toggle Button */}
+                          
+                          {/* Toggle Button Only */}
                           <div className="flex items-center flex-shrink-0">
                             <motion.button
-                              className="p-1 rounded-md hover:bg-green-900/20 transition-colors"
+                              className={`p-1 rounded-md ${isLightWork ? "hover:bg-green-900/20" : "hover:bg-blue-900/20"} transition-colors`}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 toggleTaskExpansion(task.id);
@@ -593,22 +626,22 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
                               whileTap={{ scale: 0.9 }}
                             >
                               {isExpanded ? (
-                                <ChevronDown className="h-4 w-4 text-green-300" />
+                                <ChevronDown className={`h-4 w-4 ${isLightWork ? "text-green-300" : "text-blue-300"}`} />
                               ) : (
-                                <ChevronRight className="h-4 w-4 text-green-300" />
+                                <ChevronRight className={`h-4 w-4 ${isLightWork ? "text-green-300" : "text-blue-300"}`} />
                               )}
                             </motion.button>
                           </div>
                         </div>
-
-                        {/* Top divider */}
-                        <div className="border-t border-green-600/50 mt-3"></div>
+                        
+                        {/* Top divider below main task */}
+                        <div className={`border-t ${isLightWork ? "border-green-600/50" : "border-blue-600/50"} mt-3`}></div>
                       </div>
 
                       {/* Subtasks */}
                     <AnimatePresence mode="wait">
                       {isExpanded && (
-                        <motion.div
+                        <motion.div 
                           className="relative overflow-hidden"
                           variants={subtaskListVariants}
                           initial="hidden"
@@ -620,8 +653,9 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
                           {task.subtasks.length > 0 && (
                             <ul className="mt-1 mr-2 mb-2 ml-2 space-y-1">
                               {sortSubtasksHybrid(task.subtasks.filter((subtask) => {
+                                // Show incomplete subtasks by default, toggle to show completed when clicked
                                 const shouldShowCompleted = showCompletedSubtasks[task.id];
-                                if (shouldShowCompleted === undefined) return subtask.status !== "completed";
+                                if (shouldShowCompleted === undefined) return subtask.status !== "completed"; // Show incomplete by default
                                 return shouldShowCompleted ? subtask.status === "completed" : subtask.status !== "completed";
                               })).map((subtask) => {
                               return (
@@ -666,14 +700,16 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
                                     {calendarSubtaskId === subtask.id && (
                                       <div className="calendar-popup fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 bg-gray-800 border border-gray-600 rounded-lg shadow-xl p-3 min-w-[280px] max-w-[90vw] max-h-[90vh] overflow-auto">
                                         <CustomCalendar
-                                          theme='LIGHT'
+                                          theme={isLightWork ? 'LIGHT' : 'DEEP'}
                                           subtask={subtask}
                                           onDateSelect={async (date) => {
                                             try {
                                               await handleUpdateSubtaskDueDate(task.id, subtask.id, date);
+                                              // Only close calendar if update was successful
                                               setCalendarSubtaskId(null);
                                             } catch (error) {
                                               console.error('Failed to update due date:', error);
+                                              // Keep calendar open so user can try again
                                             }
                                           }}
                                           onClose={() => setCalendarSubtaskId(null)}
@@ -686,8 +722,8 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
                               })}
                             </ul>
                           )}
-
-                          {/* Add Subtask Button */}
+                          
+                          {/* Add Subtask Button - Above line, below last subtask */}
                           <div className="px-3 pb-2 mt-2">
                             {addingSubtaskToTask === task.id ? (
                               <input
@@ -697,14 +733,14 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
                                 onKeyDown={(e) => handleNewSubtaskKeyDown(e, task.id)}
                                 onBlur={() => handleSaveNewSubtask(task.id)}
                                 placeholder="Enter subtask title..."
-                                className="w-full bg-green-900/40 text-green-100 border-green-600/50 focus:border-green-400 text-xs px-3 py-2 rounded border focus:outline-none"
+                                className={`w-full ${isLightWork ? "bg-green-900/40 text-green-100 border-green-600/50 focus:border-green-400" : "bg-blue-900/40 text-blue-100 border-blue-600/50 focus:border-blue-400"} text-xs px-3 py-2 rounded border focus:outline-none`}
                                 autoFocus
                               />
                             ) : (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="w-full text-green-300 hover:text-green-200 hover:bg-green-900/20 border-green-700/30 hover:border-green-600/40 transition-all duration-200 text-xs border"
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className={`w-full ${isLightWork ? "text-green-300 hover:text-green-200 hover:bg-green-900/20 border-green-700/30 hover:border-green-600/40" : "text-blue-300 hover:text-blue-200 hover:bg-blue-900/20 border-blue-700/30 hover:border-blue-600/40"} transition-all duration-200 text-xs border`}
                                 onClick={() => handleStartAddingSubtask(task.id)}
                               >
                                 <Plus className="h-3 w-3 mr-1" />
@@ -712,23 +748,23 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
                               </Button>
                             )}
                           </div>
-
+                          
                           {/* Bottom divider */}
-                          <div className="border-t border-green-600/50 mt-3"></div>
-
-                          {/* Progress Summary */}
+                          <div className={`border-t ${isLightWork ? "border-green-600/50" : "border-blue-600/50"} mt-3`}></div>
+                          
+                          {/* Progress Summary at bottom with action buttons - Always show */}
                           {(
                             <div className="mt-3 pb-2 px-3">
                               <div className="flex items-center justify-between">
                                 <div></div>
-                                <button
-                                  className="text-xs text-green-400 hover:text-green-300 cursor-pointer transition-colors"
+                                <button 
+                                  className={`text-xs ${isLightWork ? "text-green-400 hover:text-green-300" : "text-blue-400 hover:text-blue-300"} cursor-pointer transition-colors`}
                                   onClick={() => toggleSubtaskVisibility(task.id)}
                                   title="Toggle completed subtasks visibility"
                                 >
                                   {task.subtasks.filter(s => s.status === "completed").length} of {task.subtasks.length} subtasks completed
                                 </button>
-                                <button
+                                <button 
                                   className="text-gray-400 hover:text-red-400 cursor-pointer transition-colors text-lg font-bold leading-none"
                                   onClick={() => {
                                     deleteTask(task.id);
@@ -744,21 +780,21 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
                         </motion.div>
                       )}
                     </AnimatePresence>
-
-                    {/* Progress Summary when collapsed */}
+                    
+                    {/* Progress Summary when collapsed - Always visible */}
                     {!isExpanded && (
                       <div className="px-3 pb-3">
                         <div className="flex items-center justify-between">
                           <div></div>
-                          <button
-                            className="text-xs text-green-400 hover:text-green-300 cursor-pointer transition-colors"
+                          <button 
+                            className={`text-xs ${isLightWork ? "text-green-400 hover:text-green-300" : "text-blue-400 hover:text-blue-300"} cursor-pointer transition-colors`}
                             onClick={() => toggleSubtaskVisibility(task.id)}
                             title="Toggle completed subtasks visibility"
                           >
                             {task.subtasks.filter(s => s.status === "completed").length} of {task.subtasks.length} subtasks completed
                           </button>
-                          <button
-                            className="text-gray-400 hover:text-red-400 cursor-pointer transition-colors text-lg font-bold leading-none"
+                          <button 
+                            className="text-gray-400 hover:text-red-400 cursor-pointer transition-colors text-lg font-bold leading-none" 
                             onClick={() => {
                               deleteTask(task.id);
                             }}
@@ -774,26 +810,28 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
                 );
               })}
             </ul>
-
+            
             {/* Add Task Button */}
             <div className="mt-4 px-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full text-green-300 hover:text-green-200 hover:bg-green-900/20 border-green-700/30 hover:border-green-600/40 transition-all duration-200 text-sm border"
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className={`w-full ${isLightWork ? "text-green-300 hover:text-green-200 hover:bg-green-900/20 border-green-700/30 hover:border-green-600/40" : "text-blue-300 hover:text-blue-200 hover:bg-blue-900/20 border-blue-700/30 hover:border-blue-600/40"} transition-all duration-200 text-sm border`}
                 onClick={async () => {
                   try {
-                    const taskTitle = 'New Light Work Task';
-                    const newTask = await createTask({
-                      title: taskTitle,
-                      priority: 'HIGH'
+                    // Create task with appropriate title based on task type
+                    const taskTitle = isLightWork ? 'New Light Work Task' : 'New Deep Work Task';
+                    const newTask = await createTask({ 
+                      title: taskTitle, 
+                      priority: 'HIGH' 
                     });
-
+                    
+                    // If task creation was successful, immediately start editing
                     if (newTask) {
                       setTimeout(() => {
                         setEditingMainTask(newTask.id);
                         setEditMainTaskTitle(newTask.title);
-                      }, 100);
+                      }, 100); // Small delay to ensure UI updates
                     }
                   } catch (error) {
                     console.error('Error creating new task:', error);
@@ -811,7 +849,7 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
         </CardContent>
       </Card>
 
-      {/* Feedback Button */}
+      {/* Feedback Button - Bar below card */}
       <div className="mt-4">
         <SimpleFeedbackButton variant="bar" className="w-full" />
       </div>
