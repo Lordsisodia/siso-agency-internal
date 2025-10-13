@@ -8,7 +8,9 @@ import {
   Plus,
   Edit3,
   Target,
-  Zap
+  Zap,
+  Lightbulb,
+  X
 } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
 import { Badge } from '@/shared/ui/badge';
