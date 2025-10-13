@@ -132,6 +132,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
   const [editingBlock, setEditingBlock] = useState(null);
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
   const [dragPreview, setDragPreview] = useState<{ startTime: string; endTime: string; top: number } | null>(null);
+  const [showSprintMenu, setShowSprintMenu] = useState(false);
   
   // Debug logging
   useEffect(() => {
@@ -251,16 +252,64 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
 
   const currentTimePosition = useMemo(() => getCurrentTimePosition(), [getCurrentTimePosition]);
 
+  // Micro-celebrations - triggered on completion
+  const celebrate = useCallback((task: TimeboxTask) => {
+    // Haptic feedback
+    if (navigator.vibrate) {
+      navigator.vibrate([50, 25, 50]);
+    }
+
+    // Different celebrations based on task type/duration
+    if (task.duration >= 120 && task.category === 'deep-work') {
+      // Big win - completed 2hr+ deep work
+      toast.success('🎊 Amazing! 2+ hours of deep work completed!', {
+        duration: 4000,
+        className: 'bg-gradient-to-r from-purple-600 to-pink-600'
+      });
+    } else if (task.duration >= 90) {
+      toast.success('⚡ Great focus session!', { duration: 3000 });
+    } else if (task.category === 'deep-work') {
+      toast.success('🎯 Deep work completed!', { duration: 2000 });
+    } else {
+      toast.success('✅ Task completed!', { duration: 2000 });
+    }
+
+    // Check for streak achievements
+    const completedToday = validTasks.filter(t => t.completed).length + 1;
+    if (completedToday === 5) {
+      toast.success('🔥 On fire! 5 tasks completed today!', {
+        duration: 5000,
+        className: 'bg-gradient-to-r from-orange-500 to-red-600'
+      });
+      if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 100]);
+    } else if (completedToday === validTasks.length && validTasks.length > 0) {
+      toast.success('💎 Perfect day! All blocks completed!', {
+        duration: 6000,
+        className: 'bg-gradient-to-r from-emerald-500 to-teal-600'
+      });
+      if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 100, 50, 200]);
+    }
+  }, [validTasks]);
+
   // Handle task completion toggle with database persistence
   const handleToggleComplete = useCallback(async (taskId: string) => {
     try {
+      const task = validTasks.find(t => t.id === taskId);
+      const wasCompleted = task?.completed;
+      
       await toggleCompletion(taskId);
-      toast.success('Time block updated');
+      
+      // Only celebrate when marking as complete (not when unchecking)
+      if (!wasCompleted && task) {
+        celebrate(task);
+      } else {
+        toast.success('Time block updated');
+      }
     } catch (error) {
       console.error('Error toggling task completion:', error);
       toast.error('Failed to update time block');
     }
-  }, [toggleCompletion]);
+  }, [toggleCompletion, validTasks, celebrate]);
   
   // Handle editing a time block
   const handleEditBlock = useCallback((task: TimeboxTask) => {
@@ -512,6 +561,76 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
     }
   }, [createTimeBlock]);
 
+  // Focus Sprint Generator - Create Pomodoro-style work/break chains
+  const createFocusSprint = useCallback(async (startTime: string, templateType: 'pomodoro' | 'extended' | 'deep') => {
+    const templates = {
+      pomodoro: [
+        { type: 'DEEP_WORK', duration: 25, title: '🎯 Pomodoro Focus' },
+        { type: 'BREAK', duration: 5, title: '☕ Short Break' },
+        { type: 'DEEP_WORK', duration: 25, title: '🎯 Pomodoro Focus' },
+        { type: 'BREAK', duration: 5, title: '☕ Short Break' },
+        { type: 'DEEP_WORK', duration: 25, title: '🎯 Pomodoro Focus' },
+        { type: 'BREAK', duration: 5, title: '☕ Short Break' },
+        { type: 'DEEP_WORK', duration: 25, title: '🎯 Pomodoro Focus' },
+        { type: 'BREAK', duration: 15, title: '☕ Long Break' }
+      ],
+      extended: [
+        { type: 'DEEP_WORK', duration: 50, title: '🎯 Extended Focus' },
+        { type: 'BREAK', duration: 10, title: '☕ Break' },
+        { type: 'DEEP_WORK', duration: 50, title: '🎯 Extended Focus' },
+        { type: 'BREAK', duration: 10, title: '☕ Break' }
+      ],
+      deep: [
+        { type: 'DEEP_WORK', duration: 90, title: '🎯 Deep Immersion' },
+        { type: 'BREAK', duration: 20, title: '☕ Recovery Break' },
+        { type: 'DEEP_WORK', duration: 90, title: '🎯 Deep Immersion' },
+        { type: 'BREAK', duration: 20, title: '☕ Recovery Break' }
+      ]
+    };
+
+    const template = templates[templateType];
+    const [startHour, startMin] = startTime.split(':').map(Number);
+    let currentMinute = startHour * 60 + startMin;
+
+    const formatTime = (m: number) => `${Math.floor(m / 60).toString().padStart(2, '0')}:${(m % 60).toString().padStart(2, '0')}`;
+
+    let successCount = 0;
+    const totalBlocks = template.length;
+    
+    for (const block of template) {
+      const endMinute = currentMinute + block.duration;
+      
+      // Don't go past midnight
+      if (endMinute >= 24 * 60) {
+        toast.warning(`Sprint truncated at block ${successCount}/${totalBlocks} - would exceed midnight`);
+        break;
+      }
+
+      const success = await createTimeBlock({
+        title: block.title,
+        description: `Part of ${templateType} focus sprint`,
+        startTime: formatTime(currentMinute),
+        endTime: formatTime(endMinute),
+        category: block.type as TimeBlockCategory,
+        notes: `Focus sprint: ${templateType}`
+      });
+
+      if (success) {
+        successCount++;
+        currentMinute = endMinute;
+      } else {
+        toast.error(`Failed to create block ${successCount + 1}/${totalBlocks}`);
+        break;
+      }
+    }
+
+    if (successCount > 0) {
+      const sprintNames = { pomodoro: 'Classic Pomodoro', extended: 'Extended Focus', deep: 'Deep Immersion' };
+      toast.success(`🎯 Created ${successCount}/${totalBlocks} blocks for ${sprintNames[templateType]} sprint!`);
+      setShowSprintMenu(false);
+    }
+  }, [createTimeBlock]);
+
   // Auto-scroll to current time on page load
   useEffect(() => {
     const timelineContainer = document.querySelector('[data-timeline-container]');
@@ -547,6 +666,32 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
       return true;
     });
   }, [tasks]);
+
+  // Calculate hourly density for heatmap
+  const hourlyDensity = useMemo(() => {
+    const density = Array(24).fill(0);
+    
+    validTasks.forEach(task => {
+      const [startHour, startMin] = task.startTime.split(':').map(Number);
+      const [endHour, endMin] = task.endTime.split(':').map(Number);
+      
+      const startTotalMin = startHour * 60 + startMin;
+      const endTotalMin = endHour * 60 + endMin;
+      
+      // Mark each hour this task touches
+      for (let h = startHour; h <= endHour; h++) {
+        const hourStart = h * 60;
+        const hourEnd = (h + 1) * 60;
+        
+        // Check if task overlaps with this hour
+        if (startTotalMin < hourEnd && endTotalMin > hourStart) {
+          density[h] = Math.min(3, density[h] + 1); // Cap at 3 for color scaling
+        }
+      }
+    });
+    
+    return density;
+  }, [validTasks]);
   
   // Show loading state
   if (isLoading) {
@@ -607,36 +752,109 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
           </Card>
         </motion.div>
         
-        {/* Prominent Add Tasks Button */}
+        {/* Prominent Add Tasks Button + Sprint Menu */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.2 }}
-          className="mx-4 mb-3"
+          className="mx-4 mb-3 space-y-2"
         >
-          <Button
-            onClick={() => setIsQuickSchedulerOpen(true)}
-            disabled={isCreating || isUpdating}
-            className="w-full bg-gradient-to-r from-emerald-500 to-blue-600 hover:from-emerald-600 hover:to-blue-700 text-white py-3 text-base font-semibold shadow-xl hover:shadow-2xl border border-white/20 hover:border-white/30 transition-all duration-300 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
-            size="lg"
-            title="Add tasks to timebox"
-          >
-            {isCreating || isUpdating ? (
-              <>
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                  className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full mr-3"
-                />
-                {isCreating ? 'Adding...' : 'Updating...'}
-              </>
-            ) : (
-              <>
-                <Calendar className="h-5 w-5 mr-3" />
-                Add Tasks to Timeline
-              </>
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              onClick={() => setIsQuickSchedulerOpen(true)}
+              disabled={isCreating || isUpdating}
+              className="bg-gradient-to-r from-emerald-500 to-blue-600 hover:from-emerald-600 hover:to-blue-700 text-white py-3 text-sm font-semibold shadow-xl hover:shadow-2xl border border-white/20 hover:border-white/30 transition-all duration-300 rounded-xl disabled:opacity-50"
+              size="lg"
+            >
+              <Calendar className="h-4 w-4 mr-2" />
+              Add Tasks
+            </Button>
+            
+            <Button
+              onClick={() => setShowSprintMenu(!showSprintMenu)}
+              disabled={isCreating || isUpdating}
+              className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white py-3 text-sm font-semibold shadow-xl hover:shadow-2xl border border-white/20 hover:border-white/30 transition-all duration-300 rounded-xl disabled:opacity-50"
+              size="lg"
+            >
+              <Zap className="h-4 w-4 mr-2" />
+              Focus Sprint
+            </Button>
+          </div>
+          
+          {/* Sprint Selection Menu */}
+          <AnimatePresence>
+            {showSprintMenu && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="bg-gray-900/95 border border-purple-500/30 rounded-xl p-4 space-y-3">
+                  <h4 className="text-white font-semibold text-sm flex items-center">
+                    <Zap className="h-4 w-4 mr-2 text-purple-400" />
+                    Choose Sprint Type
+                  </h4>
+                  
+                  <div className="space-y-2">
+                    {/* Pomodoro Sprint */}
+                    <Button
+                      onClick={() => {
+                        const now = new Date();
+                        const startTime = `${now.getHours().toString().padStart(2, '0')}:${Math.ceil(now.getMinutes() / 15) * 15}`;
+                        createFocusSprint(startTime, 'pomodoro');
+                      }}
+                      className="w-full bg-blue-600/20 hover:bg-blue-600/40 border border-blue-500/40 text-white justify-start"
+                    >
+                      <div className="flex flex-col items-start w-full">
+                        <span className="font-semibold">🍅 Classic Pomodoro</span>
+                        <span className="text-xs text-gray-300">4x (25min work + 5min break) = 2 hours</span>
+                      </div>
+                    </Button>
+                    
+                    {/* Extended Sprint */}
+                    <Button
+                      onClick={() => {
+                        const now = new Date();
+                        const startTime = `${now.getHours().toString().padStart(2, '0')}:${Math.ceil(now.getMinutes() / 15) * 15}`;
+                        createFocusSprint(startTime, 'extended');
+                      }}
+                      className="w-full bg-purple-600/20 hover:bg-purple-600/40 border border-purple-500/40 text-white justify-start"
+                    >
+                      <div className="flex flex-col items-start w-full">
+                        <span className="font-semibold">⚡ Extended Focus</span>
+                        <span className="text-xs text-gray-300">2x (50min work + 10min break) = 2 hours</span>
+                      </div>
+                    </Button>
+                    
+                    {/* Deep Immersion Sprint */}
+                    <Button
+                      onClick={() => {
+                        const now = new Date();
+                        const startTime = `${now.getHours().toString().padStart(2, '0')}:${Math.ceil(now.getMinutes() / 15) * 15}`;
+                        createFocusSprint(startTime, 'deep');
+                      }}
+                      className="w-full bg-indigo-600/20 hover:bg-indigo-600/40 border border-indigo-500/40 text-white justify-start"
+                    >
+                      <div className="flex flex-col items-start w-full">
+                        <span className="font-semibold">🧠 Deep Immersion</span>
+                        <span className="text-xs text-gray-300">2x (90min work + 20min break) = 3.5 hours</span>
+                      </div>
+                    </Button>
+                  </div>
+                  
+                  <Button
+                    onClick={() => setShowSprintMenu(false)}
+                    variant="outline"
+                    size="sm"
+                    className="w-full text-gray-400 border-gray-600"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </motion.div>
             )}
-          </Button>
+          </AnimatePresence>
         </motion.div>
 
         {/* TimeBox Card Wrapper */}
@@ -708,6 +926,30 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
                         )}
                       </motion.div>
                     </motion.div>
+                  ))}
+                </div>
+
+                {/* Timeline Density Heatmap - Background layer */}
+                <div className="absolute left-16 right-0 top-0 bottom-0 pointer-events-none">
+                  {timeSlots.map((slot, index) => (
+                    <motion.div
+                      key={`heatmap-${slot.hour}`}
+                      className={cn(
+                        "absolute w-full transition-all duration-700",
+                        hourlyDensity[slot.hour] === 0 && "bg-transparent",
+                        hourlyDensity[slot.hour] === 1 && "bg-green-500/8",
+                        hourlyDensity[slot.hour] === 2 && "bg-yellow-500/15",
+                        hourlyDensity[slot.hour] >= 3 && "bg-red-500/25"
+                      )}
+                      style={{ top: `${slot.hour * 80}px`, height: '80px' }}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{
+                        duration: 0.8,
+                        delay: index * 0.03,
+                        ease: "easeOut"
+                      }}
+                    />
                   ))}
                 </div>
 
