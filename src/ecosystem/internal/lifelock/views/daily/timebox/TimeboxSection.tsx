@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Clock,
   Calendar,
@@ -133,6 +133,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
   const [dragPreview, setDragPreview] = useState<{ startTime: string; endTime: string; top: number } | null>(null);
   const [showSprintMenu, setShowSprintMenu] = useState(false);
+  const [showComparison, setShowComparison] = useState(true);
   
   // Debug logging
   useEffect(() => {
@@ -532,9 +533,9 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
   };
 
   // Handle adding a follow-up block after an existing block
-  const handleAddAfter = useCallback(async (task: TimeboxTask, minutes = 60) => {
+  const handleAddAfter = useCallback(async (task: TimeboxTask, minutes = 60, bufferMinutes = 10) => {
     const [endHour, endMin] = task.endTime.split(':').map(Number);
-    const startMinutes = endHour * 60 + endMin;
+    const startMinutes = endHour * 60 + endMin + bufferMinutes; // Add 10min buffer
     const endMinutes = Math.min(24 * 60 - 1, startMinutes + minutes);
     
     // Check if we can fit the block
@@ -555,7 +556,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
     });
     
     if (success) {
-      toast.success('Added follow-up block');
+      toast.success(`Added follow-up block (+${bufferMinutes}min buffer)`);
     } else {
       toast.error('Failed to add follow-up');
     }
@@ -692,6 +693,79 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
     
     return density;
   }, [validTasks]);
+
+
+  // Calculate today's stats for comparison
+  const todayStats = useMemo(() => {
+    const deepWork = validTasks.filter(t => t.category === 'deep-work').reduce((acc, t) => acc + t.duration, 0);
+    const lightWork = validTasks.filter(t => t.category === 'light-work').reduce((acc, t) => acc + t.duration, 0);
+    const completed = validTasks.filter(t => t.completed).length;
+    const total = validTasks.length;
+    
+    return {
+      deepWorkHours: (deepWork / 60).toFixed(1),
+      lightWorkHours: (lightWork / 60).toFixed(1),
+      completionRate: total > 0 ? Math.round((completed / total) * 100) : 0,
+      totalBlocks: total
+    };
+  }, [validTasks]);
+
+  // Get yesterday's stats from localStorage
+  const yesterdayStats = useMemo(() => {
+    try {
+      const yesterday = new Date(selectedDate);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayKey = format(yesterday, 'yyyy-MM-dd');
+      const cached = localStorage.getItem(`timebox-stats-${yesterdayKey}`);
+      
+      if (cached) {
+        return JSON.parse(cached);
+      }
+    } catch (error) {
+      console.warn('Failed to load yesterday stats:', error);
+    }
+    
+    return { deepWorkHours: '0', lightWorkHours: '0', completionRate: 0, totalBlocks: 0 };
+  }, [selectedDate]);
+
+  // Cache today's stats for future comparison
+  useEffect(() => {
+    const todayKey = format(selectedDate, 'yyyy-MM-dd');
+    try {
+      localStorage.setItem(`timebox-stats-${todayKey}`, JSON.stringify(todayStats));
+    } catch (error) {
+      console.warn('Failed to cache today stats:', error);
+    }
+  }, [todayStats, selectedDate]);
+
+
+  // Learn and cache average durations per category
+  useEffect(() => {
+    if (validTasks.length === 0) return;
+    
+    const categoryDurations: Record<string, number[]> = {};
+    
+    validTasks.forEach(task => {
+      const category = mapUIToCategory(task.category);
+      if (!categoryDurations[category]) {
+        categoryDurations[category] = [];
+      }
+      categoryDurations[category].push(task.duration);
+    });
+    
+    const avgDurations: Record<string, number> = {};
+    Object.entries(categoryDurations).forEach(([category, durations]) => {
+      const avg = Math.round(durations.reduce((a, b) => a + b, 0) / durations.length);
+      avgDurations[category] = avg;
+    });
+    
+    // Cache for smart defaults
+    try {
+      localStorage.setItem('timebox-avg-durations', JSON.stringify(avgDurations));
+    } catch (error) {
+      console.warn('Failed to cache avg durations:', error);
+    }
+  }, [validTasks]);
   
   // Show loading state
   if (isLoading) {
@@ -751,6 +825,110 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({
             </CardContent>
           </Card>
         </motion.div>
+
+        {/* Today vs Yesterday Comparison Card */}
+        {yesterdayStats.totalBlocks > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+            className="mx-2 mb-2"
+          >
+            <Card className="bg-transparent border-gray-800/30 rounded-2xl overflow-hidden">
+              <CardContent className="p-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2.5">
+                    <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center shadow-md">
+                      <Calendar className="h-4 w-4 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold text-white flex items-center">
+                        Progress vs Yesterday
+                        <button
+                          onClick={() => setShowComparison(!showComparison)}
+                          className="ml-2 text-gray-400 hover:text-white transition-colors"
+                        >
+                          {showComparison ? '▼' : '▶'}
+                        </button>
+                      </h3>
+                    </div>
+                  </div>
+                </div>
+
+                <AnimatePresence>
+                  {showComparison && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="mt-3 grid grid-cols-3 gap-2 text-center overflow-hidden"
+                    >
+                      {/* Deep Work Comparison */}
+                      <div className="bg-blue-900/20 border border-blue-700/30 rounded-lg p-2">
+                        <div className="text-[10px] text-gray-400 mb-1">Deep Work</div>
+                        <div className="text-sm font-bold text-blue-300">{todayStats.deepWorkHours}h</div>
+                        {parseFloat(yesterdayStats.deepWorkHours) > 0 && (
+                          <div className={cn(
+                            "text-[9px] font-medium mt-1",
+                            parseFloat(todayStats.deepWorkHours) > parseFloat(yesterdayStats.deepWorkHours)
+                              ? "text-green-400"
+                              : parseFloat(todayStats.deepWorkHours) < parseFloat(yesterdayStats.deepWorkHours)
+                              ? "text-red-400"
+                              : "text-gray-400"
+                          )}>
+                            {parseFloat(todayStats.deepWorkHours) > parseFloat(yesterdayStats.deepWorkHours) ? '↑' : 
+                             parseFloat(todayStats.deepWorkHours) < parseFloat(yesterdayStats.deepWorkHours) ? '↓' : '→'} 
+                            {Math.abs(parseFloat(todayStats.deepWorkHours) - parseFloat(yesterdayStats.deepWorkHours)).toFixed(1)}h
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Light Work Comparison */}
+                      <div className="bg-emerald-900/20 border border-emerald-700/30 rounded-lg p-2">
+                        <div className="text-[10px] text-gray-400 mb-1">Light Work</div>
+                        <div className="text-sm font-bold text-emerald-300">{todayStats.lightWorkHours}h</div>
+                        {parseFloat(yesterdayStats.lightWorkHours) > 0 && (
+                          <div className={cn(
+                            "text-[9px] font-medium mt-1",
+                            parseFloat(todayStats.lightWorkHours) > parseFloat(yesterdayStats.lightWorkHours)
+                              ? "text-green-400"
+                              : parseFloat(todayStats.lightWorkHours) < parseFloat(yesterdayStats.lightWorkHours)
+                              ? "text-red-400"
+                              : "text-gray-400"
+                          )}>
+                            {parseFloat(todayStats.lightWorkHours) > parseFloat(yesterdayStats.lightWorkHours) ? '↑' : 
+                             parseFloat(todayStats.lightWorkHours) < parseFloat(yesterdayStats.lightWorkHours) ? '↓' : '→'} 
+                            {Math.abs(parseFloat(todayStats.lightWorkHours) - parseFloat(yesterdayStats.lightWorkHours)).toFixed(1)}h
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Completion Rate Comparison */}
+                      <div className="bg-purple-900/20 border border-purple-700/30 rounded-lg p-2">
+                        <div className="text-[10px] text-gray-400 mb-1">Completed</div>
+                        <div className="text-sm font-bold text-purple-300">{todayStats.completionRate}%</div>
+                        {yesterdayStats.completionRate > 0 && (
+                          <div className={cn(
+                            "text-[9px] font-medium mt-1",
+                            todayStats.completionRate > yesterdayStats.completionRate
+                              ? "text-green-400"
+                              : todayStats.completionRate < yesterdayStats.completionRate
+                              ? "text-red-400"
+                              : "text-gray-400"
+                          )}>
+                            {todayStats.completionRate > yesterdayStats.completionRate ? '↑' : 
+                             todayStats.completionRate < yesterdayStats.completionRate ? '↓' : '→'} 
+                            {Math.abs(todayStats.completionRate - yesterdayStats.completionRate)}%
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
         
         {/* Prominent Add Tasks Button + Sprint Menu */}
         <motion.div

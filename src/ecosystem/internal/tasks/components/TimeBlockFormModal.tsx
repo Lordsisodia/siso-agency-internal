@@ -99,6 +99,49 @@ export const TimeBlockFormModal: React.FC<TimeBlockFormModalProps> = ({
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [linkedTask, setLinkedTask] = useState<any>(null);
   const [loadingTask, setLoadingTask] = useState(false);
+  const [addBuffer, setAddBuffer] = useState(true); // Buffer time toggle
+
+  // Get smart default duration based on category and history
+  const getSmartDefaultDuration = useCallback((category: TimeBlockCategory): number => {
+    try {
+      const cached = localStorage.getItem('timebox-avg-durations');
+      if (cached) {
+        const avgDurations = JSON.parse(cached);
+        return avgDurations[category] || 60;
+      }
+    } catch (error) {
+      console.warn('Failed to load smart defaults:', error);
+    }
+    
+    // Fallback defaults
+    const defaultDurations: Record<TimeBlockCategory, number> = {
+      'DEEP_WORK': 120,
+      'LIGHT_WORK': 45,
+      'MEETING': 60,
+      'BREAK': 15,
+      'PERSONAL': 30,
+      'HEALTH': 45,
+      'LEARNING': 90,
+      'ADMIN': 30
+    };
+    
+    return defaultDurations[category] || 60;
+  }, []);
+
+  // Update endTime when category changes (apply smart defaults)
+  useEffect(() => {
+    if (!existingBlock && formData.startTime && formData.category) {
+      const [startHour, startMin] = formData.startTime.split(':').map(Number);
+      const startMinutes = startHour * 60 + startMin;
+      const smartDuration = getSmartDefaultDuration(formData.category);
+      const endMinutes = startMinutes + smartDuration;
+      
+      if (endMinutes < 24 * 60) {
+        const formatTime = (m: number) => `${Math.floor(m / 60).toString().padStart(2, '0')}:${(m % 60).toString().padStart(2, '0')}`;
+        setFormData(prev => ({ ...prev, endTime: formatTime(endMinutes) }));
+      }
+    }
+  }, [formData.category, existingBlock, getSmartDefaultDuration]);
 
   // Initialize form data when modal opens or existing block changes
   useEffect(() => {
@@ -119,11 +162,14 @@ export const TimeBlockFormModal: React.FC<TimeBlockFormModalProps> = ({
         setLinkedTask(null);
       }
     } else {
-      // Reset form for new block
+      // Reset form for new block with smart defaults
       const now = new Date();
       const roundedMinutes = Math.ceil(now.getMinutes() / 15) * 15;
       const startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), roundedMinutes);
-      const endTime = new Date(startTime.getTime() + 60 * 60 * 1000); // +1 hour
+      
+      // Use smart default duration based on category
+      const defaultDuration = getSmartDefaultDuration('DEEP_WORK');
+      const endTime = new Date(startTime.getTime() + defaultDuration * 60 * 1000);
       
       setFormData({
         title: '',
@@ -480,7 +526,25 @@ export const TimeBlockFormModal: React.FC<TimeBlockFormModalProps> = ({
                   </div>
                 </div>
 
-
+                {/* Buffer Time Option */}
+                <div className="flex items-center justify-between p-3 bg-blue-900/20 border border-blue-700/30 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <Clock className="h-5 w-5 text-blue-400" />
+                    <div>
+                      <label className="text-white font-medium text-sm">Add Transition Buffer</label>
+                      <p className="text-gray-400 text-xs">Add 10min gap after this block</p>
+                    </div>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={addBuffer}
+                      onChange={(e) => setAddBuffer(e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  </label>
+                </div>
 
                 {/* Description */}
                 <div className="space-y-2">
