@@ -11,7 +11,7 @@ import {
 import { TAB_CONFIG, TabId, getAllTabIds } from '@/shared/services/tab-config';
 import { Button } from '@/shared/ui/button';
 import { Badge } from '@/shared/ui/badge';
-import { DailyBottomNav } from './views/daily/_shared/components/DailyBottomNav';
+import { DailyBottomNav } from './views/daily/_shared/components';
 import { cn } from '@/shared/lib/utils';
 import { useIsMobile } from '@/shared/hooks/use-mobile';
 import { useLifeLockData } from '@/ecosystem/internal/lifelock/useLifeLockData';

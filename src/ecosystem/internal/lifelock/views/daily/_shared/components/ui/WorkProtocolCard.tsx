@@ -12,7 +12,7 @@
  */
 
 import React from 'react';
-import { TaskSeparator } from './TaskSeparator';
+import { TaskSeparator } from '../task/TaskSeparator';
 import type { WorkTheme } from '@/config/work-themes';
 
 export interface WorkProtocolCardProps {

@@ -7,7 +7,7 @@
 
 import React from 'react';
 import { Check } from 'lucide-react';
-import { TaskSeparator } from './TaskSeparator';
+import { TaskSeparator } from '../task/TaskSeparator';
 import { SubtaskMetadata } from './SubtaskMetadata';
 
 interface SubtaskItemProps {

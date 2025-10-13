@@ -175,6 +175,7 @@ export const SimpleThoughtDumpPage: React.FC<SimpleThoughtDumpPageProps> = ({
         await voiceService.startListening(
           (text, isFinal) => {
             // Real-time: Show words as they appear (interim results)
+            console.log(`📝 [UI UPDATE] ${isFinal ? 'FINAL' : 'interim'} transcript:`, text);
             setTranscript(text);
 
             // When sentence is finalized, send to AI and keep listening
@@ -185,7 +186,7 @@ export const SimpleThoughtDumpPage: React.FC<SimpleThoughtDumpPageProps> = ({
               getAIResponse(text);
 
               // Clear transcript for next sentence (but keep listening!)
-              setTranscript('');
+              setTimeout(() => setTranscript(''), 100); // Small delay so user sees final text
             }
           },
           (error) => {

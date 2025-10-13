@@ -7,7 +7,7 @@
 
 import React from 'react';
 import { Calendar, Clock, X } from 'lucide-react';
-import { PrioritySelector, PriorityLevel } from './PrioritySelector';
+import { PrioritySelector, PriorityLevel } from '../ui/PrioritySelector';
 
 interface SubtaskMetadataProps {
   subtask: {
