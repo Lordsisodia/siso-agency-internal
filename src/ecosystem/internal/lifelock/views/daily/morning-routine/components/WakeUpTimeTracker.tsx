@@ -60,9 +60,9 @@ export const WakeUpTimeTracker: React.FC<WakeUpTimeTrackerProps> = ({
             <Button
               size="sm"
               onClick={onUseNow}
-              className="bg-yellow-600 hover:bg-yellow-700 text-white whitespace-nowrap"
+              className="bg-yellow-600 hover:bg-yellow-700 text-white text-xs sm:text-sm px-2 sm:px-4"
             >
-              Use Now ({getCurrentTime()})
+              Now ({getCurrentTime()})
             </Button>
           </div>
         )}
