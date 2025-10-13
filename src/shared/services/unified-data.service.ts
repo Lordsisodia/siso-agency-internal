@@ -68,7 +68,7 @@ class UnifiedDataService {
           .select('*')
           .eq('user_id', userId)
           .eq('date', date)
-          .single();
+          .maybeSingle(); // ✅ FIX: Use maybeSingle() instead of single() to handle no records gracefully
 
         if (!error && data) {
           // Cache locally

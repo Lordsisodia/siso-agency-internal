@@ -19,13 +19,69 @@ interface AnimatedDateHeaderProps {
 }
 
 const colorSchemes = {
-  orange: { from: 'from-orange-500', via: 'via-orange-400', to: 'to-yellow-400', text: 'text-orange-400', bg: 'bg-orange-500', glow: 'bg-orange-400/30' },
-  yellow: { from: 'from-yellow-500', via: 'via-yellow-400', to: 'to-amber-400', text: 'text-yellow-400', bg: 'bg-yellow-500', glow: 'bg-yellow-400/30' },
-  green: { from: 'from-green-500', via: 'via-emerald-400', to: 'to-teal-400', text: 'text-green-400', bg: 'bg-green-500', glow: 'bg-green-400/30' },
-  blue: { from: 'from-blue-500', via: 'via-blue-400', to: 'to-cyan-400', text: 'text-blue-400', bg: 'bg-blue-500', glow: 'bg-blue-400/30' },
-  purple: { from: 'from-purple-500', via: 'via-purple-400', to: 'to-indigo-400', text: 'text-purple-400', bg: 'bg-purple-500', glow: 'bg-purple-400/30' },
-  pink: { from: 'from-pink-500', via: 'via-pink-400', to: 'to-rose-400', text: 'text-pink-400', bg: 'bg-pink-500', glow: 'bg-pink-400/30' },
-  red: { from: 'from-red-500', via: 'via-red-400', to: 'to-orange-400', text: 'text-red-400', bg: 'bg-red-500', glow: 'bg-red-400/30' },
+  orange: {
+    primary: 'from-orange-500 via-orange-400 to-yellow-300',
+    glow: 'bg-orange-300/40',
+    shimmer: 'via-orange-200/30',
+    pulse: 'bg-orange-400/30',
+    ring: 'bg-orange-400/20',
+    text: 'text-orange-400',
+    bg: 'bg-orange-500'
+  },
+  yellow: {
+    primary: 'from-yellow-500 via-yellow-400 to-amber-300',
+    glow: 'bg-yellow-300/40',
+    shimmer: 'via-yellow-200/30',
+    pulse: 'bg-yellow-400/30',
+    ring: 'bg-yellow-400/20',
+    text: 'text-yellow-400',
+    bg: 'bg-yellow-500'
+  },
+  green: {
+    primary: 'from-emerald-500 via-emerald-400 to-emerald-300',
+    glow: 'bg-emerald-300/40',
+    shimmer: 'via-emerald-200/30',
+    pulse: 'bg-emerald-400/30',
+    ring: 'bg-emerald-400/20',
+    text: 'text-emerald-400',
+    bg: 'bg-emerald-500'
+  },
+  blue: {
+    primary: 'from-blue-500 via-blue-400 to-cyan-300',
+    glow: 'bg-blue-300/40',
+    shimmer: 'via-blue-200/30',
+    pulse: 'bg-blue-400/30',
+    ring: 'bg-blue-400/20',
+    text: 'text-blue-400',
+    bg: 'bg-blue-500'
+  },
+  purple: {
+    primary: 'from-purple-500 via-purple-400 to-indigo-300',
+    glow: 'bg-purple-300/40',
+    shimmer: 'via-purple-200/30',
+    pulse: 'bg-purple-400/30',
+    ring: 'bg-purple-400/20',
+    text: 'text-purple-400',
+    bg: 'bg-purple-500'
+  },
+  pink: {
+    primary: 'from-pink-500 via-pink-400 to-rose-300',
+    glow: 'bg-pink-300/40',
+    shimmer: 'via-pink-200/30',
+    pulse: 'bg-pink-400/30',
+    ring: 'bg-pink-400/20',
+    text: 'text-pink-400',
+    bg: 'bg-pink-500'
+  },
+  red: {
+    primary: 'from-red-500 via-red-400 to-pink-300',
+    glow: 'bg-red-300/40',
+    shimmer: 'via-red-200/30',
+    pulse: 'bg-red-400/30',
+    ring: 'bg-red-400/20',
+    text: 'text-red-400',
+    bg: 'bg-red-500'
+  },
 };
 
 export const AnimatedDateHeader: React.FC<AnimatedDateHeaderProps> = ({
@@ -222,17 +278,99 @@ export const AnimatedDateHeader: React.FC<AnimatedDateHeaderProps> = ({
           <span className="text-gray-400 text-sm">Level {actualLevel}</span>
         </div>
         
-        {/* Progress Bar */}
+        {/* Progress Bar - Enhanced with Multi-Layer Animations */}
         <div className="relative">
-          <div className="w-full bg-gray-700/60 rounded-full h-2 overflow-hidden">
+          <div className="w-full bg-gray-700/60 rounded-full h-3 overflow-hidden relative shadow-inner">
             <motion.div
-              className={`h-full bg-gradient-to-r ${colors.from} ${colors.via} ${colors.to} rounded-full relative`}
+              className={`h-full bg-gradient-to-r ${colors.primary} rounded-full relative overflow-hidden shadow-lg`}
               initial={{ width: 0 }}
               animate={{ width: `${isToday(selectedDate) ? dayProgress : (progressToNextLevel / 100) * 100}%` }}
               transition={{ delay: 1.1, duration: 1.2, ease: "easeOut" }}
             >
-              {/* Progress bar glow effect */}
-              <div className={`absolute inset-0 bg-gradient-to-r ${colors.from}/50 ${colors.to}/50 blur-sm`} />
+              {/* Layer 1: Intense Breathing Glow */}
+              <motion.div 
+                className={`absolute inset-0 ${colors.glow} blur-sm rounded-full`}
+                animate={{ 
+                  opacity: [0.5, 1, 0.5],
+                  scale: [1, 1.08, 1]
+                }}
+                transition={{ 
+                  duration: 1.8,
+                  ease: "easeInOut",
+                  repeat: Infinity
+                }}
+              />
+              
+              {/* Layer 2: Fast Neon Shimmer Wave */}
+              <motion.div
+                className={`absolute inset-0 bg-gradient-to-r from-transparent ${colors.shimmer} to-transparent rounded-full`}
+                animate={{ x: ['-100%', '100%'] }}
+                transition={{
+                  duration: 2,
+                  ease: "linear",
+                  repeat: Infinity,
+                  repeatDelay: 0.3
+                }}
+              />
+              
+              {/* Layer 3: Double Heartbeat Pulse */}
+              <motion.div
+                className={`absolute inset-0 ${colors.pulse} rounded-full`}
+                animate={{ 
+                  opacity: [0, 0.8, 0, 0.4, 0],
+                  scale: [0.96, 1.06, 0.96, 1.02, 0.96]
+                }}
+                transition={{
+                  duration: 2.2,
+                  ease: "easeInOut",
+                  repeat: Infinity,
+                  times: [0, 0.2, 0.4, 0.7, 1]
+                }}
+              />
+              
+              {/* Layer 4: Intense Outer Glow Ring */}
+              <motion.div
+                className={`absolute -inset-1 ${colors.ring} blur-lg rounded-full`}
+                animate={{ 
+                  opacity: [0.3, 0.7, 0.3],
+                  scale: [1, 1.15, 1]
+                }}
+                transition={{
+                  duration: 2.5,
+                  ease: "easeInOut",
+                  repeat: Infinity
+                }}
+              />
+              
+              {/* Layer 5: Lightning Spark Effect */}
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent rounded-full"
+                animate={{ 
+                  x: ['-100%', '100%'],
+                  opacity: [0, 1, 0]
+                }}
+                transition={{
+                  duration: 0.8,
+                  ease: "easeInOut",
+                  repeat: Infinity,
+                  repeatDelay: 3
+                }}
+              />
+              
+              {/* Layer 6: Flowing Energy Particles */}
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent rounded-full"
+                animate={{ 
+                  x: ['-50%', '150%'],
+                  scale: [1, 1.2, 1]
+                }}
+                transition={{
+                  duration: 3,
+                  ease: "easeInOut",
+                  repeat: Infinity,
+                  repeatDelay: 0.5
+                }}
+              />
             </motion.div>
           </div>
           

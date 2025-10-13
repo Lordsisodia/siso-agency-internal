@@ -64,12 +64,14 @@ export const HealthNonNegotiablesSection: React.FC<HealthNonNegotiablesSectionPr
   }, [internalUserId, saving, updateMeals, updateMacros]);
 
   // Save when meals change (from user input only)
+  // Note: saveData is memoized with useCallback and doesn't need to be in deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (hasLoadedInitialData.current) {
       console.log('🔄 [NUTRITION] Meals changed, saving...', meals);
       saveData(meals, dailyTotals);
     }
-  }, [meals, dailyTotals, saveData]);
+  }, [meals, dailyTotals]);
 
   // Cleanup timeout on unmount
   useEffect(() => {

@@ -45,7 +45,7 @@ export function useNutritionSupabase(userId: string, date: string) {
         .select('meals, macros')
         .eq('user_id', userId)
         .eq('date', date)
-        .single();
+        .maybeSingle(); // ✅ FIX: Use maybeSingle() instead of single() to handle no records gracefully
 
       if (data && !error) {
         setNutrition({

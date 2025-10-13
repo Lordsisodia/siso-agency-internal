@@ -380,9 +380,18 @@ class OfflineManager {
             ? { onConflict: 'user_id,date', ignoreDuplicates: false }
             : {};
 
+          // 🔧 FIX: Remove id field from daily_health records
+          // Database uses (user_id, date) composite key, not id
+          let dataToUpsert = action.data;
+          if (tableName === 'daily_health' && action.data.id) {
+            const { id, ...dataWithoutId } = action.data;
+            dataToUpsert = dataWithoutId;
+            console.log('🔧 [SYNC FIX] Stripped invalid id from daily_health record:', id);
+          }
+
           const { error } = await supabase
             .from(tableName)
-            .upsert(action.data, upsertOptions);
+            .upsert(dataToUpsert, upsertOptions);
 
           if (error) {
             console.error(`❌ Sync upsert failed for ${tableName}:`, error);
@@ -457,9 +466,18 @@ class OfflineManager {
         ? { onConflict: 'user_id,date', ignoreDuplicates: false }
         : {};
 
+      // 🔧 FIX: Remove id field from daily_health records
+      // Database uses (user_id, date) composite key, not id
+      let dataToUpsert = task;
+      if (tableName === 'daily_health' && task.id) {
+        const { id, ...dataWithoutId } = task;
+        dataToUpsert = dataWithoutId;
+        console.log('🔧 [SAVE FIX] Stripped invalid id from daily_health record:', id);
+      }
+
       const { data, error } = await supabase
         .from(tableName)
-        .upsert(task, upsertOptions)
+        .upsert(dataToUpsert, upsertOptions)
         .select(); // Add select to get better error info
 
       // 🐛 ENHANCED DEBUG: Log response
