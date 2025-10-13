@@ -37,33 +37,33 @@ export const WorkoutItemCard: React.FC<WorkoutItemCardProps> = ({
     <motion.div
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
-      className="bg-purple-900/20 border border-purple-600/40 rounded-lg p-4 hover:border-purple-500/60 transition-all"
+      className="bg-red-900/20 border border-red-700/30 rounded-lg p-4 hover:border-red-600/50 transition-all"
     >
       <div className="flex items-start gap-3">
         <Checkbox
           checked={item.completed}
           onCheckedChange={onToggle}
-          className="mt-1 border-purple-600 data-[state=checked]:bg-purple-600"
+          className="mt-1 border-red-600 data-[state=checked]:bg-red-500"
         />
         <div className="flex-1">
           <div className="text-white font-medium mb-2">{item.title}</div>
 
           <div className="grid grid-cols-2 gap-3 mb-2">
             <div>
-              <label className="text-purple-300 text-xs">Target:</label>
+              <label className="text-red-300 text-xs">Target:</label>
               <Input
                 value={item.target || ''}
                 onChange={(e) => onUpdateTarget(e.target.value)}
-                className="bg-purple-900/30 border-purple-600/50 text-white text-sm"
+                className="bg-red-900/30 border-red-600/50 text-white text-sm"
                 placeholder="e.g., 50 reps"
               />
             </div>
             <div>
-              <label className="text-purple-300 text-xs">Logged:</label>
+              <label className="text-red-300 text-xs">Logged:</label>
               <Input
                 value={item.logged || ''}
                 onChange={(e) => onUpdateLogged(e.target.value)}
-                className="bg-purple-900/30 border-purple-600/50 text-white text-sm"
+                className="bg-red-900/30 border-red-600/50 text-white text-sm"
                 placeholder="0"
               />
             </div>
@@ -77,7 +77,7 @@ export const WorkoutItemCard: React.FC<WorkoutItemCardProps> = ({
                 size="sm"
                 variant="ghost"
                 onClick={() => onUpdateLogged(rep.toString())}
-                className="text-purple-300 hover:bg-purple-900/30 text-xs"
+                className="text-red-300 hover:bg-red-900/30 text-xs"
               >
                 {rep}
               </Button>
