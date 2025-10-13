@@ -24,7 +24,7 @@ export const CustomCalendar: React.FC<CustomCalendarProps> = ({
   subtask, 
   onDateSelect, 
   onClose,
-  theme = 'DEEP' // Default to DEEP theme
+  theme = 'LIGHT' // LIGHT WORK = GREEN theme
 }) => {
   const [viewDate, setViewDate] = useState(() => {
     const now = new Date();
