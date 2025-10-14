@@ -108,13 +108,13 @@ export default defineConfig(({ mode }) => ({
         start_url: '/',
         icons: [
           {
-            src: '/icon-192x192.png',
+            src: '/icons/icon-192x192.png',
             sizes: '192x192',
             type: 'image/png',
             purpose: 'any maskable'
           },
           {
-            src: '/icon-512x512.png',
+            src: '/icons/icon-512x512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable'
@@ -126,21 +126,21 @@ export default defineConfig(({ mode }) => ({
             short_name: 'LifeLock',
             description: 'Open LifeLock productivity dashboard',
             url: '/admin/life-lock',
-            icons: [{ src: '/icon-96x96.png', sizes: '96x96' }]
+            icons: [{ src: '/icons/icon-96x96.png', sizes: '96x96' }]
           },
           {
             name: 'Analytics',
             short_name: 'Analytics',
             description: 'View productivity analytics',
             url: '/admin/analytics',
-            icons: [{ src: '/icon-96x96.png', sizes: '96x96' }]
+            icons: [{ src: '/icons/icon-96x96.png', sizes: '96x96' }]
           },
           {
             name: 'Tasks',
             short_name: 'Tasks',
             description: 'Manage tasks offline',
             url: '/admin/tasks',
-            icons: [{ src: '/icon-96x96.png', sizes: '96x96' }]
+            icons: [{ src: '/icons/icon-96x96.png', sizes: '96x96' }]
           }
         ]
       },

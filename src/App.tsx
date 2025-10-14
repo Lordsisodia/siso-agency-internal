@@ -62,7 +62,7 @@ const AdminDailyPlanner = lazy(() => import('@/ecosystem/internal/pages/AdminDai
 const AdminLifeLock = lazy(() => import('@/ecosystem/internal/lifelock/AdminLifeLock.tsx'));
 const AdminLifeLockDay = lazy(() => import('@/ecosystem/internal/lifelock/AdminLifeLockDay.tsx'));
 const AdminLifeLockOverview = lazy(() => import('@/ecosystem/internal/admin/dashboard/pages/AdminLifeLockOverview'));
-const WeeklyView = lazy(() => import('@/ecosystem/internal/lifelock/views/weekly/WeeklyView'));
+const WeeklyView = lazy(() => import('@/ecosystem/internal/lifelock/views/weekly/WeeklyView.safe').then(m => ({ default: m.WeeklyView })));
 const MonthlyView = lazy(() => import('@/ecosystem/internal/lifelock/views/monthly/MonthlyView'));
 const YearlyView = lazy(() => import('@/ecosystem/internal/lifelock/views/yearly/YearlyView'));
 const ClientDetailPage = lazy(() => import('./pages/ClientDetailPage'));
