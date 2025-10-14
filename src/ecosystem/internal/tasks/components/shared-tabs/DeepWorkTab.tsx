@@ -1,12 +1,13 @@
 /**
  * 🎯 Deep Work Tab - Administrative Interface
- * 
+ *
  * Simplified Deep Work interface using the reusable SisoDeepFocusPlanV2 component.
  * Demonstrates component reusability with the same architecture as Light Work.
  */
 
 import React from 'react';
-import SisoDeepFocusPlanV2 from '@/components/ui/siso-deep-focus-plan-v2';
+// TODO: Create SisoDeepFocusPlanV2 component
+// import SisoDeepFocusPlanV2 from '@/components/ui/siso-deep-focus-plan-v2';
 
 interface TabProps {
   onStartFocusSession?: (taskId: string, intensity: number) => void;
@@ -14,8 +15,13 @@ interface TabProps {
 
 export const DeepWorkTab: React.FC<TabProps> = ({ onStartFocusSession }) => {
   return (
-    <div className="h-full bg-gray-900 text-white">
-      {/* 
+    <div className="h-full bg-gray-900 text-white flex items-center justify-center">
+      <div className="text-center">
+        <p className="text-gray-400 text-lg mb-4">Deep Work Tab</p>
+        <p className="text-gray-500 text-sm">Component under development</p>
+      </div>
+      {/*
+        TODO: Restore when SisoDeepFocusPlanV2 component is created
         🎯 Component Reusability Benefits:
         - Same TaskContainer architecture as Light Work
         - Deep Work theme (orange/red colors vs emerald/teal)
@@ -24,12 +30,12 @@ export const DeepWorkTab: React.FC<TabProps> = ({ onStartFocusSession }) => {
         - All CRUD operations work identically
         - Reuses TaskCard, TaskDetailModal, TaskContainer
       */}
-      <SisoDeepFocusPlanV2
+      {/* <SisoDeepFocusPlanV2
         onStartFocusSession={(taskId, intensity) => {
           console.log('Starting deep work focus session:', { taskId, intensity });
           onStartFocusSession?.(taskId, intensity);
         }}
-      />
+      /> */}
     </div>
   );
 };

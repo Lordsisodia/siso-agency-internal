@@ -257,6 +257,9 @@ function App() {
           <Route path="/admin/lifelock/weekly" element={<ClerkAuthGuard><WeeklyView /></ClerkAuthGuard>} />
           <Route path="/admin/lifelock/monthly" element={<ClerkAuthGuard><MonthlyView /></ClerkAuthGuard>} />
           <Route path="/admin/lifelock/yearly" element={<ClerkAuthGuard><YearlyView /></ClerkAuthGuard>} />
+
+          {/* Legacy weekly shortcut */}
+          <Route path="/weekly" element={<Navigate to="/admin/lifelock/weekly" replace />} />
           
           {/* Daily view routes - legacy clean URL structure */}
           <Route path="/admin/life-lock/daily/:date" element={<ClerkAuthGuard><AdminLifeLockDay /></ClerkAuthGuard>} />
