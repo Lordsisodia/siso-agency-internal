@@ -18,7 +18,6 @@ const TestPage = lazy(() => import('./pages/TestPage'));
 const OfflineTestPage = lazy(() => import('./pages/OfflineTestPage'));
 const FeedbackTestPage = lazy(() => import('./pages/FeedbackTestPage'));
 const FeedbackDemo = lazy(() => import('./pages/FeedbackDemo'));
-const WorkingUITestPage = lazy(() => import('./pages/WorkingUITestPage'));
 const Profile = lazy(() => import('./pages/Profile'));
 
 // MCP Testing Components
@@ -171,8 +170,7 @@ function App() {
           <Route path="/test-offline" element={<ClerkAuthGuard><OfflineTestPage /></ClerkAuthGuard>} />
           <Route path="/feedback-test" element={<FeedbackTestPage />} />
           <Route path="/feedback-demo" element={<FeedbackDemo />} />
-          <Route path="/working-ui-test" element={<WorkingUITestPage />} />
-          
+
           {/* Public routes - redirect root to LifeLock */}
           <Route path="/" element={<Navigate to="/admin/life-lock-overview" replace />} />
           <Route path="/index" element={<Index />} />
