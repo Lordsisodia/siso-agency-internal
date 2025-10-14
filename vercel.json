@@ -1,6 +1,12 @@
 {
   "buildCommand": "rm -rf dist node_modules/.vite && npm ci && npm run build",
   "outputDirectory": "dist",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
