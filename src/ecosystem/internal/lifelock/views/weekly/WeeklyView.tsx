@@ -1,6 +1,6 @@
 /**
  * WeeklyView - Main Orchestrator
- * 
+ *
  * Manages navigation between 5 weekly pages:
  * 1. Overview
  * 2. Productivity
@@ -9,11 +9,13 @@
  * 5. Insights & Checkout
  */
 
-import React, { useState } from 'react';
-import { addWeeks, subWeeks, startOfWeek, format } from 'date-fns';
-import { BarChart3, Briefcase, Heart, Clock, CheckCircle, ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { addWeeks, subWeeks, startOfWeek, differenceInDays, addDays, format } from 'date-fns';
+import { BarChart3, Briefcase, Heart, Clock, CheckCircle, ChevronLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/shared/ui/button';
+import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
+import { WeeklyTopNav } from './_shared/WeeklyTopNav';
 import { WeeklyBottomNav } from './_shared/WeeklyBottomNav';
 import { WeeklyOverviewSection } from './overview/WeeklyOverviewSection';
 import { WeeklyProductivitySection } from './productivity/WeeklyProductivitySection';
@@ -43,87 +45,63 @@ export const WeeklyView: React.FC = () => {
     setSelectedWeek(prev => addWeeks(prev, 1));
   };
 
-  const goToCurrentWeek = () => {
-    setSelectedWeek(startOfWeek(new Date(), { weekStartsOn: 1 }));
-  };
+  // Calculate week completion percentage (how far through the week we are)
+  const weekCompletionPercentage = useMemo(() => {
+    const now = new Date();
+    const weekStart = startOfWeek(selectedWeek, { weekStartsOn: 1 });
+    const weekEnd = addDays(weekStart, 7);
 
-  const isCurrentWeek = format(selectedWeek, 'yyyy-MM-dd') === format(startOfWeek(new Date(), { weekStartsOn: 1 }), 'yyyy-MM-dd');
+    // If we're viewing a future week, show 0%
+    if (now < weekStart) return 0;
+
+    // If we're viewing a past week, show 100%
+    if (now > weekEnd) return 100;
+
+    // Calculate percentage through current week
+    const daysSinceStart = differenceInDays(now, weekStart);
+    const totalDays = 7;
+    return Math.min(100, Math.round((daysSinceStart / totalDays) * 100));
+  }, [selectedWeek]);
 
   // Update mock data with selected week
   const weeklyData = { ...mockWeeklyData, weekStart: selectedWeek, weekEnd: addWeeks(selectedWeek, 1) };
 
   return (
-    <div className="min-h-screen w-full bg-gray-950 relative">
-      
-      {/* Week Selector - Fixed at top */}
-      <div className="sticky top-0 z-40 bg-gray-900/80 backdrop-blur-md border-b border-gray-800/50">
-        <div className="max-w-7xl mx-auto px-4 py-3">
-          {/* Back to Daily Button */}
-          <div className="flex items-center justify-between mb-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate(`/admin/lifelock/daily/${format(new Date(), 'yyyy-MM-dd')}`)}
-              className="text-gray-400 hover:text-blue-400 hover:bg-transparent"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Daily View
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/admin/lifelock/monthly')}
-              className="text-gray-400 hover:text-purple-400 hover:bg-transparent"
-            >
-              Monthly View
-              <ChevronRight className="h-4 w-4 ml-2" />
-            </Button>
-          </div>
-          
-          <div className="flex items-center justify-between">
-            {/* Previous Week Button */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={goToPreviousWeek}
-              className="border-blue-500/30 text-blue-400 hover:bg-blue-500/10"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
+    <AdminLayout>
+      <div className="min-h-screen w-full bg-gray-950 relative">
 
-            {/* Week Display */}
-            <div className="flex flex-col items-center">
-              <div className="text-lg font-bold text-blue-400">
-                {format(selectedWeek, 'MMM d')} - {format(addWeeks(selectedWeek, 1), 'd, yyyy')}
-              </div>
-              {!isCurrentWeek && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={goToCurrentWeek}
-                  className="text-xs text-gray-400 hover:text-blue-400 mt-1"
-                >
-                  Jump to current week
-                </Button>
-              )}
+        {/* Navigation Button - Monthly View on left */}
+        <div className="sticky top-0 z-50 bg-gray-900/80 backdrop-blur-md border-b border-gray-800/50">
+          <div className="max-w-7xl mx-auto px-4 py-2">
+            <div className="flex items-center">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/admin/lifelock/monthly')}
+                className="text-gray-400 hover:text-purple-400 hover:bg-transparent"
+              >
+                <ChevronLeft className="h-4 w-4 mr-2" />
+                Monthly View
+              </Button>
             </div>
-
-            {/* Next Week Button */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={goToNextWeek}
-              className="border-blue-500/30 text-blue-400 hover:bg-blue-500/10"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
           </div>
+        </div>
+
+      {/* Weekly Top Navigation - Fixed at top */}
+      <div className="sticky top-12 z-40 px-4 py-3">
+        <div className="max-w-7xl mx-auto">
+          <WeeklyTopNav
+            selectedWeek={selectedWeek}
+            weekCompletionPercentage={weekCompletionPercentage}
+            onPreviousWeek={goToPreviousWeek}
+            onNextWeek={goToNextWeek}
+          />
         </div>
       </div>
 
       {/* Page Content */}
       <div className="relative">
-        {activeTab === 0 && <WeeklyOverviewSection weeklyData={weeklyData} />}
+        {activeTab === 0 && <WeeklyOverviewSection weeklyData={weeklyData} onNavigateToDaily={() => navigate('/admin/lifelock/daily')} />}
         {activeTab === 1 && <WeeklyProductivitySection productivityData={mockProductivityData} />}
         {activeTab === 2 && <WeeklyWellnessSection wellnessData={mockWellnessData} />}
         {activeTab === 3 && <WeeklyTimeAnalysisSection timeData={mockTimeAnalysisData} />}
@@ -139,6 +117,7 @@ export const WeeklyView: React.FC = () => {
           if (index !== null) setActiveTab(index);
         }}
       />
-    </div>
+      </div>
+    </AdminLayout>
   );
 };

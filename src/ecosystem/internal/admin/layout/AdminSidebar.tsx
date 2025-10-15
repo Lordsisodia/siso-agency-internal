@@ -101,78 +101,78 @@ export const Sidebar = ({ onExpandedChange, onMobileMenuChange }: SidebarProps) 
     }
   }, [isExpanded, isMobile, onExpandedChange]);
 
-  // Don't render sidebar at all on mobile - complete override
-  if (isMobile || window.innerWidth < 768) {
-    return (
-      <>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="fixed top-4 right-4 z-50 bg-black/40 backdrop-blur-sm border border-gray-800/50"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            if (isToggling) return;
-            
-            setIsToggling(true);
-            setIsMobileMenuOpen(prev => !prev);
-            
-            setTimeout(() => setIsToggling(false), 200);
-          }}
-          disabled={isToggling}
-        >
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div
-              key={isMobileMenuOpen ? 'close' : 'menu'}
-              initial={{ opacity: 0, rotate: -90 }}
-              animate={{ opacity: 1, rotate: 0 }}
-              exit={{ opacity: 0, rotate: 90 }}
-              transition={{ duration: 0.15 }}
-            >
-              {isMobileMenuOpen ? (
-                <X className="h-6 w-6 text-siso-text" />
-              ) : (
-                <Menu className="h-6 w-6 text-siso-text" />
-              )}
-            </motion.div>
-          </AnimatePresence>
-        </Button>
+  // Render burger menu button for both mobile AND desktop
+  const renderBurgerMenu = () => (
+    <>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className="fixed top-4 right-4 z-[60] bg-black/40 backdrop-blur-sm border border-gray-800/50 hover:bg-black/60"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
 
-        <AnimatePresence>
-          {isMobileMenuOpen && (
-            <>
-              <motion.div 
-                initial={{ opacity: 0, x: "-100%" }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: "-100%" }}
-                transition={{ duration: 0.3, ease: "easeInOut" }}
-                className="fixed top-0 left-0 h-screen w-64 z-40 bg-gradient-to-b from-siso-bg via-siso-bg to-siso-bg-alt backdrop-blur-sm border-r border-siso-border shadow-xl flex flex-col"
-              >
-                <AdminSidebarLogo collapsed={false} setCollapsed={() => {}} onLogoClick={() => setShowNavigation(!showNavigation)} />
-                <div className="flex-1 overflow-y-auto admin-sidebar">
-                  <AdminSidebarNavigation collapsed={false} onItemClick={handleItemClick} visible={showNavigation} />
-                </div>
-                <SidebarFooter collapsed={false} onProfileOpen={(isOpen) => setIsProfileOpen(isOpen)} />
-              </motion.div>
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="fixed inset-0 bg-black/50 backdrop-blur-sm z-30"
-                onClick={() => setIsMobileMenuOpen(false)}
-              />
-            </>
-          )}
+          if (isToggling) return;
+
+          setIsToggling(true);
+          setIsMobileMenuOpen(prev => !prev);
+
+          setTimeout(() => setIsToggling(false), 200);
+        }}
+        disabled={isToggling}
+      >
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={isMobileMenuOpen ? 'close' : 'menu'}
+            initial={{ opacity: 0, rotate: -90 }}
+            animate={{ opacity: 1, rotate: 0 }}
+            exit={{ opacity: 0, rotate: 90 }}
+            transition={{ duration: 0.15 }}
+          >
+            {isMobileMenuOpen ? (
+              <X className="h-6 w-6 text-siso-text" />
+            ) : (
+              <Menu className="h-6 w-6 text-siso-text" />
+            )}
+          </motion.div>
         </AnimatePresence>
-      </>
-    );
-  }
+      </Button>
 
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0, x: "-100%" }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: "-100%" }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="fixed top-0 left-0 h-screen w-64 z-40 bg-gradient-to-b from-siso-bg via-siso-bg to-siso-bg-alt backdrop-blur-sm border-r border-siso-border shadow-xl flex flex-col"
+            >
+              <AdminSidebarLogo collapsed={false} setCollapsed={() => {}} onLogoClick={() => setShowNavigation(!showNavigation)} />
+              <div className="flex-1 overflow-y-auto admin-sidebar">
+                <AdminSidebarNavigation collapsed={false} onItemClick={handleItemClick} visible={showNavigation} />
+              </div>
+              <SidebarFooter collapsed={false} onProfileOpen={(isOpen) => setIsProfileOpen(isOpen)} />
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-30"
+              onClick={() => setIsMobileMenuOpen(false)}
+            />
+          </>
+        )}
+      </AnimatePresence>
+    </>
+  );
+
+  // Desktop & Mobile: Show burger menu + sidebar
   return (
     <>
+      {renderBurgerMenu()}
 
       <motion.div 
         initial={false}

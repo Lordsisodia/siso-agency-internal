@@ -20,6 +20,7 @@ export interface DailyReflection {
   date: string;
   winOfDay?: string; // NEW: Biggest win of the day
   mood?: string; // NEW: Quick mood selector
+  bedTime?: string; // ✅ FIXED: Bedtime tracking
   wentWell?: string[];
   evenBetterIf?: string[];
   dailyAnalysis?: string;
@@ -77,10 +78,31 @@ class UnifiedDataService {
           .maybeSingle(); // ✅ FIX: Use maybeSingle() instead of single() to handle no records gracefully
 
         if (!error && data) {
+          // Transform snake_case from DB to camelCase for app
+          const appRecord: DailyReflection = {
+            id: data.id,
+            user_id: data.user_id,
+            date: data.date,
+            winOfDay: data.win_of_day || '',
+            mood: data.mood || '',
+            bedTime: data.bed_time || '', // ✅ FIXED: Transform bed_time from DB
+            wentWell: data.went_well || [],
+            evenBetterIf: data.even_better_if || [],
+            dailyAnalysis: data.daily_analysis || '',
+            actionItems: data.action_items || '',
+            overallRating: data.overall_rating,
+            energyLevel: data.energy_level,
+            keyLearnings: data.key_learnings || '',
+            tomorrowFocus: data.tomorrow_focus || '',
+            tomorrowTopTasks: data.tomorrow_top_tasks || [],
+            created_at: data.created_at,
+            updated_at: data.updated_at
+          };
+
           // Cache locally
           const key = `reflection:${userId}:${date}`;
-          await offlineDb.setSetting(key, data);
-          return data;
+          await offlineDb.setSetting(key, appRecord);
+          return appRecord;
         }
       } catch (error) {
         console.warn('Failed to get Supabase reflection:', error);
@@ -99,25 +121,56 @@ class UnifiedDataService {
       updated_at: new Date().toISOString()
     });
 
+    // Transform camelCase to snake_case for Supabase
+    const dbRecord = {
+      user_id: reflection.user_id,
+      date: reflection.date,
+      win_of_day: reflection.winOfDay || '',
+      mood: reflection.mood || '',
+      bed_time: reflection.bedTime || null, // ✅ FIXED: Transform bedTime to bed_time for DB
+      went_well: reflection.wentWell || [],
+      even_better_if: reflection.evenBetterIf || [],
+      daily_analysis: reflection.dailyAnalysis || '',
+      action_items: reflection.actionItems || '',
+      overall_rating: reflection.overallRating,
+      energy_level: reflection.energyLevel,
+      key_learnings: reflection.keyLearnings || '',
+      tomorrow_focus: reflection.tomorrowFocus || '',
+      tomorrow_top_tasks: reflection.tomorrowTopTasks || [],
+      updated_at: new Date().toISOString()
+    };
+
     // If online, sync to Supabase
     if (this.isOnline()) {
       try {
-        const { error } = await supabaseAnon
+        console.log('🚀 Syncing to Supabase:', {
+          date: dbRecord.date,
+          fields: Object.keys(dbRecord).filter(k => {
+            const val = dbRecord[k as keyof typeof dbRecord];
+            return val !== null && val !== '' && (!Array.isArray(val) || val.length > 0);
+          })
+        });
+
+        const { error, data } = await supabaseAnon
           .from('daily_reflections')
-          .upsert(reflection, { onConflict: 'user_id,date' });
+          .upsert(dbRecord, { onConflict: 'user_id,date' })
+          .select();
 
         if (error) {
-          console.warn('Failed to sync reflection to Supabase:', error);
+          console.error('❌ Failed to sync reflection to Supabase:', error);
           // Queue for later sync
-          await this.queueForSync('daily_reflections', 'upsert', reflection);
+          await this.queueForSync('daily_reflections', 'upsert', dbRecord);
+        } else {
+          console.log('✅ Successfully saved to Supabase:', data);
         }
       } catch (error) {
-        console.warn('Supabase sync error:', error);
-        await this.queueForSync('daily_reflections', 'upsert', reflection);
+        console.error('❌ Supabase sync error:', error);
+        await this.queueForSync('daily_reflections', 'upsert', dbRecord);
       }
     } else {
+      console.log('📴 Offline - queuing for later sync');
       // Queue for later sync
-      await this.queueForSync('daily_reflections', 'upsert', reflection);
+      await this.queueForSync('daily_reflections', 'upsert', dbRecord);
     }
   }
 

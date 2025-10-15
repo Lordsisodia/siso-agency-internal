@@ -7,7 +7,7 @@
 import React from 'react';
 import { format } from 'date-fns';
 import { Clock, Moon, Sun, PieChart, Brain, CheckSquare } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/shared/ui/card';
+// Card components removed - using standard divs instead
 import { WeeklyStatsCard } from '../_shared/WeeklyStatsCard';
 import { motion } from 'framer-motion';
 import { cn } from '@/shared/lib/utils';
@@ -28,15 +28,15 @@ export const WeeklyTimeAnalysisSection: React.FC<WeeklyTimeAnalysisSectionProps>
         <section className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 to-blue-500/5 rounded-2xl blur-sm" />
           <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-cyan-500/20 shadow-lg shadow-cyan-500/10">
-            <CardHeader className="p-0">
-              <CardTitle className="text-cyan-400 flex items-center text-2xl">
+            <div>
+              <h3 className="text-cyan-400 flex items-center font-semibold text-2xl">
                 <Clock className="h-6 w-6 mr-2" />
                 ⏰ Time Analysis
-              </CardTitle>
+              </h3>
               <p className="text-gray-400 text-sm mt-2">
                 Where did my time actually go this week?
               </p>
-            </CardHeader>
+            </div>
           </div>
         </section>
 
@@ -72,13 +72,13 @@ export const WeeklyTimeAnalysisSection: React.FC<WeeklyTimeAnalysisSectionProps>
         <section className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/5 to-purple-500/5 rounded-2xl blur-sm" />
           <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-indigo-500/20 shadow-lg shadow-indigo-500/10">
-            <CardHeader className="p-0 mb-4">
-              <CardTitle className="text-indigo-400 flex items-center">
+            <div className="mb-4">
+              <h3 className="text-indigo-400 flex items-center font-semibold text-lg">
                 <Moon className="h-5 w-5 mr-2" />
                 😴 Sleep Analysis
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
+              </h3>
+            </div>
+            <div>
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm text-gray-400">Average Sleep Duration</span>
@@ -129,7 +129,7 @@ export const WeeklyTimeAnalysisSection: React.FC<WeeklyTimeAnalysisSectionProps>
                   </motion.div>
                 ))}
               </div>
-            </CardContent>
+            </div>
           </div>
         </section>
 
@@ -137,13 +137,13 @@ export const WeeklyTimeAnalysisSection: React.FC<WeeklyTimeAnalysisSectionProps>
         <section className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-cyan-500/5 rounded-2xl blur-sm" />
           <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-blue-500/20 shadow-lg shadow-blue-500/10">
-            <CardHeader className="p-0 mb-4">
-              <CardTitle className="text-blue-400 flex items-center">
+            <div className="mb-4">
+              <h3 className="text-blue-400 flex items-center font-semibold text-lg">
                 <Brain className="h-5 w-5 mr-2" />
                 💼 Work Hours Breakdown
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
+              </h3>
+            </div>
+            <div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
                 <div className="bg-gray-800/50 rounded-lg p-4">
                   <div className="text-sm text-gray-400 mb-1">Deep Work</div>
@@ -181,7 +181,7 @@ export const WeeklyTimeAnalysisSection: React.FC<WeeklyTimeAnalysisSectionProps>
                   Light
                 </div>
               </div>
-            </CardContent>
+            </div>
           </div>
         </section>
 
@@ -189,13 +189,13 @@ export const WeeklyTimeAnalysisSection: React.FC<WeeklyTimeAnalysisSectionProps>
         <section className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/5 to-orange-500/5 rounded-2xl blur-sm" />
           <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-yellow-500/20 shadow-lg shadow-yellow-500/10">
-            <CardHeader className="p-0 mb-4">
-              <CardTitle className="text-yellow-400 flex items-center">
+            <div className="mb-4">
+              <h3 className="text-yellow-400 flex items-center font-semibold text-lg">
                 <Sun className="h-5 w-5 mr-2" />
                 🌅 Wake Time Analysis
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
+              </h3>
+            </div>
+            <div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div className="bg-gray-800/50 rounded-lg p-4">
                   <div className="text-sm text-gray-400 mb-1">Average Wake Time</div>
@@ -220,7 +220,7 @@ export const WeeklyTimeAnalysisSection: React.FC<WeeklyTimeAnalysisSectionProps>
                   ))}
                 </div>
               )}
-            </CardContent>
+            </div>
           </div>
         </section>
 
@@ -228,13 +228,13 @@ export const WeeklyTimeAnalysisSection: React.FC<WeeklyTimeAnalysisSectionProps>
         <section className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-pink-500/5 rounded-2xl blur-sm" />
           <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-purple-500/20 shadow-lg shadow-purple-500/10">
-            <CardHeader className="p-0 mb-4">
-              <CardTitle className="text-purple-400 flex items-center">
+            <div className="mb-4">
+              <h3 className="text-purple-400 flex items-center font-semibold text-lg">
                 <PieChart className="h-5 w-5 mr-2" />
                 📊 Time Utilization
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
+              </h3>
+            </div>
+            <div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
                 <div className="bg-gray-800/50 rounded-lg p-4">
                   <div className="text-sm text-gray-400 mb-1">Tracked Hours</div>
@@ -274,7 +274,7 @@ export const WeeklyTimeAnalysisSection: React.FC<WeeklyTimeAnalysisSectionProps>
                   </div>
                 </div>
               </div>
-            </CardContent>
+            </div>
           </div>
         </section>
 

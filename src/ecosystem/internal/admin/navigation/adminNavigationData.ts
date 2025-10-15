@@ -1,7 +1,8 @@
 import {
   LayoutDashboard, Users, UserCheck,
   ListTodo, Building2,
-  Lock, Settings, ShoppingCart
+  Lock, ShoppingCart, Calendar, CalendarRange,
+  CalendarClock, CalendarDays, Infinity
 } from 'lucide-react';
 import { MenuSection } from './types';
 
@@ -39,13 +40,33 @@ export const getAdminMenuSections = (): MenuSection[] => {
     },
     {
       type: 'section',
-      title: 'Business Tools',
-      icon: Settings,
+      title: 'LifeLock',
+      icon: Lock,
       items: [
         {
-          href: '/admin/life-lock-overview',
-          icon: Lock,
-          label: 'Life Lock',
+          href: '/admin/lifelock/daily',
+          icon: Calendar,
+          label: 'Daily View',
+        },
+        {
+          href: '/admin/lifelock/weekly',
+          icon: CalendarRange,
+          label: 'Weekly View',
+        },
+        {
+          href: '/admin/lifelock/monthly',
+          icon: CalendarClock,
+          label: 'Monthly View',
+        },
+        {
+          href: '/admin/lifelock/yearly',
+          icon: CalendarDays,
+          label: 'Yearly View',
+        },
+        {
+          href: '/admin/lifelock/life',
+          icon: Infinity,
+          label: 'Life View',
         },
         {
           href: '/xp-store',

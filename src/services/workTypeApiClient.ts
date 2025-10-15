@@ -45,6 +45,15 @@ export interface MorningRoutine {
   completionPercentage: number;
 }
 
+export interface MorningRoutineMetadata {
+  wakeUpTime?: string;
+  waterAmount?: number;
+  meditationDuration?: string;
+  pushupReps?: number;
+  dailyPriorities?: string[];
+  isPlanDayComplete?: boolean;
+}
+
 export class WorkTypeApiClient {
   
   /**
@@ -250,6 +259,37 @@ export class WorkTypeApiClient {
       }
     } catch (error) {
       console.error('❌ Failed to update morning routine habit:', error);
+      throw error;
+    }
+  }
+
+
+  /**
+   * Update morning routine metadata (wake-up time, push-ups, priorities, etc.)
+   */
+  async updateMorningRoutineMetadata(userId: string, date: Date, metadata: Partial<MorningRoutineMetadata>): Promise<void> {
+    const dateString = format(date, 'yyyy-MM-dd');
+    
+    try {
+      const response = await fetch(createApiUrl('/api/morning-routine/metadata'), {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          userId,
+          date: dateString,
+          metadata
+        })
+      });
+
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to update morning routine metadata');
+      }
+    } catch (error) {
+      console.error('❌ Failed to update morning routine metadata:', error);
       throw error;
     }
   }

@@ -18,6 +18,7 @@ export interface DailyReflection {
   date: string;
   winOfDay?: string; // NEW: Biggest win of the day
   mood?: string; // NEW: Quick mood selector
+  bedTime?: string; // ✅ FIXED: Added bedTime field
   wentWell: string[];
   evenBetterIf: string[];
   dailyAnalysis: string;
@@ -70,6 +71,7 @@ export function useDailyReflections({ selectedDate }: UseDailyReflectionsProps) 
           date: data.date,
           winOfDay: data.winOfDay || '',
           mood: data.mood || '',
+          bedTime: data.bedTime || '', // ✅ FIXED: Include bedTime when loading
           wentWell: data.wentWell || [],
           evenBetterIf: data.evenBetterIf || [],
           dailyAnalysis: data.dailyAnalysis || '',
@@ -108,11 +110,13 @@ export function useDailyReflections({ selectedDate }: UseDailyReflectionsProps) 
       console.log(`🌙 Saving daily reflection (offline-first) for ${dateString}...`);
 
       // Use unified data service (saves to IndexedDB + syncs to Supabase if online)
+      // IMPORTANT: Use snake_case field names to match Supabase schema
       await unifiedDataService.saveDailyReflection({
         user_id: internalUserId,
         date: dateString,
         winOfDay: reflectionData.winOfDay || '',
         mood: reflectionData.mood || '',
+        bedTime: reflectionData.bedTime || '', // ✅ FIXED: Include bedTime in save
         wentWell: reflectionData.wentWell || [],
         evenBetterIf: reflectionData.evenBetterIf || [],
         dailyAnalysis: reflectionData.dailyAnalysis || '',
@@ -130,6 +134,7 @@ export function useDailyReflections({ selectedDate }: UseDailyReflectionsProps) 
         date: dateString,
         winOfDay: reflectionData.winOfDay || '',
         mood: reflectionData.mood || '',
+        bedTime: reflectionData.bedTime || '', // ✅ FIXED: Include bedTime in return
         wentWell: reflectionData.wentWell || [],
         evenBetterIf: reflectionData.evenBetterIf || [],
         dailyAnalysis: reflectionData.dailyAnalysis || '',

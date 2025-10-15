@@ -29,19 +29,19 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
   
   // Use the new Supabase hook for data persistence
   const { reflection, loading: isLoading, saving: isSaving, saveReflection } = useDailyReflections({ selectedDate });
-  
+
   // Fetch yesterday's reflection for accountability
   const yesterday = subDays(selectedDate, 1);
   const { reflection: yesterdayReflection } = useDailyReflections({ selectedDate: yesterday });
-  
-  const [bedTime, setBedTime] = useState<string>('');
+
   const [isEditingBedTime, setIsEditingBedTime] = useState(false);
   const [isRecordingVoice, setIsRecordingVoice] = useState(false);
-  
+
   // STATE FIRST - Define nightlyCheckout before any functions that use it
   const [nightlyCheckout, setNightlyCheckout] = useState({
     winOfDay: '',
     mood: '',
+    bedTime: '', // ✅ FIXED: Now part of saved state
     wentWell: [''] as string[],
     evenBetterIf: [''] as string[],
     dailyAnalysis: '',
@@ -135,23 +135,25 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
     }
   };
 
-  // Sync local state with Supabase data when reflection loads
+  // Sync local state with Supabase data when reflection loads OR reset when changing to new day
   useEffect(() => {
-    if (reflection) {
-      setNightlyCheckout({
-        winOfDay: reflection.winOfDay || '',
-        mood: reflection.mood || '',
-        wentWell: reflection.wentWell && reflection.wentWell.length > 0 ? reflection.wentWell : [''],
-        evenBetterIf: reflection.evenBetterIf && reflection.evenBetterIf.length > 0 ? reflection.evenBetterIf : [''],
-        dailyAnalysis: reflection.dailyAnalysis || '',
-        actionItems: reflection.actionItems || '',
-        overallRating: reflection.overallRating,
-        energyLevel: reflection.energyLevel,
-        keyLearnings: reflection.keyLearnings || '',
-        tomorrowFocus: reflection.tomorrowFocus || '',
-        tomorrowTopTasks: reflection.tomorrowTopTasks && reflection.tomorrowTopTasks.length > 0 ? reflection.tomorrowTopTasks : ['', '', '']
-      });
-    }
+    // Always update form state - either with saved data or empty defaults
+    setNightlyCheckout({
+      winOfDay: reflection?.winOfDay || '',
+      mood: reflection?.mood || '',
+      bedTime: reflection?.bedTime || '', // ✅ FIXED: Load bedTime from database
+      wentWell: reflection?.wentWell && reflection.wentWell.length > 0 ? reflection.wentWell : [''],
+      evenBetterIf: reflection?.evenBetterIf && reflection.evenBetterIf.length > 0 ? reflection.evenBetterIf : [''],
+      dailyAnalysis: reflection?.dailyAnalysis || '',
+      actionItems: reflection?.actionItems || '',
+      overallRating: reflection?.overallRating,
+      energyLevel: reflection?.energyLevel,
+      keyLearnings: reflection?.keyLearnings || '',
+      tomorrowFocus: reflection?.tomorrowFocus || '',
+      tomorrowTopTasks: reflection?.tomorrowTopTasks && reflection.tomorrowTopTasks.length > 0 ? reflection.tomorrowTopTasks : ['', '', '']
+    });
+    // Reset the edited flag when loading new date data
+    setHasUserEdited(false);
   }, [reflection]);
 
   // Save to Supabase with debouncing
@@ -177,7 +179,7 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
 
   // Handle setting current time as bed time
   const setCurrentTimeAsBedTime = () => {
-    setBedTime(getCurrentTime());
+    updateCheckout({ bedTime: getCurrentTime() }); // ✅ FIXED: Use updateCheckout to save
     setIsEditingBedTime(false);
   };
 
@@ -186,7 +188,7 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
 
 
   return (
-    <div className="min-h-screen w-full bg-gray-900 relative">
+    <div className="min-h-screen w-full bg-[#121212] relative overflow-x-hidden">
       <div className="max-w-7xl mx-auto p-3 sm:p-4 md:p-6 lg:p-8 space-y-6">
 
         <motion.div
@@ -363,7 +365,7 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
 
           {/* Bedtime Tracking Section - Hybrid Design */}
           <div className="mb-8">
-            {!bedTime && !isEditingBedTime ? (
+            {!nightlyCheckout.bedTime && !isEditingBedTime ? (
               // State 1: Unset - Call to Action
               <div className="p-4 bg-purple-900/10 border border-purple-700/30 rounded-xl hover:border-purple-600/50 transition-colors space-y-3">
                 <div className="flex items-center space-x-3">
@@ -388,13 +390,13 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
                   </Button>
                 </div>
               </div>
-            ) : bedTime && !isEditingBedTime ? (
+            ) : nightlyCheckout.bedTime && !isEditingBedTime ? (
               // State 2: Set - Collapsed View
               <div className="flex items-center justify-between p-4 bg-purple-900/10 border border-purple-700/30 rounded-xl">
                 <div className="flex items-center space-x-3">
                   <Moon className="h-5 w-5 text-purple-400" />
                   <span className="text-purple-200">
-                    Bedtime: <span className="font-semibold text-purple-100">{bedTime}</span>
+                    Bedtime: <span className="font-semibold text-purple-100">{nightlyCheckout.bedTime}</span>
                   </span>
                 </div>
                 <Button
@@ -415,8 +417,8 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
                 </div>
                 <div className="flex items-center space-x-2">
                   <select
-                    value={bedTime}
-                    onChange={(e) => setBedTime(e.target.value)}
+                    value={nightlyCheckout.bedTime}
+                    onChange={(e) => updateCheckout({ bedTime: e.target.value })}
                     className="flex-1 bg-purple-900/20 border border-purple-700/50 text-purple-100 rounded-md px-3 py-2 text-sm focus:border-purple-400 focus:ring-1 focus:ring-purple-400/20 outline-none"
                   >
                     <option value="">Select time...</option>
@@ -654,6 +656,20 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
                   onChange={(e) => updateCheckout({ keyLearnings: e.target.value })}
                   className="bg-purple-900/10 border-purple-700/30 text-white placeholder:text-purple-300/40 focus:border-purple-400 focus:ring-purple-400/20 rounded-lg min-h-[100px]"
                   placeholder="What did you learn about yourself or life today?"
+                />
+              </div>
+
+              {/* ✅ FIXED: Added Tomorrow's Focus field for accountability */}
+              <div>
+                <h4 className="font-semibold text-purple-300 mb-3 text-base">What's your main focus for tomorrow?</h4>
+                <p className="text-xs text-purple-400 mb-3">
+                  This will show up tomorrow as an accountability reminder 🎯
+                </p>
+                <Input
+                  value={nightlyCheckout.tomorrowFocus}
+                  onChange={(e) => updateCheckout({ tomorrowFocus: e.target.value })}
+                  className="bg-purple-900/10 border-purple-700/30 text-white text-lg font-medium placeholder:text-purple-300/40 focus:border-purple-400 focus:ring-purple-400/20 rounded-lg"
+                  placeholder="e.g., Finish the client presentation, Launch new feature..."
                 />
               </div>
 

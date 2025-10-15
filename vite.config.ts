@@ -39,11 +39,15 @@ export default defineConfig(({ mode }) => ({
     apiRoutesPlugin(), // Re-enable API plugin for development
     VitePWA({
       registerType: 'autoUpdate',
+      injectRegister: 'auto',
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,json,vue,txt,woff2}'],
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
+        navigateFallbackDenylist: [/^\/lovable-uploads\//], // Don't cache lovable-uploads paths
+        // Exclude lovable-uploads from being cached
+        globIgnores: ['**/lovable-uploads/**'],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/api\.*/i,
@@ -76,7 +80,11 @@ export default defineConfig(({ mode }) => ({
             }
           },
           {
-            urlPattern: ({ request }) => request.destination === 'image',
+            urlPattern: ({ request, url }) => {
+              // Skip lovable-uploads paths to prevent 404 spam
+              if (url.pathname.includes('/lovable-uploads/')) return false;
+              return request.destination === 'image';
+            },
             handler: 'CacheFirst',
             options: {
               cacheName: 'images-cache',
@@ -145,7 +153,7 @@ export default defineConfig(({ mode }) => ({
         ]
       },
       devOptions: {
-        enabled: mode === 'development',
+        enabled: false, // Disable service worker in development to prevent console spam
         type: 'module',
         navigateFallback: 'index.html'
       }

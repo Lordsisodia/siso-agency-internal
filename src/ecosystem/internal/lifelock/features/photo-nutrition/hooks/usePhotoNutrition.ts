@@ -40,18 +40,18 @@ export function usePhotoNutrition(userId: string, date: Date) {
         .select('*')
         .eq('user_id', userId)
         .eq('date', dateKey)
-        .not('photo_url', 'is', null)
+        .eq('meal_type', 'photo')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      // Map to FoodPhoto format
+      // Map to FoodPhoto format (no photo URLs - just data)
       const mappedPhotos: FoodPhoto[] = (data || []).map(entry => ({
         id: entry.id,
         userId: entry.user_id,
         date: entry.date,
-        photoUrl: entry.photo_url,
-        timestamp: entry.photo_timestamp || entry.created_at,
+        photoUrl: '', // No photo stored
+        timestamp: entry.created_at,
         aiDescription: entry.food_description,
         calories: entry.calories || 0,
         protein: entry.protein_g || 0,
@@ -87,7 +87,7 @@ export function usePhotoNutrition(userId: string, date: Date) {
     }
   }, [userId, dateKey]);
 
-  // Upload photo, analyze with AI, and save to database
+  // Analyze photo with AI and save macro data (no photo storage)
   const uploadPhoto = useCallback(async (file: File): Promise<void> => {
     if (!userId) throw new Error('User ID required');
 
@@ -95,20 +95,20 @@ export function usePhotoNutrition(userId: string, date: Date) {
       setUploading(true);
       setError(null);
 
-      console.log('📤 [PHOTO NUTRITION] Starting upload flow:', file.name);
+      console.log('📸 [PHOTO NUTRITION] Starting analysis:', file.name);
 
-      // Step 1: Upload to Supabase Storage
-      const uploadResult = await photoStorageService.uploadPhoto(userId, dateKey, file);
+      // Step 1: Convert photo to base64 for direct API call
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
 
-      if (!uploadResult.success || !uploadResult.photoUrl) {
-        throw new Error(uploadResult.error || 'Upload failed');
-      }
+      console.log('✅ [PHOTO NUTRITION] Photo converted to base64');
 
-      const photoUrl = uploadResult.photoUrl;
-      console.log('✅ [PHOTO NUTRITION] Photo uploaded:', photoUrl);
-
-      // Step 2: Analyze with AI Vision
-      const analysisResult = await visionApiService.analyzeFoodPhoto(photoUrl);
+      // Step 2: Analyze with AI Vision (no storage needed)
+      const analysisResult = await visionApiService.analyzeFoodPhoto(base64);
 
       if (!analysisResult.success || !analysisResult.macros) {
         throw new Error(analysisResult.error || 'AI analysis failed');
@@ -117,15 +117,14 @@ export function usePhotoNutrition(userId: string, date: Date) {
       const { calories, protein, carbs, fats, description } = analysisResult.macros;
       console.log('✅ [PHOTO NUTRITION] AI analysis complete:', analysisResult.macros);
 
-      // Step 3: Save to database
+      // Step 3: Save only the data to database (no photo URL)
       const { error: dbError } = await supabase
         .from('nutrition_entries')
         .insert({
           user_id: userId,
           date: dateKey,
-          photo_url: photoUrl,
-          photo_timestamp: new Date().toISOString(),
-          meal_type: 'photo', // Special type for photo entries
+          meal_type: 'photo',
+          meal_time: new Date().toTimeString().slice(0, 5), // HH:MM format
           food_description: description,
           calories,
           protein_g: protein,
@@ -141,40 +140,28 @@ export function usePhotoNutrition(userId: string, date: Date) {
 
       console.log('✅ [PHOTO NUTRITION] Saved to database');
 
-      // Reload photos to update UI
+      // Reload to update UI
       await loadPhotos();
 
     } catch (err) {
-      console.error('❌ [PHOTO NUTRITION] Upload failed:', err);
-      setError(err instanceof Error ? err.message : 'Upload failed');
+      console.error('❌ [PHOTO NUTRITION] Analysis failed:', err);
+      setError(err instanceof Error ? err.message : 'Analysis failed');
       throw err;
     } finally {
       setUploading(false);
     }
   }, [userId, dateKey, loadPhotos]);
 
-  // Delete photo
+  // Delete meal entry
   const deletePhoto = useCallback(async (photoId: string): Promise<void> => {
     if (!userId) throw new Error('User ID required');
 
     try {
       setError(null);
 
-      console.log('🗑️ [PHOTO NUTRITION] Deleting photo:', photoId);
+      console.log('🗑️ [PHOTO NUTRITION] Deleting meal entry:', photoId);
 
-      // Get photo URL before deleting
-      const { data: entry } = await supabase
-        .from('nutrition_entries')
-        .select('photo_url')
-        .eq('id', photoId)
-        .single();
-
-      if (entry?.photo_url) {
-        // Delete from storage
-        await photoStorageService.deletePhoto(entry.photo_url);
-      }
-
-      // Delete from database
+      // Delete from database only (no photos stored)
       const { error: dbError } = await supabase
         .from('nutrition_entries')
         .delete()
@@ -183,9 +170,9 @@ export function usePhotoNutrition(userId: string, date: Date) {
 
       if (dbError) throw dbError;
 
-      console.log('✅ [PHOTO NUTRITION] Photo deleted');
+      console.log('✅ [PHOTO NUTRITION] Meal deleted');
 
-      // Reload photos to update UI
+      // Reload to update UI
       await loadPhotos();
 
     } catch (err) {

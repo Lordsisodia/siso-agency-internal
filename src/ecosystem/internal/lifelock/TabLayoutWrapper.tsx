@@ -141,13 +141,7 @@ const [searchParams, setSearchParams] = useSearchParams();
   const activeTabIndex = tabs.findIndex(tab => tab.id === activeTabId);
   const activeTab = tabs[activeTabIndex];
 
-  // Update URL when tab or date changes
-  React.useEffect(() => {
-    const newParams = new URLSearchParams(searchParams);
-    newParams.set('tab', activeTabId);
-    newParams.set('date', format(selectedDate, 'yyyy-MM-dd'));
-    setSearchParams(newParams);
-  }, [activeTabId, selectedDate, searchParams, setSearchParams]);
+  // Clean URLs - no query params for tab/date (managed in component state only)
 
   // Day navigation - memoized to prevent child re-renders
   const navigateDay = useCallback((direction: 'prev' | 'next') => {

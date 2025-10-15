@@ -7,7 +7,7 @@
 import React from 'react';
 import { format } from 'date-fns';
 import { Brain, CheckSquare, Target, TrendingUp, BarChart3 } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/shared/ui/card';
+// Card components removed - using standard divs instead
 import { WeeklyStatsCard } from '../_shared/WeeklyStatsCard';
 import { motion } from 'framer-motion';
 import { cn } from '@/shared/lib/utils';
@@ -35,15 +35,15 @@ export const WeeklyProductivitySection: React.FC<WeeklyProductivitySectionProps>
         <section className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-indigo-500/5 rounded-2xl blur-sm" />
           <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-purple-500/20 shadow-lg shadow-purple-500/10">
-            <CardHeader className="p-0">
-              <CardTitle className="text-purple-400 flex items-center text-2xl">
+            <div>
+              <h3 className="text-purple-400 flex items-center font-semibold text-2xl">
                 <BarChart3 className="h-6 w-6 mr-2" />
                 💼 Productivity Analysis
-              </CardTitle>
+              </h3>
               <p className="text-gray-400 text-sm mt-2">
                 What did I accomplish this week?
               </p>
-            </CardHeader>
+            </div>
           </div>
         </section>
 
@@ -85,13 +85,13 @@ export const WeeklyProductivitySection: React.FC<WeeklyProductivitySectionProps>
         <section className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-indigo-500/5 rounded-2xl blur-sm" />
           <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-blue-500/20 shadow-lg shadow-blue-500/10">
-            <CardHeader className="p-0 mb-4">
-              <CardTitle className="text-blue-400 flex items-center">
+            <div className="mb-4">
+              <h3 className="text-blue-400 flex items-center font-semibold text-lg">
                 <Brain className="h-5 w-5 mr-2" />
                 🧠 Deep Work Breakdown
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
+              </h3>
+            </div>
+            <div>
               <div className="space-y-3">
                 {deepWork.dailyBreakdown.map((day, idx) => (
                   <motion.div
@@ -118,7 +118,7 @@ export const WeeklyProductivitySection: React.FC<WeeklyProductivitySectionProps>
                   </motion.div>
                 ))}
               </div>
-            </CardContent>
+            </div>
           </div>
         </section>
 
@@ -126,13 +126,13 @@ export const WeeklyProductivitySection: React.FC<WeeklyProductivitySectionProps>
         <section className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 to-emerald-500/5 rounded-2xl blur-sm" />
           <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-green-500/20 shadow-lg shadow-green-500/10">
-            <CardHeader className="p-0 mb-4">
-              <CardTitle className="text-green-400 flex items-center">
+            <div className="mb-4">
+              <h3 className="text-green-400 flex items-center font-semibold text-lg">
                 <CheckSquare className="h-5 w-5 mr-2" />
                 ✅ Light Work Completion
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
+              </h3>
+            </div>
+            <div>
               <div className="space-y-3">
                 {lightWork.dailyBreakdown.map((day, idx) => (
                   <motion.div
@@ -159,7 +159,7 @@ export const WeeklyProductivitySection: React.FC<WeeklyProductivitySectionProps>
                   </motion.div>
                 ))}
               </div>
-            </CardContent>
+            </div>
           </div>
         </section>
 
@@ -167,13 +167,13 @@ export const WeeklyProductivitySection: React.FC<WeeklyProductivitySectionProps>
         <section className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-pink-500/5 rounded-2xl blur-sm" />
           <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-purple-500/20 shadow-lg shadow-purple-500/10">
-            <CardHeader className="p-0 mb-4">
-              <CardTitle className="text-purple-400 flex items-center">
+            <div className="mb-4">
+              <h3 className="text-purple-400 flex items-center font-semibold text-lg">
                 <Target className="h-5 w-5 mr-2" />
                 🎯 Priority Breakdown
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
+              </h3>
+            </div>
+            <div>
               <div className="space-y-4">
                 {priorityData.map((priority, idx) => {
                   const completionRate = Math.round((priority.completed / priority.total) * 100);
@@ -212,7 +212,7 @@ export const WeeklyProductivitySection: React.FC<WeeklyProductivitySectionProps>
                   );
                 })}
               </div>
-            </CardContent>
+            </div>
           </div>
         </section>
 
@@ -220,13 +220,13 @@ export const WeeklyProductivitySection: React.FC<WeeklyProductivitySectionProps>
         <section className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 to-amber-500/5 rounded-2xl blur-sm" />
           <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-orange-500/20 shadow-lg shadow-orange-500/10">
-            <CardHeader className="p-0 mb-4">
-              <CardTitle className="text-orange-400 flex items-center">
+            <div className="mb-4">
+              <h3 className="text-orange-400 flex items-center font-semibold text-lg">
                 <TrendingUp className="h-5 w-5 mr-2" />
                 📈 Week-over-Week Trends
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
+              </h3>
+            </div>
+            <div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="bg-gray-800/50 rounded-lg p-4">
                   <div className="text-sm text-gray-400 mb-1">Deep Work</div>
@@ -256,7 +256,7 @@ export const WeeklyProductivitySection: React.FC<WeeklyProductivitySectionProps>
                   </div>
                 </div>
               </div>
-            </CardContent>
+            </div>
           </div>
         </section>
 

@@ -78,15 +78,13 @@ define(['./workbox-a959eb95'], (function (workbox) { 'use strict';
    * See https://goo.gl/S9QRab
    */
   workbox.precacheAndRoute([{
-    "url": "registerSW.js",
-    "revision": "3ca0b8505b4bec776b69afdba2768812"
-  }, {
     "url": "index.html",
-    "revision": "0.7n093dqssc"
+    "revision": "0.a2bimlgt5i"
   }], {});
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html"), {
-    allowlist: [/^\/$/]
+    allowlist: [/^\/$/],
+    denylist: [/^\/lovable-uploads\//]
   }));
   workbox.registerRoute(/^https:\/\/api\.*/i, new workbox.NetworkFirst({
     "cacheName": "api-cache",
@@ -109,8 +107,12 @@ define(['./workbox-a959eb95'], (function (workbox) { 'use strict';
     })]
   }), 'GET');
   workbox.registerRoute(({
-    request
-  }) => request.destination === "image", new workbox.CacheFirst({
+    request,
+    url
+  }) => {
+    if (url.pathname.includes("/lovable-uploads/")) return false;
+    return request.destination === "image";
+  }, new workbox.CacheFirst({
     "cacheName": "images-cache",
     plugins: [new workbox.ExpirationPlugin({
       maxEntries: 100,

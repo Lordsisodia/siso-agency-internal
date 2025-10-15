@@ -1,7 +1,7 @@
 import React, { useMemo, useEffect, useState } from 'react';
 import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
 import { format, addWeeks, subWeeks, getYear } from 'date-fns';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useClerkUser } from '@/shared/hooks/useClerkUser';
 import { useSupabaseUserId } from '@/shared/lib/supabase-clerk';
 import { ThoughtDumpResults } from "@/shared/components/ui";
@@ -15,7 +15,7 @@ import { calculateDayCompletionPercentage } from '@/utils/dayProgress';
 
 const AdminLifeLockDay: React.FC = () => {
   const navigate = useNavigate();
-  const { date } = useParams<{ date: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { isSignedIn, isLoaded, user } = useClerkUser();
 
   const internalUserId = useSupabaseUserId(user?.id || null);
@@ -32,10 +32,11 @@ const AdminLifeLockDay: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Parse date from URL or default to today - memoized to prevent infinite re-renders
+  // Parse date from query params or default to today - memoized to prevent infinite re-renders
   const selectedDate = useMemo(() => {
-    return date ? new Date(date) : new Date();
-  }, [date]);
+    const dateParam = searchParams.get('date');
+    return dateParam ? new Date(dateParam) : new Date();
+  }, [searchParams]);
 
   // Compute day progress percentage using utility function
   const dayCompletionPercentage = calculateDayCompletionPercentage(currentTime);
@@ -70,13 +71,33 @@ const AdminLifeLockDay: React.FC = () => {
     setEisenhowerResult
   } = hookData;
 
-  // Navigation handlers
+  // Navigation handlers - all use clean URL with query params
   const handleCardClick = (card: any) => {
-    navigate(`/admin/life-lock/daily/${format(card.date, 'yyyy-MM-dd')}`);
+    const cardDate = format(card.date, 'yyyy-MM-dd');
+    const today = format(new Date(), 'yyyy-MM-dd');
+
+    // Use query param for date selection
+    if (cardDate === today) {
+      // Today - no query param needed
+      navigate('/admin/lifelock/daily');
+    } else {
+      // Other dates - use query param
+      navigate(`/admin/lifelock/daily?date=${cardDate}`);
+    }
   };
 
   const handleDateChange = (newDate: Date) => {
-    navigate(`/admin/life-lock/daily/${format(newDate, 'yyyy-MM-dd')}`);
+    const selectedDateStr = format(newDate, 'yyyy-MM-dd');
+    const today = format(new Date(), 'yyyy-MM-dd');
+
+    // Use query param for date selection
+    if (selectedDateStr === today) {
+      // Today - no query param needed
+      navigate('/admin/lifelock/daily');
+    } else {
+      // Other dates - use query param
+      navigate(`/admin/lifelock/daily?date=${selectedDateStr}`);
+    }
   };
 
   const handleQuickAdd = () => {
@@ -85,8 +106,18 @@ const AdminLifeLockDay: React.FC = () => {
 
   const navigateWeek = (direction: 'prev' | 'next') => {
     // For week navigation within the day view
-    const newDate = direction === 'next' ? addWeeks(selectedDate, 1) : addWeeks(selectedDate, -1);
-    navigate(`/admin/life-lock/daily/${format(newDate, 'yyyy-MM-dd')}`);
+    const newDate = direction === 'next' ? addWeeks(selectedDate, 1) : subWeeks(selectedDate, 1);
+    const selectedDateStr = format(newDate, 'yyyy-MM-dd');
+    const today = format(new Date(), 'yyyy-MM-dd');
+
+    // Use query param for date selection
+    if (selectedDateStr === today) {
+      // Today - no query param needed
+      navigate('/admin/lifelock/daily');
+    } else {
+      // Other dates - use query param
+      navigate(`/admin/lifelock/daily?date=${selectedDateStr}`);
+    }
   };
 
   // Loading and auth guards
@@ -119,7 +150,7 @@ const AdminLifeLockDay: React.FC = () => {
   }
 
 return (
-    <>
+    <AdminLayout>
       {/* NEW: Using LifeLockViewRenderer with CORRECT components from SafeTabContentRenderer */}
       <LifeLockViewRenderer
         view="daily"
@@ -150,7 +181,7 @@ return (
           onReanalyze={handleReanalyze}
         />
       )}
-    </>
+    </AdminLayout>
   );
 };
 

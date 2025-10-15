@@ -27,6 +27,117 @@ async function getSupabaseUserId(clerkUserId) {
   return user?.id || null;
 }
 
+// Handle metadata endpoint
+async function handleMetadata(req, res) {
+  const { method, query, body } = req;
+  
+  try {
+    switch (method) {
+      case 'GET':
+        // GET /api/morning-routine/metadata?userId=xxx&date=2025-10-15
+        const { userId, date } = query;
+        if (!userId || !date) {
+          return res.status(400).json({ error: 'userId and date are required' });
+        }
+        
+        // Convert Clerk ID to Supabase UUID
+        const supabaseUserId = await getSupabaseUserId(userId);
+        if (!supabaseUserId) {
+          return res.status(200).json({ success: true, data: {} });
+        }
+
+        // Get morning routine metadata from Supabase
+        const { data: routineData, error } = await supabase
+          .from('daily_routines')
+          .select('metadata')
+          .eq('user_id', supabaseUserId)
+          .eq('date', date)
+          .eq('routine_type', 'morning')
+          .maybeSingle();
+        
+        if (error) {
+          console.error('Supabase error:', error);
+          return res.status(500).json({ error: 'Database error' });
+        }
+        
+        return res.status(200).json({ 
+          success: true, 
+          data: routineData?.metadata || {} 
+        });
+
+      case 'PATCH':
+        // PATCH /api/morning-routine/metadata - Update metadata fields
+        const { userId: patchUserId, date: patchDate, metadata } = body;
+        if (!patchUserId || !patchDate || !metadata) {
+          return res.status(400).json({ error: 'userId, date, and metadata are required' });
+        }
+        
+        // Convert Clerk ID to Supabase UUID
+        const patchSupabaseUserId = await getSupabaseUserId(patchUserId);
+        if (!patchSupabaseUserId) {
+          return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Check if routine exists
+        const { data: existingRoutine, error: fetchError } = await supabase
+          .from('daily_routines')
+          .select('*')
+          .eq('user_id', patchSupabaseUserId)
+          .eq('date', patchDate)
+          .eq('routine_type', 'morning')
+          .maybeSingle();
+
+        if (fetchError) {
+          console.error('Supabase fetch error:', fetchError);
+          return res.status(500).json({ error: 'Database error' });
+        }
+
+        // Merge existing metadata with new metadata
+        const currentMetadata = existingRoutine?.metadata || {};
+        const updatedMetadata = { ...currentMetadata, ...metadata };
+
+        // Upsert routine with updated metadata
+        const { data: updatedRoutine, error: updateError } = await supabase
+          .from('daily_routines')
+          .upsert({
+            user_id: patchSupabaseUserId,
+            date: patchDate,
+            routine_type: 'morning',
+            metadata: updatedMetadata,
+            items: existingRoutine?.items || [],
+            completed_count: existingRoutine?.completed_count || 0,
+            total_count: existingRoutine?.total_count || 0,
+            completion_percentage: existingRoutine?.completion_percentage || 0
+          }, { 
+            onConflict: 'user_id,date,routine_type',
+            ignoreDuplicates: false 
+          })
+          .select()
+          .single();
+
+        if (updateError) {
+          console.error('Supabase update error:', updateError);
+          return res.status(500).json({ error: 'Database error' });
+        }
+        
+        return res.status(200).json({ 
+          success: true, 
+          data: updatedRoutine.metadata 
+        });
+
+      default:
+        res.setHeader('Allow', ['GET', 'PATCH']);
+        return res.status(405).end(`Method ${method} Not Allowed`);
+    }
+  } catch (error) {
+    console.error('❌ Morning Routine Metadata API error:', error);
+    return res.status(500).json({ 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Internal server error' 
+    });
+  }
+}
+
 export default async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -40,6 +151,11 @@ export default async function handler(req, res) {
   const { method, query, body } = req;
 
   try {
+    // Handle metadata sub-route
+    if (req.url.includes('/metadata')) {
+      return handleMetadata(req, res);
+    }
+    
     switch (method) {
       case 'GET':
         // GET /api/morning-routine?userId=xxx&date=2025-08-26

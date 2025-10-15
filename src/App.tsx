@@ -62,7 +62,7 @@ const AdminDailyPlanner = lazy(() => import('@/ecosystem/internal/pages/AdminDai
 const AdminLifeLock = lazy(() => import('@/ecosystem/internal/lifelock/AdminLifeLock.tsx'));
 const AdminLifeLockDay = lazy(() => import('@/ecosystem/internal/lifelock/AdminLifeLockDay.tsx'));
 const AdminLifeLockOverview = lazy(() => import('@/ecosystem/internal/admin/dashboard/pages/AdminLifeLockOverview'));
-const WeeklyView = lazy(() => import('@/ecosystem/internal/lifelock/views/weekly/WeeklyView.safe').then(m => ({ default: m.WeeklyView })));
+const WeeklyView = lazy(() => import('@/ecosystem/internal/lifelock/views/weekly/WeeklyView').then(m => ({ default: m.WeeklyView })));
 const MonthlyView = lazy(() => import('@/ecosystem/internal/lifelock/views/monthly/MonthlyView'));
 const YearlyView = lazy(() => import('@/ecosystem/internal/lifelock/views/yearly/YearlyView'));
 const ClientDetailPage = lazy(() => import('./pages/ClientDetailPage'));
@@ -253,20 +253,21 @@ function App() {
           <Route path="/admin/life-lock" element={<ClerkAuthGuard><AdminLifeLock /></ClerkAuthGuard>} />
 
           {/* LifeLock View Hierarchy: Daily → Weekly → Monthly → Yearly → Life */}
-          <Route path="/admin/lifelock/daily/:date" element={<ClerkAuthGuard><AdminLifeLockDay /></ClerkAuthGuard>} />
+          {/* Clean URLs - date managed via query params */}
+          <Route path="/admin/lifelock/daily" element={<ClerkAuthGuard><AdminLifeLockDay /></ClerkAuthGuard>} />
           <Route path="/admin/lifelock/weekly" element={<ClerkAuthGuard><WeeklyView /></ClerkAuthGuard>} />
           <Route path="/admin/lifelock/monthly" element={<ClerkAuthGuard><MonthlyView /></ClerkAuthGuard>} />
           <Route path="/admin/lifelock/yearly" element={<ClerkAuthGuard><YearlyView /></ClerkAuthGuard>} />
 
-          {/* Legacy weekly shortcut */}
+          {/* Legacy shortcuts */}
           <Route path="/weekly" element={<Navigate to="/admin/lifelock/weekly" replace />} />
-          
-          {/* Daily view routes - legacy clean URL structure */}
-          <Route path="/admin/life-lock/daily/:date" element={<ClerkAuthGuard><AdminLifeLockDay /></ClerkAuthGuard>} />
+          <Route path="/admin/life-lock/daily" element={<Navigate to="/admin/lifelock/daily" replace />} />
 
-          {/* Legacy routes - keep for backward compatibility */}
-          <Route path="/admin/lifelock/day/:date" element={<ClerkAuthGuard><AdminLifeLockDay /></ClerkAuthGuard>} />
-          <Route path="/admin/life-lock/day/:date" element={<ClerkAuthGuard><AdminLifeLockDay /></ClerkAuthGuard>} />
+          {/* Legacy routes with dates - redirect to clean URL */}
+          <Route path="/admin/lifelock/daily/:date" element={<Navigate to="/admin/lifelock/daily" replace />} />
+          <Route path="/admin/life-lock/daily/:date" element={<Navigate to="/admin/lifelock/daily" replace />} />
+          <Route path="/admin/lifelock/day/:date" element={<Navigate to="/admin/lifelock/daily" replace />} />
+          <Route path="/admin/life-lock/day/:date" element={<Navigate to="/admin/lifelock/daily" replace />} />
           <Route path="/admin/light-work" element={<ClerkAuthGuard><AdminLightWork /></ClerkAuthGuard>} />
           <Route path="/admin/deep-work" element={<ClerkAuthGuard><AdminDeepWork /></ClerkAuthGuard>} />
           <Route path="/admin/tasks" element={<ClerkAuthGuard><AdminTasks /></ClerkAuthGuard>} />

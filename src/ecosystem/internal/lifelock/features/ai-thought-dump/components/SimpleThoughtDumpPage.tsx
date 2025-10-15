@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/shared/ui/button';
 import { Mic, MicOff, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { cn } from '@/shared/lib/utils';
 import { voiceService } from '@/services/voice';
 import { lifeLockVoiceTaskProcessor } from '../services/ai/taskProcessor.service';
 import { gpt5NanoService } from '../services/ai/gpt5Nano.service';
@@ -62,6 +63,19 @@ export const SimpleThoughtDumpPage: React.FC<SimpleThoughtDumpPageProps> = ({
     };
     init();
   }, [internalUserId, selectedDate, messages.length]);
+
+  // Cleanup: Stop listening and TTS when component unmounts
+  useEffect(() => {
+    return () => {
+      console.log('🧹 [CLEANUP] SimpleThoughtDumpPage unmounting - stopping voice services');
+      if (isListening) {
+        voiceService.stopListening();
+      }
+      if (isSpeaking) {
+        voiceService.stopTTS();
+      }
+    };
+  }, [isListening, isSpeaking]);
 
   const getAIResponse = async (userMessage: string) => {
     setIsProcessing(true);
@@ -287,6 +301,9 @@ Progress to next state naturally based on conversation.`;
       setIsTranscribing(false);
 
       try {
+        // Defensive: Force stop first in case service is out of sync
+        voiceService.stopListening();
+
         await voiceService.startListening(
           (text, isFinal) => {
             // Real-time: Show words as they appear (interim results)
@@ -387,8 +404,16 @@ Progress to next state naturally based on conversation.`;
         );
         setIsListening(true);
       } catch (error) {
-        console.error('Failed to start listening:', error);
-        setIsListening(false);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+
+        // Gracefully handle "Already listening" state - just force sync
+        if (errorMessage.includes('Already listening')) {
+          console.warn('⚠️ [UI] Voice service was already listening - syncing state');
+          setIsListening(true); // Sync component state with service
+        } else {
+          console.error('Failed to start listening:', error);
+          setIsListening(false);
+        }
       }
     }
   };

@@ -80,10 +80,11 @@ export const useTaskData = (selectedDate: Date): UseTaskDataReturn => {
       setTodayError(null);
       
       try {
+        // Logging disabled to reduce console noise
         // Only log once per date change, not on every refresh
-        if (refreshTrigger === 0) {
-          console.log(`📅 Loading tasks for ${format(selectedDate, 'yyyy-MM-dd')}`);
-        }
+        // if (refreshTrigger === 0) {
+        //   console.log(`📅 Loading tasks for ${format(selectedDate, 'yyyy-MM-dd')}`);
+        // }
 
         const dayTasks = await personalTaskService.getTasksForDate(user.id, selectedDate);
         

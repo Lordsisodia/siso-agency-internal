@@ -6,7 +6,6 @@
 
 import React, { useState } from 'react';
 import { Trophy, AlertTriangle, TrendingUp, TrendingDown, CheckCircle, Lightbulb } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/shared/ui/card';
 import { Textarea } from '@/shared/ui/textarea';
 import { Button } from '@/shared/ui/button';
 import { motion } from 'framer-motion';
@@ -31,15 +30,15 @@ export const WeeklyCheckoutSection: React.FC<WeeklyCheckoutSectionProps> = ({ in
         <section className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-teal-500/5 rounded-2xl blur-sm" />
           <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-emerald-500/20 shadow-lg shadow-emerald-500/10">
-            <CardHeader className="p-0">
-              <CardTitle className="text-emerald-400 flex items-center text-2xl">
+            <div className="mb-4">
+              <h2 className="text-emerald-400 flex items-center text-2xl font-semibold">
                 <Lightbulb className="h-6 w-6 mr-2" />
                 💡 Insights & Review
-              </CardTitle>
+              </h2>
               <p className="text-gray-400 text-sm mt-2">
                 What worked? What didn't? What's next?
               </p>
-            </CardHeader>
+            </div>
           </div>
         </section>
 
@@ -47,13 +46,13 @@ export const WeeklyCheckoutSection: React.FC<WeeklyCheckoutSectionProps> = ({ in
         <section className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 to-emerald-500/5 rounded-2xl blur-sm" />
           <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-green-500/20 shadow-lg shadow-green-500/10">
-            <CardHeader className="p-0 mb-4">
-              <CardTitle className="text-green-400 flex items-center">
+            <div className="mb-4">
+              <h3 className="text-green-400 flex items-center font-semibold text-lg">
                 <Trophy className="h-5 w-5 mr-2" />
                 🏆 Weekly Wins
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
+              </h3>
+            </div>
+            <div>
               <div className="space-y-3">
                 {wins.map((win, idx) => (
                   <motion.div
@@ -70,7 +69,7 @@ export const WeeklyCheckoutSection: React.FC<WeeklyCheckoutSectionProps> = ({ in
                   </motion.div>
                 ))}
               </div>
-            </CardContent>
+            </div>
           </div>
         </section>
 
@@ -78,13 +77,13 @@ export const WeeklyCheckoutSection: React.FC<WeeklyCheckoutSectionProps> = ({ in
         <section className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-red-500/5 to-rose-500/5 rounded-2xl blur-sm" />
           <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-red-500/20 shadow-lg shadow-red-500/10">
-            <CardHeader className="p-0 mb-4">
-              <CardTitle className="text-red-400 flex items-center">
+            <div className="mb-4">
+              <h3 className="text-red-400 flex items-center font-semibold text-lg">
                 <AlertTriangle className="h-5 w-5 mr-2" />
                 ⚠️ Problems & Areas to Improve
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
+              </h3>
+            </div>
+            <div>
               <div className="space-y-3">
                 {problems.map((problem, idx) => (
                   <motion.div
@@ -101,7 +100,7 @@ export const WeeklyCheckoutSection: React.FC<WeeklyCheckoutSectionProps> = ({ in
                   </motion.div>
                 ))}
               </div>
-            </CardContent>
+            </div>
           </div>
         </section>
 
@@ -109,13 +108,13 @@ export const WeeklyCheckoutSection: React.FC<WeeklyCheckoutSectionProps> = ({ in
         <section className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-indigo-500/5 rounded-2xl blur-sm" />
           <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-blue-500/20 shadow-lg shadow-blue-500/10">
-            <CardHeader className="p-0 mb-4">
-              <CardTitle className="text-blue-400 flex items-center">
+            <div className="mb-4">
+              <h3 className="text-blue-400 flex items-center font-semibold text-lg">
                 <TrendingUp className="h-5 w-5 mr-2" />
                 📈 Week-over-Week Trends
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
+              </h3>
+            </div>
+            <div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {trends.map((trend, idx) => (
                   <motion.div
@@ -155,7 +154,7 @@ export const WeeklyCheckoutSection: React.FC<WeeklyCheckoutSectionProps> = ({ in
                   </motion.div>
                 ))}
               </div>
-            </CardContent>
+            </div>
           </div>
         </section>
 
@@ -163,16 +162,16 @@ export const WeeklyCheckoutSection: React.FC<WeeklyCheckoutSectionProps> = ({ in
         <section className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-pink-500/5 rounded-2xl blur-sm" />
           <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-purple-500/20 shadow-lg shadow-purple-500/10">
-            <CardHeader className="p-0 mb-4">
-              <CardTitle className="text-purple-400 flex items-center">
+            <div className="mb-4">
+              <h3 className="text-purple-400 flex items-center font-semibold text-lg">
                 <CheckCircle className="h-5 w-5 mr-2" />
                 ✅ Weekly Checkout
-              </CardTitle>
+              </h3>
               <p className="text-sm text-gray-400 mt-2">
                 Take a moment to reflect on your week and plan for the next one.
               </p>
-            </CardHeader>
-            <CardContent className="p-0 space-y-6">
+            </div>
+            <div className="space-y-6">
               {/* Reflection Question */}
               <div>
                 <label className="block text-sm font-semibold text-gray-300 mb-2">
@@ -221,7 +220,7 @@ export const WeeklyCheckoutSection: React.FC<WeeklyCheckoutSectionProps> = ({ in
                   Clear
                 </Button>
               </div>
-            </CardContent>
+            </div>
           </div>
         </section>
 

@@ -6,7 +6,7 @@
 
 import React from 'react';
 import { Dumbbell, Heart, Moon, Droplets, Utensils, Activity } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/shared/ui/card';
+// Card components removed - using standard divs instead
 import { WeeklyStatsCard } from '../_shared/WeeklyStatsCard';
 import { motion } from 'framer-motion';
 import { cn } from '@/shared/lib/utils';
@@ -36,15 +36,15 @@ export const WeeklyWellnessSection: React.FC<WeeklyWellnessSectionProps> = ({ we
         <section className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-pink-500/5 to-rose-500/5 rounded-2xl blur-sm" />
           <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-pink-500/20 shadow-lg shadow-pink-500/10">
-            <CardHeader className="p-0">
-              <CardTitle className="text-pink-400 flex items-center text-2xl">
+            <div>
+              <h3 className="text-pink-400 flex items-center font-semibold text-2xl">
                 <Heart className="h-6 w-6 mr-2" />
                 ❤️ Wellness Analysis
-              </CardTitle>
+              </h3>
               <p className="text-gray-400 text-sm mt-2">
                 Did I take care of myself this week?
               </p>
-            </CardHeader>
+            </div>
           </div>
         </section>
 
@@ -84,13 +84,13 @@ export const WeeklyWellnessSection: React.FC<WeeklyWellnessSectionProps> = ({ we
         <section className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 to-red-500/5 rounded-2xl blur-sm" />
           <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-orange-500/20 shadow-lg shadow-orange-500/10">
-            <CardHeader className="p-0 mb-4">
-              <CardTitle className="text-orange-400 flex items-center">
+            <div className="mb-4">
+              <h3 className="text-orange-400 flex items-center font-semibold text-lg">
                 <Dumbbell className="h-5 w-5 mr-2" />
                 💪 Workout Summary
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
+              </h3>
+            </div>
+            <div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
                 <div className="bg-gray-800/50 rounded-lg p-4">
                   <div className="text-sm text-gray-400 mb-1">Total Workouts</div>
@@ -131,7 +131,7 @@ export const WeeklyWellnessSection: React.FC<WeeklyWellnessSectionProps> = ({ we
                   </motion.div>
                 ))}
               </div>
-            </CardContent>
+            </div>
           </div>
         </section>
 
@@ -139,13 +139,13 @@ export const WeeklyWellnessSection: React.FC<WeeklyWellnessSectionProps> = ({ we
         <section className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 to-emerald-500/5 rounded-2xl blur-sm" />
           <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-green-500/20 shadow-lg shadow-green-500/10">
-            <CardHeader className="p-0 mb-4">
-              <CardTitle className="text-green-400 flex items-center">
+            <div className="mb-4">
+              <h3 className="text-green-400 flex items-center font-semibold text-lg">
                 <Heart className="h-5 w-5 mr-2" />
                 ✅ Health Habits Checklist
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
+              </h3>
+            </div>
+            <div>
               {/* Desktop Grid */}
               <div className="hidden lg:block overflow-x-auto">
                 <table className="w-full">
@@ -261,7 +261,7 @@ export const WeeklyWellnessSection: React.FC<WeeklyWellnessSectionProps> = ({ we
                   );
                 })}
               </div>
-            </CardContent>
+            </div>
           </div>
         </section>
 
@@ -270,13 +270,13 @@ export const WeeklyWellnessSection: React.FC<WeeklyWellnessSectionProps> = ({ we
           <section className="relative">
             <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/5 to-orange-500/5 rounded-2xl blur-sm" />
             <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-yellow-500/20 shadow-lg shadow-yellow-500/10">
-              <CardHeader className="p-0 mb-4">
-                <CardTitle className="text-yellow-400 flex items-center">
+              <div className="mb-4">
+                <h3 className="text-yellow-400 flex items-center font-semibold text-lg">
                   <Activity className="h-5 w-5 mr-2" />
                   ⚡ Energy Levels
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
+                </h3>
+              </div>
+              <div>
                 <div className="text-5xl font-bold text-yellow-400 mb-2">
                   {energySleep.averageEnergy.toFixed(1)}/10
                 </div>
@@ -287,20 +287,20 @@ export const WeeklyWellnessSection: React.FC<WeeklyWellnessSectionProps> = ({ we
                     style={{ width: `${(energySleep.averageEnergy / 10) * 100}%` }}
                   />
                 </div>
-              </CardContent>
+              </div>
             </div>
           </section>
 
           <section className="relative">
             <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/5 to-purple-500/5 rounded-2xl blur-sm" />
             <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-indigo-500/20 shadow-lg shadow-indigo-500/10">
-              <CardHeader className="p-0 mb-4">
-                <CardTitle className="text-indigo-400 flex items-center">
+              <div className="mb-4">
+                <h3 className="text-indigo-400 flex items-center font-semibold text-lg">
                   <Moon className="h-5 w-5 mr-2" />
                   😴 Sleep Quality
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
+                </h3>
+              </div>
+              <div>
                 <div className="text-5xl font-bold text-indigo-400 mb-2">
                   {energySleep.sleepQuality}/10
                 </div>
@@ -313,7 +313,7 @@ export const WeeklyWellnessSection: React.FC<WeeklyWellnessSectionProps> = ({ we
                     style={{ width: `${(energySleep.sleepQuality / 10) * 100}%` }}
                   />
                 </div>
-              </CardContent>
+              </div>
             </div>
           </section>
         </div>
