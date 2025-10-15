@@ -133,7 +133,7 @@ export function usePhotoNutrition(userId: string, date: Date) {
           ai_model_used: 'gpt-4o-mini',
           is_estimate: true,
           confidence_score: 0.85,
-          data_source: 'ai_vision'
+          data_source: 'photo_analysis' // Must match DB constraint
         });
 
       if (dbError) throw dbError;
