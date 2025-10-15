@@ -155,7 +155,7 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({
 
   if (isLoading) {
     return (
-      <div className="w-full relative">
+      <div className="w-full">
         <div className="max-w-7xl mx-auto p-2 sm:p-3 md:p-4 lg:p-6 space-y-6">
           <Card className="mb-24 bg-red-900/20 border-red-700/50">
             <CardHeader>
@@ -176,7 +176,7 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({
   }
 
   return (
-    <div className="min-h-screen w-full bg-gray-900">
+    <div className="w-full">
       <div className="max-w-7xl mx-auto p-2 sm:p-3 md:p-4 lg:p-6 space-y-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
