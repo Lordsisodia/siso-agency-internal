@@ -13,18 +13,28 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Helper function to convert Clerk user ID to Supabase UUID
 async function getSupabaseUserId(clerkUserId) {
-  const { data: user, error } = await supabase
+  // Try current mapping first (supabase_id = Clerk user id)
+  let { data: user, error } = await supabase
+    .from('users')
+    .select('id')
+    .eq('supabase_id', clerkUserId)
+    .maybeSingle();
+
+  if (user?.id) return user.id;
+
+  // Backward-compat: try old prefix format
+  const { data: legacyUser, error: legacyError } = await supabase
     .from('users')
     .select('id')
     .eq('supabase_id', `prisma-user-${clerkUserId}`)
     .maybeSingle();
 
-  if (error) {
-    console.error('Error fetching user ID:', error);
+  if (legacyError) {
+    console.error('Error fetching user ID:', legacyError);
     return null;
   }
 
-  return user?.id || null;
+  return legacyUser?.id || null;
 }
 
 export default async function handler(req, res) {
@@ -42,7 +52,7 @@ export default async function handler(req, res) {
 
   try {
     switch (method) {
-      case 'GET':
+      case 'GET': {
         // GET /api/morning-routine/metadata?userId=xxx&date=2025-10-15
         const { userId, date } = query;
         if (!userId || !date) {
@@ -79,8 +89,8 @@ export default async function handler(req, res) {
           success: true,
           data: routineData?.metadata || {}
         });
-
-      case 'PATCH':
+      }
+      case 'PATCH': {
         // PATCH /api/morning-routine/metadata - Update metadata fields
         const { userId: patchUserId, date: patchDate, metadata } = body;
         if (!patchUserId || !patchDate || !metadata) {
@@ -149,7 +159,7 @@ export default async function handler(req, res) {
           success: true,
           data: updatedRoutine.metadata
         });
-
+      }
       default:
         res.setHeader('Allow', ['GET', 'PATCH']);
         return res.status(405).end(`Method ${method} Not Allowed`);

@@ -31,28 +31,33 @@ export const PhotoCapture: React.FC<PhotoCaptureProps> = ({
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex gap-3"
+      className="grid grid-cols-2 gap-3 w-full"
     >
       {/* Camera Button */}
       <Button
         onClick={() => cameraInputRef.current?.click()}
         disabled={isUploading}
-        className="flex-1 bg-pink-600/20 border-2 border-pink-500/40 text-pink-300 hover:bg-pink-600/30 hover:border-pink-500/60 transition-all"
+        className="bg-gradient-to-br from-pink-600/30 to-pink-700/30 border border-pink-500/50 text-pink-200 hover:from-pink-600/40 hover:to-pink-700/40 hover:border-pink-400/70 transition-all shadow-lg hover:shadow-pink-500/20"
         size="lg"
       >
         {isUploading ? (
-          <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+          <>
+            <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+            Analyzing...
+          </>
         ) : (
-          <Camera className="h-5 w-5 mr-2" />
+          <>
+            <Camera className="h-5 w-5 mr-2" />
+            Take Photo
+          </>
         )}
-        {isUploading ? 'Analyzing...' : 'Take Photo'}
       </Button>
 
       {/* Upload Button */}
       <Button
         onClick={() => fileInputRef.current?.click()}
         disabled={isUploading}
-        className="flex-1 bg-pink-600/20 border-2 border-pink-500/40 text-pink-300 hover:bg-pink-600/30 hover:border-pink-500/60 transition-all"
+        className="bg-gradient-to-br from-pink-600/30 to-pink-700/30 border border-pink-500/50 text-pink-200 hover:from-pink-600/40 hover:to-pink-700/40 hover:border-pink-400/70 transition-all shadow-lg hover:shadow-pink-500/20"
         size="lg"
       >
         <Upload className="h-5 w-5 mr-2" />

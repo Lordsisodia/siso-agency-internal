@@ -267,7 +267,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
           setMorningRoutine(routineData);
         } else {
           // Fallback to API if no offline data
-          const apiData = await workTypeApiClient.getMorningRoutine(internalUserId, selectedDate);
+          const apiData = await workTypeApiClient.getMorningRoutine(user.id, selectedDate);
           setMorningRoutine(apiData);
         }
       } catch (error) {
@@ -376,7 +376,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
       localStorage.setItem(`lifelock-${dateKey}-dailyPriorities`, JSON.stringify(dailyPriorities));
       
       try {
-        await workTypeApiClient.updateMorningRoutineMetadata(internalUserId, selectedDate, {
+        await workTypeApiClient.updateMorningRoutineMetadata(user.id, selectedDate, {
           dailyPriorities
         });
       } catch (error) {
@@ -396,7 +396,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
       localStorage.setItem(`lifelock-${dateKey}-planDayComplete`, isPlanDayComplete.toString());
       
       try {
-        await workTypeApiClient.updateMorningRoutineMetadata(internalUserId, selectedDate, {
+        await workTypeApiClient.updateMorningRoutineMetadata(user.id, selectedDate, {
           isPlanDayComplete
         });
       } catch (error) {

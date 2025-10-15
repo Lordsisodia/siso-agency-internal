@@ -16,7 +16,7 @@ async function getSupabaseUserId(clerkUserId) {
   const { data: user, error } = await supabase
     .from('users')
     .select('id')
-    .eq('supabase_id', `prisma-user-${clerkUserId}`)
+    .eq('supabase_id', clerkUserId)
     .maybeSingle();
   
   if (error) {
@@ -24,8 +24,23 @@ async function getSupabaseUserId(clerkUserId) {
     return null;
   }
   
-  return user?.id || null;
+  if (user?.id) return user.id;
+
+  // Fallback to legacy prefix mapping
+  const { data: legacyUser, error: legacyError } = await supabase
+    .from('users')
+    .select('id')
+    .eq('supabase_id', `prisma-user-${clerkUserId}`)
+    .maybeSingle();
+
+  if (legacyError) {
+    console.error('Error fetching user ID:', legacyError);
+    return null;
+  }
+  
+  return legacyUser?.id || null;
 }
+
 
 export default async function handler(req, res) {
   // Set CORS headers

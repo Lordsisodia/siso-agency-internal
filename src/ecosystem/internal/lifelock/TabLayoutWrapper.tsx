@@ -1,4 +1,4 @@
-import React, { useState, ReactNode, memo, useMemo, useCallback } from 'react';
+import React, { useState, ReactNode, memo, useMemo, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { format, addDays, subDays } from 'date-fns';
@@ -137,9 +137,16 @@ const [searchParams, setSearchParams] = useSearchParams();
   const [activeTabId, setActiveTabId] = useState<string>(
     searchParams.get('tab') || getSmartDefaultTab()
   );
-  
+
   const activeTabIndex = tabs.findIndex(tab => tab.id === activeTabId);
   const activeTab = tabs[activeTabIndex];
+
+  // Initialize URL with current tab if not present
+  useEffect(() => {
+    if (!searchParams.get('tab')) {
+      setSearchParams({ tab: activeTabId }, { replace: true });
+    }
+  }, []); // Run only on mount
 
   // Clean URLs - no query params for tab/date (managed in component state only)
 
@@ -155,18 +162,23 @@ const [searchParams, setSearchParams] = useSearchParams();
   const navigateTab = (direction: 'prev' | 'next') => {
     const currentIndex = activeTabIndex;
     let newIndex;
-    
+
     if (direction === 'next') {
       newIndex = currentIndex === tabs.length - 1 ? 0 : currentIndex + 1;
     } else {
       newIndex = currentIndex === 0 ? tabs.length - 1 : currentIndex - 1;
     }
-    
-    setActiveTabId(tabs[newIndex].id);
+
+    const newTabId = tabs[newIndex].id;
+    setActiveTabId(newTabId);
+    // Update URL to persist tab selection across refreshes
+    setSearchParams({ tab: newTabId });
   };
 
   const handleTabClick = (tabId: string) => {
     setActiveTabId(tabId);
+    // Update URL to persist tab selection across refreshes
+    setSearchParams({ tab: tabId });
   };
 
   // Swipe gesture handling for tab navigation (enabled for all devices)

@@ -15,12 +15,13 @@ interface FoodPhotoCardProps {
   onDelete?: (id: string) => void;
 }
 
-export const FoodPhotoCard: React.FC<FoodPhotoCardProps> = ({
+export const FoodPhotoCard = React.forwardRef<HTMLDivElement, FoodPhotoCardProps>(({
   photo,
   onDelete
-}) => {
+}, ref) => {
   return (
     <motion.div
+      ref={ref}
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
@@ -77,4 +78,6 @@ export const FoodPhotoCard: React.FC<FoodPhotoCardProps> = ({
       </div>
     </motion.div>
   );
-};
+});
+
+FoodPhotoCard.displayName = 'FoodPhotoCard';
