@@ -15,6 +15,8 @@ export interface TaskCard {
     id: string;
     title: string;
     completed: boolean;
+    workType: 'LIGHT' | 'DEEP';
+    priority?: string;
   }[];
 }
 
@@ -67,7 +69,9 @@ const dayTasks = await personalTaskService.getTasksForDate(user.id, selectedDate
           tasks: safeTaskArray.map(task => ({
             id: task.id,
             title: task.title,
-            completed: task.completed
+            completed: task.completed,
+            workType: task.workType ?? 'LIGHT',
+            priority: task.priority
           }))
         };
 
@@ -80,37 +84,36 @@ const dayTasks = await personalTaskService.getTasksForDate(user.id, selectedDate
         const weekEnd = endOfWeek(selectedDate, { weekStartsOn: 1 });
         const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
 
-        const weekTaskCards: TaskCard[] = [];
-        for (const day of weekDays) {
-          if (isCancelled) return; // Exit early if component unmounted
-          
-          try {
-            const weekDayTasks = await personalTaskService.getTasksForDate(user.id, day);
-            // Defensive programming: ensure weekDayTasks is always an array
-            const safeWeekTaskArray = Array.isArray(weekDayTasks) ? weekDayTasks : [];
-            weekTaskCards.push({
-              id: format(day, 'yyyy-MM-dd'),
-              date: day,
-              title: format(day, 'EEEE, MMM d'),
-              completed: safeWeekTaskArray.length > 0 ? safeWeekTaskArray.every(task => task.completed) : false,
-              tasks: safeWeekTaskArray.map(task => ({
-                id: task.id,
-                title: task.title,
-                completed: task.completed
-              }))
-            });
-          } catch (dayError) {
-            console.error(`Failed to load tasks for ${format(day, 'yyyy-MM-dd')}:`, dayError);
-            // Continue with empty task card to prevent hanging
-            weekTaskCards.push({
-              id: format(day, 'yyyy-MM-dd'),
-              date: day,
-              title: format(day, 'EEEE, MMM d'),
-              completed: false,
-              tasks: []
-            });
-          }
-        }
+        const weekTaskCards: TaskCard[] = await Promise.all(
+          weekDays.map(async (day) => {
+            try {
+              const weekDayTasks = await personalTaskService.getTasksForDate(user.id, day);
+              const safeWeekTaskArray = Array.isArray(weekDayTasks) ? weekDayTasks : [];
+              return {
+                id: format(day, 'yyyy-MM-dd'),
+                date: day,
+                title: format(day, 'EEEE, MMM d'),
+                completed: safeWeekTaskArray.length > 0 ? safeWeekTaskArray.every(task => task.completed) : false,
+                tasks: safeWeekTaskArray.map(task => ({
+                  id: task.id,
+                  title: task.title,
+                  completed: task.completed,
+                  workType: task.workType ?? 'LIGHT',
+                  priority: task.priority
+                }))
+              };
+            } catch (dayError) {
+              console.error(`Failed to load tasks for ${format(day, 'yyyy-MM-dd')}:`, dayError);
+              return {
+                id: format(day, 'yyyy-MM-dd'),
+                date: day,
+                title: format(day, 'EEEE, MMM d'),
+                completed: false,
+                tasks: []
+              };
+            }
+          })
+        );
 
         if (!isCancelled) {
           setWeekCards(weekTaskCards);
@@ -134,7 +137,13 @@ const dayTasks = await personalTaskService.getTasksForDate(user.id, selectedDate
   // Action handlers
   const handleTaskToggle = async (taskId: string) => {
     try {
-      await personalTaskService.toggleTask(taskId);
+      const allTasks = [
+        ...(todayCard?.tasks ?? []),
+        ...weekCards.flatMap(card => card.tasks)
+      ];
+      const targetTask = allTasks.find(task => task.id === taskId);
+      const workType = targetTask?.workType ?? 'LIGHT';
+      await personalTaskService.toggleTask(taskId, workType, targetTask?.completed);
       setRefreshTrigger(prev => prev + 1);
     } catch (error) {
       console.error('Failed to toggle task:', error);
@@ -143,7 +152,7 @@ const dayTasks = await personalTaskService.getTasksForDate(user.id, selectedDate
 
   const handleCustomTaskAdd = async (task: { title: string; priority: 'low' | 'medium' | 'high' }) => {
     try {
-      await personalTaskService.addTask(task.title, selectedDate, task.priority);
+      await personalTaskService.addTask(task.title, selectedDate, task.priority, 'LIGHT', user?.id);
       setRefreshTrigger(prev => prev + 1);
     } catch (error) {
       console.error('Failed to add task:', error);

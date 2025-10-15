@@ -25,11 +25,12 @@ import { format } from 'date-fns';
 import { cn } from '@/shared/lib/utils';
 import { useClerkUser } from '@/shared/hooks/useClerkUser';
 import { useSupabaseUserId } from '@/shared/lib/supabase-clerk';
-import { workTypeApiClient } from '@/services/workTypeApiClient';
+import { workTypeApiClient, MorningRoutineMetadata } from '@/services/workTypeApiClient';
 import { useOfflineManager } from '@/shared/hooks/useOfflineManager';
 import { SimpleThoughtDumpPage, ThoughtDumpResults, lifeLockVoiceTaskProcessor } from '@/ecosystem/internal/lifelock/features/ai-thought-dump';
 import type { ThoughtDumpResult } from '@/ecosystem/internal/lifelock/features/ai-thought-dump';
 import { getRotatingQuotes } from '@/data/motivational-quotes';
+import { debounce } from '@/shared/utils/debounce';
 import { TimeScrollPicker } from './components/TimeScrollPicker';
 import { WaterTracker } from './components/WaterTracker';
 import { PushUpTracker } from './components/PushUpTracker';
@@ -281,131 +282,90 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
     loadMorningRoutine();
   }, [internalUserId, selectedDate, loadTasks]);
 
-  // Save wake-up time to Supabase + localStorage
-  useEffect(() => {
-    const saveWakeUpTime = async () => {
-      if (!selectedDate || isNaN(selectedDate.getTime()) || !user?.id) return;
-      const dateKey = format(selectedDate, 'yyyy-MM-dd');
-      
-      // Save to localStorage immediately for offline support
-      localStorage.setItem(`lifelock-${dateKey}-wakeUpTime`, wakeUpTime);
-      
-      try {
-        await workTypeApiClient.updateMorningRoutineMetadata(user.id, selectedDate, {
-          wakeUpTime
-        });
-      } catch (error) {
-        console.error('Failed to save wake-up time to Supabase:', error);
-      }
-    };
-    
-    saveWakeUpTime();
-  }, [wakeUpTime, selectedDate, user?.id]);
+  // Save wake-up time to Supabase + localStorage (debounced)
+  const debouncedMetadataUpdate = useMemo(() => {
+    if (!user?.id || !selectedDate || isNaN(selectedDate.getTime())) {
+      return null;
+    }
 
-  // Save water amount to Supabase + localStorage
-  useEffect(() => {
-    const saveWaterAmount = async () => {
-      if (!selectedDate || isNaN(selectedDate.getTime()) || !user?.id) return;
-      const dateKey = format(selectedDate, 'yyyy-MM-dd');
-      
-      localStorage.setItem(`lifelock-${dateKey}-waterAmount`, waterAmount.toString());
-      
-      try {
-        await workTypeApiClient.updateMorningRoutineMetadata(user.id, selectedDate, {
-          waterAmount
-        });
-      } catch (error) {
-        console.error('Failed to save water amount to Supabase:', error);
-      }
-    };
-    
-    saveWaterAmount();
-  }, [waterAmount, selectedDate, user?.id]);
+    const update = debounce((payload: Partial<MorningRoutineMetadata>) => {
+      workTypeApiClient.updateMorningRoutineMetadata(user.id!, selectedDate, payload).catch(error => {
+        console.error('Failed to save morning routine metadata to Supabase:', error);
+      });
+    }, 500);
 
-  // Save meditation duration to Supabase + localStorage
-  useEffect(() => {
-    const saveMeditationDuration = async () => {
-      if (!selectedDate || isNaN(selectedDate.getTime()) || !user?.id) return;
-      const dateKey = format(selectedDate, 'yyyy-MM-dd');
-      
-      localStorage.setItem(`lifelock-${dateKey}-meditationDuration`, meditationDuration);
-      
-      try {
-        await workTypeApiClient.updateMorningRoutineMetadata(user.id, selectedDate, {
-          meditationDuration
-        });
-      } catch (error) {
-        console.error('Failed to save meditation duration to Supabase:', error);
-      }
-    };
-    
-    saveMeditationDuration();
-  }, [meditationDuration, selectedDate, user?.id]);
+    return update;
+  }, [user?.id, selectedDate]);
 
-  // Save push-up reps to Supabase + localStorage
   useEffect(() => {
-    const savePushupReps = async () => {
-      if (!selectedDate || isNaN(selectedDate.getTime()) || !user?.id) return;
-      const dateKey = format(selectedDate, 'yyyy-MM-dd');
-      
-      localStorage.setItem(`lifelock-${dateKey}-pushupReps`, pushupReps.toString());
-      
-      try {
-        await workTypeApiClient.updateMorningRoutineMetadata(user.id, selectedDate, {
-          pushupReps
-        });
-      } catch (error) {
-        console.error('Failed to save pushup reps to Supabase:', error);
-      }
+    return () => {
+      debouncedMetadataUpdate?.cancel();
     };
-    
-    savePushupReps();
-  }, [pushupReps, selectedDate, user?.id]);
+  }, [debouncedMetadataUpdate]);
+
+  useEffect(() => {
+    if (!selectedDate || isNaN(selectedDate.getTime())) return;
+    const dateKey = format(selectedDate, 'yyyy-MM-dd');
+
+    localStorage.setItem(`lifelock-${dateKey}-wakeUpTime`, wakeUpTime);
+
+    debouncedMetadataUpdate?.({ wakeUpTime });
+  }, [wakeUpTime, selectedDate, debouncedMetadataUpdate]);
+
+  // Save water amount to Supabase + localStorage (debounced)
+  useEffect(() => {
+    if (!selectedDate || isNaN(selectedDate.getTime())) return;
+    const dateKey = format(selectedDate, 'yyyy-MM-dd');
+
+    localStorage.setItem(`lifelock-${dateKey}-waterAmount`, waterAmount.toString());
+
+    debouncedMetadataUpdate?.({ waterAmount });
+  }, [waterAmount, selectedDate, debouncedMetadataUpdate]);
+
+  // Save meditation duration to Supabase + localStorage (debounced)
+  useEffect(() => {
+    if (!selectedDate || isNaN(selectedDate.getTime())) return;
+    const dateKey = format(selectedDate, 'yyyy-MM-dd');
+
+    localStorage.setItem(`lifelock-${dateKey}-meditationDuration`, meditationDuration);
+
+    debouncedMetadataUpdate?.({ meditationDuration });
+  }, [meditationDuration, selectedDate, debouncedMetadataUpdate]);
+
+  // Save push-up reps to Supabase + localStorage (debounced)
+  useEffect(() => {
+    if (!selectedDate || isNaN(selectedDate.getTime())) return;
+    const dateKey = format(selectedDate, 'yyyy-MM-dd');
+
+    localStorage.setItem(`lifelock-${dateKey}-pushupReps`, pushupReps.toString());
+
+    debouncedMetadataUpdate?.({ pushupReps });
+  }, [pushupReps, selectedDate, debouncedMetadataUpdate]);
 
   // Save push-up PB to localStorage (global, not per day)
   useEffect(() => {
     localStorage.setItem('lifelock-pushupPB', pushupPB.toString());
   }, [pushupPB]);
 
-  // Save daily priorities to Supabase + localStorage
+  // Save daily priorities to Supabase + localStorage (debounced)
   useEffect(() => {
-    const saveDailyPriorities = async () => {
-      if (!selectedDate || isNaN(selectedDate.getTime()) || !internalUserId) return;
-      const dateKey = format(selectedDate, 'yyyy-MM-dd');
-      
-      localStorage.setItem(`lifelock-${dateKey}-dailyPriorities`, JSON.stringify(dailyPriorities));
-      
-      try {
-        await workTypeApiClient.updateMorningRoutineMetadata(user.id, selectedDate, {
-          dailyPriorities
-        });
-      } catch (error) {
-        console.error('Failed to save daily priorities to Supabase:', error);
-      }
-    };
-    
-    saveDailyPriorities();
-  }, [dailyPriorities, selectedDate, internalUserId]);
+    if (!selectedDate || isNaN(selectedDate.getTime()) || !internalUserId) return;
+    const dateKey = format(selectedDate, 'yyyy-MM-dd');
 
-  // Save Plan Day completion to Supabase + localStorage
+    localStorage.setItem(`lifelock-${dateKey}-dailyPriorities`, JSON.stringify(dailyPriorities));
+
+    debouncedMetadataUpdate?.({ dailyPriorities });
+  }, [dailyPriorities, selectedDate, internalUserId, debouncedMetadataUpdate]);
+
+  // Save Plan Day completion to Supabase + localStorage (debounced)
   useEffect(() => {
-    const savePlanDayComplete = async () => {
-      if (!selectedDate || isNaN(selectedDate.getTime()) || !internalUserId) return;
-      const dateKey = format(selectedDate, 'yyyy-MM-dd');
-      
-      localStorage.setItem(`lifelock-${dateKey}-planDayComplete`, isPlanDayComplete.toString());
-      
-      try {
-        await workTypeApiClient.updateMorningRoutineMetadata(user.id, selectedDate, {
-          isPlanDayComplete
-        });
-      } catch (error) {
-        console.error('Failed to save plan day completion to Supabase:', error);
-      }
-    };
-    
-    savePlanDayComplete();
-  }, [isPlanDayComplete, selectedDate, internalUserId]);
+    if (!selectedDate || isNaN(selectedDate.getTime()) || !internalUserId) return;
+    const dateKey = format(selectedDate, 'yyyy-MM-dd');
+
+    localStorage.setItem(`lifelock-${dateKey}-planDayComplete`, isPlanDayComplete.toString());
+
+    debouncedMetadataUpdate?.({ isPlanDayComplete });
+  }, [isPlanDayComplete, selectedDate, internalUserId, debouncedMetadataUpdate]);
 
   // Water tracking functions
   const incrementWater = () => {
@@ -566,7 +526,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   }
 
   return (
-    <div className="min-h-screen w-full relative">
+    <div className="min-h-screen w-full bg-[#121212] relative overflow-x-hidden">
       <div className="w-full max-w-none p-2 sm:p-3 md:p-4 lg:p-6 space-y-6">
 
         {/* Morning Routine Card */}

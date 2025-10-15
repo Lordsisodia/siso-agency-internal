@@ -24,6 +24,8 @@ interface TaskCard {
     id: string;
     title: string;
     completed: boolean;
+    workType: 'LIGHT' | 'DEEP';
+    priority?: string;
   }[];
 }
 
@@ -85,45 +87,40 @@ const AdminLifeLock: React.FC = () => {
         const weekEnd = endOfWeek(currentDate, { weekStartsOn: 1 });
         const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
 
-        const weekTaskCards: TaskCard[] = [];
-        let currentTodayCard: TaskCard | null = null;
-
-        for (const day of weekDays) {
-          if (isCancelled) return; // Exit early if component unmounted
-
-          try {
-            const dayTasks = await personalTaskService.getTasksForDate(user.id, day);
-            const tasksArray = Array.isArray(dayTasks) ? dayTasks : [];
-            const taskCard: TaskCard = {
-              id: format(day, 'yyyy-MM-dd'),
-              date: day,
-              title: format(day, 'EEEE, MMM d'),
-              completed: tasksArray.every(task => task.completed),
-              tasks: tasksArray.map(task => ({
-                id: task.id,
-                title: task.title,
-                completed: task.completed
-              }))
-            };
-
-            weekTaskCards.push(taskCard);
-
-            if (format(day, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd')) {
-              currentTodayCard = taskCard;
+        const weekTaskCards: TaskCard[] = await Promise.all(
+          weekDays.map(async (day) => {
+            try {
+              const dayTasks = await personalTaskService.getTasksForDate(user.id, day);
+              const tasksArray = Array.isArray(dayTasks) ? dayTasks : [];
+              return {
+                id: format(day, 'yyyy-MM-dd'),
+                date: day,
+                title: format(day, 'EEEE, MMM d'),
+                completed: tasksArray.every(task => task.completed),
+                tasks: tasksArray.map(task => ({
+                  id: task.id,
+                  title: task.title,
+                  completed: task.completed,
+                  workType: task.workType ?? 'LIGHT',
+                  priority: task.priority
+                }))
+              };
+            } catch (dayError) {
+              console.error(`Failed to load tasks for ${format(day, 'yyyy-MM-dd')}:`, dayError);
+              return {
+                id: format(day, 'yyyy-MM-dd'),
+                date: day,
+                title: format(day, 'EEEE, MMM d'),
+                completed: false,
+                tasks: []
+              };
             }
-          } catch (dayError) {
-            console.error(`Failed to load tasks for ${format(day, 'yyyy-MM-dd')}:`, dayError);
-            // Continue with empty task card to prevent hanging
-            const emptyTaskCard: TaskCard = {
-              id: format(day, 'yyyy-MM-dd'),
-              date: day,
-              title: format(day, 'EEEE, MMM d'),
-              completed: false,
-              tasks: []
-            };
-            weekTaskCards.push(emptyTaskCard);
-          }
-        }
+          })
+        );
+
+        const currentTodayCard = weekTaskCards.find(
+          card => card.id === format(new Date(), 'yyyy-MM-dd')
+        ) ?? null;
 
         if (!isCancelled) {
           setWeekCards(weekTaskCards);
@@ -160,7 +157,10 @@ const AdminLifeLock: React.FC = () => {
 
   const handleTaskToggle = async (taskId: string) => {
     try {
-      await personalTaskService.toggleTask(taskId);
+      const allTasks = weekCards.flatMap(card => card.tasks);
+      const targetTask = allTasks.find(task => task.id === taskId);
+      const workType = targetTask?.workType ?? 'LIGHT';
+      await personalTaskService.toggleTask(taskId, workType, targetTask?.completed);
       setRefreshTrigger(prev => prev + 1);
     } catch (error) {
       console.error('Failed to toggle task:', error);
@@ -174,7 +174,10 @@ const AdminLifeLock: React.FC = () => {
 
   const handleCustomTaskAdd = async (task: { title: string; priority: 'low' | 'medium' | 'high' }) => {
     try {
-      await personalTaskService.addTask(task.title, new Date(), task.priority);
+      if (!user?.id) {
+        throw new Error('User not available');
+      }
+      await personalTaskService.addTask(task.title, new Date(), task.priority, 'LIGHT', user.id);
       setRefreshTrigger(prev => prev + 1);
     } catch (error) {
       console.error('Failed to add task:', error);

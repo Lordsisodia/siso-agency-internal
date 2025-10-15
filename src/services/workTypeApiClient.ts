@@ -63,26 +63,32 @@ export class WorkTypeApiClient {
     const dateString = format(date, 'yyyy-MM-dd');
     
     try {
+      const addWorkType = (tasks: any[], workType: 'LIGHT' | 'DEEP'): Task[] => {
+        if (!Array.isArray(tasks)) return [];
+        return tasks.map((task) => ({
+          ...task,
+          workType,
+          priority: task.priority ?? 'MEDIUM',
+          currentDate: task.currentDate ?? task.task_date ?? dateString,
+          subtasks: task.subtasks ?? []
+        })) as Task[];
+      };
+
       // Call both endpoints in parallel
       const [lightResponse, deepResponse] = await Promise.all([
         fetch(createApiUrl(`/api/light-work/tasks?userId=${userId}&date=${dateString}`)),
         fetch(createApiUrl(`/api/deep-work/tasks?userId=${userId}&date=${dateString}`))
       ]);
 
-      const lightResult = await lightResponse.json();
-      const deepResult = await deepResponse.json();
+      const [lightResult, deepResult] = await Promise.all([
+        lightResponse.json(),
+        deepResponse.json()
+      ]);
 
-      const allTasks: Task[] = [];
-      
-      if (lightResult.success && lightResult.data) {
-        allTasks.push(...lightResult.data);
-      }
-      
-      if (deepResult.success && deepResult.data) {
-        allTasks.push(...deepResult.data);
-      }
-
-      return allTasks;
+      return [
+        ...addWorkType(lightResult?.data, 'LIGHT'),
+        ...addWorkType(deepResult?.data, 'DEEP')
+      ];
     } catch (error) {
       console.error('❌ Failed to fetch tasks for date:', error);
       return [];
@@ -101,7 +107,7 @@ export class WorkTypeApiClient {
     
     try {
       const endpoint = workType === 'LIGHT' ? '/api/light-work/tasks' : '/api/deep-work/tasks';
-      
+
       const response = await fetch(createApiUrl(endpoint), {
         method: 'POST',
         headers: {
@@ -109,12 +115,10 @@ export class WorkTypeApiClient {
         },
         body: JSON.stringify({
           userId,
-          taskData: {
-            title,
-            priority,
-            currentDate: dateString,
-            estimatedMinutes: 30
-          }
+          date: dateString,
+          title,
+          priority,
+          estimatedMinutes: 30
         })
       });
 
@@ -135,8 +139,8 @@ export class WorkTypeApiClient {
   async toggleTask(taskId: string, workType: 'LIGHT' | 'DEEP', currentCompleted?: boolean): Promise<void> {
     try {
       const endpoint = workType === 'DEEP' 
-        ? `/api/deep-work/tasks?taskId=${taskId}` 
-        : `/api/light-work/tasks?taskId=${taskId}`;
+        ? `/api/deep-work/tasks`
+        : `/api/light-work/tasks`;
       
       const response = await fetch(createApiUrl(endpoint), {
         method: 'PUT',
@@ -144,6 +148,7 @@ export class WorkTypeApiClient {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
+          taskId,
           completed: !currentCompleted
         })
       });
@@ -165,11 +170,15 @@ export class WorkTypeApiClient {
   async deleteTask(taskId: string, workType: 'LIGHT' | 'DEEP'): Promise<void> {
     try {
       const endpoint = workType === 'DEEP' 
-        ? `/api/deep-work/tasks?taskId=${taskId}` 
-        : `/api/light-work/tasks?taskId=${taskId}`;
+        ? `/api/deep-work/tasks`
+        : `/api/light-work/tasks`;
       
       const response = await fetch(createApiUrl(endpoint), {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ taskId })
       });
 
       const result = await response.json();
@@ -189,15 +198,18 @@ export class WorkTypeApiClient {
   async updateTask(taskId: string, updates: { title?: string; priority?: string }, workType: 'LIGHT' | 'DEEP'): Promise<void> {
     try {
       const endpoint = workType === 'DEEP' 
-        ? `/api/deep-work/tasks?taskId=${taskId}` 
-        : `/api/light-work/tasks?taskId=${taskId}`;
+        ? `/api/deep-work/tasks`
+        : `/api/light-work/tasks`;
       
       const response = await fetch(createApiUrl(endpoint), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(updates)
+        body: JSON.stringify({
+          taskId,
+          ...updates
+        })
       });
 
       const result = await response.json();

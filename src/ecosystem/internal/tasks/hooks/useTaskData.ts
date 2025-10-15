@@ -25,6 +25,8 @@ export interface TaskCard {
     id: string;
     title: string;
     completed: boolean;
+    workType: 'LIGHT' | 'DEEP';
+    priority?: string;
   }[];
 }
 
@@ -100,7 +102,9 @@ export const useTaskData = (selectedDate: Date): UseTaskDataReturn => {
           tasks: safeTaskArray.map(task => ({
             id: task.id,
             title: task.title,
-            completed: task.completed
+            completed: task.completed,
+            workType: task.workType ?? 'LIGHT',
+            priority: task.priority
           }))
         };
 
@@ -139,37 +143,36 @@ export const useTaskData = (selectedDate: Date): UseTaskDataReturn => {
         const weekEnd = endOfWeek(selectedDate, { weekStartsOn: 1 });
         const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
 
-        const weekTaskCards: TaskCard[] = [];
-        for (const day of weekDays) {
-          if (isCancelled) return; // Exit early if component unmounted
-          
-          try {
-            const weekDayTasks = await personalTaskService.getTasksForDate(user.id, day);
-            // Defensive programming: ensure weekDayTasks is always an array
-            const safeWeekTaskArray = Array.isArray(weekDayTasks) ? weekDayTasks : [];
-            weekTaskCards.push({
-              id: format(day, 'yyyy-MM-dd'),
-              date: day,
-              title: format(day, 'EEEE, MMM d'),
-              completed: safeWeekTaskArray.length > 0 ? safeWeekTaskArray.every(task => task.completed) : false,
-              tasks: safeWeekTaskArray.map(task => ({
-                id: task.id,
-                title: task.title,
-                completed: task.completed
-              }))
-            });
-          } catch (dayError) {
-            console.error(`Failed to load tasks for ${format(day, 'yyyy-MM-dd')}:`, dayError);
-            // Continue with empty task card to prevent hanging
-            weekTaskCards.push({
-              id: format(day, 'yyyy-MM-dd'),
-              date: day,
-              title: format(day, 'EEEE, MMM d'),
-              completed: false,
-              tasks: []
-            });
-          }
-        }
+        const weekTaskCards: TaskCard[] = await Promise.all(
+          weekDays.map(async (day) => {
+            try {
+              const weekDayTasks = await personalTaskService.getTasksForDate(user.id, day);
+              const safeWeekTaskArray = Array.isArray(weekDayTasks) ? weekDayTasks : [];
+              return {
+                id: format(day, 'yyyy-MM-dd'),
+                date: day,
+                title: format(day, 'EEEE, MMM d'),
+                completed: safeWeekTaskArray.length > 0 ? safeWeekTaskArray.every(task => task.completed) : false,
+                tasks: safeWeekTaskArray.map(task => ({
+                  id: task.id,
+                  title: task.title,
+                  completed: task.completed,
+                  workType: task.workType ?? 'LIGHT',
+                  priority: task.priority
+                }))
+              };
+            } catch (dayError) {
+              console.error(`Failed to load tasks for ${format(day, 'yyyy-MM-dd')}:`, dayError);
+              return {
+                id: format(day, 'yyyy-MM-dd'),
+                date: day,
+                title: format(day, 'EEEE, MMM d'),
+                completed: false,
+                tasks: []
+              };
+            }
+          })
+        );
 
         if (!isCancelled) {
           setWeekCards(weekTaskCards);
