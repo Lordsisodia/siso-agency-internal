@@ -128,11 +128,15 @@ export class TimeBlocksAPI {
       return {
         success: true,
         data: blocks.map(block => ({
-          ...block,
           id: block.id || '',
           userId: block.user_id,
+          date: block.date,
+          startTime: block.start_time,
+          endTime: block.end_time,
+          title: block.title,
+          description: block.description,
           category: typeToCategory[block.type || ''] || 'LIGHT_WORK', // Map database 'type' to API 'category'
-          completed: false,
+          completed: block.completed || false,
           taskId: Array.isArray(block.task_ids) && block.task_ids.length > 0 ? block.task_ids[0] : undefined, // Extract first task_id from array
           createdAt: block.created_at || new Date().toISOString(),
           updatedAt: block.updated_at || new Date().toISOString()

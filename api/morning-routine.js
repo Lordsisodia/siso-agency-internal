@@ -29,8 +29,10 @@ async function getSupabaseUserId(clerkUserId) {
 
 // Handle metadata endpoint
 async function handleMetadata(req, res) {
+  console.log('📍 handleMetadata called:', { method: req.method, url: req.url });
   const { method, query, body } = req;
-  
+  console.log('📍 Parsed request:', { method, query, body });
+
   try {
     switch (method) {
       case 'GET':
@@ -153,7 +155,7 @@ export default async function handler(req, res) {
   try {
     // Handle metadata sub-route
     if (req.url.includes('/metadata')) {
-      return handleMetadata(req, res);
+      return await handleMetadata(req, res);
     }
     
     switch (method) {

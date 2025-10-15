@@ -40,7 +40,7 @@ export function usePhotoNutrition(userId: string, date: Date) {
         .select('*')
         .eq('user_id', userId)
         .eq('date', dateKey)
-        .eq('meal_type', 'photo')
+        .eq('data_source', 'photo_analysis') // Filter by photo analysis
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -123,7 +123,7 @@ export function usePhotoNutrition(userId: string, date: Date) {
         .insert({
           user_id: userId,
           date: dateKey,
-          meal_type: 'photo',
+          meal_type: 'other', // Using 'other' for photo-analyzed meals
           meal_time: new Date().toTimeString().slice(0, 5), // HH:MM format
           food_description: description,
           calories,

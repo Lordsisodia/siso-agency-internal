@@ -362,7 +362,7 @@ export const TimeboxTimeline: React.FC<TimeboxTimelineProps> = ({
               </div>
             ) : (
               validTasks.map((task, index) => {
-                const position = getTaskPosition(task.startTime, task.duration);
+                const position = getTaskPosition(task.startTime, task.endTime);
                 return (
                   <TimeboxTaskCard
                     key={task.id}
