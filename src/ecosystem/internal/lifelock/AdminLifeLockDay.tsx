@@ -8,7 +8,6 @@ import { useGamificationInit } from '@/shared/hooks/useGamificationInit';
 import { ThoughtDumpResults } from "@/shared/components/ui";
 import { EisenhowerMatrixModal } from "@/shared/components/ui";
 import { LifeLockViewRenderer } from './core/LifeLockViewRenderer';
-import { useLifeLockData } from '@/ecosystem/internal/lifelock/useLifeLockData';
 import { useRefactoredLifeLockData } from '@/ecosystem/internal/lifelock/useRefactoredLifeLockData';
 import { LoadingState } from '@/shared/ui/loading-state';
 import { selectImplementation } from '@/migration/feature-flags';
@@ -46,13 +45,7 @@ const AdminLifeLockDay: React.FC = () => {
   const dayCompletionPercentage = calculateDayCompletionPercentage(currentTime);
   
   // Use custom hook for all LifeLock data and actions
-  const hookData = selectImplementation(
-    'useRefactoredLifeLockHooks',
-    // NEW: Split focused hooks (226 lines → 6 focused hooks)
-    useRefactoredLifeLockData(selectedDate),
-    // OLD: Monolithic hook (fallback for safety)
-    useLifeLockData(selectedDate)
-  );
+  const hookData = useRefactoredLifeLockData(selectedDate);
 
   // Extract data with safe destructuring
   const {

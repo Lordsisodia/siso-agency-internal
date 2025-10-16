@@ -13,7 +13,6 @@ import { Badge } from '@/shared/ui/badge';
 import { ExpandableTabs } from '@/shared/ui/expandable-tabs';
 import { cn } from '@/shared/lib/utils';
 import { useIsMobile } from '@/shared/hooks/use-mobile';
-import { useLifeLockData } from '@/ecosystem/internal/lifelock/useLifeLockData';
 
 // Use centralized tab configuration to prevent routing inconsistencies
 const tabs = Object.values(TAB_CONFIG);
@@ -32,96 +31,11 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const { data } = useLifeLockData(selectedDate);
-  
   // Get smart default tab based on time of day
   const getSmartDefaultTab = (): string => {
     const hour = new Date().getHours();
     const relevantTab = tabs.find(tab => tab.timeRelevance.includes(hour));
     return relevantTab?.id || 'morning';
-  };
-
-  // Calculate total XP from all sections
-  const getTotalXP = () => {
-    let totalXP = 0;
-    let earnedXP = 0;
-    
-    if (!data) return { earnedXP: 0, totalXP: 0, percentage: 0 };
-    
-    // Morning routine XP
-    if (data.morningTasks) {
-      data.morningTasks.forEach((task: any) => {
-        const mainTaskXP = 15; // Higher XP for morning routine
-        totalXP += mainTaskXP;
-        if (task.completed) earnedXP += mainTaskXP;
-        
-        if (task.subTasks) {
-          task.subTasks.forEach((subtask: any) => {
-            const subtaskXP = 5;
-            totalXP += subtaskXP;
-            if (subtask.completed) earnedXP += subtaskXP;
-          });
-        }
-      });
-    }
-    
-    // Light work XP  
-    if (data.lightWorkTasks) {
-      data.lightWorkTasks.forEach((task: any) => {
-        const mainTaskXP = 10;
-        totalXP += mainTaskXP;
-        if (task.completed) earnedXP += mainTaskXP;
-        
-        if (task.subTasks) {
-          task.subTasks.forEach((subtask: any) => {
-            const subtaskXP = 5;
-            totalXP += subtaskXP;
-            if (subtask.completed) earnedXP += subtaskXP;
-          });
-        }
-      });
-    }
-    
-    // Deep work XP
-    if (data.deepWorkTasks) {
-      data.deepWorkTasks.forEach((task: any) => {
-        const mainTaskXP = 20; // Higher XP for deep work
-        totalXP += mainTaskXP;
-        if (task.completed) earnedXP += mainTaskXP;
-        
-        if (task.subTasks) {
-          task.subTasks.forEach((subtask: any) => {
-            const subtaskXP = 8; // Higher subtask XP for deep work
-            totalXP += subtaskXP;
-            if (subtask.completed) earnedXP += subtaskXP;
-          });
-        }
-      });
-    }
-    
-    // Wellness/workout XP
-    if (data.wellnessTasks) {
-      data.wellnessTasks.forEach((task: any) => {
-        const mainTaskXP = 12;
-        totalXP += mainTaskXP;
-        if (task.completed) earnedXP += mainTaskXP;
-      });
-    }
-    
-    // Checkout XP
-    if (data.checkoutTasks) {
-      data.checkoutTasks.forEach((task: any) => {
-        const mainTaskXP = 8;
-        totalXP += mainTaskXP;
-        if (task.completed) earnedXP += mainTaskXP;
-      });
-    }
-    
-    return { 
-      earnedXP, 
-      totalXP, 
-      percentage: totalXP > 0 ? (earnedXP / totalXP) * 100 : 0 
-    };
   };
 
   const [activeTabId, setActiveTabId] = useState<string>(
