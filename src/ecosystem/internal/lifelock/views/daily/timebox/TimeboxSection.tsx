@@ -221,9 +221,9 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
   }
 
   return (
-    <div className="min-h-screen w-full mb-24 bg-black">
+    <div className="min-h-screen w-full bg-transparent">
       <div className="w-full relative">
-        <div className="max-w-7xl mx-auto px-2 sm:px-3 md:px-4 space-y-6">
+        <div className="max-w-7xl mx-auto px-2 sm:px-3 md:px-4 py-6 pb-32 space-y-6">
           {/* Stats Section */}
           <TimeboxStats
             validTasks={validTasks}
@@ -319,7 +319,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
           </motion.div>
 
           {/* Timeline */}
-          <Card className="w-full bg-transparent border-gray-800/30 rounded-2xl mb-32">
+          <Card className="w-full bg-transparent border-gray-800/30 rounded-2xl">
             <CardContent className="p-0">
               <div className="w-full">
                 <TimeboxTimeline
