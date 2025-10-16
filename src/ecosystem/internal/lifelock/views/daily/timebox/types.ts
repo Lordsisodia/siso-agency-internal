@@ -4,6 +4,8 @@
 
 import { TimeBlockCategory } from '@/api/timeblocksApi.offline';
 
+export const TIMEBOX_HOUR_HEIGHT = 160;
+
 // Enhanced task data structure for timeline
 export interface TimeboxTask {
   id: string;

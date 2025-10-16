@@ -6,7 +6,7 @@
 
 import { useMemo } from 'react';
 import { format, subDays } from 'date-fns';
-import { TimeboxTask, TaskPosition, mapCategoryToUI } from '../types';
+import { TimeboxTask, TaskPosition, TIMEBOX_HOUR_HEIGHT, mapCategoryToUI } from '../types';
 
 interface UseTimeboxCalculationsProps {
   timeBlocks: any[];
@@ -57,7 +57,7 @@ export const useTimeboxCalculations = ({ timeBlocks, selectedDate }: UseTimeboxC
     const hours = now.getHours();
     const minutes = now.getMinutes();
 
-    const PIXELS_PER_MINUTE = 80 / 60; // 1.333px per minute (80px per hour)
+    const PIXELS_PER_MINUTE = TIMEBOX_HOUR_HEIGHT / 60; // Keep in sync with timeline hour height
     const totalMinutesFromStart = hours * 60 + minutes;
     return totalMinutesFromStart * PIXELS_PER_MINUTE;
   }, []);
@@ -74,7 +74,7 @@ export const useTimeboxCalculations = ({ timeBlocks, selectedDate }: UseTimeboxC
           return { top: 0, height: 60, duration: 0 };
         }
 
-        const PIXELS_PER_MINUTE = 80 / 60;
+        const PIXELS_PER_MINUTE = TIMEBOX_HOUR_HEIGHT / 60;
         const MIN_HEIGHT = 24;
         const MAX_HEIGHT = 320;
 
