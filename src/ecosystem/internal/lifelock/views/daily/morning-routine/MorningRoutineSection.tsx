@@ -526,7 +526,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   }
 
   return (
-    <div className="min-h-screen w-full bg-[#121212] relative overflow-x-hidden">
+    <div className="min-h-screen w-full relative overflow-x-hidden">
       <div className="w-full max-w-none p-2 sm:p-3 md:p-4 lg:p-6 space-y-6">
 
         {/* Morning Routine Card */}
