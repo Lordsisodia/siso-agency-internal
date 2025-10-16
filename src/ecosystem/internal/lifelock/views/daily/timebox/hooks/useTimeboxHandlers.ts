@@ -21,6 +21,8 @@ interface UseTimeboxHandlersProps {
   setGapFiller: Dispatch<SetStateAction<GapFillerState | null>>;
   setGapSuggestions: Dispatch<SetStateAction<any[]>>;
   setShowSprintMenu: Dispatch<SetStateAction<boolean>>;
+  userId?: string | null;
+  dateKey: string;
 }
 
 export const useTimeboxHandlers = ({
@@ -39,7 +41,9 @@ export const useTimeboxHandlers = ({
   setSwipeDirection,
   setGapFiller,
   setGapSuggestions,
-  setShowSprintMenu
+  setShowSprintMenu,
+  userId,
+  dateKey
 }: UseTimeboxHandlersProps) => {
   // Micro-celebrations - triggered on completion
   const celebrate = useCallback((task: TimeboxTask) => {
@@ -392,10 +396,14 @@ export const useTimeboxHandlers = ({
 
     // Fetch and score tasks
     try {
+      if (!userId) {
+        toast.info('Sign in to fetch task suggestions');
+        return;
+      }
       const { unifiedDataService } = await import('@/shared/services/unified-data.service');
       const [deepTasks, lightTasks] = await Promise.all([
-        unifiedDataService.getDeepWorkTasks(),
-        unifiedDataService.getLightWorkTasks()
+        unifiedDataService.getDeepWorkTasks(userId, dateKey),
+        unifiedDataService.getLightWorkTasks(userId, dateKey)
       ]);
 
       const allTasks = [...deepTasks, ...lightTasks].filter(t => !t.completed);
@@ -431,7 +439,7 @@ export const useTimeboxHandlers = ({
       console.error('Failed to fetch tasks for gap:', error);
       toast.error('Failed to load task suggestions');
     }
-  }, [validTasks, setGapFiller, setGapSuggestions]);
+  }, [validTasks, setGapFiller, setGapSuggestions, userId, dateKey]);
 
   // Schedule task from gap filler
   const handleGapSchedule = useCallback(async (task: any, gapFiller: GapFillerState | null) => {
