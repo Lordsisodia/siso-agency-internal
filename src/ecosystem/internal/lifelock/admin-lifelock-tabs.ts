@@ -21,6 +21,7 @@ import { MorningRoutineSection } from './views/daily/morning-routine/MorningRout
 import { DeepFocusWorkSection } from './views/daily/deep-work/DeepFocusWorkSection';
 import { LightFocusWorkSection } from './views/daily/light-work/LightFocusWorkSection';
 import { HomeWorkoutSection } from './views/daily/wellness/home-workout/HomeWorkoutSection';
+import { WaterTracker } from './wellness/WaterTracker';
 import { PhotoNutritionTracker } from './features/photo-nutrition/components/PhotoNutritionTracker';
 import { TimeboxSection } from './views/daily/timebox/TimeboxSection';
 import { NightlyCheckoutSection } from './views/daily/checkout/NightlyCheckoutSection';
@@ -108,7 +109,7 @@ export const ENHANCED_TAB_CONFIG: Record<TabId, EnhancedTabConfig> = {
     layoutType: 'standard',
     backgroundClass: 'min-h-screen bg-[#121212] p-4 pb-24',
     showDateNav: true,
-    components: [HomeWorkoutSection, PhotoNutritionTracker],
+    components: [WaterTracker, HomeWorkoutSection, PhotoNutritionTracker],
   },
   
   'timebox': {
