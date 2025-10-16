@@ -479,44 +479,30 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
 
   const getTaskTimeSummary = (task: Task) => {
     let totalMinutes = 0;
-    let missingEstimates = 0;
 
-    task.subtasks.forEach(subtask => {
-      const estimateMinutes = parseTimeEstimateToMinutes(subtask.estimatedTime);
-      if (estimateMinutes > 0) {
-        totalMinutes += estimateMinutes;
-      } else {
-        missingEstimates += 1;
-        totalMinutes += baseSubtaskMinutes;
-      }
-    });
+    // ONLY count INCOMPLETE subtasks
+    task.subtasks
+      .filter(subtask => subtask.status !== 'completed')
+      .forEach(subtask => {
+        const estimateMinutes = parseTimeEstimateToMinutes(subtask.estimatedTime);
+        totalMinutes += estimateMinutes > 0 ? estimateMinutes : baseSubtaskMinutes;
+      });
 
+    // Manual override takes precedence
     const manualMinutes = parseTimeEstimateToMinutes(task.timeEstimate);
 
     if (task.subtasks.length === 0) {
-      if (manualMinutes > 0) {
-        totalMinutes = manualMinutes;
-        missingEstimates = 0;
-      } else {
-        totalMinutes = baseSubtaskMinutes;
-        missingEstimates = 1;
-      }
+      // No subtasks - use manual or default
+      totalMinutes = manualMinutes > 0 ? manualMinutes : baseSubtaskMinutes;
+    } else if (manualMinutes > 0) {
+      // Has subtasks but user set manual time - use manual
+      totalMinutes = manualMinutes;
     }
 
     return {
       totalMinutes,
-      formatted: formatMinutes(totalMinutes),
-      missingEstimates,
-      manualMinutes: manualMinutes > 0 ? manualMinutes : null,
-      manualLabel: manualMinutes > 0 ? task.timeEstimate || null : null
+      formatted: formatMinutes(totalMinutes)
     };
-  };
-
-  const computeSuggestedPriority = (minutes: number, subtaskCount: number): 'low' | 'medium' | 'high' | 'urgent' => {
-    if (minutes >= 240 || subtaskCount >= 8) return 'urgent';
-    if (minutes >= 150 || subtaskCount >= 6) return 'high';
-    if (minutes >= 90 || subtaskCount >= 3) return 'medium';
-    return 'low';
   };
 
   const TASK_PRIORITY_CONFIG: Record<string, { icon: string; label: string; badgeClass: string }> = {
@@ -773,10 +759,7 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
                 const isExpanded = expandedTasks.includes(task.id);
                 const isCompleted = task.status === "completed";
                 const summary = getTaskTimeSummary(task);
-                const suggestedPriority = computeSuggestedPriority(summary.totalMinutes, task.subtasks.length);
                 const priorityConfig = getPriorityConfig(task.priority);
-                const focusBlocks = Math.max(1, Math.ceil(summary.totalMinutes / 60));
-                const isPriorityAligned = task.priority?.toLowerCase() === suggestedPriority;
                 const isFirst = index === 0;
                 const isLast = index === orderedTasks.length - 1;
 
@@ -869,8 +852,9 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
                         {/* Top divider */}
                         <div className="border-t border-blue-600/50 mt-3"></div>
 
-                        <div className="pt-3 space-y-3">
-                          <div className="flex flex-wrap items-center gap-2">
+                        <div className="pt-3">
+                          {/* Single-row metadata: Date | Priority | Time | Arrows */}
+                          <div className="flex items-center gap-2">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -918,42 +902,11 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
                               >
                                 <Clock className="h-3.5 w-3.5" />
                                 <span>{summary.formatted}</span>
-                                {summary.missingEstimates > 0 && (
-                                  <span className="text-[10px] text-blue-300/80 ml-1">
-                                    +{summary.missingEstimates}×{baseSubtaskMinutes}m
-                                  </span>
-                                )}
                               </button>
                             )}
 
-                            <div className="flex items-center gap-1 px-2 py-1 rounded-md text-xs text-blue-200/80 bg-blue-900/10">
-                              <ListOrdered className="h-3.5 w-3.5 text-blue-300/80" />
-                              <span>{task.subtasks.length} subtasks</span>
-                            </div>
-                          </div>
-
-                          <div className="flex flex-wrap items-center justify-between gap-2">
-                            <div className="flex flex-wrap items-center gap-3 text-[11px] text-blue-300/80">
-                              <div className={`flex items-center gap-1 ${isPriorityAligned ? 'text-green-300' : 'text-blue-300/80'}`}>
-                                <Flame className="h-3.5 w-3.5" />
-                                <span>Suggested: {TASK_PRIORITY_CONFIG[suggestedPriority].label}</span>
-                                {!isPriorityAligned && (
-                                  <span className="ml-1 text-blue-200/70">Current: {priorityConfig.label}</span>
-                                )}
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <Timer className="h-3.5 w-3.5 text-blue-300/80" />
-                                <span>Focus Blocks ≈ {focusBlocks}</span>
-                              </div>
-                              {summary.manualLabel && (
-                                <div className="flex items-center gap-1 text-blue-200/70">
-                                  <Clock className="h-3 w-3 text-blue-300/70" />
-                                  <span>Manual: {summary.manualLabel}</span>
-                                </div>
-                              )}
-                            </div>
-
-                            <div className="flex items-center gap-1">
+                            {/* Reorder Arrows - Inline */}
+                            <div className="flex items-center gap-1 ml-auto">
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
