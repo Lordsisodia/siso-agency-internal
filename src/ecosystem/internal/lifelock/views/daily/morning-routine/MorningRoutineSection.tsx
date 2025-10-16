@@ -47,6 +47,18 @@ import {
   calculateWakeUpXpMultiplier,
   getWakeUpTimestamp
 } from './morningRoutineXpUtils';
+import {
+  calculateWakeUpXP,
+  calculateFreshenUpXP,
+  calculateGetBloodFlowingXP,
+  calculatePowerUpBrainXP,
+  calculatePlanDayXP,
+  calculateMeditationXP,
+  calculatePrioritiesXP,
+  calculateTotalMorningXP
+} from './xpCalculations';
+import { XPPill } from './components/XPPill';
+import { XPFooterSummary } from './components/XPFooterSummary';
 
 interface MorningRoutineHabit {
   name: string;
@@ -723,6 +735,27 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
     return getRotatingQuotes(selectedDate);
   }, [selectedDate]);
 
+  // 🎮 Calculate total XP for today
+  const todayXP = useMemo(() => {
+    const result = calculateTotalMorningXP({
+      wakeUpTime,
+      date: selectedDate,
+      freshenUp: {
+        bathroom: isHabitCompleted('bathroom'),
+        brushTeeth: isHabitCompleted('brushTeeth'),
+        coldShower: isHabitCompleted('coldShower')
+      },
+      pushupReps,
+      pushupPB,
+      waterAmount,
+      supplementsCompleted: isHabitCompleted('supplements'),
+      planDayComplete: isPlanDayComplete,
+      meditationDuration,
+      priorities: dailyPriorities
+    });
+    return result;
+  }, [wakeUpTime, selectedDate, isHabitCompleted, pushupReps, pushupPB, waterAmount, isPlanDayComplete, meditationDuration, dailyPriorities]);
+
   // Thought dump handler
   const handleThoughtDumpSubmit = async (input: string) => {
     setIsProcessingVoice(true);
@@ -815,8 +848,10 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                 <Sun className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                 🌅 Morning Routine
               </div>
-              <div className="text-sm font-medium">
-                {Math.round(morningRoutineProgress)}% Complete
+              <div className="flex items-center gap-3 text-sm font-medium">
+                <span className="text-yellow-300">{todayXP.total} XP</span>
+                <span className="text-yellow-500/70">|</span>
+                <span>{Math.round(morningRoutineProgress)}%</span>
               </div>
             </CardTitle>
             
@@ -874,13 +909,19 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                     <div className="p-2 sm:p-3">
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-2">
+                          <div className="flex items-center space-x-2 flex-1">
                             <IconComponent className="h-5 w-5 text-yellow-400" />
                             <h4 className="text-yellow-100 font-semibold text-sm sm:text-base">{task.title}</h4>
                             <div className="bg-yellow-500/20 border border-yellow-400/40 rounded-full px-2.5 py-0.5">
                               <span className="text-xs text-yellow-300 font-medium">{task.timeEstimate}</span>
                             </div>
                           </div>
+                          {/* XP Pill */}
+                          <XPPill
+                            xp={todayXP.breakdown[task.key] || 0}
+                            earned={taskComplete}
+                            showGlow={taskComplete}
+                          />
                         </div>
 
                         {/* Universal Progress Bar - ALL TASKS */}
@@ -1041,6 +1082,12 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                 </CardContent>
               </Card>
             </motion.div>
+
+            {/* XP Footer Summary */}
+            <XPFooterSummary
+              breakdown={todayXP.breakdown}
+              totalXP={todayXP.total}
+            />
 
           </CardContent>
         </Card>
