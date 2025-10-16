@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { subDays } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Moon, Clock, CheckCircle, Plus, X, Mic, TrendingUp, Zap, Award } from 'lucide-react';
+import { Moon, Mic, TrendingUp } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { Button } from '@/shared/ui/button';
@@ -13,6 +13,9 @@ import { useAuth } from '@clerk/clerk-react';
 import { useDailyReflections } from '@/shared/hooks/useDailyReflections';
 import { BedTimeTracker } from './components/BedTimeTracker';
 import { ReflectionQuestions } from './components/ReflectionQuestions';
+import { MoodPicker } from './components/MoodPicker';
+import { ReflectionList } from './components/ReflectionList';
+import { NightlyStatsCard } from './components/NightlyStatsCard';
 
 interface NightlyCheckoutSectionProps {
   selectedDate: Date;
@@ -53,35 +56,42 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
     tomorrowFocus: '',
     tomorrowTopTasks: ['', '', ''] as string[]
   });
+
+  const [hasUserEdited, setHasUserEdited] = useState(false);
   
   // Moods for quick selector
-  const moods = [
-    { emoji: '😊', label: 'Great', value: 'great' },
-    { emoji: '😐', label: 'Okay', value: 'okay' },
-    { emoji: '😰', label: 'Stressed', value: 'stressed' },
-    { emoji: '😤', label: 'Frustrated', value: 'frustrated' },
-    { emoji: '😔', label: 'Down', value: 'down' },
-    { emoji: '😌', label: 'Peaceful', value: 'peaceful' }
-  ];
+  const moods = useMemo(
+    () => [
+      { emoji: '😊', label: 'Great', value: 'great' },
+      { emoji: '😐', label: 'Okay', value: 'okay' },
+      { emoji: '😰', label: 'Stressed', value: 'stressed' },
+      { emoji: '😤', label: 'Frustrated', value: 'frustrated' },
+      { emoji: '😔', label: 'Down', value: 'down' },
+      { emoji: '😌', label: 'Peaceful', value: 'peaceful' }
+    ],
+    []
+  );
   
+  const markEdited = useCallback(() => setHasUserEdited(true), []);
+
   // NOW calculate values that depend on state
-  
+
   // Calculate streak (count consecutive days with reflections)
   const currentStreak = useMemo(() => {
     // For now, return a placeholder - we'll implement proper streak calculation
     // This would need to fetch multiple days of reflections
     return reflection?.overallRating ? 1 : 0;
   }, [reflection]);
-  
+
   // Calculate completion progress (depends on nightlyCheckout state)
   const checkoutProgress = useMemo(() => {
     let completed = 0;
     const total = 8; // Updated to include new fields
-    
+
     // New priority fields
     if (nightlyCheckout.winOfDay?.trim()) completed++;
     if (nightlyCheckout.mood) completed++;
-    
+
     // Original fields
     if (nightlyCheckout.wentWell.some(item => item.trim() !== '')) completed++;
     if (nightlyCheckout.evenBetterIf.some(item => item.trim() !== '')) completed++;
@@ -89,10 +99,10 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
     if (nightlyCheckout.actionItems?.trim()) completed++;
     if (nightlyCheckout.keyLearnings?.trim()) completed++;
     if (nightlyCheckout.tomorrowTopTasks.some(task => task.trim() !== '')) completed++;
-    
+
     return total > 0 ? (completed / total) * 100 : 0;
   }, [nightlyCheckout]);
-  
+
   // Calculate XP for this checkout (depends on both streak and progress)
   const checkoutXP = useMemo(() => {
     const baseXP = 8; // Base checkout XP
@@ -102,39 +112,98 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
   }, [currentStreak, checkoutProgress]);
 
   // Helper function to update checkout data and mark as edited
-  const updateCheckout = (updates: Partial<typeof nightlyCheckout>) => {
-    setNightlyCheckout(prev => ({ ...prev, ...updates }));
-    setHasUserEdited(true);
-  };
+  const updateCheckout = useCallback(
+    (updates: Partial<typeof nightlyCheckout>) => {
+      setNightlyCheckout(prev => ({ ...prev, ...updates }));
+      markEdited();
+    },
+    [markEdited]
+  );
 
   // Helper functions for dynamic array management
-  const addWentWellItem = () => {
-    updateCheckout({
-      wentWell: [...nightlyCheckout.wentWell, '']
-    });
-  };
+  const addWentWellItem = useCallback(() => {
+    setNightlyCheckout(prev => ({
+      ...prev,
+      wentWell: [...prev.wentWell, '']
+    }));
+    markEdited();
+  }, [markEdited]);
 
-  const removeWentWellItem = (index: number) => {
-    if (nightlyCheckout.wentWell.length > 1) {
-      updateCheckout({
-        wentWell: nightlyCheckout.wentWell.filter((_, i) => i !== index)
+  const removeWentWellItem = useCallback(
+    (index: number) => {
+      let didUpdate = false;
+      setNightlyCheckout(prev => {
+        if (prev.wentWell.length <= 1) {
+          return prev;
+        }
+
+        didUpdate = true;
+        return {
+          ...prev,
+          wentWell: prev.wentWell.filter((_, i) => i !== index)
+        };
       });
-    }
-  };
 
-  const addEvenBetterIfItem = () => {
-    updateCheckout({
-      evenBetterIf: [...nightlyCheckout.evenBetterIf, '']
-    });
-  };
+      if (didUpdate) {
+        markEdited();
+      }
+    },
+    [markEdited]
+  );
 
-  const removeEvenBetterIfItem = (index: number) => {
-    if (nightlyCheckout.evenBetterIf.length > 1) {
-      updateCheckout({
-        evenBetterIf: nightlyCheckout.evenBetterIf.filter((_, i) => i !== index)
+  const addEvenBetterIfItem = useCallback(() => {
+    setNightlyCheckout(prev => ({
+      ...prev,
+      evenBetterIf: [...prev.evenBetterIf, '']
+    }));
+    markEdited();
+  }, [markEdited]);
+
+  const removeEvenBetterIfItem = useCallback(
+    (index: number) => {
+      let didUpdate = false;
+      setNightlyCheckout(prev => {
+        if (prev.evenBetterIf.length <= 1) {
+          return prev;
+        }
+
+        didUpdate = true;
+        return {
+          ...prev,
+          evenBetterIf: prev.evenBetterIf.filter((_, i) => i !== index)
+        };
       });
-    }
-  };
+
+      if (didUpdate) {
+        markEdited();
+      }
+    },
+    [markEdited]
+  );
+
+  const handleWentWellChange = useCallback(
+    (index: number, value: string) => {
+      setNightlyCheckout(prev => {
+        const updated = [...prev.wentWell];
+        updated[index] = value;
+        return { ...prev, wentWell: updated };
+      });
+      markEdited();
+    },
+    [markEdited]
+  );
+
+  const handleEvenBetterIfChange = useCallback(
+    (index: number, value: string) => {
+      setNightlyCheckout(prev => {
+        const updated = [...prev.evenBetterIf];
+        updated[index] = value;
+        return { ...prev, evenBetterIf: updated };
+      });
+      markEdited();
+    },
+    [markEdited]
+  );
 
   // Sync local state with Supabase data when reflection loads OR reset when changing to new day
   useEffect(() => {
@@ -158,8 +227,6 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
   }, [reflection]);
 
   // Save to Supabase with debouncing
-  const [hasUserEdited, setHasUserEdited] = useState(false);
-  
   useEffect(() => {
     if (!userId || isLoading || !hasUserEdited) return;
 
@@ -255,7 +322,7 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
             <Moon className="h-5 w-5 mr-2" />
             Nightly Check-Out
           </CardTitle>
-          
+
           {/* Progress Bar */}
           <div className="mt-4">
             <div className="flex justify-between text-sm text-purple-300 mb-2">
@@ -264,7 +331,7 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
               {isSaving && <span className="text-xs text-purple-400">Saving...</span>}
             </div>
             <div className="w-full bg-purple-900/30 rounded-full h-2">
-              <motion.div 
+              <motion.div
                 className="bg-gradient-to-r from-purple-400 to-purple-600 h-2 rounded-full"
                 initial={{ width: 0 }}
                 animate={{ width: `${checkoutProgress}%` }}
@@ -274,33 +341,7 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
           </div>
         </CardHeader>
         <CardContent className="pb-24">
-          {/* Streak Counter + XP Display */}
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-6"
-          >
-            <div className="flex items-center justify-between bg-gradient-to-r from-purple-900/40 to-pink-900/40 p-4 rounded-xl border border-purple-700/30">
-              <div className="flex items-center space-x-4">
-                <div className="text-center">
-                  <div className="flex items-center space-x-2 mb-1">
-                    <span className="text-3xl">🔥</span>
-                    <span className="text-3xl font-bold text-purple-200">{currentStreak}</span>
-                  </div>
-                  <p className="text-xs text-purple-400">Day Streak</p>
-                </div>
-                <div className="h-12 w-px bg-purple-700/50"></div>
-                <div className="text-center">
-                  <div className="flex items-center space-x-2 mb-1">
-                    <Zap className="h-6 w-6 text-yellow-400" />
-                    <span className="text-3xl font-bold text-yellow-400">+{checkoutXP}</span>
-                  </div>
-                  <p className="text-xs text-yellow-300">XP Tonight</p>
-                </div>
-              </div>
-              <Award className="h-8 w-8 text-purple-400 opacity-50" />
-            </div>
-          </motion.div>
+          <NightlyStatsCard currentStreak={currentStreak} checkoutXP={checkoutXP} />
 
           {/* Yesterday's Focus - Accountability Check */}
           {yesterdayReflection?.tomorrowFocus && (
@@ -385,33 +426,12 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
             </div>
           </motion.div>
 
-          {/* Quick Mood Selector */}
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="mb-8"
-          >
-            <h4 className="font-semibold text-purple-300 mb-3 text-base">
-              How are you feeling right now?
-            </h4>
-            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-              {moods.map((moodOption) => (
-                <button
-                  key={moodOption.value}
-                  onClick={() => updateCheckout({ mood: moodOption.value })}
-                  className={`flex flex-col items-center p-3 rounded-lg border-2 transition-all ${
-                    nightlyCheckout.mood === moodOption.value
-                      ? 'border-purple-400 bg-purple-900/40 scale-105'
-                      : 'border-purple-700/30 hover:border-purple-600 hover:bg-purple-900/20'
-                  }`}
-                >
-                  <span className="text-3xl mb-1">{moodOption.emoji}</span>
-                  <span className="text-xs text-purple-300">{moodOption.label}</span>
-                </button>
-              ))}
-            </div>
-          </motion.div>
+          <MoodPicker
+            title="How are you feeling right now?"
+            moods={moods}
+            selectedMood={nightlyCheckout.mood}
+            onSelect={(value) => updateCheckout({ mood: value })}
+          />
 
           {/* Divider */}
           <div className="border-t border-purple-700/20 mb-8" />
@@ -508,106 +528,29 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
           </div>
           
           <div className="space-y-8">
-            {/* What went well - Clean bullet list design */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="space-y-3"
-            >
-              <div className="flex items-center justify-between">
-                <h4 className="font-semibold text-purple-300 text-base">What went well today?</h4>
-                <Button
-                  onClick={addWentWellItem}
-                  size="sm"
-                  variant="ghost"
-                  className="text-purple-400 hover:text-purple-300 hover:bg-purple-900/20 h-8"
-                >
-                  <Plus className="h-4 w-4 mr-1" />
-                  Add
-                </Button>
-              </div>
-              
-              <div className="space-y-2 pl-4 border-l-2 border-purple-700/30">
-                {nightlyCheckout.wentWell.map((item: string, index: number) => (
-                  <div key={index} className="flex items-start space-x-2">
-                    <span className="text-purple-400 mt-2.5">•</span>
-                    <Input
-                      value={item}
-                      onChange={(e) => {
-                        const newArray = [...nightlyCheckout.wentWell];
-                        newArray[index] = e.target.value;
-                        updateCheckout({ wentWell: newArray });
-                      }}
-                      className="bg-transparent border-0 border-b border-purple-700/30 text-white placeholder:text-purple-300/40 focus:border-purple-400 focus:ring-0 rounded-none px-2 py-1.5 flex-1"
-                      placeholder="Something positive that happened..."
-                    />
-                    {nightlyCheckout.wentWell.length > 1 && (
-                      <Button
-                        onClick={() => removeWentWellItem(index)}
-                        size="sm"
-                        variant="ghost"
-                        className="text-purple-400/60 hover:text-purple-300 hover:bg-purple-900/20 p-1.5 h-auto"
-                      >
-                        <X className="h-3.5 w-3.5" />
-                      </Button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </motion.div>
+            <ReflectionList
+              title="What went well today?"
+              items={nightlyCheckout.wentWell}
+              onAdd={addWentWellItem}
+              onRemove={removeWentWellItem}
+              onChange={handleWentWellChange}
+              placeholder="Something positive that happened..."
+              animationDelay={0.3}
+            />
 
             {/* Divider */}
             <div className="border-t border-purple-700/20" />
 
             {/* Even better if - Clean bullet list design */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="space-y-3"
-            >
-              <div className="flex items-center justify-between">
-                <h4 className="font-semibold text-purple-300 text-base">Even better if...</h4>
-                <Button
-                  onClick={addEvenBetterIfItem}
-                  size="sm"
-                  variant="ghost"
-                  className="text-purple-400 hover:text-purple-300 hover:bg-purple-900/20 h-8"
-                >
-                  <Plus className="h-4 w-4 mr-1" />
-                  Add
-                </Button>
-              </div>
-              
-              <div className="space-y-2 pl-4 border-l-2 border-purple-700/30">
-                {nightlyCheckout.evenBetterIf.map((item: string, index: number) => (
-                  <div key={index} className="flex items-start space-x-2">
-                    <span className="text-purple-400 mt-2.5">•</span>
-                    <Input
-                      value={item}
-                      onChange={(e) => {
-                        const newArray = [...nightlyCheckout.evenBetterIf];
-                        newArray[index] = e.target.value;
-                        updateCheckout({ evenBetterIf: newArray });
-                      }}
-                      className="bg-transparent border-0 border-b border-purple-700/30 text-white placeholder:text-purple-300/40 focus:border-purple-400 focus:ring-0 rounded-none px-2 py-1.5 flex-1"
-                      placeholder="Something that could improve..."
-                    />
-                    {nightlyCheckout.evenBetterIf.length > 1 && (
-                      <Button
-                        onClick={() => removeEvenBetterIfItem(index)}
-                        size="sm"
-                        variant="ghost"
-                        className="text-purple-400/60 hover:text-purple-300 hover:bg-purple-900/20 p-1.5 h-auto"
-                      >
-                        <X className="h-3.5 w-3.5" />
-                      </Button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </motion.div>
+            <ReflectionList
+              title="Even better if..."
+              items={nightlyCheckout.evenBetterIf}
+              onAdd={addEvenBetterIfItem}
+              onRemove={removeEvenBetterIfItem}
+              onChange={handleEvenBetterIfChange}
+              placeholder="Something that could improve..."
+              animationDelay={0.4}
+            />
 
             {/* Divider */}
             <div className="border-t border-purple-700/20" />
