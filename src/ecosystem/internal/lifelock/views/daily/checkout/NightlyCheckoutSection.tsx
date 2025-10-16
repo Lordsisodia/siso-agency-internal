@@ -13,6 +13,7 @@ import { useAuth } from '@clerk/clerk-react';
 import { useDailyReflections } from '@/shared/hooks/useDailyReflections';
 import { BedTimeTracker } from './components/BedTimeTracker';
 import { ReflectionQuestions } from './components/ReflectionQuestions';
+import { CleanDateNav } from '../_shared/components/CleanDateNav';
 
 interface NightlyCheckoutSectionProps {
   selectedDate: Date;
@@ -176,6 +177,13 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
     return (
       <div className="min-h-screen w-full bg-[#121212] relative overflow-x-hidden">
         <div className="max-w-7xl mx-auto p-3 sm:p-4 md:p-6 lg:p-8 space-y-6">
+          <CleanDateNav
+            selectedDate={selectedDate}
+            onPreviousDate={onPreviousDate}
+            onNextDate={onNextDate}
+            activeTab="checkout"
+          />
+
           <Card className="mb-24 bg-purple-900/10 border-purple-700/30">
             <CardHeader className="space-y-4">
               <div className="flex items-center justify-between">
@@ -243,6 +251,12 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
   return (
     <div className="min-h-screen w-full bg-[#121212] relative overflow-x-hidden">
       <div className="max-w-7xl mx-auto p-3 sm:p-4 md:p-6 lg:p-8 space-y-6">
+        <CleanDateNav
+          selectedDate={selectedDate}
+          onPreviousDate={onPreviousDate}
+          onNextDate={onNextDate}
+          activeTab="checkout"
+        />
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -250,30 +264,30 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
           transition={{ delay: 0.6 }}
         >
           <Card className="mb-24 bg-purple-900/10 border-purple-700/30">
-        <CardHeader>
-          <CardTitle className="flex items-center text-purple-400">
-            <Moon className="h-5 w-5 mr-2" />
-            Nightly Check-Out
-          </CardTitle>
-          
-          {/* Progress Bar */}
-          <div className="mt-4">
-            <div className="flex justify-between text-sm text-purple-300 mb-2">
-              <span>Reflection Progress</span>
-              <span>{`${Math.round(checkoutProgress)}%`}</span>
-              {isSaving && <span className="text-xs text-purple-400">Saving...</span>}
-            </div>
-            <div className="w-full bg-purple-900/30 rounded-full h-2">
-              <motion.div 
-                className="bg-gradient-to-r from-purple-400 to-purple-600 h-2 rounded-full"
-                initial={{ width: 0 }}
-                animate={{ width: `${checkoutProgress}%` }}
-                transition={{ duration: 0.8, ease: 'easeOut' }}
-              />
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="pb-24">
+            <CardHeader>
+              <CardTitle className="flex items-center text-purple-400">
+                <Moon className="h-5 w-5 mr-2" />
+                Nightly Check-Out
+              </CardTitle>
+
+              {/* Progress Bar */}
+              <div className="mt-4">
+                <div className="flex justify-between text-sm text-purple-300 mb-2">
+                  <span>Reflection Progress</span>
+                  <span>{`${Math.round(checkoutProgress)}%`}</span>
+                  {isSaving && <span className="text-xs text-purple-400">Saving...</span>}
+                </div>
+                <div className="w-full bg-purple-900/30 rounded-full h-2">
+                  <motion.div
+                    className="bg-gradient-to-r from-purple-400 to-purple-600 h-2 rounded-full"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${checkoutProgress}%` }}
+                    transition={{ duration: 0.8, ease: 'easeOut' }}
+                  />
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="pb-24">
           {/* Streak Counter + XP Display */}
           <motion.div
             initial={{ opacity: 0, y: -10 }}

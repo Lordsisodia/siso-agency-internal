@@ -6,6 +6,7 @@
  */
 
 import React from 'react';
+import { CleanDateNav } from '../_shared/components/CleanDateNav';
 import DeepWorkTaskList from './components/DeepWorkTaskList';
 
 interface DeepFocusWorkSectionProps {
@@ -20,8 +21,17 @@ export const DeepFocusWorkSection: React.FC<DeepFocusWorkSectionProps> = ({
   onNextDate
 }) => {
   return (
-    <DeepWorkTaskList
-      selectedDate={selectedDate}
-    />
+    <div className="space-y-6">
+      <CleanDateNav
+        selectedDate={selectedDate}
+        onPreviousDate={onPreviousDate}
+        onNextDate={onNextDate}
+        activeTab="work"
+      />
+
+      <DeepWorkTaskList
+        selectedDate={selectedDate}
+      />
+    </div>
   );
 };
