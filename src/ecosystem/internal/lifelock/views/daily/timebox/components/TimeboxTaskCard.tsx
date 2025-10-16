@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Circle, CheckCircle2, Plus } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
-import { TimeboxTask, TaskPosition } from '../types';
+import { TimeboxTask, TaskPosition, TIMEBOX_HOUR_HEIGHT } from '../types';
 import { getCategoryStyles } from '../utils';
 
 interface TimeboxTaskCardProps {
@@ -48,7 +48,7 @@ export const TimeboxTaskCard: React.FC<TimeboxTaskCardProps> = ({
     <motion.div
       key={task.id}
       drag={draggingTaskId === task.id ? "y" : false}
-      dragConstraints={{ top: -position.top, bottom: (23 * 80) - position.top - position.height }}
+      dragConstraints={{ top: -position.top, bottom: (23 * TIMEBOX_HOUR_HEIGHT) - position.top - position.height }}
       dragElastic={0.1}
       dragMomentum={false}
       onDragStart={() => onDragStart(task.id)}
