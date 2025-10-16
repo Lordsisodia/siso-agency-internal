@@ -12,7 +12,7 @@
  * - Offline-first compatible
  */
 
-import { format, parse, addHours, addMinutes } from 'date-fns';
+import { format, parse, addHours, addMinutes, isValid } from 'date-fns';
 import { TimeBlocksAPI, CreateTimeBlockInput, TimeBlock } from '@/api/timeblocksApi.offline';
 
 export const AUTO_TIMEBOX_TYPES = {
@@ -24,12 +24,16 @@ export const AUTO_TIMEBOX_CONFIG = {
   morningRoutine: {
     durationMinutes: 45,
     title: '🌅 Morning Routine',
+    description: 'Auto-created from wake-up time. Complete your morning routine!',
+    metadataTag: `[auto:${AUTO_TIMEBOX_TYPES.MORNING_ROUTINE}]`,
     type: AUTO_TIMEBOX_TYPES.MORNING_ROUTINE,
     offsetMinutes: 0 // Start immediately at wake-up time
   },
   nightlyCheckout: {
     durationMinutes: 30,
     title: '🌙 Nightly Checkout',
+    description: 'Auto-created 16 hours after wake-up. Reflect on your day!',
+    metadataTag: `[auto:${AUTO_TIMEBOX_TYPES.NIGHTLY_CHECKOUT}]`,
     type: AUTO_TIMEBOX_TYPES.NIGHTLY_CHECKOUT,
     hoursAfterWakeup: 16
   }
@@ -39,13 +43,50 @@ export const AUTO_TIMEBOX_CONFIG = {
  * Parse time string (e.g., "8:00 AM") to 24-hour format (e.g., "08:00")
  */
 function parseTime12To24(time12h: string): string {
-  try {
-    const parsed = parse(time12h, 'h:mm a', new Date());
-    return format(parsed, 'HH:mm');
-  } catch (error) {
-    console.error('Failed to parse time:', time12h, error);
-    throw new Error(`Invalid time format: ${time12h}`);
+  const trimmed = time12h.trim();
+  const hasMeridiem = /[ap]\.?m\.?/i.test(trimmed);
+  const formats: string[] = [];
+
+  if (hasMeridiem) {
+    formats.push('h:mm a', 'h a', 'hh:mm a', 'hh a');
   }
+
+  formats.push('HH:mm', 'H:mm', 'HH:mm:ss', 'H:mm:ss');
+
+  for (const pattern of formats) {
+    const parsed = parse(trimmed, pattern, new Date());
+    if (isValid(parsed)) {
+      return format(parsed, 'HH:mm');
+    }
+  }
+
+  const isoCandidate = new Date(`1970-01-01T${trimmed}`);
+  if (isValid(isoCandidate)) {
+    return format(isoCandidate, 'HH:mm');
+  }
+
+  console.error('Failed to parse time:', time12h);
+  throw new Error(`Invalid time format: ${time12h}`);
+}
+
+function getAutoTimeboxConfig(type: string) {
+  return Object.values(AUTO_TIMEBOX_CONFIG).find(config => config.type === type);
+}
+
+function buildAutoDescription(config: typeof AUTO_TIMEBOX_CONFIG[keyof typeof AUTO_TIMEBOX_CONFIG]): string {
+  return `${config.description} ${config.metadataTag}`.trim();
+}
+
+function matchesAutoTimebox(
+  block: TimeBlock,
+  config: typeof AUTO_TIMEBOX_CONFIG[keyof typeof AUTO_TIMEBOX_CONFIG]
+): boolean {
+  const blockWithType = block as TimeBlock & { type?: string };
+  const matchesType = blockWithType.type === config.type;
+  const matchesTitle = block.title === config.title;
+  const matchesDescription = !!block.description && block.description.includes(config.metadataTag);
+
+  return matchesType || matchesTitle || matchesDescription;
 }
 
 /**
@@ -84,7 +125,12 @@ async function findExistingAutoTimebox(
     return null;
   }
 
-  return result.data.find(block => block.type === type) || null;
+  const config = getAutoTimeboxConfig(type);
+
+  return (
+    result.data.find(block => (config ? matchesAutoTimebox(block, config) : (block as TimeBlock & { type?: string }).type === type)) ||
+    null
+  );
 }
 
 /**
@@ -98,23 +144,30 @@ export async function createOrUpdateMorningRoutineTimebox(
   try {
     // Parse wake-up time to 24-hour format
     const startTime24h = parseTime12To24(wakeUpTime);
+    const config = AUTO_TIMEBOX_CONFIG.morningRoutine;
     const endTime = calculateEndTime(
       startTime24h,
-      AUTO_TIMEBOX_CONFIG.morningRoutine.durationMinutes
+      config.durationMinutes
     );
 
     // Check if already exists
     const existing = await findExistingAutoTimebox(
       userId,
       date,
-      AUTO_TIMEBOX_CONFIG.morningRoutine.type
+      config.type
     );
 
     if (existing) {
       // Update existing timebox
       const updateResult = await TimeBlocksAPI.updateTimeBlock(existing.id, {
+        userId,
+        date,
         startTime: startTime24h,
-        endTime: endTime
+        endTime: endTime,
+        description:
+          existing.description && existing.description.includes(config.metadataTag)
+            ? existing.description
+            : buildAutoDescription(config)
       });
 
       if (updateResult.success) {
@@ -135,10 +188,9 @@ export async function createOrUpdateMorningRoutineTimebox(
         date,
         startTime: startTime24h,
         endTime: endTime,
-        type: AUTO_TIMEBOX_CONFIG.morningRoutine.type,
+        category: 'PERSONAL',
         title: AUTO_TIMEBOX_CONFIG.morningRoutine.title,
-        description: 'Auto-created from wake-up time. Complete your morning routine!',
-        isFlexible: false
+        description: buildAutoDescription(config)
       };
 
       const createResult = await TimeBlocksAPI.createTimeBlock(createData);
@@ -175,26 +227,33 @@ export async function createOrUpdateNightlyCheckoutTimebox(
   try {
     // Parse wake-up time to 24-hour format
     const wakeUpTime24h = parseTime12To24(wakeUpTime);
+    const config = AUTO_TIMEBOX_CONFIG.nightlyCheckout;
 
     // Calculate checkout time (16 hours after wake-up)
     const startTime = calculateNightlyCheckoutTime(wakeUpTime24h);
     const endTime = calculateEndTime(
       startTime,
-      AUTO_TIMEBOX_CONFIG.nightlyCheckout.durationMinutes
+      config.durationMinutes
     );
 
     // Check if already exists
     const existing = await findExistingAutoTimebox(
       userId,
       date,
-      AUTO_TIMEBOX_CONFIG.nightlyCheckout.type
+      config.type
     );
 
     if (existing) {
       // Update existing timebox
       const updateResult = await TimeBlocksAPI.updateTimeBlock(existing.id, {
+        userId,
+        date,
         startTime,
-        endTime
+        endTime,
+        description:
+          existing.description && existing.description.includes(config.metadataTag)
+            ? existing.description
+            : buildAutoDescription(config)
       });
 
       if (updateResult.success) {
@@ -215,10 +274,9 @@ export async function createOrUpdateNightlyCheckoutTimebox(
         date,
         startTime,
         endTime,
-        type: AUTO_TIMEBOX_CONFIG.nightlyCheckout.type,
+        category: 'PERSONAL',
         title: AUTO_TIMEBOX_CONFIG.nightlyCheckout.title,
-        description: 'Auto-created 16 hours after wake-up. Reflect on your day!',
-        isFlexible: false
+        description: buildAutoDescription(config)
       };
 
       const createResult = await TimeBlocksAPI.createTimeBlock(createData);
@@ -289,8 +347,8 @@ export async function deleteAutoTimeboxes(
     }
 
     const autoTimeboxes = result.data.filter(block =>
-      block.type === AUTO_TIMEBOX_CONFIG.morningRoutine.type ||
-      block.type === AUTO_TIMEBOX_CONFIG.nightlyCheckout.type
+      matchesAutoTimebox(block, AUTO_TIMEBOX_CONFIG.morningRoutine) ||
+      matchesAutoTimebox(block, AUTO_TIMEBOX_CONFIG.nightlyCheckout)
     );
 
     await Promise.all(
@@ -312,7 +370,7 @@ export async function deleteAutoTimeboxes(
  */
 export function isAutoTimebox(timeBlock: TimeBlock): boolean {
   return (
-    timeBlock.type === AUTO_TIMEBOX_CONFIG.morningRoutine.type ||
-    timeBlock.type === AUTO_TIMEBOX_CONFIG.nightlyCheckout.type
+    matchesAutoTimebox(timeBlock, AUTO_TIMEBOX_CONFIG.morningRoutine) ||
+    matchesAutoTimebox(timeBlock, AUTO_TIMEBOX_CONFIG.nightlyCheckout)
   );
 }
