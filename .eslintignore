@@ -1,8 +1,0 @@
-backups/
-archives/
-**/backup*/
-**/archive*/
-**/*-backup-*/
-**/*-archive-*/
-**/before-*/
-.serena/memories/
