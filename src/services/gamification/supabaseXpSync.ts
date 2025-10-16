@@ -7,7 +7,7 @@
  * - Conflict resolution: Supabase wins on load, localStorage wins on save
  */
 
-import { supabase } from '@/shared/lib/supabaseClient';
+import { supabaseAnon as supabase } from '@/shared/lib/supabase-clerk';
 import type { UserProgress, DailyStats, Achievement, WeeklyChallenge } from '../gamificationService';
 
 /**
