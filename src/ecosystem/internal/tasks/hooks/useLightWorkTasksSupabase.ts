@@ -7,7 +7,7 @@
  * 3. Auto-sync queue when offline
  */
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useClerkUser } from '@/shared/hooks/useClerkUser';
 import { useSupabaseClient, useSupabaseUserId } from '@/shared/lib/supabase-clerk';
 import { offlineDb } from '@/shared/offline/offlineDb';
@@ -61,11 +61,70 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
   const [tasks, setTasks] = useState<LightWorkTask[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [lastSync, setLastSync] = useState<string | null>(null);
+  const [syncQueueLength, setSyncQueueLength] = useState(0);
+  const syncRequests = useRef(0);
+
+  const refreshSyncMetadata = useCallback(async () => {
+    try {
+      const stats = await offlineDb.getStats();
+      setSyncQueueLength(stats.pendingActions);
+      setLastSync(stats.lastSync ?? null);
+    } catch (metadataError) {
+      console.warn('⚠️ Failed to load Light Work sync metadata:', metadataError);
+    }
+  }, []);
+
+  const beginSync = useCallback(() => {
+    syncRequests.current += 1;
+    setIsSyncing(true);
+  }, []);
+
+  const endSync = useCallback(() => {
+    syncRequests.current = Math.max(0, syncRequests.current - 1);
+    if (syncRequests.current === 0) {
+      setIsSyncing(false);
+    }
+  }, []);
+
+  const recordLastSync = useCallback(async () => {
+    const now = new Date().toISOString();
+    try {
+      await offlineDb.setSetting('lastSync', now);
+    } catch (persistError) {
+      console.warn('⚠️ Failed to persist Light Work last sync timestamp:', persistError);
+    }
+    setLastSync(now);
+  }, []);
+
+  const runMutation = useCallback(
+    async <T,>(
+      mutator: () => Promise<T>,
+      options: { updateLastSync?: boolean } = {}
+    ): Promise<T> => {
+      const { updateLastSync = true } = options;
+      beginSync();
+      try {
+        const result = await mutator();
+        if (updateLastSync) {
+          await recordLastSync();
+        }
+        return result;
+      } finally {
+        await refreshSyncMetadata();
+        endSync();
+      }
+    },
+    [beginSync, endSync, recordLastSync, refreshSyncMetadata]
+  );
 
   const dateString = selectedDate?.toISOString()?.split('T')[0] || new Date().toISOString().split('T')[0];
 
   // Load light work tasks - INSTANT CACHE + BACKGROUND SYNC
   const loadTasks = useCallback(async () => {
+    await refreshSyncMetadata();
+
     if (!isSignedIn || !internalUserId) {
       setLoading(false);
       return;
@@ -107,79 +166,84 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
 
       // 2. If online, sync with Supabase in BACKGROUND (doesn't block UI)
       if (navigator.onLine && supabase) {
-        const { data: tasksData, error: tasksError } = await supabase
-          .from('light_work_tasks')
-          .select(`
-            *,
-            subtasks:light_work_subtasks(*)
-          `)
-          .eq('user_id', internalUserId)
-          .eq('completed', false)
-          .order('created_at', { ascending: false });
+        try {
+          await runMutation(async () => {
+            const { data: tasksData, error: tasksError } = await supabase
+              .from('light_work_tasks')
+              .select(`
+                *,
+                subtasks:light_work_subtasks(*)
+              `)
+              .eq('user_id', internalUserId)
+              .eq('completed', false)
+              .order('created_at', { ascending: false });
 
-        if (tasksError) {
-          console.warn('⚠️ Supabase sync failed (using offline data):', tasksError.message);
-          return;
+            if (tasksError) {
+              throw new Error(tasksError.message);
+            }
+
+            // Transform Supabase data and cache locally
+            const transformedTasks: LightWorkTask[] = tasksData?.map(task => ({
+              id: task.id,
+              userId: task.user_id,
+              title: task.title,
+              description: task.description,
+              priority: task.priority,
+              completed: task.completed,
+              originalDate: task.original_date,
+              currentDate: task.task_date || task.original_date,
+              estimatedDuration: task.estimated_duration,
+              rollovers: task.rollovers || 0,
+              tags: task.tags || [],
+              category: task.category,
+              createdAt: task.created_at,
+              updatedAt: task.updated_at,
+              completedAt: task.completed_at,
+              startedAt: task.started_at,
+              actualDurationMin: task.actual_duration_min,
+              timeEstimate: task.time_estimate,
+              dueDate: task.due_date,
+              subtasks: task.subtasks?.map((subtask: any) => ({
+                id: subtask.id,
+                taskId: subtask.task_id,
+                title: subtask.title,
+                text: subtask.text || subtask.title,
+                completed: subtask.completed,
+                priority: subtask.priority,
+                dueDate: subtask.due_date,
+                estimatedTime: subtask.estimated_time,
+                createdAt: subtask.created_at,
+                updatedAt: subtask.updated_at,
+                completedAt: subtask.completed_at
+              })) || []
+            })) || [];
+
+            // Cache to offlineDb for offline access
+            for (const task of tasksData || []) {
+              await offlineDb.saveLightWorkTask({
+                id: task.id,
+                user_id: task.user_id,
+                title: task.title,
+                description: task.description,
+                priority: task.priority,
+                completed: task.completed,
+                original_date: task.original_date,
+                task_date: task.task_date || task.original_date,
+                estimated_duration: task.estimated_duration,
+                created_at: task.created_at,
+                updated_at: task.updated_at,
+                completed_at: task.completed_at,
+                _needs_sync: false,
+                _sync_status: 'synced'
+              }, false);
+            }
+
+            console.log(`✅ Loaded ${transformedTasks.length} Light Work tasks from Supabase + cached locally`);
+            setTasks(transformedTasks);
+          });
+        } catch (syncError) {
+          console.warn('⚠️ Supabase sync failed (using offline data):', syncError instanceof Error ? syncError.message : syncError);
         }
-
-        // Transform Supabase data and cache locally
-        const transformedTasks: LightWorkTask[] = tasksData?.map(task => ({
-          id: task.id,
-          userId: task.user_id,
-          title: task.title,
-          description: task.description,
-          priority: task.priority,
-          completed: task.completed,
-          originalDate: task.original_date,
-          currentDate: task.task_date || task.original_date,
-          estimatedDuration: task.estimated_duration,
-          rollovers: task.rollovers || 0,
-          tags: task.tags || [],
-          category: task.category,
-          createdAt: task.created_at,
-          updatedAt: task.updated_at,
-          completedAt: task.completed_at,
-          startedAt: task.started_at,
-          actualDurationMin: task.actual_duration_min,
-          timeEstimate: task.time_estimate,
-          dueDate: task.due_date,
-          subtasks: task.subtasks?.map((subtask: any) => ({
-            id: subtask.id,
-            taskId: subtask.task_id,
-            title: subtask.title,
-            text: subtask.text || subtask.title,
-            completed: subtask.completed,
-            priority: subtask.priority,
-            dueDate: subtask.due_date,
-            estimatedTime: subtask.estimated_time,
-            createdAt: subtask.created_at,
-            updatedAt: subtask.updated_at,
-            completedAt: subtask.completed_at
-          })) || []
-        })) || [];
-
-        // Cache to offlineDb for offline access
-        for (const task of tasksData || []) {
-          await offlineDb.saveLightWorkTask({
-            id: task.id,
-            user_id: task.user_id,
-            title: task.title,
-            description: task.description,
-            priority: task.priority,
-            completed: task.completed,
-            original_date: task.original_date,
-            task_date: task.task_date || task.original_date,
-            estimated_duration: task.estimated_duration,
-            created_at: task.created_at,
-            updated_at: task.updated_at,
-            completed_at: task.completed_at,
-            _needs_sync: false,
-            _sync_status: 'synced'
-          }, false);
-        }
-
-        console.log(`✅ Loaded ${transformedTasks.length} Light Work tasks from Supabase + cached locally`);
-        setTasks(transformedTasks);
       }
 
     } catch (error) {
@@ -188,7 +252,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
       setLoading(false);
     }
     // No finally block - loading is set false immediately after IndexedDB load
-  }, [isSignedIn, internalUserId, dateString, supabase]);
+  }, [isSignedIn, internalUserId, dateString, supabase, refreshSyncMetadata, runMutation]);
 
   // Create new light work task - OFFLINE-FIRST
   const createTask = useCallback(async (taskData: Partial<LightWorkTask>) => {
@@ -219,6 +283,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
 
       await offlineDb.saveLightWorkTask(localTask, true);
       console.log('✅ Task saved to IndexedDB');
+      await refreshSyncMetadata();
 
       const newTask: LightWorkTask = {
         id: localTask.id,
@@ -239,30 +304,33 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
 
       // 2. If online, sync to Supabase in background
       if (navigator.onLine && supabase) {
-        supabase
-          .from('light_work_tasks')
-          .insert({
-            id: taskId,
-            user_id: internalUserId,
-            title: taskData.title,
-            description: taskData.description,
-            priority: taskData.priority || 'MEDIUM',
-            original_date: dateString,
-            task_date: dateString,
-            completed: false,
-            rollovers: 0,
-            tags: taskData.tags || [],
-            category: taskData.category,
-            estimated_duration: taskData.estimatedDuration
-          })
-          .then(({ error }) => {
-            if (error) {
-              console.warn('⚠️ Supabase sync failed (queued for retry):', error.message);
-            } else {
-              console.log('✅ Task synced to Supabase');
-              offlineDb.markTaskSynced(taskId, 'lightWorkTasks');
-            }
-          });
+        runMutation(async () => {
+          const { error } = await supabase
+            .from('light_work_tasks')
+            .insert({
+              id: taskId,
+              user_id: internalUserId,
+              title: taskData.title,
+              description: taskData.description,
+              priority: taskData.priority || 'MEDIUM',
+              original_date: dateString,
+              task_date: dateString,
+              completed: false,
+              rollovers: 0,
+              tags: taskData.tags || [],
+              category: taskData.category,
+              estimated_duration: taskData.estimatedDuration
+            });
+
+          if (error) {
+            throw new Error(error.message);
+          }
+
+          console.log('✅ Task synced to Supabase');
+          await offlineDb.markTaskSynced(taskId, 'lightWorkTasks');
+        }).catch(syncError => {
+          console.warn('⚠️ Supabase sync failed (queued for retry):', syncError instanceof Error ? syncError.message : syncError);
+        });
       }
 
       console.log(`✅ Created Light Work task (${navigator.onLine ? 'online' : 'offline'}): ${newTask.title}`);
@@ -274,7 +342,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
       setError(error instanceof Error ? error.message : 'Failed to create task');
       return null;
     }
-  }, [internalUserId, dateString, supabase]);
+  }, [internalUserId, dateString, supabase, refreshSyncMetadata, runMutation]);
 
   // Toggle task completion in Supabase
   const toggleTaskCompletion = useCallback(async (taskId: string) => {
@@ -290,20 +358,24 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
       const newCompleted = !currentTask.completed;
       const now = new Date().toISOString();
 
-      const { data, error } = await supabase
-        .from('light_work_tasks')
-        .update({
-          completed: newCompleted,
-          completed_at: newCompleted ? now : null,
-          updated_at: now
-        })
-        .eq('id', taskId)
-        .select()
-        .single();
+      const data = await runMutation(async () => {
+        const { data, error } = await supabase
+          .from('light_work_tasks')
+          .update({
+            completed: newCompleted,
+            completed_at: newCompleted ? now : null,
+            updated_at: now
+          })
+          .eq('id', taskId)
+          .select()
+          .single();
 
-      if (error) {
-        throw new Error(`Supabase error: ${error.message}`);
-      }
+        if (error) {
+          throw new Error(`Supabase error: ${error.message}`);
+        }
+
+        return data;
+      });
 
       const updatedTask: LightWorkTask = {
         ...currentTask,
@@ -323,7 +395,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
       setError(error instanceof Error ? error.message : 'Failed to toggle task in Supabase');
       return null;
     }
-  }, [tasks, supabase]);
+  }, [tasks, supabase, runMutation]);
 
   // Add subtask to task in Supabase
   const addSubtask = useCallback(async (taskId: string, subtaskTitle: string, priority = 'Med') => {
@@ -332,21 +404,25 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
     try {
       console.log(`➕ Adding subtask to task in Supabase: ${taskId}`);
 
-      const { data, error } = await supabase
-        .from('light_work_subtasks')
-        .insert({
-          task_id: taskId,
-          title: subtaskTitle,
-          text: subtaskTitle,
-          completed: false,
-          priority
-        })
-        .select()
-        .single();
+      const data = await runMutation(async () => {
+        const { data, error } = await supabase
+          .from('light_work_subtasks')
+          .insert({
+            task_id: taskId,
+            title: subtaskTitle,
+            text: subtaskTitle,
+            completed: false,
+            priority
+          })
+          .select()
+          .single();
 
-      if (error) {
-        throw new Error(`Supabase error: ${error.message}`);
-      }
+        if (error) {
+          throw new Error(`Supabase error: ${error.message}`);
+        }
+
+        return data;
+      });
 
       const newSubtask: LightWorkSubtask = {
         id: data.id,
@@ -377,7 +453,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
       setError(error instanceof Error ? error.message : 'Failed to add subtask in Supabase');
       return null;
     }
-  }, [supabase]);
+  }, [supabase, runMutation]);
 
   // Delete task from Supabase
   const deleteTask = useCallback(async (taskId: string) => {
@@ -386,14 +462,16 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
     try {
       console.log(`🗑️ Deleting task from Supabase: ${taskId}`);
 
-      const { error } = await supabase
-        .from('light_work_tasks')
-        .delete()
-        .eq('id', taskId);
+      await runMutation(async () => {
+        const { error } = await supabase
+          .from('light_work_tasks')
+          .delete()
+          .eq('id', taskId);
 
-      if (error) {
-        throw new Error(`Supabase error: ${error.message}`);
-      }
+        if (error) {
+          throw new Error(`Supabase error: ${error.message}`);
+        }
+      });
 
       console.log(`✅ Deleted task from Supabase: ${taskId}`);
       setTasks(prev => prev.filter(task => task.id !== taskId));
@@ -404,7 +482,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
       setError(error instanceof Error ? error.message : 'Failed to delete task from Supabase');
       return null;
     }
-  }, [supabase]);
+  }, [supabase, runMutation]);
 
   // Update task due date in Supabase
   // Toggle subtask completion
@@ -422,18 +500,20 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
       const newCompleted = !currentSubtask.completed;
       const now = new Date().toISOString();
       
-      const { error } = await supabase
-        .from('light_work_subtasks')
-        .update({
-          completed: newCompleted,
-          completed_at: newCompleted ? now : null,
-          updated_at: now
-        })
-        .eq('id', subtaskId);
-      
-      if (error) {
-        throw new Error(`Supabase error: ${error.message}`);
-      }
+      await runMutation(async () => {
+        const { error } = await supabase
+          .from('light_work_subtasks')
+          .update({
+            completed: newCompleted,
+            completed_at: newCompleted ? now : null,
+            updated_at: now
+          })
+          .eq('id', subtaskId);
+
+        if (error) {
+          throw new Error(`Supabase error: ${error.message}`);
+        }
+      });
       
       console.log(`✅ Toggled Light Work subtask completion: ${subtaskId} -> ${newCompleted}`);
       
@@ -458,7 +538,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
       setError(error instanceof Error ? error.message : 'Failed to toggle subtask');
       return null;
     }
-  }, [tasks, supabase]);
+  }, [tasks, supabase, runMutation]);
 
   // Update task title
   const updateTaskTitle = useCallback(async (taskId: string, newTitle: string) => {
@@ -467,17 +547,19 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
     try {
       console.log(`✏️ Updating Light Work task title: ${taskId}`);
       
-      const { error } = await supabase
-        .from('light_work_tasks')
-        .update({
-          title: newTitle,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', taskId);
-      
-      if (error) {
-        throw new Error(`Supabase error: ${error.message}`);
-      }
+      await runMutation(async () => {
+        const { error } = await supabase
+          .from('light_work_tasks')
+          .update({
+            title: newTitle,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', taskId);
+
+        if (error) {
+          throw new Error(`Supabase error: ${error.message}`);
+        }
+      });
       
       console.log(`✅ Updated Light Work task title: ${taskId}`);
       
@@ -495,7 +577,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
       setError(error instanceof Error ? error.message : 'Failed to update task title');
       return null;
     }
-  }, [supabase]);
+  }, [supabase, runMutation]);
 
   // Push task to another day (reschedule)
   const pushTaskToAnotherDay = useCallback(async (taskId: string, newDate: string) => {
@@ -504,17 +586,19 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
     try {
       console.log(`📅 Rescheduling Light Work task: ${taskId} to ${newDate}`);
       
-      const { error } = await supabase
-        .from('light_work_tasks')
-        .update({
-          task_date: newDate,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', taskId);
-      
-      if (error) {
-        throw new Error(`Supabase error: ${error.message}`);
-      }
+      await runMutation(async () => {
+        const { error } = await supabase
+          .from('light_work_tasks')
+          .update({
+            task_date: newDate,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', taskId);
+
+        if (error) {
+          throw new Error(`Supabase error: ${error.message}`);
+        }
+      });
       
       console.log(`✅ Rescheduled Light Work task: ${taskId} to ${newDate}`);
       
@@ -532,7 +616,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
       setError(error instanceof Error ? error.message : 'Failed to reschedule task');
       return null;
     }
-  }, [supabase]);
+  }, [supabase, runMutation]);
 
   const updateTaskDueDate = useCallback(async (taskId: string, dueDate: Date | null) => {
     if (!supabase) return null;
@@ -540,19 +624,23 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
     try {
       console.log(`📅 Updating task due date in Supabase: ${taskId} -> ${dueDate}`);
 
-      const { data, error } = await supabase
-        .from('light_work_tasks')
-        .update({
-          due_date: dueDate ? dueDate.toISOString().split('T')[0] : null,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', taskId)
-        .select()
-        .single();
+      const data = await runMutation(async () => {
+        const { data, error } = await supabase
+          .from('light_work_tasks')
+          .update({
+            due_date: dueDate ? dueDate.toISOString().split('T')[0] : null,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', taskId)
+          .select()
+          .single();
 
-      if (error) {
-        throw new Error(`Supabase error: ${error.message}`);
-      }
+        if (error) {
+          throw new Error(`Supabase error: ${error.message}`);
+        }
+
+        return data;
+      });
 
       console.log(`✅ Updated task due date in Supabase: ${taskId}`);
       
@@ -568,7 +656,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
       setError(error instanceof Error ? error.message : 'Failed to update due date in Supabase');
       return null;
     }
-  }, [supabase]);
+  }, [supabase, runMutation]);
 
   // Delete subtask from Supabase
   const deleteSubtask = useCallback(async (subtaskId: string) => {
@@ -577,14 +665,16 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
     try {
       console.log(`🗑️ Deleting subtask from Supabase: ${subtaskId}`);
 
-      const { error } = await supabase
-        .from('light_work_subtasks')
-        .delete()
-        .eq('id', subtaskId);
+      await runMutation(async () => {
+        const { error } = await supabase
+          .from('light_work_subtasks')
+          .delete()
+          .eq('id', subtaskId);
 
-      if (error) {
-        throw new Error(`Supabase error: ${error.message}`);
-      }
+        if (error) {
+          throw new Error(`Supabase error: ${error.message}`);
+        }
+      });
 
       console.log(`✅ Deleted subtask from Supabase: ${subtaskId}`);
       
@@ -601,7 +691,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
       setError(error instanceof Error ? error.message : 'Failed to delete subtask from Supabase');
       return null;
     }
-  }, [supabase]);
+  }, [supabase, runMutation]);
 
   // Update subtask due date in Supabase
   const updateSubtaskDueDate = useCallback(async (subtaskId: string, dueDate: Date | null) => {
@@ -610,17 +700,19 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
     try {
       console.log(`📅 Updating subtask due date in Supabase: ${subtaskId} -> ${dueDate}`);
 
-      const { error } = await supabase
-        .from('light_work_subtasks')
-        .update({
-          due_date: dueDate ? dueDate.toISOString().split('T')[0] : null,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', subtaskId);
+      await runMutation(async () => {
+        const { error } = await supabase
+          .from('light_work_subtasks')
+          .update({
+            due_date: dueDate ? dueDate.toISOString().split('T')[0] : null,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', subtaskId);
 
-      if (error) {
-        throw new Error(`Supabase error: ${error.message}`);
-      }
+        if (error) {
+          throw new Error(`Supabase error: ${error.message}`);
+        }
+      });
 
       console.log(`✅ Updated subtask due date in Supabase: ${subtaskId}`);
       
@@ -639,7 +731,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
       setError(error instanceof Error ? error.message : 'Failed to update subtask due date in Supabase');
       return null;
     }
-  }, [supabase]);
+  }, [supabase, runMutation]);
 
   // Update subtask title in Supabase
   const updateSubtaskTitle = useCallback(async (subtaskId: string, newTitle: string) => {
@@ -648,18 +740,20 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
     try {
       console.log(`✏️ Updating Light Work subtask title: ${subtaskId} -> ${newTitle}`);
       
-      const { error } = await supabase
-        .from('light_work_subtasks')
-        .update({
-          title: newTitle,
-          text: newTitle, // Update both title and text fields
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', subtaskId);
-      
-      if (error) {
-        throw new Error(`Supabase error: ${error.message}`);
-      }
+      await runMutation(async () => {
+        const { error } = await supabase
+          .from('light_work_subtasks')
+          .update({
+            title: newTitle,
+            text: newTitle, // Update both title and text fields
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', subtaskId);
+
+        if (error) {
+          throw new Error(`Supabase error: ${error.message}`);
+        }
+      });
       
       console.log(`✅ Updated Light Work subtask title: ${subtaskId}`);
       
@@ -678,7 +772,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
       setError(error instanceof Error ? error.message : 'Failed to update subtask title');
       return null;
     }
-  }, [supabase]);
+  }, [supabase, runMutation]);
 
   // Update subtask priority in Supabase
   const updateSubtaskPriority = useCallback(async (subtaskId: string, priority: string) => {
@@ -687,17 +781,19 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
     try {
       console.log(`🎯 Updating Light Work subtask priority: ${subtaskId} -> ${priority}`);
 
-      const { error } = await supabase
-        .from('light_work_subtasks')
-        .update({
-          priority: priority,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', subtaskId);
-      
-      if (error) {
-        throw new Error(`Supabase error: ${error.message}`);
-      }
+      await runMutation(async () => {
+        const { error } = await supabase
+          .from('light_work_subtasks')
+          .update({
+            priority: priority,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', subtaskId);
+
+        if (error) {
+          throw new Error(`Supabase error: ${error.message}`);
+        }
+      });
 
       console.log(`✅ Updated Light Work subtask priority: ${subtaskId}`);
       
@@ -718,7 +814,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
       setError(error instanceof Error ? error.message : 'Failed to update subtask priority');
       return null;
     }
-  }, [supabase]);
+  }, [supabase, runMutation]);
 
   // Update subtask description (text field) in Supabase
   const updateSubtaskDescription = useCallback(async (subtaskId: string, description: string) => {
@@ -727,17 +823,19 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
     try {
       console.log(`📝 Updating Light Work subtask description: ${subtaskId}`);
 
-      const { error } = await supabase
-        .from('light_work_subtasks')
-        .update({
-          text: description,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', subtaskId);
-      
-      if (error) {
-        throw new Error(`Supabase error: ${error.message}`);
-      }
+      await runMutation(async () => {
+        const { error } = await supabase
+          .from('light_work_subtasks')
+          .update({
+            text: description,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', subtaskId);
+
+        if (error) {
+          throw new Error(`Supabase error: ${error.message}`);
+        }
+      });
 
       console.log(`✅ Updated Light Work subtask description: ${subtaskId}`);
       
@@ -758,7 +856,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
       setError(error instanceof Error ? error.message : 'Failed to update subtask description');
       return null;
     }
-  }, [supabase]);
+  }, [supabase, runMutation]);
 
   // Update subtask estimated time in Supabase
   const updateSubtaskEstimatedTime = useCallback(async (subtaskId: string, estimatedTime: string) => {
@@ -767,17 +865,19 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
     try {
       console.log(`⏱️ Updating Light Work subtask estimated time: ${subtaskId} -> ${estimatedTime}`);
 
-      const { error } = await supabase
-        .from('light_work_subtasks')
-        .update({
-          estimated_time: estimatedTime,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', subtaskId);
+      await runMutation(async () => {
+        const { error } = await supabase
+          .from('light_work_subtasks')
+          .update({
+            estimated_time: estimatedTime,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', subtaskId);
 
-      if (error) {
-        throw new Error(`Supabase error: ${error.message}`);
-      }
+        if (error) {
+          throw new Error(`Supabase error: ${error.message}`);
+        }
+      });
 
       console.log(`✅ Updated Light Work subtask estimated time: ${subtaskId}`);
 
@@ -798,7 +898,27 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
       setError(error instanceof Error ? error.message : 'Failed to update subtask estimated time');
       return null;
     }
-  }, [supabase]);
+  }, [supabase, runMutation]);
+
+  useEffect(() => {
+    refreshSyncMetadata();
+
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const handleNetworkChange = () => {
+      refreshSyncMetadata();
+    };
+
+    window.addEventListener('online', handleNetworkChange);
+    window.addEventListener('offline', handleNetworkChange);
+
+    return () => {
+      window.removeEventListener('online', handleNetworkChange);
+      window.removeEventListener('offline', handleNetworkChange);
+    };
+  }, [refreshSyncMetadata]);
 
   // Load tasks when dependencies change
   useEffect(() => {
@@ -809,6 +929,9 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
     tasks,
     loading,
     error,
+    isSyncing,
+    lastSync,
+    syncQueueLength,
     createTask,
     toggleTaskCompletion,
     toggleSubtaskCompletion,

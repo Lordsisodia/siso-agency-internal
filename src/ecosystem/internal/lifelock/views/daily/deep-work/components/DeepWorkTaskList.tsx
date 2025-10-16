@@ -26,7 +26,8 @@ import {
   ChevronDown,
   ChevronRight,
   ListOrdered,
-  Flame
+  Flame,
+  RefreshCw
 } from "lucide-react";
 import { TaskSeparator } from "@/components/tasks/TaskSeparator";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
@@ -135,11 +136,70 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
     updateTaskTitle,
     updateTaskDueDate,
     updateTaskPriority,
-    updateTaskTimeEstimate
+    updateTaskTimeEstimate,
+    isSyncing,
+    lastSync,
+    syncQueueLength
   } = useDeepWorkTasksSupabase({ selectedDate });
 
   // Transform data
   const tasks = useMemo(() => transformSupabaseToUITasks(rawTasks), [rawTasks]);
+
+  const formattedLastSync = useMemo(() => {
+    if (!lastSync) return "Never";
+    const parsed = new Date(lastSync);
+    if (Number.isNaN(parsed.getTime())) {
+      return "Never";
+    }
+    return parsed.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  }, [lastSync]);
+
+  const syncStatusChipClasses = useMemo(() => {
+    if (isSyncing) {
+      return "bg-blue-500/20 border-blue-300 text-blue-50";
+    }
+    if (syncQueueLength > 0) {
+      return "bg-amber-500/10 border-amber-300 text-amber-100";
+    }
+    return "bg-blue-500/10 border-blue-300 text-blue-100";
+  }, [isSyncing, syncQueueLength]);
+
+  const syncStatusLabel = useMemo(() => {
+    if (isSyncing) {
+      return "Syncing";
+    }
+    if (syncQueueLength > 0) {
+      return "Pending sync";
+    }
+    return "Synced";
+  }, [isSyncing, syncQueueLength]);
+
+  const queueChipClasses = useMemo(() => (
+    syncQueueLength > 0
+      ? "bg-amber-500/10 border-amber-300 text-amber-100"
+      : "bg-blue-500/5 border-blue-300/40 text-blue-200"
+  ), [syncQueueLength]);
+
+  const queueLabel = useMemo(() => {
+    if (syncQueueLength === 0) {
+      return "Queue empty";
+    }
+    if (syncQueueLength === 1) {
+      return "1 queued";
+    }
+    return `${syncQueueLength} queued`;
+  }, [syncQueueLength]);
+
+  const lastSyncTooltip = useMemo(() => {
+    if (!lastSync) {
+      return "No successful sync recorded yet";
+    }
+    const parsed = new Date(lastSync);
+    if (Number.isNaN(parsed.getTime())) {
+      return "No successful sync recorded yet";
+    }
+    return parsed.toLocaleString();
+  }, [lastSync]);
 
   // State - EXACT COPY
   const [expandedTasks, setExpandedTasks] = useState<string[]>(["1", "2", "3"]);
@@ -769,10 +829,39 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
     <div className="text-blue-50 h-full">
       <Card className="bg-blue-900/20 border-blue-700/50">
         <CardHeader className="p-3 sm:p-4">
-          <CardTitle className="flex items-center text-blue-400 text-base sm:text-lg">
-            <Brain className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-            {theme.title}
-          </CardTitle>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <CardTitle className="flex items-center text-blue-400 text-base sm:text-lg">
+              <Brain className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+              {theme.title}
+            </CardTitle>
+            <div className="flex flex-wrap items-center gap-2 text-[0.7rem] sm:text-xs" aria-live="polite">
+              <span
+                className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 ${syncStatusChipClasses}`}
+                title={syncStatusLabel}
+              >
+                {isSyncing ? (
+                  <RefreshCw className="h-3 w-3 animate-spin" />
+                ) : (
+                  <CheckCircle2 className="h-3 w-3" />
+                )}
+                {syncStatusLabel}
+              </span>
+              <span
+                className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 ${queueChipClasses}`}
+                title={queueLabel}
+              >
+                <CircleDotDashed className="h-3 w-3" />
+                {queueLabel}
+              </span>
+              <span
+                className="inline-flex items-center gap-1 text-blue-300/80"
+                title={lastSyncTooltip}
+              >
+                <Clock className="h-3 w-3" />
+                {formattedLastSync === "Never" ? "Last sync —" : `Last sync ${formattedLastSync}`}
+              </span>
+            </div>
+          </div>
           <div className="border-t border-blue-600/50 my-4"></div>
           <div className="space-y-4">
             <div>

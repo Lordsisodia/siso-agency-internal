@@ -23,7 +23,8 @@ import {
   Clock,
   Plus,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  RefreshCw
 } from "lucide-react";
 import { TaskSeparator } from "@/components/tasks/TaskSeparator";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
@@ -126,11 +127,70 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
     updateSubtaskPriority,
     updateSubtaskEstimatedTime,
     updateSubtaskDescription,
-    updateTaskTitle
+    updateTaskTitle,
+    isSyncing,
+    lastSync,
+    syncQueueLength
   } = useLightWorkTasksSupabase({ selectedDate });
 
   // Transform data
   const tasks = useMemo(() => transformSupabaseToUITasks(rawTasks), [rawTasks]);
+
+  const formattedLastSync = useMemo(() => {
+    if (!lastSync) return "Never";
+    const parsed = new Date(lastSync);
+    if (Number.isNaN(parsed.getTime())) {
+      return "Never";
+    }
+    return parsed.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  }, [lastSync]);
+
+  const syncStatusChipClasses = useMemo(() => {
+    if (isSyncing) {
+      return "bg-green-500/20 border-green-300 text-green-50";
+    }
+    if (syncQueueLength > 0) {
+      return "bg-yellow-500/10 border-yellow-400 text-yellow-100";
+    }
+    return "bg-green-500/10 border-green-400 text-green-100";
+  }, [isSyncing, syncQueueLength]);
+
+  const syncStatusLabel = useMemo(() => {
+    if (isSyncing) {
+      return "Syncing";
+    }
+    if (syncQueueLength > 0) {
+      return "Pending sync";
+    }
+    return "Synced";
+  }, [isSyncing, syncQueueLength]);
+
+  const queueChipClasses = useMemo(() => (
+    syncQueueLength > 0
+      ? "bg-yellow-500/10 border-yellow-400 text-yellow-100"
+      : "bg-green-500/5 border-green-400/40 text-green-200"
+  ), [syncQueueLength]);
+
+  const queueLabel = useMemo(() => {
+    if (syncQueueLength === 0) {
+      return "Queue empty";
+    }
+    if (syncQueueLength === 1) {
+      return "1 queued";
+    }
+    return `${syncQueueLength} queued`;
+  }, [syncQueueLength]);
+
+  const lastSyncTooltip = useMemo(() => {
+    if (!lastSync) {
+      return "No successful sync recorded yet";
+    }
+    const parsed = new Date(lastSync);
+    if (Number.isNaN(parsed.getTime())) {
+      return "No successful sync recorded yet";
+    }
+    return parsed.toLocaleString();
+  }, [lastSync]);
 
   // State - EXACT COPY
   const [expandedTasks, setExpandedTasks] = useState<string[]>(["1", "2", "3"]);
@@ -499,10 +559,39 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
     <div className="text-green-50 h-full">
       <Card className="bg-green-900/20 border-green-700/50">
         <CardHeader className="p-3 sm:p-4">
-          <CardTitle className="flex items-center text-green-400 text-base sm:text-lg">
-            <Brain className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-            {theme.title}
-          </CardTitle>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <CardTitle className="flex items-center text-green-400 text-base sm:text-lg">
+              <Brain className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+              {theme.title}
+            </CardTitle>
+            <div className="flex flex-wrap items-center gap-2 text-[0.7rem] sm:text-xs" aria-live="polite">
+              <span
+                className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 ${syncStatusChipClasses}`}
+                title={syncStatusLabel}
+              >
+                {isSyncing ? (
+                  <RefreshCw className="h-3 w-3 animate-spin" />
+                ) : (
+                  <CheckCircle2 className="h-3 w-3" />
+                )}
+                {syncStatusLabel}
+              </span>
+              <span
+                className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 ${queueChipClasses}`}
+                title={queueLabel}
+              >
+                <CircleDotDashed className="h-3 w-3" />
+                {queueLabel}
+              </span>
+              <span
+                className="inline-flex items-center gap-1 text-green-300/80"
+                title={lastSyncTooltip}
+              >
+                <Clock className="h-3 w-3" />
+                {formattedLastSync === "Never" ? "Last sync —" : `Last sync ${formattedLastSync}`}
+              </span>
+            </div>
+          </div>
           <div className="border-t border-green-600/50 my-4"></div>
           <div className="space-y-4">
             <div>
