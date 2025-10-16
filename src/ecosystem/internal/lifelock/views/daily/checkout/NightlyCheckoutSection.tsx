@@ -26,14 +26,21 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
   onNextDate
 }) => {
   const { userId } = useAuth();
+  const yesterday = useMemo(() => subDays(selectedDate, 1), [selectedDate]);
   const dateKey = format(selectedDate, 'yyyy-MM-dd');
-  
-  // Use the new Supabase hook for data persistence
-  const { reflection, loading: isLoading, saving: isSaving, saveReflection } = useDailyReflections({ selectedDate });
 
-  // Fetch yesterday's reflection for accountability
-  const yesterday = subDays(selectedDate, 1);
-  const { reflection: yesterdayReflection } = useDailyReflections({ selectedDate: yesterday });
+  // Use the new Supabase hook for data persistence
+  const {
+    reflection,
+    loading: isLoading,
+    saving: isSaving,
+    saveReflection,
+    reflectionsByDate
+  } = useDailyReflections({ selectedDate, prefetchDates: [yesterday] });
+
+  // Fetch yesterday's reflection for accountability from prefetched data
+  const yesterdayKey = useMemo(() => format(yesterday, 'yyyy-MM-dd'), [yesterday]);
+  const yesterdayReflection = reflectionsByDate[yesterdayKey] ?? null;
 
   const [isEditingBedTime, setIsEditingBedTime] = useState(false);
   const [isRecordingVoice, setIsRecordingVoice] = useState(false);
