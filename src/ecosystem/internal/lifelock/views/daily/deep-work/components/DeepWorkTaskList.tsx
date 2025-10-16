@@ -38,6 +38,7 @@ import { CustomCalendar } from "../../_shared/components";
 import { SubtaskItem } from "@/components/tasks/SubtaskItem";
 import { useDeepWorkTasksSupabase, DeepWorkTask, DeepWorkSubtask } from "@/ecosystem/internal/tasks/hooks/useDeepWorkTasksSupabase";
 import { sortSubtasksHybrid } from "@/ecosystem/internal/tasks/utils/subtaskSorting";
+import { format } from 'date-fns';
 
 // Type definitions - exact same as original
 interface Subtask {
@@ -152,7 +153,14 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
   const [taskPriorityMenuId, setTaskPriorityMenuId] = useState<string | null>(null);
   const [editingTaskTimeId, setEditingTaskTimeId] = useState<string | null>(null);
   const [editTaskTimeValue, setEditTaskTimeValue] = useState('');
-  const [taskOrder, setTaskOrder] = useState<string[]>([]);
+
+  // Persist task order to localStorage (per-date)
+  const dateKey = useMemo(() => selectedDate ? format(selectedDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd'), [selectedDate]);
+  const [taskOrder, setTaskOrder] = useState<string[]>(() => {
+    const saved = localStorage.getItem(`deepwork-${dateKey}-taskOrder`);
+    return saved ? JSON.parse(saved) : [];
+  });
+
   const [editingSubtask, setEditingSubtask] = useState<string | null>(null);
   const [editSubtaskTitle, setEditSubtaskTitle] = useState('');
   const [editingMainTask, setEditingMainTask] = useState<string | null>(null);
@@ -161,6 +169,17 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   const [showCompletedSubtasks, setShowCompletedSubtasks] = useState<{[taskId: string]: boolean}>({});
 
+  // Load task order from localStorage when date changes
+  React.useEffect(() => {
+    const saved = localStorage.getItem(`deepwork-${dateKey}-taskOrder`);
+    if (saved) {
+      setTaskOrder(JSON.parse(saved));
+    } else {
+      setTaskOrder([]);
+    }
+  }, [dateKey]);
+
+  // Sync task order with current tasks (handle new/deleted tasks)
   React.useEffect(() => {
     setTaskOrder(prevOrder => {
       if (tasks.length === 0) {
@@ -182,6 +201,13 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
       return [...filtered, ...missing];
     });
   }, [tasks]);
+
+  // Save task order to localStorage whenever it changes
+  React.useEffect(() => {
+    if (taskOrder.length > 0) {
+      localStorage.setItem(`deepwork-${dateKey}-taskOrder`, JSON.stringify(taskOrder));
+    }
+  }, [taskOrder, dateKey]);
 
   const orderedTasks = useMemo(() => {
     if (taskOrder.length === 0) {
