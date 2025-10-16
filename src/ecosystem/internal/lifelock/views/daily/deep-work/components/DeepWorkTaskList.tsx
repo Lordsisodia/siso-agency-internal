@@ -37,6 +37,7 @@ import { Skeleton } from "@/shared/ui/skeleton";
 import { TaskDetailModal } from "@/ecosystem/internal/lifelock/components/TaskDetailModal";
 import { CustomCalendar } from "../../_shared/components";
 import { SubtaskItem } from "@/components/tasks/SubtaskItem";
+import { dailySectionThemes } from "@/ecosystem/internal/lifelock/theme";
 import { useDeepWorkTasksSupabase, DeepWorkTask, DeepWorkSubtask } from "@/ecosystem/internal/tasks/hooks/useDeepWorkTasksSupabase";
 import { sortSubtasksHybrid } from "@/ecosystem/internal/tasks/utils/subtaskSorting";
 import { format } from 'date-fns';
@@ -223,15 +224,8 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
     });
   }, [tasks, taskOrder]);
 
-  // Theme config for SubtaskItem - BLUE
-  const themeConfig = {
-    colors: {
-      text: 'text-blue-400',
-      border: 'border-blue-400',
-      input: 'border-gray-600 focus:border-blue-400',
-      textSecondary: 'text-blue-300'
-    }
-  };
+  const sectionTheme = dailySectionThemes.deepWork;
+  const themeConfig = sectionTheme.subtask;
 
   // Reduced motion support
   const prefersReducedMotion =
@@ -554,13 +548,14 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
   };
 
   const getDueDateClasses = (dateString?: string | null) => {
+    const baseClass = sectionTheme.metadata.dueDateBase;
     if (!dateString) {
-      return 'text-blue-200/80 bg-blue-900/20 hover:bg-blue-900/30';
+      return baseClass;
     }
 
     const date = new Date(dateString);
     if (Number.isNaN(date.getTime())) {
-      return 'text-blue-200/80 bg-blue-900/20 hover:bg-blue-900/30';
+      return baseClass;
     }
 
     const today = new Date();
@@ -705,35 +700,35 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
   // Loading state - BLUE THEME
   if (loading) {
     return (
-      <div className="text-blue-50 h-full">
-        <Card className="bg-blue-900/20 border-blue-700/50">
+      <div className={`${sectionTheme.card.text} h-full`}>
+        <Card className={`${sectionTheme.card.background} ${sectionTheme.card.border}`}>
           <CardHeader className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <Skeleton className="h-5 w-5 rounded-full bg-blue-500/30" />
-                <Skeleton className="h-5 w-40 bg-blue-400/20" />
+                <Skeleton className={`h-5 w-5 rounded-full ${sectionTheme.skeleton.accent}`} />
+                <Skeleton className={`h-5 w-40 ${sectionTheme.skeleton.muted}`} />
               </div>
-              <Skeleton className="h-4 w-16 bg-blue-400/20" />
+              <Skeleton className={`h-4 w-16 ${sectionTheme.skeleton.muted}`} />
             </div>
-            <Skeleton className="h-2 w-full bg-blue-400/20 rounded-full" />
+            <Skeleton className={`h-2 w-full ${sectionTheme.skeleton.muted} rounded-full`} />
           </CardHeader>
           <CardContent className="p-4 space-y-4">
             {Array.from({ length: 4 }).map((_, index) => (
               <div
                 key={`deep-work-skeleton-${index}`}
-                className="rounded-xl border border-blue-700/50 bg-blue-900/30 p-4 space-y-3"
+                className={`rounded-xl border ${sectionTheme.card.border} ${sectionTheme.card.surfaceMuted} p-4 space-y-3`}
               >
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
-                    <Skeleton className="h-9 w-9 rounded-full bg-blue-500/20" />
+                    <Skeleton className={`h-9 w-9 rounded-full ${sectionTheme.skeleton.accentSoft}`} />
                     <div className="space-y-2">
-                      <Skeleton className="h-4 w-36 bg-blue-400/20" />
-                      <Skeleton className="h-3 w-48 bg-blue-400/10" />
+                      <Skeleton className={`h-4 w-36 ${sectionTheme.skeleton.muted}`} />
+                      <Skeleton className={`h-3 w-48 ${sectionTheme.skeleton.faint}`} />
                     </div>
                   </div>
-                  <Skeleton className="h-6 w-16 bg-blue-400/20 rounded-full" />
+                  <Skeleton className={`h-6 w-16 ${sectionTheme.skeleton.muted} rounded-full`} />
                 </div>
-                <Skeleton className="h-2 w-full bg-blue-400/10 rounded-full" />
+                <Skeleton className={`h-2 w-full ${sectionTheme.skeleton.faint} rounded-full`} />
               </div>
             ))}
           </CardContent>
@@ -745,17 +740,17 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
   // Error state - BLUE THEME
   if (error) {
     return (
-      <div className="text-blue-50 h-full">
-        <Card className="bg-blue-900/20 border-blue-700/50">
+      <div className={`${sectionTheme.card.text} h-full`}>
+        <Card className={`${sectionTheme.card.background} ${sectionTheme.card.border}`}>
           <CardContent className="p-4 text-center">
             <div className="text-red-400 mb-4">
               <CircleAlert className="h-8 w-8 mx-auto mb-2" />
               Error loading Deep Work tasks
             </div>
-            <p className="text-sm text-blue-200 mb-4">{error}</p>
+            <p className={`text-sm ${sectionTheme.card.body} mb-4`}>{error}</p>
             <Button
               onClick={() => window.location.reload()}
-              className="bg-blue-600 hover:bg-blue-700"
+              className={`${sectionTheme.button.primaryBg} ${sectionTheme.button.primaryHoverBg}`}
             >
               Retry
             </Button>
@@ -766,32 +761,32 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
   }
 
   return (
-    <div className="text-blue-50 h-full">
-      <Card className="bg-blue-900/20 border-blue-700/50">
+    <div className={`${sectionTheme.card.text} h-full`}>
+      <Card className={`${sectionTheme.card.background} ${sectionTheme.card.border}`}>
         <CardHeader className="p-3 sm:p-4">
-          <CardTitle className="flex items-center text-blue-400 text-base sm:text-lg">
+          <CardTitle className={`flex items-center ${sectionTheme.card.heading} text-base sm:text-lg`}>
             <Brain className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
             {theme.title}
           </CardTitle>
-          <div className="border-t border-blue-600/50 my-4"></div>
+          <div className={`border-t ${sectionTheme.card.divider} my-4`}></div>
           <div className="space-y-4">
             <div>
-              <h3 className="font-bold text-blue-300 mb-2 text-sm sm:text-base">Flow State Protocol</h3>
-              <p className="text-blue-200 text-xs sm:text-sm leading-relaxed">
+              <h3 className={`font-bold ${sectionTheme.card.subheading} mb-2 text-sm sm:text-base`}>Flow State Protocol</h3>
+              <p className={`${sectionTheme.card.body} text-xs sm:text-sm leading-relaxed`}>
                 {theme.description}
               </p>
             </div>
-            <div className="border-t border-blue-600/50 my-4"></div>
+            <div className={`border-t ${sectionTheme.card.divider} my-4`}></div>
             <div>
-              <h3 className="font-bold text-blue-300 mb-2 text-sm sm:text-base">{theme.subtitle} Rules</h3>
-              <ul className="text-blue-200 text-xs sm:text-sm space-y-1">
+              <h3 className={`font-bold ${sectionTheme.card.subheading} mb-2 text-sm sm:text-base`}>{theme.subtitle} Rules</h3>
+              <ul className={`${sectionTheme.card.body} text-xs sm:text-sm space-y-1`}>
                 {theme.rules.map((rule, index) => (
                   <li key={index}>{rule}</li>
                 ))}
               </ul>
             </div>
           </div>
-          <div className="border-t border-blue-600/50 my-3 sm:my-4"></div>
+          <div className={`border-t ${sectionTheme.card.divider} my-3 sm:my-4`}></div>
         </CardHeader>
         <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
 
@@ -823,7 +818,7 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
                     variants={taskVariants}
                   >
                     {/* Task Container */}
-                    <div className="group bg-blue-900/10 border-blue-700/30 hover:bg-blue-900/15 hover:border-blue-600/40 hover:shadow-blue-500/5 rounded-xl transition-all duration-300 hover:shadow-lg">
+                    <div className={`group ${sectionTheme.task.containerBg} ${sectionTheme.task.containerBorder} ${sectionTheme.task.containerHoverBg} ${sectionTheme.task.containerHoverBorder} ${sectionTheme.task.containerHoverShadow} rounded-xl transition-all duration-300 hover:shadow-lg`}>
                       {/* Task Header */}
                       <div className="p-3 sm:p-4">
                         <div className="flex items-center gap-3">
@@ -846,9 +841,9 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
                                 transition={{ duration: 0.2 }}
                               >
                                 {task.status === "completed" ? (
-                                  <CheckCircle2 className="h-5 w-5 text-green-400" />
+                                  <CheckCircle2 className={`h-5 w-5 ${sectionTheme.task.statusIcon.completed}`} />
                                 ) : task.status === "in-progress" ? (
-                                  <CircleDotDashed className="h-5 w-5 text-blue-400" />
+                                  <CircleDotDashed className={`h-5 w-5 ${sectionTheme.task.statusIcon.inProgress}`} />
                                 ) : task.status === "need-help" ? (
                                   <CircleAlert className="h-5 w-5 text-yellow-400" />
                                 ) : (
@@ -868,12 +863,12 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
                                 onChange={(e) => handleMainTaskEditTitleChange(e.target.value)}
                                 onKeyDown={(e) => handleMainTaskKeyDown(e, task.id)}
                                 onBlur={() => handleMainTaskSaveEdit(task.id)}
-                                className="w-full bg-blue-900/40 text-blue-100 font-semibold text-sm sm:text-base px-2 py-1 rounded border border-blue-600/50 focus:border-blue-400 focus:outline-none"
+                                className={`w-full ${sectionTheme.task.input} font-semibold text-sm sm:text-base px-2 py-1 rounded border focus:outline-none`}
                                 autoFocus
                               />
                             ) : (
                               <h4
-                                className="text-blue-100 hover:text-blue-50 font-semibold text-sm sm:text-base cursor-pointer transition-colors truncate"
+                                className={`${sectionTheme.task.title} ${sectionTheme.task.titleHover} font-semibold text-sm sm:text-base cursor-pointer transition-colors truncate`}
                                 onClick={() => handleMainTaskStartEditing(task.id, task.title)}
                               >
                                 {task.title}
@@ -884,7 +879,7 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
                           {/* Toggle Button */}
                           <div className="flex items-center flex-shrink-0">
                             <motion.button
-                              className="p-1 rounded-md hover:bg-blue-900/20 transition-colors"
+                              className={`p-1 rounded-md ${sectionTheme.task.toggleHoverBg} transition-colors`}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 toggleTaskExpansion(task.id);
@@ -892,16 +887,16 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
                               whileTap={{ scale: 0.9 }}
                             >
                               {isExpanded ? (
-                                <ChevronDown className="h-4 w-4 text-blue-300" />
+                                <ChevronDown className={`h-4 w-4 ${sectionTheme.task.toggleIcon}`} />
                               ) : (
-                                <ChevronRight className="h-4 w-4 text-blue-300" />
+                                <ChevronRight className={`h-4 w-4 ${sectionTheme.task.toggleIcon}`} />
                               )}
                             </motion.button>
                           </div>
                         </div>
 
                         {/* Top divider */}
-                        <div className="border-t border-blue-600/50 mt-3"></div>
+                        <div className={`border-t ${sectionTheme.card.divider} mt-3`}></div>
 
                         <div className="pt-3">
                           {/* Single-row metadata: Date | Priority | Time | Arrows */}
@@ -939,7 +934,7 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
                                 onKeyDown={(e) => handleTaskTimeKeyDown(e, task.id)}
                                 onBlur={() => handleTaskTimeSave(task.id)}
                                 autoFocus
-                                className="px-2 py-1 rounded-md text-xs font-medium bg-blue-900/40 border border-blue-600/60 text-blue-100 focus:border-blue-300 focus:outline-none"
+                                className={`px-2 py-1 rounded-md text-xs font-medium ${sectionTheme.metadata.timeInput} border focus:outline-none`}
                                 placeholder="e.g. 2h"
                               />
                             ) : (
@@ -948,7 +943,7 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
                                   e.stopPropagation();
                                   handleTaskTimeStartEditing(task, summary.formatted);
                                 }}
-                                className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium text-blue-200/90 bg-blue-900/20 hover:bg-blue-900/30 transition-colors"
+                                className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium ${sectionTheme.metadata.timeDisplay} transition-colors`}
                                 title="Set total focus time"
                               >
                                 <Clock className="h-3.5 w-3.5" />
@@ -964,8 +959,8 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
                                   handleMoveTask(task.id, 'up');
                                 }}
                                 disabled={isFirst}
-                                className={`p-1 rounded-md border border-blue-700/40 text-blue-300 transition-colors ${
-                                  isFirst ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-900/25'
+                                className={`p-1 rounded-md border ${sectionTheme.metadata.moveButton} transition-colors ${
+                                  isFirst ? 'opacity-40 cursor-not-allowed' : sectionTheme.metadata.moveButtonHover
                                 }`}
                                 title="Move up"
                               >
@@ -977,8 +972,8 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
                                   handleMoveTask(task.id, 'down');
                                 }}
                                 disabled={isLast}
-                                className={`p-1 rounded-md border border-blue-700/40 text-blue-300 transition-colors ${
-                                  isLast ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-900/25'
+                                className={`p-1 rounded-md border ${sectionTheme.metadata.moveButton} transition-colors ${
+                                  isLast ? 'opacity-40 cursor-not-allowed' : sectionTheme.metadata.moveButtonHover
                                 }`}
                                 title="Move down"
                               >
@@ -1016,7 +1011,7 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
                                   animate={{ opacity: 1, scale: 1 }}
                                   exit={{ opacity: 0, scale: 0.98 }}
                                   transition={{ duration: 0.15, ease: [0.2, 0.65, 0.3, 0.9] }}
-                                  className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[9999] backdrop-blur-xl bg-blue-950/95 border border-blue-700/60 rounded-xl shadow-2xl shadow-black/60 p-3 min-w-[200px]"
+                                  className={`fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[9999] backdrop-blur-xl ${sectionTheme.metadata.modalBackground} border ${sectionTheme.metadata.modalBorder} rounded-xl shadow-2xl shadow-black/60 p-3 min-w-[200px]`}
                                 >
                                   {Object.entries(TASK_PRIORITY_CONFIG).map(([key, config]) => {
                                     const isActive = task.priority?.toLowerCase() === key;
@@ -1028,7 +1023,7 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
                                           handleTaskPrioritySelect(task.id, key as 'low' | 'medium' | 'high' | 'urgent');
                                         }}
                                         className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-sm text-left transition-colors ${
-                                          isActive ? 'bg-blue-800/40 text-blue-100' : 'text-blue-200 hover:bg-blue-800/30'
+                                          isActive ? sectionTheme.metadata.filterActive : sectionTheme.metadata.filterInactive
                                         }`}
                                         whileHover={{ scale: 1.01 }}
                                         whileTap={{ scale: 0.98 }}
@@ -1037,7 +1032,7 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
                                           <span>{config.icon}</span>
                                           <span>{config.label}</span>
                                         </span>
-                                        {isActive && <CheckCircle2 className="h-4 w-4 text-blue-300" />}
+                                        {isActive && <CheckCircle2 className={`h-4 w-4 ${sectionTheme.metadata.filterCheck}`} />}
                                       </motion.button>
                                     );
                                   })}
@@ -1047,7 +1042,7 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
                           </AnimatePresence>
                         </div>
 
-                        <div className="border-t border-blue-600/50 mt-3"></div>
+                        <div className={`border-t ${sectionTheme.card.divider} mt-3`}></div>
                       </div>
 
                       {/* Subtasks */}
@@ -1142,14 +1137,14 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
                                 onKeyDown={(e) => handleNewSubtaskKeyDown(e, task.id)}
                                 onBlur={() => handleSaveNewSubtask(task.id)}
                                 placeholder="Enter subtask title..."
-                                className="w-full bg-blue-900/40 text-blue-100 border-blue-600/50 focus:border-blue-400 text-xs px-3 py-2 rounded border focus:outline-none"
+                                className={`w-full ${sectionTheme.task.input} text-xs px-3 py-2 rounded border focus:outline-none`}
                                 autoFocus
                               />
                             ) : (
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                className="w-full text-blue-300 hover:text-blue-200 hover:bg-blue-900/20 border-blue-700/30 hover:border-blue-600/40 transition-all duration-200 text-xs border"
+                                className={`w-full ${sectionTheme.button.ghostText} ${sectionTheme.button.ghostHoverText} ${sectionTheme.button.ghostHoverBg} ${sectionTheme.button.ghostBorder} ${sectionTheme.button.ghostHoverBorder} transition-all duration-200 text-xs border`}
                                 onClick={() => handleStartAddingSubtask(task.id)}
                               >
                                 <Plus className="h-3 w-3 mr-1" />
@@ -1159,7 +1154,7 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
                           </div>
 
                           {/* Bottom divider */}
-                          <div className="border-t border-blue-600/50 mt-3"></div>
+                          <div className={`border-t ${sectionTheme.card.divider} mt-3`}></div>
 
                           {/* Progress Summary */}
                           {(
@@ -1167,7 +1162,7 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
                               <div className="flex items-center justify-between">
                                 <div></div>
                                 <button
-                                  className="text-xs text-blue-400 hover:text-blue-300 cursor-pointer transition-colors"
+                                  className={`text-xs ${sectionTheme.task.progressText} ${sectionTheme.task.progressHoverText} cursor-pointer transition-colors`}
                                   onClick={() => toggleSubtaskVisibility(task.id)}
                                   title="Toggle completed subtasks visibility"
                                 >
@@ -1196,7 +1191,7 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
                         <div className="flex items-center justify-between">
                           <div></div>
                           <button
-                            className="text-xs text-blue-400 hover:text-blue-300 cursor-pointer transition-colors"
+                            className={`text-xs ${sectionTheme.task.progressText} ${sectionTheme.task.progressHoverText} cursor-pointer transition-colors`}
                             onClick={() => toggleSubtaskVisibility(task.id)}
                             title="Toggle completed subtasks visibility"
                           >
@@ -1225,7 +1220,7 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
               <Button
                 variant="ghost"
                 size="sm"
-                className="w-full text-blue-300 hover:text-blue-200 hover:bg-blue-900/20 border-blue-700/30 hover:border-blue-600/40 transition-all duration-200 text-sm border"
+                className={`w-full ${sectionTheme.button.ghostText} ${sectionTheme.button.ghostHoverText} ${sectionTheme.button.ghostHoverBg} ${sectionTheme.button.ghostBorder} ${sectionTheme.button.ghostHoverBorder} transition-all duration-200 text-sm border`}
                 onClick={async () => {
                   try {
                     const taskTitle = 'New Deep Work Task';

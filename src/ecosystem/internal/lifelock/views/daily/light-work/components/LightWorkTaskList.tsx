@@ -34,6 +34,7 @@ import { Skeleton } from "@/shared/ui/skeleton";
 import { TaskDetailModal } from "@/ecosystem/internal/lifelock/components/TaskDetailModal";
 import { CustomCalendar } from "../../_shared/components";
 import { SubtaskItem } from "@/components/tasks/SubtaskItem";
+import { dailySectionThemes } from "@/ecosystem/internal/lifelock/theme";
 import { useLightWorkTasksSupabase, LightWorkTask, LightWorkSubtask } from "@/ecosystem/internal/tasks/hooks/useLightWorkTasksSupabase";
 import { sortSubtasksHybrid } from "@/ecosystem/internal/tasks/utils/subtaskSorting";
 
@@ -110,6 +111,9 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
     ]
   };
 
+  const sectionTheme = dailySectionThemes.lightWork;
+  const themeConfig = sectionTheme.subtask;
+
   // Use Light Work Supabase hook
   const {
     tasks: rawTasks,
@@ -150,15 +154,6 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   const [showCompletedSubtasks, setShowCompletedSubtasks] = useState<{[taskId: string]: boolean}>({});
 
-  // Theme config for SubtaskItem - GREEN
-  const themeConfig = {
-    colors: {
-      text: 'text-green-400',
-      border: 'border-green-400',
-      input: 'border-gray-600 focus:border-green-400',
-      textSecondary: 'text-green-300'
-    }
-  };
 
   // Reduced motion support
   const prefersReducedMotion =
@@ -433,96 +428,96 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
   };
 
   // Loading state - GREEN THEME
-  if (loading) {
-    return (
-      <div className="text-green-50 h-full">
-        <Card className="bg-green-900/20 border-green-700/50">
-          <CardHeader className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Skeleton className="h-5 w-5 rounded-full bg-green-500/30" />
-                <Skeleton className="h-5 w-40 bg-green-400/20" />
-              </div>
-              <Skeleton className="h-4 w-16 bg-green-400/20" />
-            </div>
-            <Skeleton className="h-2 w-full bg-green-400/20 rounded-full" />
-          </CardHeader>
-          <CardContent className="p-4 space-y-4">
-            {Array.from({ length: 4 }).map((_, index) => (
-              <div
-                key={`light-work-skeleton-${index}`}
-                className="rounded-xl border border-green-700/50 bg-green-900/30 p-4 space-y-3"
-              >
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <Skeleton className="h-9 w-9 rounded-full bg-green-500/20" />
-                    <div className="space-y-2">
-                      <Skeleton className="h-4 w-36 bg-green-400/20" />
-                      <Skeleton className="h-3 w-48 bg-green-400/10" />
-                    </div>
-                  </div>
-                  <Skeleton className="h-6 w-16 bg-green-400/20 rounded-full" />
+    if (loading) {
+      return (
+        <div className={`${sectionTheme.card.text} h-full`}>
+          <Card className={`${sectionTheme.card.background} ${sectionTheme.card.border}`}>
+            <CardHeader className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Skeleton className={`h-5 w-5 rounded-full ${sectionTheme.skeleton.accent}`} />
+                  <Skeleton className={`h-5 w-40 ${sectionTheme.skeleton.muted}`} />
                 </div>
-                <Skeleton className="h-2 w-full bg-green-400/10 rounded-full" />
+                <Skeleton className={`h-4 w-16 ${sectionTheme.skeleton.muted}`} />
               </div>
-            ))}
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+              <Skeleton className={`h-2 w-full ${sectionTheme.skeleton.muted} rounded-full`} />
+            </CardHeader>
+            <CardContent className="p-4 space-y-4">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <div
+                  key={`light-work-skeleton-${index}`}
+                  className={`rounded-xl border ${sectionTheme.card.border} ${sectionTheme.card.surfaceMuted} p-4 space-y-3`}
+                >
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <Skeleton className={`h-9 w-9 rounded-full ${sectionTheme.skeleton.accentSoft}`} />
+                      <div className="space-y-2">
+                        <Skeleton className={`h-4 w-36 ${sectionTheme.skeleton.muted}`} />
+                        <Skeleton className={`h-3 w-48 ${sectionTheme.skeleton.faint}`} />
+                      </div>
+                    </div>
+                    <Skeleton className={`h-6 w-16 ${sectionTheme.skeleton.muted} rounded-full`} />
+                  </div>
+                  <Skeleton className={`h-2 w-full ${sectionTheme.skeleton.faint} rounded-full`} />
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
 
   // Error state - GREEN THEME
-  if (error) {
-    return (
-      <div className="text-green-50 h-full">
-        <Card className="bg-green-900/20 border-green-700/50">
-          <CardContent className="p-4 text-center">
-            <div className="text-red-400 mb-4">
-              <CircleAlert className="h-8 w-8 mx-auto mb-2" />
-              Error loading Light Work tasks
-            </div>
-            <p className="text-sm text-green-200 mb-4">{error}</p>
-            <Button
-              onClick={() => window.location.reload()}
-              className="bg-green-600 hover:bg-green-700"
-            >
-              Retry
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+    if (error) {
+      return (
+        <div className={`${sectionTheme.card.text} h-full`}>
+          <Card className={`${sectionTheme.card.background} ${sectionTheme.card.border}`}>
+            <CardContent className="p-4 text-center">
+              <div className="text-red-400 mb-4">
+                <CircleAlert className="h-8 w-8 mx-auto mb-2" />
+                Error loading Light Work tasks
+              </div>
+              <p className={`text-sm ${sectionTheme.card.body} mb-4`}>{error}</p>
+              <Button
+                onClick={() => window.location.reload()}
+                className={`${sectionTheme.button.primaryBg} ${sectionTheme.button.primaryHoverBg}`}
+              >
+                Retry
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
 
-  return (
-    <div className="text-green-50 h-full">
-      <Card className="bg-green-900/20 border-green-700/50">
-        <CardHeader className="p-3 sm:p-4">
-          <CardTitle className="flex items-center text-green-400 text-base sm:text-lg">
-            <Brain className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-            {theme.title}
-          </CardTitle>
-          <div className="border-t border-green-600/50 my-4"></div>
-          <div className="space-y-4">
-            <div>
-              <h3 className="font-bold text-green-300 mb-2 text-sm sm:text-base">Flow State Protocol</h3>
-              <p className="text-green-200 text-xs sm:text-sm leading-relaxed">
-                {theme.description}
-              </p>
+    return (
+      <div className={`${sectionTheme.card.text} h-full`}>
+        <Card className={`${sectionTheme.card.background} ${sectionTheme.card.border}`}>
+          <CardHeader className="p-3 sm:p-4">
+            <CardTitle className={`flex items-center ${sectionTheme.card.heading} text-base sm:text-lg`}>
+              <Brain className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+              {theme.title}
+            </CardTitle>
+            <div className={`border-t ${sectionTheme.card.divider} my-4`}></div>
+            <div className="space-y-4">
+              <div>
+                <h3 className={`font-bold ${sectionTheme.card.subheading} mb-2 text-sm sm:text-base`}>Flow State Protocol</h3>
+                <p className={`${sectionTheme.card.body} text-xs sm:text-sm leading-relaxed`}>
+                  {theme.description}
+                </p>
+              </div>
+              <div className={`border-t ${sectionTheme.card.divider} my-4`}></div>
+              <div>
+                <h3 className={`font-bold ${sectionTheme.card.subheading} mb-2 text-sm sm:text-base`}>{theme.subtitle} Rules</h3>
+                <ul className={`${sectionTheme.card.body} text-xs sm:text-sm space-y-1`}>
+                  {theme.rules.map((rule, index) => (
+                    <li key={index}>{rule}</li>
+                  ))}
+                </ul>
+              </div>
             </div>
-            <div className="border-t border-green-600/50 my-4"></div>
-            <div>
-              <h3 className="font-bold text-green-300 mb-2 text-sm sm:text-base">{theme.subtitle} Rules</h3>
-              <ul className="text-green-200 text-xs sm:text-sm space-y-1">
-                {theme.rules.map((rule, index) => (
-                  <li key={index}>{rule}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-green-600/50 my-3 sm:my-4"></div>
-        </CardHeader>
+            <div className={`border-t ${sectionTheme.card.divider} my-3 sm:my-4`}></div>
+          </CardHeader>
         <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
 
           <motion.div
@@ -549,7 +544,7 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
                     variants={taskVariants}
                   >
                     {/* Task Container */}
-                    <div className="group bg-green-900/10 border-green-700/30 hover:bg-green-900/15 hover:border-green-600/40 hover:shadow-green-500/5 rounded-xl transition-all duration-300 hover:shadow-lg">
+                    <div className={`group ${sectionTheme.task.containerBg} ${sectionTheme.task.containerBorder} ${sectionTheme.task.containerHoverBg} ${sectionTheme.task.containerHoverBorder} ${sectionTheme.task.containerHoverShadow} rounded-xl transition-all duration-300 hover:shadow-lg`}>
                       {/* Task Header */}
                       <div className="p-3 sm:p-4">
                         <div className="flex items-center gap-3">
@@ -572,9 +567,9 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
                                 transition={{ duration: 0.2 }}
                               >
                                 {task.status === "completed" ? (
-                                  <CheckCircle2 className="h-5 w-5 text-green-400" />
+                                  <CheckCircle2 className={`h-5 w-5 ${sectionTheme.task.statusIcon.completed}`} />
                                 ) : task.status === "in-progress" ? (
-                                  <CircleDotDashed className="h-5 w-5 text-green-400" />
+                                  <CircleDotDashed className={`h-5 w-5 ${sectionTheme.task.statusIcon.inProgress}`} />
                                 ) : task.status === "need-help" ? (
                                   <CircleAlert className="h-5 w-5 text-yellow-400" />
                                 ) : (
@@ -594,12 +589,12 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
                                 onChange={(e) => handleMainTaskEditTitleChange(e.target.value)}
                                 onKeyDown={(e) => handleMainTaskKeyDown(e, task.id)}
                                 onBlur={() => handleMainTaskSaveEdit(task.id)}
-                                className="w-full bg-green-900/40 text-green-100 font-semibold text-sm sm:text-base px-2 py-1 rounded border border-green-600/50 focus:border-green-400 focus:outline-none"
+                                className={`w-full ${sectionTheme.task.input} font-semibold text-sm sm:text-base px-2 py-1 rounded border focus:outline-none`}
                                 autoFocus
                               />
                             ) : (
                               <h4
-                                className="text-green-100 hover:text-green-50 font-semibold text-sm sm:text-base cursor-pointer transition-colors truncate"
+                                className={`${sectionTheme.task.title} ${sectionTheme.task.titleHover} font-semibold text-sm sm:text-base cursor-pointer transition-colors truncate`}
                                 onClick={() => handleMainTaskStartEditing(task.id, task.title)}
                               >
                                 {task.title}
@@ -610,7 +605,7 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
                           {/* Toggle Button */}
                           <div className="flex items-center flex-shrink-0">
                             <motion.button
-                              className="p-1 rounded-md hover:bg-green-900/20 transition-colors"
+                              className={`p-1 rounded-md ${sectionTheme.task.toggleHoverBg} transition-colors`}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 toggleTaskExpansion(task.id);
@@ -618,16 +613,16 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
                               whileTap={{ scale: 0.9 }}
                             >
                               {isExpanded ? (
-                                <ChevronDown className="h-4 w-4 text-green-300" />
+                                <ChevronDown className={`h-4 w-4 ${sectionTheme.task.toggleIcon}`} />
                               ) : (
-                                <ChevronRight className="h-4 w-4 text-green-300" />
+                                <ChevronRight className={`h-4 w-4 ${sectionTheme.task.toggleIcon}`} />
                               )}
                             </motion.button>
                           </div>
                         </div>
 
                         {/* Top divider */}
-                        <div className="border-t border-green-600/50 mt-3"></div>
+                        <div className={`border-t ${sectionTheme.card.divider} mt-3`}></div>
                       </div>
 
                       {/* Subtasks */}
@@ -722,14 +717,14 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
                                 onKeyDown={(e) => handleNewSubtaskKeyDown(e, task.id)}
                                 onBlur={() => handleSaveNewSubtask(task.id)}
                                 placeholder="Enter subtask title..."
-                                className="w-full bg-green-900/40 text-green-100 border-green-600/50 focus:border-green-400 text-xs px-3 py-2 rounded border focus:outline-none"
+                                className={`w-full ${sectionTheme.task.input} text-xs px-3 py-2 rounded border focus:outline-none`}
                                 autoFocus
                               />
                             ) : (
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                className="w-full text-green-300 hover:text-green-200 hover:bg-green-900/20 border-green-700/30 hover:border-green-600/40 transition-all duration-200 text-xs border"
+                                className={`w-full ${sectionTheme.button.ghostText} ${sectionTheme.button.ghostHoverText} ${sectionTheme.button.ghostHoverBg} ${sectionTheme.button.ghostBorder} ${sectionTheme.button.ghostHoverBorder} transition-all duration-200 text-xs border`}
                                 onClick={() => handleStartAddingSubtask(task.id)}
                               >
                                 <Plus className="h-3 w-3 mr-1" />
@@ -739,7 +734,7 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
                           </div>
 
                           {/* Bottom divider */}
-                          <div className="border-t border-green-600/50 mt-3"></div>
+                          <div className={`border-t ${sectionTheme.card.divider} mt-3`}></div>
 
                           {/* Progress Summary */}
                           {(
@@ -747,7 +742,7 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
                               <div className="flex items-center justify-between">
                                 <div></div>
                                 <button
-                                  className="text-xs text-green-400 hover:text-green-300 cursor-pointer transition-colors"
+                                  className={`text-xs ${sectionTheme.task.progressText} ${sectionTheme.task.progressHoverText} cursor-pointer transition-colors`}
                                   onClick={() => toggleSubtaskVisibility(task.id)}
                                   title="Toggle completed subtasks visibility"
                                 >
@@ -776,7 +771,7 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
                         <div className="flex items-center justify-between">
                           <div></div>
                           <button
-                            className="text-xs text-green-400 hover:text-green-300 cursor-pointer transition-colors"
+                            className={`text-xs ${sectionTheme.task.progressText} ${sectionTheme.task.progressHoverText} cursor-pointer transition-colors`}
                             onClick={() => toggleSubtaskVisibility(task.id)}
                             title="Toggle completed subtasks visibility"
                           >
@@ -805,7 +800,7 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
               <Button
                 variant="ghost"
                 size="sm"
-                className="w-full text-green-300 hover:text-green-200 hover:bg-green-900/20 border-green-700/30 hover:border-green-600/40 transition-all duration-200 text-sm border"
+                className={`w-full ${sectionTheme.button.ghostText} ${sectionTheme.button.ghostHoverText} ${sectionTheme.button.ghostHoverBg} ${sectionTheme.button.ghostBorder} ${sectionTheme.button.ghostHoverBorder} transition-all duration-200 text-sm border`}
                 onClick={async () => {
                   try {
                     const taskTitle = 'New Light Work Task';
