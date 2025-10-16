@@ -197,18 +197,20 @@ export const MOTIVATIONAL_QUOTES: Quote[] = [
   },
 ];
 
+const QUOTES_PER_DAY = 10;
+
 /**
  * Get rotating quotes based on the date
- * Returns 3 quotes that change daily
+ * Returns 10 quotes that change daily
  */
 export const getRotatingQuotes = (date: Date): Quote[] => {
   const dayOfYear = Math.floor(
     (date.getTime() - new Date(date.getFullYear(), 0, 0).getTime()) / 86400000
   );
-  const startIndex = (dayOfYear * 3) % MOTIVATIONAL_QUOTES.length;
+  const startIndex = (dayOfYear * QUOTES_PER_DAY) % MOTIVATIONAL_QUOTES.length;
 
   const quotes: Quote[] = [];
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < QUOTES_PER_DAY; i++) {
     quotes.push(MOTIVATIONAL_QUOTES[(startIndex + i) % MOTIVATIONAL_QUOTES.length]);
   }
   return quotes;
