@@ -198,9 +198,11 @@ class OfflineManager {
     if (table === 'lightWorkTasks' || table === 'deepWorkTasks') {
       // Use existing specialized methods
       await offlineDb[table === 'lightWorkTasks' ? 'saveLightWorkTask' : 'saveDeepWorkTask'](
-        data, 
+        data,
         markForSync
       );
+    } else if (table === 'morningRoutines') {
+      await offlineDb.saveMorningRoutine(data, markForSync);
     } else {
       // Queue as generic action for other tables
       await offlineDb.queueAction('create', table as any, data);
@@ -212,6 +214,9 @@ class OfflineManager {
     if (table === 'lightWorkTasks' || table === 'deepWorkTasks') {
       const dateFilter = filters?.date || filters;
       return await offlineDb[table === 'lightWorkTasks' ? 'getLightWorkTasks' : 'getDeepWorkTasks'](dateFilter);
+    } else if (table === 'morningRoutines') {
+      const dateFilter = filters?.date || filters;
+      return await offlineDb.getMorningRoutines(dateFilter);
     } else {
       // For other tables, could implement generic storage or return empty
       console.warn('⚠️ Table not yet supported for offline storage:', table);
@@ -234,9 +239,11 @@ class OfflineManager {
           // Also save to offline db for caching (if supported table)
           if (table === 'lightWorkTasks' || table === 'deepWorkTasks') {
             await offlineDb[table === 'lightWorkTasks' ? 'saveLightWorkTask' : 'saveDeepWorkTask'](
-              task, 
+              task,
               false // Don't mark for sync since it's already saved online
             );
+          } else if (table === 'morningRoutines') {
+            await offlineDb.saveMorningRoutine(task, false);
           } else {
             // For other tables, save as generic offline action
             await offlineDb.queueAction(
@@ -253,9 +260,11 @@ class OfflineManager {
       console.log('💾 Saving to offline storage:', table, task.title || task.id);
       if (table === 'lightWorkTasks' || table === 'deepWorkTasks') {
         await offlineDb[table === 'lightWorkTasks' ? 'saveLightWorkTask' : 'saveDeepWorkTask'](
-          task, 
+          task,
           true // Mark for sync
         );
+      } else if (table === 'morningRoutines') {
+        await offlineDb.saveMorningRoutine(task, true);
       } else {
         // For other tables, save as pending action
         await offlineDb.queueAction(
@@ -369,10 +378,11 @@ class OfflineManager {
         // Work Tasks (Phase 1 - Complete)
         'lightWorkTasks': 'light_work_tasks',
         'deepWorkTasks': 'deep_work_sessions',
-        
-        // Health & Routine Data  
+
+        // Health & Routine Data
         'morning_routine': 'daily_health',
         'morning_routine_habits': 'daily_health',
+        'morningRoutines': 'daily_routines',
         'dailyHealth': 'daily_health',
         
         // Generic Task Management
@@ -400,7 +410,9 @@ class OfflineManager {
           // Use proper upsert with conflict resolution
           const upsertOptions = tableName === 'daily_health'
             ? { onConflict: 'user_id,date', ignoreDuplicates: false }
-            : {};
+            : tableName === 'daily_routines'
+              ? { onConflict: 'user_id,date,routine_type', ignoreDuplicates: false }
+              : {};
 
           // 🔧 FIX: Remove id field from daily_health records
           // Database uses (user_id, date) composite key, not id
@@ -449,10 +461,11 @@ class OfflineManager {
         // Work Tasks (Phase 1 - Complete)
         'lightWorkTasks': 'light_work_tasks',
         'deepWorkTasks': 'deep_work_sessions',
-        
-        // Health & Routine Data  
+
+        // Health & Routine Data
         'morning_routine': 'daily_health',
         'morning_routine_habits': 'daily_health',
+        'morningRoutines': 'daily_routines',
         'dailyHealth': 'daily_health',
         
         // Generic Task Management
@@ -486,7 +499,9 @@ class OfflineManager {
       // For daily_health, the unique key is (user_id, date)
       const upsertOptions = tableName === 'daily_health'
         ? { onConflict: 'user_id,date', ignoreDuplicates: false }
-        : {};
+        : tableName === 'daily_routines'
+          ? { onConflict: 'user_id,date,routine_type', ignoreDuplicates: false }
+          : {};
 
       // 🔧 FIX: Remove id field from daily_health records
       // Database uses (user_id, date) composite key, not id
@@ -533,10 +548,11 @@ class OfflineManager {
       // Work Tasks (Phase 1 - Complete)
       'lightWorkTasks': 'light_work_tasks',
       'deepWorkTasks': 'deep_work_sessions',
-      
-      // Health & Routine Data  
+
+      // Health & Routine Data
       'morning_routine': 'daily_health',
       'morning_routine_habits': 'daily_health',
+      'morningRoutines': 'daily_routines',
       'dailyHealth': 'daily_health',
       
       // Generic Task Management

@@ -68,6 +68,7 @@ interface OfflineDB extends DBSchema {
       date: string;
       routine_type: string;
       items: any;
+      metadata?: Record<string, any> | null;
       completed_count: number;
       total_count: number;
       completion_percentage: number;
@@ -320,6 +321,10 @@ class OfflineDatabase {
     const tx = this.db!.transaction('morningRoutines', 'readwrite');
     await tx.objectStore('morningRoutines').put(routineWithMeta);
     await tx.done;
+
+    if (markForSync) {
+      await this.queueAction('update', 'morningRoutines', routineWithMeta);
+    }
   }
 
   // ===== WORKOUT SESSIONS =====
@@ -415,7 +420,7 @@ class OfflineDatabase {
   // ===== OFFLINE ACTIONS QUEUE =====
   async queueAction(
     action: 'create' | 'update' | 'delete',
-    table: 'lightWorkTasks' | 'deepWorkTasks',
+    table: 'lightWorkTasks' | 'deepWorkTasks' | 'morningRoutines',
     data: any
   ): Promise<void> {
     if (!this.db) await this.init();

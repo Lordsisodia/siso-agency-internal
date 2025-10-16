@@ -50,10 +50,116 @@ export interface TimeBlock {
   updated_at?: string;
 }
 
+export interface MorningRoutineItem {
+  name: string;
+  completed: boolean;
+  [key: string]: any;
+}
+
+export interface MorningRoutineMetadata {
+  wakeUpTime?: string;
+  waterAmount?: number;
+  meditationDuration?: string;
+  dailyPriorities?: string[];
+  isPlanDayComplete?: boolean;
+  pushupReps?: number;
+  pushupPB?: number;
+  [key: string]: any;
+}
+
+export interface MorningRoutine {
+  id: string;
+  userId: string;
+  date: string;
+  routineType: string;
+  items: MorningRoutineItem[];
+  completedCount: number;
+  totalCount: number;
+  completionPercentage: number;
+  metadata: MorningRoutineMetadata;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // ===== UNIFIED DATA SERVICE =====
 class UnifiedDataService {
   private isOnline(): boolean {
     return navigator.onLine;
+  }
+
+  private createMorningRoutineId(userId: string, date: string): string {
+    return `morning-${userId}-${date}`;
+  }
+
+  private transformMorningRoutineRecord(record: any): MorningRoutine {
+    const items: MorningRoutineItem[] = Array.isArray(record?.items)
+      ? record.items.map((item: any) => ({
+          name: item.name,
+          completed: !!item.completed,
+          ...item
+        }))
+      : [];
+
+    const completedCount = typeof record?.completed_count === 'number'
+      ? record.completed_count
+      : items.filter(item => item.completed).length;
+    const totalCount = typeof record?.total_count === 'number'
+      ? record.total_count
+      : items.length;
+    const completionPercentage = typeof record?.completion_percentage === 'number'
+      ? record.completion_percentage
+      : totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+
+    return {
+      id: record?.id || this.createMorningRoutineId(record?.user_id || 'unknown', record?.date || ''),
+      userId: record?.user_id || '',
+      date: record?.date || '',
+      routineType: record?.routine_type || 'morning',
+      items,
+      completedCount,
+      totalCount,
+      completionPercentage,
+      metadata: record?.metadata || {},
+      createdAt: record?.created_at || new Date().toISOString(),
+      updatedAt: record?.updated_at || new Date().toISOString(),
+    };
+  }
+
+  private prepareMorningRoutineForStorage(routine: MorningRoutine) {
+    const completedCount = routine.completedCount ?? routine.items.filter(item => item.completed).length;
+    const totalCount = routine.totalCount ?? routine.items.length;
+    const completionPercentage = routine.completionPercentage ?? (totalCount > 0 ? (completedCount / totalCount) * 100 : 0);
+
+    return {
+      id: routine.id || this.createMorningRoutineId(routine.userId, routine.date),
+      user_id: routine.userId,
+      date: routine.date,
+      routine_type: routine.routineType || 'morning',
+      items: routine.items,
+      metadata: routine.metadata || {},
+      completed_count: completedCount,
+      total_count: totalCount,
+      completion_percentage: completionPercentage,
+      created_at: routine.createdAt || new Date().toISOString(),
+      updated_at: routine.updatedAt || new Date().toISOString(),
+    };
+  }
+
+  private createEmptyMorningRoutine(userId: string, date: string): MorningRoutine {
+    const timestamp = new Date().toISOString();
+    return {
+      id: this.createMorningRoutineId(userId, date),
+      userId,
+      date,
+      routineType: 'morning',
+      items: [],
+      completedCount: 0,
+      totalCount: 0,
+      completionPercentage: 0,
+      metadata: {},
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    };
   }
 
   // ===== DAILY REFLECTIONS =====
@@ -172,6 +278,136 @@ class UnifiedDataService {
       // Queue for later sync
       await this.queueForSync('daily_reflections', 'upsert', dbRecord);
     }
+  }
+
+  // ===== MORNING ROUTINE =====
+  async getMorningRoutine(userId: string, date: string): Promise<MorningRoutine | null> {
+    let routine: MorningRoutine | null = null;
+
+    try {
+      const localRoutines = await offlineDb.getMorningRoutines(date);
+      const local = localRoutines.find(record => record.user_id === userId);
+      if (local) {
+        routine = this.transformMorningRoutineRecord(local);
+      }
+    } catch (error) {
+      console.warn('Failed to load morning routine from offline DB:', error);
+    }
+
+    if (this.isOnline()) {
+      try {
+        const { data, error } = await supabaseAnon
+          .from('daily_routines')
+          .select('*')
+          .eq('user_id', userId)
+          .eq('date', date)
+          .eq('routine_type', 'morning')
+          .maybeSingle();
+
+        if (!error && data) {
+          const transformed = this.transformMorningRoutineRecord(data);
+          await offlineDb.saveMorningRoutine(this.prepareMorningRoutineForStorage(transformed), false);
+          routine = transformed;
+        }
+      } catch (error) {
+        console.warn('Failed to sync morning routine from Supabase:', error);
+      }
+    }
+
+    return routine;
+  }
+
+  async saveMorningRoutine(routine: MorningRoutine): Promise<MorningRoutine> {
+    const storageRecord = this.prepareMorningRoutineForStorage(routine);
+    const shouldSync = this.isOnline();
+
+    await offlineDb.saveMorningRoutine(storageRecord, !shouldSync);
+
+    if (shouldSync) {
+      try {
+        const { data, error } = await supabaseAnon
+          .from('daily_routines')
+          .upsert({
+            user_id: storageRecord.user_id,
+            date: storageRecord.date,
+            routine_type: storageRecord.routine_type,
+            items: storageRecord.items,
+            metadata: storageRecord.metadata || {},
+            completed_count: storageRecord.completed_count,
+            total_count: storageRecord.total_count,
+            completion_percentage: storageRecord.completion_percentage,
+            created_at: storageRecord.created_at,
+            updated_at: storageRecord.updated_at,
+          }, { onConflict: 'user_id,date,routine_type', ignoreDuplicates: false })
+          .select()
+          .single();
+
+        if (error) {
+          console.error('❌ Failed to sync morning routine to Supabase:', error);
+          await offlineDb.saveMorningRoutine(storageRecord, true);
+          return this.transformMorningRoutineRecord(storageRecord);
+        }
+
+        const transformed = this.transformMorningRoutineRecord(data);
+        await offlineDb.saveMorningRoutine(this.prepareMorningRoutineForStorage(transformed), false);
+        return transformed;
+      } catch (error) {
+        console.error('❌ Supabase sync error (morning routine):', error);
+        await offlineDb.saveMorningRoutine(storageRecord, true);
+      }
+    }
+
+    return this.transformMorningRoutineRecord(storageRecord);
+  }
+
+  async toggleMorningRoutineHabit(
+    userId: string,
+    date: string,
+    habitName: string,
+    completed: boolean
+  ): Promise<MorningRoutine | null> {
+    const existing = await this.getMorningRoutine(userId, date);
+    const routine = existing ?? this.createEmptyMorningRoutine(userId, date);
+
+    const items = Array.isArray(routine.items) ? [...routine.items] : [];
+    const index = items.findIndex(item => item.name === habitName);
+    if (index >= 0) {
+      items[index] = { ...items[index], completed };
+    } else {
+      items.push({ name: habitName, completed });
+    }
+
+    const completedCount = items.filter(item => item.completed).length;
+    const totalCount = items.length;
+    const completionPercentage = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+
+    const updated: MorningRoutine = {
+      ...routine,
+      items,
+      completedCount,
+      totalCount,
+      completionPercentage,
+      updatedAt: new Date().toISOString(),
+    };
+
+    return await this.saveMorningRoutine(updated);
+  }
+
+  async updateMorningRoutineMetadata(
+    userId: string,
+    date: string,
+    metadata: Partial<MorningRoutineMetadata>
+  ): Promise<MorningRoutine | null> {
+    const existing = await this.getMorningRoutine(userId, date);
+    const routine = existing ?? this.createEmptyMorningRoutine(userId, date);
+
+    const updated: MorningRoutine = {
+      ...routine,
+      metadata: { ...routine.metadata, ...metadata },
+      updatedAt: new Date().toISOString(),
+    };
+
+    return await this.saveMorningRoutine(updated);
   }
 
   // ===== TIME BLOCKS =====

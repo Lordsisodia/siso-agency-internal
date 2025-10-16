@@ -25,8 +25,8 @@ import { format } from 'date-fns';
 import { cn } from '@/shared/lib/utils';
 import { useClerkUser } from '@/shared/hooks/useClerkUser';
 import { useSupabaseUserId } from '@/shared/lib/supabase-clerk';
-import { workTypeApiClient, MorningRoutineMetadata } from '@/services/workTypeApiClient';
-import { useOfflineManager } from '@/shared/hooks/useOfflineManager';
+import { useMorningRoutineSupabase } from '@/shared/hooks/useMorningRoutineSupabase';
+import { MorningRoutineMetadata } from '@/shared/services/unified-data.service';
 import { SimpleThoughtDumpPage, ThoughtDumpResults, lifeLockVoiceTaskProcessor } from '@/ecosystem/internal/lifelock/features/ai-thought-dump';
 import type { ThoughtDumpResult } from '@/ecosystem/internal/lifelock/features/ai-thought-dump';
 import { getRotatingQuotes } from '@/data/motivational-quotes';
@@ -40,21 +40,6 @@ import { PlanDayActions } from './components/PlanDayActions';
 import { MotivationalQuotes } from './components/MotivationalQuotes';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { useAutoTimeblocks } from '@/shared/hooks/useAutoTimeblocks';
-
-interface MorningRoutineHabit {
-  name: string;
-  completed: boolean;
-}
-
-interface MorningRoutineData {
-  id: string;
-  userId: string;
-  date: string;
-  items: MorningRoutineHabit[];
-  completedCount: number;
-  totalCount: number;
-  completionPercentage: number;
-}
 
 interface MorningRoutineSectionProps {
   selectedDate: Date;
@@ -126,15 +111,20 @@ const MORNING_ROUTINE_TASKS = [
   }
 ];
 
-export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React.memo(({
+export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React.memo(({ 
   selectedDate
 }) => {
   const { user } = useClerkUser();
   const internalUserId = useSupabaseUserId(user?.id || null);
-  const { saveTask, loadTasks, isOffline } = useOfflineManager();
-  const [morningRoutine, setMorningRoutine] = useState<MorningRoutineData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    routine,
+    loading: routineLoading,
+    error: routineError,
+    toggleHabit,
+    updateMetadata,
+    metadata: routineMetadata,
+    items: routineItems
+  } = useMorningRoutineSupabase({ selectedDate });
 
   // Thought Dump AI state (persist across HMR refreshes)
   const [showThoughtDumpChat, setShowThoughtDumpChat] = useState(() => {
@@ -258,54 +248,29 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
     loadDateSpecificData();
   }, [selectedDate, user?.id]);
 
-  // Load morning routine data
   useEffect(() => {
-    const loadMorningRoutine = async () => {
-      if (!user?.id || !selectedDate) return;
-      
-      try {
-        setLoading(true);
-        setError(null);
-        
-        // Load from API (which reads from daily_routines table)
-        const apiData = await workTypeApiClient.getMorningRoutine(user.id, selectedDate);
-        
-        if (apiData) {
-          setMorningRoutine(apiData);
-          
-          // ✅ FIX: Sync checkbox states from Supabase to localStorage
-          const dateKey = format(selectedDate, 'yyyy-MM-dd');
-          if (apiData.items && Array.isArray(apiData.items)) {
-            apiData.items.forEach((item: MorningRoutineHabit) => {
-              localStorage.setItem(`lifelock-${dateKey}-${item.name}`, item.completed.toString());
-            });
-          }
-        }
-      } catch (error) {
-        console.error('Error loading morning routine:', error);
-        setError('Failed to load morning routine');
-      } finally {
-        setLoading(false);
-      }
-    };
+    if (!routine) return;
 
-    loadMorningRoutine();
-  }, [user?.id, selectedDate]);
+    const dateKey = format(selectedDate, 'yyyy-MM-dd');
+    if (routine.items && Array.isArray(routine.items)) {
+      routine.items.forEach((item) => {
+        localStorage.setItem(`lifelock-${dateKey}-${item.name}`, item.completed.toString());
+      });
+    }
+  }, [routine, selectedDate]);
 
   // Save wake-up time to Supabase + localStorage (debounced)
   const debouncedMetadataUpdate = useMemo(() => {
-    if (!user?.id || !selectedDate || isNaN(selectedDate.getTime())) {
+    if (!selectedDate || isNaN(selectedDate.getTime())) {
       return null;
     }
 
-    const update = debounce((payload: Partial<MorningRoutineMetadata>) => {
-      workTypeApiClient.updateMorningRoutineMetadata(user.id!, selectedDate, payload).catch(error => {
-        console.error('Failed to save morning routine metadata to Supabase:', error);
+    return debounce((payload: Partial<MorningRoutineMetadata>) => {
+      updateMetadata(payload).catch(error => {
+        console.error('Failed to save morning routine metadata:', error);
       });
     }, 500);
-
-    return update;
-  }, [user?.id, selectedDate]);
+  }, [selectedDate, updateMetadata]);
 
   useEffect(() => {
     return () => {
@@ -377,6 +342,43 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
     debouncedMetadataUpdate?.({ isPlanDayComplete });
   }, [isPlanDayComplete, selectedDate, internalUserId, debouncedMetadataUpdate]);
 
+  useEffect(() => {
+    if (!routineMetadata) return;
+
+    if (routineMetadata.wakeUpTime !== undefined && routineMetadata.wakeUpTime !== wakeUpTime) {
+      setWakeUpTime(routineMetadata.wakeUpTime || '');
+    }
+
+    if (typeof routineMetadata.waterAmount === 'number' && routineMetadata.waterAmount !== waterAmount) {
+      setWaterAmount(routineMetadata.waterAmount);
+    }
+
+    if (routineMetadata.meditationDuration !== undefined && routineMetadata.meditationDuration !== meditationDuration) {
+      setMeditationDuration(routineMetadata.meditationDuration || '');
+    }
+
+    if (typeof routineMetadata.pushupReps === 'number' && routineMetadata.pushupReps !== pushupReps) {
+      setPushupReps(routineMetadata.pushupReps);
+    }
+
+    if (typeof routineMetadata.pushupPB === 'number' && routineMetadata.pushupPB !== pushupPB) {
+      setPushupPB(routineMetadata.pushupPB);
+    }
+
+    if (Array.isArray(routineMetadata.dailyPriorities)) {
+      const priorities = routineMetadata.dailyPriorities.length > 0
+        ? [...routineMetadata.dailyPriorities]
+        : ['', '', ''];
+      if (JSON.stringify(priorities) !== JSON.stringify(dailyPriorities)) {
+        setDailyPriorities(priorities);
+      }
+    }
+
+    if (typeof routineMetadata.isPlanDayComplete === 'boolean' && routineMetadata.isPlanDayComplete !== isPlanDayComplete) {
+      setIsPlanDayComplete(routineMetadata.isPlanDayComplete);
+    }
+  }, [routineMetadata, wakeUpTime, waterAmount, meditationDuration, pushupReps, pushupPB, dailyPriorities, isPlanDayComplete]);
+
   // Water tracking functions
   const incrementWater = () => {
     setWaterAmount(prev => prev + 100);
@@ -397,52 +399,16 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
 
   // Handle habit toggle
   const handleHabitToggle = async (habitKey: string, completed: boolean) => {
-    if (!user?.id || !selectedDate) return;
-    
+    if (!selectedDate) return;
+
+    const dateKey = format(selectedDate, 'yyyy-MM-dd');
+    localStorage.setItem(`lifelock-${dateKey}-${habitKey}`, completed.toString());
+
     try {
-      // Always save to localStorage for immediate feedback
-      const dateKey = format(selectedDate, 'yyyy-MM-dd');
-      localStorage.setItem(`lifelock-${dateKey}-${habitKey}`, completed.toString());
-      
-      // ✅ FIX: Use the correct API endpoint instead of saveTask
-      await workTypeApiClient.updateMorningRoutineHabit(user.id, selectedDate, habitKey, completed);
-      
-      // Update local state immediately for better UX
-      if (morningRoutine && morningRoutine.items && Array.isArray(morningRoutine.items)) {
-        const updatedItems = morningRoutine.items.map(item =>
-          item.name === habitKey ? { ...item, completed } : item
-        );
-        
-        // If habit doesn't exist, add it
-        if (!updatedItems.find(item => item.name === habitKey)) {
-          updatedItems.push({ name: habitKey, completed });
-        }
-        
-        const completedCount = updatedItems.filter(item => item.completed).length;
-        setMorningRoutine({
-          ...morningRoutine,
-          items: updatedItems,
-          completedCount,
-          completionPercentage: (completedCount / updatedItems.length) * 100
-        });
-      } else {
-        // Create new morningRoutine if it doesn't exist
-        setMorningRoutine({
-          id: '',
-          userId: user.id,
-          date: dateKey,
-          items: [{ name: habitKey, completed }],
-          completedCount: completed ? 1 : 0,
-          totalCount: 1,
-          completionPercentage: completed ? 100 : 0
-        });
-      }
-      
-      // Force re-render to update progress calculation
+      await toggleHabit(habitKey, completed);
       setLocalProgressTrigger(prev => prev + 1);
     } catch (error) {
       console.error('Error updating habit:', error);
-      // LocalStorage save still works even if API fails
     }
   };
 
@@ -460,9 +426,8 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
 
   // Helper function to check if a habit is completed
   const isHabitCompleted = useCallback((habitKey: string): boolean => {
-    if (morningRoutine && morningRoutine.items) {
-      // Use API data if available
-      const habit = morningRoutine.items.find(item => item.name === habitKey);
+    if (routineItems && routineItems.length > 0) {
+      const habit = routineItems.find(item => item.name === habitKey);
       return habit?.completed || false;
     } else {
       // Fallback to localStorage if API data not available
@@ -582,10 +547,10 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
     );
   }
 
-  if (error) {
+  if (routineError) {
     return (
       <div className="h-full w-full bg-gray-900 flex items-center justify-center">
-        <div className="text-red-400">Error loading morning routine: {error}</div>
+        <div className="text-red-400">Error loading morning routine: {routineError}</div>
       </div>
     );
   }
