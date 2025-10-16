@@ -13,6 +13,8 @@ import { offlineDb } from '@/shared/offline/offlineDb';
 import { supabaseAnon } from '@/shared/lib/supabase-clerk';
 import { offlineManager } from '@/shared/services/offlineManager';
 
+const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL || '').trim();
+
 // ===== TYPES =====
 export interface DailyReflection {
   id?: string;
@@ -56,6 +58,62 @@ class UnifiedDataService {
     return navigator.onLine;
   }
 
+  private ensureArray(value: unknown): string[] {
+    if (Array.isArray(value)) {
+      return value as string[];
+    }
+
+    if (typeof value === 'string' && value.length > 0) {
+      return [value];
+    }
+
+    return [];
+  }
+
+  private mapDbReflectionToApp(record: any): DailyReflection {
+    if (!record) {
+      return {
+        id: '',
+        user_id: '',
+        date: '',
+        winOfDay: '',
+        mood: '',
+        bedTime: '',
+        wentWell: [],
+        evenBetterIf: [],
+        dailyAnalysis: '',
+        actionItems: '',
+        overallRating: undefined,
+        energyLevel: undefined,
+        keyLearnings: '',
+        tomorrowFocus: '',
+        tomorrowTopTasks: [],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+    }
+
+    return {
+      id: record.id || '',
+      user_id: record.user_id || record.userId || '',
+      date: record.date || '',
+      winOfDay: record.win_of_day || record.winOfDay || '',
+      mood: record.mood || '',
+      bedTime: record.bed_time || record.bedTime || '',
+      wentWell: this.ensureArray(record.went_well ?? record.wentWell),
+      evenBetterIf: this.ensureArray(record.even_better_if ?? record.evenBetterIf),
+      dailyAnalysis: record.daily_analysis ?? record.dailyAnalysis ?? '',
+      actionItems: record.action_items ?? record.actionItems ?? '',
+      overallRating: record.overall_rating ?? record.overallRating ?? undefined,
+      energyLevel: record.energy_level ?? record.energyLevel ?? undefined,
+      keyLearnings: record.key_learnings ?? record.keyLearnings ?? '',
+      tomorrowFocus: record.tomorrow_focus ?? record.tomorrowFocus ?? '',
+      tomorrowTopTasks: this.ensureArray(record.tomorrow_top_tasks ?? record.tomorrowTopTasks),
+      created_at: record.created_at ?? record.createdAt ?? new Date().toISOString(),
+      updated_at: record.updated_at ?? record.updatedAt ?? new Date().toISOString()
+    };
+  }
+
   // ===== DAILY REFLECTIONS =====
   async getDailyReflection(userId: string, date: string): Promise<DailyReflection | null> {
     // Try local first
@@ -78,26 +136,7 @@ class UnifiedDataService {
           .maybeSingle(); // ✅ FIX: Use maybeSingle() instead of single() to handle no records gracefully
 
         if (!error && data) {
-          // Transform snake_case from DB to camelCase for app
-          const appRecord: DailyReflection = {
-            id: data.id,
-            user_id: data.user_id,
-            date: data.date,
-            winOfDay: data.win_of_day || '',
-            mood: data.mood || '',
-            bedTime: data.bed_time || '', // ✅ FIXED: Transform bed_time from DB
-            wentWell: data.went_well || [],
-            evenBetterIf: data.even_better_if || [],
-            dailyAnalysis: data.daily_analysis || '',
-            actionItems: data.action_items || '',
-            overallRating: data.overall_rating,
-            energyLevel: data.energy_level,
-            keyLearnings: data.key_learnings || '',
-            tomorrowFocus: data.tomorrow_focus || '',
-            tomorrowTopTasks: data.tomorrow_top_tasks || [],
-            created_at: data.created_at,
-            updated_at: data.updated_at
-          };
+          const appRecord = this.mapDbReflectionToApp(data);
 
           // Cache locally
           const key = `reflection:${userId}:${date}`;
@@ -154,23 +193,95 @@ class UnifiedDataService {
         const { error, data } = await supabaseAnon
           .from('daily_reflections')
           .upsert(dbRecord, { onConflict: 'user_id,date' })
-          .select();
+          .select()
+          .maybeSingle();
 
         if (error) {
           console.error('❌ Failed to sync reflection to Supabase:', error);
+
+          const isRlsDenied = error.code === '42501' || error.message?.includes('row-level security');
+          if (isRlsDenied) {
+            const fallback = await this.syncDailyReflectionViaApi(reflection, key);
+            if (fallback) {
+              console.log('✅ Saved daily reflection via API fallback');
+              return;
+            }
+          }
+
           // Queue for later sync
           await this.queueForSync('daily_reflections', 'upsert', dbRecord);
         } else {
           console.log('✅ Successfully saved to Supabase:', data);
+
+          if (data) {
+            const syncedRecord = this.mapDbReflectionToApp(data);
+            await offlineDb.setSetting(key, syncedRecord);
+          }
         }
       } catch (error) {
         console.error('❌ Supabase sync error:', error);
-        await this.queueForSync('daily_reflections', 'upsert', dbRecord);
+        const fallback = await this.syncDailyReflectionViaApi(reflection, key);
+        if (!fallback) {
+          await this.queueForSync('daily_reflections', 'upsert', dbRecord);
+        }
       }
     } else {
       console.log('📴 Offline - queuing for later sync');
       // Queue for later sync
       await this.queueForSync('daily_reflections', 'upsert', dbRecord);
+    }
+  }
+
+  private async syncDailyReflectionViaApi(reflection: DailyReflection, cacheKey: string): Promise<DailyReflection | null> {
+    const baseUrl = apiBaseUrl ? apiBaseUrl.replace(/\/$/, '') : '';
+    const endpoint = `${baseUrl}/api/daily-reflections`;
+
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          internalUserId: reflection.user_id,
+          date: reflection.date,
+          wentWell: reflection.wentWell || [],
+          evenBetterIf: reflection.evenBetterIf || [],
+          dailyAnalysis: reflection.dailyAnalysis || '',
+          actionItems: reflection.actionItems || '',
+          overallRating: reflection.overallRating ?? null,
+          energyLevel: reflection.energyLevel ?? null,
+          keyLearnings: reflection.keyLearnings || '',
+          tomorrowFocus: reflection.tomorrowFocus || '',
+          tomorrowTopTasks: reflection.tomorrowTopTasks || [],
+          winOfDay: reflection.winOfDay || '',
+          mood: reflection.mood || '',
+          bedTime: reflection.bedTime || ''
+        })
+      });
+
+      if (!response.ok) {
+        console.warn('⚠️ API fallback failed to save reflection:', response.statusText);
+        return null;
+      }
+
+      const payload = await response.json();
+      const remoteRecord = payload?.data;
+
+      if (!remoteRecord) {
+        return null;
+      }
+
+      const appRecord = this.mapDbReflectionToApp(remoteRecord);
+      await offlineDb.setSetting(cacheKey, {
+        ...appRecord,
+        updated_at: appRecord.updated_at || new Date().toISOString()
+      });
+
+      return appRecord;
+    } catch (error) {
+      console.warn('⚠️ API fallback error:', error);
+      return null;
     }
   }
 
