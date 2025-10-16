@@ -115,21 +115,27 @@ export class SupabaseWorkoutService {
     const defaultItems = [
       {
         title: 'Push-ups',
-        target: '50 reps',
+        target: '200',
         completed: false,
         logged: '0',
       },
       {
         title: 'Squats',
-        target: '100 reps',
+        target: '100',
         completed: false,
         logged: '0',
       },
       {
-        title: 'Plank',
-        target: '2 minutes',
+        title: 'Planks',
+        target: '300',
         completed: false,
-        logged: null,
+        logged: '0',
+      },
+      {
+        title: 'Sit-ups',
+        target: '100',
+        completed: false,
+        logged: '0',
       },
     ];
 
