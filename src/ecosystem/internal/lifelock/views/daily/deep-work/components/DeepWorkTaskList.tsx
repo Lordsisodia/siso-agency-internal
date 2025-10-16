@@ -140,6 +140,14 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
 
   // Transform data
   const tasks = useMemo(() => transformSupabaseToUITasks(rawTasks), [rawTasks]);
+  const hasTasks = tasks.length > 0;
+
+  const [isOffline, setIsOffline] = useState<boolean>(() => {
+    if (typeof window === 'undefined' || typeof navigator === 'undefined') {
+      return false;
+    }
+    return !navigator.onLine;
+  });
 
   // State - EXACT COPY
   const [expandedTasks, setExpandedTasks] = useState<string[]>(["1", "2", "3"]);
@@ -238,6 +246,20 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
     typeof window !== 'undefined'
       ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
       : false;
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => setIsOffline(true);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   // Close calendar popovers when clicking outside
   React.useEffect(() => {
@@ -743,7 +765,7 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
   }
 
   // Error state - BLUE THEME
-  if (error) {
+  if (error && !hasTasks) {
     return (
       <div className="text-blue-50 h-full">
         <Card className="bg-blue-900/20 border-blue-700/50">
@@ -769,6 +791,36 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
     <div className="text-blue-50 h-full">
       <Card className="bg-blue-900/20 border-blue-700/50">
         <CardHeader className="p-3 sm:p-4">
+          {(error || isOffline) && (
+            <div className="mb-4 rounded-xl border border-blue-500/50 bg-blue-900/60 px-3 py-3 sm:px-4 sm:py-3">
+              <div className="flex flex-col gap-2 text-xs sm:text-sm text-blue-100">
+                <div className="flex items-start gap-2">
+                  <CircleAlert className={`h-5 w-5 flex-shrink-0 ${error ? 'text-red-300' : 'text-blue-300'}`} />
+                  <div className="space-y-1">
+                    <p className="font-semibold">
+                      {error ? 'We could not sync your Deep Work tasks.' : 'Offline mode: working from local data'}
+                    </p>
+                    <p className="text-blue-200 text-xs sm:text-sm">
+                      {error
+                        ? `${error} — any edits will be saved locally and retried soon.`
+                        : 'You are offline. We will keep everything in sync once you are back online.'}
+                    </p>
+                  </div>
+                </div>
+                {error && (
+                  <div className="flex items-center justify-end">
+                    <Button
+                      onClick={() => window.location.reload()}
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                      size="sm"
+                    >
+                      Retry sync
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
           <CardTitle className="flex items-center text-blue-400 text-base sm:text-lg">
             <Brain className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
             {theme.title}
