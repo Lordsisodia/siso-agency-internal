@@ -41,6 +41,8 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
 
   console.log('🔍 [TIMEBOX] RENDER with internalUserId:', internalUserId, 'isSignedIn:', isSignedIn, 'date:', format(selectedDate, 'yyyy-MM-dd'));
 
+  const dateKey = format(selectedDate, 'yyyy-MM-dd');
+
   // Database hook
   const {
     timeBlocks,
@@ -105,7 +107,9 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
     setSwipeDirection,
     setGapFiller,
     setGapSuggestions,
-    setShowSprintMenu
+    setShowSprintMenu,
+    userId: internalUserId,
+    dateKey
   });
 
   // Update current time every minute
@@ -376,6 +380,8 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
             }}
             conflicts={conflicts}
             onCheckConflicts={handleCheckConflicts}
+            userId={internalUserId}
+            dateKey={dateKey}
           />
         )}
 
@@ -391,6 +397,8 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
           existingBlock={editingBlock}
           conflicts={conflicts}
           onCheckConflicts={handleCheckConflicts}
+          userId={internalUserId}
+          dateKey={dateKey}
         />
 
         {isQuickSchedulerOpen && (

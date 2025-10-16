@@ -8,6 +8,32 @@ import { useMemo } from 'react';
 import { format, subDays } from 'date-fns';
 import { TimeboxTask, TaskPosition, TIMEBOX_HOUR_HEIGHT, mapCategoryToUI } from '../types';
 
+const sanitizeTime = (time: string): string => {
+  if (!time) return '';
+
+  const parts = time.trim().split(':');
+  const hours = parts[0] ?? '00';
+  const minutes = parts[1] ?? '00';
+
+  return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
+};
+
+const extractTimeParts = (time: string): { hours: number; minutes: number; isValid: boolean } => {
+  if (!time) {
+    return { hours: 0, minutes: 0, isValid: false };
+  }
+
+  const parts = time.trim().split(':');
+  const hours = Number(parts[0]);
+  const minutes = Number(parts[1]);
+
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) {
+    return { hours: 0, minutes: 0, isValid: false };
+  }
+
+  return { hours, minutes, isValid: true };
+};
+
 interface UseTimeboxCalculationsProps {
   timeBlocks: any[];
   selectedDate: Date;
@@ -18,15 +44,21 @@ export const useTimeboxCalculations = ({ timeBlocks, selectedDate }: UseTimeboxC
   // Transform database time blocks into UI tasks
   const tasks = useMemo(() => {
     return timeBlocks.map(block => {
-      const [startHour, startMin] = block.startTime.split(':').map(Number);
-      const [endHour, endMin] = block.endTime.split(':').map(Number);
-      const duration = (endHour * 60 + endMin) - (startHour * 60 + startMin);
+      const sanitizedStart = sanitizeTime(block.startTime);
+      const sanitizedEnd = sanitizeTime(block.endTime);
+
+      const { hours: startHour, minutes: startMin, isValid: startValid } = extractTimeParts(sanitizedStart);
+      const { hours: endHour, minutes: endMin, isValid: endValid } = extractTimeParts(sanitizedEnd);
+
+      const duration = startValid && endValid
+        ? Math.max(0, (endHour * 60 + endMin) - (startHour * 60 + startMin))
+        : 0;
 
       return {
         id: block.id,
         title: block.title,
-        startTime: block.startTime,
-        endTime: block.endTime,
+        startTime: sanitizedStart,
+        endTime: sanitizedEnd,
         duration,
         category: mapCategoryToUI(block.category),
         description: block.description || '',
@@ -111,7 +143,7 @@ export const useTimeboxCalculations = ({ timeBlocks, selectedDate }: UseTimeboxC
         return false;
       }
 
-      const timePattern = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+      const timePattern = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9](?::[0-5][0-9])?$/;
       if (!timePattern.test(task.startTime) || !timePattern.test(task.endTime)) {
         console.warn(`Invalid time format for task ${task.id}:`, task.startTime, task.endTime);
         return false;

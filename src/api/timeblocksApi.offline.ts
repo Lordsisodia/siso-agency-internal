@@ -100,6 +100,16 @@ export class TimeBlockUtils {
   }
 }
 
+const normalizeTimeString = (time: string): string => {
+  if (!time) return '';
+
+  const parts = time.trim().split(':');
+  const hours = parts[0] ?? '00';
+  const minutes = parts[1] ?? '00';
+
+  return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
+};
+
 // Offline-First Time Blocks API
 export class TimeBlocksAPI {
   /**
@@ -131,8 +141,8 @@ export class TimeBlocksAPI {
           id: block.id || '',
           userId: block.user_id,
           date: block.date,
-          startTime: block.start_time,
-          endTime: block.end_time,
+          startTime: normalizeTimeString(block.start_time),
+          endTime: normalizeTimeString(block.end_time),
           title: block.title,
           description: block.description,
           category: typeToCategory[block.type || ''] || 'LIGHT_WORK', // Map database 'type' to API 'category'
@@ -161,8 +171,8 @@ export class TimeBlocksAPI {
         id: crypto.randomUUID(),
         user_id: input.userId,
         date: input.date,
-        start_time: input.startTime,
-        end_time: input.endTime,
+        start_time: normalizeTimeString(input.startTime),
+        end_time: normalizeTimeString(input.endTime),
         title: input.title,
         description: input.description,
         category: input.category,  // Will be mapped to 'type' in unified service
@@ -224,8 +234,8 @@ export class TimeBlocksAPI {
 
       // Prepare update data
       const updateData = {
-        start_time: input.startTime,
-        end_time: input.endTime,
+        start_time: input.startTime ? normalizeTimeString(input.startTime) : undefined,
+        end_time: input.endTime ? normalizeTimeString(input.endTime) : undefined,
         title: input.title,
         description: input.description,
         category: input.category,
@@ -241,8 +251,8 @@ export class TimeBlocksAPI {
           id,
           userId: input.userId,
           date: input.date,
-          startTime: input.startTime || existingBlock.start_time,
-          endTime: input.endTime || existingBlock.end_time,
+          startTime: normalizeTimeString(input.startTime || existingBlock.start_time),
+          endTime: normalizeTimeString(input.endTime || existingBlock.end_time),
           title: input.title || existingBlock.title,
           description: input.description !== undefined ? input.description : existingBlock.description,
           category: (input.category || existingBlock.type) as TimeBlockCategory,

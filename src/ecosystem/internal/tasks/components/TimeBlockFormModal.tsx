@@ -50,6 +50,8 @@ export interface TimeBlockFormModalProps {
   existingBlock?: TimeBlock;
   conflicts?: TimeBlockConflict[];
   onCheckConflicts?: (startTime: string, endTime: string, excludeId?: string) => Promise<TimeBlockConflict[]>;
+  userId?: string | null;
+  dateKey?: string;
 }
 
 const categoryIcons: Record<TimeBlockCategory, React.ComponentType<{ className?: string }>> = {
@@ -82,7 +84,9 @@ export const TimeBlockFormModal: React.FC<TimeBlockFormModalProps> = ({
   onDelete,
   existingBlock,
   conflicts = [],
-  onCheckConflicts
+  onCheckConflicts,
+  userId,
+  dateKey
 }) => {
   const [formData, setFormData] = useState({
     title: '',
@@ -154,9 +158,9 @@ export const TimeBlockFormModal: React.FC<TimeBlockFormModalProps> = ({
         category: existingBlock.category,
         notes: existingBlock.notes || ''
       });
-      
+
       // Fetch linked task if taskId exists
-      if (existingBlock.taskId) {
+      if (existingBlock.taskId && userId) {
         fetchLinkedTask(existingBlock.taskId);
       } else {
         setLinkedTask(null);
@@ -184,18 +188,22 @@ export const TimeBlockFormModal: React.FC<TimeBlockFormModalProps> = ({
     
     setCurrentConflicts([]);
     setValidationErrors([]);
-  }, [existingBlock, isOpen]);
+  }, [existingBlock, isOpen, userId, dateKey]);
 
   // Fetch linked task data
   const fetchLinkedTask = async (taskId: string) => {
+    if (!userId) return;
+
     setLoadingTask(true);
     try {
       // Import the tasks service
       const { unifiedDataService } = await import('@/shared/services/unified-data.service');
-      
+
       // Fetch the task - we need to find it in deep work or light work tasks
-      const deepWorkTasks = await unifiedDataService.getDeepWorkTasks();
-      const lightWorkTasks = await unifiedDataService.getLightWorkTasks();
+      const [deepWorkTasks, lightWorkTasks] = await Promise.all([
+        unifiedDataService.getDeepWorkTasks(userId, dateKey),
+        unifiedDataService.getLightWorkTasks(userId, dateKey)
+      ]);
       
       const task = [...deepWorkTasks, ...lightWorkTasks].find(t => t.id === taskId);
       

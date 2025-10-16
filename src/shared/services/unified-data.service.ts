@@ -12,6 +12,9 @@
 import { offlineDb } from '@/shared/offline/offlineDb';
 import { supabaseAnon } from '@/shared/lib/supabase-clerk';
 import { offlineManager } from '@/shared/services/offlineManager';
+import type { DeepWorkTask } from '@/ecosystem/internal/tasks/hooks/useDeepWorkTasksSupabase';
+import type { LightWorkTask } from '@/ecosystem/internal/tasks/hooks/useLightWorkTasksSupabase';
+import type { Database } from '@/types/supabase';
 
 // ===== TYPES =====
 export interface DailyReflection {
@@ -51,6 +54,156 @@ export interface TimeBlock {
 }
 
 // ===== UNIFIED DATA SERVICE =====
+type OfflineDeepWorkTask = Awaited<ReturnType<typeof offlineDb.getDeepWorkTasks>> extends Array<infer T> ? T : never;
+type OfflineLightWorkTask = Awaited<ReturnType<typeof offlineDb.getLightWorkTasks>> extends Array<infer T> ? T : never;
+
+const nowIso = () => new Date().toISOString();
+
+const mapOfflineDeepWorkToApp = (task: OfflineDeepWorkTask): DeepWorkTask => ({
+  id: task.id,
+  userId: task.user_id,
+  title: task.title,
+  description: task.description ?? undefined,
+  priority: (task.priority as DeepWorkTask['priority']) || 'MEDIUM',
+  completed: Boolean(task.completed),
+  originalDate: task.original_date,
+  currentDate: task.task_date || task.original_date,
+  taskDate: task.task_date || undefined,
+  dueDate: null,
+  estimatedDuration: task.estimated_duration ?? undefined,
+  focusBlocks: task.focus_blocks ?? 4,
+  breakDuration: 15,
+  interruptionMode: false,
+  rollovers: 0,
+  tags: [],
+  category: undefined,
+  createdAt: task.created_at || nowIso(),
+  updatedAt: task.updated_at || nowIso(),
+  completedAt: task.completed_at ?? undefined,
+  startedAt: undefined,
+  actualDurationMin: task.actual_duration_min ?? undefined,
+  timeEstimate: undefined,
+  subtasks: []
+});
+
+const mapOfflineLightWorkToApp = (task: OfflineLightWorkTask): LightWorkTask => ({
+  id: task.id,
+  userId: task.user_id,
+  title: task.title,
+  description: task.description ?? undefined,
+  priority: (task.priority as LightWorkTask['priority']) || 'MEDIUM',
+  completed: Boolean(task.completed),
+  originalDate: task.original_date,
+  currentDate: task.task_date || task.original_date,
+  taskDate: task.task_date || undefined,
+  estimatedDuration: task.estimated_duration ?? undefined,
+  rollovers: 0,
+  tags: [],
+  category: undefined,
+  createdAt: task.created_at || nowIso(),
+  updatedAt: task.updated_at || nowIso(),
+  completedAt: task.completed_at ?? undefined,
+  startedAt: undefined,
+  actualDurationMin: task.actual_duration_min ?? undefined,
+  timeEstimate: undefined,
+  dueDate: undefined,
+  subtasks: []
+});
+
+const mapDeepWorkRowToApp = (
+  task: Database['public']['Tables']['deep_work_tasks']['Row']
+): DeepWorkTask => ({
+  id: task.id,
+  userId: task.user_id,
+  title: task.title,
+  description: task.description ?? undefined,
+  priority: (task.priority as DeepWorkTask['priority']) || 'MEDIUM',
+  completed: Boolean(task.completed),
+  originalDate: task.original_date,
+  currentDate: task.task_date || task.original_date,
+  taskDate: task.task_date || undefined,
+  dueDate: task.due_date,
+  estimatedDuration: task.estimated_duration ?? undefined,
+  focusBlocks: task.focus_blocks ?? 4,
+  breakDuration: task.break_duration ?? 15,
+  interruptionMode: task.interruption_mode ?? false,
+  rollovers: task.rollovers ?? 0,
+  tags: task.tags ?? [],
+  category: task.category ?? undefined,
+  createdAt: task.created_at || nowIso(),
+  updatedAt: task.updated_at || nowIso(),
+  completedAt: task.completed_at ?? undefined,
+  startedAt: task.started_at ?? undefined,
+  actualDurationMin: task.actual_duration_min ?? undefined,
+  timeEstimate: task.time_estimate ?? undefined,
+  subtasks: []
+});
+
+const mapLightWorkRowToApp = (
+  task: Database['public']['Tables']['light_work_tasks']['Row']
+): LightWorkTask => ({
+  id: task.id,
+  userId: task.user_id,
+  title: task.title,
+  description: task.description ?? undefined,
+  priority: (task.priority as LightWorkTask['priority']) || 'MEDIUM',
+  completed: Boolean(task.completed),
+  originalDate: task.original_date,
+  currentDate: task.task_date || task.original_date,
+  taskDate: task.task_date || undefined,
+  estimatedDuration: task.estimated_duration ?? undefined,
+  rollovers: task.rollovers ?? 0,
+  tags: task.tags ?? [],
+  category: task.category ?? undefined,
+  createdAt: task.created_at || nowIso(),
+  updatedAt: task.updated_at || nowIso(),
+  completedAt: task.completed_at ?? undefined,
+  startedAt: task.started_at ?? undefined,
+  actualDurationMin: task.actual_duration_min ?? undefined,
+  timeEstimate: task.time_estimate ?? undefined,
+  dueDate: task.due_date ?? undefined,
+  subtasks: []
+});
+
+const mapDeepWorkAppToOffline = (task: DeepWorkTask): OfflineDeepWorkTask => ({
+  id: task.id,
+  user_id: task.userId,
+  title: task.title,
+  description: task.description,
+  priority: task.priority,
+  completed: task.completed,
+  original_date: task.originalDate,
+  task_date: task.taskDate ?? task.currentDate,
+  estimated_duration: task.estimatedDuration,
+  actual_duration_min: task.actualDurationMin,
+  focus_blocks: task.focusBlocks,
+  xp_reward: undefined,
+  difficulty: undefined,
+  complexity: undefined,
+  created_at: task.createdAt || nowIso(),
+  updated_at: task.updatedAt || nowIso(),
+  completed_at: task.completedAt
+});
+
+const mapLightWorkAppToOffline = (task: LightWorkTask): OfflineLightWorkTask => ({
+  id: task.id,
+  user_id: task.userId,
+  title: task.title,
+  description: task.description,
+  priority: task.priority,
+  completed: task.completed,
+  original_date: task.originalDate,
+  task_date: task.taskDate ?? task.currentDate,
+  estimated_duration: task.estimatedDuration,
+  actual_duration_min: task.actualDurationMin,
+  xp_reward: undefined,
+  difficulty: undefined,
+  complexity: undefined,
+  created_at: task.createdAt || nowIso(),
+  updated_at: task.updatedAt || nowIso(),
+  completed_at: task.completedAt
+});
+
 class UnifiedDataService {
   private isOnline(): boolean {
     return navigator.onLine;
@@ -281,7 +434,7 @@ class UnifiedDataService {
       try {
         const { error } = await supabaseAnon
           .from('time_blocks')
-          .upsert(dbRecord);
+          .upsert(dbRecord, { onConflict: 'user_id,date,start_time' });
 
         if (error) {
           console.warn('❌ Failed to sync timeblock to Supabase:', error);
@@ -390,7 +543,7 @@ class UnifiedDataService {
 
     // Remove from all local caches (we need to find which date it belongs to)
     // For now, we'll just try to delete from Supabase and invalidate all caches
-    
+
     // If online, delete from Supabase
     if (this.isOnline()) {
       try {
@@ -407,6 +560,106 @@ class UnifiedDataService {
       } catch (error) {
         console.warn('❌ Supabase delete error:', error);
       }
+    }
+  }
+
+  async getDeepWorkTasks(userId?: string | null, date?: string): Promise<DeepWorkTask[]> {
+    let localTasks: OfflineDeepWorkTask[] = [];
+
+    try {
+      localTasks = await offlineDb.getDeepWorkTasks(date);
+    } catch (error) {
+      console.warn('Failed to get local deep work tasks:', error);
+    }
+
+    const filteredLocal = userId ? localTasks.filter(task => task.user_id === userId) : localTasks;
+
+    if (filteredLocal.length > 0) {
+      return filteredLocal.map(mapOfflineDeepWorkToApp);
+    }
+
+    if (!this.isOnline() || !userId) {
+      return [];
+    }
+
+    try {
+      let query = supabaseAnon
+        .from('deep_work_tasks')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+      if (date) {
+        query = query.eq('task_date', date);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.warn('Failed to fetch deep work tasks from Supabase:', error);
+        return [];
+      }
+
+      const mappedTasks = (data ?? []).map(mapDeepWorkRowToApp);
+
+      await Promise.allSettled(
+        mappedTasks.map(task => offlineDb.saveDeepWorkTask(mapDeepWorkAppToOffline(task), false))
+      );
+
+      return mappedTasks;
+    } catch (error) {
+      console.warn('Failed to load deep work tasks from Supabase:', error);
+      return [];
+    }
+  }
+
+  async getLightWorkTasks(userId?: string | null, date?: string): Promise<LightWorkTask[]> {
+    let localTasks: OfflineLightWorkTask[] = [];
+
+    try {
+      localTasks = await offlineDb.getLightWorkTasks(date);
+    } catch (error) {
+      console.warn('Failed to get local light work tasks:', error);
+    }
+
+    const filteredLocal = userId ? localTasks.filter(task => task.user_id === userId) : localTasks;
+
+    if (filteredLocal.length > 0) {
+      return filteredLocal.map(mapOfflineLightWorkToApp);
+    }
+
+    if (!this.isOnline() || !userId) {
+      return [];
+    }
+
+    try {
+      let query = supabaseAnon
+        .from('light_work_tasks')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+      if (date) {
+        query = query.eq('task_date', date);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.warn('Failed to fetch light work tasks from Supabase:', error);
+        return [];
+      }
+
+      const mappedTasks = (data ?? []).map(mapLightWorkRowToApp);
+
+      await Promise.allSettled(
+        mappedTasks.map(task => offlineDb.saveLightWorkTask(mapLightWorkAppToOffline(task), false))
+      );
+
+      return mappedTasks;
+    } catch (error) {
+      console.warn('Failed to load light work tasks from Supabase:', error);
+      return [];
     }
   }
 
