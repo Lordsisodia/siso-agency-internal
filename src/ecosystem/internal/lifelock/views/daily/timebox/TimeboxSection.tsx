@@ -1,4 +1,4 @@
-import React, { useState, useEffect, memo } from 'react';
+import React, { useState, useEffect, memo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, Zap } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
@@ -38,6 +38,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
   const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
   const [gapFiller, setGapFiller] = useState<GapFillerState | null>(null);
   const [gapSuggestions, setGapSuggestions] = useState<any[]>([]);
+  const timelineContainerRef = useRef<HTMLDivElement | null>(null);
 
   console.log('🔍 [TIMEBOX] RENDER with internalUserId:', internalUserId, 'isSignedIn:', isSignedIn, 'date:', format(selectedDate, 'yyyy-MM-dd'));
 
@@ -118,16 +119,22 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
 
   // Auto-scroll to current time on page load
   useEffect(() => {
-    const timelineContainer = document.querySelector('[data-timeline-container]');
-    if (timelineContainer && currentTimePosition >= 0) {
-      const scrollToPosition = Math.max(0, currentTimePosition - 200);
-      setTimeout(() => {
-        timelineContainer.scrollTo({
-          top: scrollToPosition,
-          behavior: 'smooth'
-        });
-      }, 800);
+    const container = timelineContainerRef.current;
+    if (!container || currentTimePosition < 0) {
+      return;
     }
+
+    const scrollToPosition = Math.max(0, currentTimePosition - 200);
+    const timeout = window.setTimeout(() => {
+      container.scrollTo({
+        top: scrollToPosition,
+        behavior: 'smooth'
+      });
+    }, 800);
+
+    return () => {
+      window.clearTimeout(timeout);
+    };
   }, [currentTimePosition, tasks]);
 
   // Cache today's stats for future comparison
@@ -323,6 +330,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
             <CardContent className="p-0">
               <div className="w-full">
                 <TimeboxTimeline
+                  ref={timelineContainerRef}
                   timeSlots={timeSlots}
                   validTasks={validTasks}
                   hourlyDensity={hourlyDensity}

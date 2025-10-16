@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, Lightbulb, X, Plus } from 'lucide-react';
 import { format } from 'date-fns';
@@ -36,7 +36,7 @@ interface TimeboxTimelineProps {
   setIsQuickSchedulerOpen: (open: boolean) => void;
 }
 
-export const TimeboxTimeline: React.FC<TimeboxTimelineProps> = ({
+export const TimeboxTimeline = forwardRef<HTMLDivElement, TimeboxTimelineProps>(({
   timeSlots,
   validTasks,
   hourlyDensity,
@@ -62,12 +62,13 @@ export const TimeboxTimeline: React.FC<TimeboxTimelineProps> = ({
   onGapSchedule,
   onCloseGapFiller,
   setIsQuickSchedulerOpen
-}) => {
+}, ref) => {
   return (
     <div className="relative w-full">
       <div
         className="relative w-full"
         data-timeline-container
+        ref={ref}
       >
         {/* Enhanced Timeline Grid */}
         <div className="relative" style={{ height: `${(23 - 0 + 1) * TIMEBOX_HOUR_HEIGHT}px` }}>
@@ -391,4 +392,6 @@ export const TimeboxTimeline: React.FC<TimeboxTimelineProps> = ({
       </div>
     </div>
   );
-};
+});
+
+TimeboxTimeline.displayName = 'TimeboxTimeline';
