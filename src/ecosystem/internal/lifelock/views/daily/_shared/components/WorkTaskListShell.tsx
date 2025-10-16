@@ -1,0 +1,1389 @@
+"use client";
+
+import React, { useMemo, useState } from "react";
+import {
+  CheckCircle2,
+  Circle,
+  CircleAlert,
+  CircleDotDashed,
+  ArrowUp,
+  ArrowDown,
+  Calendar,
+  Brain,
+  Clock,
+  Plus,
+  ChevronDown,
+  ChevronRight
+} from "lucide-react";
+import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
+import { SimpleFeedbackButton } from "@/ecosystem/internal/feedback/SimpleFeedbackButton";
+import { Button } from "@/shared/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
+import { Skeleton } from "@/shared/ui/skeleton";
+import { TaskDetailModal } from "@/ecosystem/internal/lifelock/components/TaskDetailModal";
+import { CustomCalendar } from "./ui/CustomCalendar";
+import { SubtaskItem } from "@/components/tasks/SubtaskItem";
+import { sortSubtasksHybrid } from "@/ecosystem/internal/tasks/utils/subtaskSorting";
+import { format } from "date-fns";
+
+export type WorkTaskPriority = "low" | "medium" | "high" | "urgent";
+
+export interface WorkTaskSubtask {
+  id: string;
+  title: string;
+  description: string;
+  status: string;
+  priority: string;
+  estimatedTime?: string;
+  tools?: string[];
+  completed: boolean;
+  dueDate?: string;
+}
+
+export interface WorkTask {
+  id: string;
+  title: string;
+  description: string;
+  status: string;
+  priority: WorkTaskPriority;
+  level: number;
+  dependencies: string[];
+  subtasks: WorkTaskSubtask[];
+  focusIntensity?: 1 | 2 | 3 | 4;
+  context?: string;
+  dueDate?: string | null;
+  timeEstimate?: string | null;
+}
+
+type MaybePromise<T = unknown> = T | Promise<T>;
+
+export interface WorkTaskListHandlers {
+  createTask: (task: { title: string; priority?: string; timeEstimate?: string | null }) => MaybePromise<{ id: string; title: string } | null>;
+  toggleTaskCompletion: (taskId: string) => MaybePromise<unknown>;
+  toggleSubtaskCompletion: (taskId: string, subtaskId: string) => MaybePromise<unknown>;
+  addSubtask: (taskId: string, title: string) => MaybePromise<unknown>;
+  deleteTask: (taskId: string) => MaybePromise<unknown>;
+  deleteSubtask: (subtaskId: string) => MaybePromise<unknown>;
+  updateSubtaskDueDate: (subtaskId: string, dueDate: Date | null) => MaybePromise<unknown>;
+  updateSubtaskTitle: (subtaskId: string, title: string) => MaybePromise<unknown>;
+  updateSubtaskPriority: (subtaskId: string, priority: string) => MaybePromise<unknown>;
+  updateSubtaskEstimatedTime: (subtaskId: string, estimatedTime: string | null) => MaybePromise<unknown>;
+  updateSubtaskDescription: (subtaskId: string, description: string) => MaybePromise<unknown>;
+  updateTaskTitle: (taskId: string, title: string) => MaybePromise<unknown>;
+  updateTaskDueDate: (taskId: string, dueDate: Date | null) => MaybePromise<unknown>;
+  updateTaskPriority: (taskId: string, priority: WorkTaskPriority) => MaybePromise<unknown>;
+  updateTaskTimeEstimate: (taskId: string, timeEstimate: string | null) => MaybePromise<unknown>;
+  refreshTasks: () => MaybePromise<unknown>;
+}
+
+export type WorkTaskListPaletteKey = "blue" | "green";
+
+interface WorkTaskListPalette {
+  rootText: string;
+  card: string;
+  skeletonIcon: string;
+  skeletonTitle: string;
+  skeletonLine: string;
+  skeletonCard: string;
+  skeletonSubline: string;
+  errorText: string;
+  primaryButton: string;
+  cardTitle: string;
+  divider: string;
+  sectionHeading: string;
+  sectionBody: string;
+  listItem: string;
+  icon: string;
+  iconSecondary: string;
+  taskInput: string;
+  taskTitleButton: string;
+  taskTitleHover: string;
+  reorderButton: string;
+  reorderButtonDisabled: string;
+  reorderButtonHover: string;
+  toggleButtonHover: string;
+  tagPill: string;
+  tagButton: string;
+  progressPill: string;
+  filterPill: string;
+  modalContainer: string;
+  modalOption: string;
+  modalOptionActive: string;
+  modalOptionIcon: string;
+  addSubtaskButton: string;
+  addSubtaskInput: string;
+  addTaskButton: string;
+  subtaskToggle: string;
+  focusSessionButton: string;
+  focusSessionButtonActive: string;
+}
+
+const paletteStyles: Record<WorkTaskListPaletteKey, WorkTaskListPalette> = {
+  blue: {
+    rootText: "text-blue-50",
+    card: "bg-blue-900/20 border-blue-700/50",
+    skeletonIcon: "bg-blue-500/30",
+    skeletonTitle: "bg-blue-400/20",
+    skeletonLine: "bg-blue-400/20",
+    skeletonCard: "border-blue-700/50 bg-blue-900/30",
+    skeletonSubline: "bg-blue-400/10",
+    errorText: "text-blue-200",
+    primaryButton: "bg-blue-600 hover:bg-blue-700",
+    cardTitle: "text-blue-400",
+    divider: "border-blue-600/50",
+    sectionHeading: "text-blue-300",
+    sectionBody: "text-blue-200",
+    listItem: "bg-blue-900/10 border-blue-700/30 hover:bg-blue-900/15 hover:border-blue-600/40 hover:shadow-blue-500/5",
+    icon: "text-blue-400",
+    iconSecondary: "text-blue-300",
+    taskInput: "bg-blue-900/40 text-blue-100 border-blue-600/50 focus:border-blue-400",
+    taskTitleButton: "text-blue-100",
+    taskTitleHover: "hover:text-blue-50",
+    reorderButton: "border-blue-700/40 text-blue-300",
+    reorderButtonDisabled: "opacity-40 cursor-not-allowed",
+    reorderButtonHover: "hover:bg-blue-900/25",
+    toggleButtonHover: "hover:bg-blue-900/20",
+    tagPill: "px-2 py-1 rounded-md text-xs font-medium bg-blue-900/40 border border-blue-600/60 text-blue-100 focus:border-blue-300 focus:outline-none",
+    tagButton: "flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium text-blue-200/90 bg-blue-900/20 hover:bg-blue-900/30 transition-colors",
+    progressPill: "text-blue-200/80 bg-blue-900/20 hover:bg-blue-900/30",
+    filterPill: "text-blue-200 bg-blue-900/30 hover:bg-blue-900/40",
+    modalContainer: "bg-blue-950/95 border-blue-700/60",
+    modalOption: "text-blue-200 hover:bg-blue-800/30",
+    modalOptionActive: "bg-blue-800/40 text-blue-100",
+    modalOptionIcon: "text-blue-300",
+    addSubtaskButton: "text-blue-300 hover:text-blue-200 hover:bg-blue-900/20 border-blue-700/30 hover:border-blue-600/40",
+    addSubtaskInput: "bg-blue-900/40 text-blue-100 border-blue-600/50 focus:border-blue-400",
+    addTaskButton: "text-blue-300 hover:text-blue-200 hover:bg-blue-900/20 border-blue-700/30 hover:border-blue-600/40",
+    subtaskToggle: "text-blue-400 hover:text-blue-300",
+    focusSessionButton: "text-blue-200/80 bg-blue-900/20 hover:bg-blue-900/30",
+    focusSessionButtonActive: "text-blue-200 bg-blue-900/30 hover:bg-blue-900/40",
+  },
+  green: {
+    rootText: "text-green-50",
+    card: "bg-green-900/20 border-green-700/50",
+    skeletonIcon: "bg-green-500/30",
+    skeletonTitle: "bg-green-400/20",
+    skeletonLine: "bg-green-400/20",
+    skeletonCard: "border-green-700/50 bg-green-900/30",
+    skeletonSubline: "bg-green-400/10",
+    errorText: "text-green-200",
+    primaryButton: "bg-green-600 hover:bg-green-700",
+    cardTitle: "text-green-400",
+    divider: "border-green-600/50",
+    sectionHeading: "text-green-300",
+    sectionBody: "text-green-200",
+    listItem: "bg-green-900/10 border-green-700/30 hover:bg-green-900/15 hover:border-green-600/40 hover:shadow-green-500/5",
+    icon: "text-green-400",
+    iconSecondary: "text-green-300",
+    taskInput: "bg-green-900/40 text-green-100 border-green-600/50 focus:border-green-400",
+    taskTitleButton: "text-green-100",
+    taskTitleHover: "hover:text-green-50",
+    reorderButton: "border-green-700/40 text-green-300",
+    reorderButtonDisabled: "opacity-40 cursor-not-allowed",
+    reorderButtonHover: "hover:bg-green-900/25",
+    toggleButtonHover: "hover:bg-green-900/20",
+    tagPill: "px-2 py-1 rounded-md text-xs font-medium bg-green-900/40 border border-green-600/60 text-green-100 focus:border-green-300 focus:outline-none",
+    tagButton: "flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium text-green-200/90 bg-green-900/20 hover:bg-green-900/30 transition-colors",
+    progressPill: "text-green-200/80 bg-green-900/20 hover:bg-green-900/30",
+    filterPill: "text-green-200 bg-green-900/30 hover:bg-green-900/40",
+    modalContainer: "bg-green-950/95 border-green-700/60",
+    modalOption: "text-green-200 hover:bg-green-800/30",
+    modalOptionActive: "bg-green-800/40 text-green-100",
+    modalOptionIcon: "text-green-300",
+    addSubtaskButton: "text-green-300 hover:text-green-200 hover:bg-green-900/20 border-green-700/30 hover:border-green-600/40",
+    addSubtaskInput: "bg-green-900/40 text-green-100 border-green-600/50 focus:border-green-400",
+    addTaskButton: "text-green-300 hover:text-green-200 hover:bg-green-900/20 border-green-700/30 hover:border-green-600/40",
+    subtaskToggle: "text-green-400 hover:text-green-300",
+    focusSessionButton: "text-green-200/80 bg-green-900/20 hover:bg-green-900/30",
+    focusSessionButtonActive: "text-green-200 bg-green-900/30 hover:bg-green-900/40",
+  },
+};
+
+export interface WorkTaskListTheme {
+  title: string;
+  subtitle: string;
+  description: string;
+  rules: string[];
+  storageKeyPrefix: string;
+  palette: WorkTaskListPaletteKey;
+  newTaskTitle: string;
+  subtaskTheme: {
+    text: string;
+    border: string;
+    input: string;
+    textSecondary: string;
+  };
+}
+
+export interface WorkTaskListShellProps {
+  onStartFocusSession?: (taskId: string, intensity: number) => void;
+  selectedDate?: Date;
+  theme: WorkTaskListTheme;
+  tasks: WorkTask[];
+  loading: boolean;
+  error: string | null;
+  handlers: WorkTaskListHandlers;
+}
+
+export function WorkTaskListShell({
+  onStartFocusSession,
+  selectedDate = new Date(),
+  theme,
+  tasks,
+  loading,
+  error,
+  handlers,
+}: WorkTaskListShellProps) {
+  const {
+    toggleTaskCompletion,
+    toggleSubtaskCompletion,
+    createTask,
+    addSubtask,
+    deleteTask,
+    deleteSubtask,
+    updateSubtaskDueDate,
+    updateSubtaskTitle,
+    updateSubtaskPriority,
+    updateSubtaskEstimatedTime,
+    updateSubtaskDescription,
+    updateTaskTitle,
+    updateTaskDueDate,
+    updateTaskPriority,
+    updateTaskTimeEstimate,
+  } = handlers;
+
+  const palette = paletteStyles[theme.palette];
+
+  // State - EXACT COPY
+  const [expandedTasks, setExpandedTasks] = useState<string[]>(["1", "2", "3"]);
+  const [expandedSubtasks, setExpandedSubtasks] = useState<{
+    [key: string]: boolean;
+  }>({});
+  const [activeFocusSession, setActiveFocusSession] = useState<string | null>(null);
+  const [selectedTask, setSelectedTask] = useState<WorkTask | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [calendarSubtaskId, setCalendarSubtaskId] = useState<string | null>(null);
+  const [activeTaskCalendarId, setActiveTaskCalendarId] = useState<string | null>(null);
+  const [taskPriorityMenuId, setTaskPriorityMenuId] = useState<string | null>(null);
+  const [editingTaskTimeId, setEditingTaskTimeId] = useState<string | null>(null);
+  const [editTaskTimeValue, setEditTaskTimeValue] = useState('');
+
+  // Persist task order to localStorage (per-date)
+  const dateKey = useMemo(() => selectedDate ? format(selectedDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd'), [selectedDate]);
+  const [taskOrder, setTaskOrder] = useState<string[]>(() => {
+    const saved = localStorage.getItem(`${theme.storageKeyPrefix}-${dateKey}-taskOrder`);
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [editingSubtask, setEditingSubtask] = useState<string | null>(null);
+  const [editSubtaskTitle, setEditSubtaskTitle] = useState('');
+  const [editingMainTask, setEditingMainTask] = useState<string | null>(null);
+  const [editMainTaskTitle, setEditMainTaskTitle] = useState('');
+  const [addingSubtaskToTask, setAddingSubtaskToTask] = useState<string | null>(null);
+  const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
+  const [showCompletedSubtasks, setShowCompletedSubtasks] = useState<{[taskId: string]: boolean}>({});
+
+  // Load task order from localStorage when date changes
+  React.useEffect(() => {
+    const saved = localStorage.getItem(`${theme.storageKeyPrefix}-${dateKey}-taskOrder`);
+    if (saved) {
+      setTaskOrder(JSON.parse(saved));
+    } else {
+      setTaskOrder([]);
+    }
+  }, [dateKey, theme.storageKeyPrefix]);
+
+  // Sync task order with current tasks (handle new/deleted tasks)
+  React.useEffect(() => {
+    setTaskOrder(prevOrder => {
+      if (tasks.length === 0) {
+        return [];
+      }
+
+      if (prevOrder.length === 0) {
+        return tasks.map(task => task.id);
+      }
+
+      const taskIds = tasks.map(task => task.id);
+      const filtered = prevOrder.filter(id => taskIds.includes(id));
+      const missing = taskIds.filter(id => !filtered.includes(id));
+
+      if (missing.length === 0 && filtered.length === prevOrder.length) {
+        return prevOrder;
+      }
+
+      return [...filtered, ...missing];
+    });
+  }, [tasks]);
+
+  // Save task order to localStorage whenever it changes
+  React.useEffect(() => {
+    if (taskOrder.length > 0) {
+      localStorage.setItem(`${theme.storageKeyPrefix}-${dateKey}-taskOrder`, JSON.stringify(taskOrder));
+    }
+  }, [taskOrder, dateKey, theme.storageKeyPrefix]);
+
+  const orderedTasks = useMemo(() => {
+    if (taskOrder.length === 0) {
+      return tasks;
+    }
+
+    const orderMap = new Map(taskOrder.map((id, index) => [id, index]));
+    return [...tasks].sort((a, b) => {
+      const aIndex = orderMap.has(a.id) ? orderMap.get(a.id)! : Number.MAX_SAFE_INTEGER;
+      const bIndex = orderMap.has(b.id) ? orderMap.get(b.id)! : Number.MAX_SAFE_INTEGER;
+      return aIndex - bIndex;
+    });
+  }, [tasks, taskOrder]);
+
+  const themeConfig = {
+    colors: theme.subtaskTheme,
+  };
+
+  // Reduced motion support
+  const prefersReducedMotion =
+    typeof window !== 'undefined'
+      ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      : false;
+
+  // Close calendar popovers when clicking outside
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if ((calendarSubtaskId || activeTaskCalendarId) && !(event.target as Element).closest('.calendar-popup')) {
+        setCalendarSubtaskId(null);
+        setActiveTaskCalendarId(null);
+      }
+    };
+
+    if (calendarSubtaskId || activeTaskCalendarId) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [calendarSubtaskId, activeTaskCalendarId]);
+
+  // Handlers - EXACT COPY
+
+  const toggleTaskExpansion = (taskId: string) => {
+    setExpandedTasks((prev) =>
+      prev.includes(taskId)
+        ? prev.filter((id) => id !== taskId)
+        : [...prev, taskId],
+    );
+  };
+
+  const toggleSubtaskExpansion = (taskId: string, subtaskId: string) => {
+    const key = `${taskId}-${subtaskId}`;
+    setExpandedSubtasks((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  };
+
+  const handleToggleTaskStatus = async (taskId: string) => {
+    try {
+      await toggleTaskCompletion(taskId);
+    } catch (error) {
+      console.error('Error toggling task completion:', error);
+    }
+  };
+
+  const handleToggleSubtaskStatus = async (taskId: string, subtaskId: string) => {
+    try {
+      await toggleSubtaskCompletion(taskId, subtaskId);
+    } catch (error) {
+      console.error('Error toggling subtask completion:', error);
+    }
+  };
+
+  const startFocusSession = async (taskId: string, subtaskId?: string) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (task) {
+      try {
+        setActiveFocusSession(subtaskId ? `${taskId}-${subtaskId}` : taskId);
+        onStartFocusSession?.(taskId, task.focusIntensity || 2);
+
+        if (subtaskId) {
+          await handleToggleSubtaskStatus(taskId, subtaskId);
+        } else {
+          await handleToggleTaskStatus(taskId);
+        }
+      } catch (error) {
+        console.error('Error starting focus session:', error);
+        setActiveFocusSession(null);
+      }
+    }
+  };
+
+  const openTaskDetail = (task: WorkTask) => {
+    setSelectedTask(task);
+    setIsModalOpen(true);
+  };
+
+  const updateTask = (updatedTask: WorkTask) => {
+    console.log('Update task:', updatedTask);
+  };
+
+  const handleUpdateSubtaskDueDate = async (taskId: string, subtaskId: string, dueDate: Date | null) => {
+    try {
+      await updateSubtaskDueDate(subtaskId, dueDate);
+    } catch (error) {
+      console.error('Error updating subtask due date:', error);
+      return;
+    }
+  };
+
+  const handleSubtaskStartEditing = (subtaskId: string, currentTitle: string) => {
+    setEditingSubtask(subtaskId);
+    setEditSubtaskTitle(currentTitle);
+  };
+
+  const handleSubtaskEditTitleChange = (title: string) => {
+    setEditSubtaskTitle(title);
+  };
+
+  const handleSubtaskSaveEdit = async (taskId: string, subtaskId: string) => {
+    if (editSubtaskTitle.trim()) {
+      try {
+        await updateSubtaskTitle(subtaskId, editSubtaskTitle.trim());
+        console.log('✅ Subtask title updated successfully');
+      } catch (error) {
+        console.error('❌ Failed to update subtask title:', error);
+      }
+    }
+    setEditingSubtask(null);
+    setEditSubtaskTitle('');
+  };
+
+  const handleSubtaskKeyDown = (e: React.KeyboardEvent, type: 'subtask', taskId: string, subtaskId?: string) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (type === 'subtask' && subtaskId) {
+        handleSubtaskSaveEdit(taskId, subtaskId);
+      }
+    } else if (e.key === 'Escape') {
+      setEditingSubtask(null);
+      setEditSubtaskTitle('');
+    }
+  };
+
+  const handleCalendarToggle = (subtaskId: string) => {
+    setCalendarSubtaskId(prev => prev === subtaskId ? null : subtaskId);
+  };
+
+  const handleMainTaskStartEditing = (taskId: string, currentTitle: string) => {
+    setEditingMainTask(taskId);
+    setEditMainTaskTitle(currentTitle);
+  };
+
+  const handleMainTaskEditTitleChange = (value: string) => {
+    setEditMainTaskTitle(value);
+  };
+
+  const handleMainTaskSaveEdit = async (taskId: string) => {
+    if (editMainTaskTitle.trim()) {
+      try {
+        const success = await updateTaskTitle(taskId, editMainTaskTitle.trim());
+        if (success) {
+          setEditingMainTask(null);
+          setEditMainTaskTitle('');
+        }
+      } catch (error) {
+        console.error('Error updating main task title:', error);
+      }
+    }
+  };
+
+  const handleMainTaskKeyDown = (e: React.KeyboardEvent, taskId: string) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleMainTaskSaveEdit(taskId);
+    } else if (e.key === 'Escape') {
+      setEditingMainTask(null);
+      setEditMainTaskTitle('');
+    }
+  };
+
+  const handleDeleteSubtask = async (subtaskId: string) => {
+    await deleteSubtask(subtaskId);
+  };
+
+  const handleUpdateSubtaskPriority = async (subtaskId: string, priority: string) => {
+    try {
+      await updateSubtaskPriority(subtaskId, priority);
+    } catch (error) {
+      console.error('Error updating subtask priority:', error);
+    }
+  };
+
+  const handleUpdateSubtaskDescription = async (subtaskId: string, description: string) => {
+    try {
+      await updateSubtaskDescription(subtaskId, description);
+    } catch (error) {
+      console.error('Error updating subtask description:', error);
+    }
+  };
+
+  const handleUpdateSubtaskEstimatedTime = async (subtaskId: string, estimatedTime: string) => {
+    try {
+      await updateSubtaskEstimatedTime(subtaskId, estimatedTime);
+    } catch (error) {
+      console.error('Error updating subtask estimated time:', error);
+    }
+  };
+
+  const handleStartAddingSubtask = (taskId: string) => {
+    setAddingSubtaskToTask(taskId);
+    setNewSubtaskTitle('');
+  };
+
+  const handleNewSubtaskTitleChange = (title: string) => {
+    setNewSubtaskTitle(title);
+  };
+
+  const handleSaveNewSubtask = async (taskId: string) => {
+    if (newSubtaskTitle.trim()) {
+      try {
+        await addSubtask(taskId, newSubtaskTitle.trim());
+        console.log('✅ New subtask created successfully');
+      } catch (error) {
+        console.error('❌ Failed to create new subtask:', error);
+      }
+    }
+    setAddingSubtaskToTask(null);
+    setNewSubtaskTitle('');
+  };
+
+  const handleNewSubtaskKeyDown = (e: React.KeyboardEvent, taskId: string) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSaveNewSubtask(taskId);
+    } else if (e.key === 'Escape') {
+      setAddingSubtaskToTask(null);
+      setNewSubtaskTitle('');
+    }
+  };
+
+  const toggleSubtaskVisibility = (taskId: string) => {
+    setShowCompletedSubtasks(prev => ({
+      ...prev,
+      [taskId]: !prev[taskId]
+    }));
+  };
+
+  const baseSubtaskMinutes = 30;
+
+  const parseTimeEstimateToMinutes = (value?: string | null): number => {
+    if (!value) return 0;
+    const normalized = value.toString().toLowerCase();
+    let minutes = 0;
+
+    const hourMatches = normalized.matchAll(/(\d+(?:\.\d+)?)\s*(?:h|hr|hrs|hour|hours)/g);
+    for (const match of hourMatches) {
+      minutes += Math.round(parseFloat(match[1]) * 60);
+    }
+
+    const minuteMatches = normalized.matchAll(/(\d+(?:\.\d+)?)\s*(?:m|min|mins|minute|minutes)/g);
+    for (const match of minuteMatches) {
+      minutes += Math.round(parseFloat(match[1]));
+    }
+
+    if (minutes === 0) {
+      const numberMatch = normalized.match(/(\d+(?:\.\d+)?)/);
+      if (numberMatch) {
+        minutes = Math.round(parseFloat(numberMatch[1]));
+      }
+    }
+
+    return minutes;
+  };
+
+  const formatMinutes = (totalMinutes: number): string => {
+    const rounded = Math.max(0, Math.round(totalMinutes));
+    const hours = Math.floor(rounded / 60);
+    const minutes = rounded % 60;
+
+    if (hours > 0 && minutes > 0) {
+      return `${hours}h ${minutes}m`;
+    }
+    if (hours > 0) {
+      return `${hours}h`;
+    }
+    return `${minutes}m`;
+  };
+
+  const getTaskTimeSummary = (task: WorkTask) => {
+    let totalMinutes = 0;
+
+    // ONLY count INCOMPLETE subtasks
+    task.subtasks
+      .filter(subtask => subtask.status !== 'completed')
+      .forEach(subtask => {
+        const estimateMinutes = parseTimeEstimateToMinutes(subtask.estimatedTime);
+        totalMinutes += estimateMinutes > 0 ? estimateMinutes : baseSubtaskMinutes;
+      });
+
+    // Manual override takes precedence
+    const manualMinutes = parseTimeEstimateToMinutes(task.timeEstimate);
+
+    if (task.subtasks.length === 0) {
+      // No subtasks - use manual or default
+      totalMinutes = manualMinutes > 0 ? manualMinutes : baseSubtaskMinutes;
+    } else if (manualMinutes > 0) {
+      // Has subtasks but user set manual time - use manual
+      totalMinutes = manualMinutes;
+    }
+
+    return {
+      totalMinutes,
+      formatted: formatMinutes(totalMinutes)
+    };
+  };
+
+  const TASK_PRIORITY_CONFIG: Record<string, { icon: string; label: string; badgeClass: string }> = {
+    low: { icon: '🟢', label: 'Low', badgeClass: 'text-green-300 bg-green-900/20 hover:bg-green-900/30' },
+    medium: { icon: '🟡', label: 'Medium', badgeClass: 'text-yellow-300 bg-yellow-900/20 hover:bg-yellow-900/30' },
+    high: { icon: '🔴', label: 'High', badgeClass: 'text-red-300 bg-red-900/20 hover:bg-red-900/30' },
+    urgent: { icon: '🚨', label: 'Urgent', badgeClass: 'text-purple-300 bg-purple-900/20 hover:bg-purple-900/30' }
+  };
+
+  const getPriorityConfig = (priority: string) => {
+    const normalized = priority?.toLowerCase() || 'medium';
+    return TASK_PRIORITY_CONFIG[normalized] || TASK_PRIORITY_CONFIG['medium'];
+  };
+
+  const formatShortDate = (dateString?: string | null) => {
+    if (!dateString) return '--/--';
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) return '--/--';
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${month}/${day}`;
+  };
+
+  const getDueDateClasses = (dateString?: string | null) => {
+    const defaultClass = palette.progressPill;
+
+    if (!dateString) {
+      return defaultClass;
+    }
+
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) {
+      return defaultClass;
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const target = new Date(date);
+    target.setHours(0, 0, 0, 0);
+
+    if (target.getTime() === today.getTime()) {
+      return 'text-yellow-300 bg-yellow-900/30 hover:bg-yellow-900/40';
+    }
+
+    if (target < today) {
+      return 'text-red-300 bg-red-900/30 hover:bg-red-900/40';
+    }
+
+    return palette.filterPill;
+  };
+
+  const handleTaskCalendarToggle = (taskId: string) => {
+    setActiveTaskCalendarId(prev => (prev === taskId ? null : taskId));
+    setCalendarSubtaskId(null);
+    setTaskPriorityMenuId(null);
+  };
+
+  const handleTaskCalendarSelect = async (taskId: string, date: Date | null) => {
+    try {
+      await updateTaskDueDate(taskId, date);
+    } catch (error) {
+      console.error('Error updating task due date:', error);
+    } finally {
+      setActiveTaskCalendarId(null);
+    }
+  };
+
+  const handleTaskPrioritySelect = async (taskId: string, priority: 'low' | 'medium' | 'high' | 'urgent') => {
+    try {
+      await updateTaskPriority(taskId, priority);
+      setTaskPriorityMenuId(null);
+    } catch (error) {
+      console.error('Error updating task priority:', error);
+    }
+  };
+
+  const handleTaskTimeStartEditing = (task: WorkTask, fallbackLabel: string) => {
+    setEditingTaskTimeId(task.id);
+    setEditTaskTimeValue(task.timeEstimate || fallbackLabel);
+    setActiveTaskCalendarId(null);
+    setTaskPriorityMenuId(null);
+  };
+
+  const handleTaskTimeSave = async (taskId: string) => {
+    try {
+      const trimmed = editTaskTimeValue.trim();
+      await updateTaskTimeEstimate(taskId, trimmed ? trimmed : null);
+    } catch (error) {
+      console.error('Error updating task time estimate:', error);
+    }
+    setEditingTaskTimeId(null);
+    setEditTaskTimeValue('');
+  };
+
+  const handleTaskTimeKeyDown = (event: React.KeyboardEvent<HTMLInputElement>, taskId: string) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      handleTaskTimeSave(taskId);
+    } else if (event.key === 'Escape') {
+      setEditingTaskTimeId(null);
+      setEditTaskTimeValue('');
+    }
+  };
+
+  const handleMoveTask = (taskId: string, direction: 'up' | 'down') => {
+    setTaskOrder(prevOrder => {
+      const baseOrder = prevOrder.length ? [...prevOrder] : tasks.map(task => task.id);
+      const index = baseOrder.indexOf(taskId);
+
+      if (index === -1) {
+        return baseOrder;
+      }
+
+      if (direction === 'up') {
+        if (index === 0) {
+          return baseOrder;
+        }
+        [baseOrder[index - 1], baseOrder[index]] = [baseOrder[index], baseOrder[index - 1]];
+      } else {
+        if (index === baseOrder.length - 1) {
+          return baseOrder;
+        }
+        [baseOrder[index + 1], baseOrder[index]] = [baseOrder[index], baseOrder[index + 1]];
+      }
+
+      return baseOrder;
+    });
+  };
+
+  // Animation variants - EXACT COPY
+  const taskVariants = {
+    hidden: { opacity: 0, y: prefersReducedMotion ? 0 : -5 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: prefersReducedMotion ? "tween" : "spring",
+        stiffness: 500,
+        damping: 30,
+        duration: prefersReducedMotion ? 0.2 : undefined
+      }
+    },
+  };
+
+  const subtaskListVariants = {
+    hidden: { opacity: 0, height: 0, overflow: "hidden" },
+    visible: {
+      height: "auto",
+      opacity: 1,
+      overflow: "visible",
+      transition: {
+        duration: 0.25,
+        staggerChildren: prefersReducedMotion ? 0 : 0.05,
+        when: "beforeChildren",
+        ease: [0.2, 0.65, 0.3, 0.9]
+      }
+    },
+  };
+
+  const subtaskVariants = {
+    hidden: { opacity: 0, x: prefersReducedMotion ? 0 : -10 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        type: prefersReducedMotion ? "tween" : "spring",
+        stiffness: 500,
+        damping: 25,
+        duration: prefersReducedMotion ? 0.2 : undefined
+      }
+    },
+  };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className={`${palette.rootText} h-full`}>
+        <Card className={palette.card}>
+          <CardHeader className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Skeleton className={`h-5 w-5 rounded-full ${palette.skeletonIcon}`} />
+                <Skeleton className={`h-5 w-40 ${palette.skeletonTitle}`} />
+              </div>
+              <Skeleton className={`h-4 w-16 ${palette.skeletonTitle}`} />
+            </div>
+            <Skeleton className={`h-2 w-full ${palette.skeletonTitle} rounded-full`} />
+          </CardHeader>
+          <CardContent className="p-4 space-y-4">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <div
+                key={`deep-work-skeleton-${index}`}
+                className={`rounded-xl p-4 space-y-3 ${palette.skeletonCard}`}
+              >
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <Skeleton className={`h-9 w-9 rounded-full ${palette.skeletonIcon}`} />
+                    <div className="space-y-2">
+                      <Skeleton className={`h-4 w-36 ${palette.skeletonTitle}`} />
+                      <Skeleton className={`h-3 w-48 ${palette.skeletonSubline}`} />
+                    </div>
+                  </div>
+                  <Skeleton className={`h-6 w-16 ${palette.skeletonTitle} rounded-full`} />
+                </div>
+                <Skeleton className={`h-2 w-full ${palette.skeletonSubline} rounded-full`} />
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className={`${palette.rootText} h-full`}>
+        <Card className={palette.card}>
+          <CardContent className="p-4 text-center">
+            <div className="text-red-400 mb-4">
+              <CircleAlert className="h-8 w-8 mx-auto mb-2" />
+              Error loading tasks
+            </div>
+            <p className={`text-sm ${palette.errorText} mb-4`}>{error}</p>
+            <Button
+              onClick={() => window.location.reload()}
+              className={palette.primaryButton}
+            >
+              Retry
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`${palette.rootText} h-full`}>
+      <Card className={palette.card}>
+        <CardHeader className="p-3 sm:p-4">
+          <CardTitle className={`flex items-center ${palette.cardTitle} text-base sm:text-lg`}>
+            <Brain className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+            {theme.title}
+          </CardTitle>
+          <div className={`border-t ${palette.divider} my-4`}></div>
+          <div className="space-y-4">
+            <div>
+              <h3 className={`font-bold ${palette.sectionHeading} mb-2 text-sm sm:text-base`}>Flow State Protocol</h3>
+              <p className={`${palette.sectionBody} text-xs sm:text-sm leading-relaxed`}>
+                {theme.description}
+              </p>
+            </div>
+            <div className={`border-t ${palette.divider} my-4`}></div>
+            <div>
+              <h3 className={`font-bold ${palette.sectionHeading} mb-2 text-sm sm:text-base`}>{theme.subtitle} Rules</h3>
+              <ul className={`${palette.sectionBody} text-xs sm:text-sm space-y-1`}>
+                {theme.rules.map((rule, index) => (
+                  <li key={index}>{rule}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+          <div className={`border-t ${palette.divider} my-3 sm:my-4`}></div>
+        </CardHeader>
+        <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
+
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{
+              opacity: 1,
+              y: 0,
+              transition: { duration: 0.3, ease: [0.2, 0.65, 0.3, 0.9] }
+            }}
+          >
+            <LayoutGroup>
+              <div className="overflow-hidden">
+                <ul className="space-y-1 overflow-hidden">
+              {orderedTasks.map((task, index) => {
+                const isExpanded = expandedTasks.includes(task.id);
+                const isCompleted = task.status === "completed";
+                const summary = getTaskTimeSummary(task);
+                const priorityConfig = getPriorityConfig(task.priority);
+                const isFirst = index === 0;
+                const isLast = index === orderedTasks.length - 1;
+
+                return (
+                  <motion.li
+                    key={task.id}
+                    className={`${index !== 0 ? "mt-1 pt-2" : ""}`}
+                    initial="hidden"
+                    animate="visible"
+                    variants={taskVariants}
+                  >
+                    {/* Task Container */}
+                    <div className={`group ${palette.listItem} rounded-xl transition-all duration-300 hover:shadow-lg`}>
+                      {/* Task Header */}
+                      <div className="p-3 sm:p-4">
+                        <div className="flex items-center gap-3">
+                          {/* Checkbox */}
+                          <motion.div
+                            className="flex-shrink-0 cursor-pointer"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleToggleTaskStatus(task.id);
+                            }}
+                            whileTap={{ scale: 0.9 }}
+                            whileHover={{ scale: 1.1 }}
+                          >
+                            <AnimatePresence mode="wait">
+                              <motion.div
+                                key={task.status}
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.8 }}
+                                transition={{ duration: 0.2 }}
+                              >
+                                {task.status === "completed" ? (
+                                  <CheckCircle2 className="h-5 w-5 text-green-400" />
+                                ) : task.status === "in-progress" ? (
+                                  <CircleDotDashed className={`h-5 w-5 ${palette.icon}`} />
+                                ) : task.status === "need-help" ? (
+                                  <CircleAlert className="h-5 w-5 text-yellow-400" />
+                                ) : (
+                                  <Circle className="h-5 w-5 text-gray-400" />
+                                )}
+                              </motion.div>
+                            </AnimatePresence>
+                          </motion.div>
+
+
+                          {/* Title */}
+                          <div className="flex-1 min-w-0">
+                            {editingMainTask === task.id ? (
+                              <input
+                                type="text"
+                                value={editMainTaskTitle}
+                                onChange={(e) => handleMainTaskEditTitleChange(e.target.value)}
+                                onKeyDown={(e) => handleMainTaskKeyDown(e, task.id)}
+                                onBlur={() => handleMainTaskSaveEdit(task.id)}
+                                className={`w-full ${palette.taskInput} font-semibold text-sm sm:text-base px-2 py-1 rounded border focus:outline-none`}
+                                autoFocus
+                              />
+                            ) : (
+                              <h4
+                                className={`${palette.taskTitleButton} ${palette.taskTitleHover} font-semibold text-sm sm:text-base cursor-pointer transition-colors truncate`}
+                                onClick={() => handleMainTaskStartEditing(task.id, task.title)}
+                              >
+                                {task.title}
+                              </h4>
+                            )}
+                          </div>
+
+                          {/* Toggle Button */}
+                          <div className="flex items-center flex-shrink-0">
+                            <motion.button
+                              className={`p-1 rounded-md transition-colors ${palette.toggleButtonHover}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleTaskExpansion(task.id);
+                              }}
+                              whileTap={{ scale: 0.9 }}
+                            >
+                              {isExpanded ? (
+                                <ChevronDown className={`h-4 w-4 ${palette.iconSecondary}`} />
+                              ) : (
+                                <ChevronRight className={`h-4 w-4 ${palette.iconSecondary}`} />
+                              )}
+                            </motion.button>
+                          </div>
+                        </div>
+
+                        {/* Top divider */}
+                        <div className={`border-t ${palette.divider} mt-3`}></div>
+
+                        <div className="pt-3">
+                          {/* Single-row metadata: Date | Priority | Time | Arrows */}
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleTaskCalendarToggle(task.id);
+                              }}
+                              className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${getDueDateClasses(task.dueDate)}`}
+                              title="Schedule this task"
+                            >
+                              <Calendar className="h-3.5 w-3.5" />
+                              <span>{formatShortDate(task.dueDate)}</span>
+                            </button>
+
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setTaskPriorityMenuId(prev => (prev === task.id ? null : task.id));
+                                setActiveTaskCalendarId(null);
+                              }}
+                              className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${priorityConfig.badgeClass}`}
+                              title="Adjust priority"
+                            >
+                              <span>{priorityConfig.icon}</span>
+                              <span>{priorityConfig.label}</span>
+                            </button>
+
+                            {editingTaskTimeId === task.id ? (
+                              <input
+                                type="text"
+                                value={editTaskTimeValue}
+                                onChange={(e) => setEditTaskTimeValue(e.target.value)}
+                                onKeyDown={(e) => handleTaskTimeKeyDown(e, task.id)}
+                                onBlur={() => handleTaskTimeSave(task.id)}
+                                autoFocus
+                                className={palette.tagPill}
+                                placeholder="e.g. 2h"
+                              />
+                            ) : (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleTaskTimeStartEditing(task, summary.formatted);
+                                }}
+                                className={`flex items-center gap-1 ${palette.tagButton}`}
+                                title="Set total focus time"
+                              >
+                                <Clock className="h-3.5 w-3.5" />
+                                <span>{summary.formatted}</span>
+                              </button>
+                            )}
+
+                            {/* Reorder Arrows - Inline */}
+                            <div className="flex items-center gap-1 ml-auto">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleMoveTask(task.id, 'up');
+                                }}
+                                disabled={isFirst}
+                                className={`p-1 rounded-md border transition-colors ${palette.reorderButton} ${
+                                  isFirst ? palette.reorderButtonDisabled : palette.reorderButtonHover
+                                }`}
+                                title="Move up"
+                              >
+                                <ArrowUp className="h-3.5 w-3.5" />
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleMoveTask(task.id, 'down');
+                                }}
+                                disabled={isLast}
+                                className={`p-1 rounded-md border transition-colors ${palette.reorderButton} ${
+                                  isLast ? palette.reorderButtonDisabled : palette.reorderButtonHover
+                                }`}
+                                title="Move down"
+                              >
+                                <ArrowDown className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                          </div>
+
+                          {activeTaskCalendarId === task.id && (
+                            <div className="calendar-popup fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 bg-gray-800 border border-gray-600 rounded-lg shadow-xl p-3 min-w-[280px] max-w-[90vw] max-h-[90vh] overflow-auto">
+                              <CustomCalendar
+                                theme={theme.palette === 'blue' ? 'DEEP' : 'LIGHT'}
+                                subtask={{ dueDate: task.dueDate }}
+                                onDateSelect={(date) => handleTaskCalendarSelect(task.id, date)}
+                                onClose={() => setActiveTaskCalendarId(null)}
+                              />
+                            </div>
+                          )}
+
+                          <AnimatePresence>
+                            {taskPriorityMenuId === task.id && (
+                              <>
+                                <motion.div
+                                  initial={{ opacity: 0 }}
+                                  animate={{ opacity: 1 }}
+                                  exit={{ opacity: 0 }}
+                                  className="fixed inset-0 z-[9998] bg-black/40"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setTaskPriorityMenuId(null);
+                                  }}
+                                />
+                                <motion.div
+                                  initial={{ opacity: 0, scale: 0.95 }}
+                                  animate={{ opacity: 1, scale: 1 }}
+                                  exit={{ opacity: 0, scale: 0.98 }}
+                                  transition={{ duration: 0.15, ease: [0.2, 0.65, 0.3, 0.9] }}
+                                  className={`fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[9999] backdrop-blur-xl rounded-xl shadow-2xl shadow-black/60 p-3 min-w-[200px] ${palette.modalContainer}`}
+                                >
+                                  {Object.entries(TASK_PRIORITY_CONFIG).map(([key, config]) => {
+                                    const isActive = task.priority?.toLowerCase() === key;
+                                    return (
+                                      <motion.button
+                                        key={key}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleTaskPrioritySelect(task.id, key as 'low' | 'medium' | 'high' | 'urgent');
+                                        }}
+                                        className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-sm text-left transition-colors ${
+                                          isActive ? palette.modalOptionActive : palette.modalOption
+                                        }`}
+                                        whileHover={{ scale: 1.01 }}
+                                        whileTap={{ scale: 0.98 }}
+                                      >
+                                        <span className="flex items-center gap-2">
+                                          <span>{config.icon}</span>
+                                          <span>{config.label}</span>
+                                        </span>
+                                        {isActive && <CheckCircle2 className={`h-4 w-4 ${palette.modalOptionIcon}`} />}
+                                      </motion.button>
+                                    );
+                                  })}
+                                </motion.div>
+                              </>
+                            )}
+                          </AnimatePresence>
+                        </div>
+
+                        <div className={`border-t ${palette.divider} mt-3`}></div>
+                      </div>
+
+                      {/* Subtasks */}
+                    <AnimatePresence mode="wait">
+                      {isExpanded && (
+                        <motion.div
+                          className="relative overflow-hidden"
+                          variants={subtaskListVariants}
+                          initial="hidden"
+                          animate="visible"
+                          exit="hidden"
+                          layout
+                        >
+
+                          {task.subtasks.length > 0 && (
+                            <ul className="mt-1 mr-2 mb-2 ml-2 space-y-1">
+                              {sortSubtasksHybrid(task.subtasks.filter((subtask) => {
+                                const shouldShowCompleted = showCompletedSubtasks[task.id];
+                                if (shouldShowCompleted === undefined) return subtask.status !== "completed";
+                                return shouldShowCompleted ? subtask.status === "completed" : subtask.status !== "completed";
+                              })).map((subtask) => {
+                              return (
+                                <motion.li
+                                  key={subtask.id}
+                                  className="pl-1"
+                                  variants={subtaskVariants}
+                                  initial="hidden"
+                                  animate="visible"
+                                  layout
+                                >
+                                  <SubtaskItem
+                                    subtask={{
+                                      id: subtask.id,
+                                      title: subtask.title,
+                                      completed: subtask.status === "completed",
+                                      dueDate: subtask.dueDate,
+                                      description: subtask.description,
+                                      priority: subtask.priority,
+                                      estimatedTime: subtask.estimatedTime,
+                                      tools: subtask.tools
+                                    }}
+                                    taskId={task.id}
+                                    themeConfig={themeConfig}
+                                    isEditing={editingSubtask === subtask.id}
+                                    editTitle={editSubtaskTitle}
+                                    calendarSubtaskId={calendarSubtaskId}
+                                    isExpanded={expandedSubtasks[`${task.id}-${subtask.id}`] || false}
+                                    onToggleCompletion={handleToggleSubtaskStatus}
+                                    onToggleExpansion={toggleSubtaskExpansion}
+                                    onStartEditing={handleSubtaskStartEditing}
+                                    onEditTitleChange={handleSubtaskEditTitleChange}
+                                    onSaveEdit={handleSubtaskSaveEdit}
+                                    onKeyDown={handleSubtaskKeyDown}
+                                    onCalendarToggle={handleCalendarToggle}
+                                    onDeleteSubtask={handleDeleteSubtask}
+                                    onPriorityUpdate={handleUpdateSubtaskPriority}
+                                    onEstimatedTimeUpdate={handleUpdateSubtaskEstimatedTime}
+                                    onDescriptionUpdate={handleUpdateSubtaskDescription}
+                                  >
+                                    {/* Calendar popup */}
+                                    {calendarSubtaskId === subtask.id && (
+                                      <div className="calendar-popup fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 bg-gray-800 border border-gray-600 rounded-lg shadow-xl p-3 min-w-[280px] max-w-[90vw] max-h-[90vh] overflow-auto">
+                                        <CustomCalendar
+                                          theme={theme.palette === 'blue' ? 'DEEP' : 'LIGHT'}
+                                          subtask={subtask}
+                                          onDateSelect={async (date) => {
+                                            try {
+                                              await handleUpdateSubtaskDueDate(task.id, subtask.id, date);
+                                              setCalendarSubtaskId(null);
+                                            } catch (error) {
+                                              console.error('Failed to update due date:', error);
+                                            }
+                                          }}
+                                          onClose={() => setCalendarSubtaskId(null)}
+                                        />
+                                      </div>
+                                    )}
+                                  </SubtaskItem>
+                                </motion.li>
+                                );
+                              })}
+                            </ul>
+                          )}
+
+                          {/* Add Subtask Button */}
+                          <div className="px-3 pb-2 mt-2">
+                            {addingSubtaskToTask === task.id ? (
+                              <input
+                                type="text"
+                                value={newSubtaskTitle}
+                                onChange={(e) => handleNewSubtaskTitleChange(e.target.value)}
+                                onKeyDown={(e) => handleNewSubtaskKeyDown(e, task.id)}
+                                onBlur={() => handleSaveNewSubtask(task.id)}
+                                placeholder="Enter subtask title..."
+                                className={`w-full ${palette.addSubtaskInput} text-xs px-3 py-2 rounded border focus:outline-none`}
+                                autoFocus
+                              />
+                            ) : (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className={`w-full ${palette.addSubtaskButton} transition-all duration-200 text-xs border`}
+                                onClick={() => handleStartAddingSubtask(task.id)}
+                              >
+                                <Plus className="h-3 w-3 mr-1" />
+                                Add Subtask
+                              </Button>
+                            )}
+                          </div>
+
+                          {/* Bottom divider */}
+                          <div className={`border-t ${palette.divider} mt-3`}></div>
+
+                          {/* Progress Summary */}
+                          {(
+                            <div className="mt-3 pb-2 px-3">
+                              <div className="flex items-center justify-between">
+                                <div></div>
+                                <button
+                                  className={`text-xs ${palette.subtaskToggle} cursor-pointer transition-colors`}
+                                  onClick={() => toggleSubtaskVisibility(task.id)}
+                                  title="Toggle completed subtasks visibility"
+                                >
+                                  {task.subtasks.filter(s => s.status === "completed").length} of {task.subtasks.length} subtasks completed
+                                </button>
+                                <button
+                                  className="text-gray-400 hover:text-red-400 cursor-pointer transition-colors text-lg font-bold leading-none"
+                                  onClick={() => {
+                                    deleteTask(task.id);
+                                  }}
+                                  title="Delete Task"
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            </div>
+                          )}
+
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    {/* Progress Summary when collapsed */}
+                    {!isExpanded && (
+                      <div className="px-3 pb-3">
+                        <div className="flex items-center justify-between">
+                          <div></div>
+                          <button
+                            className={`text-xs ${palette.subtaskToggle} cursor-pointer transition-colors`}
+                            onClick={() => toggleSubtaskVisibility(task.id)}
+                            title="Toggle completed subtasks visibility"
+                          >
+                            {task.subtasks.filter(s => s.status === "completed").length} of {task.subtasks.length} subtasks completed
+                          </button>
+                          <button
+                            className="text-gray-400 hover:text-red-400 cursor-pointer transition-colors text-lg font-bold leading-none"
+                            onClick={() => {
+                              deleteTask(task.id);
+                            }}
+                            title="Delete Task"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                    </div>
+                  </motion.li>
+                );
+              })}
+            </ul>
+
+            {/* Add Task Button */}
+            <div className="mt-4 px-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`w-full ${palette.addTaskButton} transition-all duration-200 text-sm border`}
+                onClick={async () => {
+                  try {
+                    const taskTitle = theme.newTaskTitle;
+                    const newTask = await createTask({
+                      title: taskTitle,
+                      priority: 'HIGH'
+                    });
+
+                    if (newTask) {
+                      setTimeout(() => {
+                        setEditingMainTask(newTask.id);
+                        setEditMainTaskTitle(newTask.title);
+                      }, 100);
+                    }
+                  } catch (error) {
+                    console.error('Error creating new task:', error);
+                  }
+                }}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Task
+              </Button>
+            </div>
+
+              </div>
+            </LayoutGroup>
+          </motion.div>
+        </CardContent>
+      </Card>
+
+      {/* Feedback Button */}
+      <div className="mt-4">
+        <SimpleFeedbackButton variant="bar" className="w-full" />
+      </div>
+
+      {/* Task Detail Modal */}
+      <TaskDetailModal
+        task={selectedTask}
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedTask(null);
+        }}
+        onTaskUpdate={updateTask}
+        onStartFocusSession={(taskId, subtaskId) => {
+          setIsModalOpen(false);
+          onStartFocusSession?.(taskId, tasks.find(t => t.id === taskId)?.focusIntensity || 2);
+        }}
+      />
+    </div>
+  );
+}

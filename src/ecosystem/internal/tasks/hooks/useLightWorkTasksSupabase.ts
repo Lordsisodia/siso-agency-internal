@@ -463,7 +463,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
   // Update task title
   const updateTaskTitle = useCallback(async (taskId: string, newTitle: string) => {
     if (!supabase) return null;
-    
+
     try {
       console.log(`✏️ Updating Light Work task title: ${taskId}`);
       
@@ -493,6 +493,76 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
     } catch (error) {
       console.error('❌ Error updating Light Work task title:', error);
       setError(error instanceof Error ? error.message : 'Failed to update task title');
+      return null;
+    }
+  }, [supabase]);
+
+  const updateTaskPriority = useCallback(async (taskId: string, priority: 'low' | 'medium' | 'high' | 'urgent') => {
+    if (!supabase) return null;
+
+    try {
+      console.log(`🎯 Updating Light Work task priority: ${taskId} -> ${priority}`);
+
+      const normalizedPriority = priority.toUpperCase() as 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+
+      const { error } = await supabase
+        .from('light_work_tasks')
+        .update({
+          priority: normalizedPriority,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', taskId);
+
+      if (error) {
+        throw new Error(`Supabase error: ${error.message}`);
+      }
+
+      console.log(`✅ Updated Light Work task priority: ${taskId}`);
+
+      setTasks(prev => prev.map(task =>
+        task.id === taskId
+          ? { ...task, priority: normalizedPriority }
+          : task
+      ));
+
+      return true;
+    } catch (error) {
+      console.error('❌ Error updating Light Work task priority:', error);
+      setError(error instanceof Error ? error.message : 'Failed to update task priority');
+      return null;
+    }
+  }, [supabase]);
+
+  const updateTaskTimeEstimate = useCallback(async (taskId: string, timeEstimate: string | null) => {
+    if (!supabase) return null;
+
+    try {
+      console.log(`⏱️ Updating Light Work task time estimate: ${taskId} -> ${timeEstimate}`);
+
+      const { error } = await supabase
+        .from('light_work_tasks')
+        .update({
+          time_estimate: timeEstimate,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', taskId);
+
+      if (error) {
+        throw new Error(`Supabase error: ${error.message}`);
+      }
+
+      console.log(`✅ Updated Light Work task time estimate: ${taskId}`);
+
+      setTasks(prev => prev.map(task =>
+        task.id === taskId
+          ? { ...task, timeEstimate: timeEstimate || null }
+          : task
+      ));
+
+      return true;
+    } catch (error) {
+      console.error('❌ Error updating Light Work task time estimate:', error);
+      setError(error instanceof Error ? error.message : 'Failed to update task time estimate');
       return null;
     }
   }, [supabase]);
@@ -816,6 +886,8 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
     deleteTask,
     deleteSubtask,
     updateTaskTitle,
+    updateTaskPriority,
+    updateTaskTimeEstimate,
     updateSubtaskTitle,
     pushTaskToAnotherDay,
     updateTaskDueDate,
