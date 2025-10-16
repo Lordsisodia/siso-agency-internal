@@ -7,11 +7,11 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { 
-  Clock, 
+import {
+  Clock,
   Calendar,
-  Play, 
-  Pause, 
+  Play,
+  Pause,
   CheckCircle2,
   Circle,
   Brain,
@@ -22,7 +22,9 @@ import {
   RefreshCw,
   Sparkles,
   Target,
-  TrendingUp
+  TrendingUp,
+  ListChecks,
+  AlertCircle
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Card, CardContent, CardHeader } from '@/shared/ui/card';
@@ -31,6 +33,16 @@ import { Badge } from '@/shared/ui/badge';
 import { ScrollArea } from '@/shared/ui/scroll-area';
 import { timeboxApi, TimeBoxTask, TimeSlot, DaySchedule, TimeBoxStats } from '@/api/timeboxApi';
 import { cn } from '@/shared/lib/utils';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/shared/ui/dialog';
+import { Checkbox } from '@/shared/ui/checkbox';
+import { Label } from '@/shared/ui/label';
 
 // Drag and drop types
 const ItemTypes = {
@@ -44,13 +56,14 @@ interface DragItem {
 }
 
 // Task item component with drag capability
-const DraggableTask: React.FC<{ 
-  task: TimeBoxTask; 
+const DraggableTask: React.FC<{
+  task: TimeBoxTask;
   onStart: (taskId: string) => void;
   onComplete: (taskId: string) => void;
   isActive: boolean;
   activeDuration: number;
-}> = ({ task, onStart, onComplete, isActive, activeDuration }) => {
+  onOpenSubtasks: (task: TimeBoxTask) => void;
+}> = ({ task, onStart, onComplete, isActive, activeDuration, onOpenSubtasks }) => {
   const [{ isDragging }, drag] = useDrag(() => ({
     type: ItemTypes.TASK,
     item: { type: ItemTypes.TASK, taskId: task.id, task },
@@ -58,6 +71,10 @@ const DraggableTask: React.FC<{
       isDragging: monitor.isDragging(),
     }),
   }));
+
+  const selectedSubtasks = (task.subtasks || []).filter(subtask =>
+    (task.visibleSubtaskIds || []).includes(subtask.id)
+  );
 
   const getTaskTypeIcon = (type: string) => {
     switch (type) {
@@ -84,6 +101,7 @@ const DraggableTask: React.FC<{
         isDragging ? "opacity-50 scale-95" : "hover:scale-102",
         task.completed ? "opacity-60" : ""
       )}
+      onClick={() => onOpenSubtasks(task)}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
     >
@@ -112,14 +130,21 @@ const DraggableTask: React.FC<{
             </div>
           )}
         </div>
-        
+
         <div className="flex flex-col gap-1">
           {!task.completed && (
             <>
               <Button
                 size="sm"
                 variant="ghost"
-                onClick={() => isActive ? onComplete(task.id) : onStart(task.id)}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  if (isActive) {
+                    onComplete(task.id);
+                  } else {
+                    onStart(task.id);
+                  }
+                }}
                 className="h-6 w-6 p-0"
               >
                 {isActive ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
@@ -127,7 +152,10 @@ const DraggableTask: React.FC<{
               <Button
                 size="sm"
                 variant="ghost"
-                onClick={() => onComplete(task.id)}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onComplete(task.id);
+                }}
                 className="h-6 w-6 p-0"
               >
                 <Circle className="h-3 w-3" />
@@ -139,6 +167,53 @@ const DraggableTask: React.FC<{
           )}
         </div>
       </div>
+
+      {task.subtasks && task.subtasks.length > 0 && (
+        <div className="mt-3 rounded-md border border-white/5 bg-black/20 p-3">
+          <div className="mb-2 flex items-center justify-between text-xs font-medium text-purple-200">
+            <div className="flex items-center gap-2">
+              <ListChecks className="h-3.5 w-3.5" />
+              <span>TimeBox subtasks</span>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 px-2 text-xs text-purple-200 hover:text-purple-100"
+              onClick={(event) => {
+                event.stopPropagation();
+                onOpenSubtasks(task);
+              }}
+            >
+              Edit
+            </Button>
+          </div>
+
+          {selectedSubtasks.length > 0 ? (
+            <ul className="space-y-1 text-xs text-gray-200">
+              {selectedSubtasks.map(subtask => (
+                <li key={subtask.id} className="flex items-center gap-2">
+                  <span
+                    className={cn(
+                      'h-1.5 w-1.5 rounded-full',
+                      subtask.completed ? 'bg-green-400' : 'bg-blue-400'
+                    )}
+                  />
+                  <span className={cn(
+                    'truncate',
+                    subtask.completed && 'line-through opacity-75'
+                  )}>
+                    {subtask.title}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-xs italic text-gray-500">
+              No subtasks selected. Click to choose which subtasks appear in TimeBox.
+            </p>
+          )}
+        </div>
+      )}
     </motion.div>
   );
 };
@@ -149,7 +224,8 @@ const TimeSlotDropZone: React.FC<{
   task?: TimeBoxTask;
   onDrop: (taskId: string, slot: TimeSlot) => void;
   onRemove: (taskId: string) => void;
-}> = ({ slot, task, onDrop, onRemove }) => {
+  onOpenSubtasks?: (task: TimeBoxTask) => void;
+}> = ({ slot, task, onDrop, onRemove, onOpenSubtasks }) => {
   const [{ isOver }, drop] = useDrop(() => ({
     accept: ItemTypes.TASK,
     drop: (item: DragItem) => {
@@ -162,6 +238,10 @@ const TimeSlotDropZone: React.FC<{
     }),
   }));
 
+  const selectedSubtasks = task?.subtasks?.filter(subtask =>
+    (task.visibleSubtaskIds || []).includes(subtask.id)
+  ) || [];
+
   return (
     <div
       ref={drop}
@@ -173,21 +253,69 @@ const TimeSlotDropZone: React.FC<{
     >
       <div className="p-2 h-full">
         <div className="text-xs text-gray-400 mb-1">{slot.startTime}</div>
-        
+
         {task ? (
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <div className="text-xs font-medium text-white truncate">{task.title}</div>
-              <div className="text-xs text-gray-400">{task.estimatedDuration}min</div>
+          <div
+            className="h-full cursor-pointer rounded-md border border-transparent p-1 transition-colors hover:border-purple-400/40 hover:bg-purple-500/5"
+            onClick={() => onOpenSubtasks?.(task)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                onOpenSubtasks?.(task);
+              }
+            }}
+          >
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex-1">
+                <div className="text-xs font-medium text-white truncate">{task.title}</div>
+                <div className="text-xs text-gray-400">{task.estimatedDuration}min</div>
+              </div>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onRemove(task.id);
+                }}
+                className="h-4 w-4 p-0 text-gray-400 hover:text-red-400"
+              >
+                ×
+              </Button>
             </div>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => onRemove(task.id)}
-              className="h-4 w-4 p-0 text-gray-400 hover:text-red-400"
-            >
-              ×
-            </Button>
+
+            {task.subtasks && task.subtasks.length > 0 && (
+              <div className="mt-1">
+                {selectedSubtasks.length > 0 ? (
+                  <ul className="space-y-1 text-[11px] text-gray-400">
+                    {selectedSubtasks.slice(0, 3).map(subtask => (
+                      <li key={subtask.id} className="flex items-center gap-1.5">
+                        <span
+                          className={cn(
+                            'h-1.5 w-1.5 rounded-full',
+                            subtask.completed ? 'bg-green-400' : 'bg-blue-400'
+                          )}
+                        />
+                        <span className={cn(
+                          'truncate',
+                          subtask.completed && 'line-through opacity-75'
+                        )}>
+                          {subtask.title}
+                        </span>
+                      </li>
+                    ))}
+                    {selectedSubtasks.length > 3 && (
+                      <li className="text-[11px] text-gray-500">+ {selectedSubtasks.length - 3} more</li>
+                    )}
+                  </ul>
+                ) : (
+                  <p className="text-[11px] italic text-gray-500">
+                    No subtasks selected
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         ) : (
           <div className="text-xs text-gray-500 text-center mt-2">
@@ -199,6 +327,111 @@ const TimeSlotDropZone: React.FC<{
   );
 };
 
+interface SubtaskVisibilityModalProps {
+  open: boolean;
+  task: TimeBoxTask | null;
+  selectedSubtaskIds: Set<string>;
+  onToggle: (subtaskId: string, checked: boolean) => void;
+  onClose: () => void;
+  onSave: () => void;
+  isSaving: boolean;
+  errorMessage?: string | null;
+}
+
+const SubtaskVisibilityModal: React.FC<SubtaskVisibilityModalProps> = ({
+  open,
+  task,
+  selectedSubtaskIds,
+  onToggle,
+  onClose,
+  onSave,
+  isSaving,
+  errorMessage
+}) => {
+  const subtasks = task?.subtasks || [];
+  const handleCheckedChange = (subtaskId: string) => (checked: boolean | 'indeterminate') => {
+    onToggle(subtaskId, checked === true);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(nextOpen) => { if (!nextOpen) onClose(); }}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit TimeBox subtasks</DialogTitle>
+          <DialogDescription>
+            Choose which subtasks from <span className="font-medium text-foreground">{task?.title}</span> should appear beneath the main task in your TimeBox view.
+          </DialogDescription>
+        </DialogHeader>
+
+        {!task && (
+          <p className="text-sm text-muted-foreground">Select a task to manage its subtasks.</p>
+        )}
+
+        {task && subtasks.length === 0 && (
+          <div className="rounded-md border border-dashed border-purple-400/40 bg-purple-500/5 p-4 text-sm text-muted-foreground">
+            This task does not have any subtasks yet. Add subtasks from the task manager to make them available here.
+          </div>
+        )}
+
+        {task && subtasks.length > 0 && (
+          <div className="space-y-3">
+            <div className="rounded-lg border border-white/5 bg-slate-900/40 p-3">
+              <p className="text-xs font-medium text-slate-200">
+                Showing {selectedSubtaskIds.size} of {subtasks.length} subtasks in TimeBox
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              {subtasks.map(subtask => {
+                const isChecked = selectedSubtaskIds.has(subtask.id);
+                return (
+                  <div
+                    key={subtask.id}
+                    className={cn(
+                      'flex items-start gap-3 rounded-lg border border-white/5 bg-slate-900/40 p-3 transition-colors',
+                      isChecked ? 'border-purple-400/60 bg-purple-500/10' : 'hover:border-purple-400/40'
+                    )}
+                  >
+                    <Checkbox
+                      checked={isChecked}
+                      onCheckedChange={handleCheckedChange(subtask.id)}
+                      className="mt-0.5"
+                    />
+                    <div className="flex-1">
+                      <Label className={cn('text-sm font-medium text-white', subtask.completed && 'line-through opacity-70')}>
+                        {subtask.title}
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        {subtask.completed ? 'Completed subtask' : 'Pending subtask'}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {errorMessage && (
+          <div className="flex items-center gap-2 rounded-md border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-300">
+            <AlertCircle className="h-4 w-4" />
+            <span>{errorMessage}</span>
+          </div>
+        )}
+
+        <DialogFooter>
+          <Button variant="ghost" onClick={onClose} disabled={isSaving}>
+            Cancel
+          </Button>
+          <Button onClick={onSave} disabled={isSaving || !task}>
+            {isSaving ? 'Saving...' : 'Save selection'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 // Main Functional TimeBox component
 export const FunctionalTimeBox: React.FC = () => {
   const [schedule, setSchedule] = useState<DaySchedule | null>(null);
@@ -207,6 +440,11 @@ export const FunctionalTimeBox: React.FC = () => {
   const [activeTimers, setActiveTimers] = useState<Set<string>>(new Set());
   const [timerDurations, setTimerDurations] = useState<Map<string, number>>(new Map());
   const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [isSubtaskModalOpen, setIsSubtaskModalOpen] = useState(false);
+  const [subtaskEditorTask, setSubtaskEditorTask] = useState<TimeBoxTask | null>(null);
+  const [selectedVisibleSubtaskIds, setSelectedVisibleSubtaskIds] = useState<Set<string>>(new Set());
+  const [isSavingSubtasks, setIsSavingSubtasks] = useState(false);
+  const [subtaskModalError, setSubtaskModalError] = useState<string | null>(null);
 
   // Load schedule and stats
   const loadSchedule = useCallback(async () => {
@@ -292,6 +530,60 @@ export const FunctionalTimeBox: React.FC = () => {
       console.error('Failed to auto-schedule:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleOpenSubtaskEditor = (task: TimeBoxTask) => {
+    if (!task) return;
+    const filteredVisible = (task.visibleSubtaskIds || []).filter(subtaskId =>
+      (task.subtasks || []).some(subtask => subtask.id === subtaskId)
+    );
+
+    setSubtaskModalError(null);
+    setSubtaskEditorTask(task);
+    setSelectedVisibleSubtaskIds(new Set(filteredVisible));
+    setIsSubtaskModalOpen(true);
+  };
+
+  const handleToggleVisibleSubtask = (subtaskId: string, checked: boolean) => {
+    setSelectedVisibleSubtaskIds(prev => {
+      const next = new Set(prev);
+      if (checked) {
+        next.add(subtaskId);
+      } else {
+        next.delete(subtaskId);
+      }
+      return next;
+    });
+  };
+
+  const handleCloseSubtaskModal = () => {
+    setIsSubtaskModalOpen(false);
+    setSubtaskEditorTask(null);
+    setSelectedVisibleSubtaskIds(new Set());
+    setSubtaskModalError(null);
+  };
+
+  const handleSaveSubtaskVisibility = async () => {
+    if (!subtaskEditorTask) return;
+
+    setIsSavingSubtasks(true);
+    setSubtaskModalError(null);
+
+    try {
+      await timeboxApi.updateTaskVisibleSubtasks(
+        subtaskEditorTask.id,
+        Array.from(selectedVisibleSubtaskIds),
+        subtaskEditorTask.metadata || {}
+      );
+
+      await loadSchedule();
+      handleCloseSubtaskModal();
+    } catch (error) {
+      console.error('Failed to update subtask visibility:', error);
+      setSubtaskModalError('Failed to save subtask visibility. Please try again.');
+    } finally {
+      setIsSavingSubtasks(false);
     }
   };
 
@@ -412,6 +704,7 @@ export const FunctionalTimeBox: React.FC = () => {
                         onComplete={handleCompleteTask}
                         isActive={activeTimers.has(task.id)}
                         activeDuration={timerDurations.get(task.id) || 0}
+                        onOpenSubtasks={handleOpenSubtaskEditor}
                       />
                     ))}
                     
@@ -450,10 +743,10 @@ export const FunctionalTimeBox: React.FC = () => {
                 <ScrollArea className="h-96">
                   <div className="grid grid-cols-2 gap-2">
                     {schedule.timeSlots.map(slot => {
-                      const scheduledTask = schedule.scheduledTasks.find(
+                      const scheduledTask = slot.task || schedule.scheduledTasks?.find(
                         task => task.scheduledSlot?.id === slot.id
                       );
-                      
+
                       return (
                         <TimeSlotDropZone
                           key={slot.id}
@@ -461,6 +754,7 @@ export const FunctionalTimeBox: React.FC = () => {
                           task={scheduledTask}
                           onDrop={handleTaskDrop}
                           onRemove={handleTaskRemove}
+                          onOpenSubtasks={handleOpenSubtaskEditor}
                         />
                       );
                     })}
@@ -498,6 +792,17 @@ export const FunctionalTimeBox: React.FC = () => {
           </Card>
         </motion.div>
       </div>
+
+      <SubtaskVisibilityModal
+        open={isSubtaskModalOpen}
+        task={subtaskEditorTask}
+        selectedSubtaskIds={selectedVisibleSubtaskIds}
+        onToggle={handleToggleVisibleSubtask}
+        onClose={handleCloseSubtaskModal}
+        onSave={handleSaveSubtaskVisibility}
+        isSaving={isSavingSubtasks}
+        errorMessage={subtaskModalError}
+      />
     </DndProvider>
   );
 };
