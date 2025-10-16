@@ -140,8 +140,8 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
     return !navigator.onLine;
   });
 
-  // State - EXACT COPY
-  const [expandedTasks, setExpandedTasks] = useState<string[]>(["1", "2", "3"]);
+  // State - EXACT COPY (with dynamic task expansion defaults)
+  const [expandedTasks, setExpandedTasks] = useState<string[]>([]);
   const [expandedSubtasks, setExpandedSubtasks] = useState<{
     [key: string]: boolean;
   }>({});
@@ -157,6 +157,15 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
   const [addingSubtaskToTask, setAddingSubtaskToTask] = useState<string | null>(null);
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   const [showCompletedSubtasks, setShowCompletedSubtasks] = useState<{[taskId: string]: boolean}>({});
+
+  const isInitialExpansionSet = React.useRef(false);
+
+  React.useEffect(() => {
+    if (!isInitialExpansionSet.current && tasks.length > 0) {
+      setExpandedTasks(tasks.slice(0, 3).map(task => task.id));
+      isInitialExpansionSet.current = true;
+    }
+  }, [tasks]);
 
   // Theme config for SubtaskItem - GREEN
   const themeConfig = {
