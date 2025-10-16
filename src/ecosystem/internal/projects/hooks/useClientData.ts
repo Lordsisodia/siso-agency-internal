@@ -39,8 +39,14 @@ export const useClientData = () => {
         .eq('user_id', user.id)
         .single();
 
+      // Silently return null if table doesn't exist (internal app doesn't have client tables)
+      if (linkError && linkError.code === '42P01') { // Table doesn't exist
+        return null;
+      }
+
       if (linkError && linkError.code !== 'PGRST116') { // PGRST116 = no rows returned
-        console.error('Error fetching client link:', linkError);
+        // Silently fail for other errors
+        return null;
       }
 
       let clientId = userLink?.client_id;
@@ -53,8 +59,14 @@ export const useClientData = () => {
           .eq('user_id', user.id)
           .single();
 
+        // Silently return null if table doesn't exist
+        if (clientError && clientError.code === '42P01') {
+          return null;
+        }
+
         if (clientError && clientError.code !== 'PGRST116') {
-          console.error('Error fetching client record:', clientError);
+          // Silently fail
+          return null;
         }
 
         clientId = clientRecord?.id;
@@ -73,7 +85,8 @@ export const useClientData = () => {
         .single();
 
       if (dataError) {
-        throw new Error(`Error fetching client data: ${dataError.message}`);
+        // Silently return null instead of throwing
+        return null;
       }
 
       return clientData as ClientData;
