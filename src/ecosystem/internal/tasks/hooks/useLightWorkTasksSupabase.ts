@@ -64,6 +64,14 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
 
   const dateString = selectedDate?.toISOString()?.split('T')[0] || new Date().toISOString().split('T')[0];
 
+  const getIsOnline = useCallback(() => {
+    if (typeof window === 'undefined') {
+      return false;
+    }
+
+    return window.navigator?.onLine ?? false;
+  }, []);
+
   // Load light work tasks - INSTANT CACHE + BACKGROUND SYNC
   const loadTasks = useCallback(async () => {
     if (!isSignedIn || !internalUserId) {
@@ -81,7 +89,8 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
       const localTasks = await offlineDb.getLightWorkTasks(dateString);
 
       if (localTasks && localTasks.length > 0) {
-        console.log(`⚡ INSTANT: Loaded ${localTasks.length} tasks from IndexedDB (${navigator.onLine ? 'online' : 'offline'})`);
+        const onlineStatus = getIsOnline() ? 'online' : 'offline';
+        console.log(`⚡ INSTANT: Loaded ${localTasks.length} tasks from IndexedDB (${onlineStatus})`);
         const transformedLocal = localTasks.map(task => ({
           id: task.id,
           userId: task.user_id,
@@ -106,7 +115,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
       }
 
       // 2. If online, sync with Supabase in BACKGROUND (doesn't block UI)
-      if (navigator.onLine && supabase) {
+      if (getIsOnline() && supabase) {
         const { data: tasksData, error: tasksError } = await supabase
           .from('light_work_tasks')
           .select(`
@@ -188,7 +197,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
       setLoading(false);
     }
     // No finally block - loading is set false immediately after IndexedDB load
-  }, [isSignedIn, internalUserId, dateString, supabase]);
+  }, [isSignedIn, internalUserId, dateString, supabase, getIsOnline]);
 
   // Create new light work task - OFFLINE-FIRST
   const createTask = useCallback(async (taskData: Partial<LightWorkTask>) => {
@@ -238,7 +247,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
       };
 
       // 2. If online, sync to Supabase in background
-      if (navigator.onLine && supabase) {
+      if (getIsOnline() && supabase) {
         supabase
           .from('light_work_tasks')
           .insert({
@@ -265,7 +274,8 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
           });
       }
 
-      console.log(`✅ Created Light Work task (${navigator.onLine ? 'online' : 'offline'}): ${newTask.title}`);
+      const onlineStatus = getIsOnline() ? 'online' : 'offline';
+      console.log(`✅ Created Light Work task (${onlineStatus}): ${newTask.title}`);
       setTasks(prev => [...prev, newTask]);
       return newTask;
 
@@ -274,7 +284,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
       setError(error instanceof Error ? error.message : 'Failed to create task');
       return null;
     }
-  }, [internalUserId, dateString, supabase]);
+  }, [internalUserId, dateString, supabase, getIsOnline]);
 
   // Toggle task completion in Supabase
   const toggleTaskCompletion = useCallback(async (taskId: string) => {
