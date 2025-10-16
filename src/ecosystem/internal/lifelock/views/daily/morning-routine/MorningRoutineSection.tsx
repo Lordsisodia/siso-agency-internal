@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import {
   Sun,
@@ -40,6 +40,13 @@ import { PlanDayActions } from './components/PlanDayActions';
 import { MotivationalQuotes } from './components/MotivationalQuotes';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { useAutoTimeblocks } from '@/shared/hooks/useAutoTimeblocks';
+import { GamificationService } from '@/services/gamificationService';
+import {
+  calculateMinutesSinceWake,
+  calculateStepXpMultiplier,
+  calculateWakeUpXpMultiplier,
+  getWakeUpTimestamp
+} from './morningRoutineXpUtils';
 
 interface MorningRoutineHabit {
   name: string;
@@ -59,6 +66,56 @@ interface MorningRoutineData {
 interface MorningRoutineSectionProps {
   selectedDate: Date;
 }
+
+interface MorningRoutineXPState {
+  wakeAwarded: boolean;
+  steps: Record<string, boolean>;
+  lastCompletionTimestamp: number | null;
+}
+
+const createDefaultXpState = (): MorningRoutineXPState => ({
+  wakeAwarded: false,
+  steps: {},
+  lastCompletionTimestamp: null
+});
+
+const loadXpStateFromStorage = (storageKey: string): MorningRoutineXPState => {
+  if (typeof window === 'undefined') {
+    return createDefaultXpState();
+  }
+
+  try {
+    const stored = window.localStorage.getItem(storageKey);
+    if (!stored) {
+      return createDefaultXpState();
+    }
+
+    const parsed = JSON.parse(stored);
+    return {
+      wakeAwarded: Boolean(parsed?.wakeAwarded),
+      steps: typeof parsed?.steps === 'object' && parsed.steps !== null ? { ...parsed.steps } : {},
+      lastCompletionTimestamp:
+        typeof parsed?.lastCompletionTimestamp === 'number'
+          ? parsed.lastCompletionTimestamp
+          : null
+    };
+  } catch (error) {
+    console.error('Failed to read morning routine XP state:', error);
+    return createDefaultXpState();
+  }
+};
+
+const persistXpStateToStorage = (storageKey: string, state: MorningRoutineXPState) => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(storageKey, JSON.stringify(state));
+  } catch (error) {
+    console.error('Failed to persist morning routine XP state:', error);
+  }
+};
 
 const MORNING_ROUTINE_TASKS = [
   {
@@ -149,9 +206,17 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
     sessionStorage.setItem('thoughtDumpOpen', showThoughtDumpChat ? 'true' : 'false');
   }, [showThoughtDumpChat]);
 
+  const routineDate = useMemo(() => {
+    if (selectedDate && !Number.isNaN(selectedDate.getTime())) {
+      return selectedDate;
+    }
+    return new Date();
+  }, [selectedDate]);
+
+  const routineDateKey = useMemo(() => format(routineDate, 'yyyy-MM-dd'), [routineDate]);
+
   const [wakeUpTime, setWakeUpTime] = useState<string>(() => {
-    const dateKey = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd');
-    const saved = localStorage.getItem(`lifelock-${dateKey}-wakeUpTime`);
+    const saved = localStorage.getItem(`lifelock-${routineDateKey}-wakeUpTime`);
     return saved || '';
   });
 
@@ -159,8 +224,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   const [showTimeScrollPicker, setShowTimeScrollPicker] = useState(false);
 
   const [meditationDuration, setMeditationDuration] = useState<string>(() => {
-    const dateKey = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd');
-    const saved = localStorage.getItem(`lifelock-${dateKey}-meditationDuration`);
+    const saved = localStorage.getItem(`lifelock-${routineDateKey}-meditationDuration`);
     return saved || '';
   });
 
@@ -169,22 +233,19 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
 
   // Plan Day completion state
   const [isPlanDayComplete, setIsPlanDayComplete] = useState<boolean>(() => {
-    const dateKey = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd');
-    const saved = localStorage.getItem(`lifelock-${dateKey}-planDayComplete`);
+    const saved = localStorage.getItem(`lifelock-${routineDateKey}-planDayComplete`);
     return saved === 'true';
   });
 
   // Water tracking state
   const [waterAmount, setWaterAmount] = useState<number>(() => {
-    const dateKey = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd');
-    const saved = localStorage.getItem(`lifelock-${dateKey}-waterAmount`);
+    const saved = localStorage.getItem(`lifelock-${routineDateKey}-waterAmount`);
     return saved ? parseInt(saved) : 0;
   });
 
   // Push-ups tracking state
   const [pushupReps, setPushupReps] = useState<number>(() => {
-    const dateKey = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd');
-    const saved = localStorage.getItem(`lifelock-${dateKey}-pushupReps`);
+    const saved = localStorage.getItem(`lifelock-${routineDateKey}-pushupReps`);
     return saved ? parseInt(saved) : 0;
   });
 
@@ -196,8 +257,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
 
   // Top 3 Daily Priorities (after meditation)
   const [dailyPriorities, setDailyPriorities] = useState<string[]>(() => {
-    const dateKey = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd');
-    const saved = localStorage.getItem(`lifelock-${dateKey}-dailyPriorities`);
+    const saved = localStorage.getItem(`lifelock-${routineDateKey}-dailyPriorities`);
     return saved ? JSON.parse(saved) : ['', '', ''];
   });
 
@@ -208,6 +268,25 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
     selectedDate,
     enabled: !!wakeUpTime && !!internalUserId // Only create if wake-up time is set
   });
+
+  // 🎮 XP System State
+  const xpStorageKey = useMemo(
+    () => `lifelock-${routineDateKey}-morningXpState`,
+    [routineDateKey]
+  );
+
+  const [xpState, setXpState] = useState<MorningRoutineXPState>(() => loadXpStateFromStorage(xpStorageKey));
+
+  useEffect(() => {
+    setXpState(loadXpStateFromStorage(xpStorageKey));
+  }, [xpStorageKey]);
+
+  useEffect(() => {
+    persistXpStateToStorage(xpStorageKey, xpState);
+  }, [xpState, xpStorageKey]);
+
+  const meditationPreviousValue = useRef<string>(meditationDuration);
+  const planDayPreviousValue = useRef<boolean>(isPlanDayComplete);
 
   // Reload date-specific data when date changes (from Supabase + localStorage fallback)
   useEffect(() => {
@@ -315,42 +394,38 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
 
   useEffect(() => {
     if (!selectedDate || isNaN(selectedDate.getTime())) return;
-    const dateKey = format(selectedDate, 'yyyy-MM-dd');
 
-    localStorage.setItem(`lifelock-${dateKey}-wakeUpTime`, wakeUpTime);
+    localStorage.setItem(`lifelock-${routineDateKey}-wakeUpTime`, wakeUpTime);
 
     debouncedMetadataUpdate?.({ wakeUpTime });
-  }, [wakeUpTime, selectedDate, debouncedMetadataUpdate]);
+  }, [wakeUpTime, selectedDate, debouncedMetadataUpdate, routineDateKey]);
 
   // Save water amount to Supabase + localStorage (debounced)
   useEffect(() => {
     if (!selectedDate || isNaN(selectedDate.getTime())) return;
-    const dateKey = format(selectedDate, 'yyyy-MM-dd');
 
-    localStorage.setItem(`lifelock-${dateKey}-waterAmount`, waterAmount.toString());
+    localStorage.setItem(`lifelock-${routineDateKey}-waterAmount`, waterAmount.toString());
 
     debouncedMetadataUpdate?.({ waterAmount });
-  }, [waterAmount, selectedDate, debouncedMetadataUpdate]);
+  }, [waterAmount, selectedDate, debouncedMetadataUpdate, routineDateKey]);
 
   // Save meditation duration to Supabase + localStorage (debounced)
   useEffect(() => {
     if (!selectedDate || isNaN(selectedDate.getTime())) return;
-    const dateKey = format(selectedDate, 'yyyy-MM-dd');
 
-    localStorage.setItem(`lifelock-${dateKey}-meditationDuration`, meditationDuration);
+    localStorage.setItem(`lifelock-${routineDateKey}-meditationDuration`, meditationDuration);
 
     debouncedMetadataUpdate?.({ meditationDuration });
-  }, [meditationDuration, selectedDate, debouncedMetadataUpdate]);
+  }, [meditationDuration, selectedDate, debouncedMetadataUpdate, routineDateKey]);
 
   // Save push-up reps to Supabase + localStorage (debounced)
   useEffect(() => {
     if (!selectedDate || isNaN(selectedDate.getTime())) return;
-    const dateKey = format(selectedDate, 'yyyy-MM-dd');
 
-    localStorage.setItem(`lifelock-${dateKey}-pushupReps`, pushupReps.toString());
+    localStorage.setItem(`lifelock-${routineDateKey}-pushupReps`, pushupReps.toString());
 
     debouncedMetadataUpdate?.({ pushupReps });
-  }, [pushupReps, selectedDate, debouncedMetadataUpdate]);
+  }, [pushupReps, selectedDate, debouncedMetadataUpdate, routineDateKey]);
 
   // Save push-up PB to localStorage (global, not per day)
   useEffect(() => {
@@ -360,22 +435,155 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   // Save daily priorities to Supabase + localStorage (debounced)
   useEffect(() => {
     if (!selectedDate || isNaN(selectedDate.getTime()) || !internalUserId) return;
-    const dateKey = format(selectedDate, 'yyyy-MM-dd');
 
-    localStorage.setItem(`lifelock-${dateKey}-dailyPriorities`, JSON.stringify(dailyPriorities));
+    localStorage.setItem(`lifelock-${routineDateKey}-dailyPriorities`, JSON.stringify(dailyPriorities));
 
     debouncedMetadataUpdate?.({ dailyPriorities });
-  }, [dailyPriorities, selectedDate, internalUserId, debouncedMetadataUpdate]);
+  }, [dailyPriorities, selectedDate, internalUserId, debouncedMetadataUpdate, routineDateKey]);
 
   // Save Plan Day completion to Supabase + localStorage (debounced)
   useEffect(() => {
     if (!selectedDate || isNaN(selectedDate.getTime()) || !internalUserId) return;
-    const dateKey = format(selectedDate, 'yyyy-MM-dd');
 
-    localStorage.setItem(`lifelock-${dateKey}-planDayComplete`, isPlanDayComplete.toString());
+    localStorage.setItem(`lifelock-${routineDateKey}-planDayComplete`, isPlanDayComplete.toString());
 
     debouncedMetadataUpdate?.({ isPlanDayComplete });
-  }, [isPlanDayComplete, selectedDate, internalUserId, debouncedMetadataUpdate]);
+  }, [isPlanDayComplete, selectedDate, internalUserId, debouncedMetadataUpdate, routineDateKey]);
+
+  const awardWakeUpXp = useCallback((time: string) => {
+    if (!time) {
+      return;
+    }
+
+    let shouldAward = false;
+    const wakeTimestamp = getWakeUpTimestamp(routineDate, time);
+
+    setXpState(prev => {
+      if (prev.wakeAwarded) {
+        return prev;
+      }
+
+      shouldAward = true;
+      return {
+        wakeAwarded: true,
+        steps: { ...prev.steps },
+        lastCompletionTimestamp: wakeTimestamp ?? prev.lastCompletionTimestamp
+      };
+    });
+
+    if (!shouldAward) {
+      return;
+    }
+
+    try {
+      const multiplier = calculateWakeUpXpMultiplier(time);
+      GamificationService.awardXP('wake_up_tracked', multiplier);
+    } catch (error) {
+      console.error('Failed to award XP for wake-up time:', error);
+    }
+  }, [routineDate]);
+
+  useEffect(() => {
+    if (wakeUpTime) {
+      awardWakeUpXp(wakeUpTime);
+    }
+  }, [wakeUpTime, awardWakeUpXp]);
+
+  useEffect(() => {
+    if (!wakeUpTime) {
+      return;
+    }
+
+    const wakeTimestamp = getWakeUpTimestamp(routineDate, wakeUpTime);
+    if (wakeTimestamp === null) {
+      return;
+    }
+
+    setXpState(prev => {
+      if (!prev.wakeAwarded) {
+        return prev;
+      }
+
+      if (Object.keys(prev.steps).length > 0 || prev.lastCompletionTimestamp === wakeTimestamp) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        lastCompletionTimestamp: wakeTimestamp
+      };
+    });
+  }, [wakeUpTime, routineDate]);
+
+  const awardHabitCompletion = useCallback((habitKey: string) => {
+    let shouldAward = false;
+    let previousTimestamp: number | null = null;
+    let completionTimestamp = Date.now();
+
+    setXpState(prev => {
+      if (prev.steps[habitKey]) {
+        return prev;
+      }
+
+      shouldAward = true;
+      previousTimestamp = prev.lastCompletionTimestamp ?? null;
+      completionTimestamp = Date.now();
+
+      return {
+        wakeAwarded: prev.wakeAwarded,
+        steps: { ...prev.steps, [habitKey]: true },
+        lastCompletionTimestamp: completionTimestamp
+      };
+    });
+
+    if (!shouldAward) {
+      return;
+    }
+
+    const minutesSinceWake = wakeUpTime
+      ? calculateMinutesSinceWake(wakeUpTime, routineDate, completionTimestamp)
+      : null;
+
+    const minutesSincePrevious =
+      previousTimestamp !== null
+        ? (completionTimestamp - previousTimestamp) / 60000
+        : null;
+
+    const wakeMultiplier = wakeUpTime ? calculateWakeUpXpMultiplier(wakeUpTime) : 1;
+
+    try {
+      const multiplier = calculateStepXpMultiplier({
+        minutesSinceWake,
+        minutesSincePrevious,
+        wakeUpMultiplier: wakeMultiplier
+      });
+      GamificationService.awardXP('morning_routine_step', multiplier);
+    } catch (error) {
+      console.error('Failed to award XP for morning routine habit:', error);
+    }
+  }, [wakeUpTime, routineDate]);
+
+  useEffect(() => {
+    if (
+      meditationDuration &&
+      meditationDuration !== meditationPreviousValue.current &&
+      !xpState.steps.meditation
+    ) {
+      awardHabitCompletion('meditation');
+    }
+    meditationPreviousValue.current = meditationDuration;
+  }, [meditationDuration, xpState.steps.meditation, awardHabitCompletion]);
+
+  useEffect(() => {
+    if (
+      isPlanDayComplete &&
+      planDayPreviousValue.current !== isPlanDayComplete &&
+      !xpState.steps.planDay
+    ) {
+      awardHabitCompletion('planDay');
+    }
+    planDayPreviousValue.current = isPlanDayComplete;
+  }, [isPlanDayComplete, xpState.steps.planDay, awardHabitCompletion]);
 
   // Water tracking functions
   const incrementWater = () => {
@@ -398,15 +606,20 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   // Handle habit toggle
   const handleHabitToggle = async (habitKey: string, completed: boolean) => {
     if (!user?.id || !selectedDate) return;
-    
+
     try {
       // Always save to localStorage for immediate feedback
       const dateKey = format(selectedDate, 'yyyy-MM-dd');
       localStorage.setItem(`lifelock-${dateKey}-${habitKey}`, completed.toString());
-      
-      // ✅ FIX: Use the correct API endpoint instead of saveTask
+
+      // ✅ Save to Supabase via API
       await workTypeApiClient.updateMorningRoutineHabit(user.id, selectedDate, habitKey, completed);
-      
+
+      // 🎮 Award XP for habit completion
+      if (completed) {
+        awardHabitCompletion(habitKey);
+      }
+
       // Update local state immediately for better UX
       if (morningRoutine && morningRoutine.items && Array.isArray(morningRoutine.items)) {
         const updatedItems = morningRoutine.items.map(item =>

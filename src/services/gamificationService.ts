@@ -73,6 +73,7 @@ export class GamificationService {
   private static readonly XP_ACTIVITIES: XPActivity[] = [
     // Morning Routine (50-100 XP)
     { id: 'wake_up_tracked', name: 'Wake Up Time Tracked', basePoints: 50, category: 'routine' },
+    { id: 'morning_routine_step', name: 'Morning Routine Step', basePoints: 20, category: 'routine' },
     { id: 'morning_routine_complete', name: 'Morning Routine Complete', basePoints: 100, category: 'routine' },
     { id: 'daily_quote_read', name: 'Daily Quote Read', basePoints: 25, category: 'routine' },
     
