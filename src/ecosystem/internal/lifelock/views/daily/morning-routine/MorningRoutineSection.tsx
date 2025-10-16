@@ -908,12 +908,12 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                     {/* Main Task Header - NO CHECKBOX */}
                     <div className="p-2 sm:p-3">
                       <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-2 flex-1">
-                            <IconComponent className="h-5 w-5 text-yellow-400" />
-                            <h4 className="text-yellow-100 font-semibold text-sm sm:text-base">{task.title}</h4>
-                            <div className="bg-yellow-500/20 border border-yellow-400/40 rounded-full px-2.5 py-0.5">
-                              <span className="text-xs text-yellow-300 font-medium">{task.timeEstimate}</span>
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 flex-1 min-w-0">
+                            <IconComponent className="h-5 w-5 text-yellow-400 flex-shrink-0" />
+                            <h4 className="text-yellow-100 font-semibold text-sm sm:text-base truncate">{task.title}</h4>
+                            <div className="bg-yellow-500/20 border border-yellow-400/40 rounded-full px-2.5 py-0.5 flex-shrink-0">
+                              <span className="text-xs text-yellow-300 font-medium whitespace-nowrap">{task.timeEstimate}</span>
                             </div>
                           </div>
                           {/* XP Pill */}
