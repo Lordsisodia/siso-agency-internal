@@ -13,6 +13,7 @@
 
 import { useState, useCallback } from 'react';
 import { eisenhowerMatrixOrganizer, EisenhowerMatrixResult } from '@/shared/services/task.service';
+import { instrumentLifeLockEvent } from '@/ecosystem/internal/lifelock/utils/lifeLockTelemetry';
 import { TaskCard } from './useTaskData';
 
 export interface UseTaskOrganizationReturn {
@@ -69,7 +70,11 @@ export const useTaskOrganization = (onTaskChange?: () => void): UseTaskOrganizat
     try {
       console.log('🧠 Organizing tasks using Eisenhower Matrix...');
       
-      const result = await eisenhowerMatrixOrganizer.organizeTasks(tasks);
+      const result = await instrumentLifeLockEvent(
+        'eisenhower_matrix',
+        () => eisenhowerMatrixOrganizer.organizeTasks(tasks),
+        { taskCount: tasks.length }
+      );
       
       setEisenhowerResult(result);
       setShowEisenhowerModal(true);

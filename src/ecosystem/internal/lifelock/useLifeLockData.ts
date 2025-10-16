@@ -5,6 +5,7 @@ import { personalTaskService } from '@/shared/services/task.service';
 import { ClerkHybridTaskService } from '@/shared/services/auth.service';
 import { lifeLockVoiceTaskProcessor, ThoughtDumpResult } from '@/services/lifeLockVoiceTaskProcessor';
 import { eisenhowerMatrixOrganizer, EisenhowerMatrixResult } from '@/shared/services/task.service';
+import { instrumentLifeLockEvent } from './utils/lifeLockTelemetry';
 
 export interface TaskCard {
   id: string;
@@ -162,7 +163,11 @@ const dayTasks = await personalTaskService.getTasksForDate(user.id, selectedDate
   const handleVoiceCommand = async (command: string) => {
     setIsProcessingVoice(true);
     try {
-      const result = await lifeLockVoiceTaskProcessor.processVoiceInput(command, selectedDate);
+      const result = await instrumentLifeLockEvent(
+        'voice_task_processor',
+        () => lifeLockVoiceTaskProcessor.processVoiceInput(command, selectedDate),
+        { commandLength: command.length }
+      );
       setLastThoughtDumpResult(result);
       setRefreshTrigger(prev => prev + 1);
     } catch (error) {
@@ -177,7 +182,11 @@ const dayTasks = await personalTaskService.getTasksForDate(user.id, selectedDate
     
     setIsAnalyzingTasks(true);
     try {
-      const result = await eisenhowerMatrixOrganizer.organizeTasks(todayCard.tasks);
+      const result = await instrumentLifeLockEvent(
+        'eisenhower_matrix',
+        () => eisenhowerMatrixOrganizer.organizeTasks(todayCard.tasks),
+        { taskCount: todayCard.tasks.length }
+      );
       setEisenhowerResult(result);
       setShowEisenhowerModal(true);
     } catch (error) {

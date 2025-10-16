@@ -13,6 +13,7 @@
 
 import { useState, useCallback } from 'react';
 import { lifeLockVoiceTaskProcessor, ThoughtDumpResult } from '@/services/lifeLockVoiceTaskProcessor';
+import { instrumentLifeLockEvent } from '@/ecosystem/internal/lifelock/utils/lifeLockTelemetry';
 
 export interface UseVoiceProcessingReturn {
   // Voice processing
@@ -63,7 +64,11 @@ export const useVoiceProcessing = (selectedDate: Date, onTaskChange?: () => void
     try {
       console.log('🎤 Processing voice command:', command);
       
-      const result = await lifeLockVoiceTaskProcessor.processVoiceInput(command, selectedDate);
+      const result = await instrumentLifeLockEvent(
+        'voice_task_processor',
+        () => lifeLockVoiceTaskProcessor.processVoiceInput(command, selectedDate),
+        { commandLength: command.length }
+      );
       
       setLastThoughtDumpResult(result);
       
