@@ -16,14 +16,17 @@ import {
   Circle,
   CircleAlert,
   CircleDotDashed,
+  ArrowUp,
+  ArrowDown,
+  Calendar,
   Timer,
-  Play,
-  Pause,
   Brain,
   Clock,
   Plus,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  ListOrdered,
+  Flame
 } from "lucide-react";
 import { TaskSeparator } from "@/components/tasks/TaskSeparator";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
@@ -60,7 +63,8 @@ interface Task {
   subtasks: Subtask[];
   focusIntensity?: 1 | 2 | 3 | 4;
   context?: string;
-  dueDate?: string;
+  dueDate?: string | null;
+  timeEstimate?: string | null;
 }
 
 interface DeepWorkTaskListProps {
@@ -75,12 +79,13 @@ function transformSupabaseToUITasks(tasks: DeepWorkTask[]): Task[] {
     title: task.title,
     description: task.description || "",
     status: task.completed ? "completed" : "in-progress",
-    priority: task.priority.toLowerCase(),
+    priority: (task.priority || 'MEDIUM').toLowerCase(),
     level: 0,
     dependencies: [],
     focusIntensity: (task.focusBlocks || 2) as 1 | 2 | 3 | 4,
     context: "coding",
-    dueDate: task.createdAt,
+    dueDate: task.dueDate || task.currentDate || task.createdAt,
+    timeEstimate: task.timeEstimate || null,
     subtasks: task.subtasks.map(subtask => ({
       id: subtask.id,
       title: subtask.title,
@@ -125,7 +130,10 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
     updateSubtaskPriority,
     updateSubtaskEstimatedTime,
     updateSubtaskDescription,
-    updateTaskTitle
+    updateTaskTitle,
+    updateTaskDueDate,
+    updateTaskPriority,
+    updateTaskTimeEstimate
   } = useDeepWorkTasksSupabase({ selectedDate });
 
   // Transform data
@@ -140,7 +148,11 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [calendarSubtaskId, setCalendarSubtaskId] = useState<string | null>(null);
-  const [calendarLoading, setCalendarLoading] = useState(false);
+  const [activeTaskCalendarId, setActiveTaskCalendarId] = useState<string | null>(null);
+  const [taskPriorityMenuId, setTaskPriorityMenuId] = useState<string | null>(null);
+  const [editingTaskTimeId, setEditingTaskTimeId] = useState<string | null>(null);
+  const [editTaskTimeValue, setEditTaskTimeValue] = useState('');
+  const [taskOrder, setTaskOrder] = useState<string[]>([]);
   const [editingSubtask, setEditingSubtask] = useState<string | null>(null);
   const [editSubtaskTitle, setEditSubtaskTitle] = useState('');
   const [editingMainTask, setEditingMainTask] = useState<string | null>(null);
@@ -148,6 +160,41 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
   const [addingSubtaskToTask, setAddingSubtaskToTask] = useState<string | null>(null);
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   const [showCompletedSubtasks, setShowCompletedSubtasks] = useState<{[taskId: string]: boolean}>({});
+
+  React.useEffect(() => {
+    setTaskOrder(prevOrder => {
+      if (tasks.length === 0) {
+        return [];
+      }
+
+      if (prevOrder.length === 0) {
+        return tasks.map(task => task.id);
+      }
+
+      const taskIds = tasks.map(task => task.id);
+      const filtered = prevOrder.filter(id => taskIds.includes(id));
+      const missing = taskIds.filter(id => !filtered.includes(id));
+
+      if (missing.length === 0 && filtered.length === prevOrder.length) {
+        return prevOrder;
+      }
+
+      return [...filtered, ...missing];
+    });
+  }, [tasks]);
+
+  const orderedTasks = useMemo(() => {
+    if (taskOrder.length === 0) {
+      return tasks;
+    }
+
+    const orderMap = new Map(taskOrder.map((id, index) => [id, index]));
+    return [...tasks].sort((a, b) => {
+      const aIndex = orderMap.has(a.id) ? orderMap.get(a.id)! : Number.MAX_SAFE_INTEGER;
+      const bIndex = orderMap.has(b.id) ? orderMap.get(b.id)! : Number.MAX_SAFE_INTEGER;
+      return aIndex - bIndex;
+    });
+  }, [tasks, taskOrder]);
 
   // Theme config for SubtaskItem - BLUE
   const themeConfig = {
@@ -165,18 +212,20 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
       ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
       : false;
 
-  // Close calendar when clicking outside
+  // Close calendar popovers when clicking outside
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (calendarSubtaskId && !(event.target as Element).closest('.calendar-popup')) {
+      if ((calendarSubtaskId || activeTaskCalendarId) && !(event.target as Element).closest('.calendar-popup')) {
         setCalendarSubtaskId(null);
+        setActiveTaskCalendarId(null);
       }
     };
-    if (calendarSubtaskId) {
+
+    if (calendarSubtaskId || activeTaskCalendarId) {
       document.addEventListener('mousedown', handleClickOutside);
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
-  }, [calendarSubtaskId]);
+  }, [calendarSubtaskId, activeTaskCalendarId]);
 
   // Handlers - EXACT COPY
 
@@ -387,6 +436,215 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
     }));
   };
 
+  const baseSubtaskMinutes = 30;
+
+  const parseTimeEstimateToMinutes = (value?: string | null): number => {
+    if (!value) return 0;
+    const normalized = value.toString().toLowerCase();
+    let minutes = 0;
+
+    const hourMatches = normalized.matchAll(/(\d+(?:\.\d+)?)\s*(?:h|hr|hrs|hour|hours)/g);
+    for (const match of hourMatches) {
+      minutes += Math.round(parseFloat(match[1]) * 60);
+    }
+
+    const minuteMatches = normalized.matchAll(/(\d+(?:\.\d+)?)\s*(?:m|min|mins|minute|minutes)/g);
+    for (const match of minuteMatches) {
+      minutes += Math.round(parseFloat(match[1]));
+    }
+
+    if (minutes === 0) {
+      const numberMatch = normalized.match(/(\d+(?:\.\d+)?)/);
+      if (numberMatch) {
+        minutes = Math.round(parseFloat(numberMatch[1]));
+      }
+    }
+
+    return minutes;
+  };
+
+  const formatMinutes = (totalMinutes: number): string => {
+    const rounded = Math.max(0, Math.round(totalMinutes));
+    const hours = Math.floor(rounded / 60);
+    const minutes = rounded % 60;
+
+    if (hours > 0 && minutes > 0) {
+      return `${hours}h ${minutes}m`;
+    }
+    if (hours > 0) {
+      return `${hours}h`;
+    }
+    return `${minutes}m`;
+  };
+
+  const getTaskTimeSummary = (task: Task) => {
+    let totalMinutes = 0;
+    let missingEstimates = 0;
+
+    task.subtasks.forEach(subtask => {
+      const estimateMinutes = parseTimeEstimateToMinutes(subtask.estimatedTime);
+      if (estimateMinutes > 0) {
+        totalMinutes += estimateMinutes;
+      } else {
+        missingEstimates += 1;
+        totalMinutes += baseSubtaskMinutes;
+      }
+    });
+
+    const manualMinutes = parseTimeEstimateToMinutes(task.timeEstimate);
+
+    if (task.subtasks.length === 0) {
+      if (manualMinutes > 0) {
+        totalMinutes = manualMinutes;
+        missingEstimates = 0;
+      } else {
+        totalMinutes = baseSubtaskMinutes;
+        missingEstimates = 1;
+      }
+    }
+
+    return {
+      totalMinutes,
+      formatted: formatMinutes(totalMinutes),
+      missingEstimates,
+      manualMinutes: manualMinutes > 0 ? manualMinutes : null,
+      manualLabel: manualMinutes > 0 ? task.timeEstimate || null : null
+    };
+  };
+
+  const computeSuggestedPriority = (minutes: number, subtaskCount: number): 'low' | 'medium' | 'high' | 'urgent' => {
+    if (minutes >= 240 || subtaskCount >= 8) return 'urgent';
+    if (minutes >= 150 || subtaskCount >= 6) return 'high';
+    if (minutes >= 90 || subtaskCount >= 3) return 'medium';
+    return 'low';
+  };
+
+  const TASK_PRIORITY_CONFIG: Record<string, { icon: string; label: string; badgeClass: string }> = {
+    low: { icon: '🟢', label: 'Low', badgeClass: 'text-green-300 bg-green-900/20 hover:bg-green-900/30' },
+    medium: { icon: '🟡', label: 'Medium', badgeClass: 'text-yellow-300 bg-yellow-900/20 hover:bg-yellow-900/30' },
+    high: { icon: '🔴', label: 'High', badgeClass: 'text-red-300 bg-red-900/20 hover:bg-red-900/30' },
+    urgent: { icon: '🚨', label: 'Urgent', badgeClass: 'text-purple-300 bg-purple-900/20 hover:bg-purple-900/30' }
+  };
+
+  const getPriorityConfig = (priority: string) => {
+    const normalized = priority?.toLowerCase() || 'medium';
+    return TASK_PRIORITY_CONFIG[normalized] || TASK_PRIORITY_CONFIG['medium'];
+  };
+
+  const formatShortDate = (dateString?: string | null) => {
+    if (!dateString) return '--/--';
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) return '--/--';
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${month}/${day}`;
+  };
+
+  const getDueDateClasses = (dateString?: string | null) => {
+    if (!dateString) {
+      return 'text-blue-200/80 bg-blue-900/20 hover:bg-blue-900/30';
+    }
+
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) {
+      return 'text-blue-200/80 bg-blue-900/20 hover:bg-blue-900/30';
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const target = new Date(date);
+    target.setHours(0, 0, 0, 0);
+
+    if (target.getTime() === today.getTime()) {
+      return 'text-yellow-300 bg-yellow-900/30 hover:bg-yellow-900/40';
+    }
+
+    if (target < today) {
+      return 'text-red-300 bg-red-900/30 hover:bg-red-900/40';
+    }
+
+    return 'text-blue-200 bg-blue-900/30 hover:bg-blue-900/40';
+  };
+
+  const handleTaskCalendarToggle = (taskId: string) => {
+    setActiveTaskCalendarId(prev => (prev === taskId ? null : taskId));
+    setCalendarSubtaskId(null);
+    setTaskPriorityMenuId(null);
+  };
+
+  const handleTaskCalendarSelect = async (taskId: string, date: Date | null) => {
+    try {
+      await updateTaskDueDate(taskId, date);
+    } catch (error) {
+      console.error('Error updating task due date:', error);
+    } finally {
+      setActiveTaskCalendarId(null);
+    }
+  };
+
+  const handleTaskPrioritySelect = async (taskId: string, priority: 'low' | 'medium' | 'high' | 'urgent') => {
+    try {
+      await updateTaskPriority(taskId, priority);
+      setTaskPriorityMenuId(null);
+    } catch (error) {
+      console.error('Error updating task priority:', error);
+    }
+  };
+
+  const handleTaskTimeStartEditing = (task: Task, fallbackLabel: string) => {
+    setEditingTaskTimeId(task.id);
+    setEditTaskTimeValue(task.timeEstimate || fallbackLabel);
+    setActiveTaskCalendarId(null);
+    setTaskPriorityMenuId(null);
+  };
+
+  const handleTaskTimeSave = async (taskId: string) => {
+    try {
+      const trimmed = editTaskTimeValue.trim();
+      await updateTaskTimeEstimate(taskId, trimmed ? trimmed : null);
+    } catch (error) {
+      console.error('Error updating task time estimate:', error);
+    }
+    setEditingTaskTimeId(null);
+    setEditTaskTimeValue('');
+  };
+
+  const handleTaskTimeKeyDown = (event: React.KeyboardEvent<HTMLInputElement>, taskId: string) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      handleTaskTimeSave(taskId);
+    } else if (event.key === 'Escape') {
+      setEditingTaskTimeId(null);
+      setEditTaskTimeValue('');
+    }
+  };
+
+  const handleMoveTask = (taskId: string, direction: 'up' | 'down') => {
+    setTaskOrder(prevOrder => {
+      const baseOrder = prevOrder.length ? [...prevOrder] : tasks.map(task => task.id);
+      const index = baseOrder.indexOf(taskId);
+
+      if (index === -1) {
+        return baseOrder;
+      }
+
+      if (direction === 'up') {
+        if (index === 0) {
+          return baseOrder;
+        }
+        [baseOrder[index - 1], baseOrder[index]] = [baseOrder[index], baseOrder[index - 1]];
+      } else {
+        if (index === baseOrder.length - 1) {
+          return baseOrder;
+        }
+        [baseOrder[index + 1], baseOrder[index]] = [baseOrder[index], baseOrder[index + 1]];
+      }
+
+      return baseOrder;
+    });
+  };
+
   // Animation variants - EXACT COPY
   const taskVariants = {
     hidden: { opacity: 0, y: prefersReducedMotion ? 0 : -5 },
@@ -511,9 +769,16 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
             <LayoutGroup>
               <div className="overflow-hidden">
                 <ul className="space-y-1 overflow-hidden">
-              {tasks.map((task, index) => {
+              {orderedTasks.map((task, index) => {
                 const isExpanded = expandedTasks.includes(task.id);
                 const isCompleted = task.status === "completed";
+                const summary = getTaskTimeSummary(task);
+                const suggestedPriority = computeSuggestedPriority(summary.totalMinutes, task.subtasks.length);
+                const priorityConfig = getPriorityConfig(task.priority);
+                const focusBlocks = Math.max(1, Math.ceil(summary.totalMinutes / 60));
+                const isPriorityAligned = task.priority?.toLowerCase() === suggestedPriority;
+                const isFirst = index === 0;
+                const isLast = index === orderedTasks.length - 1;
 
                 return (
                   <motion.li
@@ -602,6 +867,182 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
                         </div>
 
                         {/* Top divider */}
+                        <div className="border-t border-blue-600/50 mt-3"></div>
+
+                        <div className="pt-3 space-y-3">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleTaskCalendarToggle(task.id);
+                              }}
+                              className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${getDueDateClasses(task.dueDate)}`}
+                              title="Schedule this task"
+                            >
+                              <Calendar className="h-3.5 w-3.5" />
+                              <span>{formatShortDate(task.dueDate)}</span>
+                            </button>
+
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setTaskPriorityMenuId(prev => (prev === task.id ? null : task.id));
+                                setActiveTaskCalendarId(null);
+                              }}
+                              className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${priorityConfig.badgeClass}`}
+                              title="Adjust priority"
+                            >
+                              <span>{priorityConfig.icon}</span>
+                              <span>{priorityConfig.label}</span>
+                            </button>
+
+                            {editingTaskTimeId === task.id ? (
+                              <input
+                                type="text"
+                                value={editTaskTimeValue}
+                                onChange={(e) => setEditTaskTimeValue(e.target.value)}
+                                onKeyDown={(e) => handleTaskTimeKeyDown(e, task.id)}
+                                onBlur={() => handleTaskTimeSave(task.id)}
+                                autoFocus
+                                className="px-2 py-1 rounded-md text-xs font-medium bg-blue-900/40 border border-blue-600/60 text-blue-100 focus:border-blue-300 focus:outline-none"
+                                placeholder="e.g. 2h"
+                              />
+                            ) : (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleTaskTimeStartEditing(task, summary.formatted);
+                                }}
+                                className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium text-blue-200/90 bg-blue-900/20 hover:bg-blue-900/30 transition-colors"
+                                title="Set total focus time"
+                              >
+                                <Clock className="h-3.5 w-3.5" />
+                                <span>{summary.formatted}</span>
+                                {summary.missingEstimates > 0 && (
+                                  <span className="text-[10px] text-blue-300/80 ml-1">
+                                    +{summary.missingEstimates}×{baseSubtaskMinutes}m
+                                  </span>
+                                )}
+                              </button>
+                            )}
+
+                            <div className="flex items-center gap-1 px-2 py-1 rounded-md text-xs text-blue-200/80 bg-blue-900/10">
+                              <ListOrdered className="h-3.5 w-3.5 text-blue-300/80" />
+                              <span>{task.subtasks.length} subtasks</span>
+                            </div>
+                          </div>
+
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <div className="flex flex-wrap items-center gap-3 text-[11px] text-blue-300/80">
+                              <div className={`flex items-center gap-1 ${isPriorityAligned ? 'text-green-300' : 'text-blue-300/80'}`}>
+                                <Flame className="h-3.5 w-3.5" />
+                                <span>Suggested: {TASK_PRIORITY_CONFIG[suggestedPriority].label}</span>
+                                {!isPriorityAligned && (
+                                  <span className="ml-1 text-blue-200/70">Current: {priorityConfig.label}</span>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Timer className="h-3.5 w-3.5 text-blue-300/80" />
+                                <span>Focus Blocks ≈ {focusBlocks}</span>
+                              </div>
+                              {summary.manualLabel && (
+                                <div className="flex items-center gap-1 text-blue-200/70">
+                                  <Clock className="h-3 w-3 text-blue-300/70" />
+                                  <span>Manual: {summary.manualLabel}</span>
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="flex items-center gap-1">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleMoveTask(task.id, 'up');
+                                }}
+                                disabled={isFirst}
+                                className={`p-1 rounded-md border border-blue-700/40 text-blue-300 transition-colors ${
+                                  isFirst ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-900/25'
+                                }`}
+                                title="Move up"
+                              >
+                                <ArrowUp className="h-3.5 w-3.5" />
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleMoveTask(task.id, 'down');
+                                }}
+                                disabled={isLast}
+                                className={`p-1 rounded-md border border-blue-700/40 text-blue-300 transition-colors ${
+                                  isLast ? 'opacity-40 cursor-not-allowed' : 'hover:bg-blue-900/25'
+                                }`}
+                                title="Move down"
+                              >
+                                <ArrowDown className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                          </div>
+
+                          {activeTaskCalendarId === task.id && (
+                            <div className="calendar-popup fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 bg-gray-800 border border-gray-600 rounded-lg shadow-xl p-3 min-w-[280px] max-w-[90vw] max-h-[90vh] overflow-auto">
+                              <CustomCalendar
+                                theme='DEEP'
+                                subtask={{ dueDate: task.dueDate }}
+                                onDateSelect={(date) => handleTaskCalendarSelect(task.id, date)}
+                                onClose={() => setActiveTaskCalendarId(null)}
+                              />
+                            </div>
+                          )}
+
+                          <AnimatePresence>
+                            {taskPriorityMenuId === task.id && (
+                              <>
+                                <motion.div
+                                  initial={{ opacity: 0 }}
+                                  animate={{ opacity: 1 }}
+                                  exit={{ opacity: 0 }}
+                                  className="fixed inset-0 z-[9998] bg-black/40"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setTaskPriorityMenuId(null);
+                                  }}
+                                />
+                                <motion.div
+                                  initial={{ opacity: 0, scale: 0.95 }}
+                                  animate={{ opacity: 1, scale: 1 }}
+                                  exit={{ opacity: 0, scale: 0.98 }}
+                                  transition={{ duration: 0.15, ease: [0.2, 0.65, 0.3, 0.9] }}
+                                  className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[9999] backdrop-blur-xl bg-blue-950/95 border border-blue-700/60 rounded-xl shadow-2xl shadow-black/60 p-3 min-w-[200px]"
+                                >
+                                  {Object.entries(TASK_PRIORITY_CONFIG).map(([key, config]) => {
+                                    const isActive = task.priority?.toLowerCase() === key;
+                                    return (
+                                      <motion.button
+                                        key={key}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleTaskPrioritySelect(task.id, key as 'low' | 'medium' | 'high' | 'urgent');
+                                        }}
+                                        className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-sm text-left transition-colors ${
+                                          isActive ? 'bg-blue-800/40 text-blue-100' : 'text-blue-200 hover:bg-blue-800/30'
+                                        }`}
+                                        whileHover={{ scale: 1.01 }}
+                                        whileTap={{ scale: 0.98 }}
+                                      >
+                                        <span className="flex items-center gap-2">
+                                          <span>{config.icon}</span>
+                                          <span>{config.label}</span>
+                                        </span>
+                                        {isActive && <CheckCircle2 className="h-4 w-4 text-blue-300" />}
+                                      </motion.button>
+                                    );
+                                  })}
+                                </motion.div>
+                              </>
+                            )}
+                          </AnimatePresence>
+                        </div>
+
                         <div className="border-t border-blue-600/50 mt-3"></div>
                       </div>
 
