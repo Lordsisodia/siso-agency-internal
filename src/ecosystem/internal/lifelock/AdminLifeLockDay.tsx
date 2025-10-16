@@ -4,6 +4,7 @@ import { format, addWeeks, subWeeks, getYear } from 'date-fns';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useClerkUser } from '@/shared/hooks/useClerkUser';
 import { useSupabaseUserId } from '@/shared/lib/supabase-clerk';
+import { useGamificationInit } from '@/shared/hooks/useGamificationInit';
 import { ThoughtDumpResults } from "@/shared/components/ui";
 import { EisenhowerMatrixModal } from "@/shared/components/ui";
 import { LifeLockViewRenderer } from './core/LifeLockViewRenderer';
@@ -19,6 +20,9 @@ const AdminLifeLockDay: React.FC = () => {
   const { isSignedIn, isLoaded, user } = useClerkUser();
 
   const internalUserId = useSupabaseUserId(user?.id || null);
+
+  // 🎮 Initialize XP/Gamification system
+  useGamificationInit();
 
   // State for real-time day progress updates (same as AdminLifeLock.tsx)
   const [currentTime, setCurrentTime] = useState(new Date());

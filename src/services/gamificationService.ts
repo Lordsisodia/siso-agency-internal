@@ -1,9 +1,14 @@
 /**
  * Gamification Service - XP Points, Badges, Streaks & Achievements
  * Transforms daily productivity into an engaging game-like experience
+ *
+ * 🔄 Hybrid Storage Strategy:
+ * - localStorage: Immediate updates (offline-first)
+ * - Supabase: Background sync (cross-device persistence)
  */
 
 import { logger } from '@/shared/utils/logger';
+import { scheduleSyncToSupabase, loadProgressFromSupabase } from './gamification/supabaseXpSync';
 
 export interface XPActivity {
   id: string;
@@ -68,6 +73,7 @@ export interface WeeklyChallenge {
 export class GamificationService {
   private static readonly STORAGE_KEY = 'siso_gamification_data';
   private static readonly LEVEL_XP_THRESHOLD = 1000; // XP needed per level
+  private static currentUserId: string | null = null;
 
   // XP Activities Configuration
   private static readonly XP_ACTIVITIES: XPActivity[] = [
@@ -361,10 +367,45 @@ export class GamificationService {
   }
 
   /**
-   * Save user progress to localStorage
+   * Set current user ID for Supabase sync
+   */
+  public static setUserId(userId: string | null): void {
+    this.currentUserId = userId;
+  }
+
+  /**
+   * Save user progress to localStorage + sync to Supabase
    */
   private static saveUserProgress(progress: UserProgress): void {
+    // Save to localStorage immediately (offline-first)
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(progress));
+
+    // Sync to Supabase in background (if user is logged in)
+    if (this.currentUserId) {
+      scheduleSyncToSupabase(this.currentUserId, progress);
+    }
+  }
+
+  /**
+   * Load progress from Supabase (call on app startup)
+   */
+  public static async loadFromSupabase(userId: string): Promise<void> {
+    try {
+      const supabaseProgress = await loadProgressFromSupabase(userId);
+
+      if (supabaseProgress) {
+        // Supabase has data - use it as source of truth
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(supabaseProgress));
+        console.log('✅ Loaded XP progress from Supabase');
+      } else {
+        // No Supabase data - sync current localStorage data up
+        const localProgress = this.getUserProgress();
+        await scheduleSyncToSupabase(userId, localProgress, 0); // Immediate sync
+        console.log('✅ Synced local XP progress to Supabase');
+      }
+    } catch (error) {
+      console.error('Error loading XP from Supabase:', error);
+    }
   }
 
   /**
