@@ -1,5 +1,8 @@
 # Shared Components for LifeLock Daily Views
 
+> **Last updated:** 2025-10-16  
+> **Status summary:** ✅ All listed shared components are live and imported across the active daily views.
+
 **Scope**: This `_shared` folder is specifically for components shared across **LifeLock daily views only**.
 
 Path: `/src/ecosystem/internal/lifelock/views/daily/_shared/`
@@ -19,12 +22,23 @@ Reduce code duplication and maintain consistency across **daily views specifical
 
 ## Current Shared Components
 
-### PrioritySelector
-A smart dropdown component for selecting task priorities. Features:
-- Portal rendering (no cutoff issues)
-- Smart positioning (above/below based on available space)
-- Mobile-friendly
-- Consistent styling across all views
+## Component Inventory Status
+
+| Component | Status | Path |
+| --- | --- | --- |
+| CleanDateNav | ✅ Live | [`CleanDateNav.tsx`](/src/ecosystem/internal/lifelock/views/daily/_shared/components/CleanDateNav.tsx) |
+| DailyBottomNav | ✅ Live | [`DailyBottomNav.tsx`](/src/ecosystem/internal/lifelock/views/daily/_shared/components/navigation/DailyBottomNav.tsx) |
+| PrioritySelector | ✅ Live | [`PrioritySelector.tsx`](/src/ecosystem/internal/lifelock/views/daily/_shared/components/ui/PrioritySelector.tsx) |
+| CustomCalendar | ✅ Live | [`CustomCalendar.tsx`](/src/ecosystem/internal/lifelock/views/daily/_shared/components/ui/CustomCalendar.tsx) |
+| WorkProtocolCard | ✅ Live | [`WorkProtocolCard.tsx`](/src/ecosystem/internal/lifelock/views/daily/_shared/components/ui/WorkProtocolCard.tsx) |
+| AddSubtaskInput | ✅ Live | [`AddSubtaskInput.tsx`](/src/ecosystem/internal/lifelock/views/daily/_shared/components/subtask/AddSubtaskInput.tsx) |
+| SubtaskItem | ✅ Live | [`SubtaskItem.tsx`](/src/ecosystem/internal/lifelock/views/daily/_shared/components/subtask/SubtaskItem.tsx) |
+| SubtaskMetadata | ✅ Live | [`SubtaskMetadata.tsx`](/src/ecosystem/internal/lifelock/views/daily/_shared/components/subtask/SubtaskMetadata.tsx) |
+| TaskActionButtons | ✅ Live | [`TaskActionButtons.tsx`](/src/ecosystem/internal/lifelock/views/daily/_shared/components/task/TaskActionButtons.tsx) |
+| TaskHeader | ✅ Live | [`TaskHeader.tsx`](/src/ecosystem/internal/lifelock/views/daily/_shared/components/task/TaskHeader.tsx) |
+| TaskProgress | ✅ Live | [`TaskProgress.tsx`](/src/ecosystem/internal/lifelock/views/daily/_shared/components/task/TaskProgress.tsx) |
+| TaskSeparator | ✅ Live | [`TaskSeparator.tsx`](/src/ecosystem/internal/lifelock/views/daily/_shared/components/task/TaskSeparator.tsx) |
+| TaskStatsGrid | ✅ Live | [`TaskStatsGrid.tsx`](/src/ecosystem/internal/lifelock/views/daily/_shared/components/task/TaskStatsGrid.tsx) |
 
 ## Scope Boundaries
 

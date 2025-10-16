@@ -1,5 +1,8 @@
 # 🌙 Nightly Checkout Section
 
+> **Last updated:** 2025-10-16  
+> **Status summary:** Mixed — core reflection flows are live, while new bedtime + question modules are staged for integration.
+
 ## Overview
 
 The Nightly Checkout section provides a structured way to end the day with reflection, learning, and preparation for tomorrow. It captures insights, celebrates wins, identifies improvements, and sets intentions for the following day.
@@ -7,6 +10,16 @@ The Nightly Checkout section provides a structured way to end the day with refle
 ## Purpose & Philosophy
 
 The Nightly Checkout is built on the principle that intentional reflection and closure are essential for growth and work-life balance. It transforms daily experiences into learning opportunities and ensures continuous improvement.
+
+## Feature Implementation Status
+
+| Feature | Status | Component |
+| --- | --- | --- |
+| Bedtime Tracking | 🛠️ Planned (component built, awaiting integration) | [`BedTimeTracker.tsx`](/src/ecosystem/internal/lifelock/views/daily/checkout/components/BedTimeTracker.tsx) |
+| Reflection Questions | 🛠️ Planned (component built, awaiting integration) | [`ReflectionQuestions.tsx`](/src/ecosystem/internal/lifelock/views/daily/checkout/components/ReflectionQuestions.tsx) |
+| Daily Analysis | ✅ Live | [`NightlyCheckoutSection.tsx`](/src/ecosystem/internal/lifelock/views/daily/checkout/NightlyCheckoutSection.tsx) |
+| Progress Tracking | ✅ Live | [`NightlyCheckoutSection.tsx`](/src/ecosystem/internal/lifelock/views/daily/checkout/NightlyCheckoutSection.tsx) |
+| Tomorrow Planning | ✅ Live | [`NightlyCheckoutSection.tsx`](/src/ecosystem/internal/lifelock/views/daily/checkout/NightlyCheckoutSection.tsx) |
 
 ## Core Features
 
