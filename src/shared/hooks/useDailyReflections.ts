@@ -7,9 +7,9 @@
  * 3. Auto-sync queue when offline
  */
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useClerkUser } from './useClerkUser';
-import { useSupabaseClient, useSupabaseUserId } from '@/shared/lib/supabase-clerk';
+import { useSupabaseUserId } from '@/shared/lib/supabase-clerk';
 import { unifiedDataService } from '@/shared/services/unified-data.service';
 
 export interface DailyReflection {
@@ -34,23 +34,32 @@ export interface DailyReflection {
 
 export interface UseDailyReflectionsProps {
   selectedDate: Date;
+  includePreviousDay?: boolean;
 }
 
-export function useDailyReflections({ selectedDate }: UseDailyReflectionsProps) {
+export function useDailyReflections({ selectedDate, includePreviousDay = false }: UseDailyReflectionsProps) {
   const { user, isSignedIn } = useClerkUser();
-  const supabase = useSupabaseClient();
   const internalUserId = useSupabaseUserId(user?.id || null);
   const [reflection, setReflection] = useState<DailyReflection | null>(null);
+  const [previousReflection, setPreviousReflection] = useState<DailyReflection | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const dateString = selectedDate?.toISOString()?.split('T')[0] || new Date().toISOString().split('T')[0];
+  const previousDateString = useMemo(() => {
+    if (!includePreviousDay) return null;
+    const previousDate = new Date(selectedDate);
+    previousDate.setDate(previousDate.getDate() - 1);
+    return previousDate.toISOString().split('T')[0];
+  }, [includePreviousDay, selectedDate]);
 
   // Load daily reflection - OFFLINE-FIRST
   const loadReflection = useCallback(async () => {
     if (!isSignedIn || !internalUserId) {
       setLoading(false);
+      setReflection(null);
+      setPreviousReflection(null);
       return;
     }
 
@@ -59,37 +68,98 @@ export function useDailyReflections({ selectedDate }: UseDailyReflectionsProps) 
       setError(null);
 
       console.log(`🌙 Loading daily reflection (offline-first) for ${dateString}...`);
+      if (includePreviousDay && previousDateString) {
+        const reflections = await unifiedDataService.getDailyReflections(internalUserId, [dateString, previousDateString]);
+        const currentReflection = reflections[dateString] || null;
+        const priorReflection = reflections[previousDateString] || null;
 
-      // Use unified data service (IndexedDB first, then Supabase if online)
-      const data = await unifiedDataService.getDailyReflection(internalUserId, dateString);
+        if (currentReflection) {
+          const transformedReflection: DailyReflection = {
+            id: currentReflection.id || '',
+            userId: currentReflection.user_id,
+            date: currentReflection.date,
+            winOfDay: currentReflection.winOfDay || '',
+            mood: currentReflection.mood || '',
+            bedTime: currentReflection.bedTime || '',
+            wentWell: currentReflection.wentWell || [],
+            evenBetterIf: currentReflection.evenBetterIf || [],
+            dailyAnalysis: currentReflection.dailyAnalysis || '',
+            actionItems: currentReflection.actionItems || '',
+            overallRating: currentReflection.overallRating,
+            energyLevel: currentReflection.energyLevel,
+            keyLearnings: currentReflection.keyLearnings || '',
+            tomorrowFocus: currentReflection.tomorrowFocus || '',
+            tomorrowTopTasks: currentReflection.tomorrowTopTasks || [],
+            createdAt: currentReflection.created_at || new Date().toISOString(),
+            updatedAt: currentReflection.updated_at || new Date().toISOString()
+          };
 
-      if (data) {
-        // Transform to match our interface
-        const transformedReflection: DailyReflection = {
-          id: data.id || '',
-          userId: data.user_id,
-          date: data.date,
-          winOfDay: data.winOfDay || '',
-          mood: data.mood || '',
-          bedTime: data.bedTime || '', // ✅ FIXED: Include bedTime when loading
-          wentWell: data.wentWell || [],
-          evenBetterIf: data.evenBetterIf || [],
-          dailyAnalysis: data.dailyAnalysis || '',
-          actionItems: data.actionItems || '',
-          overallRating: data.overallRating,
-          energyLevel: data.energyLevel,
-          keyLearnings: data.keyLearnings || '',
-          tomorrowFocus: data.tomorrowFocus || '',
-          tomorrowTopTasks: data.tomorrowTopTasks || [],
-          createdAt: data.created_at || new Date().toISOString(),
-          updatedAt: data.updated_at || new Date().toISOString()
-        };
+          console.log(`✅ Loaded daily reflection (${navigator.onLine ? 'online' : 'offline'}) for ${dateString}`);
+          setReflection(transformedReflection);
+        } else {
+          console.log(`📝 No reflection found for ${dateString}, will create on save`);
+          setReflection(null);
+        }
 
-        console.log(`✅ Loaded daily reflection (${navigator.onLine ? 'online' : 'offline'}) for ${dateString}`);
-        setReflection(transformedReflection);
+        if (priorReflection) {
+          const transformedPrevious: DailyReflection = {
+            id: priorReflection.id || '',
+            userId: priorReflection.user_id,
+            date: priorReflection.date,
+            winOfDay: priorReflection.winOfDay || '',
+            mood: priorReflection.mood || '',
+            bedTime: priorReflection.bedTime || '',
+            wentWell: priorReflection.wentWell || [],
+            evenBetterIf: priorReflection.evenBetterIf || [],
+            dailyAnalysis: priorReflection.dailyAnalysis || '',
+            actionItems: priorReflection.actionItems || '',
+            overallRating: priorReflection.overallRating,
+            energyLevel: priorReflection.energyLevel,
+            keyLearnings: priorReflection.keyLearnings || '',
+            tomorrowFocus: priorReflection.tomorrowFocus || '',
+            tomorrowTopTasks: priorReflection.tomorrowTopTasks || [],
+            createdAt: priorReflection.created_at || new Date().toISOString(),
+            updatedAt: priorReflection.updated_at || new Date().toISOString()
+          };
+
+          setPreviousReflection(transformedPrevious);
+        } else {
+          setPreviousReflection(null);
+        }
       } else {
-        console.log(`📝 No reflection found for ${dateString}, will create on save`);
-        setReflection(null);
+        // Use unified data service (IndexedDB first, then Supabase if online)
+        const data = await unifiedDataService.getDailyReflection(internalUserId, dateString);
+
+        if (data) {
+          // Transform to match our interface
+          const transformedReflection: DailyReflection = {
+            id: data.id || '',
+            userId: data.user_id,
+            date: data.date,
+            winOfDay: data.winOfDay || '',
+            mood: data.mood || '',
+            bedTime: data.bedTime || '', // ✅ FIXED: Include bedTime when loading
+            wentWell: data.wentWell || [],
+            evenBetterIf: data.evenBetterIf || [],
+            dailyAnalysis: data.dailyAnalysis || '',
+            actionItems: data.actionItems || '',
+            overallRating: data.overallRating,
+            energyLevel: data.energyLevel,
+            keyLearnings: data.keyLearnings || '',
+            tomorrowFocus: data.tomorrowFocus || '',
+            tomorrowTopTasks: data.tomorrowTopTasks || [],
+            createdAt: data.created_at || new Date().toISOString(),
+            updatedAt: data.updated_at || new Date().toISOString()
+          };
+
+          console.log(`✅ Loaded daily reflection (${navigator.onLine ? 'online' : 'offline'}) for ${dateString}`);
+          setReflection(transformedReflection);
+        } else {
+          console.log(`📝 No reflection found for ${dateString}, will create on save`);
+          setReflection(null);
+        }
+
+        setPreviousReflection(null);
       }
 
     } catch (error) {
@@ -98,7 +168,7 @@ export function useDailyReflections({ selectedDate }: UseDailyReflectionsProps) 
     } finally {
       setLoading(false);
     }
-  }, [isSignedIn, internalUserId, dateString]);
+  }, [isSignedIn, internalUserId, dateString, includePreviousDay, previousDateString]);
 
   // Save daily reflection - OFFLINE-FIRST
   const saveReflection = useCallback(async (reflectionData: Partial<DailyReflection>) => {
@@ -168,6 +238,7 @@ export function useDailyReflections({ selectedDate }: UseDailyReflectionsProps) 
 
   return {
     reflection,
+    previousReflection,
     loading,
     saving,
     error,

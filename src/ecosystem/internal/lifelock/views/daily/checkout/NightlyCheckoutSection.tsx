@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { subDays } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Moon, Clock, CheckCircle, Plus, X, Mic, TrendingUp, Zap, Award } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
@@ -29,11 +28,13 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
   const dateKey = format(selectedDate, 'yyyy-MM-dd');
   
   // Use the new Supabase hook for data persistence
-  const { reflection, loading: isLoading, saving: isSaving, saveReflection } = useDailyReflections({ selectedDate });
-
-  // Fetch yesterday's reflection for accountability
-  const yesterday = subDays(selectedDate, 1);
-  const { reflection: yesterdayReflection } = useDailyReflections({ selectedDate: yesterday });
+  const {
+    reflection,
+    previousReflection: yesterdayReflection,
+    loading: isLoading,
+    saving: isSaving,
+    saveReflection
+  } = useDailyReflections({ selectedDate, includePreviousDay: true });
 
   const [isEditingBedTime, setIsEditingBedTime] = useState(false);
   const [isRecordingVoice, setIsRecordingVoice] = useState(false);
