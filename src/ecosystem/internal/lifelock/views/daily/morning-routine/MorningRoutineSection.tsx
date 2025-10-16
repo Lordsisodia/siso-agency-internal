@@ -608,11 +608,25 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
 
   // Push-up tracking functions
   const updatePushupReps = (reps: number) => {
-    setPushupReps(reps);
-    // Update PB if new record!
-    if (reps > pushupPB) {
-      setPushupPB(reps);
-    }
+    setPushupReps(prevReps => {
+      const nextReps = Math.max(0, reps);
+
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(
+          new CustomEvent('lifelock:morning-pushups-updated', {
+            detail: {
+              date: routineDateKey,
+              reps: nextReps,
+              previousReps: prevReps,
+            },
+          })
+        );
+      }
+
+      setPushupPB(prevPB => (nextReps > prevPB ? nextReps : prevPB));
+
+      return nextReps;
+    });
   };
 
   // Handle habit toggle

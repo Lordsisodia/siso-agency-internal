@@ -50,6 +50,7 @@ export interface MorningRoutineMetadata {
   waterAmount?: number;
   meditationDuration?: string;
   pushupReps?: number;
+  syncedMorningPushups?: number;
   dailyPriorities?: string[];
   isPlanDayComplete?: boolean;
 }

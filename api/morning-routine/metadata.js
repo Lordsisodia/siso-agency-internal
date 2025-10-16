@@ -37,6 +37,104 @@ async function getSupabaseUserId(clerkUserId) {
   return legacyUser?.id || null;
 }
 
+const PUSHUP_TITLE_MATCHERS = ['push-up', 'pushup'];
+
+function isPushupWorkoutItem(title = '') {
+  const normalized = title.toLowerCase();
+  return PUSHUP_TITLE_MATCHERS.some(match => normalized.includes(match));
+}
+
+function parseLoggedValue(value) {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : 0;
+  }
+
+  if (typeof value !== 'string') {
+    return 0;
+  }
+
+  const parsed = parseInt(value, 10);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+async function ensurePushupWorkoutItem(userId, workoutDate) {
+  const { data, error } = await supabase
+    .from('workout_items')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('workout_date', workoutDate)
+    .order('created_at', { ascending: true })
+    .limit(5);
+
+  if (error) {
+    console.error('Error fetching workout items for sync:', error);
+    throw error;
+  }
+
+  const existingPushupItem = (data || []).find(item => isPushupWorkoutItem(item.title));
+
+  if (existingPushupItem) {
+    return existingPushupItem;
+  }
+
+  const { data: insertedItem, error: insertError } = await supabase
+    .from('workout_items')
+    .insert({
+      user_id: userId,
+      workout_date: workoutDate,
+      title: 'Push-ups',
+      target: '50 reps',
+      completed: false,
+      logged: '0',
+    })
+    .select()
+    .single();
+
+  if (insertError) {
+    console.error('Error creating push-up workout item:', insertError);
+    throw insertError;
+  }
+
+  return insertedItem;
+}
+
+async function syncPushupsToWorkout({
+  userId,
+  workoutDate,
+  pushupReps,
+  previousSynced,
+}) {
+  if (!Number.isFinite(pushupReps) || pushupReps < 0) {
+    return false;
+  }
+
+  try {
+    const pushupItem = await ensurePushupWorkoutItem(userId, workoutDate);
+
+    const existingLogged = parseLoggedValue(pushupItem?.logged);
+    const previousSyncedValue = Number.isFinite(previousSynced) ? previousSynced : 0;
+    const manualPortion = Math.max(0, existingLogged - previousSyncedValue);
+    const nextTotal = manualPortion + pushupReps;
+
+    const { error: updateError } = await supabase
+      .from('workout_items')
+      .update({
+        logged: String(nextTotal),
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', pushupItem.id);
+
+    if (updateError) {
+      console.error('Error updating push-up workout item during sync:', updateError);
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.error('Failed to sync morning push-ups to workout items:', error);
+    return false;
+  }
+}
+
 export default async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -126,6 +224,27 @@ export default async function handler(req, res) {
         // Merge existing metadata with new metadata
         const currentMetadata = existingRoutine?.metadata || {};
         const updatedMetadata = { ...currentMetadata, ...metadata };
+
+        const incomingPushups = typeof metadata.pushupReps === 'number' ? metadata.pushupReps : undefined;
+        if (incomingPushups !== undefined) {
+          const sanitizedPushups = Number.isFinite(incomingPushups)
+            ? Math.max(0, Math.round(incomingPushups))
+            : 0;
+
+          const syncSucceeded = await syncPushupsToWorkout({
+            userId: patchSupabaseUserId,
+            workoutDate: patchDate,
+            pushupReps: sanitizedPushups,
+            previousSynced: typeof currentMetadata.syncedMorningPushups === 'number'
+              ? currentMetadata.syncedMorningPushups
+              : 0,
+          });
+
+          updatedMetadata.pushupReps = sanitizedPushups;
+          if (syncSucceeded) {
+            updatedMetadata.syncedMorningPushups = sanitizedPushups;
+          }
+        }
 
         console.log('📍 Upserting with metadata:', updatedMetadata);
 

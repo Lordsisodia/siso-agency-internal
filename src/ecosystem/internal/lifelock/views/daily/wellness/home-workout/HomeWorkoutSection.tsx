@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Dumbbell, Plus, Minus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
@@ -25,6 +25,32 @@ interface HomeWorkoutSectionProps {
   selectedDate: Date;
 }
 
+interface MorningPushupSyncEventDetail {
+  date: string;
+  reps: number;
+  previousReps?: number;
+}
+
+const PUSHUP_MATCHERS = ['push-up', 'pushup'];
+
+const isPushupWorkoutItem = (title: string) => {
+  const normalized = title.toLowerCase();
+  return PUSHUP_MATCHERS.some(match => normalized.includes(match));
+};
+
+const parseLoggedValue = (value: string | null | undefined): number => {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : 0;
+  }
+
+  if (!value) {
+    return 0;
+  }
+
+  const parsed = parseInt(value, 10);
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
 // Helper function to get quick rep buttons based on exercise type
 const getQuickReps = (exerciseName: string): number[] => {
   const name = exerciseName.toLowerCase();
@@ -48,6 +74,12 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({
   
   const [workoutItems, setWorkoutItems] = useState<WorkoutItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [morningPushupSync, setMorningPushupSync] = useState(0);
+  const morningPushupSyncRef = useRef(0);
+
+  useEffect(() => {
+    morningPushupSyncRef.current = morningPushupSync;
+  }, [morningPushupSync]);
   // Load workout items from Supabase
   useEffect(() => {
     const loadWorkoutItems = async () => {
@@ -79,6 +111,70 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({
 
     loadWorkoutItems();
   }, [internalUserId, dateKey]);
+
+  useEffect(() => {
+    const fetchMorningMetadata = async () => {
+      if (!user?.id) return;
+
+      try {
+        const response = await fetch(`/api/morning-routine/metadata?userId=${user.id}&date=${dateKey}`);
+        const result = await response.json();
+
+        if (result.success && result.data) {
+          const syncedValue =
+            typeof result.data.syncedMorningPushups === 'number'
+              ? result.data.syncedMorningPushups
+              : typeof result.data.pushupReps === 'number'
+                ? result.data.pushupReps
+                : 0;
+
+          morningPushupSyncRef.current = syncedValue;
+          setMorningPushupSync(syncedValue);
+        }
+      } catch (error) {
+        console.error('Failed to load morning routine metadata for workouts:', error);
+      }
+    };
+
+    fetchMorningMetadata();
+  }, [user?.id, dateKey]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleMorningPushupSync = (event: Event) => {
+      const detail = (event as CustomEvent<MorningPushupSyncEventDetail>).detail;
+      if (!detail || detail.date !== dateKey) {
+        return;
+      }
+
+      const previousSynced = morningPushupSyncRef.current ?? detail.previousReps ?? 0;
+      morningPushupSyncRef.current = detail.reps;
+      setMorningPushupSync(detail.reps);
+
+      setWorkoutItems(prevItems =>
+        prevItems.map(item => {
+          if (!isPushupWorkoutItem(item.title)) {
+            return item;
+          }
+
+          const existingLogged = parseLoggedValue(item.logged);
+          const manualPortion = Math.max(0, existingLogged - previousSynced);
+          const updatedLogged = manualPortion + detail.reps;
+
+          return {
+            ...item,
+            logged: String(updatedLogged),
+          };
+        })
+      );
+    };
+
+    window.addEventListener('lifelock:morning-pushups-updated', handleMorningPushupSync as EventListener);
+    return () => {
+      window.removeEventListener('lifelock:morning-pushups-updated', handleMorningPushupSync as EventListener);
+    };
+  }, [dateKey]);
 
   const toggleItem = async (id: string) => {
     if (!internalUserId) return;
