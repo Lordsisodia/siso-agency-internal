@@ -14,6 +14,7 @@
 
 import React from 'react';
 import { CleanDateNav } from '@/ecosystem/internal/lifelock/views/daily/_shared/components';
+import { cn } from '@/shared/lib/utils';
 import { 
   TabId, 
   EnhancedTabConfig, 
@@ -35,7 +36,10 @@ const StandardTabLayout: React.FC<{
   const { selectedDate, dayCompletionPercentage, navigateDay } = layoutProps;
 
   return (
-    <div className={config.backgroundClass}>
+    <div
+      className={cn('font-sans', config.backgroundClass)}
+      style={{ fontFamily: 'Inter, sans-serif' }}
+    >
       {config.showDateNav && (
         <CleanDateNav 
           selectedDate={selectedDate}
