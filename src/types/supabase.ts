@@ -220,6 +220,38 @@ export type Database = {
         }
         Relationships: []
       }
+      user_preferences: {
+        Row: {
+          id: string
+          user_id: string
+          water_goal_ml: number
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          water_goal_ml?: number
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          water_goal_ml?: number
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       users: {
         Row: {
           id: string
@@ -294,6 +326,44 @@ export type Database = {
           }
         ]
       }
+      water_log: {
+        Row: {
+          id: string
+          user_id: string
+          date: string
+          amount_ml: number
+          timestamp: string
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          date: string
+          amount_ml: number
+          timestamp?: string
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          date?: string
+          amount_ml?: number
+          timestamp?: string
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "water_log_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -322,4 +392,4 @@ export type DeepWorkTask = Tables<"deep_work_tasks">
 export type LightWorkTask = Tables<"light_work_tasks">  
 export type User = Tables<"users">
 export type Priority = Enums<"priority">
-export type UserRole = Enums<"user_role"> 
+export type UserRole = Enums<"user_role">
