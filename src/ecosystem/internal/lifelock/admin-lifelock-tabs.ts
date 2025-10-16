@@ -114,7 +114,7 @@ export const ENHANCED_TAB_CONFIG: Record<TabId, EnhancedTabConfig> = {
   'timebox': {
     ...TAB_CONFIG['timebox'],
     layoutType: 'standard',
-    backgroundClass: 'min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 pb-24',
+    backgroundClass: 'min-h-screen bg-[#121212] p-4 pb-24',
     showDateNav: true,
     components: [TimeboxSection],
   },
