@@ -1,9 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Circle, CheckCircle2, Plus } from 'lucide-react';
+import { Circle, CheckCircle2, Plus, Zap } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
 import { TimeboxTask, TaskPosition } from '../types';
 import { getCategoryStyles } from '../utils';
+import { isAutoTimebox } from '@/services/autoTimeblockService';
 
 interface TimeboxTaskCardProps {
   task: TimeboxTask;
@@ -183,17 +184,33 @@ export const TimeboxTaskCard: React.FC<TimeboxTaskCardProps> = ({
             </div>
 
             {/* Duration bubble - Small & Compact */}
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className={cn(
-                "px-2 py-0.5 rounded-full text-[10px] font-bold whitespace-nowrap flex-shrink-0",
-                task.completed
-                  ? "bg-green-500/30 text-green-200 border border-green-400/50"
-                  : "bg-white/25 text-white border border-white/40"
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              {/* Auto Badge - for auto-created timeboxes */}
+              {isAutoTimebox(task) && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  whileHover={{ scale: 1.1 }}
+                  className="px-1.5 py-0.5 rounded-full text-[9px] font-bold whitespace-nowrap bg-yellow-500/30 text-yellow-200 border border-yellow-400/50 flex items-center gap-0.5"
+                  title="Auto-created from morning routine"
+                >
+                  <Zap className="h-2.5 w-2.5" />
+                  Auto
+                </motion.div>
               )}
-            >
-              {task.duration}m
-            </motion.div>
+
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className={cn(
+                  "px-2 py-0.5 rounded-full text-[10px] font-bold whitespace-nowrap",
+                  task.completed
+                    ? "bg-green-500/30 text-green-200 border border-green-400/50"
+                    : "bg-white/25 text-white border border-white/40"
+                )}
+              >
+                {task.duration}m
+              </motion.div>
+            </div>
 
             {/* Add After button */}
             <motion.button

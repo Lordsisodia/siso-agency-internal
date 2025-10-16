@@ -20,7 +20,7 @@ import QuickTaskScheduler from '@/ecosystem/internal/tasks/components/QuickTaskS
 import { useTimeBlocks } from '@/shared/hooks/useTimeBlocks';
 import { TimeBlockCategory } from '@/api/timeblocksApi.offline';
 import { theme } from '@/styles/theme';
-import { useImplementation } from '@/migration/feature-flags';
+import { selectImplementation } from '@/migration/feature-flags';
 import { toast } from 'sonner';
 import { AnimatedDateHeader } from '@/shared/ui/animated-date-header-v2';
 // Add Clerk authentication hooks - same pattern as working sections

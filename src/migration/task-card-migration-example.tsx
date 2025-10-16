@@ -21,7 +21,7 @@ import {
   filterTasks,
   taskBatchOperations 
 } from '@/ecosystem/internal/tasks/utils/taskCardUtils';
-import { isFeatureEnabled, useImplementation } from '@/migration/feature-flags';
+import { isFeatureEnabled, selectImplementation } from '@/migration/feature-flags';
 
 // ============================================================================
 // MIGRATION EXAMPLE 1: Morning Routine Tasks
@@ -269,7 +269,7 @@ const sortTasksNewWay = (tasks) => {
 
 // Safe migration pattern using feature flags
 const TaskCardWithFeatureFlag = ({ task, onToggle }) => {
-  return useImplementation(
+  return selectImplementation(
     'useUnifiedTaskCard',
     // New implementation
     <UnifiedTaskCard 

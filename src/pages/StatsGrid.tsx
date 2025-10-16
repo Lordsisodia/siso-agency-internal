@@ -9,7 +9,7 @@ import {
   Clock
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
-import { useImplementation } from '@/migration/feature-flags';
+import { selectImplementation } from '@/migration/feature-flags';
 import { theme } from '@/styles/theme';
 
 export interface DashboardStats {
@@ -73,7 +73,7 @@ const StatsGrid: React.FC<StatsGridProps> = ({ stats }) => {
         return (
           <Card 
             key={stat.title}
-            className={useImplementation(
+            className={selectImplementation(
               'useUnifiedThemeSystem',
               `border-orange-500/20 ${theme.backgrounds.solid.black}`,
               'bg-black border-orange-500/20'

@@ -14,7 +14,7 @@ import React, { useMemo } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { 
   isFeatureEnabled, 
-  useImplementation 
+  selectImplementation 
 } from './feature-flags';
 
 // NEW: Refactored components
@@ -274,4 +274,3 @@ export function testAllTabs() {
   
   console.log('🎉 All tabs tested successfully!');
 }
-`;

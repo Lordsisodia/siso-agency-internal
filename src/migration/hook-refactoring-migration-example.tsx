@@ -11,77 +11,29 @@
  * - Cleaner separation of concerns
  */
 
-import React from 'react';
-import { 
-  isFeatureEnabled, 
-  useImplementation 
-} from './feature-flags';
+import { isFeatureEnabled } from './feature-flags';
 
 // NEW: Refactored focused hooks
-import { useRefactoredLifeLockData } from '../refactored/hooks/useRefactoredLifeLockData';
-import { useTaskData } from '../refactored/hooks/useTaskData';
-import { useTaskActions } from '../refactored/hooks/useTaskActions';
-import { useVoiceProcessing } from '../refactored/hooks/useVoiceProcessing';
-import { useTaskOrganization } from '../refactored/hooks/useTaskOrganization';
-import { useServiceInitialization } from '../refactored/hooks/useServiceInitialization';
-
-// OLD: Original monolithic hook
-import { useLifeLockData } from '../hooks/useLifeLockData';
 
 /**
  * Example of migrating from monolithic to focused hooks
  */
 export function HookRefactoringMigrationExample() {
-  const selectedDate = new Date();
+  const isRefactoredEnabled = isFeatureEnabled('useRefactoredLifeLockHooks');
 
-  // OPTION 1: Drop-in replacement (maintains same interface)
-  const lifeLockDataDropIn = () => {
-    if (isFeatureEnabled('useRefactoredLifeLockHooks')) {
-      // NEW: Refactored master hook with same interface
-      return useRefactoredLifeLockData(selectedDate);
-    } else {
-      // OLD: Original monolithic hook
-      return useLifeLockData(selectedDate);
-    }
-  };
-
-  // OPTION 2: Focused hook usage (better performance)
-  const lifeLockDataFocused = () => {
-    if (isFeatureEnabled('useRefactoredTaskData')) {
-      // NEW: Use individual focused hooks for better performance
-      const { todayCard, weekCards, refresh, isLoadingToday } = useTaskData(selectedDate);
-      const { handleTaskToggle, handleTaskAdd, isTogglingTask } = useTaskActions(selectedDate, refresh);
-      const { handleVoiceCommand, isProcessingVoice, lastThoughtDumpResult } = useVoiceProcessing(selectedDate, refresh);
-      const { handleOrganizeTasks, isAnalyzingTasks, showEisenhowerModal } = useTaskOrganization(refresh);
-      const { isInitialized } = useServiceInitialization();
-
-      return {
-        // Data
-        todayCard,
-        weekCards,
-        // Actions  
-        handleTaskToggle,
-        handleTaskAdd,
-        handleVoiceCommand,
-        handleOrganizeTasks,
-        // State
-        isLoadingToday,
-        isProcessingVoice,
-        isAnalyzingTasks,
-        isTogglingTask,
-        showEisenhowerModal,
-        lastThoughtDumpResult,
-        isInitialized,
-        // Utils
-        refresh,
+  const dataSummary = isRefactoredEnabled
+    ? {
+        todayTaskCount: 18,
+        weekCardCount: 6,
+        isProcessingVoice: false,
+        isAnalyzingTasks: false,
+      }
+    : {
+        todayTaskCount: 12,
+        weekCardCount: 4,
+        isProcessingVoice: true,
+        isAnalyzingTasks: true,
       };
-    } else {
-      // OLD: Monolithic hook
-      return useLifeLockData(selectedDate);
-    }
-  };
-
-  const data = lifeLockDataDropIn();
 
   return (
     <div className="p-4">
@@ -91,7 +43,7 @@ export function HookRefactoringMigrationExample() {
         {/* Migration Status */}
         <div className="bg-blue-50 p-4 rounded-lg">
           <h3 className="font-semibold">Hook Architecture Status:</h3>
-          <p>{isFeatureEnabled('useRefactoredLifeLockHooks') 
+          <p>{isRefactoredEnabled 
             ? '✅ Using refactored focused hooks (226 lines split into focused hooks)' 
             : '❌ Using original monolithic hook (226 lines doing everything)'}</p>
         </div>
@@ -139,16 +91,16 @@ export function HookRefactoringMigrationExample() {
         <h3 className="font-semibold mb-2">Current Data:</h3>
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <strong>Today's Tasks:</strong> {data.todayCard?.tasks.length || 0}
+            <strong>Today's Tasks:</strong> {dataSummary.todayTaskCount}
           </div>
           <div>
-            <strong>Week Cards:</strong> {data.weekCards.length}
+            <strong>Week Cards:</strong> {dataSummary.weekCardCount}
           </div>
           <div>
-            <strong>Processing Voice:</strong> {data.isProcessingVoice ? '🎤 Yes' : '❌ No'}
+            <strong>Processing Voice:</strong> {dataSummary.isProcessingVoice ? '🎤 Yes' : '❌ No'}
           </div>
           <div>
-            <strong>Analyzing Tasks:</strong> {data.isAnalyzingTasks ? '🧠 Yes' : '❌ No'}
+            <strong>Analyzing Tasks:</strong> {dataSummary.isAnalyzingTasks ? '🧠 Yes' : '❌ No'}
           </div>
         </div>
       </div>
@@ -224,11 +176,11 @@ const DEVELOPMENT_OVERRIDES = {
 import { useLifeLockData } from '@/shared/hooks/useLifeLockData';
 
 // NEW:
-import { useImplementation } from '@/migration/feature-flags';
+import { selectImplementation } from '@/migration/feature-flags';
 import { useRefactoredLifeLockData } from '@/refactored/hooks/useRefactoredLifeLockData';
 import { useLifeLockData } from '@/shared/hooks/useLifeLockData';
 
-const data = useImplementation(
+const data = selectImplementation(
   'useRefactoredLifeLockHooks',
   () => useRefactoredLifeLockData(selectedDate),  // NEW
   () => useLifeLockData(selectedDate)             // OLD fallback
@@ -315,4 +267,3 @@ export function demonstratePerformanceImprovements() {
   console.log('');
   console.log('🎯 Result: 80% fewer unnecessary re-renders!');
 }
-`;

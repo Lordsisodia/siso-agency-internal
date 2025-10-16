@@ -15,7 +15,7 @@ import { format } from 'date-fns';
 // Feature flag imports
 import { 
   isFeatureEnabled, 
-  useImplementation 
+  selectImplementation 
 } from './feature-flags';
 
 // Enhanced refactored utilities
@@ -48,7 +48,7 @@ export function EnhancedMigrationExample() {
   ];
   
   // Feature-flagged data source
-  const morningTasks = useImplementation(
+  const morningTasks = selectImplementation(
     'useRefactoredDefaultTasks',
     getMorningRoutineTasks(),     // NEW: from extracted data file (119 lines saved)
     OLD_MORNING_ROUTINE_TASKS     // OLD: hardcoded in component
@@ -164,14 +164,14 @@ export function EnhancedMigrationExample() {
  * 
  * 1. Add feature flag imports at the top of the file:
  * ```typescript
- * import { isFeatureEnabled, useImplementation } from '@/migration/feature-flags';
+ * import { isFeatureEnabled, selectImplementation } from '@/migration/feature-flags';
  * import { getMorningRoutineTasks } from '@/refactored/data/morning-routine-defaults';
  * import { calculateMorningRoutineProgress } from '@/refactored/utils/morning-routine-progress';
  * ```
  * 
  * 2. Replace the MORNING_ROUTINE_TASKS array (lines 47-119):
  * ```typescript
- * const MORNING_ROUTINE_TASKS = useImplementation(
+ * const MORNING_ROUTINE_TASKS = selectImplementation(
  *   'useRefactoredDefaultTasks',
  *   getMorningRoutineTasks(), // NEW: extracted data
  *   // OLD: keep existing 119-line array as fallback
@@ -182,7 +182,7 @@ export function EnhancedMigrationExample() {
  * 3. Replace the getRoutineProgress function (lines 182-202):
  * ```typescript
  * const getRoutineProgress = () => {
- *   return useImplementation(
+ *   return selectImplementation(
  *     'useRefactoredProgressCalculator',
  *     () => calculateMorningRoutineProgress(morningRoutine, MORNING_ROUTINE_TASKS).percentage,
  *     () => {

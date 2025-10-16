@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   Coffee,
   Plus,
@@ -361,15 +361,15 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
   };
 
   // Get default XP for tasks without AI analysis
-  const getDefaultTaskXP = (task: Task): number => {
+  const getDefaultTaskXP = useCallback((task: Task): number => {
     const timeMinutes = parseTimeEstimate(task.timeEstimate);
     return Math.round(10 + (timeMinutes * 0.5)); // Base 10 + 0.5 per minute
-  };
+  }, []);
 
   // Get default XP for subtasks without AI analysis
-  const getDefaultSubtaskXP = (subtask: Subtask): number => {
+  const getDefaultSubtaskXP = useCallback((subtask: Subtask): number => {
     return 15; // Default subtask XP
-  };
+  }, []);
 
   // Analyze task with AI and update XP
   const analyzeTaskWithAI = async (taskId: string) => {
@@ -507,7 +507,7 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
     });
 
     return { earned: earnedXP, potential: potentialXP };
-  }, [tasks]);
+  }, [tasks, getDefaultTaskXP, getDefaultSubtaskXP]);
 
   return (
     <div className="min-h-screen w-full bg-gray-900 relative">
@@ -721,7 +721,11 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              task.thoughtDump ? removeThoughtDump(task.id) : startThoughtDump(task.id);
+                              if (task.thoughtDump) {
+                                removeThoughtDump(task.id);
+                              } else {
+                                startThoughtDump(task.id);
+                              }
                             }}
                             className={`p-1 hover:bg-gray-700/50 rounded transition-colors ${
                               task.thoughtDump 

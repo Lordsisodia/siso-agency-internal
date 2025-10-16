@@ -3,6 +3,7 @@ import {
   AlertCircle, Clock, PieChart, Tag, CheckCircle, X, 
   TrendingUp, ScrollText, Calendar, BarChart4 
 } from 'lucide-react';
+import { useEffect } from 'react';
 import { Feature } from '@/types/feature.types';
 import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
@@ -15,8 +16,6 @@ interface FeatureDetailsModalProps {
 }
 
 export function FeatureDetailsModal({ feature, onClose }: FeatureDetailsModalProps) {
-  if (!feature) return null;
-
   // Function to ensure scrolling is restored
   const enableScrolling = () => {
     document.body.classList.remove('overflow-hidden');
@@ -30,14 +29,21 @@ export function FeatureDetailsModal({ feature, onClose }: FeatureDetailsModalPro
 
   // Prevent background scrolling when modal is open
   useEffect(() => {
-    // Add class to body to prevent scrolling
+    if (!feature) {
+      enableScrolling();
+      return undefined;
+    }
+
     document.body.classList.add('overflow-hidden');
-    
-    // Cleanup function to remove class when component unmounts
+
     return () => {
       enableScrolling();
     };
-  }, []);
+  }, [feature]);
+
+  if (!feature) {
+    return null;
+  }
 
   // Handle backdrop click to close the modal
   const handleBackdropClick = (e: React.MouseEvent) => {

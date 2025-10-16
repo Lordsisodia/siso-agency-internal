@@ -13,7 +13,7 @@
 
 import React from 'react';
 import { UnifiedTaskCard, TaskCardTask } from '@/ecosystem/internal/tasks/components/UnifiedTaskCard';
-import { useImplementation } from '@/migration/feature-flags';
+import { selectImplementation } from '@/migration/feature-flags';
 import { theme } from '@/styles/theme';
 import { cn } from '@/shared/lib/utils';
 
@@ -87,7 +87,7 @@ export const MobileTodayCard: React.FC<MobileTodayCardProps> = ({
   if (!card) {
     return (
       <div className={cn(
-        useImplementation(
+        selectImplementation(
           'useUnifiedThemeSystem',
           // NEW: Use theme opacity backgrounds  
           `relative overflow-hidden rounded-2xl border border-gray-800/40 backdrop-blur-sm p-4 ${theme.backgrounds.opacity.gray800Light}`,
@@ -103,7 +103,7 @@ export const MobileTodayCard: React.FC<MobileTodayCardProps> = ({
     );
   }
 
-  return useImplementation(
+  return selectImplementation(
     'useUnifiedTaskCard',
     
     // NEW: Mobile-optimized UnifiedTaskCard (290 lines saved!)
@@ -213,7 +213,7 @@ const OriginalMobileTodayCard: React.FC<MobileTodayCardProps> = ({
         </div>
 
         {totalTasks > 0 && (
-          <div className={useImplementation(
+          <div className={selectImplementation(
             'useUnifiedThemeSystem',
             // NEW: Use theme solid backgrounds
             `w-full rounded-full h-2 ${theme.backgrounds.solid.gray800}`,

@@ -183,7 +183,9 @@ export function useTimeBlocks(options: UseTimeBlocksOptions): TimeBlockState & T
             const filteredBlocks = (Array.isArray(prev.timeBlocks) ? prev.timeBlocks : [])
               .filter(block => {
                 // Skip API response objects that got added incorrectly
-                if (block.hasOwnProperty('success') && block.hasOwnProperty('data')) {
+                const hasSuccessProp = Object.prototype.hasOwnProperty.call(block, 'success');
+                const hasDataProp = Object.prototype.hasOwnProperty.call(block, 'data');
+                if (hasSuccessProp && hasDataProp) {
                   return false;
                 }
                 return block.id && !block.id.startsWith('temp-');
@@ -308,7 +310,7 @@ export function useTimeBlocks(options: UseTimeBlocksOptions): TimeBlockState & T
       
       return false;
     }
-  }, [enableOptimisticUpdates, state.timeBlocks, updateState, loadTimeBlocks, scheduleAutoSave]);
+  }, [enableOptimisticUpdates, state.timeBlocks, updateState, loadTimeBlocks, scheduleAutoSave, userId, dateKey]);
 
   // Delete time block
   const deleteTimeBlock = useCallback(async (id: string): Promise<boolean> => {
@@ -379,7 +381,7 @@ export function useTimeBlocks(options: UseTimeBlocksOptions): TimeBlockState & T
     };
     
     return await updateTimeBlock(id, updateData);
-  }, [state.timeBlocks, updateTimeBlock]);
+  }, [state.timeBlocks, updateTimeBlock, userId, dateKey]);
 
   // Check conflicts
   const checkConflicts = useCallback(async (

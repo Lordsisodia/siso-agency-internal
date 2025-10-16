@@ -24,7 +24,7 @@ import {
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { format } from 'date-fns';
-import { useImplementation } from '@/migration/feature-flags';
+import { selectImplementation } from '@/migration/feature-flags';
 import { theme } from '@/styles/theme';
 import { LoadingState } from '@/shared/ui/loading-state';
 import { ErrorState } from '@/shared/ui/error-state';
@@ -252,7 +252,7 @@ export const DeepWorkTaskList: React.FC<UnifiedWorkSectionProps> = ({
       document.addEventListener('mousedown', handleClickOutside);
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
-  }, [calendarSubtaskId]);
+  }, [calendarSubtaskId, setCalendarSubtaskId]);
 
   // Toggle task expansion (from SisoDeepFocusPlan)
   const toggleTaskExpansion = (taskId: string) => {
@@ -357,7 +357,7 @@ export const DeepWorkTaskList: React.FC<UnifiedWorkSectionProps> = ({
   };
 
   if (loading) {
-    return useImplementation(
+    return selectImplementation(
       'useUnifiedLoadingState',
       <LoadingState 
         message={`Loading ${workType.toLowerCase()} work tasks...`}
@@ -372,7 +372,7 @@ export const DeepWorkTaskList: React.FC<UnifiedWorkSectionProps> = ({
   }
 
   if (error) {
-    return useImplementation(
+    return selectImplementation(
       'useUnifiedErrorState',
       <ErrorState 
         title="Error Loading Tasks"
@@ -731,22 +731,20 @@ export const DeepWorkTaskList: React.FC<UnifiedWorkSectionProps> = ({
           <SimpleFeedbackButton variant="bar" className="w-full" />
         </div>
 
+        {/* Task Detail Modal (from SisoDeepFocusPlan) */}
+        <TaskDetailModal
+          task={selectedTask}
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            setSelectedTask(null);
+          }}
+          onTaskUpdate={updateTask}
+          onStartFocusSession={(taskId, subtaskId) => {
+            setIsModalOpen(false);
+            startFocusSession(taskId, subtaskId);
+          }}
+        />
       </div>
-
-      {/* Task Detail Modal (from SisoDeepFocusPlan) */}
-      <TaskDetailModal
-        task={selectedTask}
-        isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          setSelectedTask(null);
-        }}
-        onTaskUpdate={updateTask}
-        onStartFocusSession={(taskId, subtaskId) => {
-          setIsModalOpen(false);
-          startFocusSession(taskId, subtaskId);
-        }}
-      />
-    </div>
   );
 };

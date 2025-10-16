@@ -25,7 +25,7 @@ import { aiXPService, TaskAnalysis } from '@/ai-first/services/ai-xp-service';
 import { PersonalContextModal } from './PersonalContextModal';
 import { useTaskDatabase } from '@/ai-first/hooks/useTaskDatabase';
 import { theme } from '@/styles/theme';
-import { useImplementation } from '@/migration/feature-flags';
+import { selectImplementation } from '@/migration/feature-flags';
 
 // Simple block-style task management for light work sessions
 
@@ -419,7 +419,7 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
   }, [tasks]);
 
   return (
-    <div className={useImplementation(
+    <div className={selectImplementation(
       'useUnifiedThemeSystem',
       // NEW: Unified theme system
       `min-h-screen w-full relative ${theme.backgrounds.solid.gray900}`,
@@ -490,7 +490,7 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
             {/* Session Stats */}
             <div className="mb-6">
               <div className="grid grid-cols-3 gap-3">
-                <div className={useImplementation(
+                <div className={selectImplementation(
                   'useUnifiedThemeSystem',
                   // NEW: Unified theme system
                   `group relative p-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:border-green-500/30 ${theme.themes.card.secondary}`,
@@ -505,7 +505,7 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
                     <div className="text-xs font-medium text-gray-300 uppercase tracking-wider mt-1">Time Left</div>
                   </div>
                 </div>
-                <div className={useImplementation(
+                <div className={selectImplementation(
                   'useUnifiedThemeSystem',
                   // NEW: Unified theme system
                   `group relative p-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:border-blue-500/30 ${theme.themes.card.secondary}`,
@@ -520,7 +520,7 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
                     <div className="text-xs font-medium text-gray-300 uppercase tracking-wider mt-1">Avg XP</div>
                   </div>
                 </div>
-                <div className={useImplementation(
+                <div className={selectImplementation(
                   'useUnifiedThemeSystem',
                   // NEW: Unified theme system
                   `group relative p-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:border-yellow-500/30 ${theme.themes.card.secondary}`,

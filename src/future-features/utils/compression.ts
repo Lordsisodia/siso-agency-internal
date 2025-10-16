@@ -14,7 +14,7 @@ export interface CompressionStats {
   originalSize: number;
   compressedSize: number;
   compressionRatio: number;
-  spaceS aved: number;
+  spaceSaved: number;
 }
 
 /**

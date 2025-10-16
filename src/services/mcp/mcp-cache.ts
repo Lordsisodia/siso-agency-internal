@@ -216,14 +216,9 @@ export class MCPCache {
     }
 
     // Execute and cache
-    try {
-      const result = await executor();
-      this.set(key, result, options);
-      return result;
-    } catch (error) {
-      // Don't cache errors
-      throw error;
-    }
+    const result = await executor();
+    this.set(key, result, options);
+    return result;
   }
 
   /**

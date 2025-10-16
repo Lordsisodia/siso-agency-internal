@@ -24,7 +24,7 @@ import {
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { format } from 'date-fns';
-import { useImplementation } from '@/migration/feature-flags';
+import { selectImplementation } from '@/migration/feature-flags';
 import { theme } from '@/styles/theme';
 import { LoadingState } from '@/shared/ui/loading-state';
 import { ErrorState } from '@/shared/ui/error-state';
@@ -357,7 +357,7 @@ export const DeepWorkTaskList: React.FC<UnifiedWorkSectionProps> = ({
   };
 
   if (loading) {
-    return useImplementation(
+    return selectImplementation(
       'useUnifiedLoadingState',
       <LoadingState 
         message={`Loading ${workType.toLowerCase()} work tasks...`}
@@ -372,7 +372,7 @@ export const DeepWorkTaskList: React.FC<UnifiedWorkSectionProps> = ({
   }
 
   if (error) {
-    return useImplementation(
+    return selectImplementation(
       'useUnifiedErrorState',
       <ErrorState 
         title="Error Loading Tasks"

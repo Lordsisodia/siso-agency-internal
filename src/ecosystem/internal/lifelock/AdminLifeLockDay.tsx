@@ -10,7 +10,7 @@ import { LifeLockViewRenderer } from './core/LifeLockViewRenderer';
 import { useLifeLockData } from '@/ecosystem/internal/lifelock/useLifeLockData';
 import { useRefactoredLifeLockData } from '@/ecosystem/internal/lifelock/useRefactoredLifeLockData';
 import { LoadingState } from '@/shared/ui/loading-state';
-import { useImplementation } from '@/migration/feature-flags';
+import { selectImplementation } from '@/migration/feature-flags';
 import { calculateDayCompletionPercentage } from '@/utils/dayProgress';
 
 const AdminLifeLockDay: React.FC = () => {
@@ -42,7 +42,7 @@ const AdminLifeLockDay: React.FC = () => {
   const dayCompletionPercentage = calculateDayCompletionPercentage(currentTime);
   
   // Use custom hook for all LifeLock data and actions
-  const hookData = useImplementation(
+  const hookData = selectImplementation(
     'useRefactoredLifeLockHooks',
     // NEW: Split focused hooks (226 lines → 6 focused hooks)
     useRefactoredLifeLockData(selectedDate),
@@ -121,7 +121,7 @@ const AdminLifeLockDay: React.FC = () => {
   };
 
   // Loading and auth guards
-  const loadingImplementation = useImplementation(
+  const loadingImplementation = selectImplementation(
       'useUnifiedLoadingState',
       // NEW: Unified loading state (safer, consistent, reusable)
       <AdminLayout>

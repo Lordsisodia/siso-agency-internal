@@ -38,6 +38,7 @@ import { MeditationTracker } from './components/MeditationTracker';
 import { WakeUpTimeTracker } from './components/WakeUpTimeTracker';
 import { PlanDayActions } from './components/PlanDayActions';
 import { MotivationalQuotes } from './components/MotivationalQuotes';
+import { useAutoTimeblocks } from '@/shared/hooks/useAutoTimeblocks';
 
 interface MorningRoutineHabit {
   name: string;
@@ -199,6 +200,14 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
     return saved ? JSON.parse(saved) : ['', '', ''];
   });
 
+  // 🤖 Auto-create timeboxes based on wake-up time
+  useAutoTimeblocks({
+    wakeUpTime,
+    userId: internalUserId,
+    selectedDate,
+    enabled: !!wakeUpTime && !!internalUserId // Only create if wake-up time is set
+  });
+
   // Reload date-specific data when date changes (from Supabase + localStorage fallback)
   useEffect(() => {
     const loadDateSpecificData = async () => {
@@ -251,25 +260,25 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   // Load morning routine data
   useEffect(() => {
     const loadMorningRoutine = async () => {
-      if (!internalUserId || !selectedDate) return;
+      if (!user?.id || !selectedDate) return;
       
       try {
         setLoading(true);
         setError(null);
-        // Try offline-first approach
-        const data = await loadTasks('morning_routine', {
-          user_id: internalUserId,
-          date: format(selectedDate, 'yyyy-MM-dd')
-        });
         
-        if (data && data.length > 0) {
-          // Use offline data
-          const routineData = data[0];
-          setMorningRoutine(routineData);
-        } else {
-          // Fallback to API if no offline data
-          const apiData = await workTypeApiClient.getMorningRoutine(user.id, selectedDate);
+        // Load from API (which reads from daily_routines table)
+        const apiData = await workTypeApiClient.getMorningRoutine(user.id, selectedDate);
+        
+        if (apiData) {
           setMorningRoutine(apiData);
+          
+          // ✅ FIX: Sync checkbox states from Supabase to localStorage
+          const dateKey = format(selectedDate, 'yyyy-MM-dd');
+          if (apiData.items && Array.isArray(apiData.items)) {
+            apiData.items.forEach((item: MorningRoutineHabit) => {
+              localStorage.setItem(`lifelock-${dateKey}-${item.name}`, item.completed.toString());
+            });
+          }
         }
       } catch (error) {
         console.error('Error loading morning routine:', error);
@@ -280,7 +289,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
     };
 
     loadMorningRoutine();
-  }, [internalUserId, selectedDate, loadTasks]);
+  }, [user?.id, selectedDate]);
 
   // Save wake-up time to Supabase + localStorage (debounced)
   const debouncedMetadataUpdate = useMemo(() => {
@@ -387,40 +396,44 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
 
   // Handle habit toggle
   const handleHabitToggle = async (habitKey: string, completed: boolean) => {
-    if (!internalUserId || !selectedDate) return;
+    if (!user?.id || !selectedDate) return;
     
     try {
       // Always save to localStorage for immediate feedback
       const dateKey = format(selectedDate, 'yyyy-MM-dd');
       localStorage.setItem(`lifelock-${dateKey}-${habitKey}`, completed.toString());
       
-      // Use offline manager for persistent storage and sync
-      // Transform to daily_health schema structure
-      // NOTE: Don't specify ID - database will auto-generate or match existing record
-      // UNIQUE constraint (user_id, date) means only ONE record per user per day
-      const healthData = {
-        user_id: internalUserId,
-        date: format(selectedDate, 'yyyy-MM-dd'),
-        health_checklist: {
-          morning_routine: {
-            [habitKey]: completed
-          }
-        }
-      };
-
-      await saveTask('morning_routine', healthData);
+      // ✅ FIX: Use the correct API endpoint instead of saveTask
+      await workTypeApiClient.updateMorningRoutineHabit(user.id, selectedDate, habitKey, completed);
       
       // Update local state immediately for better UX
       if (morningRoutine && morningRoutine.items && Array.isArray(morningRoutine.items)) {
         const updatedItems = morningRoutine.items.map(item =>
           item.name === habitKey ? { ...item, completed } : item
         );
+        
+        // If habit doesn't exist, add it
+        if (!updatedItems.find(item => item.name === habitKey)) {
+          updatedItems.push({ name: habitKey, completed });
+        }
+        
         const completedCount = updatedItems.filter(item => item.completed).length;
         setMorningRoutine({
           ...morningRoutine,
           items: updatedItems,
           completedCount,
           completionPercentage: (completedCount / updatedItems.length) * 100
+        });
+      } else {
+        // Create new morningRoutine if it doesn't exist
+        setMorningRoutine({
+          id: '',
+          userId: user.id,
+          date: dateKey,
+          items: [{ name: habitKey, completed }],
+          completedCount: completed ? 1 : 0,
+          totalCount: 1,
+          completionPercentage: completed ? 100 : 0
         });
       }
       
@@ -485,11 +498,11 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
     ).length;
 
     return totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
-  }, [isTaskComplete, localProgressTrigger, wakeUpTime, meditationDuration, isPlanDayComplete]);
+  }, [isTaskComplete]);
 
   const morningRoutineProgress = useMemo(() => {
     return getRoutineProgress();
-  }, [getRoutineProgress, localProgressTrigger]);
+  }, [getRoutineProgress]);
 
   // Get today's rotating motivational quotes
   const todaysQuotes = useMemo(() => {

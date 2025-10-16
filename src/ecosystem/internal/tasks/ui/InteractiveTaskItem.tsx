@@ -13,7 +13,7 @@
 
 import React from 'react';
 import { UnifiedTaskCard, TaskCardTask } from '@/ecosystem/internal/tasks/components/UnifiedTaskCard';
-import { useImplementation } from '@/migration/feature-flags';
+import { selectImplementation } from '@/migration/feature-flags';
 
 // LEGACY IMPORTS (kept for fallback)
 import { motion, AnimatePresence } from 'framer-motion';
@@ -50,7 +50,7 @@ export const InteractiveTaskItem: React.FC<InteractiveTaskItemProps> = ({
   index,
   className
 }) => {
-  return useImplementation(
+  return selectImplementation(
     'useUnifiedTaskCard',
     
     // NEW: Simplified using UnifiedTaskCard (93 lines saved!)

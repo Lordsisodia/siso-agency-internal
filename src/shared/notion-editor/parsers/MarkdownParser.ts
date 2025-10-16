@@ -192,21 +192,24 @@ export class MarkdownParser {
         return `${indent}1. ${block.content}`;
       case 'quote':
         return `> ${block.content}`;
-      case 'code':
+      case 'code': {
         const language = block.properties?.language || '';
         return `\`\`\`${language}\n${block.content}\n\`\`\``;
+      }
       case 'divider':
         return '---';
-      case 'callout':
+      case 'callout': {
         const emoji = block.properties?.emoji || 'ℹ️';
         return `> ${emoji} ${block.content}`;
+      }
       case 'toggle':
         return `> ${block.content}`;
       case 'table':
         return this.tableToMarkdown(block);
-      case 'image':
+      case 'image': {
         const imageCaption = block.properties?.caption ? ` "${block.properties.caption}"` : '';
         return `![${imageCaption}](${block.properties?.url || ''})`;
+      }
       case 'video':
         return `[Video: ${block.properties?.caption || 'Video'}](${block.properties?.url || ''})`;
       case 'embed':
@@ -273,7 +276,7 @@ export class MarkdownParser {
     }
 
     // List detection
-    if (trimmedLine.match(/^[-\*\+] \S+/)) {
+    if (trimmedLine.match(/^[-*+] \S+/)) {
       return {
         shouldFormat: true,
         formatType: 'bulleted_list',

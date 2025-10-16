@@ -238,7 +238,11 @@ export class DesktopCommanderClient {
       const timer = setInterval(() => {
         if (Date.now() > deadline && !done) {
           done = true;
-          try { child.kill('SIGKILL'); } catch {}
+          try {
+            child.kill('SIGKILL');
+          } catch (error) {
+            // Ignore errors if process already exited
+          }
           resolve({ success: false, action: 'runCommand', error: 'Timeout exceeded' });
         }
       }, 100);

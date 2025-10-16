@@ -17,7 +17,7 @@ import { Badge } from '@/shared/ui/badge';
 import { cn } from '@/shared/lib/utils';
 import { useIsMobile } from '@/shared/hooks/use-mobile';
 import { theme } from '@/styles/theme';
-import { useImplementation } from '@/migration/feature-flags';
+import { selectImplementation } from '@/migration/feature-flags';
 
 // Tab components
 import { MorningRoutineTab } from './MorningRoutineTab';
@@ -223,7 +223,7 @@ export const DayTabContainer: React.FC<TabProps> = (props) => {
   const isToday = format(props.selectedDate, 'yyyy-MM-dd') === format(today, 'yyyy-MM-dd');
 
   return (
-    <div className={useImplementation(
+    <div className={selectImplementation(
       'useUnifiedThemeSystem',
       // NEW: Unified theme system
       `flex flex-col h-screen ${theme.gradients.diagonal.grayToBlack}`,
@@ -232,7 +232,7 @@ export const DayTabContainer: React.FC<TabProps> = (props) => {
     )}>
       {/* Day Navigation Header */}
       <motion.div 
-        className={useImplementation(
+        className={selectImplementation(
           'useUnifiedThemeSystem',
           // NEW: Could extend theme for nav bar pattern
           'flex-shrink-0 backdrop-blur-xl border-b border-orange-400/20 px-4 py-3 bg-gradient-to-r from-gray-900/95 via-gray-800/90 to-gray-900/95',
@@ -315,7 +315,7 @@ export const DayTabContainer: React.FC<TabProps> = (props) => {
       </div>
 
       {/* Bottom Tab Navigation */}
-      <div className={useImplementation(
+      <div className={selectImplementation(
         'useUnifiedThemeSystem',
         // NEW: Reuse same nav bar pattern
         'flex-shrink-0 backdrop-blur-xl border-t border-orange-400/20 px-4 py-3 bg-gradient-to-r from-gray-900/95 via-gray-800/90 to-gray-900/95',

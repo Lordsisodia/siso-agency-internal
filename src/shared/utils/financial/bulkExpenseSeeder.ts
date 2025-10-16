@@ -166,6 +166,6 @@ export async function seedExpensesFromList() {
 
 // If called directly, will seed all expenses
 if (typeof window !== "undefined") {
-  // @ts-ignore
+  // @ts-expect-error: inject helper onto window for manual seeding during development
   window.seedExpensesFromList = seedExpensesFromList;
 }

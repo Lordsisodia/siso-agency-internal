@@ -12,7 +12,7 @@
  */
 
 import React from 'react';
-import { useImplementation } from '@/migration/feature-flags';
+import { selectImplementation } from '@/migration/feature-flags';
 import { theme } from '@/styles/theme';
 
 export interface StatsData {
@@ -36,7 +36,7 @@ export const TaskStatsGrid: React.FC<TaskStatsGridProps> = ({
     <div className="mb-6">
       <div className="grid grid-cols-3 gap-3">
         {statsData.timeRemaining && (
-          <div className={useImplementation(
+          <div className={selectImplementation(
             'useUnifiedThemeSystem',
             `group relative p-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:border-green-500/30 ${theme.themes.card.secondary}`,
             'group relative p-4 bg-transparent rounded-lg border border-emerald-500/40 shadow-md hover:shadow-lg transition-all duration-300 hover:border-emerald-400/50 hover:bg-emerald-800/20'
@@ -52,7 +52,7 @@ export const TaskStatsGrid: React.FC<TaskStatsGridProps> = ({
         )}
         
         {statsData.avgXP && (
-          <div className={useImplementation(
+          <div className={selectImplementation(
             'useUnifiedThemeSystem',
             `group relative p-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:border-blue-500/30 ${theme.themes.card.secondary}`,
             'group relative p-4 bg-transparent rounded-lg border border-blue-500/40 shadow-md hover:shadow-lg transition-all duration-300 hover:border-blue-400/50 hover:bg-blue-800/20'
@@ -68,7 +68,7 @@ export const TaskStatsGrid: React.FC<TaskStatsGridProps> = ({
         )}
         
         {statsData.expToEarn && (
-          <div className={useImplementation(
+          <div className={selectImplementation(
             'useUnifiedThemeSystem',
             `group relative p-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:border-yellow-500/30 ${theme.themes.card.secondary}`,
             'group relative p-4 bg-transparent rounded-lg border border-yellow-700/30 shadow-md hover:shadow-lg transition-all duration-300 hover:border-yellow-500/30 hover:bg-yellow-900/20'
