@@ -23,6 +23,7 @@ export interface DeepWorkTask {
   originalDate: string;
   currentDate: string;
   taskDate?: string;
+  dueDate?: string | null;
   estimatedDuration?: number;
   focusBlocks: number;
   breakDuration: number;
@@ -97,6 +98,7 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
           completed: task.completed,
           originalDate: task.original_date,
           currentDate: task.task_date || task.original_date,
+          dueDate: task.task_date || null,
           estimatedDuration: task.estimated_duration,
           focusBlocks: task.focus_blocks || 4,
           breakDuration: 15,
@@ -106,6 +108,7 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
           createdAt: task.created_at,
           updatedAt: task.updated_at,
           completedAt: task.completed_at,
+          timeEstimate: (task as any).time_estimate || null,
           subtasks: []
         }));
         setTasks(transformedLocal);
@@ -142,6 +145,7 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
           completed: task.completed,
           originalDate: task.original_date,
           currentDate: task.task_date || task.original_date,
+          dueDate: task.due_date,
           estimatedDuration: task.estimated_duration,
           focusBlocks: task.focus_blocks || 4,
           breakDuration: task.break_duration || 15,
@@ -184,6 +188,8 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
             original_date: task.original_date,
             task_date: task.task_date || task.original_date,
             estimated_duration: task.estimated_duration,
+            due_date: task.due_date,
+            time_estimate: task.time_estimate,
             focus_blocks: task.focus_blocks,
             created_at: task.created_at,
             updated_at: task.updated_at,
@@ -224,9 +230,11 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
         priority: taskData.priority || 'HIGH',
         original_date: dateString,
         task_date: dateString,
+        due_date: null as string | null,
         completed: false,
         focus_blocks: taskData.focusBlocks || 4,
         estimated_duration: taskData.estimatedDuration,
+        time_estimate: taskData.timeEstimate || null,
         created_at: now,
         updated_at: now,
         _needs_sync: true,
@@ -245,6 +253,7 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
         completed: localTask.completed,
         originalDate: localTask.original_date,
         currentDate: localTask.task_date,
+        dueDate: null,
         estimatedDuration: localTask.estimated_duration,
         focusBlocks: localTask.focus_blocks || 4,
         breakDuration: 15,
@@ -253,6 +262,7 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
         tags: [],
         createdAt: localTask.created_at,
         updatedAt: localTask.updated_at,
+        timeEstimate: null,
         subtasks: []
       };
 
@@ -268,6 +278,7 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
             priority: taskData.priority || 'HIGH',
             original_date: dateString,
             task_date: dateString,
+            due_date: null,
             completed: false,
             focus_blocks: taskData.focusBlocks || 4,
             break_duration: 15,
@@ -275,7 +286,8 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
             rollovers: 0,
             tags: taskData.tags || [],
             category: taskData.category,
-            estimated_duration: taskData.estimatedDuration
+            estimated_duration: taskData.estimatedDuration,
+            time_estimate: taskData.timeEstimate || null
           })
           .then(({ error }) => {
             if (error) {
@@ -522,7 +534,7 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
   // Update task title
   const updateTaskTitle = useCallback(async (taskId: string, newTitle: string) => {
     if (!supabase) return null;
-    
+
     try {
       console.log(`✏️ Updating Deep Work task title: ${taskId}`);
       
@@ -552,6 +564,76 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
     } catch (error) {
       console.error('❌ Error updating Deep Work task title:', error);
       setError(error instanceof Error ? error.message : 'Failed to update task title');
+      return null;
+    }
+  }, [supabase]);
+
+  const updateTaskPriority = useCallback(async (taskId: string, priority: 'low' | 'medium' | 'high' | 'urgent') => {
+    if (!supabase) return null;
+
+    try {
+      console.log(`🎯 Updating Deep Work task priority: ${taskId} -> ${priority}`);
+
+      const normalizedPriority = priority.toUpperCase() as 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+
+      const { error } = await supabase
+        .from('deep_work_tasks')
+        .update({
+          priority: normalizedPriority,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', taskId);
+
+      if (error) {
+        throw new Error(`Supabase error: ${error.message}`);
+      }
+
+      console.log(`✅ Updated Deep Work task priority: ${taskId}`);
+
+      setTasks(prev => prev.map(task =>
+        task.id === taskId
+          ? { ...task, priority: normalizedPriority }
+          : task
+      ));
+
+      return true;
+    } catch (error) {
+      console.error('❌ Error updating Deep Work task priority:', error);
+      setError(error instanceof Error ? error.message : 'Failed to update task priority');
+      return null;
+    }
+  }, [supabase]);
+
+  const updateTaskTimeEstimate = useCallback(async (taskId: string, timeEstimate: string | null) => {
+    if (!supabase) return null;
+
+    try {
+      console.log(`⏱️ Updating Deep Work task time estimate: ${taskId} -> ${timeEstimate}`);
+
+      const { error } = await supabase
+        .from('deep_work_tasks')
+        .update({
+          time_estimate: timeEstimate,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', taskId);
+
+      if (error) {
+        throw new Error(`Supabase error: ${error.message}`);
+      }
+
+      console.log(`✅ Updated Deep Work task time estimate: ${taskId}`);
+
+      setTasks(prev => prev.map(task =>
+        task.id === taskId
+          ? { ...task, timeEstimate: timeEstimate || null }
+          : task
+      ));
+
+      return true;
+    } catch (error) {
+      console.error('❌ Error updating Deep Work task time estimate:', error);
+      setError(error instanceof Error ? error.message : 'Failed to update task time estimate');
       return null;
     }
   }, [supabase]);
@@ -878,6 +960,8 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
     deleteTask,
     deleteSubtask,
     updateTaskTitle,
+    updateTaskPriority,
+    updateTaskTimeEstimate,
     updateSubtaskTitle,
     updateSubtaskPriority,
     updateSubtaskEstimatedTime,
