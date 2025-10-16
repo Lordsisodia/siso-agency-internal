@@ -7,9 +7,9 @@
  * 3. Auto-sync queue when offline
  */
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useClerkUser } from './useClerkUser';
-import { useSupabaseClient, useSupabaseUserId } from '@/shared/lib/supabase-clerk';
+import { useSupabaseUserId } from '@/shared/lib/supabase-clerk';
 import { unifiedDataService } from '@/shared/services/unified-data.service';
 
 export interface DailyReflection {
@@ -34,23 +34,43 @@ export interface DailyReflection {
 
 export interface UseDailyReflectionsProps {
   selectedDate: Date;
+  prefetchDates?: Date[];
 }
 
-export function useDailyReflections({ selectedDate }: UseDailyReflectionsProps) {
+type ReflectionsByDate = Record<string, DailyReflection | null>;
+
+export function useDailyReflections({ selectedDate, prefetchDates = [] }: UseDailyReflectionsProps) {
   const { user, isSignedIn } = useClerkUser();
-  const supabase = useSupabaseClient();
   const internalUserId = useSupabaseUserId(user?.id || null);
   const [reflection, setReflection] = useState<DailyReflection | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [reflectionsByDate, setReflectionsByDate] = useState<ReflectionsByDate>({});
 
   const dateString = selectedDate?.toISOString()?.split('T')[0] || new Date().toISOString().split('T')[0];
+
+  const prefetchDatesKey = useMemo(() => {
+    return prefetchDates
+      .map(date => date.getTime())
+      .sort((a, b) => a - b)
+      .join('|');
+  }, [prefetchDates]);
+
+  const requestedDates = useMemo(() => {
+    const normalizedPrefetchDates = prefetchDates
+      .map(date => date.toISOString().split('T')[0])
+      .filter(Boolean);
+
+    const uniqueDates = new Set<string>([dateString, ...normalizedPrefetchDates]);
+    return Array.from(uniqueDates);
+  }, [dateString, prefetchDatesKey]);
 
   // Load daily reflection - OFFLINE-FIRST
   const loadReflection = useCallback(async () => {
     if (!isSignedIn || !internalUserId) {
       setLoading(false);
+      setReflectionsByDate({});
       return;
     }
 
@@ -58,47 +78,58 @@ export function useDailyReflections({ selectedDate }: UseDailyReflectionsProps) 
       setLoading(true);
       setError(null);
 
-      console.log(`🌙 Loading daily reflection (offline-first) for ${dateString}...`);
+      console.log(`🌙 Loading daily reflection(s) (offline-first) for ${requestedDates.join(', ')}...`);
 
-      // Use unified data service (IndexedDB first, then Supabase if online)
-      const data = await unifiedDataService.getDailyReflection(internalUserId, dateString);
+      const dataByDate = await unifiedDataService.getDailyReflectionsBatch(internalUserId, requestedDates);
 
-      if (data) {
-        // Transform to match our interface
-        const transformedReflection: DailyReflection = {
-          id: data.id || '',
-          userId: data.user_id,
-          date: data.date,
-          winOfDay: data.winOfDay || '',
-          mood: data.mood || '',
-          bedTime: data.bedTime || '', // ✅ FIXED: Include bedTime when loading
-          wentWell: data.wentWell || [],
-          evenBetterIf: data.evenBetterIf || [],
-          dailyAnalysis: data.dailyAnalysis || '',
-          actionItems: data.actionItems || '',
-          overallRating: data.overallRating,
-          energyLevel: data.energyLevel,
-          keyLearnings: data.keyLearnings || '',
-          tomorrowFocus: data.tomorrowFocus || '',
-          tomorrowTopTasks: data.tomorrowTopTasks || [],
-          createdAt: data.created_at || new Date().toISOString(),
-          updatedAt: data.updated_at || new Date().toISOString()
-        };
+      const normalizedResults = requestedDates.reduce<ReflectionsByDate>((acc, date) => {
+        const record = dataByDate[date];
 
+        if (record) {
+          acc[date] = {
+            id: record.id || '',
+            userId: record.user_id,
+            date: record.date,
+            winOfDay: record.winOfDay || '',
+            mood: record.mood || '',
+            bedTime: record.bedTime || '',
+            wentWell: record.wentWell || [],
+            evenBetterIf: record.evenBetterIf || [],
+            dailyAnalysis: record.dailyAnalysis || '',
+            actionItems: record.actionItems || '',
+            overallRating: record.overallRating,
+            energyLevel: record.energyLevel,
+            keyLearnings: record.keyLearnings || '',
+            tomorrowFocus: record.tomorrowFocus || '',
+            tomorrowTopTasks: record.tomorrowTopTasks || [],
+            createdAt: record.created_at || new Date().toISOString(),
+            updatedAt: record.updated_at || new Date().toISOString()
+          };
+        } else {
+          acc[date] = null;
+        }
+
+        return acc;
+      }, {});
+
+      const selectedReflection = normalizedResults[dateString] ?? null;
+
+      if (selectedReflection) {
         console.log(`✅ Loaded daily reflection (${navigator.onLine ? 'online' : 'offline'}) for ${dateString}`);
-        setReflection(transformedReflection);
       } else {
         console.log(`📝 No reflection found for ${dateString}, will create on save`);
-        setReflection(null);
       }
 
+      setReflection(selectedReflection);
+      setReflectionsByDate(normalizedResults);
     } catch (error) {
       console.error('❌ Error loading daily reflection:', error);
       setError(error instanceof Error ? error.message : 'Failed to load reflection');
+      setReflectionsByDate(prev => ({ ...prev, [dateString]: null }));
     } finally {
       setLoading(false);
     }
-  }, [isSignedIn, internalUserId, dateString]);
+  }, [isSignedIn, internalUserId, dateString, requestedDates]);
 
   // Save daily reflection - OFFLINE-FIRST
   const saveReflection = useCallback(async (reflectionData: Partial<DailyReflection>) => {
@@ -150,6 +181,10 @@ export function useDailyReflections({ selectedDate }: UseDailyReflectionsProps) 
 
       console.log(`✅ Saved daily reflection (${navigator.onLine ? 'online' : 'offline'}) for ${dateString}`);
       setReflection(savedReflection);
+      setReflectionsByDate(prev => ({
+        ...prev,
+        [dateString]: savedReflection
+      }));
       return savedReflection;
 
     } catch (error) {
@@ -172,6 +207,7 @@ export function useDailyReflections({ selectedDate }: UseDailyReflectionsProps) 
     saving,
     error,
     saveReflection,
-    refreshReflection: loadReflection
+    refreshReflection: loadReflection,
+    reflectionsByDate
   };
 }

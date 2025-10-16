@@ -56,60 +56,85 @@ class UnifiedDataService {
     return navigator.onLine;
   }
 
+  private transformSupabaseReflection(data: any): DailyReflection {
+    return {
+      id: data.id,
+      user_id: data.user_id,
+      date: data.date,
+      winOfDay: data.win_of_day || '',
+      mood: data.mood || '',
+      bedTime: data.bed_time || '', // ✅ FIXED: Transform bed_time from DB
+      wentWell: data.went_well || [],
+      evenBetterIf: data.even_better_if || [],
+      dailyAnalysis: data.daily_analysis || '',
+      actionItems: data.action_items || '',
+      overallRating: data.overall_rating,
+      energyLevel: data.energy_level,
+      keyLearnings: data.key_learnings || '',
+      tomorrowFocus: data.tomorrow_focus || '',
+      tomorrowTopTasks: data.tomorrow_top_tasks || [],
+      created_at: data.created_at,
+      updated_at: data.updated_at
+    };
+  }
+
   // ===== DAILY REFLECTIONS =====
   async getDailyReflection(userId: string, date: string): Promise<DailyReflection | null> {
-    // Try local first
-    try {
-      const key = `reflection:${userId}:${date}`;
-      const local = await offlineDb.getSetting(key);
-      if (local) return local;
-    } catch (error) {
-      console.warn('Failed to get local reflection:', error);
+    const reflections = await this.getDailyReflectionsBatch(userId, [date]);
+    return reflections[date] ?? null;
+  }
+
+  async getDailyReflectionsBatch(userId: string, dates: string[]): Promise<Record<string, DailyReflection | null>> {
+    const uniqueDates = Array.from(new Set(dates.filter(Boolean)));
+    if (uniqueDates.length === 0) return {};
+
+    const results: Record<string, DailyReflection | null> = {};
+    const missingDates: string[] = [];
+
+    for (const date of uniqueDates) {
+      try {
+        const key = `reflection:${userId}:${date}`;
+        const local = await offlineDb.getSetting(key);
+        if (local) {
+          results[date] = local;
+        } else {
+          missingDates.push(date);
+        }
+      } catch (error) {
+        console.warn('Failed to get local reflection:', error);
+        missingDates.push(date);
+      }
     }
 
-    // If online, try Supabase
-    if (this.isOnline()) {
+    if (missingDates.length > 0 && this.isOnline()) {
       try {
         const { data, error } = await supabaseAnon
           .from('daily_reflections')
           .select('*')
           .eq('user_id', userId)
-          .eq('date', date)
-          .maybeSingle(); // ✅ FIX: Use maybeSingle() instead of single() to handle no records gracefully
+          .in('date', missingDates);
 
         if (!error && data) {
-          // Transform snake_case from DB to camelCase for app
-          const appRecord: DailyReflection = {
-            id: data.id,
-            user_id: data.user_id,
-            date: data.date,
-            winOfDay: data.win_of_day || '',
-            mood: data.mood || '',
-            bedTime: data.bed_time || '', // ✅ FIXED: Transform bed_time from DB
-            wentWell: data.went_well || [],
-            evenBetterIf: data.even_better_if || [],
-            dailyAnalysis: data.daily_analysis || '',
-            actionItems: data.action_items || '',
-            overallRating: data.overall_rating,
-            energyLevel: data.energy_level,
-            keyLearnings: data.key_learnings || '',
-            tomorrowFocus: data.tomorrow_focus || '',
-            tomorrowTopTasks: data.tomorrow_top_tasks || [],
-            created_at: data.created_at,
-            updated_at: data.updated_at
-          };
+          for (const record of data) {
+            const appRecord = this.transformSupabaseReflection(record);
+            results[appRecord.date] = appRecord;
 
-          // Cache locally
-          const key = `reflection:${userId}:${date}`;
-          await offlineDb.setSetting(key, appRecord);
-          return appRecord;
+            const key = `reflection:${userId}:${appRecord.date}`;
+            await offlineDb.setSetting(key, appRecord);
+          }
         }
       } catch (error) {
-        console.warn('Failed to get Supabase reflection:', error);
+        console.warn('Failed to get Supabase reflections batch:', error);
       }
     }
 
-    return null;
+    for (const date of uniqueDates) {
+      if (!(date in results)) {
+        results[date] = null;
+      }
+    }
+
+    return results;
   }
 
   async saveDailyReflection(reflection: DailyReflection): Promise<void> {
