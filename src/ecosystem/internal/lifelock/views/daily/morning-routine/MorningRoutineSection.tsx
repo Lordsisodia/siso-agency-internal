@@ -26,7 +26,6 @@ import { cn } from '@/shared/lib/utils';
 import { useClerkUser } from '@/shared/hooks/useClerkUser';
 import { useSupabaseUserId } from '@/shared/lib/supabase-clerk';
 import { workTypeApiClient, MorningRoutineMetadata } from '@/services/workTypeApiClient';
-import { useOfflineManager } from '@/shared/hooks/useOfflineManager';
 import { SimpleThoughtDumpPage, ThoughtDumpResults, lifeLockVoiceTaskProcessor } from '@/ecosystem/internal/lifelock/features/ai-thought-dump';
 import type { ThoughtDumpResult } from '@/ecosystem/internal/lifelock/features/ai-thought-dump';
 import { getRotatingQuotes } from '@/data/motivational-quotes';
@@ -131,7 +130,6 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
 }) => {
   const { user } = useClerkUser();
   const internalUserId = useSupabaseUserId(user?.id || null);
-  const { saveTask, loadTasks, isOffline } = useOfflineManager();
   const [morningRoutine, setMorningRoutine] = useState<MorningRoutineData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
