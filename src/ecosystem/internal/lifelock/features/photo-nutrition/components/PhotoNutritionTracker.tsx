@@ -14,8 +14,8 @@ import { usePhotoNutrition } from '../hooks/usePhotoNutrition';
 import { PhotoCapture } from './PhotoCapture';
 import { FoodPhotoCard } from './FoodPhotoCard';
 import { DailyMacroSummary } from './DailyMacroSummary';
-import { calculateTotalNutritionXP } from '../../views/daily/wellness/xpCalculations';
-import { XPPill } from '../../views/daily/morning-routine/components/XPPill';
+import { calculateTotalNutritionXP } from '@/ecosystem/internal/lifelock/views/daily/wellness/xpCalculations';
+import { XPPill } from '@/ecosystem/internal/lifelock/views/daily/morning-routine/components/XPPill';
 
 interface PhotoNutritionTrackerProps {
   selectedDate: Date;

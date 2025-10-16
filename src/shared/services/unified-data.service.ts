@@ -271,15 +271,39 @@ class UnifiedDataService {
     return `reflection:${userId}:${date}`;
   }
 
+<<<<<<< HEAD
   private transformDbReflection(record: any): DailyReflection {
     return this.mapDbReflectionToApp(record);
+=======
+  private transformDbReflection(data: any): DailyReflection {
+    return {
+      id: data.id,
+      user_id: data.user_id,
+      date: data.date,
+      winOfDay: data.win_of_day || '',
+      mood: data.mood || '',
+      bedTime: data.bed_time || '',
+      wentWell: data.went_well || [],
+      evenBetterIf: data.even_better_if || [],
+      dailyAnalysis: data.daily_analysis || '',
+      actionItems: data.action_items || '',
+      overallRating: data.overall_rating,
+      energyLevel: data.energy_level,
+      keyLearnings: data.key_learnings || '',
+      tomorrowFocus: data.tomorrow_focus || '',
+      tomorrowTopTasks: data.tomorrow_top_tasks || [],
+      created_at: data.created_at,
+      updated_at: data.updated_at
+    };
+>>>>>>> e8c5ff2a (Optimize nightly checkout reflection fetching)
   }
 
   // ===== DAILY REFLECTIONS =====
   async getDailyReflection(userId: string, date: string): Promise<DailyReflection | null> {
+    const key = this.buildCacheKey(userId, date);
+
     // Try local first
     try {
-      const key = `reflection:${userId}:${date}`;
       const local = await offlineDb.getSetting(key);
       if (local) return local;
     } catch (error) {
@@ -297,10 +321,14 @@ class UnifiedDataService {
           .maybeSingle(); // ✅ FIX: Use maybeSingle() instead of single() to handle no records gracefully
 
         if (!error && data) {
+<<<<<<< HEAD
           const appRecord = this.mapDbReflectionToApp(data);
+=======
+          // Transform snake_case from DB to camelCase for app
+          const appRecord = this.transformDbReflection(data);
+>>>>>>> e8c5ff2a (Optimize nightly checkout reflection fetching)
 
           // Cache locally
-          const key = `reflection:${userId}:${date}`;
           await offlineDb.setSetting(key, appRecord);
           return appRecord;
         }
@@ -310,6 +338,53 @@ class UnifiedDataService {
     }
 
     return null;
+  }
+
+  async getDailyReflections(userId: string, dates: string[]): Promise<Record<string, DailyReflection>> {
+    const uniqueDates = Array.from(new Set(dates.filter(Boolean)));
+    const reflections: Record<string, DailyReflection> = {};
+    const missingDates: string[] = [];
+
+    await Promise.all(
+      uniqueDates.map(async date => {
+        const key = this.buildCacheKey(userId, date);
+        try {
+          const local = await offlineDb.getSetting(key);
+          if (local) {
+            reflections[date] = local;
+            return;
+          }
+        } catch (error) {
+          console.warn('Failed to get local reflection:', error);
+        }
+
+        missingDates.push(date);
+      })
+    );
+
+    if (missingDates.length && this.isOnline()) {
+      try {
+        const { data, error } = await supabaseAnon
+          .from('daily_reflections')
+          .select('*')
+          .eq('user_id', userId)
+          .in('date', missingDates);
+
+        if (!error && data) {
+          await Promise.all(
+            data.map(async record => {
+              const appRecord = this.transformDbReflection(record);
+              reflections[record.date] = appRecord;
+              await offlineDb.setSetting(this.buildCacheKey(userId, record.date), appRecord);
+            })
+          );
+        }
+      } catch (error) {
+        console.warn('Failed to batch fetch Supabase reflections:', error);
+      }
+    }
+
+    return reflections;
   }
 
   async saveDailyReflection(reflection: DailyReflection): Promise<void> {
