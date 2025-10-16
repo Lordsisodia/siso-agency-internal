@@ -1,0 +1,11 @@
+- Install deps: `npm install`
+- Run dev server: `npm run dev`
+- Hybrid dev (with legacy server): `npm run dev:hybrid`
+- Build production bundle: `npm run build`
+- Type check + validation: `npm run validate`
+- Lint: `npm run lint` (or `npm run lint:fix`)
+- Unit tests: `npm run test:unit`
+- E2E smoke tests: `npm run test:e2e:smoke`
+- Full test sweep: `npm run test:all`
+- Playwright UI mode: `npm run test:e2e:ui`
+- Generate AI session snapshot: `npm run ai:protect`
