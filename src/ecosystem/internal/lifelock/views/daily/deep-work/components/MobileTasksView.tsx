@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/shared/ui/card';
+import { Skeleton } from '@/shared/ui/skeleton';
 import { Button } from '@/shared/ui/button';
 import { Badge } from '@/shared/ui/badge';
 import { TaskDetailsSheet } from '@/ecosystem/internal/projects/TaskDetailsSheet';
@@ -126,9 +127,22 @@ export function MobileTasksView({ tasks, loading, onUpdateTask }: MobileTasksVie
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-        <span className="ml-2 text-muted-foreground">Loading tasks...</span>
+      <div className="min-h-[50vh] p-4 space-y-4 bg-background">
+        {Array.from({ length: 3 }).map((_, index) => (
+          <Card key={`mobile-task-skeleton-${index}`} className="border border-border/40 bg-card/60 backdrop-blur">
+            <div className="p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <Skeleton className="h-4 w-40 bg-blue-400/20" />
+                <Skeleton className="h-4 w-16 bg-blue-400/20" />
+              </div>
+              <Skeleton className="h-3 w-full bg-blue-400/10" />
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-4 w-20 bg-blue-400/15" />
+                <Skeleton className="h-4 w-24 bg-blue-400/15" />
+              </div>
+            </div>
+          </Card>
+        ))}
       </div>
     );
   }
@@ -165,12 +179,7 @@ export function MobileTasksView({ tasks, loading, onUpdateTask }: MobileTasksVie
 
               {/* Task List */}
               <div className="flex-1 overflow-y-auto p-4 space-y-3 pb-20">
-                {loading ? (
-                  <div className="flex items-center justify-center py-12">
-                    <Loader2 className="h-6 w-6 animate-spin mr-2" />
-                    <span>Loading tasks...</span>
-                  </div>
-                ) : filteredTasks.length === 0 ? (
+                {filteredTasks.length === 0 ? (
                   <div className="text-center py-12">
                     <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-lg font-semibold mb-2">No tasks</h3>

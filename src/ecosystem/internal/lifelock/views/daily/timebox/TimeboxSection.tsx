@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, Zap } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
 import { Card, CardContent } from '@/shared/ui/card';
+import { Skeleton } from '@/shared/ui/skeleton';
 import { format } from 'date-fns';
 import { TimeBlockFormModal } from '@/ecosystem/internal/tasks/components/TimeBlockFormModal';
 import QuickTaskScheduler from '@/ecosystem/internal/tasks/components/QuickTaskScheduler';
@@ -168,14 +169,52 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
   // Loading state
   if (isLoading) {
     return (
-      <div className="h-full w-full bg-black flex items-center justify-center">
-        <div className="text-center">
-          <motion.div
-            className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full mx-auto mb-4"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          />
-          <p className="text-purple-300 text-lg">Loading your timeline...</p>
+      <div className="min-h-screen w-full mb-24 bg-black">
+        <div className="w-full relative">
+          <div className="max-w-7xl mx-auto px-2 sm:px-3 md:px-4 space-y-6">
+            <Card className="bg-purple-900/10 border-purple-700/30">
+              <CardContent className="p-6 space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {Array.from({ length: 2 }).map((_, index) => (
+                    <div
+                      key={`timebox-stat-skeleton-${index}`}
+                      className="rounded-xl border border-purple-700/40 bg-purple-900/30 p-4 space-y-3"
+                    >
+                      <Skeleton className="h-4 w-24 bg-purple-500/20" />
+                      <Skeleton className="h-8 w-20 bg-purple-400/30" />
+                      <Skeleton className="h-2 w-full bg-purple-500/20 rounded-full" />
+                    </div>
+                  ))}
+                </div>
+
+                <div className="space-y-3">
+                  <Skeleton className="h-6 w-48 bg-purple-500/20" />
+                  <div className="space-y-2">
+                    {Array.from({ length: 4 }).map((_, index) => (
+                      <Skeleton
+                        key={`timebox-timeline-skeleton-${index}`}
+                        className="h-12 w-full bg-purple-900/30 border border-purple-700/40 rounded-xl"
+                      />
+                    ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-purple-900/20 border-purple-700/40">
+              <CardContent className="p-4 space-y-3">
+                <Skeleton className="h-5 w-32 bg-purple-500/20" />
+                <div className="grid grid-cols-2 gap-3">
+                  {Array.from({ length: 2 }).map((_, index) => (
+                    <Skeleton
+                      key={`timebox-action-skeleton-${index}`}
+                      className="h-12 w-full bg-purple-900/40 border border-purple-700/40 rounded-xl"
+                    />
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     );

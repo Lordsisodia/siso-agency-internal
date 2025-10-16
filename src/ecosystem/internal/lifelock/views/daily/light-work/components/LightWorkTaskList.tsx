@@ -30,6 +30,7 @@ import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { SimpleFeedbackButton } from "@/ecosystem/internal/feedback/SimpleFeedbackButton";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
+import { Skeleton } from "@/shared/ui/skeleton";
 import { TaskDetailModal } from "@/ecosystem/internal/lifelock/components/TaskDetailModal";
 import { CustomCalendar } from "../../_shared/components";
 import { SubtaskItem } from "@/components/tasks/SubtaskItem";
@@ -436,11 +437,35 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
     return (
       <div className="text-green-50 h-full">
         <Card className="bg-green-900/20 border-green-700/50">
-          <CardContent className="p-4 text-center">
-            <div className="flex items-center justify-center space-x-2">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-400"></div>
-              <span className="text-green-300">Loading {theme.subtitle} tasks...</span>
+          <CardHeader className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Skeleton className="h-5 w-5 rounded-full bg-green-500/30" />
+                <Skeleton className="h-5 w-40 bg-green-400/20" />
+              </div>
+              <Skeleton className="h-4 w-16 bg-green-400/20" />
             </div>
+            <Skeleton className="h-2 w-full bg-green-400/20 rounded-full" />
+          </CardHeader>
+          <CardContent className="p-4 space-y-4">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <div
+                key={`light-work-skeleton-${index}`}
+                className="rounded-xl border border-green-700/50 bg-green-900/30 p-4 space-y-3"
+              >
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <Skeleton className="h-9 w-9 rounded-full bg-green-500/20" />
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-36 bg-green-400/20" />
+                      <Skeleton className="h-3 w-48 bg-green-400/10" />
+                    </div>
+                  </div>
+                  <Skeleton className="h-6 w-16 bg-green-400/20 rounded-full" />
+                </div>
+                <Skeleton className="h-2 w-full bg-green-400/10 rounded-full" />
+              </div>
+            ))}
           </CardContent>
         </Card>
       </div>
