@@ -7,6 +7,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Camera, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
+import { Skeleton } from '@/shared/ui/skeleton';
 import { useClerkUser } from '@/shared/hooks/useClerkUser';
 import { useSupabaseUserId } from '@/shared/lib/supabase-clerk';
 import { usePhotoNutrition } from '../hooks/usePhotoNutrition';
@@ -65,15 +66,37 @@ export const PhotoNutritionTracker: React.FC<PhotoNutritionTrackerProps> = ({
       <div className="w-full">
         <div className="max-w-7xl mx-auto p-2 sm:p-3 md:p-4 lg:p-6 space-y-6">
           <Card className="mb-24 bg-pink-900/20 border-pink-700/50">
-            <CardHeader>
-              <CardTitle className="flex items-center text-pink-400">
-                <Sparkles className="h-5 w-5 mr-2" />
-                📸 AI Nutrition Tracker
-              </CardTitle>
+            <CardHeader className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Skeleton className="h-5 w-5 rounded-full bg-pink-500/30" />
+                  <Skeleton className="h-5 w-48 bg-pink-400/20" />
+                </div>
+                <Skeleton className="h-4 w-20 bg-pink-400/20" />
+              </div>
+              <Skeleton className="h-3 w-3/4 bg-pink-400/20" />
             </CardHeader>
-            <CardContent>
-              <div className="text-center py-8 text-pink-300">
-                Loading nutrition data...
+            <CardContent className="space-y-6 pb-24">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <div
+                    key={`nutrition-summary-skeleton-${index}`}
+                    className="p-4 rounded-xl border border-pink-700/40 bg-pink-900/30 space-y-3"
+                  >
+                    <Skeleton className="h-4 w-1/2 bg-pink-400/20" />
+                    <Skeleton className="h-8 w-20 bg-pink-400/30" />
+                    <Skeleton className="h-2 w-full bg-pink-400/20 rounded-full" />
+                  </div>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <Skeleton
+                    key={`nutrition-photo-skeleton-${index}`}
+                    className="h-40 w-full bg-pink-900/30 border border-pink-700/40 rounded-2xl"
+                  />
+                ))}
               </div>
             </CardContent>
           </Card>

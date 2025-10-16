@@ -38,6 +38,8 @@ import { MeditationTracker } from './components/MeditationTracker';
 import { WakeUpTimeTracker } from './components/WakeUpTimeTracker';
 import { PlanDayActions } from './components/PlanDayActions';
 import { MotivationalQuotes } from './components/MotivationalQuotes';
+import { Skeleton } from '@/shared/ui/skeleton';
+import { useAutoTimeblocks } from '@/shared/hooks/useAutoTimeblocks';
 import { GamificationService } from '@/services/gamificationService';
 import {
   calculateMinutesSinceWake,
@@ -259,6 +261,15 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
     return saved ? JSON.parse(saved) : ['', '', ''];
   });
 
+  // 🤖 Auto-create timeboxes based on wake-up time
+  useAutoTimeblocks({
+    wakeUpTime,
+    userId: internalUserId,
+    selectedDate,
+    enabled: !!wakeUpTime && !!internalUserId // Only create if wake-up time is set
+  });
+
+  // 🎮 XP System State
   const xpStorageKey = useMemo(
     () => `lifelock-${routineDateKey}-morningXpState`,
     [routineDateKey]
@@ -329,25 +340,25 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   // Load morning routine data
   useEffect(() => {
     const loadMorningRoutine = async () => {
-      if (!internalUserId || !selectedDate) return;
+      if (!user?.id || !selectedDate) return;
       
       try {
         setLoading(true);
         setError(null);
-        // Try offline-first approach
-        const data = await loadTasks('morning_routine', {
-          user_id: internalUserId,
-          date: format(selectedDate, 'yyyy-MM-dd')
-        });
         
-        if (data && data.length > 0) {
-          // Use offline data
-          const routineData = data[0];
-          setMorningRoutine(routineData);
-        } else {
-          // Fallback to API if no offline data
-          const apiData = await workTypeApiClient.getMorningRoutine(user.id, selectedDate);
+        // Load from API (which reads from daily_routines table)
+        const apiData = await workTypeApiClient.getMorningRoutine(user.id, selectedDate);
+        
+        if (apiData) {
           setMorningRoutine(apiData);
+          
+          // ✅ FIX: Sync checkbox states from Supabase to localStorage
+          const dateKey = format(selectedDate, 'yyyy-MM-dd');
+          if (apiData.items && Array.isArray(apiData.items)) {
+            apiData.items.forEach((item: MorningRoutineHabit) => {
+              localStorage.setItem(`lifelock-${dateKey}-${item.name}`, item.completed.toString());
+            });
+          }
         }
       } catch (error) {
         console.error('Error loading morning routine:', error);
@@ -358,7 +369,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
     };
 
     loadMorningRoutine();
-  }, [internalUserId, selectedDate, loadTasks]);
+  }, [user?.id, selectedDate]);
 
   // Save wake-up time to Supabase + localStorage (debounced)
   const debouncedMetadataUpdate = useMemo(() => {
@@ -594,28 +605,17 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
 
   // Handle habit toggle
   const handleHabitToggle = async (habitKey: string, completed: boolean) => {
-    if (!internalUserId || !selectedDate) return;
+    if (!user?.id || !selectedDate) return;
 
     try {
       // Always save to localStorage for immediate feedback
-      localStorage.setItem(`lifelock-${routineDateKey}-${habitKey}`, completed.toString());
+      const dateKey = format(selectedDate, 'yyyy-MM-dd');
+      localStorage.setItem(`lifelock-${dateKey}-${habitKey}`, completed.toString());
 
-      // Use offline manager for persistent storage and sync
-      // Transform to daily_health schema structure
-      // NOTE: Don't specify ID - database will auto-generate or match existing record
-      // UNIQUE constraint (user_id, date) means only ONE record per user per day
-      const healthData = {
-        user_id: internalUserId,
-        date: routineDateKey,
-        health_checklist: {
-          morning_routine: {
-            [habitKey]: completed
-          }
-        }
-      };
+      // ✅ Save to Supabase via API
+      await workTypeApiClient.updateMorningRoutineHabit(user.id, selectedDate, habitKey, completed);
 
-      await saveTask('morning_routine', healthData);
-
+      // 🎮 Award XP for habit completion
       if (completed) {
         awardHabitCompletion(habitKey);
       }
@@ -625,12 +625,29 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
         const updatedItems = morningRoutine.items.map(item =>
           item.name === habitKey ? { ...item, completed } : item
         );
+        
+        // If habit doesn't exist, add it
+        if (!updatedItems.find(item => item.name === habitKey)) {
+          updatedItems.push({ name: habitKey, completed });
+        }
+        
         const completedCount = updatedItems.filter(item => item.completed).length;
         setMorningRoutine({
           ...morningRoutine,
           items: updatedItems,
           completedCount,
           completionPercentage: (completedCount / updatedItems.length) * 100
+        });
+      } else {
+        // Create new morningRoutine if it doesn't exist
+        setMorningRoutine({
+          id: '',
+          userId: user.id,
+          date: dateKey,
+          items: [{ name: habitKey, completed }],
+          completedCount: completed ? 1 : 0,
+          totalCount: 1,
+          completionPercentage: completed ? 100 : 0
         });
       }
       
@@ -695,11 +712,11 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
     ).length;
 
     return totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
-  }, [isTaskComplete, localProgressTrigger, wakeUpTime, meditationDuration, isPlanDayComplete]);
+  }, [isTaskComplete]);
 
   const morningRoutineProgress = useMemo(() => {
     return getRoutineProgress();
-  }, [getRoutineProgress, localProgressTrigger]);
+  }, [getRoutineProgress]);
 
   // Get today's rotating motivational quotes
   const todaysQuotes = useMemo(() => {
@@ -721,8 +738,59 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
 
   if (loading) {
     return (
-      <div className="h-full w-full bg-gray-900 flex items-center justify-center">
-        <div className="text-yellow-400">Loading morning routine...</div>
+      <div className="min-h-screen w-full relative overflow-x-hidden">
+        <div className="w-full max-w-none p-2 sm:p-3 md:p-4 lg:p-6 space-y-6">
+          <Card className="w-full bg-yellow-900/20 border-yellow-700/50">
+            <CardHeader className="p-3 sm:p-4 md:p-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Skeleton className="h-6 w-6 rounded-full bg-yellow-400/30" />
+                  <Skeleton className="h-5 w-36 bg-yellow-400/20" />
+                </div>
+                <Skeleton className="h-4 w-16 bg-yellow-400/20" />
+              </div>
+              <Skeleton className="h-2 w-full bg-yellow-400/20 rounded-full" />
+            </CardHeader>
+            <CardContent className="space-y-4 pb-16">
+              {Array.from({ length: MORNING_ROUTINE_TASKS.length }).map((_, index) => (
+                <div
+                  key={`morning-skeleton-${index}`}
+                  className="bg-yellow-900/20 border border-yellow-700/50 rounded-xl p-4 space-y-4"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start gap-3 w-full">
+                      <Skeleton className="h-5 w-5 rounded-md bg-yellow-400/20" />
+                      <div className="flex-1 space-y-2">
+                        <Skeleton className="h-4 w-2/3 bg-yellow-400/20" />
+                        <Skeleton className="h-3 w-full bg-yellow-400/10" />
+                      </div>
+                    </div>
+                    <Skeleton className="h-6 w-16 rounded-lg bg-yellow-400/20" />
+                  </div>
+                  <Skeleton className="h-2 w-full bg-yellow-400/10 rounded-full" />
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          <Card className="bg-yellow-900/10 border-yellow-700/30">
+            <CardHeader className="space-y-3">
+              <div className="flex items-center gap-3">
+                <Skeleton className="h-5 w-5 rounded-full bg-yellow-400/30" />
+                <Skeleton className="h-5 w-32 bg-yellow-400/20" />
+              </div>
+              <Skeleton className="h-3 w-3/4 bg-yellow-400/10" />
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <Skeleton
+                  key={`quote-skeleton-${index}`}
+                  className="h-6 w-full bg-yellow-400/10 rounded-lg"
+                />
+              ))}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
@@ -736,7 +804,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   }
 
   return (
-    <div className="min-h-screen w-full bg-[#121212] relative overflow-x-hidden">
+    <div className="min-h-screen w-full relative overflow-x-hidden">
       <div className="w-full max-w-none p-2 sm:p-3 md:p-4 lg:p-6 space-y-6">
 
         {/* Morning Routine Card */}

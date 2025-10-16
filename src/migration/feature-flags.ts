@@ -166,9 +166,9 @@ export function resetFlags(): void {
 }
 
 /**
- * Utility function to conditionally use old or new implementation
+ * Utility function to conditionally select old or new implementation
  */
-export function useImplementation<T>(
+export function selectImplementation<T>(
   flag: keyof LifeLockFeatureFlags,
   newImplementation: T,
   oldImplementation: T

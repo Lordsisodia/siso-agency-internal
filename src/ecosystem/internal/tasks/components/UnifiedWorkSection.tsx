@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { Card, CardContent } from '@/shared/ui/card';
 import { format } from 'date-fns';
-import { useImplementation } from '@/migration/feature-flags';
+import { selectImplementation } from '@/migration/feature-flags';
 import { theme } from '@/styles/theme';
 import { LoadingState } from '@/shared/ui/loading-state';
 import { ErrorState } from '@/shared/ui/error-state';
@@ -228,7 +228,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
   // Thought dump logic moved to useThoughtDump hook
 
   if (loading) {
-    return useImplementation(
+    return selectImplementation(
       'useUnifiedLoadingState',
       <LoadingState 
         message={`Loading ${workType.toLowerCase()} work tasks...`}
@@ -243,7 +243,7 @@ export const UnifiedWorkSection: React.FC<UnifiedWorkSectionProps> = ({
   }
 
   if (error) {
-    return useImplementation(
+    return selectImplementation(
       'useUnifiedErrorState',
       <ErrorState 
         title="Error Loading Tasks"

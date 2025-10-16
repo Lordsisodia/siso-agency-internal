@@ -1,12 +1,14 @@
-// @ts-ignore - Node.js imports only available in Electron
-let spawn: any, ChildProcess: any;
+// @ts-expect-error - Node.js imports only available in Electron
+let spawn: typeof import('child_process')['spawn'] | undefined;
 
-if (typeof window === 'undefined') {
-  // Only import in Node.js environment (Electron main process)
-  const childProcess = require('child_process');
+const loadChildProcessModule = async () => {
+  if (typeof window !== 'undefined' || spawn) {
+    return;
+  }
+
+  const childProcess = await import('child_process');
   spawn = childProcess.spawn;
-  ChildProcess = childProcess.ChildProcess;
-}
+};
 
 export interface ClaudeExecutionRequest {
   prompt: string;
@@ -57,25 +59,27 @@ export class ClaudeCodeIntegration {
     
     // In browser environment, we can't execute local Claude Code
     if (typeof window !== 'undefined') {
-      return Promise.resolve({
+      return {
         success: false,
         output: '',
         errors: ['Claude Code execution not available in browser environment'],
         executionTime: 0,
         tokenUsage: 0,
         processId
-      });
+      } as unknown as ClaudeExecutionResult;
     }
 
+    await loadChildProcessModule();
+
     if (!spawn) {
-      return Promise.resolve({
+      return {
         success: false,
         output: '',
         errors: ['spawn not available - Node.js environment required'],
         executionTime: 0,
         tokenUsage: 0,
         processId
-      });
+      } as unknown as ClaudeExecutionResult;
     }
     
     return new Promise((resolve, reject) => {

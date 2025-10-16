@@ -1,0 +1,1 @@
+Before handing off work, run `npm run validate` (or at least `npm run typecheck` and `npm run lint`), plus the relevant `npm run test:unit`/`npm run test:e2e:smoke` suites when functionality changes. Confirm Supabase migrations via the project MCP helper (apply_migration, get_advisors, generate_typescript_types) if schema updates occur.

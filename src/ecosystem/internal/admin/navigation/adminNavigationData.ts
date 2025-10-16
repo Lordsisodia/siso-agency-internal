@@ -2,7 +2,7 @@ import {
   LayoutDashboard, Users, UserCheck,
   ListTodo, Building2,
   Lock, ShoppingCart, Calendar, CalendarRange,
-  CalendarClock, CalendarDays, Infinity
+  CalendarClock, CalendarDays, Infinity as InfinityIcon
 } from 'lucide-react';
 import { MenuSection } from './types';
 
@@ -65,7 +65,7 @@ export const getAdminMenuSections = (): MenuSection[] => {
         },
         {
           href: '/admin/lifelock/life',
-          icon: Infinity,
+          icon: InfinityIcon,
           label: 'Life View',
         },
         {

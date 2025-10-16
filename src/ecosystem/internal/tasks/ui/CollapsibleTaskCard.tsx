@@ -1,7 +1,7 @@
 import React from 'react';
 import { UnifiedTaskCard, TaskCardTask, TaskCardSubtask } from '@/refactored/components/UnifiedTaskCard';
 import { getTaskTheme } from '@/refactored/utils/taskCardUtils';
-import { useImplementation } from '@/migration/feature-flags';
+import { selectImplementation } from '@/migration/feature-flags';
 import { EnhancedTask, SubTask } from '@/shared/services/task.service';
 
 // LEGACY IMPORTS (kept for fallback)
@@ -75,7 +75,7 @@ export const CollapsibleTaskCard: React.FC<CollapsibleTaskCardProps> = ({
   onTaskClick,
   className
 }) => {
-  return useImplementation(
+  return selectImplementation(
     'useUnifiedTaskCard',
     
     // NEW: Unified task card (453 lines saved!)

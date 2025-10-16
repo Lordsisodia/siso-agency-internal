@@ -24,7 +24,7 @@ import {
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { format } from 'date-fns';
-import { useImplementation } from '@/migration/feature-flags';
+import { selectImplementation } from '@/migration/feature-flags';
 import { theme } from '@/styles/theme';
 import { LoadingState } from '@/shared/ui/loading-state';
 import { ErrorState } from '@/shared/ui/error-state';
@@ -252,7 +252,7 @@ export const LightWorkTaskList: React.FC<UnifiedWorkSectionProps> = ({
       document.addEventListener('mousedown', handleClickOutside);
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
-  }, [calendarSubtaskId]);
+  }, [calendarSubtaskId, setCalendarSubtaskId]);
 
   // Toggle task expansion (from SisoDeepFocusPlan)
   const toggleTaskExpansion = (taskId: string) => {
@@ -357,7 +357,7 @@ export const LightWorkTaskList: React.FC<UnifiedWorkSectionProps> = ({
   };
 
   if (loading) {
-    return useImplementation(
+    return selectImplementation(
       'useUnifiedLoadingState',
       <LoadingState 
         message={`Loading ${workType.toLowerCase()} work tasks...`}
@@ -372,7 +372,7 @@ export const LightWorkTaskList: React.FC<UnifiedWorkSectionProps> = ({
   }
 
   if (error) {
-    return useImplementation(
+    return selectImplementation(
       'useUnifiedErrorState',
       <ErrorState 
         title="Error Loading Tasks"
@@ -731,235 +731,20 @@ export const LightWorkTaskList: React.FC<UnifiedWorkSectionProps> = ({
           <SimpleFeedbackButton variant="bar" className="w-full" />
         </div>
 
-      {/* OLD STRUCTURE - hidden during migration */}
-      <div style={{display: 'none'}}>OLD CODE BELOW - WILL BE REMOVED
-                  <div
-                    key={'hidden'}
-                    {...{foo: 'bar'}}
-                    className={`
-                      p-4 rounded-lg border transition-all duration-200 w-full
-                      ${task.completed 
-                        ? `${themeConfig.colors.completed}` 
-                        : task.isPushed
-                          ? 'bg-purple-900/20 border-purple-700/50 text-purple-100 hover:border-purple-600/50 hover:bg-purple-800/30'
-                          : workType === 'DEEP' 
-                            ? `bg-blue-800/50 border-blue-700/50 text-blue-50 ${themeConfig.colors.hover}`
-                            : `bg-emerald-800/50 border-emerald-700/50 text-emerald-50 ${themeConfig.colors.hover}`
-                      }
-                    `}
-                  >
-                    {/* Task Header */}
-                    <TaskHeader
-                      task={task}
-                      themeConfig={themeConfig}
-                      isEditing={editingTaskId === task.id}
-                      editTitle={editTaskTitle}
-                      onToggleCompletion={toggleTaskCompletion}
-                      onStartEditing={startEditingTask}
-                      onEditTitleChange={setEditTaskTitle}
-                      onSaveEdit={saveTaskEdit}
-                      onKeyDown={handleKeyDown}
-                      dragHandleProps={{
-                        draggable: true,
-                        onDragStart: (e) => handleDragStart(e, task),
-                        onDragEnd: handleDragEnd
-                      }}
-                    />
-
-                    {/* First separator line */}
-                    <TaskSeparator />
-
-                    {/* Action Icons Row */}
-                    <TaskActionButtons
-                      task={task}
-                      themeConfig={themeConfig}
-                      recordingTaskId={recordingTaskId}
-                      onAnalyzeWithAI={analyzeTaskWithAI}
-                      onStartThoughtDump={startThoughtDump}
-                      onPushToAnotherDay={handlePushToAnotherDay}
-                      onViewTask={setViewingTaskId}
-                      onDeleteTask={handleDeleteTask}
-                      onPriorityChange={updateTaskPriority ? (taskId, priority) => updateTaskPriority(taskId, priority) : undefined}
-                    />
-
-
-                    {/* Second separator line */}
-                    <TaskSeparator />
-
-                    {/* Subtasks */}
-                    {isExpanded && (
-                      <div className="space-y-3 px-1">
-                        {sortSubtasksHybrid(task.subtasks || []).map((subtask) => (
-                          <SubtaskItem
-                            key={subtask.id}
-                            subtask={subtask}
-                            taskId={task.id}
-                            themeConfig={themeConfig}
-                            isEditing={editingSubtaskId === subtask.id}
-                            editTitle={editSubtaskTitle}
-                            calendarSubtaskId={calendarSubtaskId}
-                            onToggleCompletion={toggleSubtaskCompletion}
-                            onStartEditing={startEditingSubtask}
-                            onEditTitleChange={setEditSubtaskTitle}
-                            onSaveEdit={saveSubtaskEdit}
-                            onKeyDown={handleKeyDown}
-                            onCalendarToggle={setCalendarSubtaskId}
-                            onDeleteSubtask={deleteSubtask}
-                            onPriorityChange={handleSubtaskPriorityChange}
-                            onEstimatedTimeChange={handleSubtaskEstimatedTimeChange}
-                          >
-                            {/* Mobile-Optimized Calendar Modal with Backdrop */}
-                            {calendarSubtaskId === subtask.id && (
-                              <div 
-                                className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
-                                style={{
-                                  backgroundColor: 'rgba(0, 0, 0, 0.75)',
-                                  backdropFilter: 'blur(4px)',
-                                }}
-                                onClick={(e) => {
-                                  console.log('🔍 Modal Debug: Backdrop clicked', {
-                                    target: e.target,
-                                    currentTarget: e.currentTarget,
-                                    isBackdrop: e.target === e.currentTarget,
-                                    calendarLoading
-                                  });
-                                  if (e.target === e.currentTarget && !calendarLoading) {
-                                    console.log('🔍 Modal Debug: Closing modal via backdrop');
-                                    setCalendarSubtaskId(null);
-                                  }
-                                }}
-                              >
-                                <div 
-                                  className={`${workType === 'DEEP' ? 'bg-blue-800' : 'bg-emerald-800'} border ${workType === 'DEEP' ? 'border-blue-600' : 'border-emerald-600'} rounded-lg shadow-2xl p-6 w-full max-w-sm mx-auto`}
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  <div className="mb-4">
-                                    <div className="flex items-center justify-between mb-3">
-                                      <h3 className="text-lg font-medium text-white">Set Due Date</h3>
-                                      <button
-                                        onClick={() => setCalendarSubtaskId(null)}
-                                        className="text-gray-400 hover:text-white transition-colors p-1"
-                                      >
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
-                                      </button>
-                                    </div>
-                                    <p className="text-sm text-gray-300 mb-4">{subtask.title}</p>
-                                    <CustomCalendar
-                                      theme={workType}
-                                      subtask={subtask}
-                                      onDateSelect={async (date) => {
-                                        try {
-                                          console.log('🔍 Modal Debug: Date selection started', { date, subtaskId: subtask.id });
-                                          setCalendarLoading(true);
-                                          
-                                          if (updateSubtaskDueDate) {
-                                            console.log('🔍 Modal Debug: Using updateSubtaskDueDate function');
-                                            await updateSubtaskDueDate(subtask.id, date);
-                                          } else {
-                                            console.log('🔍 Modal Debug: Using fallback API call');
-                                            // Fallback to direct API call for Deep Work
-                                            const dateString = date ? `${date.toISOString().split('T')[0]}T23:59:59.000Z` : null;
-                                            const response = await fetch(`/api/deep-work/subtasks/${subtask.id}`, {
-                                              method: 'PUT',
-                                              headers: { 'Content-Type': 'application/json' },
-                                              body: JSON.stringify({ 
-                                                dueDate: dateString 
-                                              })
-                                            });
-                                            
-                                            if (!response.ok) {
-                                              throw new Error('Failed to update due date');
-                                            }
-                                          }
-                                          
-                                          console.log('✅ Due date updated successfully, closing modal');
-                                          setCalendarLoading(false);
-                                          setCalendarSubtaskId(null);
-                                          
-                                        } catch (error) {
-                                          console.error('Failed to update due date:', error);
-                                          setCalendarLoading(false);
-                                          alert('Failed to update due date. Please try again.');
-                                        }
-                                      }}
-                                      onClose={() => setCalendarSubtaskId(null)}
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-                          </SubtaskItem>
-                        ))}
-                        
-                        {/* Add Subtask Input/Button */}
-                        <AddSubtaskInput
-                          taskId={task.id}
-                          themeConfig={themeConfig}
-                          isAdding={addingSubtaskToId === task.id}
-                          newSubtaskTitle={newSubtaskTitle}
-                          onStartAdding={startAddingSubtask}
-                          onTitleChange={setNewSubtaskTitle}
-                          onSave={saveNewSubtask}
-                          onKeyDown={handleKeyDown}
-                        />
-                      </div>
-                    )}
-                    
-                    {/* Task Footer - Show subtask progress */}
-                    <TaskProgress subtasks={task.subtasks || []} />
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Add New Task Button */}
-            <div className="mt-6 flex justify-center">
-              <button
-                onClick={async () => {
-                  try {
-                    const newTask = await createTask({
-                      title: `New ${workType.toLowerCase()} work task`,
-                      workType: workType,
-                      priority: 'MEDIUM',
-                      currentDate: format(selectedDate, 'yyyy-MM-dd'),
-                      timeEstimate: themeConfig.defaultTimeEstimate,
-                      estimatedDuration: themeConfig.defaultDuration,
-                      subtasks: []
-                    });
-                    
-                    if (newTask) {
-                      // Auto-focus on the new task for editing
-                      setTimeout(() => startEditingTask(newTask.id, newTask.title), 100);
-                      // Auto-analyze with AI after a short delay
-                      setTimeout(() => analyzeTaskWithAI(newTask.id), 2000);
-                    }
-                  } catch (error) {
-                    console.error(`Failed to create new ${workType.toLowerCase()} work task:`, error);
-                  }
-                }}
-                className={`flex items-center gap-2 px-4 py-2 border-2 border-dashed ${themeConfig.colors.button} rounded-lg transition-all duration-200 text-sm font-medium`}
-              >
-                <Plus className="h-4 w-4" />
-                Add Task
-              </button>
-            </div>
-
-      {/* Task Detail Modal (from SisoDeepFocusPlan) */}
-      <TaskDetailModal
-        task={selectedTask}
-        isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          setSelectedTask(null);
-        }}
-        onTaskUpdate={updateTask}
-        onStartFocusSession={(taskId, subtaskId) => {
-          setIsModalOpen(false);
-          startFocusSession(taskId, subtaskId);
-        }}
-      />
-    </div>
+        {/* Task Detail Modal (from SisoDeepFocusPlan) */}
+        <TaskDetailModal
+          task={selectedTask}
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            setSelectedTask(null);
+          }}
+          onTaskUpdate={updateTask}
+          onStartFocusSession={(taskId, subtaskId) => {
+            setIsModalOpen(false);
+            startFocusSession(taskId, subtaskId);
+          }}
+        />
+      </div>
   );
 };

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Dumbbell, Plus, Minus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
+import { Skeleton } from '@/shared/ui/skeleton';
 import { Input } from '@/shared/ui/input';
 import { Checkbox } from '@/shared/ui/checkbox';
 import { Button } from '@/shared/ui/button';
@@ -158,16 +159,35 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({
       <div className="w-full">
         <div className="max-w-7xl mx-auto p-2 sm:p-3 md:p-4 lg:p-6 space-y-6">
           <Card className="mb-24 bg-red-900/20 border-red-700/50">
-            <CardHeader>
-              <CardTitle className="flex items-center text-red-400">
-                <Dumbbell className="h-5 w-5 mr-2" />
-                🏋️‍♂️ Home Workout Objective
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8 text-red-300">
-                Loading workout data...
+            <CardHeader className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Skeleton className="h-5 w-5 rounded-full bg-red-500/30" />
+                  <Skeleton className="h-5 w-48 bg-red-400/20" />
+                </div>
+                <Skeleton className="h-4 w-20 bg-red-400/20" />
               </div>
+              <Skeleton className="h-2 w-full bg-red-400/20 rounded-full" />
+            </CardHeader>
+            <CardContent className="space-y-4 pb-24">
+              {Array.from({ length: 5 }).map((_, index) => (
+                <div
+                  key={`workout-skeleton-${index}`}
+                  className="p-4 rounded-xl border border-red-700/40 bg-red-900/30 space-y-4"
+                >
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="h-10 w-10 rounded-full bg-red-500/20" />
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-32 bg-red-400/20" />
+                        <Skeleton className="h-3 w-48 bg-red-400/10" />
+                      </div>
+                    </div>
+                    <Skeleton className="h-6 w-16 bg-red-400/20 rounded-full" />
+                  </div>
+                  <Skeleton className="h-2 w-full bg-red-400/10 rounded-full" />
+                </div>
+              ))}
             </CardContent>
           </Card>
         </div>

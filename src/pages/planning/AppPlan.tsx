@@ -235,7 +235,7 @@ export default function AppPlan() {
 
   // Show loading state for shared plans
   if (isViewingSharedPlan && loading) {
-    return useImplementation(
+    return selectImplementation(
       'useUnifiedLoadingState',
       // NEW: Unified loading state (safer, consistent, reusable)
       <MainLayout>
@@ -296,7 +296,7 @@ export default function AppPlan() {
   if (isViewingSharedPlan && savedPlan) {
     return (
       <MainLayout>
-        <div className={useImplementation(
+        <div className={selectImplementation(
           'useUnifiedThemeSystem',
           // NEW: Unified theme system
           `min-h-screen ${theme.backgrounds.solid.black}`,
@@ -310,7 +310,7 @@ export default function AppPlan() {
                 variant="ghost" 
                 size="icon" 
                 onClick={() => navigate(-1)}
-                className={useImplementation(
+                className={selectImplementation(
                   'useUnifiedThemeSystem',
                   // NEW: Use theme backgrounds
                   `rounded-full text-white ${theme.backgrounds.solid.gray900} hover:${theme.backgrounds.solid.gray800}`,
@@ -336,7 +336,7 @@ export default function AppPlan() {
               {/* Main Features Section */}
               <div className="lg:col-span-3 space-y-8">
                 {/* Executive Summary Section */}
-                <Card className={useImplementation(
+                <Card className={selectImplementation(
                   'useUnifiedThemeSystem',
                   // NEW: Use theme backgrounds
                   `mb-6 ${theme.backgrounds.solid.black} border-gray-800`,
@@ -352,7 +352,7 @@ export default function AppPlan() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className={useImplementation(
+                    <div className={selectImplementation(
                       'useUnifiedThemeSystem',
                       // NEW: Use theme opacity backgrounds
                       `rounded-lg p-6 border border-gray-700 ${theme.backgrounds.opacity.gray900Light}`,

@@ -61,7 +61,6 @@ export interface UserPreference {
   value: string;
   confidence: number; // 0-1 scale
   lastUpdated: Date;
-};
   createdAt: Date;
   relevanceScore: number;
 }

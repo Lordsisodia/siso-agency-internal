@@ -5,7 +5,7 @@ import { format } from 'date-fns';
 import { Button } from '@/shared/ui/button';
 import { Badge } from '@/shared/ui/badge';
 import { cn } from '@/shared/lib/utils';
-import { TimeboxTask, TimeSlot, DragPreviewState, GapFillerState, TaskPosition } from '../types';
+import { TimeboxTask, TimeSlot, DragPreviewState, GapFillerState, TaskPosition, TIMEBOX_HOUR_HEIGHT } from '../types';
 import { TimeboxTaskCard } from './TimeboxTaskCard';
 
 interface TimeboxTimelineProps {
@@ -70,7 +70,7 @@ export const TimeboxTimeline: React.FC<TimeboxTimelineProps> = ({
         data-timeline-container
       >
         {/* Enhanced Timeline Grid */}
-        <div className="relative" style={{ height: `${(23 - 0 + 1) * 80}px` }}>
+        <div className="relative" style={{ height: `${(23 - 0 + 1) * TIMEBOX_HOUR_HEIGHT}px` }}>
           {/* Clean Time Sidebar */}
           <div className="absolute left-0 top-0 w-16 h-full bg-gray-950/80 border-r border-gray-700/30 rounded-l-2xl">
             {timeSlots.map((slot, index) => (
@@ -80,7 +80,7 @@ export const TimeboxTimeline: React.FC<TimeboxTimelineProps> = ({
                   "absolute w-full flex items-center justify-center group/hour transition-all duration-300",
                   slot.isCurrentHour && "bg-blue-500/10"
                 )}
-                style={{ top: `${slot.hour * 80}px`, height: '80px' }}
+                style={{ top: `${slot.hour * TIMEBOX_HOUR_HEIGHT}px`, height: `${TIMEBOX_HOUR_HEIGHT}px` }}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{
@@ -139,7 +139,7 @@ export const TimeboxTimeline: React.FC<TimeboxTimelineProps> = ({
                   hourlyDensity[slot.hour] === 2 && "bg-yellow-500/15",
                   hourlyDensity[slot.hour] >= 3 && "bg-red-500/25"
                 )}
-                style={{ top: `${slot.hour * 80}px`, height: '80px' }}
+                style={{ top: `${slot.hour * TIMEBOX_HOUR_HEIGHT}px`, height: `${TIMEBOX_HOUR_HEIGHT}px` }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{
@@ -156,7 +156,7 @@ export const TimeboxTimeline: React.FC<TimeboxTimelineProps> = ({
             <motion.div
               key={`divider-${slot.hour}`}
               className="absolute left-16 right-0 border-t border-gray-700/40"
-              style={{ top: `${slot.hour * 80}px` }}
+              style={{ top: `${slot.hour * TIMEBOX_HOUR_HEIGHT}px` }}
               initial={{ opacity: 0, scaleX: 0 }}
               animate={{ opacity: 1, scaleX: 1 }}
               transition={{

@@ -15,6 +15,16 @@ export interface TimeBoxTask {
   scheduledEndTime?: Date;
   tags?: string[];
   parentTaskId?: string;
+  subtasks?: TimeBoxSubtask[];
+  visibleSubtaskIds?: string[];
+  metadata?: Record<string, any> | null;
+}
+
+export interface TimeBoxSubtask {
+  id: string;
+  title: string;
+  status?: string;
+  completed: boolean;
 }
 
 export interface TimeSlot {
@@ -83,7 +93,15 @@ class TimeBoxApi {
       // Get all tasks from the main tasks table
       const { data: tasks, error } = await supabase
         .from('tasks')
-        .select('*');
+        .select(`
+          *,
+          subtasks:tasks!parent_task_id(
+            id,
+            title,
+            status
+          )
+        `)
+        .is('parent_task_id', null);
 
       if (error) {
         console.error('Error fetching tasks:', error);
@@ -93,20 +111,42 @@ class TimeBoxApi {
       if (!tasks) return [];
 
       // Convert to TimeBoxTask format
-      const timeBoxTasks: TimeBoxTask[] = tasks.map(task => ({
-        id: task.id,
-        title: task.title,
-        description: task.description,
-        status: task.status,
-        priority: task.priority,
-        category: task.category || 'light_work',
-        estimatedDuration: task.estimated_duration_minutes || 30,
-        actualDuration: task.actual_duration_minutes,
-        scheduledStartTime: task.scheduled_start_time ? new Date(task.scheduled_start_time) : undefined,
-        scheduledEndTime: task.scheduled_end_time ? new Date(task.scheduled_end_time) : undefined,
-        tags: task.tags || [],
-        parentTaskId: task.parent_task_id
-      }));
+      const timeBoxTasks: TimeBoxTask[] = tasks.map(task => {
+        const rawMetadata = (task.metadata && typeof task.metadata === 'object') ? task.metadata : {};
+        const visibleSubtasks = Array.isArray(rawMetadata?.timebox_visible_subtasks)
+          ? rawMetadata.timebox_visible_subtasks
+          : [];
+
+        const subtasks: TimeBoxSubtask[] = Array.isArray(task.subtasks)
+          ? task.subtasks.map((subtask: any) => ({
+              id: subtask.id,
+              title: subtask.title,
+              status: subtask.status,
+              completed:
+                subtask.status === 'completed' ||
+                subtask.status === 'done' ||
+                subtask.completed === true,
+            }))
+          : [];
+
+        return {
+          id: task.id,
+          title: task.title,
+          description: task.description,
+          status: task.status,
+          priority: task.priority,
+          category: task.category || 'light_work',
+          estimatedDuration: task.estimated_duration_minutes || 30,
+          actualDuration: task.actual_duration_minutes,
+          scheduledStartTime: task.scheduled_start_time ? new Date(task.scheduled_start_time) : undefined,
+          scheduledEndTime: task.scheduled_end_time ? new Date(task.scheduled_end_time) : undefined,
+          tags: task.tags || [],
+          parentTaskId: task.parent_task_id,
+          subtasks,
+          visibleSubtaskIds: visibleSubtasks,
+          metadata: rawMetadata,
+        };
+      });
 
       return timeBoxTasks;
     } catch (error) {
@@ -221,6 +261,35 @@ class TimeBoxApi {
       }
     } catch (error) {
       console.error('Error unscheduling task:', error);
+    }
+  }
+
+  async updateTaskVisibleSubtasks(
+    taskId: string,
+    visibleSubtaskIds: string[],
+    existingMetadata: Record<string, any> = {}
+  ): Promise<void> {
+    try {
+      const nextMetadata = {
+        ...existingMetadata,
+        timebox_visible_subtasks: visibleSubtaskIds,
+      };
+
+      const { error } = await supabase
+        .from('tasks')
+        .update({
+          metadata: nextMetadata,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', taskId);
+
+      if (error) {
+        console.error('Error updating timebox subtask visibility:', error);
+        throw error;
+      }
+    } catch (error) {
+      console.error('Error updating visible subtasks:', error);
+      throw error;
     }
   }
 

@@ -17,7 +17,7 @@ import { format } from 'date-fns';
 // Feature flag imports
 import { 
   isFeatureEnabled, 
-  useImplementation 
+  selectImplementation 
 } from './feature-flags';
 
 // Refactored utilities (conditionally imported)
@@ -33,7 +33,7 @@ export function ExampleMigrationPattern() {
     // ... original hardcoded array from component
   ];
   
-  const morningHabits = useImplementation(
+  const morningHabits = selectImplementation(
     'useRefactoredDefaultTasks',
     getMorningHabits(), // NEW: from extracted data file
     OLD_MORNING_HABITS  // OLD: hardcoded in component
@@ -67,12 +67,12 @@ export function ExampleMigrationPattern() {
  */
 export const MIGRATION_PATTERN = `
 // At the top of MorningRoutineSection.tsx, add feature flag imports:
-import { isFeatureEnabled, useImplementation } from '@/migration/feature-flags';
+import { isFeatureEnabled, selectImplementation } from '@/migration/feature-flags';
 import { getMorningHabits } from '@/refactored/data/morning-routine-defaults';
 import { calculateMorningRoutineProgress } from '@/refactored/utils/morning-routine-progress';
 
 // Replace the hardcoded MORNING_HABITS array with:
-const MORNING_HABITS = useImplementation(
+const MORNING_HABITS = selectImplementation(
   'useRefactoredDefaultTasks',
   getMorningHabits(), // NEW: extracted data
   [
@@ -86,7 +86,7 @@ const MORNING_HABITS = useImplementation(
 );
 
 // Replace inline progress calculation with:
-const progress = useImplementation(
+const progress = selectImplementation(
   'useRefactoredProgressCalculator',
   calculateMorningRoutineProgress(morningRoutine, MORNING_HABITS), // NEW
   // OLD: original inline calculation

@@ -1,7 +1,7 @@
 import { useCallback, Dispatch, SetStateAction } from 'react';
 import { toast } from 'sonner';
 import { TimeBlockCategory } from '@/api/timeblocksApi.offline';
-import { TimeboxTask, DragPreviewState, GapFillerState, FocusSprintType } from '../types';
+import { TimeboxTask, DragPreviewState, GapFillerState, FocusSprintType, TIMEBOX_HOUR_HEIGHT } from '../types';
 import { mapUIToCategory, formatTime, parseTimeToMinutes } from '../utils';
 
 interface UseTimeboxHandlersProps {
@@ -165,7 +165,7 @@ export const useTimeboxHandlers = ({
 
   // Handle live drag preview with 15-minute snapping
   const handleDrag = useCallback((taskId: string, info: any) => {
-    const PIXELS_PER_MINUTE = 80 / 60;
+    const PIXELS_PER_MINUTE = TIMEBOX_HOUR_HEIGHT / 60;
     const minutesMoved = Math.round(info.offset.y / PIXELS_PER_MINUTE);
 
     const task = tasks.find(t => t.id === taskId);
@@ -198,7 +198,7 @@ export const useTimeboxHandlers = ({
   // Handle drag-and-drop repositioning
   const handleDragEnd = useCallback(async (taskId: string, info: any) => {
     const dragDistance = info.offset.y;
-    const PIXELS_PER_MINUTE = 80 / 60;
+    const PIXELS_PER_MINUTE = TIMEBOX_HOUR_HEIGHT / 60;
     const minutesMoved = Math.round(dragDistance / PIXELS_PER_MINUTE);
 
     // Find the task from tasks array
@@ -369,7 +369,7 @@ export const useTimeboxHandlers = ({
     const rect = container.getBoundingClientRect();
     const clickY = e.clientY - rect.top;
 
-    const PIXELS_PER_MINUTE = 80 / 60;
+    const PIXELS_PER_MINUTE = TIMEBOX_HOUR_HEIGHT / 60;
     const clickedMinute = Math.round(clickY / PIXELS_PER_MINUTE);
 
     // Find next task after this time

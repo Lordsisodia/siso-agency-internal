@@ -275,6 +275,8 @@ export interface TaskAISuggestion {
   metadata?: Record<string, any>;
 }
 
+type PluginHandler = (...args: unknown[]) => unknown;
+
 // Plugin system types
 export interface TaskPlugin {
   name: string;
@@ -282,8 +284,8 @@ export interface TaskPlugin {
   extends: keyof Task;
   schema: z.ZodSchema;
   components?: React.ComponentType[];
-  hooks?: Function[];
-  services?: Function[];
+  hooks?: PluginHandler[];
+  services?: PluginHandler[];
   migrations?: PluginMigration[];
 }
 

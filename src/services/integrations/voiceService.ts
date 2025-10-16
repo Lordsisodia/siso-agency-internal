@@ -67,7 +67,7 @@ export class VoiceService {
     }
     
     logger.debug('✅ [VOICE AI] Speech recognition is available');
-    return true && isSecureContext;
+    return isSecureContext;
   }
 
   // Check microphone permissions with fallback methods

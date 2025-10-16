@@ -40,6 +40,7 @@
  * const { tabs, getSuggestedTab, healthStatus } = useTabConfiguration(userPermissions);
  * ```
  */
+import { tabRegistry } from './TabRegistry';
 
 // ENHANCED SYSTEM IMPORTS
 export { tabRegistry } from './TabRegistry';
@@ -171,9 +172,7 @@ export const TAB_CONFIG: Record<TabId, LegacyTabConfigInterface> = {
 function populateTabConfigFromRegistry(): void {
   try {
     // Import dynamically to avoid circular import issues
-    const registryModule = require('./TabRegistry');
-    const registry = registryModule.tabRegistry;
-    const registryTabs = registry.getAllTabs();
+    const registryTabs = tabRegistry.getAllTabs();
     
     registryTabs.forEach(tab => {
       if (TAB_CONFIG[tab.id as TabId]) {

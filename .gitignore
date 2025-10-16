@@ -43,3 +43,9 @@ src-tauri/target/
 
 /generated/prisma
 backups/
+archives/
+**/backup*/
+**/archive*/
+**/*-backup-*/
+**/*-archive-*/
+.serena/memories/

@@ -111,7 +111,7 @@ export class MCPMiddleware {
     // GitHub schemas
     this.setValidationSchema('github.createBranch', {
       pre: z.object({
-        branchName: z.string().regex(/^[a-zA-Z0-9\-_\/]+$/),
+        branchName: z.string().regex(/^[a-zA-Z0-9_/-]+$/),
         baseBranch: z.string().default('main')
       })
     });
@@ -386,7 +386,9 @@ export class MCPMiddleware {
         } else if (typeof process !== 'undefined' && typeof (process as any).cwd === 'function') {
           allowedPaths = [ (process as any).cwd() ];
         }
-      } catch {}
+      } catch (error) {
+        // Ignore environment parsing errors and fall back to defaults
+      }
       const isAllowed = allowedPaths.some(allowed => data.path.startsWith(allowed));
       
       if (!isAllowed) {

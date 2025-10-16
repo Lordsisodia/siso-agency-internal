@@ -99,12 +99,6 @@ export function useFeatures() {
         console.log('Current project ID:', projectId);
         console.log('Hardcoded project ID:', UBAHCRYPT_PROJECT_ID);
         
-        // Always use real data from database
-        if (false) { // Disabled mock data
-          console.log('Using mock feature data for development');
-          return getMockFeatures();
-        }
-        
         // Query the project_features table with proper ordering
         const { data, error } = await supabase
           .from('project_features')
@@ -262,25 +256,28 @@ function filterFeatures(features: Feature[], filter: FeatureFilter): Feature[] {
 function sortFeatures(features: Feature[], sortBy: SortOption): Feature[] {
   return [...features].sort((a, b) => {
     switch (sortBy) {
-      case 'priority':
+      case 'priority': {
         // Sort by priority (high, medium, low)
         const priorityOrder = { high: 0, medium: 1, low: 2 };
         return priorityOrder[a.priority] - priorityOrder[b.priority];
-      case 'difficulty':
+      }
+      case 'difficulty': {
         // Sort by difficulty (high, medium, low)
         const difficultyOrder = { high: 0, medium: 1, low: 2 };
         return difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
+      }
       case 'cost':
         // Sort by estimated cost (high to low)
         return b.estimated_cost - a.estimated_cost;
       case 'title':
         // Sort alphabetically by title
         return a.title.localeCompare(b.title);
-      case 'timeline':
+      case 'timeline': {
         // Sort by timeline_week (if available)
         const timelineA = a.timeline_week || Infinity;
         const timelineB = b.timeline_week || Infinity;
         return timelineA - timelineB;
+      }
       default:
         return 0;
     }

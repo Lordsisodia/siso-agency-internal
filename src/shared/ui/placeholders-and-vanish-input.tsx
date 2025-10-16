@@ -34,19 +34,25 @@ export function PlaceholdersAndVanishInput({
   }, [externalValue]);
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const startAnimation = () => {
+  const placeholdersCount = placeholders.length;
+
+  const startAnimation = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
     intervalRef.current = setInterval(() => {
-      setCurrentPlaceholder((prev) => (prev + 1) % placeholders.length);
+      setCurrentPlaceholder((prev) => (prev + 1) % placeholdersCount);
     }, 3000);
-  };
-  const handleVisibilityChange = () => {
+  }, [placeholdersCount]);
+
+  const handleVisibilityChange = useCallback(() => {
     if (document.visibilityState !== "visible" && intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     } else if (document.visibilityState === "visible") {
       startAnimation();
     }
-  };
+  }, [startAnimation]);
 
   useEffect(() => {
     startAnimation();
@@ -58,7 +64,7 @@ export function PlaceholdersAndVanishInput({
       }
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [placeholders]);
+  }, [handleVisibilityChange, startAnimation]);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const newDataRef = useRef<any[]>([]);
@@ -189,13 +195,13 @@ export function PlaceholdersAndVanishInput({
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     vanishAndSubmit();
-    onSubmit && onSubmit(e);
+    onSubmit?.(e);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!animating) {
       setValue(e.target.value);
-      onChange && onChange(e);
+      onChange?.(e);
     }
   };
 
