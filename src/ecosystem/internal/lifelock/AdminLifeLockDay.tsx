@@ -13,6 +13,7 @@ import { LoadingState } from '@/shared/ui/loading-state';
 import { selectImplementation } from '@/migration/feature-flags';
 import { calculateDayCompletionPercentage } from '@/utils/dayProgress';
 import { DailyXPSummaryWidget } from './components/DailyXPSummaryWidget';
+import { useTodayXP } from './hooks/useTodayXP';
 
 const AdminLifeLockDay: React.FC = () => {
   const navigate = useNavigate();
@@ -23,6 +24,9 @@ const AdminLifeLockDay: React.FC = () => {
 
   // 🎮 Initialize XP/Gamification system
   useGamificationInit();
+
+  // 🎮 Get today's XP breakdown
+  const todayXP = useTodayXP(selectedDate);
 
   // State for real-time day progress updates (same as AdminLifeLock.tsx)
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -159,16 +163,15 @@ return (
         dayCompletionPercentage={dayCompletionPercentage}
       />
 
-      {/* XP Summary Widget - Collapsible */}
+      {/* XP Summary Widget - Collapsible with REAL DATA */}
       <div className="max-w-7xl mx-auto px-4 pb-6">
         <DailyXPSummaryWidget
           date={selectedDate}
-          // TODO: Pass actual XP values from each section when available
-          morningXP={0}
-          lightWorkXP={0}
-          deepWorkXP={0}
-          wellnessXP={0}
-          checkoutXP={0}
+          morningXP={todayXP.morningXP}
+          lightWorkXP={todayXP.lightWorkXP}
+          deepWorkXP={todayXP.deepWorkXP}
+          wellnessXP={todayXP.wellnessXP}
+          checkoutXP={todayXP.checkoutXP}
         />
       </div>
 

@@ -70,6 +70,14 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
 
   const dateString = selectedDate?.toISOString()?.split('T')[0] || new Date().toISOString().split('T')[0];
 
+  const getIsOnline = useCallback(() => {
+    if (typeof window === 'undefined') {
+      return false;
+    }
+
+    return window.navigator?.onLine ?? false;
+  }, []);
+
   type OfflineDeepWorkTaskRecord = Parameters<typeof offlineDb.saveDeepWorkTask>[0];
 
   const mapToOfflineDeepWorkTask = useCallback((task: DeepWorkTask): OfflineDeepWorkTaskRecord => ({
@@ -241,7 +249,7 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
       setLoading(false);
     }
     // No finally block - loading is set false immediately after IndexedDB load
-  }, [isSignedIn, internalUserId, dateString, supabase]);
+  }, [isSignedIn, internalUserId, dateString, supabase, getIsOnline]);
 
   // Create new deep work task - OFFLINE-FIRST
   const createTask = useCallback(async (taskData: Partial<DeepWorkTask>) => {
@@ -341,7 +349,7 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
       setError(error instanceof Error ? error.message : 'Failed to create task in Supabase');
       return null;
     }
-  }, [internalUserId, dateString, supabase]);
+  }, [internalUserId, dateString, supabase, getIsOnline]);
 
   // Toggle task completion in Supabase
   const toggleTaskCompletion = useCallback(async (taskId: string) => {
@@ -401,7 +409,7 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
     setError(null);
     await applyDeepWorkTaskUpdate(optimisticTask, true);
     return optimisticTask;
-  }, [applyDeepWorkTaskUpdate, supabase, tasks]);
+  }, [applyDeepWorkTaskUpdate, supabase, tasks, getIsOnline]);
 
   // Add subtask to task in Supabase
   const addSubtask = useCallback(async (taskId: string, subtaskTitle: string, priority = 'HIGH') => {
@@ -617,7 +625,7 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
     setError(null);
     await applyDeepWorkTaskUpdate(optimisticTask, true);
     return true;
-  }, [applyDeepWorkTaskUpdate, supabase, tasks]);
+  }, [applyDeepWorkTaskUpdate, supabase, tasks, getIsOnline]);
 
   const updateTaskPriority = useCallback(async (taskId: string, priority: 'low' | 'medium' | 'high' | 'urgent') => {
     const currentTask = tasks.find(task => task.id === taskId);
@@ -662,7 +670,7 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
     setError(null);
     await applyDeepWorkTaskUpdate(optimisticTask, true);
     return true;
-  }, [applyDeepWorkTaskUpdate, supabase, tasks]);
+  }, [applyDeepWorkTaskUpdate, supabase, tasks, getIsOnline]);
 
   const updateTaskTimeEstimate = useCallback(async (taskId: string, timeEstimate: string | null) => {
     const currentTask = tasks.find(task => task.id === taskId);
@@ -706,7 +714,7 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
     setError(null);
     await applyDeepWorkTaskUpdate(optimisticTask, true);
     return true;
-  }, [applyDeepWorkTaskUpdate, supabase, tasks]);
+  }, [applyDeepWorkTaskUpdate, supabase, tasks, getIsOnline]);
 
   // Push task to another day (reschedule)
   const pushTaskToAnotherDay = useCallback(async (taskId: string, newDate: string) => {
@@ -757,7 +765,7 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
       task.id === taskId ? { ...task, isPushed: true } : task
     ));
     return true;
-  }, [applyDeepWorkTaskUpdate, supabase, tasks]);
+  }, [applyDeepWorkTaskUpdate, supabase, tasks, getIsOnline]);
 
   // Update task due date (works on both tasks and subtasks)
   const updateTaskDueDate = useCallback(async (taskOrSubtaskId: string, dueDate: Date | null) => {
@@ -841,7 +849,7 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
 
     console.warn('⚠️ Unable to queue offline due date update for Deep Work subtask without Supabase connection');
     return null;
-  }, [applyDeepWorkTaskUpdate, supabase, tasks]);
+  }, [applyDeepWorkTaskUpdate, supabase, tasks, getIsOnline]);
 
   // Update subtask title in Supabase
   const updateSubtaskTitle = useCallback(async (subtaskId: string, newTitle: string) => {

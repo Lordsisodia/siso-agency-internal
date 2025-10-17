@@ -64,6 +64,14 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
 
   const dateString = selectedDate?.toISOString()?.split('T')[0] || new Date().toISOString().split('T')[0];
 
+  const getIsOnline = useCallback(() => {
+    if (typeof window === 'undefined') {
+      return false;
+    }
+
+    return window.navigator?.onLine ?? false;
+  }, []);
+
   type OfflineLightWorkTaskRecord = Parameters<typeof offlineDb.saveLightWorkTask>[0];
 
   const mapToOfflineLightWorkTask = useCallback((task: LightWorkTask): OfflineLightWorkTaskRecord => ({
@@ -217,7 +225,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
       setLoading(false);
     }
     // No finally block - loading is set false immediately after IndexedDB load
-  }, [isSignedIn, internalUserId, dateString, supabase]);
+  }, [isSignedIn, internalUserId, dateString, supabase, getIsOnline]);
 
   // Create new light work task - OFFLINE-FIRST
   const createTask = useCallback(async (taskData: Partial<LightWorkTask>) => {
@@ -303,7 +311,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
       setError(error instanceof Error ? error.message : 'Failed to create task');
       return null;
     }
-  }, [internalUserId, dateString, supabase]);
+  }, [internalUserId, dateString, supabase, getIsOnline]);
 
   // Toggle task completion in Supabase with offline fallback
   const toggleTaskCompletion = useCallback(async (taskId: string) => {
@@ -363,7 +371,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
     setError(null);
     await applyLightWorkTaskUpdate(optimisticTask, true);
     return optimisticTask;
-  }, [applyLightWorkTaskUpdate, supabase, tasks]);
+  }, [applyLightWorkTaskUpdate, supabase, tasks, getIsOnline]);
 
   // Add subtask to task in Supabase
   const addSubtask = useCallback(async (taskId: string, subtaskTitle: string, priority = 'Med') => {
@@ -543,7 +551,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
     setError(null);
     await applyLightWorkTaskUpdate(optimisticTask, true);
     return true;
-  }, [applyLightWorkTaskUpdate, supabase, tasks]);
+  }, [applyLightWorkTaskUpdate, supabase, tasks, getIsOnline]);
 
   // Push task to another day (reschedule)
   const pushTaskToAnotherDay = useCallback(async (taskId: string, newDate: string) => {
@@ -594,7 +602,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
       task.id === taskId ? { ...task, isPushed: true } : task
     ));
     return true;
-  }, [applyLightWorkTaskUpdate, supabase, tasks]);
+  }, [applyLightWorkTaskUpdate, supabase, tasks, getIsOnline]);
 
   const updateTaskDueDate = useCallback(async (taskId: string, dueDate: Date | null) => {
     const currentTask = tasks.find(task => task.id === taskId);
@@ -647,7 +655,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
     setError(null);
     await applyLightWorkTaskUpdate(optimisticTask, true);
     return optimisticTask;
-  }, [applyLightWorkTaskUpdate, supabase, tasks]);
+  }, [applyLightWorkTaskUpdate, supabase, tasks, getIsOnline]);
 
   // Delete subtask from Supabase
   const deleteSubtask = useCallback(async (subtaskId: string) => {
