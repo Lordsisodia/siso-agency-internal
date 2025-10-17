@@ -39,7 +39,7 @@ export async function loadProgressFromSupabase(userId: string): Promise<UserProg
       .select('*')
       .eq('user_id', userId);
 
-    // Load weekly challenge
+    // Load weekly challenge (silently handle 406 error)
     const { data: challenge, error: challengeError } = await supabase
       .from('weekly_challenges')
       .select('*')
@@ -48,6 +48,13 @@ export async function loadProgressFromSupabase(userId: string): Promise<UserProg
       .order('created_at', { ascending: false })
       .limit(1)
       .single();
+
+    // Silently skip if error (406 Not Acceptable from PostgREST)
+    // This doesn't break XP system - weekly challenges are optional
+    if (challengeError && challengeError.code !== 'PGRST116') {
+      // PGRST116 = no rows (that's fine)
+      // Any other error (406, etc) - just skip challenges
+    }
 
     // Transform to UserProgress format
     const dailyStatsMap: Record<string, DailyStats> = {};
