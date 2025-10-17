@@ -37,6 +37,8 @@ export interface UseAutoTimeblocksOptions {
   enabled?: boolean;
   /** Debounce delay in milliseconds (default: 1000) */
   debounceMs?: number;
+  /** Callback when auto timeboxes are successfully created/updated */
+  onAutoBlocksUpdated?: () => void;
 }
 
 /**
@@ -48,7 +50,8 @@ export function useAutoTimeblocks(options: UseAutoTimeblocksOptions): void {
     userId,
     selectedDate,
     enabled = true,
-    debounceMs = 1000
+    debounceMs = 1000,
+    onAutoBlocksUpdated
   } = options;
 
   // Refs to track previous values and prevent duplicate calls
@@ -95,6 +98,10 @@ export function useAutoTimeblocks(options: UseAutoTimeblocksOptions): void {
             description: 'Morning routine and nightly checkout added to your schedule',
             duration: 3000
           });
+
+          if (onAutoBlocksUpdated) {
+            onAutoBlocksUpdated();
+          }
         } else {
           // Partial or full failure
           console.error('Auto-timebox creation failed:', result);
@@ -122,7 +129,7 @@ export function useAutoTimeblocks(options: UseAutoTimeblocksOptions): void {
         clearTimeout(debounceTimerRef.current);
       }
     };
-  }, [wakeUpTime, userId, selectedDate, enabled, debounceMs]);
+  }, [wakeUpTime, userId, selectedDate, enabled, debounceMs, onAutoBlocksUpdated]);
 
   // Sync previous wake-up time when component mounts or date changes
   useEffect(() => {

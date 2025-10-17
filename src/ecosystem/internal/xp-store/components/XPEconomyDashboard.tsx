@@ -18,38 +18,33 @@ import {
   Target,
   Zap,
   Trophy,
-  Gift,
-  Calendar
+  Gift
 } from 'lucide-react';
 import { XPStoreBalance } from './XPStoreBalance';
 import { RewardCatalog } from './RewardCatalog';
 import { PurchaseDialog } from './PurchaseDialog';
 import { PurchaseHistory } from './PurchaseHistory';
 import { XPAnalytics } from './XPAnalytics';
-import { useXPStore } from '@/ecosystem/internal/xp-store/hooks/useXPStore';
+import { useXPStoreContext } from '@/ecosystem/internal/xp-store/context/XPStoreContext';
 import { cn } from '@/shared/lib/utils';
 
 interface XPEconomyDashboardProps {
-  userId: string;
   className?: string;
 }
 
-export const XPEconomyDashboard = ({ userId, className }: XPEconomyDashboardProps) => {
+export const XPEconomyDashboard = ({ className }: XPEconomyDashboardProps) => {
   const [selectedTab, setSelectedTab] = useState('overview');
   const [selectedReward, setSelectedReward] = useState<any>(null);
   const [showPurchaseDialog, setShowPurchaseDialog] = useState(false);
 
-  const { 
-    balance, 
-    rewards, 
-    purchaseReward, 
+  const {
+    balance,
+    rewards,
+    purchaseReward,
     purchaseHistory,
-    analytics,
-    loading,
-    error,
     getNearMissNotifications,
     getSpendingPower
-  } = useXPStore(userId);
+  } = useXPStoreContext();
 
   const handlePurchase = (rewardId: string) => {
     const reward = rewards?.find(r => r.id === rewardId);
@@ -69,17 +64,17 @@ export const XPEconomyDashboard = ({ userId, className }: XPEconomyDashboardProp
   return (
     <div className={cn("space-y-6", className)}>
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-siso-text-bold">XP Store</h1>
-          <p className="text-siso-text-muted">
+          <h1 className="text-3xl font-bold text-siso-text-bold md:text-4xl">XP Store</h1>
+          <p className="text-siso-text-muted text-sm sm:text-base">
             Your earned indulgence economy - transforming productivity into pleasure
           </p>
         </div>
         
         {balance && (
-          <div className="text-right">
-            <div className="text-2xl font-bold text-siso-orange">
+          <div className="md:text-right">
+            <div className="text-2xl font-bold text-siso-orange sm:text-3xl">
               {balance.canSpend.toLocaleString()} XP
             </div>
             <div className="text-sm text-siso-text-muted">Available to spend</div>
@@ -89,22 +84,23 @@ export const XPEconomyDashboard = ({ userId, className }: XPEconomyDashboardProp
 
       {/* Quick Stats */}
       {balance && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <Card className="bg-gradient-to-br from-green-500/10 to-green-600/5 border-green-500/20">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2">
-                  <Wallet className="h-5 w-5 text-green-400" />
-                  <div>
-                    <div className="text-lg font-bold text-green-400">
-                      {spendingPower.canAfford.length}
-                    </div>
-                    <div className="text-xs text-green-400/70">Can Afford</div>
+            <Card className="border border-siso-border bg-siso-bg">
+              <CardContent className="p-4 flex items-center justify-between">
+                <div>
+                  <div className="text-xs uppercase tracking-wide text-siso-text-muted">Rewards Ready</div>
+                  <div className="mt-2 text-2xl font-semibold text-siso-text">
+                    {spendingPower.canAfford.length}
                   </div>
+                  <div className="text-xs text-siso-text-muted mt-1">Redeemable right now</div>
+                </div>
+                <div className="h-10 w-10 rounded-full bg-green-500/10 flex items-center justify-center">
+                  <Gift className="h-5 w-5 text-green-400" />
                 </div>
               </CardContent>
             </Card>
@@ -115,16 +111,17 @@ export const XPEconomyDashboard = ({ userId, className }: XPEconomyDashboardProp
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <Card className="bg-gradient-to-br from-orange-500/10 to-orange-600/5 border-orange-500/20">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2">
-                  <Target className="h-5 w-5 text-orange-400" />
-                  <div>
-                    <div className="text-lg font-bold text-orange-400">
-                      {spendingPower.almostAfford.length}
-                    </div>
-                    <div className="text-xs text-orange-400/70">Almost There</div>
+            <Card className="border border-siso-border bg-siso-bg">
+              <CardContent className="p-4 flex items-center justify-between">
+                <div>
+                  <div className="text-xs uppercase tracking-wide text-siso-text-muted">Spendable XP</div>
+                  <div className="mt-2 text-2xl font-semibold text-siso-text">
+                    {balance.canSpend.toLocaleString()}
                   </div>
+                  <div className="text-xs text-siso-text-muted mt-1">Safe to trade without touching reserves</div>
+                </div>
+                <div className="h-10 w-10 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                  <Wallet className="h-5 w-5 text-emerald-300" />
                 </div>
               </CardContent>
             </Card>
@@ -135,16 +132,17 @@ export const XPEconomyDashboard = ({ userId, className }: XPEconomyDashboardProp
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <Card className="bg-gradient-to-br from-purple-500/10 to-purple-600/5 border-purple-500/20">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2">
-                  <Trophy className="h-5 w-5 text-purple-400" />
-                  <div>
-                    <div className="text-lg font-bold text-purple-400">
-                      {balance.totalEarned.toLocaleString()}
-                    </div>
-                    <div className="text-xs text-purple-400/70">Total Earned</div>
+            <Card className="border border-siso-border bg-siso-bg">
+              <CardContent className="p-4 flex items-center justify-between">
+                <div>
+                  <div className="text-xs uppercase tracking-wide text-siso-text-muted">Almost Unlocked</div>
+                  <div className="mt-2 text-2xl font-semibold text-siso-text">
+                    {Math.min(nearMissNotifications.length, 3)}
                   </div>
+                  <div className="text-xs text-siso-text-muted mt-1">Rewards within striking distance</div>
+                </div>
+                <div className="h-10 w-10 rounded-full bg-orange-500/10 flex items-center justify-center">
+                  <Zap className="h-5 w-5 text-orange-400" />
                 </div>
               </CardContent>
             </Card>
@@ -155,16 +153,19 @@ export const XPEconomyDashboard = ({ userId, className }: XPEconomyDashboardProp
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <Card className="bg-gradient-to-br from-blue-500/10 to-blue-600/5 border-blue-500/20">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2">
-                  <Gift className="h-5 w-5 text-blue-400" />
-                  <div>
-                    <div className="text-lg font-bold text-blue-400">
-                      {purchaseHistory?.length || 0}
-                    </div>
-                    <div className="text-xs text-blue-400/70">Rewards Enjoyed</div>
+            <Card className="border border-siso-border bg-siso-bg">
+              <CardContent className="p-4 flex items-center justify-between">
+                <div>
+                  <div className="text-xs uppercase tracking-wide text-siso-text-muted">Lifetime XP</div>
+                  <div className="mt-2 text-2xl font-semibold text-siso-text">
+                    {balance.totalEarned.toLocaleString()}
                   </div>
+                  <div className="text-xs text-siso-text-muted mt-1">
+                    {purchaseHistory?.length || 0} rewards enjoyed so far
+                  </div>
+                </div>
+                <div className="h-10 w-10 rounded-full bg-purple-500/10 flex items-center justify-center">
+                  <Trophy className="h-5 w-5 text-purple-300" />
                 </div>
               </CardContent>
             </Card>
@@ -200,33 +201,33 @@ export const XPEconomyDashboard = ({ userId, className }: XPEconomyDashboardProp
 
       {/* Main Content Tabs */}
       <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 bg-siso-bg-alt border border-siso-border">
+        <TabsList className="flex w-full flex-wrap gap-2 bg-siso-bg-alt border border-siso-border p-2 sm:flex-nowrap sm:p-1">
           <TabsTrigger 
             value="overview" 
-            className="data-[state=active]:bg-siso-orange data-[state=active]:text-white"
+            className="flex-1 min-w-[48%] sm:min-w-0 flex items-center justify-center gap-1 rounded-md px-3 py-2 text-sm sm:text-base data-[state=active]:bg-siso-orange data-[state=active]:text-white"
           >
-            <Wallet className="h-4 w-4 mr-2" />
+            <Wallet className="h-4 w-4 mr-1 sm:mr-2" />
             Balance
           </TabsTrigger>
           <TabsTrigger 
             value="store" 
-            className="data-[state=active]:bg-siso-orange data-[state=active]:text-white"
+            className="flex-1 min-w-[48%] sm:min-w-0 flex items-center justify-center gap-1 rounded-md px-3 py-2 text-sm sm:text-base data-[state=active]:bg-siso-orange data-[state=active]:text-white"
           >
-            <ShoppingCart className="h-4 w-4 mr-2" />
+            <ShoppingCart className="h-4 w-4 mr-1 sm:mr-2" />
             Store
           </TabsTrigger>
           <TabsTrigger 
             value="history" 
-            className="data-[state=active]:bg-siso-orange data-[state=active]:text-white"
+            className="flex-1 min-w-[48%] sm:min-w-0 flex items-center justify-center gap-1 rounded-md px-3 py-2 text-sm sm:text-base data-[state=active]:bg-siso-orange data-[state=active]:text-white"
           >
-            <History className="h-4 w-4 mr-2" />
+            <History className="h-4 w-4 mr-1 sm:mr-2" />
             History
           </TabsTrigger>
           <TabsTrigger 
             value="analytics" 
-            className="data-[state=active]:bg-siso-orange data-[state=active]:text-white"
+            className="flex-1 min-w-[48%] sm:min-w-0 flex items-center justify-center gap-1 rounded-md px-3 py-2 text-sm sm:text-base data-[state=active]:bg-siso-orange data-[state=active]:text-white"
           >
-            <TrendingUp className="h-4 w-4 mr-2" />
+            <TrendingUp className="h-4 w-4 mr-1 sm:mr-2" />
             Analytics
           </TabsTrigger>
         </TabsList>
@@ -240,7 +241,7 @@ export const XPEconomyDashboard = ({ userId, className }: XPEconomyDashboardProp
             >
               {/* Balance Component */}
               <div className="lg:col-span-2">
-                <XPStoreBalance userId={userId} />
+                <XPStoreBalance />
               </div>
 
               {/* Quick Actions */}
@@ -337,7 +338,7 @@ export const XPEconomyDashboard = ({ userId, className }: XPEconomyDashboardProp
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <RewardCatalog userId={userId} onPurchase={handlePurchase} />
+              <RewardCatalog onPurchase={handlePurchase} />
             </motion.div>
           </TabsContent>
 
@@ -346,7 +347,7 @@ export const XPEconomyDashboard = ({ userId, className }: XPEconomyDashboardProp
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <PurchaseHistory userId={userId} />
+              <PurchaseHistory />
             </motion.div>
           </TabsContent>
 
@@ -355,7 +356,7 @@ export const XPEconomyDashboard = ({ userId, className }: XPEconomyDashboardProp
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <XPAnalytics userId={userId} />
+              <XPAnalytics />
             </motion.div>
           </TabsContent>
         </div>

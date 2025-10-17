@@ -62,13 +62,15 @@ interface QuickTaskSchedulerProps {
   onClose: () => void;
   selectedDate: Date;
   onScheduleTask: (task: Task | Subtask, timeSlot: TimeSlot, taskType: 'light' | 'deep') => void;
+  onScheduleAndOpenTimer?: (task: Task | Subtask, taskType: 'light' | 'deep', estimatedDuration: number) => void;
 }
 
 const QuickTaskScheduler: React.FC<QuickTaskSchedulerProps> = ({
   isOpen,
   onClose,
   selectedDate,
-  onScheduleTask
+  onScheduleTask,
+  onScheduleAndOpenTimer
 }) => {
   // State management
   const [activeTab, setActiveTab] = useState<'light' | 'deep'>('light');
@@ -172,6 +174,11 @@ const QuickTaskScheduler: React.FC<QuickTaskSchedulerProps> = ({
     try {
       const timeSlot = generateTimeSlot(task, taskType);
       await onScheduleTask(task, timeSlot, taskType);
+
+      if (onScheduleAndOpenTimer) {
+        const estimated = estimateTaskDuration(task, taskType);
+        onScheduleAndOpenTimer(task, taskType, estimated);
+      }
 
       // Success feedback
       setTimeout(() => {

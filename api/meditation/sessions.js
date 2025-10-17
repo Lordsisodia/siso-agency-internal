@@ -7,9 +7,30 @@
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://avdgyrepwrvsvwgxrccr.supabase.co';
-const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2ZGd5cmVwd3J2c3Z3Z3hyY2NyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM2MzgwODIsImV4cCI6MjA1OTIxNDA4Mn0.8MZ2etAhQ1pTJnK84uoqAFfUirv_kaoYcmKHhKgLAWU';
+const serviceRoleKey =
+  process.env.SUPABASE_SERVICE_ROLE_KEY ||
+  process.env.SUPABASE_SERVICE_KEY ||
+  process.env.VITE_SUPABASE_SERVICE_ROLE_KEY ||
+  process.env.VITE_SUPABASE_SERVICE_KEY;
+const anonKey =
+  process.env.VITE_SUPABASE_ANON_KEY ||
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2ZGd5cmVwd3J2c3Z3Z3hyY2NyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM2MzgwODIsImV4cCI6MjA1OTIxNDA4Mn0.8MZ2etAhQ1pTJnK84uoqAFfUirv_kaoYcmKHhKgLAWU';
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabaseKey = serviceRoleKey || anonKey;
+
+if (!serviceRoleKey) {
+  console.warn(
+    '[meditation-sessions] Service role key missing - falling back to anon key. RLS-protected writes may fail.'
+  );
+}
+
+const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    persistSession: false,
+    autoRefreshToken: false
+  }
+});
 
 // Helper function to convert Clerk user ID to Supabase UUID
 async function getSupabaseUserId(clerkUserId) {
@@ -139,6 +160,12 @@ export default async function handler(req, res) {
 
         if (createError) {
           console.error('Supabase create error:', createError);
+          if (createError.code === '42501') {
+            return res.status(403).json({
+              error:
+                'Supabase row-level security blocked the insert. Set SUPABASE_SERVICE_ROLE_KEY for serverless functions or update RLS policies.'
+            });
+          }
           return res.status(500).json({ error: 'Database error' });
         }
 

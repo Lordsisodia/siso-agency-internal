@@ -275,7 +275,7 @@ class OfflineLifeLockApi {
   }
 
   async forceSync(): Promise<void> {
-    await syncService.forcSync();
+    await syncService.forceSync();
   }
 
   // ===== OFFLINE UTILITIES =====

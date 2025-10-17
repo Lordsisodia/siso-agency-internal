@@ -27,6 +27,8 @@ import {
   getPercentColorClass,
   getProgressGradient,
 } from './components/WorkoutItemCard';
+import { XPPill } from '@/ecosystem/internal/lifelock/views/daily/morning-routine/components/XPPill';
+import { calculateTotalWorkoutXP } from '@/ecosystem/internal/lifelock/views/daily/wellness/xpCalculations';
 
 type WorkoutItemRow = Database['public']['Tables']['workout_items']['Row'];
 
@@ -211,6 +213,8 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({ selected
   }, [loadWorkoutItems]);
 
   const updateItem = useCallback(async (id: string, updates: Partial<WorkoutItem>) => {
+    if (!internalUserId) return;
+
     setWorkoutItems((prev) => prev.map((item) => (item.id === id ? { ...item, ...updates } : item)));
 
     if (id.startsWith('temp-')) {
@@ -218,14 +222,18 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({ selected
     }
 
     try {
-      const updated = await supabaseWorkoutService.updateWorkoutItem(id, updates);
+      const updated = await supabaseWorkoutService.updateWorkoutItem(id, {
+        ...updates,
+        user_id: internalUserId,
+        workout_date: dateKey,
+      });
       setWorkoutItems((prev) =>
         prev.map((item) => (item.id === id ? mapWorkoutRowToItem(updated) : item)),
       );
     } catch (error) {
       console.error('Failed to update workout item:', error);
     }
-  }, []);
+  }, [dateKey, internalUserId]);
 
   const normalizedItems = useMemo<WorkoutExerciseDisplay[]>(
     () =>

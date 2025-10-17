@@ -3,45 +3,42 @@
  * Complete XP economy interface separate from life log tracking
  */
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useUser } from '@clerk/clerk-react';
-import { useXPStore } from '@/ecosystem/internal/xp-store/hooks/useXPStore';
-import { XPEconomyDashboard } from '@/internal/xp-store/XPEconomyDashboard';
-import { XPStoreBalance } from '@/internal/xp-store/XPStoreBalance';
-import { RewardCatalog } from '@/internal/xp-store/RewardCatalog';
-import { PurchaseHistory } from '@/internal/xp-store/PurchaseHistory';
-import { XPAnalytics } from '@/internal/xp-store/XPAnalytics';
+import { XPEconomyDashboard } from '@/internal/xp-store/components/XPEconomyDashboard';
+import { XPStoreBalance } from '@/internal/xp-store/components/XPStoreBalance';
+import { PurchaseHistory } from '@/internal/xp-store/components/PurchaseHistory';
+import { XPAnalytics } from '@/internal/xp-store/components/XPAnalytics';
 import { Card, CardContent } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
 import { Badge } from '@/shared/ui/badge';
-import { 
-  ShoppingCart, 
-  Coins, 
-  BarChart3, 
+import {
+  ShoppingCart,
+  Coins,
+  BarChart3,
   History,
-  ArrowLeft,
   Sparkles,
   Target,
-  Trophy
+  Trophy,
+  Zap,
 } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
+import { XPStoreProvider, useXPStoreContext } from '@/ecosystem/internal/xp-store/context/XPStoreContext';
+import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
 
 const XPStorePage = () => {
   const { section } = useParams<{ section?: string }>();
   const { user } = useUser();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState(section || 'store');
-  
-  // Get XP Store data for header display
-  const { balance } = useXPStore(user?.id || '');
 
   useEffect(() => {
     if (section && section !== activeSection) {
       setActiveSection(section);
     }
-  }, [section]);
+  }, [section, activeSection]);
 
   const handleSectionChange = (newSection: string) => {
     setActiveSection(newSection);
@@ -64,166 +61,133 @@ const XPStorePage = () => {
     );
   }
 
-  const userId = user.id;
+  return (
+    <AdminLayout>
+      <XPStoreProvider userId={user.id}>
+        <XPStoreContent activeSection={activeSection} onSectionChange={handleSectionChange} />
+      </XPStoreProvider>
+    </AdminLayout>
+  );
+};
+
+interface XPStoreContentProps {
+  activeSection: string;
+  onSectionChange: (section: string) => void;
+}
+
+const XPStoreContent = ({ activeSection, onSectionChange }: XPStoreContentProps) => {
+  const { balance } = useXPStoreContext();
 
   return (
     <div className="min-h-screen bg-siso-bg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          {/* Breadcrumb Navigation */}
-          <div className="flex items-center gap-2 mb-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/home')}
-              className="text-siso-text-muted hover:text-siso-text"
-            >
-              <ArrowLeft className="h-4 w-4 mr-1" />
-              Back to Dashboard
-            </Button>
-            <span className="text-siso-text-muted">/</span>
-            <span className="text-siso-text font-medium">XP Store</span>
-            {activeSection !== 'store' && (
-              <>
-                <span className="text-siso-text-muted">/</span>
-                <span className="text-siso-text-muted capitalize">{activeSection}</span>
-              </>
-            )}
-          </div>
-
-          {/* Page Header */}
-          <div className="flex items-center justify-between">
-            <div className="space-y-2">
+          <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
+            <div className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="h-12 w-12 bg-gradient-to-br from-siso-orange to-siso-red rounded-lg flex items-center justify-center">
+                <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-siso-orange to-siso-red flex items-center justify-center shadow-lg shadow-siso-orange/30">
                   <ShoppingCart className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-3xl font-bold text-siso-text-bold">XP Store</h1>
+                  <h1 className="text-3xl font-bold text-siso-text-bold md:text-4xl">XP Store</h1>
                   <p className="text-siso-text-muted">
-                    Your earned indulgence economy - transforming productivity into pleasure
+                    Trade verified progress for restorative rewards and strategic upgrades.
                   </p>
                 </div>
               </div>
-              
-              {/* Psychology Tagline */}
-              <div className="flex items-center gap-2 mt-3">
-                <Badge className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 border-purple-500/20">
+
+              <div className="flex flex-wrap gap-2">
+                <Badge className="bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-orange-500/20 text-purple-200 border-transparent">
                   <Sparkles className="h-3 w-3 mr-1" />
-                  Psychology-Optimized Rewards
+                  Psychology Calibrated
                 </Badge>
                 <Badge variant="outline" className="border-siso-border text-siso-text-muted">
                   <Target className="h-3 w-3 mr-1" />
-                  Guilt-Free Indulgence
+                  Earned Indulgence
                 </Badge>
                 <Badge variant="outline" className="border-siso-border text-siso-text-muted">
                   <Trophy className="h-3 w-3 mr-1" />
-                  Earned Through Work
+                  Streak-Aware Pricing
                 </Badge>
               </div>
             </div>
 
-            {/* Quick Stats - Only show on main store page */}
-            {activeSection === 'store' && balance && (
-              <div className="hidden lg:flex items-center gap-4">
-                <div className="text-right">
-                  <div className="text-sm text-siso-text-muted">Available to Spend</div>
-                  <div className="text-2xl font-bold text-siso-orange">
-                    {balance.canSpend.toLocaleString()} XP
+            <div className="w-full sm:w-auto">
+              <Card className="border-siso-border bg-siso-bg-alt/80">
+                <CardContent className="p-5">
+                  <div className="text-xs uppercase tracking-wide text-siso-text-muted">Spendable XP</div>
+                  <div className="mt-2 text-3xl font-bold text-siso-orange">
+                    {balance ? balance.canSpend.toLocaleString() : '—'}
                   </div>
-                </div>
-              </div>
-            )}
+                  <div className="mt-2 flex items-center gap-2 text-xs text-siso-text-muted">
+                    <Zap className="h-3 w-3" />
+                    {balance
+                      ? 'Updated live from your most recent sync.'
+                      : 'We’ll sync your XP the moment data loads.'}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </motion.div>
 
-        {/* Section Navigation */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           className="mb-8"
         >
-          <div className="flex items-center gap-2 bg-siso-bg-alt rounded-lg p-1 border border-siso-border">
-            <Button
-              variant={activeSection === 'store' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => handleSectionChange('store')}
-              className={cn(
-                activeSection === 'store' && 'bg-siso-orange text-white hover:bg-siso-red'
-              )}
-            >
-              <ShoppingCart className="h-4 w-4 mr-2" />
-              Store
-            </Button>
-            <Button
-              variant={activeSection === 'balance' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => handleSectionChange('balance')}
-              className={cn(
-                activeSection === 'balance' && 'bg-siso-orange text-white hover:bg-siso-red'
-              )}
-            >
-              <Coins className="h-4 w-4 mr-2" />
-              Balance
-            </Button>
-            <Button
-              variant={activeSection === 'history' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => handleSectionChange('history')}
-              className={cn(
-                activeSection === 'history' && 'bg-siso-orange text-white hover:bg-siso-red'
-              )}
-            >
-              <History className="h-4 w-4 mr-2" />
-              History
-            </Button>
-            <Button
-              variant={activeSection === 'analytics' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => handleSectionChange('analytics')}
-              className={cn(
-                activeSection === 'analytics' && 'bg-siso-orange text-white hover:bg-siso-red'
-              )}
-            >
-              <BarChart3 className="h-4 w-4 mr-2" />
-              Analytics
-            </Button>
+          <div className="flex flex-wrap gap-2 rounded-xl border border-siso-border bg-siso-bg-alt p-1">
+            <XPStoreNavButton
+              icon={<ShoppingCart className="h-4 w-4" />}
+              label="Store"
+              isActive={activeSection === 'store'}
+              onClick={() => onSectionChange('store')}
+            />
+            <XPStoreNavButton
+              icon={<Coins className="h-4 w-4" />}
+              label="Balance"
+              isActive={activeSection === 'balance'}
+              onClick={() => onSectionChange('balance')}
+            />
+            <XPStoreNavButton
+              icon={<History className="h-4 w-4" />}
+              label="History"
+              isActive={activeSection === 'history'}
+              onClick={() => onSectionChange('history')}
+            />
+            <XPStoreNavButton
+              icon={<BarChart3 className="h-4 w-4" />}
+              label="Analytics"
+              isActive={activeSection === 'analytics'}
+              onClick={() => onSectionChange('analytics')}
+            />
           </div>
         </motion.div>
 
-        {/* Main Content */}
         <motion.div
           key={activeSection}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          {activeSection === 'store' && (
-            <XPEconomyDashboard userId={userId} />
-          )}
-          
+          {activeSection === 'store' && <XPEconomyDashboard />}
+
           {activeSection === 'balance' && (
             <div className="max-w-4xl mx-auto">
-              <XPStoreBalance userId={userId} />
+              <XPStoreBalance />
             </div>
           )}
-          
-          {activeSection === 'history' && (
-            <PurchaseHistory userId={userId} />
-          )}
-          
-          {activeSection === 'analytics' && (
-            <XPAnalytics userId={userId} />
-          )}
+
+          {activeSection === 'history' && <PurchaseHistory />}
+
+          {activeSection === 'analytics' && <XPAnalytics />}
         </motion.div>
 
-        {/* Footer Info */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -234,25 +198,24 @@ const XPStorePage = () => {
             <CardContent className="p-6">
               <div className="space-y-2">
                 <h3 className="text-lg font-semibold text-siso-text-bold">
-                  Revolutionary Psychology-Based Rewards
+                  Rewards Built Around Sustainable Motivation
                 </h3>
                 <p className="text-siso-text-muted max-w-2xl mx-auto">
-                  This XP Store uses scientifically-backed psychology to transform your relationship 
-                  with productivity and indulgence. Every reward is earned through genuine work, 
-                  eliminating guilt and creating sustainable motivation patterns.
+                  Every unlock in the XP Store is tied to the work you’ve already banked. We keep the
+                  psychology sharp so indulgence stays earned, restorative, and guilt-free.
                 </p>
-                <div className="flex items-center justify-center gap-6 mt-4 text-sm text-siso-text-muted">
+                <div className="flex flex-wrap items-center justify-center gap-4 mt-4 text-sm text-siso-text-muted">
                   <div className="flex items-center gap-1">
                     <Target className="h-4 w-4" />
-                    <span>Loss Aversion Optimization</span>
+                    <span>Loss Aversion Guardrails</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Sparkles className="h-4 w-4" />
-                    <span>Variable Ratio Psychology</span>
+                    <span>Variable Ratio Motivation</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Trophy className="h-4 w-4" />
-                    <span>Identity-Based Habits</span>
+                    <span>Identity-Locked Rewards</span>
                   </div>
                 </div>
               </div>
@@ -263,5 +226,27 @@ const XPStorePage = () => {
     </div>
   );
 };
+
+interface XPStoreNavButtonProps {
+  icon: React.ReactNode;
+  label: string;
+  isActive: boolean;
+  onClick: () => void;
+}
+
+const XPStoreNavButton = ({ icon, label, isActive, onClick }: XPStoreNavButtonProps) => (
+  <Button
+    variant={isActive ? 'default' : 'ghost'}
+    size="sm"
+    onClick={onClick}
+    className={cn(
+      'flex-1 min-w-[120px] justify-center gap-2 rounded-lg',
+      isActive ? 'bg-siso-orange text-white hover:bg-siso-red' : 'text-siso-text-muted'
+    )}
+  >
+    {icon}
+    {label}
+  </Button>
+);
 
 export default XPStorePage;

@@ -50,6 +50,7 @@ export const TimeboxTaskCard: React.FC<TimeboxTaskCardProps> = ({
     : null;
   const leadingEmoji = leadingEmojiMatch?.[1] ?? null;
   const titleWithoutEmoji = leadingEmojiMatch?.[2] ?? taskTitle;
+  const isAuto = isAutoTimebox(task);
 
   return (
     <motion.div
@@ -79,11 +80,12 @@ export const TimeboxTaskCard: React.FC<TimeboxTaskCardProps> = ({
       )}
       style={{
         top: `${position.top}px`,
-        height: `${position.height - 4}px`,
+        height: `${Math.max(position.height - 4, 16)}px`,
         marginTop: '2px',
-        left: '4px',
-        right: '4px',
-        width: 'calc(100% - 8px)'
+        left: 0,
+        right: 0,
+        width: '100%',
+        zIndex: draggingTaskId === task.id ? 50 : 10
       }}
       initial={{
         opacity: 0,
@@ -194,51 +196,48 @@ export const TimeboxTaskCard: React.FC<TimeboxTaskCardProps> = ({
               <p className="text-[10px] text-white/50 mt-0.5 font-medium">
                 {task.startTime} - {task.endTime}
               </p>
+              {!isAuto && task.wasAutoAdjusted && task.originalStartTime && task.originalEndTime && (
+                <p className="text-[10px] text-amber-300/80 mt-0.5 font-medium flex items-center gap-1">
+                  <span aria-hidden="true">↺</span>
+                  <span>
+                    Adjusted from {task.originalStartTime} – {task.originalEndTime}
+                  </span>
+                </p>
+              )}
             </div>
 
-            {/* Duration bubble - Small & Compact */}
+            {/* Duration bubble / quick actions */}
             <div className="flex items-center gap-1.5 flex-shrink-0">
-              {/* Auto Badge - for auto-created timeboxes */}
-              {isAutoTimebox(task) && (
+              {!isAuto && (
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  whileHover={{ scale: 1.1 }}
-                  className="px-1.5 py-0.5 rounded-full text-[9px] font-bold whitespace-nowrap bg-yellow-500/30 text-yellow-200 border border-yellow-400/50 flex items-center gap-0.5"
-                  title="Auto-created from morning routine"
+                  whileHover={{ scale: 1.05 }}
+                  className={cn(
+                    "px-2 py-0.5 rounded-full text-[10px] font-bold whitespace-nowrap",
+                    task.completed
+                      ? "bg-green-500/30 text-green-200 border border-green-400/50"
+                      : "bg-white/25 text-white border border-white/40"
+                  )}
                 >
-                  <Zap className="h-2.5 w-2.5" />
-                  Auto
+                  {task.duration}m
                 </motion.div>
               )}
-
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                className={cn(
-                  "px-2 py-0.5 rounded-full text-[10px] font-bold whitespace-nowrap",
-                  task.completed
-                    ? "bg-green-500/30 text-green-200 border border-green-400/50"
-                    : "bg-white/25 text-white border border-white/40"
-                )}
-              >
-                {task.duration}m
-              </motion.div>
             </div>
 
-            {/* Add After button */}
-            <motion.button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onAddAfter(task, 60);
-              }}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              className="p-1 rounded-full bg-white/20 hover:bg-white/30 border border-white/40 transition-colors flex-shrink-0"
-              title="Add follow-up block"
-            >
-              <Plus className="h-3 w-3 text-white" />
-            </motion.button>
+            {!isAuto && (
+              <motion.button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onAddAfter(task, 60);
+                }}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                className="p-1 rounded-full bg-white/20 hover:bg-white/30 border border-white/40 transition-colors flex-shrink-0"
+                title="Add follow-up block"
+              >
+                <Plus className="h-3 w-3 text-white" />
+              </motion.button>
+            )}
 
             {/* Completion Checkbox */}
             <motion.div

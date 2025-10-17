@@ -12,6 +12,8 @@ We have **3 types of tests**:
 2. **Browser Console Tests** (JavaScript) - Quick verification in DevTools
 3. **Manual Browser Tests** (UI) - Real-world usage testing
 
+💡 **Realtime Visibility:** During any of the flows below you can call `window.__lifelockSyncService.getStatus()` or subscribe with `useSyncStatus()` to confirm queue counts, last sync timestamp, and online/offline transitions in real time.
+
 ---
 
 ## 1️⃣ Automated Unit Tests (Vitest)

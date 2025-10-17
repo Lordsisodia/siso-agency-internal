@@ -11,7 +11,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { addWeeks, subWeeks, startOfWeek, differenceInDays, addDays, format } from 'date-fns';
-import { BarChart3, Briefcase, Heart, Clock, CheckCircle, ChevronLeft } from 'lucide-react';
+import { BarChart3, Target, Briefcase, Heart, Clock, CheckCircle, ChevronLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/shared/ui/button';
 import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
@@ -23,6 +23,7 @@ import { WeeklyWellnessSection } from './wellness/WeeklyWellnessSection';
 import { WeeklyTimeAnalysisSection } from './time-analysis/WeeklyTimeAnalysisSection';
 import { WeeklyCheckoutSection } from './checkout/WeeklyCheckoutSection';
 import { mockWeeklyData, mockProductivityData, mockWellnessData, mockTimeAnalysisData, mockInsightsData } from './_shared/mockData';
+import { WeeklyGoalsSection } from './goals/WeeklyGoalsSection';
 
 export const WeeklyView: React.FC = () => {
   const navigate = useNavigate();
@@ -31,6 +32,7 @@ export const WeeklyView: React.FC = () => {
 
   const tabs = [
     { title: 'Overview', icon: BarChart3 },
+    { title: 'Goals', icon: Target },
     { title: 'Work', icon: Briefcase },
     { title: 'Health', icon: Heart },
     { title: 'Time', icon: Clock },
@@ -68,7 +70,7 @@ export const WeeklyView: React.FC = () => {
 
   return (
     <AdminLayout>
-      <div className="min-h-screen w-full bg-gray-950 relative">
+      <div className="min-h-screen w-full bg-[#121212] text-white relative">
 
         {/* Navigation Button - Monthly View on left */}
         <div className="sticky top-0 z-50 bg-gray-900/80 backdrop-blur-md border-b border-gray-800/50">
@@ -88,7 +90,7 @@ export const WeeklyView: React.FC = () => {
         </div>
 
       {/* Weekly Top Navigation - Fixed at top */}
-      <div className="sticky top-12 z-40 px-4 py-3">
+      <div className="sticky top-12 z-40 px-4 py-3 bg-[#121212]/95 backdrop-blur-sm border-b border-white/5">
         <div className="max-w-7xl mx-auto">
           <WeeklyTopNav
             selectedWeek={selectedWeek}
@@ -102,10 +104,11 @@ export const WeeklyView: React.FC = () => {
       {/* Page Content */}
       <div className="relative">
         {activeTab === 0 && <WeeklyOverviewSection weeklyData={weeklyData} onNavigateToDaily={() => navigate('/admin/lifelock/daily')} />}
-        {activeTab === 1 && <WeeklyProductivitySection productivityData={mockProductivityData} />}
-        {activeTab === 2 && <WeeklyWellnessSection wellnessData={mockWellnessData} />}
-        {activeTab === 3 && <WeeklyTimeAnalysisSection timeData={mockTimeAnalysisData} />}
-        {activeTab === 4 && <WeeklyCheckoutSection insightsData={mockInsightsData} />}
+        {activeTab === 1 && <WeeklyGoalsSection selectedWeek={selectedWeek} />}
+        {activeTab === 2 && <WeeklyProductivitySection productivityData={mockProductivityData} />}
+        {activeTab === 3 && <WeeklyWellnessSection wellnessData={mockWellnessData} />}
+        {activeTab === 4 && <WeeklyTimeAnalysisSection timeData={mockTimeAnalysisData} />}
+        {activeTab === 5 && <WeeklyCheckoutSection insightsData={mockInsightsData} />}
       </div>
 
       {/* Bottom Navigation */}

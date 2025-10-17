@@ -1,108 +1,140 @@
 import { useMemo, useState } from 'react';
-import { AirtableClientsTable } from './AirtableClientsTable';
-import { ClientsCardGrid } from './ClientsCardGrid';
-import { useClientsList } from '@/shared/hooks/client';
-import { Button } from '@/shared/ui/button';
+import { RefreshCw, Search } from 'lucide-react';
 import { Input } from '@/shared/ui/input';
-import { ClientStatus } from '@/types/client.types';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/shared/ui/select';
+import { Button } from '@/shared/ui/button';
+import { ClientsEnhancedTable } from './ClientsEnhancedTable';
 
 interface AdminClientsViewProps {
   isAdmin: boolean;
 }
 
-const STATUS_FILTERS: Array<ClientStatus | 'all'> = [
+const BASE_STATUS_VALUES = [
   'all',
-  'potential',
-  'onboarding',
-  'active',
-  'completed',
-  'archived',
-];
+  'Not contacted',
+  'Contacted',
+  'Waiting on client',
+  'Feedback from app',
+  'Potential',
+  'Onboarding',
+  'Active',
+  'Completed',
+  'Archived',
+] as const;
+
+const currencyFormatter = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  maximumFractionDigits: 0,
+});
+
+function formatStatusLabel(value: string): string {
+  return value
+    .split(/[\s_-]+/)
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1).toLowerCase())
+    .join(' ');
+}
 
 export function AdminClientsView({ isAdmin }: AdminClientsViewProps) {
-  const [statusFilter, setStatusFilter] = useState<ClientStatus | 'all'>('all');
-  const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
   const [searchQuery, setSearchQuery] = useState('');
-
-  const { clients = [], isLoading } = useClientsList({
-    searchQuery,
-    statusFilter,
-    sortColumn: 'updated_at',
-    sortDirection: 'desc',
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [metrics, setMetrics] = useState<{ totalCount: number; pipelineValue: number; isLoading: boolean }>({
+    totalCount: 0,
+    pipelineValue: 0,
+    isLoading: true,
   });
+  const [statusValues, setStatusValues] = useState<string[]>([]);
+  const [tableRefetch, setTableRefetch] = useState<(() => Promise<void>) | null>(null);
 
-  const totalClients = clients.length;
-  const totalValue = useMemo(
-    () =>
-      clients.reduce((sum, client) => {
-        return sum + (client.estimated_price ?? 0);
-      }, 0),
-    [clients]
+  const formattedPipelineValue = useMemo(
+    () => currencyFormatter.format(metrics.pipelineValue || 0),
+    [metrics.pipelineValue]
   );
+
+  const statusOptions = useMemo(() => {
+    const uniqueValues = new Set<string>(BASE_STATUS_VALUES);
+    statusValues.forEach((value) => {
+      if (value) {
+        uniqueValues.add(value);
+      }
+    });
+
+    return Array.from(uniqueValues).map((value) => ({
+      value,
+      label: value === 'all' ? 'All clients' : formatStatusLabel(value),
+    }));
+  }, [statusValues]);
 
   if (!isAdmin) {
     return null;
   }
 
   return (
-    <div className="min-h-screen bg-black">
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        <div className="space-y-6">
-          <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h1 className="text-2xl font-semibold text-white">Clients</h1>
-              <p className="text-sm text-gray-400">
-                {totalClients} clients · ${totalValue.toLocaleString()} total value
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                onClick={() => setViewMode(viewMode === 'table' ? 'cards' : 'table')}
-                className="border-gray-700 bg-gray-900 text-gray-200 hover:bg-gray-800"
-              >
-                {viewMode === 'table' ? '📇 Cards' : '📊 Table'}
-              </Button>
-              <Button className="bg-blue-600 text-white hover:bg-blue-500">+ Add Client</Button>
-            </div>
-          </header>
+    <div className="flex min-h-screen flex-col bg-[#08070E] text-white">
+      <div className="border-b border-white/5 bg-[#0F0E16]/80 px-6 py-5 backdrop-blur">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 className="text-xl font-semibold text-white">Client Workspace</h1>
+            <p className="text-sm text-white/60">
+              {metrics.isLoading
+                ? 'Loading clients…'
+                : `${metrics.totalCount} records · ${formattedPipelineValue} pipeline`}
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => tableRefetch?.()}
+            className="border-white/10 bg-white/5 text-white hover:bg-white/10"
+            disabled={!tableRefetch}
+          >
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Refresh
+          </Button>
+        </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <div className="relative w-full max-w-sm">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
             <Input
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
-              placeholder="Search clients..."
-              className="max-w-sm border-gray-800 bg-gray-900 text-white placeholder:text-gray-500"
+              placeholder="Search by company, contact, or project"
+              className="h-10 rounded-lg border-white/10 bg-white/5 pl-9 text-sm text-white placeholder:text-white/40 focus:border-white/30 focus:bg-white/10"
             />
-            <div className="flex flex-wrap gap-2">
-              {STATUS_FILTERS.map((status) => (
-                <Button
-                  key={status}
-                  variant={statusFilter === status ? 'default' : 'outline'}
-                  onClick={() => setStatusFilter(status)}
-                  size="sm"
-                  className={
-                    statusFilter === status
-                      ? 'bg-blue-600 text-white hover:bg-blue-500'
-                      : 'border-gray-800 bg-gray-900 text-gray-300 hover:bg-gray-800'
-                  }
-                >
-                  {status === 'all'
-                    ? 'All'
-                    : `${status.charAt(0).toUpperCase()}${status.slice(1)}`}
-                </Button>
-              ))}
-            </div>
           </div>
 
-          <div className="rounded-2xl border border-gray-800 bg-gray-950/80 p-4">
-            {viewMode === 'table' ? (
-              <AirtableClientsTable clients={clients} isLoading={isLoading} />
-            ) : (
-              <ClientsCardGrid clients={clients} isLoading={isLoading} />
-            )}
-          </div>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="h-10 w-[200px] rounded-lg border-white/10 bg-white/5 text-sm text-white focus:border-white/30 focus:bg-white/10">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent className="border-white/10 bg-[#14131D] text-white">
+              {statusOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value} className="capitalize">
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
+      </div>
+
+      <div className="flex-1 px-6 py-6">
+        <ClientsEnhancedTable
+          searchQuery={searchQuery}
+          statusFilter={statusFilter}
+          onSearchChange={setSearchQuery}
+          onStatusFilterChange={setStatusFilter}
+          onMetricsChange={setMetrics}
+          onStatusValuesChange={setStatusValues}
+          onRefetchReady={(fn) => setTableRefetch(() => fn)}
+        />
       </div>
     </div>
   );

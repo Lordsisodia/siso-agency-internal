@@ -11,6 +11,9 @@ interface ClientsEnhancedTableProps {
   onStatusFilterChange: (status: string) => void;
   viewMode?: "table" | "cards";
   setViewMode?: (mode: "table" | "cards") => void;
+  onMetricsChange?: (metrics: { totalCount: number; pipelineValue: number; isLoading: boolean }) => void;
+  onStatusValuesChange?: (statuses: string[]) => void;
+  onRefetchReady?: (refetch: () => Promise<void>) => void;
 }
 
 function ClientsTableContent({ 
@@ -19,7 +22,10 @@ function ClientsTableContent({
   onSearchChange,
   onStatusFilterChange,
   viewMode,
-  setViewMode
+  setViewMode,
+  onMetricsChange,
+  onStatusValuesChange,
+  onRefetchReady,
 }: ClientsEnhancedTableProps) {
   const { viewPreference, handleViewPreferenceChange } = useViewPreference();
 
@@ -33,6 +39,9 @@ function ClientsTableContent({
       onStatusFilterChange={onStatusFilterChange}
       viewMode={viewMode}
       setViewMode={setViewMode}
+      onMetricsChange={onMetricsChange}
+      onStatusValuesChange={onStatusValuesChange}
+      onRefetchReady={onRefetchReady}
     />
   );
 }
@@ -44,4 +53,3 @@ export function ClientsEnhancedTable(props: ClientsEnhancedTableProps) {
     </ClientViewPreferenceProvider>
   );
 }
-

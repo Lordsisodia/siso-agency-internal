@@ -1,3 +1,5 @@
+import { supabaseAnon } from '@/shared/lib/supabase-clerk';
+
 /**
  * XP Store Service - Safe Backend Implementation
  * 
@@ -27,6 +29,7 @@ export interface RewardItem {
   requiresStreak?: number;
   maxDailyUse?: number;
   availabilityWindow?: string;
+  unlockAt?: number;
 }
 
 export interface PurchaseRequest {
@@ -61,6 +64,19 @@ export interface ServiceResponse<T> {
  * Handles all XP spending economy logic safely
  */
 export class XPStoreService {
+  private static fallbackBalance: XPStoreBalance = {
+    currentXP: 0,
+    totalEarned: 0,
+    totalSpent: 0,
+    reserveXP: 0,
+    canSpend: 0,
+    pendingLoans: 0
+  };
+
+  private static isValidUuid(value: string | null | undefined): value is string {
+    if (!value) return false;
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+  }
   
   /**
    * Helper method to handle API errors consistently
@@ -137,20 +153,46 @@ export class XPStoreService {
    */
   static async getXPStoreBalance(userId: string): Promise<XPStoreBalance> {
     try {
-      return await this.makeApiRequest<XPStoreBalance>('/api/xp-store/balance', {
-        method: 'GET'
-      });
-    } catch (error) {
-      // Return fallback data on error (graceful degradation)
-      console.warn('XP Store balance unavailable, using fallback data');
+      if (!this.isValidUuid(userId)) {
+        return { ...this.fallbackBalance };
+      }
+
+      const { data: progress, error: progressError } = await supabaseAnon
+        .from('user_gamification_progress')
+        .select('total_xp,current_level,daily_xp,current_streak,best_streak,updated_at')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (progressError) {
+        console.warn('XP Store progress fetch failed:', progressError);
+      }
+
+      const { data: recentStats, error: statsError } = await supabaseAnon
+        .from('daily_xp_stats')
+        .select('date,total_xp,activities_completed,streak_count')
+        .eq('user_id', userId)
+        .order('date', { ascending: false })
+        .limit(14);
+
+      if (statsError) {
+        console.warn('XP Store daily stats fetch failed:', statsError);
+      }
+
+      const totalEarned = progress?.total_xp ?? recentStats?.[0]?.total_xp ?? 0;
+      const reserveXP = Math.round(totalEarned * 0.1);
+      const currentXP = Math.max(totalEarned - reserveXP, 0);
       return {
-        currentXP: 0,
-        totalEarned: 0,
+        currentXP,
+        totalEarned,
         totalSpent: 0,
-        reserveXP: 200,
-        canSpend: 0,
+        reserveXP,
+        canSpend: Math.max(currentXP - Math.round(reserveXP * 0.2), 0),
         pendingLoans: 0
       };
+    } catch (error) {
+      // Return fallback data on error (graceful degradation)
+      console.warn('XP Store balance unavailable, using fallback data', error);
+      return { ...this.fallbackBalance };
     }
   }
   
@@ -159,9 +201,7 @@ export class XPStoreService {
    */
   static async getXPStoreBalanceWithErrors(userId: string): Promise<ServiceResponse<XPStoreBalance>> {
     try {
-      const data = await this.makeApiRequest<XPStoreBalance>('/api/xp-store/balance', {
-        method: 'GET'
-      });
+      const data = await this.getXPStoreBalance(userId);
       return { data, loading: false };
     } catch (error) {
       return { 
@@ -175,100 +215,127 @@ export class XPStoreService {
    * Get available rewards with dynamic pricing
    */
   static async getAvailableRewards(userId: string): Promise<RewardItem[]> {
-    try {
-      const response = await fetch('/api/xp-store/rewards', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+    const defaultRewards: RewardItem[] = [
+      {
+        id: 'reward-risk-night',
+        category: 'SOCIAL',
+        name: 'Risk Night with the Crew',
+        description: 'Full strategic board game session with the boys—no guilt, all snacks included.',
+        basePrice: 1000,
+        currentPrice: 1000,
+        iconEmoji: '🎲',
+        unlockAt: 1000,
+      },
+      {
+        id: 'reward-nice-food',
+        category: 'FOOD',
+        name: 'Chef-Level Dinner Out',
+        description: 'Book a reservation or splurge on premium ingredients for a 5-star meal.',
+        basePrice: 1500,
+        currentPrice: 1500,
+        iconEmoji: '🍣',
+        unlockAt: 1500,
+      },
+      {
+        id: 'reward-movie-night',
+        category: 'ENTERTAINMENT',
+        name: 'Movie Night Upgrade',
+        description: 'Theatre tickets or a full streaming setup with snacks and zero interruptions.',
+        basePrice: 2000,
+        currentPrice: 2000,
+        iconEmoji: '🎬',
+        unlockAt: 2000,
+      },
+      {
+        id: 'reward-premium-coffee',
+        category: 'INDULGENCE',
+        name: 'Premium Coffee Ritual',
+        description: 'Treat yourself to a high-end pour-over or latte from your favourite spot.',
+        basePrice: 750,
+        currentPrice: 700,
+        iconEmoji: '☕️',
+      },
+      {
+        id: 'reward-focus-break',
+        category: 'WELLNESS',
+        name: 'Focus Break Walk',
+        description: '15 minute walk to reset your energy and protect momentum.',
+        basePrice: 600,
+        currentPrice: 500,
+        iconEmoji: '🚶‍♂️',
+      },
+      {
+        id: 'reward-spa-session',
+        category: 'RECOVERY',
+        name: 'Massage or Spa Reset',
+        description: 'Book a massage, sauna, or spa day to reset your nervous system.',
+        basePrice: 10000,
+        currentPrice: 10000,
+        iconEmoji: '💆‍♂️',
+        unlockAt: 10000,
+      },
+      {
+        id: 'reward-day-off',
+        category: 'REST',
+        name: 'Quarter Day Off',
+        description: 'Block off three guilt-free hours for deep recovery or creative wandering.',
+        basePrice: 3200,
+        currentPrice: 3200,
+        iconEmoji: '🌤️',
+      },
+      {
+        id: 'reward-coaching',
+        category: 'GROWTH',
+        name: 'Coaching Session Upgrade',
+        description: 'Invest in a specialised coaching or learning session.',
+        basePrice: 4500,
+        currentPrice: 4300,
+        iconEmoji: '🧠',
+      },
+    ];
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const rewards = await response.json();
-      return rewards;
-      
-    } catch (error) {
-      console.error('Error getting available rewards:', error);
-      return [];
-    }
+    return defaultRewards;
   }
 
   /**
    * Purchase a reward with XP
    */
   static async purchaseReward(request: PurchaseRequest): Promise<PurchaseResult> {
-    try {
-      const result = await this.makeApiRequest<PurchaseResult>('/api/xp-store/purchase', {
-        method: 'POST',
-        body: JSON.stringify({
-          rewardId: request.rewardId,
-          useLoan: request.useLoan || false,
-          notes: request.notes
-        })
-      });
-      
-      return result;
-      
-    } catch (error) {
-      const xpError = this.handleApiError(error, 'purchase');
-      return { 
-        success: false, 
-        message: xpError.message
-      };
-    }
+    console.info('XP Store purchase invoked without backend integration', request);
+    return {
+      success: false,
+      message: 'Purchasing is coming soon. Earn XP now and you\'ll be ready when redemptions go live!'
+    };
   }
 
   /**
    * Get purchase history for analytics
    */
   static async getPurchaseHistory(userId: string, limit: number = 20) {
-    try {
-      const response = await fetch(`/api/xp-store/history?limit=${limit}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data.purchases || [];
-      
-    } catch (error) {
-      console.error('Error getting purchase history:', error);
-      return [];
-    }
+    return [];
   }
 
   /**
    * Get spending analytics for psychology optimization
    */
   static async getSpendingAnalytics(userId: string) {
-    try {
-      const response = await fetch('/api/xp-store/analytics', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const analytics = await response.json();
-      return analytics;
-      
-    } catch (error) {
-      console.error('Error getting spending analytics:', error);
+    if (!this.isValidUuid(userId)) {
       return null;
     }
+
+    const { data, error } = await supabaseAnon
+      .from('daily_xp_stats')
+      .select('date,total_xp,activities_completed,streak_count')
+      .eq('user_id', userId)
+      .order('date', { ascending: false })
+      .limit(30);
+
+    if (error) {
+      console.error('Error getting daily XP stats:', error);
+      return null;
+    }
+
+    return data;
   }
 
   /**

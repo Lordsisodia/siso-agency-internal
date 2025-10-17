@@ -5,19 +5,13 @@
  * Provides authenticated Supabase client using Clerk JWT tokens
  */
 
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { SupabaseClient } from '@supabase/supabase-js';
 import { useAuth } from '@clerk/clerk-react';
 import { useEffect, useState } from 'react';
+import { getSupabaseBrowserClient } from '@/shared/lib/supabaseBrowserClient';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables');
-}
-
-// Create base Supabase client
-export const supabaseAnon = createClient(supabaseUrl, supabaseAnonKey);
+// Shared browser client instance
+export const supabaseAnon = getSupabaseBrowserClient();
 
 /**
  * Hook to get the internal database user ID from Clerk user ID

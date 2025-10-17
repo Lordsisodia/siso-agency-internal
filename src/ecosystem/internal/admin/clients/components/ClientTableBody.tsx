@@ -6,8 +6,9 @@ import { ClientColumnPreference, ClientData } from '@/types/client.types';
 import { ClientTableCell, TableCell } from './ClientTableCell';
 import { cn } from '@/shared/lib/utils';
 import { tableRowStyles } from '@/shared/ui/table-styles';
-import { Users } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Users, ArrowUpRight } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Button } from '@/shared/ui/button';
 
 interface ClientTableBodyProps {
   clients: ClientData[];
@@ -51,7 +52,7 @@ export function ClientTableBody({
       <TableBody>
         <TableRow>
           <TableCell 
-            colSpan={visibleColumns.length + 1} 
+            colSpan={visibleColumns.length + 2} 
             className="h-[300px] text-center bg-background/30"
           >
             <div className="flex flex-col items-center justify-center gap-3 text-muted-foreground">
@@ -117,6 +118,7 @@ export function ClientTableBody({
                   editInputRef={editInputRef}
                   onEditValueChange={onEditValueChange}
                   onKeyDown={(e) => {
+                    e.stopPropagation();
                     if (e.key === 'Enter' && editingCell) {
                       onSaveEdit({
                         id: editingCell.id,
@@ -125,12 +127,30 @@ export function ClientTableBody({
                       });
                     }
                   }}
-                  onDoubleClick={() => onStartEdit(client, column.key)}
+                  onDoubleClick={(event) => {
+                    event.stopPropagation();
+                    onStartEdit(client, column.key);
+                  }}
                   onSaveEdit={onSaveEdit}
                 />
               </TableCell>
             );
           })}
+
+          <TableCell className="sticky right-0 z-30 bg-[#0F0E16]/80 p-4 text-right backdrop-blur-sm">
+            <Button
+              asChild
+              variant="ghost"
+              size="sm"
+              className="inline-flex items-center gap-1 text-white/80 hover:text-white"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <Link to={`/admin/clients/${client.id}`}>
+                Open
+                <ArrowUpRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          </TableCell>
         </TableRow>
       ))}
     </TableBody>

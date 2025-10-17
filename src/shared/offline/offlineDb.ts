@@ -5,6 +5,15 @@
 
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
 
+export type SyncableTable =
+  | 'lightWorkTasks'
+  | 'deepWorkTasks'
+  | 'morningRoutines'
+  | 'workoutSessions'
+  | 'nightlyCheckouts'
+  | 'timeBlocks'
+  | 'dailyReflections';
+
 // Database schema for offline storage
 interface OfflineDB extends DBSchema {
   lightWorkTasks: {
@@ -118,6 +127,26 @@ interface OfflineDB extends DBSchema {
       wins: string[];
       improvements: string[];
       tomorrow_focus: string;
+      metadata?: Record<string, unknown> | null;
+      created_at: string;
+      updated_at: string;
+      _needs_sync?: boolean;
+      _last_synced?: string;
+      _sync_status?: 'pending' | 'syncing' | 'synced' | 'error';
+    };
+  };
+  timeBlocks: {
+    key: string;
+    value: {
+      id: string;
+      user_id: string;
+      date: string;
+      start_time: string;
+      end_time: string;
+      title: string;
+      description?: string | null;
+      type?: string | null;
+      task_ids?: string[] | null;
       created_at: string;
       updated_at: string;
       _needs_sync?: boolean;
@@ -129,8 +158,8 @@ interface OfflineDB extends DBSchema {
     key: string;
     value: {
       id: string;
-      action: 'create' | 'update' | 'delete';
-      table: string;
+      action: 'create' | 'update' | 'delete' | 'upsert';
+      table: SyncableTable;
       data: any;
       timestamp: string;
       retry_count: number;
@@ -147,10 +176,12 @@ interface OfflineDB extends DBSchema {
   };
 }
 
+export type OfflineSyncAction = OfflineDB['offlineActions']['value'];
+
 class OfflineDatabase {
   private db: IDBPDatabase<OfflineDB> | null = null;
   private readonly DB_NAME = 'SISOOfflineDB';
-  private readonly DB_VERSION = 2; // v2: Added morning routines, workouts, health habits, nightly checkout
+  private readonly DB_VERSION = 3; // v3: Added timeBlocks store and expanded sync support
 
   async init(): Promise<void> {
     if (this.db) return;
@@ -218,6 +249,14 @@ class OfflineDatabase {
           checkoutStore.createIndex('user_id', 'user_id');
           checkoutStore.createIndex('needs_sync', '_needs_sync');
         }
+
+        // Time blocks store (v3)
+        if (!db.objectStoreNames.contains('timeBlocks')) {
+          const timeBlockStore = db.createObjectStore('timeBlocks', { keyPath: 'id' });
+          timeBlockStore.createIndex('date', 'date');
+          timeBlockStore.createIndex('user_id', 'user_id');
+          timeBlockStore.createIndex('needs_sync', '_needs_sync');
+        }
       },
     });
 
@@ -254,7 +293,12 @@ class OfflineDatabase {
     await tx.done;
 
     if (markForSync) {
-      await this.queueAction('update', 'lightWorkTasks', task);
+      const { _needs_sync, _sync_status, _last_synced, ...payload } = taskWithMeta as typeof taskWithMeta & {
+        _needs_sync?: boolean;
+        _sync_status?: string;
+        _last_synced?: string;
+      };
+      await this.queueAction('upsert', 'lightWorkTasks', payload);
     }
   }
 
@@ -288,7 +332,12 @@ class OfflineDatabase {
     await tx.done;
 
     if (markForSync) {
-      await this.queueAction('update', 'deepWorkTasks', task);
+      const { _needs_sync, _sync_status, _last_synced, ...payload } = taskWithMeta as typeof taskWithMeta & {
+        _needs_sync?: boolean;
+        _sync_status?: string;
+        _last_synced?: string;
+      };
+      await this.queueAction('upsert', 'deepWorkTasks', payload);
     }
   }
 
@@ -320,6 +369,15 @@ class OfflineDatabase {
     const tx = this.db!.transaction('morningRoutines', 'readwrite');
     await tx.objectStore('morningRoutines').put(routineWithMeta);
     await tx.done;
+
+    if (markForSync) {
+      const { _needs_sync, _sync_status, _last_synced, ...payload } = routineWithMeta as typeof routineWithMeta & {
+        _needs_sync?: boolean;
+        _sync_status?: string;
+        _last_synced?: string;
+      };
+      await this.queueAction('upsert', 'morningRoutines', payload);
+    }
   }
 
   // ===== WORKOUT SESSIONS =====
@@ -350,6 +408,15 @@ class OfflineDatabase {
     const tx = this.db!.transaction('workoutSessions', 'readwrite');
     await tx.objectStore('workoutSessions').put(workoutWithMeta);
     await tx.done;
+
+    if (markForSync) {
+      const { _needs_sync, _sync_status, _last_synced, ...payload } = workoutWithMeta as typeof workoutWithMeta & {
+        _needs_sync?: boolean;
+        _sync_status?: string;
+        _last_synced?: string;
+      };
+      await this.queueAction('upsert', 'workoutSessions', payload);
+    }
   }
 
   // ===== HEALTH HABITS =====
@@ -410,12 +477,67 @@ class OfflineDatabase {
     const tx = this.db!.transaction('nightlyCheckouts', 'readwrite');
     await tx.objectStore('nightlyCheckouts').put(checkoutWithMeta);
     await tx.done;
+
+    if (markForSync) {
+      const { _needs_sync, _sync_status, _last_synced, ...payload } = checkoutWithMeta as typeof checkoutWithMeta & {
+        _needs_sync?: boolean;
+        _sync_status?: string;
+        _last_synced?: string;
+      };
+      await this.queueAction('upsert', 'dailyReflections', payload);
+    }
+  }
+
+  // ===== TIME BLOCKS =====
+  async getTimeBlocks(userId: string, date: string): Promise<OfflineDB['timeBlocks']['value'][]> {
+    if (!this.db) await this.init();
+
+    const tx = this.db!.transaction('timeBlocks', 'readonly');
+    const index = tx.objectStore('timeBlocks').index('date');
+    const allForDate = await index.getAll(date);
+    await tx.done;
+
+    return allForDate.filter(block => block.user_id === userId);
+  }
+
+  async saveTimeBlock(block: OfflineDB['timeBlocks']['value'], markForSync = true): Promise<void> {
+    if (!this.db) await this.init();
+
+    const blockWithMeta = {
+      ...block,
+      _needs_sync: markForSync,
+      _sync_status: markForSync ? 'pending' as const : 'synced' as const,
+      updated_at: block.updated_at || new Date().toISOString(),
+    };
+
+    const tx = this.db!.transaction('timeBlocks', 'readwrite');
+    await tx.objectStore('timeBlocks').put(blockWithMeta);
+    await tx.done;
+
+    if (markForSync) {
+      const { _needs_sync, _sync_status, _last_synced, ...payload } = blockWithMeta as typeof blockWithMeta & {
+        _needs_sync?: boolean;
+        _sync_status?: string;
+        _last_synced?: string;
+      };
+      await this.queueAction('upsert', 'timeBlocks', payload);
+    }
+  }
+
+  async deleteTimeBlock(blockId: string): Promise<void> {
+    if (!this.db) await this.init();
+
+    const tx = this.db!.transaction('timeBlocks', 'readwrite');
+    await tx.objectStore('timeBlocks').delete(blockId);
+    await tx.done;
+
+    await this.queueAction('delete', 'timeBlocks', { id: blockId });
   }
 
   // ===== OFFLINE ACTIONS QUEUE =====
   async queueAction(
-    action: 'create' | 'update' | 'delete',
-    table: 'lightWorkTasks' | 'deepWorkTasks',
+    action: OfflineSyncAction['action'],
+    table: SyncableTable,
     data: any
   ): Promise<void> {
     if (!this.db) await this.init();
@@ -450,6 +572,22 @@ class OfflineDatabase {
     await tx.done;
   }
 
+  async updateActionRetry(actionId: string, retryCount: number, error?: string): Promise<void> {
+    if (!this.db) await this.init();
+
+    const tx = this.db!.transaction('offlineActions', 'readwrite');
+    const store = tx.objectStore('offlineActions');
+    const record = await store.get(actionId);
+
+    if (record) {
+      record.retry_count = retryCount;
+      record.error = error;
+      await store.put(record);
+    }
+
+    await tx.done;
+  }
+
   // ===== SYNC STATUS =====
   async getTasksNeedingSync(): Promise<{
     lightWork: OfflineDB['lightWorkTasks']['value'][];
@@ -468,21 +606,49 @@ class OfflineDatabase {
     return { lightWork, deepWork };
   }
 
-  async markTaskSynced(taskId: string, table: 'lightWorkTasks' | 'deepWorkTasks'): Promise<void> {
+  async markRecordSynced(recordId: string, table: SyncableTable): Promise<void> {
     if (!this.db) await this.init();
 
-    const tx = this.db!.transaction(table, 'readwrite');
-    const store = tx.objectStore(table);
-    const task = await store.get(taskId);
-    
-    if (task) {
-      task._needs_sync = false;
-      task._sync_status = 'synced';
-      task._last_synced = new Date().toISOString();
-      await store.put(task);
+    const storeName: keyof OfflineDB | null = (() => {
+      switch (table) {
+        case 'lightWorkTasks':
+          return 'lightWorkTasks';
+        case 'deepWorkTasks':
+          return 'deepWorkTasks';
+        case 'morningRoutines':
+          return 'morningRoutines';
+        case 'workoutSessions':
+          return 'workoutSessions';
+        case 'nightlyCheckouts':
+        case 'dailyReflections':
+          return 'nightlyCheckouts';
+        case 'timeBlocks':
+          return 'timeBlocks';
+        default:
+          return null;
+      }
+    })();
+
+    if (!storeName) {
+      return;
     }
-    
+
+    const tx = this.db!.transaction(storeName, 'readwrite');
+    const store = tx.objectStore(storeName);
+    const record = await store.get(recordId);
+
+    if (record) {
+      record._needs_sync = false;
+      record._sync_status = 'synced';
+      record._last_synced = new Date().toISOString();
+      await store.put(record);
+    }
+
     await tx.done;
+  }
+
+  async markTaskSynced(taskId: string, table: 'lightWorkTasks' | 'deepWorkTasks'): Promise<void> {
+    await this.markRecordSynced(taskId, table);
   }
 
   // ===== SETTINGS =====
@@ -530,6 +696,7 @@ class OfflineDatabase {
     workoutSessions: number;
     healthHabits: number;
     nightlyCheckouts: number;
+    timeBlocks: number;
     pendingActions: number;
     lastSync?: string;
   }> {
@@ -541,6 +708,7 @@ class OfflineDatabase {
     const workoutSessionsCount = await this.db!.count('workoutSessions');
     const healthHabitsCount = await this.db!.count('healthHabits');
     const nightlyCheckoutsCount = await this.db!.count('nightlyCheckouts');
+    const timeBlocksCount = await this.db!.count('timeBlocks');
     const pendingActionsCount = await this.db!.count('offlineActions');
     const lastSync = await this.getSetting('lastSync');
 
@@ -551,6 +719,7 @@ class OfflineDatabase {
       workoutSessions: workoutSessionsCount,
       healthHabits: healthHabitsCount,
       nightlyCheckouts: nightlyCheckoutsCount,
+      timeBlocks: timeBlocksCount,
       pendingActions: pendingActionsCount,
       lastSync
     };

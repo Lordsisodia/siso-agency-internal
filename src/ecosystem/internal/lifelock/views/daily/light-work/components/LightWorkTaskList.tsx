@@ -36,8 +36,6 @@ import { CustomCalendar } from "../../_shared/components";
 import { SubtaskItem } from "@/components/tasks/SubtaskItem";
 import { useLightWorkTasksSupabase, LightWorkTask, LightWorkSubtask } from "@/ecosystem/internal/tasks/hooks/useLightWorkTasksSupabase";
 import { sortSubtasksHybrid } from "@/ecosystem/internal/tasks/utils/subtaskSorting";
-import { calculateLightWorkTaskXP } from "@/ecosystem/internal/tasks/utils/taskXpCalculations";
-import { XPPill } from "@/ecosystem/internal/lifelock/views/daily/morning-routine/components/XPPill";
 
 // Type definitions - exact same as original
 interface Subtask {
@@ -669,16 +667,6 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
                               </h4>
                             )}
                           </div>
-
-                          {/* XP Pill */}
-                          <XPPill
-                            xp={(() => {
-                              const result = calculateLightWorkTaskXP(task);
-                              return result.total;
-                            })()}
-                            earned={task.status === 'completed'}
-                            showGlow={task.status === 'completed'}
-                          />
 
                           {/* Toggle Button */}
                           <div className="flex items-center flex-shrink-0">

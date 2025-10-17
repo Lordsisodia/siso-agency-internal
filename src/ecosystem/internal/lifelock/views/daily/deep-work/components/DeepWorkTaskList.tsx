@@ -40,8 +40,6 @@ import { SubtaskItem } from "@/components/tasks/SubtaskItem";
 import { useDeepWorkTasksSupabase, DeepWorkTask, DeepWorkSubtask } from "@/ecosystem/internal/tasks/hooks/useDeepWorkTasksSupabase";
 import { sortSubtasksHybrid } from "@/ecosystem/internal/tasks/utils/subtaskSorting";
 import { format } from 'date-fns';
-import { calculateDeepWorkTaskXP } from "@/ecosystem/internal/tasks/utils/taskXpCalculations";
-import { XPPill } from "@/ecosystem/internal/lifelock/views/daily/morning-routine/components/XPPill";
 
 // Type definitions - exact same as original
 interface Subtask {
@@ -934,16 +932,6 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
                               </h4>
                             )}
                           </div>
-
-                          {/* XP Pill */}
-                          <XPPill
-                            xp={(() => {
-                              const result = calculateDeepWorkTaskXP(task);
-                              return result.total;
-                            })()}
-                            earned={task.status === 'completed'}
-                            showGlow={task.status === 'completed'}
-                          />
 
                           {/* Toggle Button */}
                           <div className="flex items-center flex-shrink-0">

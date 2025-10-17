@@ -15,7 +15,7 @@ import { AdminPageTitle } from '@/ecosystem/internal/admin/layout/AdminPageTitle
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
 
 // Lazy load heavy components
-const ProjectBasedTaskDashboard = lazy(() => import('@/ecosystem/internal/admin/dashboard/components/ProjectBasedTaskDashboard').then(m => ({ default: m.ProjectBasedTaskDashboard })));
+const ProjectBasedTaskDashboard = lazy(() => import('@/ecosystem/internal/admin/dashboard/components/ProjectBasedTaskDashboard'));
 const AdvancedNormalizedIncidentReport = lazy(() => import('@/shared/ui/advanced-normalized-incident-report'));
 
 export default function AdminDashboard() {
@@ -108,4 +108,3 @@ export default function AdminDashboard() {
     </AdminLayout>
   );
 }
-

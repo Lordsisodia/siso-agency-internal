@@ -94,17 +94,18 @@ export function useClientDetails(specificClientId: string | null = null) {
             development_url: null,
             mvp_build_status: null,
             notion_plan_url: null,
-            payment_status: null,
-            estimated_price: (data as any).estimated_price || null,
+            payment_status: (data as any).payment_status || null,
+            estimated_price: (data as any).estimated_price ?? null,
             initial_contact_date: null,
             start_date: null,
-            estimated_completion_date: null,
+            estimated_completion_date: (data as any).estimated_completion_date ?? null,
             todos: parsedTodos,
             next_steps: null,
             key_research: null,
             priority: null,
             contact_name: data.contact_name || null,
             company_name: data.company_name || null,
+            user_id: (data as any).user_id ?? null,
           };
           
           setClientData(processedData);
@@ -169,7 +170,7 @@ export function useClientDetails(specificClientId: string | null = null) {
     setIsUpdating(true);
     try {
       // Convert ClientData updates to database format
-      const dbUpdates = {
+      const dbUpdates: Record<string, unknown> = {
         contact_name: updates.full_name,
         company_name: updates.business_name,
         website_url: updates.website_url,
@@ -180,7 +181,15 @@ export function useClientDetails(specificClientId: string | null = null) {
         total_steps: updates.total_steps,
         completed_steps: updates.completed_steps,
       };
-      
+
+      if (typeof updates.estimated_price !== 'undefined') {
+        dbUpdates.estimated_price = updates.estimated_price;
+      }
+
+      if (typeof updates.estimated_completion_date !== 'undefined') {
+        dbUpdates.estimated_completion_date = updates.estimated_completion_date;
+      }
+
       const { error } = await supabase
         .from('client_onboarding')
         .update(dbUpdates)

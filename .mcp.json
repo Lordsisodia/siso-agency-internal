@@ -1,10 +1,8 @@
 {
   "mcpServers": {
     "siso-internal-supabase": {
-      "command": "npx",
+      "command": "/Users/shaansisodia/DEV/SISO-ECOSYSTEM/SISO-INTERNAL/node_modules/.bin/mcp-server-supabase",
       "args": [
-        "-y",
-        "@supabase/mcp-server-supabase@latest",
         "--project-ref=avdgyrepwrvsvwgxrccr"
       ],
       "env": {
@@ -29,6 +27,19 @@
       "env": {
         "MEMORY_BANK_PATH": "/Users/shaansisodia/DEV/SISO-ECOSYSTEM/SISO-INTERNAL/.claude/memory"
       }
+    },
+    "serena": {
+      "command": "/Users/shaansisodia/.codex/bin/serena-mcp-local",
+      "args": []
+    },
+    "clear-thought": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@smithery/cli@latest",
+        "run",
+        "https://server.smithery.ai/@waldzellai/clear-thought/mcp"
+      ]
     }
   }
 }

@@ -1,14 +1,27 @@
-/**
- * Weekly Checkout Section
- * 
- * Insights & Checkout - Weekly wins, problems, trends, reflection
- */
-
 import React, { useState } from 'react';
-import { Trophy, AlertTriangle, TrendingUp, TrendingDown, CheckCircle, Lightbulb } from 'lucide-react';
-import { Textarea } from '@/shared/ui/textarea';
+import {
+  ArrowUpRight,
+  CheckCircle2,
+  Lightbulb,
+  RotateCcw,
+  Trophy,
+  AlertTriangle,
+  TrendingUp,
+  TrendingDown,
+  PenSquare,
+} from 'lucide-react';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/shared/ui/card';
+import { Badge } from '@/shared/ui/badge';
+import { Separator } from '@/shared/ui/separator';
 import { Button } from '@/shared/ui/button';
-import { motion } from 'framer-motion';
+import { Chip } from '@/shared/ui/chip';
+import { Textarea } from '@/shared/ui/textarea';
 import { cn } from '@/shared/lib/utils';
 import type { InsightsData } from '../_shared/types';
 
@@ -16,226 +29,194 @@ interface WeeklyCheckoutSectionProps {
   insightsData: InsightsData;
 }
 
-export const WeeklyCheckoutSection: React.FC<WeeklyCheckoutSectionProps> = ({ insightsData }) => {
+const InsightList: React.FC<{
+  title: string;
+  icon: React.ReactNode;
+  tone: 'positive' | 'negative';
+  items: string[];
+}> = ({ title, icon, tone, items }) => {
+  const toneClasses =
+    tone === 'positive'
+      ? 'border-emerald-400/30 bg-emerald-500/10 text-emerald-100'
+      : 'border-rose-400/30 bg-rose-500/10 text-rose-100';
+
+  return (
+    <div className={cn('rounded-2xl border p-4 sm:p-5', toneClasses)}>
+      <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.25em]">
+        {icon}
+        {title}
+      </p>
+      <ul className="mt-3 space-y-2 text-sm text-white/80">
+        {items.length === 0 && <li>No notes captured yet.</li>}
+        {items.map((item, idx) => (
+          <li key={`${title}-${idx}`} className="flex gap-2">
+            <span>•</span>
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+const TrendCard: React.FC<{
+  metric: string;
+  direction: 'up' | 'down' | 'stable';
+  change: number;
+}> = ({ metric, direction, change }) => {
+  const isUp = direction === 'up';
+  const isDown = direction === 'down';
+  const toneClass = isUp
+    ? 'border-emerald-400/40 bg-emerald-500/10 text-emerald-100'
+    : isDown
+      ? 'border-rose-400/40 bg-rose-500/10 text-rose-100'
+      : 'border-white/10 bg-white/5 text-white/70';
+  const Icon =
+    direction === 'up' ? TrendingUp : direction === 'down' ? TrendingDown : ArrowUpRight;
+
+  return (
+    <div className={cn('rounded-2xl border p-4 backdrop-blur-sm', toneClass)}>
+      <div className="flex items-center justify-between text-xs uppercase tracking-[0.18em]">
+        <span>{metric}</span>
+        <Icon className="h-4 w-4" />
+      </div>
+      <div className="mt-3 text-3xl font-semibold">
+        {change > 0 && direction !== 'down' ? '+' : ''}
+        {change}%
+      </div>
+      <p className="mt-1 text-xs text-white/60">vs last week</p>
+    </div>
+  );
+};
+
+export const WeeklyCheckoutSection: React.FC<WeeklyCheckoutSectionProps> = ({
+  insightsData,
+}) => {
   const { wins, problems, trends, checkout } = insightsData;
-  
+
   const [reflection, setReflection] = useState(checkout.reflection);
   const [nextWeekFocus, setNextWeekFocus] = useState(checkout.nextWeekFocus);
 
+  const positiveTrends = trends.filter((trend) => trend.direction === 'up');
+  const negativeTrends = trends.filter((trend) => trend.direction === 'down');
+
   return (
-    <div className="min-h-screen w-full relative pb-24">
-      <div className="w-full max-w-none p-2 sm:p-3 md:p-4 lg:p-6 space-y-6">
-        
-        {/* Page Header */}
-        <section className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-teal-500/5 rounded-2xl blur-sm" />
-          <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-emerald-500/20 shadow-lg shadow-emerald-500/10">
-            <div className="mb-4">
-              <h2 className="text-emerald-400 flex items-center text-2xl font-semibold">
-                <Lightbulb className="h-6 w-6 mr-2" />
-                💡 Insights & Review
-              </h2>
-              <p className="text-gray-400 text-sm mt-2">
-                What worked? What didn't? What's next?
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Weekly Wins */}
-        <section className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 to-emerald-500/5 rounded-2xl blur-sm" />
-          <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-green-500/20 shadow-lg shadow-green-500/10">
-            <div className="mb-4">
-              <h3 className="text-green-400 flex items-center font-semibold text-lg">
-                <Trophy className="h-5 w-5 mr-2" />
-                🏆 Weekly Wins
-              </h3>
-            </div>
-            <div>
-              <div className="space-y-3">
-                {wins.map((win, idx) => (
-                  <motion.div
-                    key={idx}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.1 }}
-                    className="bg-green-900/20 border border-green-500/30 rounded-lg p-4"
-                  >
-                    <div className="flex items-start space-x-3">
-                      <CheckCircle className="h-5 w-5 text-green-400 mt-0.5 flex-shrink-0" />
-                      <div className="flex-1 text-gray-200">{win}</div>
-                    </div>
-                  </motion.div>
-                ))}
+    <div className="relative min-h-screen pb-28">
+      <div className="mx-auto w-full max-w-5xl px-4 pb-8 pt-4 sm:px-6 lg:px-8">
+        <Card className="border border-white/10 bg-gradient-to-br from-slate-950 via-slate-900/80 to-slate-950 shadow-2xl shadow-emerald-500/10">
+          <CardHeader className="space-y-4">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+              <div className="space-y-2">
+                <Badge className="w-fit bg-emerald-500/20 text-emerald-100" variant="secondary">
+                  Weekly Review
+                </Badge>
+                <CardTitle className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+                  Lock in learnings before the next cycle
+                </CardTitle>
+                <p className="max-w-xl text-sm text-slate-300/80">
+                  Capture the truth—what crushed, what collapsed, and how next week
+                  improves. This review feeds straight into weekly planning.
+                </p>
               </div>
+              <Chip className="border border-white/15 bg-white/10 text-xs uppercase tracking-[0.18em] text-white/70">
+                Takes 5 minutes. Do not skip.
+              </Chip>
             </div>
-          </div>
-        </section>
+          </CardHeader>
 
-        {/* Problems & Red Flags */}
-        <section className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-red-500/5 to-rose-500/5 rounded-2xl blur-sm" />
-          <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-red-500/20 shadow-lg shadow-red-500/10">
-            <div className="mb-4">
-              <h3 className="text-red-400 flex items-center font-semibold text-lg">
-                <AlertTriangle className="h-5 w-5 mr-2" />
-                ⚠️ Problems & Areas to Improve
-              </h3>
-            </div>
-            <div>
-              <div className="space-y-3">
-                {problems.map((problem, idx) => (
-                  <motion.div
-                    key={idx}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.1 }}
-                    className="bg-red-900/20 border border-red-500/30 rounded-lg p-4"
-                  >
-                    <div className="flex items-start space-x-3">
-                      <AlertTriangle className="h-5 w-5 text-red-400 mt-0.5 flex-shrink-0" />
-                      <div className="flex-1 text-gray-200">{problem}</div>
-                    </div>
-                  </motion.div>
-                ))}
+          <CardContent className="space-y-8">
+            <section className="grid gap-4 lg:grid-cols-2">
+              <InsightList
+                title="Wins"
+                icon={<Trophy className="h-4 w-4" />}
+                tone="positive"
+                items={wins}
+              />
+              <InsightList
+                title="Breakdowns"
+                icon={<AlertTriangle className="h-4 w-4" />}
+                tone="negative"
+                items={problems}
+              />
+            </section>
+
+            <Separator className="bg-white/10" />
+
+            <section className="space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <h3 className="text-sm font-semibold uppercase tracking-[0.25em] text-slate-300">
+                  Week-over-week trends
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  <Chip className="border border-emerald-400/30 bg-emerald-500/10 text-xs uppercase tracking-[0.18em] text-emerald-100">
+                    {positiveTrends.length} better
+                  </Chip>
+                  <Chip className="border border-rose-400/30 bg-rose-500/10 text-xs uppercase tracking-[0.18em] text-rose-100">
+                    {negativeTrends.length} worse
+                  </Chip>
+                </div>
               </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Week-over-Week Trends */}
-        <section className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-indigo-500/5 rounded-2xl blur-sm" />
-          <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-blue-500/20 shadow-lg shadow-blue-500/10">
-            <div className="mb-4">
-              <h3 className="text-blue-400 flex items-center font-semibold text-lg">
-                <TrendingUp className="h-5 w-5 mr-2" />
-                📈 Week-over-Week Trends
-              </h3>
-            </div>
-            <div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {trends.map((trend, idx) => (
-                  <motion.div
+              <div className="grid gap-3 sm:grid-cols-2">
+                {trends.map((trend) => (
+                  <TrendCard
                     key={trend.metric}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: idx * 0.1 }}
-                    className={cn(
-                      'bg-gray-800/50 rounded-lg p-4 border',
-                      trend.direction === 'up' ? 'border-green-500/30' :
-                      trend.direction === 'down' ? 'border-red-500/30' :
-                      'border-gray-500/30'
-                    )}
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm text-gray-400">{trend.metric}</span>
-                      <div className={cn(
-                        'flex items-center space-x-1',
-                        trend.direction === 'up' ? 'text-green-400' :
-                        trend.direction === 'down' ? 'text-red-400' :
-                        'text-gray-400'
-                      )}>
-                        {trend.direction === 'up' && <TrendingUp className="h-4 w-4" />}
-                        {trend.direction === 'down' && <TrendingDown className="h-4 w-4" />}
-                        {trend.direction === 'stable' && <span className="text-xs">→</span>}
-                      </div>
-                    </div>
-                    <div className={cn(
-                      'text-2xl font-bold',
-                      trend.direction === 'up' ? 'text-green-400' :
-                      trend.direction === 'down' ? 'text-red-400' :
-                      'text-gray-400'
-                    )}>
-                      {trend.change > 0 ? '+' : ''}{trend.change}%
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">vs. last week</div>
-                  </motion.div>
+                    metric={trend.metric}
+                    direction={trend.direction}
+                    change={trend.change}
+                  />
                 ))}
               </div>
-            </div>
-          </div>
-        </section>
+            </section>
 
-        {/* Weekly Checkout */}
-        <section className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-pink-500/5 rounded-2xl blur-sm" />
-          <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-purple-500/20 shadow-lg shadow-purple-500/10">
-            <div className="mb-4">
-              <h3 className="text-purple-400 flex items-center font-semibold text-lg">
-                <CheckCircle className="h-5 w-5 mr-2" />
-                ✅ Weekly Checkout
-              </h3>
-              <p className="text-sm text-gray-400 mt-2">
-                Take a moment to reflect on your week and plan for the next one.
-              </p>
-            </div>
-            <div className="space-y-6">
-              {/* Reflection Question */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-300 mb-2">
-                  What did I learn this week?
-                </label>
+            <Separator className="bg-white/10" />
+
+            <section className="grid gap-4 lg:grid-cols-2">
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.25em] text-white/60">
+                  <Lightbulb className="h-4 w-4" />
+                  Reflection
+                </div>
                 <Textarea
                   value={reflection}
-                  onChange={(e) => setReflection(e.target.value)}
-                  placeholder="Reflect on your wins, challenges, and insights..."
-                  className="bg-gray-800/50 border-purple-500/30 text-white placeholder:text-gray-500 min-h-[100px] focus:border-purple-400 focus:ring-purple-400/20"
+                  onChange={(event) => setReflection(event.target.value)}
+                  placeholder="What did I learn? Where did I break down? What systems held?"
+                  className="mt-3 min-h-[140px] bg-black/30 text-white placeholder:text-white/40"
                 />
               </div>
-
-              {/* Next Week Focus */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-300 mb-2">
-                  What's my focus for next week?
-                </label>
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.25em] text-white/60">
+                  <PenSquare className="h-4 w-4" />
+                  Next week focus
+                </div>
                 <Textarea
                   value={nextWeekFocus}
-                  onChange={(e) => setNextWeekFocus(e.target.value)}
-                  placeholder="Set your intentions and priorities for the upcoming week..."
-                  className="bg-gray-800/50 border-purple-500/30 text-white placeholder:text-gray-500 min-h-[100px] focus:border-purple-400 focus:ring-purple-400/20"
+                  onChange={(event) => setNextWeekFocus(event.target.value)}
+                  placeholder="Define the non-negotiables, targets, and safeguard actions for next week."
+                  className="mt-3 min-h-[140px] bg-black/30 text-white placeholder:text-white/40"
                 />
               </div>
+            </section>
+          </CardContent>
 
-              {/* Action Buttons */}
-              <div className="flex gap-3 pt-4">
-                <Button
-                  className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold"
-                  onClick={() => {
-                    // Save checkout data
-                    console.log('Saving weekly checkout:', { reflection, nextWeekFocus });
-                  }}
-                >
-                  Save Checkout
-                </Button>
-                <Button
-                  variant="outline"
-                  className="border-purple-500/30 text-purple-400 hover:bg-purple-500/10"
-                  onClick={() => {
-                    setReflection('');
-                    setNextWeekFocus('');
-                  }}
-                >
-                  Clear
-                </Button>
-              </div>
+          <CardFooter className="flex flex-col gap-3 border-t border-white/10 bg-black/40 px-6 py-5 text-sm text-slate-300/80 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3">
+              <CheckCircle2 className="h-4 w-4 text-emerald-200" />
+              <span>
+                Drop these insights into the Goals tab before Monday so execution lines up
+                with what you learned.
+              </span>
             </div>
-          </div>
-        </section>
-
-        {/* Motivational Quote */}
-        <section className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/5 to-orange-500/5 rounded-2xl blur-sm" />
-          <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-6 border border-yellow-500/20 shadow-lg shadow-yellow-500/10 text-center">
-            <div className="text-2xl mb-2">🚀</div>
-            <p className="text-gray-200 italic mb-2">
-              "The only way to do great work is to love what you do."
-            </p>
-            <p className="text-sm text-gray-400">— Steve Jobs</p>
-          </div>
-        </section>
-
+            <div className="flex gap-2">
+              <Button variant="ghost" size="sm" className="text-white/70 hover:bg-white/10">
+                <RotateCcw className="mr-2 h-4 w-4" />
+                Reset Fields
+              </Button>
+              <Button size="sm" className="bg-emerald-500 text-white hover:bg-emerald-500/80">
+                Save Weekly Checkout
+              </Button>
+            </div>
+          </CardFooter>
+        </Card>
       </div>
     </div>
   );

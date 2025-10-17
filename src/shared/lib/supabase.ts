@@ -3,31 +3,9 @@
  * Provides typed Supabase client for LifeLock application
  */
 
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseBrowserClient } from '@/shared/lib/supabaseBrowserClient';
 
-// Robust environment variable handling
-const envUrl = import.meta.env.VITE_SUPABASE_URL;
-const envKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-const supabaseUrl = (envUrl && envUrl.trim() && envUrl !== 'undefined') 
-  ? envUrl.trim() 
-  : 'https://avdgyrepwrvsvwgxrccr.supabase.co';
-
-const supabaseKey = (envKey && envKey.trim() && envKey !== 'undefined') 
-  ? envKey.trim() 
-  : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2ZGd5cmVwd3J2c3Z3Z3hyY2NyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM2MzgwODIsImV4cCI6MjA1OTIxNDA4Mn0.8MZ2etAhQ1pTJnK84uoqAFfUirv_kaoYcmKHhKgLAWU';
-
-if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
-  console.warn('Supabase environment variables are missing. App will run in demo mode with fallback credentials.');
-}
-
-export const supabase = createClient(supabaseUrl, supabaseKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true
-  }
-});
+export const supabase = getSupabaseBrowserClient();
 
 // LifeLock Database Types (matching Prisma schema)
 export interface SupabaseLightWorkTask {
@@ -121,7 +99,10 @@ export const TABLES = {
   DEEP_WORK_TASKS: 'deep_work_tasks',
   DEEP_WORK_SUBTASKS: 'deep_work_subtasks',
   MORNING_ROUTINE_TASKS: 'morning_routine_tasks',
+  DAILY_ROUTINES: 'daily_routines',
   DAILY_REFLECTIONS: 'daily_reflections',
+  HOME_WORKOUTS: 'home_workouts',
+  TIME_BLOCKS: 'time_blocks',
   USER_FEEDBACK: 'user_feedback'
 } as const;
 
