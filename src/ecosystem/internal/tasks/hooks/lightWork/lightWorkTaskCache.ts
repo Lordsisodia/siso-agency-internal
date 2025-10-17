@@ -1,7 +1,7 @@
-import type { LightWorkSubtask, LightWorkTask } from '../useLightWorkTasksSupabase';
 import { offlineDb } from '@/shared/offline/offlineDb';
+import type { LightWorkSubtask, LightWorkTask } from '../useLightWorkTasksSupabase';
 
-type LightWorkTaskRow = {
+export type LightWorkTaskRow = {
   id: string;
   user_id: string;
   title: string;
@@ -124,7 +124,18 @@ export async function saveLightWorkTaskToCache(task: LightWorkTask, markForSync 
   await offlineDb.saveLightWorkTask(mapLightWorkTaskToOfflineRecord(task), markForSync);
 }
 
+export async function cacheSupabaseLightWorkTasks(rows: LightWorkTaskRow[]): Promise<LightWorkTask[]> {
+  const tasks = rows.map(mapSupabaseLightWorkTask);
+  for (const task of tasks) {
+    await saveLightWorkTaskToCache(task, false);
+  }
+  return tasks;
+}
+
 export async function markLightWorkTaskSynced(taskId: string): Promise<void> {
   await offlineDb.markTaskSynced(taskId, 'lightWorkTasks');
 }
 
+export function buildLightWorkQueuePayload(task: LightWorkTask): any {
+  return mapLightWorkTaskToOfflineRecord(task);
+}

@@ -1,67 +1,56 @@
-import type { PostgrestError, SupabaseClient } from '@supabase/supabase-js';
+import type { SupabaseClient, PostgrestError } from '@supabase/supabase-js';
 import { offlineDb } from '@/shared/offline/offlineDb';
 import type { DeepWorkTask } from '../useDeepWorkTasksSupabase';
 import {
+  buildDeepWorkQueuePayload,
   markDeepWorkTaskSynced,
-  mapDeepWorkTaskToOfflineRecord,
-  mapSupabaseDeepWorkTask,
   saveDeepWorkTaskToCache,
+  mapSupabaseDeepWorkTask,
 } from './deepWorkTaskCache';
 
 export type DeepWorkAction = 'create' | 'update' | 'delete';
 
-export interface DeepWorkSyncContext {
+export interface DeepWorkMutationContext {
   supabase: SupabaseClient | null;
   action: DeepWorkAction;
-  queueData: any;
+  payload: any;
 }
 
-export interface DeepWorkSyncResult<T> {
+export interface DeepWorkMutationResult<T> {
   data?: T;
   queued: boolean;
   error?: string;
-}
-
-export async function queueDeepWorkAction(action: DeepWorkAction, data: any): Promise<void> {
-  await offlineDb.queueAction(action, 'deepWorkTasks', data);
-}
-
-export async function handleDeepWorkMutation<T>(
-  context: DeepWorkSyncContext,
-  executor: () => Promise<{ data: T | null; error: PostgrestError | null }>
-): Promise<DeepWorkSyncResult<T | null>> {
-  if (!context.supabase) {
-    await queueDeepWorkAction(context.action, context.queueData);
-    return { queued: true, error: 'Supabase client unavailable – queued for sync.' };
-  }
-
-  const { data, error } = await executor();
-  if (error) {
-    console.warn('[DeepWorkSync] Supabase mutation failed, queuing offline:', error.message);
-    await queueDeepWorkAction(context.action, context.queueData);
-    return { queued: true, error: error.message };
-  }
-
-  if (context.queueData?.id) {
-    await markDeepWorkTaskSynced(context.queueData.id);
-  }
-
-  return { data, queued: false };
-}
-
-export async function cacheSupabaseDeepWorkTasks(rows: any[]): Promise<DeepWorkTask[]> {
-  const tasks = rows.map(mapSupabaseDeepWorkTask);
-  for (const task of tasks) {
-    await saveDeepWorkTaskToCache(task, false);
-  }
-  return tasks;
 }
 
 export async function persistOptimisticDeepTask(task: DeepWorkTask, markForSync = true): Promise<void> {
   await saveDeepWorkTaskToCache(task, markForSync);
 }
 
-export function buildDeepWorkQueuePayload(task: DeepWorkTask): any {
-  return mapDeepWorkTaskToOfflineRecord(task);
+export async function queueDeepWorkTask(action: DeepWorkAction, task: DeepWorkTask): Promise<void> {
+  await offlineDb.queueAction(action, 'deepWorkTasks', buildDeepWorkQueuePayload(task));
 }
 
+export async function handleDeepWorkMutation<T>(
+  ctx: DeepWorkMutationContext,
+  executor: () => Promise<{ data: T | null; error: PostgrestError | null }>
+): Promise<DeepWorkMutationResult<T | null>> {
+  if (!ctx.supabase) {
+    await offlineDb.queueAction(ctx.action, 'deepWorkTasks', ctx.payload);
+    return { queued: true, error: 'Supabase client unavailable – queued for sync.' };
+  }
+
+  const { data, error } = await executor();
+  if (error) {
+    console.warn('[DeepWorkSync] Supabase mutation failed:', error.message);
+    await offlineDb.queueAction(ctx.action, 'deepWorkTasks', ctx.payload);
+    return { queued: true, error: error.message };
+  }
+
+  if (ctx.payload?.id) {
+    await markDeepWorkTaskSynced(ctx.payload.id);
+  }
+
+  return { data, queued: false };
+}
+
+export { mapSupabaseDeepWorkTask, markDeepWorkTaskSynced };

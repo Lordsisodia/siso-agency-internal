@@ -1,66 +1,56 @@
-import type { PostgrestError, SupabaseClient } from '@supabase/supabase-js';
+import type { SupabaseClient, PostgrestError } from '@supabase/supabase-js';
 import { offlineDb } from '@/shared/offline/offlineDb';
 import type { LightWorkTask } from '../useLightWorkTasksSupabase';
-import { mapLightWorkTaskToOfflineRecord, mapSupabaseLightWorkTask, saveLightWorkTaskToCache, markLightWorkTaskSynced } from './lightWorkTaskCache';
+import {
+  buildLightWorkQueuePayload,
+  markLightWorkTaskSynced,
+  saveLightWorkTaskToCache,
+  mapSupabaseLightWorkTask,
+} from './lightWorkTaskCache';
 
 export type LightWorkAction = 'create' | 'update' | 'delete';
 
-export interface LightWorkSyncContext {
+export interface LightWorkMutationContext {
   supabase: SupabaseClient | null;
-  queueData: any;
   action: LightWorkAction;
+  payload: any;
 }
 
-export interface LightWorkSyncResult<T> {
+export interface LightWorkMutationResult<T> {
   data?: T;
   queued: boolean;
   error?: string;
-}
-
-export async function queueLightWorkAction(action: LightWorkAction, data: any): Promise<void> {
-  await offlineDb.queueAction(action, 'lightWorkTasks', data);
-}
-
-export async function handleLightWorkMutation<T>(
-  context: LightWorkSyncContext,
-  executor: () => Promise<{ data: T | null; error: PostgrestError | null }>
-): Promise<LightWorkSyncResult<T | null>> {
-  if (!context.supabase) {
-    await queueLightWorkAction(context.action, context.queueData);
-    return { queued: true, error: 'Supabase client unavailable – queued for sync.' };
-  }
-
-  const { data, error } = await executor();
-  if (error) {
-    console.warn('[LightWorkSync] Supabase mutation failed, queuing offline:', error.message);
-    await queueLightWorkAction(context.action, context.queueData);
-    return { queued: true, error: error.message };
-  }
-
-  if (context.queueData?.id) {
-    await markLightWorkTaskSynced(context.queueData.id);
-  }
-
-  return { data, queued: false };
-}
-
-export async function cacheSupabaseLightWorkTasks(rows: any[]): Promise<LightWorkTask[]> {
-  const tasks = rows.map(mapSupabaseLightWorkTask);
-  for (const task of tasks) {
-    await saveLightWorkTaskToCache(task, false);
-  }
-  return tasks;
 }
 
 export async function persistOptimisticLightTask(task: LightWorkTask, markForSync = true): Promise<void> {
   await saveLightWorkTaskToCache(task, markForSync);
 }
 
-export async function removeLightWorkQueuedAction(actionId: string): Promise<void> {
-  await offlineDb.removeAction(actionId);
+export async function queueLightWorkTask(action: LightWorkAction, task: LightWorkTask): Promise<void> {
+  await offlineDb.queueAction(action, 'lightWorkTasks', buildLightWorkQueuePayload(task));
 }
 
-export function buildQueuePayload(task: LightWorkTask): any {
-  return mapLightWorkTaskToOfflineRecord(task);
+export async function handleLightWorkMutation<T>(
+  ctx: LightWorkMutationContext,
+  executor: () => Promise<{ data: T | null; error: PostgrestError | null }>
+): Promise<LightWorkMutationResult<T | null>> {
+  if (!ctx.supabase) {
+    await offlineDb.queueAction(ctx.action, 'lightWorkTasks', ctx.payload);
+    return { queued: true, error: 'Supabase client unavailable – queued for sync.' };
+  }
+
+  const { data, error } = await executor();
+  if (error) {
+    console.warn('[LightWorkSync] Supabase mutation failed:', error.message);
+    await offlineDb.queueAction(ctx.action, 'lightWorkTasks', ctx.payload);
+    return { queued: true, error: error.message };
+  }
+
+  if (ctx.payload?.id) {
+    await markLightWorkTaskSynced(ctx.payload.id);
+  }
+
+  return { data, queued: false };
 }
 
+export { mapSupabaseLightWorkTask, markLightWorkTaskSynced };

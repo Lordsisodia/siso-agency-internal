@@ -18,6 +18,7 @@ export interface DailyBottomNavProps {
   tabs: DailyBottomNavTab[];
   activeIndex: number;
   activeColor?: string;
+  activeBgColor?: string;
   onChange: (index: number | null) => void;
   className?: string;
 }
@@ -26,6 +27,7 @@ export const DailyBottomNav: React.FC<DailyBottomNavProps> = ({
   tabs,
   activeIndex,
   activeColor = 'text-orange-400',
+  activeBgColor = 'bg-orange-400/20',
   onChange,
   className = ''
 }) => {
@@ -36,6 +38,7 @@ export const DailyBottomNav: React.FC<DailyBottomNavProps> = ({
           tabs={tabs}
           activeIndex={activeIndex}
           activeColor={activeColor}
+          activeBgColor={activeBgColor}
           className={`bg-gray-900/30 backdrop-blur-xl border-white/10 shadow-2xl rounded-2xl ${className}`}
           onChange={onChange}
         />

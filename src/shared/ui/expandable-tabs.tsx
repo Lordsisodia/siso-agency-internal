@@ -24,6 +24,7 @@ interface ExpandableTabsProps {
   tabs: TabItem[];
   className?: string;
   activeColor?: string;
+  activeBgColor?: string;
   activeIndex?: number | null;
   onChange?: (index: number | null) => void;
 }
@@ -53,6 +54,7 @@ export const ExpandableTabs = React.memo(function ExpandableTabs({
   tabs,
   className,
   activeColor = "text-primary",
+  activeBgColor = "bg-muted",
   activeIndex,
   onChange,
 }: ExpandableTabsProps) {
@@ -101,7 +103,7 @@ export const ExpandableTabs = React.memo(function ExpandableTabs({
             className={cn(
               "relative flex items-center rounded-xl px-3 py-2 text-xs font-medium transition-colors duration-300",
               selected === index
-                ? cn("bg-muted", activeColor)
+                ? cn(activeBgColor, activeColor)
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
             )}
           >
@@ -114,7 +116,7 @@ export const ExpandableTabs = React.memo(function ExpandableTabs({
                   animate="animate"
                   exit="exit"
                   transition={transition}
-                  className="overflow-hidden"
+                  className="overflow-hidden whitespace-nowrap"
                 >
                   {tab.title}
                 </motion.span>

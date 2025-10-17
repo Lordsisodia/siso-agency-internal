@@ -6,7 +6,6 @@
  */
 
 import React from 'react';
-import { CleanDateNav } from '../_shared/components/CleanDateNav';
 import LightWorkTaskList from './components/LightWorkTaskList';
 
 interface LightFocusWorkSectionProps {
@@ -21,17 +20,8 @@ export const LightFocusWorkSection: React.FC<LightFocusWorkSectionProps> = ({
   onNextDate
 }) => {
   return (
-    <div className="space-y-6">
-      <CleanDateNav
-        selectedDate={selectedDate}
-        onPreviousDate={onPreviousDate}
-        onNextDate={onNextDate}
-        activeTab="light-work"
-      />
-
-      <LightWorkTaskList
-        selectedDate={selectedDate}
-      />
-    </div>
+    <LightWorkTaskList
+      selectedDate={selectedDate}
+    />
   );
 };

@@ -1,7 +1,7 @@
-import type { DeepWorkSubtask, DeepWorkTask } from '../useDeepWorkTasksSupabase';
 import { offlineDb } from '@/shared/offline/offlineDb';
+import type { DeepWorkSubtask, DeepWorkTask } from '../useDeepWorkTasksSupabase';
 
-type DeepWorkTaskRow = {
+export type DeepWorkTaskRow = {
   id: string;
   user_id: string;
   title: string;
@@ -55,7 +55,7 @@ export const mapSupabaseDeepWorkTask = (task: DeepWorkTaskRow): DeepWorkTask => 
   originalDate: task.original_date,
   currentDate: task.task_date || task.original_date,
   taskDate: task.task_date || task.original_date,
-  dueDate: task.due_date ?? undefined,
+  dueDate: task.due_date ?? null,
   estimatedDuration: task.estimated_duration ?? undefined,
   focusBlocks: task.focus_blocks ?? 4,
   breakDuration: task.break_duration ?? 15,
@@ -84,7 +84,7 @@ export const mapOfflineRecordToDeepWorkTask = (record: any): DeepWorkTask => ({
   originalDate: record.original_date,
   currentDate: record.task_date || record.original_date,
   taskDate: record.task_date || record.original_date,
-  dueDate: record.due_date ?? undefined,
+  dueDate: record.due_date ?? null,
   estimatedDuration: record.estimated_duration ?? undefined,
   focusBlocks: record.focus_blocks ?? 4,
   breakDuration: record.break_duration ?? 15,
@@ -138,7 +138,18 @@ export async function saveDeepWorkTaskToCache(task: DeepWorkTask, markForSync = 
   await offlineDb.saveDeepWorkTask(mapDeepWorkTaskToOfflineRecord(task), markForSync);
 }
 
+export async function cacheSupabaseDeepWorkTasks(rows: DeepWorkTaskRow[]): Promise<DeepWorkTask[]> {
+  const tasks = rows.map(mapSupabaseDeepWorkTask);
+  for (const task of tasks) {
+    await saveDeepWorkTaskToCache(task, false);
+  }
+  return tasks;
+}
+
 export async function markDeepWorkTaskSynced(taskId: string): Promise<void> {
   await offlineDb.markTaskSynced(taskId, 'deepWorkTasks');
 }
 
+export function buildDeepWorkQueuePayload(task: DeepWorkTask): any {
+  return mapDeepWorkTaskToOfflineRecord(task);
+}

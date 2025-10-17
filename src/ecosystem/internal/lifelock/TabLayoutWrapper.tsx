@@ -17,6 +17,26 @@ import { cn } from '@/shared/lib/utils';
 // Use centralized tab configuration to prevent routing inconsistencies
 const tabs = Object.values(TAB_CONFIG);
 
+// Section-specific colors for bottom navigation
+const TAB_COLORS: Record<string, string> = {
+  'morning': 'text-orange-400',      // Morning routine - orange
+  'light-work': 'text-emerald-400',  // Light work - green  
+  'work': 'text-blue-400',           // Deep work - blue
+  'wellness': 'text-red-400',        // Wellness - red
+  'timebox': 'text-sky-400',         // Timebox - light blue
+  'checkout': 'text-purple-400'      // Checkout - purple
+};
+
+// Section-specific background colors for active tab (lighter versions)
+const TAB_BG_COLORS: Record<string, string> = {
+  'morning': 'bg-orange-400/20',      // Morning routine - light orange
+  'light-work': 'bg-emerald-400/20',  // Light work - light green  
+  'work': 'bg-blue-400/20',           // Deep work - light blue
+  'wellness': 'bg-red-400/20',        // Wellness - light red
+  'timebox': 'bg-sky-400/20',         // Timebox - lighter blue
+  'checkout': 'bg-purple-400/20'      // Checkout - light purple
+};
+
 interface TabLayoutWrapperProps {
   selectedDate: Date;
   onDateChange: (date: Date) => void;
@@ -194,7 +214,8 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
             icon: tab.icon
           }))}
           activeIndex={activeTabIndex}
-          activeColor="text-orange-400"
+          activeColor={TAB_COLORS[activeTabId] || 'text-orange-400'}
+          activeBgColor={TAB_BG_COLORS[activeTabId] || 'bg-orange-400/20'}
           onChange={(index) => {
             if (index !== null) {
               handleTabClick(tabs[index].id);
