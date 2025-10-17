@@ -973,6 +973,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                           <MeditationTracker
                             duration={meditationDuration}
                             onChange={setMeditationDuration}
+                            selectedDate={selectedDate}
                           />
                         )}
                       </div>

@@ -13,11 +13,13 @@ import { MeditationTimer } from './MeditationTimer';
 interface MeditationTrackerProps {
   duration: string;
   onChange: (duration: string) => void;
+  selectedDate?: Date;
 }
 
 export const MeditationTracker: React.FC<MeditationTrackerProps> = ({
   duration,
-  onChange
+  onChange,
+  selectedDate
 }) => {
   const [showTimer, setShowTimer] = useState(false);
 
@@ -100,6 +102,7 @@ export const MeditationTracker: React.FC<MeditationTrackerProps> = ({
         isOpen={showTimer}
         onClose={() => setShowTimer(false)}
         onComplete={handleTimerComplete}
+        selectedDate={selectedDate}
       />
     </>
   );
