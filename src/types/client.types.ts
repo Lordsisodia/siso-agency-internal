@@ -92,6 +92,7 @@ export interface ClientData {
   type?: string | null;
   brief?: string | null;
   onboarding_progress?: OnboardingProgress | null;
+  user_id?: string | null;
 }
 
 export interface TodoItem {

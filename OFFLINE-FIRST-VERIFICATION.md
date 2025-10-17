@@ -25,6 +25,14 @@
 
 ---
 
+### Real-Time Sync Status (New) ✅
+
+- Consume `useSyncStatus()` from `@/shared/offline/useSyncStatus` to power sync indicators in the UI.
+- In development, run `window.__lifelockSyncService.getStatus()` inside DevTools to inspect live sync state or call `window.__lifelockSyncService.forceSync()` to flush the queue on demand.
+- The status payload includes `isOnline`, `isSyncing`, `pendingActions`, and the last successful sync timestamp so QA can verify state transitions quickly.
+
+---
+
 ## ✅ Verified Components
 
 ### 1. Deep Work Tasks ✅
@@ -136,18 +144,45 @@ const blocks = await unifiedDataService.getTimeBlocks(userId, date);
 ---
 
 ### 5. Morning Routine ✅
-**File:** `src/ecosystem/internal/lifelock/sections/MorningRoutineSection.tsx`
+**Files:** `src/shared/hooks/useMorningRoutineSupabase.ts`, `src/ecosystem/internal/lifelock/views/daily/morning-routine/MorningRoutineSection.tsx`
 
-**Status:** Already using Supabase hooks (no Prisma) ✅
+**Offline-First Flow:**
+```typescript
+const { routine, toggleHabit, updateMetadata } = useMorningRoutineSupabase({ selectedDate });
+
+await offlineDb.saveMorningRoutine(routineState, !navigator.onLine);
+```
 
 **Console Output:**
 ```
-✅ Morning routine loaded
+🌅 Loading morning routine (offline-first)...
+⚡ INSTANT: Loaded routine from IndexedDB (online)
+✅ Routine session synced to Supabase
 ```
 
 ---
 
-### 6. User Sync ✅
+### 6. Home Workout ✅
+**Files:** `src/services/supabaseWorkoutService.ts`, `src/ecosystem/internal/lifelock/views/daily/wellness/home-workout/HomeWorkoutSection.tsx`
+
+**Offline-First Flow:**
+```typescript
+const items = await supabaseWorkoutService.getWorkoutItems(userId, dateKey);
+
+// Persist session locally and queue when offline
+await offlineDb.saveWorkoutSession(sessionRecord, !navigator.onLine);
+```
+
+**Console Output:**
+```
+🏋️ Loading home workout (offline-first)...
+⚡ INSTANT: Loaded workout from IndexedDB
+✅ Workout session synced to Supabase
+```
+
+---
+
+### 7. User Sync ✅
 **File:** `src/shared/auth/ClerkProvider.tsx`
 
 **Offline-First Flow:**

@@ -20,21 +20,20 @@ import {
   Flame
 } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
-import { useXPStore } from '@/ecosystem/internal/xp-store/hooks/useXPStore';
+import { useXPStoreContext } from '@/ecosystem/internal/xp-store/context/XPStoreContext';
 
 interface XPStoreBalanceProps {
-  userId: string;
   className?: string;
 }
 
-export const XPStoreBalance = ({ userId, className }: XPStoreBalanceProps) => {
+export const XPStoreBalance = ({ className }: XPStoreBalanceProps) => {
   const { 
     balance, 
     loading, 
     error, 
     getNearMissNotifications, 
     getSpendingPower 
-  } = useXPStore(userId);
+  } = useXPStoreContext();
 
   const [showDetails, setShowDetails] = useState(false);
   const [celebrateBalance, setCelebrateBalance] = useState(false);
@@ -91,7 +90,7 @@ export const XPStoreBalance = ({ userId, className }: XPStoreBalanceProps) => {
       {/* Main Balance Card */}
       <Card className="w-full bg-gradient-to-br from-siso-bg to-siso-bg-alt border-siso-border">
         <CardHeader className="pb-3">
-          <CardTitle className="flex items-center justify-between">
+          <CardTitle className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2">
               <motion.div
                 animate={celebrateBalance ? { scale: [1, 1.2, 1], rotate: [0, 10, -10, 0] } : {}}
@@ -105,7 +104,7 @@ export const XPStoreBalance = ({ userId, className }: XPStoreBalanceProps) => {
               variant="ghost"
               size="sm"
               onClick={() => setShowDetails(!showDetails)}
-              className="text-siso-text-muted hover:text-siso-text"
+              className="text-siso-text-muted hover:text-siso-text w-full sm:w-auto justify-start sm:justify-center"
             >
               {showDetails ? 'Hide Details' : 'Show Details'}
             </Button>
@@ -127,12 +126,12 @@ export const XPStoreBalance = ({ userId, className }: XPStoreBalanceProps) => {
           </div>
 
           {/* Spending Power */}
-          <div className="bg-siso-bg-alt rounded-lg p-4 space-y-2">
-            <div className="flex items-center justify-between">
+          <div className="bg-siso-bg-alt rounded-lg p-4 space-y-3">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <span className="text-siso-text font-medium">Available to Spend</span>
               <Badge 
                 variant="outline" 
-                className="bg-green-500/20 text-green-400 border-green-500/20"
+                className="bg-green-500/20 text-green-400 border-green-500/20 w-max"
               >
                 <Coins className="h-3 w-3 mr-1" />
                 {balance.canSpend.toLocaleString()} XP
@@ -194,7 +193,7 @@ export const XPStoreBalance = ({ userId, className }: XPStoreBalanceProps) => {
           </AnimatePresence>
 
           {/* Spending Power Overview */}
-          <div className="grid grid-cols-3 gap-2 text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
             <div className="bg-green-500/10 rounded p-2 text-center">
               <div className="font-bold text-green-400">{spendingPower.canAfford.length}</div>
               <div className="text-green-400/70">Can Afford</div>
@@ -218,7 +217,7 @@ export const XPStoreBalance = ({ userId, className }: XPStoreBalanceProps) => {
                 exit={{ opacity: 0, height: 0 }}
                 className="space-y-3 pt-3 border-t border-siso-border"
               >
-                <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
                   <div>
                     <div className="text-siso-text-muted">Total Earned</div>
                     <div className="font-bold text-green-400">

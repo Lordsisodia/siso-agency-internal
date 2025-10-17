@@ -12,8 +12,6 @@ import { useRefactoredLifeLockData } from '@/ecosystem/internal/lifelock/useRefa
 import { LoadingState } from '@/shared/ui/loading-state';
 import { selectImplementation } from '@/migration/feature-flags';
 import { calculateDayCompletionPercentage } from '@/utils/dayProgress';
-import { DailyXPSummaryWidget } from './components/DailyXPSummaryWidget';
-import { useTodayXP } from './hooks/useTodayXP';
 
 const AdminLifeLockDay: React.FC = () => {
   const navigate = useNavigate();
@@ -30,9 +28,6 @@ const AdminLifeLockDay: React.FC = () => {
 
   // 🎮 Initialize XP/Gamification system
   useGamificationInit();
-
-  // 🎮 Get today's XP breakdown (AFTER selectedDate is defined)
-  const todayXP = useTodayXP(selectedDate);
 
   // State for real-time day progress updates (same as AdminLifeLock.tsx)
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -162,18 +157,6 @@ return (
         hideBottomNav={false}
         dayCompletionPercentage={dayCompletionPercentage}
       />
-
-      {/* XP Summary Widget - Collapsible with REAL DATA */}
-      <div className="max-w-7xl mx-auto px-4 pb-6">
-        <DailyXPSummaryWidget
-          date={selectedDate}
-          morningXP={todayXP.morningXP}
-          lightWorkXP={todayXP.lightWorkXP}
-          deepWorkXP={todayXP.deepWorkXP}
-          wellnessXP={todayXP.wellnessXP}
-          checkoutXP={todayXP.checkoutXP}
-        />
-      </div>
 
       {/* Global Modals */}
       {lastThoughtDumpResult && (

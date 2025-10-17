@@ -9,7 +9,7 @@
  * NO PRISMA - Browser-native only!
  */
 
-import { offlineDb } from '@/shared/offline/offlineDb';
+import { offlineDb, SyncableTable, OfflineSyncAction } from '@/shared/offline/offlineDb';
 import { supabaseAnon } from '@/shared/lib/supabase-clerk';
 import { offlineManager } from '@/shared/services/offlineManager';
 import type { DeepWorkTask } from '@/ecosystem/internal/tasks/hooks/useDeepWorkTasksSupabase';
@@ -369,6 +369,18 @@ class UnifiedDataService {
       updated_at: new Date().toISOString()
     });
 
+    await offlineDb.saveNightlyCheckout({
+      id: reflection.id ?? `checkout-${reflection.user_id}-${reflection.date}`,
+      user_id: reflection.user_id,
+      checkout_date: reflection.date,
+      reflection: reflection.dailyAnalysis ?? '',
+      wins: reflection.wentWell ?? [],
+      improvements: reflection.evenBetterIf ?? [],
+      tomorrow_focus: reflection.tomorrowFocus ?? '',
+      created_at: reflection.created_at ?? new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }, !this.isOnline());
+
     // Transform camelCase to snake_case for Supabase
     const dbRecord = {
       user_id: reflection.user_id,
@@ -496,11 +508,9 @@ class UnifiedDataService {
 
   // ===== TIME BLOCKS =====
   async getTimeBlocks(userId: string, date: string): Promise<TimeBlock[]> {
-    // Try local first
     try {
-      const key = `timeblocks:${userId}:${date}`;
-      const local = await offlineDb.getSetting(key);
-      if (local && Array.isArray(local)) {
+      const local = await offlineDb.getTimeBlocks(userId, date);
+      if (local.length > 0) {
         console.log('📦 Loaded time blocks from cache:', local.length);
         return local;
       }
@@ -521,9 +531,9 @@ class UnifiedDataService {
 
         if (!error && data) {
           console.log('✅ Fetched time blocks from Supabase:', data.length);
-          // Cache locally
-          const key = `timeblocks:${userId}:${date}`;
-          await offlineDb.setSetting(key, data);
+          for (const record of data) {
+            await offlineDb.saveTimeBlock(record, false);
+          }
           return data;
         } else if (error) {
           console.warn('⚠️ Supabase fetch error:', error);
@@ -580,14 +590,8 @@ class UnifiedDataService {
       updated_at: new Date().toISOString()
     };
 
-    // Always save to local cache using date-based key for easy retrieval
-    const cacheKey = `timeblocks:${timeBlock.user_id}:${timeBlock.date}`;
-    const existingBlocks = await this.getTimeBlocks(timeBlock.user_id, timeBlock.date);
-    
-    // Update or add the block
-    const updatedBlocks = existingBlocks.filter(b => b.id !== timeBlock.id);
-    updatedBlocks.push(dbRecord);
-    await offlineDb.setSetting(cacheKey, updatedBlocks);
+    const online = this.isOnline();
+    await offlineDb.saveTimeBlock(dbRecord, !online);
 
     console.log('💾 Saving time block to Supabase:', {
       title: dbRecord.title,
@@ -597,7 +601,7 @@ class UnifiedDataService {
     });
 
     // If online, sync to Supabase
-    if (this.isOnline()) {
+    if (online) {
       try {
         const { error } = await supabaseAnon
           .from('time_blocks')
@@ -608,6 +612,7 @@ class UnifiedDataService {
           await this.queueForSync('time_blocks', 'upsert', dbRecord);
         } else {
           console.log('✅ Time block synced to Supabase:', timeBlock.title);
+          await offlineDb.saveTimeBlock(dbRecord, false);
         }
       } catch (error) {
         console.warn('❌ Supabase sync error:', error);
@@ -676,16 +681,15 @@ class UnifiedDataService {
       description: updates.description !== undefined ? updates.description : updatedBlock.description,
       type: dbType,
       task_ids: validTaskIds, // Only valid UUIDs
-      updated_at: updatedBlock.updated_at
+      created_at: updatedBlock.created_at || new Date().toISOString(),
+      updated_at: new Date().toISOString()
     };
 
-    // Update local cache
-    const cacheKey = `timeblocks:${userId}:${date}`;
-    existingBlocks[blockIndex] = dbRecord;
-    await offlineDb.setSetting(cacheKey, existingBlocks);
+    const online = this.isOnline();
+    await offlineDb.saveTimeBlock({ ...dbRecord, created_at: updatedBlock.created_at || new Date().toISOString() }, !online);
 
     // Sync to Supabase if online
-    if (this.isOnline()) {
+    if (online) {
       try {
         const { error } = await supabaseAnon
           .from('time_blocks')
@@ -694,13 +698,14 @@ class UnifiedDataService {
 
         if (error) {
           console.warn('❌ Failed to update in Supabase:', error);
-          await this.queueForSync('time_blocks', 'update', { id, data: dbRecord });
+          await this.queueForSync('time_blocks', 'upsert', dbRecord);
         } else {
           console.log('✅ Time block updated in Supabase');
+          await offlineDb.saveTimeBlock({ ...dbRecord, created_at: updatedBlock.created_at || new Date().toISOString() }, false);
         }
       } catch (error) {
         console.warn('❌ Supabase update error:', error);
-        await this.queueForSync('time_blocks', 'update', { id, data: dbRecord });
+        await this.queueForSync('time_blocks', 'upsert', dbRecord);
       }
     }
   }
@@ -708,10 +713,10 @@ class UnifiedDataService {
   async deleteTimeBlock(id: string): Promise<void> {
     console.log('🗑️ Deleting time block:', id);
 
-    // Remove from all local caches (we need to find which date it belongs to)
-    // For now, we'll just try to delete from Supabase and invalidate all caches
+    await offlineDb.deleteTimeBlock(id);
 
-    // If online, delete from Supabase
+    let deleteFailed = false;
+
     if (this.isOnline()) {
       try {
         const { error } = await supabaseAnon
@@ -721,12 +726,20 @@ class UnifiedDataService {
 
         if (error) {
           console.warn('❌ Failed to delete from Supabase:', error);
+          deleteFailed = true;
         } else {
           console.log('✅ Time block deleted from Supabase');
         }
       } catch (error) {
         console.warn('❌ Supabase delete error:', error);
+        deleteFailed = true;
       }
+    } else {
+      deleteFailed = true;
+    }
+
+    if (deleteFailed) {
+      await this.queueForSync('time_blocks', 'delete', { id });
     }
   }
 
@@ -832,13 +845,35 @@ class UnifiedDataService {
 
   // ===== SYNC QUEUE =====
   private async queueForSync(table: string, action: string, data: any): Promise<void> {
-    const queueKey = `sync_queue:${Date.now()}`;
-    await offlineDb.setSetting(queueKey, {
-      table,
-      action,
-      data,
-      timestamp: new Date().toISOString()
-    });
+    const tableMap: Record<string, SyncableTable | undefined> = {
+      daily_reflections: 'dailyReflections',
+      time_blocks: 'timeBlocks',
+      daily_routines: 'morningRoutines',
+      home_workouts: 'workoutSessions',
+    };
+
+    const mappedTable = tableMap[table];
+
+    if (!mappedTable) {
+      console.warn('[UnifiedDataService] Attempted to queue unsupported table:', table);
+      return;
+    }
+
+    const actionMap: Record<string, OfflineSyncAction['action']> = {
+      upsert: 'upsert',
+      insert: 'create',
+      update: 'update',
+      delete: 'delete',
+    };
+
+    const mappedAction = actionMap[action] ?? 'upsert';
+
+    const sanitized = { ...data };
+    delete sanitized._needs_sync;
+    delete sanitized._sync_status;
+    delete sanitized._last_synced;
+
+    await offlineDb.queueAction(mappedAction, mappedTable, sanitized);
   }
 
   // ===== SYNC OPERATIONS =====

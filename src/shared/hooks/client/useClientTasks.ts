@@ -1,21 +1,51 @@
 import useSWR from 'swr';
 import { supabase } from '@/integrations/supabase/client';
 import { ClientTask } from '@/types/client.types';
+import { sampleClients } from '@/data/sampleClients';
+
+const generateId = () => {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return `task-${Math.random().toString(36).slice(2, 11)}`;
+};
+
+const mapSampleTodosToTasks = (clientId: string): ClientTask[] => {
+  const sampleClient = sampleClients.find((client) => client.id === clientId);
+  if (!sampleClient?.todos?.length) {
+    return [];
+  }
+
+  return sampleClient.todos.map((todo) => ({
+    id: todo.id ?? generateId(),
+    user_id: 'sample-user',
+    client_id: clientId,
+    title: todo.text,
+    description: null,
+    completed: Boolean(todo.completed),
+    priority: (todo.priority ?? 'medium') as ClientTask['priority'],
+    due_date: todo.due_date ?? null,
+    subtasks: todo.subtasks ?? [],
+    created_at: sampleClient.created_at,
+    updated_at: sampleClient.updated_at,
+    completed_at: todo.completed ? sampleClient.updated_at : null,
+  }));
+};
 
 const fetchClientTasks = async (clientId: string): Promise<ClientTask[]> => {
   const { data, error } = await supabase
-    .from('client_tasks')
+    .from('client_onboarding_tasks')
     .select('*')
     .eq('client_id', clientId)
     .order('created_at', { ascending: false });
 
   if (error) {
     console.warn('Failed to load client tasks from Supabase', error);
-    return [];
+    return mapSampleTodosToTasks(clientId);
   }
 
-  if (!data) {
-    return [];
+  if (!data || data.length === 0) {
+    return mapSampleTodosToTasks(clientId);
   }
 
   return data.map((task) => ({

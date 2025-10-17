@@ -1,15 +1,19 @@
 
 import { useEffect } from 'react';
-import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
 import { useAdminCheck } from '@/ecosystem/internal/admin/hooks/useAdminCheck';
-import { Loader2, Users } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useToast } from '@/shared/hooks/use-toast';
 import { AdminClientsView } from '@/ecosystem/internal/admin/clients/AdminClientsView';
-import { AdminPageTitle } from '@/ecosystem/internal/admin/layout/AdminPageTitle';
+import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
 
-export default function AdminClients() {
+export function AdminClientsContent() {
   const { isAdmin, isLoading } = useAdminCheck();
   const { toast } = useToast();
+
+  useEffect(() => {
+    console.log('[AdminClients] mount');
+    return () => console.log('[AdminClients] unmount');
+  }, []);
 
   useEffect(() => {
     if (!isLoading && !isAdmin) {
@@ -34,22 +38,13 @@ export default function AdminClients() {
     return null;
   }
 
-  // Clients Dashboard: black background (modern)
+  return <AdminClientsView isAdmin={isAdmin} />;
+}
+
+export default function AdminClients() {
   return (
     <AdminLayout>
-      <div className="min-h-screen pb-12"
-        style={{
-          background: "linear-gradient(90deg, #000000 0%, #221F26 100%)"
-        }}>
-        <div className="container mx-auto px-2 py-6">
-          <AdminPageTitle
-            icon={Users}
-            title="Clients Dashboard"
-            subtitle="Manage your organization's clients and view details"
-          />
-          <AdminClientsView isAdmin={isAdmin} />
-        </div>
-      </div>
+      <AdminClientsContent />
     </AdminLayout>
   );
 }

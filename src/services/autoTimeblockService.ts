@@ -30,9 +30,9 @@ export const AUTO_TIMEBOX_CONFIG = {
     offsetMinutes: 0 // Start immediately at wake-up time
   },
   nightlyCheckout: {
-    durationMinutes: 30,
+    durationMinutes: 15,
     title: '🌙 Nightly Checkout',
-    description: 'Auto-created 16 hours after wake-up. Reflect on your day!',
+    description: 'Auto-created to close the day with gratitude and planning.',
     metadataTag: `[auto:${AUTO_TIMEBOX_TYPES.NIGHTLY_CHECKOUT}]`,
     type: AUTO_TIMEBOX_TYPES.NIGHTLY_CHECKOUT,
     hoursAfterWakeup: 16
@@ -103,12 +103,9 @@ function calculateEndTime(startTime: string, durationMinutes: number): string {
 /**
  * Calculate nightly checkout time (16 hours after wake-up)
  */
-function calculateNightlyCheckoutTime(wakeUpTime: string): string {
-  const [hours, minutes] = wakeUpTime.split(':').map(Number);
-  const start = new Date();
-  start.setHours(hours, minutes, 0, 0);
-  const checkout = addHours(start, AUTO_TIMEBOX_CONFIG.nightlyCheckout.hoursAfterWakeup);
-  return format(checkout, 'HH:mm:ss');
+function calculateNightlyCheckoutTime(): string {
+  // Lock nightly checkout to 23:45 for start
+  return '23:45';
 }
 
 /**
@@ -164,10 +161,9 @@ export async function createOrUpdateMorningRoutineTimebox(
         date,
         startTime: startTime24h,
         endTime: endTime,
-        description:
-          existing.description && existing.description.includes(config.metadataTag)
-            ? existing.description
-            : buildAutoDescription(config)
+        title: config.title,
+        description: buildAutoDescription(config),
+        category: 'PERSONAL'
       });
 
       if (updateResult.success) {
@@ -220,21 +216,16 @@ export async function createOrUpdateMorningRoutineTimebox(
  * Create or update Nightly Checkout timebox
  */
 export async function createOrUpdateNightlyCheckoutTimebox(
-  wakeUpTime: string,
+  _wakeUpTime: string,
   userId: string,
   date: string
 ): Promise<{ success: boolean; error?: string; timeBlock?: TimeBlock }> {
   try {
-    // Parse wake-up time to 24-hour format
-    const wakeUpTime24h = parseTime12To24(wakeUpTime);
     const config = AUTO_TIMEBOX_CONFIG.nightlyCheckout;
 
-    // Calculate checkout time (16 hours after wake-up)
-    const startTime = calculateNightlyCheckoutTime(wakeUpTime24h);
-    const endTime = calculateEndTime(
-      startTime,
-      config.durationMinutes
-    );
+    // Nightly checkout is fixed to the final 15 minutes of the day
+    const startTime = calculateNightlyCheckoutTime();
+    const endTime = '00:00';
 
     // Check if already exists
     const existing = await findExistingAutoTimebox(
@@ -250,10 +241,9 @@ export async function createOrUpdateNightlyCheckoutTimebox(
         date,
         startTime,
         endTime,
-        description:
-          existing.description && existing.description.includes(config.metadataTag)
-            ? existing.description
-            : buildAutoDescription(config)
+        title: config.title,
+        description: buildAutoDescription(config),
+        category: 'PERSONAL'
       });
 
       if (updateResult.success) {

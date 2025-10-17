@@ -14,6 +14,10 @@ import {
   XPStoreError
 } from '@/services/xpStoreService';
 import { XPPsychologyUtils } from '@/shared/utils/xpPsychologyUtils';
+import { supabaseAnon } from '@/shared/lib/supabase-clerk';
+
+const userIdCache = new Map<string, string | null>();
+const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 interface XPStoreState {
   balance: XPStoreBalance | null;
@@ -38,7 +42,12 @@ interface XPStoreActions {
  * Manages XP spending economy state and actions
  */
 export function useXPStore(userId: string): XPStoreState & XPStoreActions {
-  
+  const [resolvedUserId, setResolvedUserId] = useState<string | null>(() => (uuidRegex.test(userId) ? userId : null));
+  const [resolvingUserId, setResolvingUserId] = useState<boolean>(() => {
+    if (!userId) return false;
+    return !uuidRegex.test(userId);
+  });
+
   const [state, setState] = useState<XPStoreState>({
     balance: null,
     rewards: [],
@@ -48,17 +57,101 @@ export function useXPStore(userId: string): XPStoreState & XPStoreActions {
     error: null
   });
 
+  useEffect(() => {
+    let isMounted = true;
+
+    if (!userId) {
+      setResolvedUserId(null);
+      setResolvingUserId(false);
+      return () => {
+        isMounted = false;
+      };
+    }
+
+    if (uuidRegex.test(userId)) {
+      setResolvedUserId(userId);
+      setResolvingUserId(false);
+      return () => {
+        isMounted = false;
+      };
+    }
+
+    const cachedId = userIdCache.get(userId);
+    if (cachedId !== undefined) {
+      setResolvedUserId(cachedId);
+      setResolvingUserId(false);
+      return () => {
+        isMounted = false;
+      };
+    }
+
+    setResolvingUserId(true);
+
+    const resolveUserId = async () => {
+      try {
+        const { data, error } = await supabaseAnon
+          .from('users')
+          .select('id')
+          .eq('supabase_id', userId)
+          .maybeSingle();
+
+        let resolvedId = data?.id ?? null;
+
+        if (!resolvedId) {
+          const { data: legacyData, error: legacyError } = await supabaseAnon
+            .from('users')
+            .select('id')
+            .eq('supabase_id', `prisma-user-${userId}`)
+            .maybeSingle();
+
+          if (legacyError) {
+            console.warn('Legacy user mapping lookup failed:', legacyError);
+          }
+
+          resolvedId = legacyData?.id ?? null;
+        }
+
+        userIdCache.set(userId, resolvedId);
+
+        if (isMounted) {
+          setResolvedUserId(resolvedId);
+        }
+      } catch (error) {
+        console.error('Error mapping Clerk user to Supabase ID:', error);
+        userIdCache.set(userId, null);
+        if (isMounted) {
+          setResolvedUserId(null);
+        }
+      } finally {
+        if (isMounted) {
+          setResolvingUserId(false);
+        }
+      }
+    };
+
+    resolveUserId();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [userId]);
+
   /**
    * Refresh XP balance
    */
   const refreshBalance = useCallback(async () => {
     try {
       setState(prev => ({ ...prev, loading: true, error: null }));
-      
-      const balance = await xpStoreService.getXPStoreBalance(userId);
-      const history = await xpStoreService.getPurchaseHistory(userId);
-      const analytics = await xpStoreService.getSpendingAnalytics(userId);
-      
+
+      const effectiveUserId = resolvedUserId ?? '';
+      const balance = await xpStoreService.getXPStoreBalance(effectiveUserId);
+      const history = resolvedUserId
+        ? await xpStoreService.getPurchaseHistory(resolvedUserId)
+        : [];
+      const analytics = resolvedUserId
+        ? await xpStoreService.getSpendingAnalytics(resolvedUserId)
+        : null;
+
       setState(prev => ({
         ...prev,
         balance,
@@ -79,7 +172,7 @@ export function useXPStore(userId: string): XPStoreState & XPStoreActions {
         loading: false
       }));
     }
-  }, [userId]);
+  }, [resolvedUserId]);
 
   /**
    * Refresh available rewards
@@ -87,9 +180,9 @@ export function useXPStore(userId: string): XPStoreState & XPStoreActions {
   const refreshRewards = useCallback(async () => {
     try {
       setState(prev => ({ ...prev, loading: true }));
-      
-      const rewards = await xpStoreService.getAvailableRewards(userId);
-      
+
+      const rewards = await xpStoreService.getAvailableRewards(resolvedUserId ?? '');
+
       setState(prev => ({
         ...prev,
         rewards,
@@ -108,7 +201,7 @@ export function useXPStore(userId: string): XPStoreState & XPStoreActions {
         loading: false
       }));
     }
-  }, [userId]);
+  }, [resolvedUserId]);
 
   /**
    * Purchase a reward
@@ -121,8 +214,16 @@ export function useXPStore(userId: string): XPStoreState & XPStoreActions {
     try {
       setState(prev => ({ ...prev, loading: true, error: null }));
       
+      if (!resolvedUserId) {
+        setState(prev => ({ ...prev, loading: false }));
+        return {
+          success: false,
+          message: 'We need to sync your XP profile before purchases are available.'
+        };
+      }
+
       const result = await xpStoreService.purchaseReward({
-        userId,
+        userId: resolvedUserId,
         rewardId,
         useLoan,
         notes
@@ -155,7 +256,7 @@ export function useXPStore(userId: string): XPStoreState & XPStoreActions {
         message: 'Purchase failed. Please try again.'
       };
     }
-  }, [userId, refreshBalance, refreshRewards]);
+  }, [resolvedUserId, refreshBalance, refreshRewards]);
 
   /**
    * Get near-miss notifications for psychology
@@ -224,11 +325,14 @@ export function useXPStore(userId: string): XPStoreState & XPStoreActions {
    * Initial load effect
    */
   useEffect(() => {
-    if (userId) {
-      refreshBalance();
-      refreshRewards();
+    if (resolvingUserId) {
+      setState(prev => ({ ...prev, loading: true }));
+      return;
     }
-  }, [userId, refreshBalance, refreshRewards]);
+
+    refreshBalance();
+    refreshRewards();
+  }, [resolvingUserId, resolvedUserId, refreshBalance, refreshRewards]);
 
   return {
     ...state,

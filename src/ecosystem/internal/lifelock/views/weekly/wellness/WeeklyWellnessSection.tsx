@@ -1,14 +1,23 @@
-/**
- * Weekly Wellness Section
- * 
- * Health tracking - workouts, health habits, energy/sleep, nutrition
- */
-
-import React from 'react';
-import { Dumbbell, Heart, Moon, Droplets, Utensils, Activity } from 'lucide-react';
-// Card components removed - using standard divs instead
-import { WeeklyStatsCard } from '../_shared/WeeklyStatsCard';
-import { motion } from 'framer-motion';
+import React, { useMemo } from 'react';
+import { Badge } from '@/shared/ui/badge';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/shared/ui/card';
+import { Chip } from '@/shared/ui/chip';
+import { Progress } from '@/shared/ui/progress';
+import { Separator } from '@/shared/ui/separator';
+import {
+  Activity,
+  CheckCircle2,
+  Dumbbell,
+  Heart,
+  Moon,
+  Utensils,
+} from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
 import type { WellnessData } from '../_shared/types';
 
@@ -16,308 +25,270 @@ interface WeeklyWellnessSectionProps {
   wellnessData: WellnessData;
 }
 
-const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-const HABITS = [
-  { key: 'morningRoutine', label: 'Morning Routine', emoji: '🌅' },
-  { key: 'checkout', label: 'Checkout', emoji: '✅' },
-  { key: 'water', label: 'Water', emoji: '💧' },
-  { key: 'meditation', label: 'Meditation', emoji: '🧘' },
-  { key: 'sleep', label: 'Sleep', emoji: '😴' },
-];
+type HabitKey = keyof WellnessData['healthHabits'];
 
-export const WeeklyWellnessSection: React.FC<WeeklyWellnessSectionProps> = ({ wellnessData }) => {
-  const { workouts, healthHabits, energySleep, nutrition } = wellnessData;
+const HABIT_LABELS: Record<
+  HabitKey,
+  { label: string; emoji: string; color: string }
+> = {
+  morningRoutine: { label: 'Morning Routine', emoji: '🌅', color: 'text-emerald-100' },
+  checkout: { label: 'Checkout', emoji: '✅', color: 'text-purple-100' },
+  water: { label: 'Hydration', emoji: '💧', color: 'text-sky-100' },
+  meditation: { label: 'Meditation', emoji: '🧘', color: 'text-amber-100' },
+  sleep: { label: 'Sleep Quality', emoji: '😴', color: 'text-blue-100' },
+};
+
+const StatTile: React.FC<{
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  helper?: string;
+  tone?: 'neutral' | 'positive';
+}> = ({ icon, label, value, helper, tone = 'neutral' }) => {
+  const tones = {
+    neutral: 'border-white/10 bg-white/5 text-slate-100',
+    positive: 'border-emerald-400/40 bg-emerald-500/10 text-emerald-100',
+  };
+  return (
+    <div
+      className={cn(
+        'rounded-2xl border px-4 py-4 shadow-inner backdrop-blur-sm',
+        tones[tone],
+      )}
+    >
+      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/70">
+        {icon}
+        {label}
+      </div>
+      <div className="mt-2 text-3xl font-semibold">{value}</div>
+      {helper && <p className="mt-2 text-xs text-white/70">{helper}</p>}
+    </div>
+  );
+};
+
+const HabitRow: React.FC<{
+  habit: HabitKey;
+  values: boolean[];
+}> = ({ habit, values }) => {
+  const meta = HABIT_LABELS[habit];
+  const completedCount = values.filter(Boolean).length;
+  const rate = Math.round((completedCount / values.length) * 100);
 
   return (
-    <div className="min-h-screen w-full relative pb-24">
-      <div className="w-full max-w-none p-2 sm:p-3 md:p-4 lg:p-6 space-y-6">
-        
-        {/* Page Header */}
-        <section className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-pink-500/5 to-rose-500/5 rounded-2xl blur-sm" />
-          <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-pink-500/20 shadow-lg shadow-pink-500/10">
-            <div>
-              <h3 className="text-pink-400 flex items-center font-semibold text-2xl">
-                <Heart className="h-6 w-6 mr-2" />
-                ❤️ Wellness Analysis
-              </h3>
-              <p className="text-gray-400 text-sm mt-2">
-                Did I take care of myself this week?
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Summary Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <WeeklyStatsCard
-            title="Workouts"
-            icon={Dumbbell}
-            value={workouts.total}
-            subtitle={`${workouts.totalMinutes} minutes`}
-          />
-          <WeeklyStatsCard
-            title="Avg Energy"
-            icon={Activity}
-            value={energySleep.averageEnergy.toFixed(1)}
-            subtitle="Out of 10"
-          />
-          <WeeklyStatsCard
-            title="Avg Sleep"
-            icon={Moon}
-            value={`${energySleep.averageSleep.toFixed(1)}h`}
-            subtitle={`Quality: ${energySleep.sleepQuality}/10`}
-          />
-          <WeeklyStatsCard
-            title="Weight"
-            icon={Utensils}
-            value={`${nutrition.weightChange > 0 ? '+' : ''}${nutrition.weightChange}kg`}
-            subtitle={`${nutrition.averageCalories} cal/day`}
-            trend={{ 
-              direction: nutrition.weightChange < 0 ? 'down' : nutrition.weightChange > 0 ? 'up' : 'stable',
-              value: `${Math.abs(nutrition.weightChange)}kg`
-            }}
-          />
+    <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <span className="text-lg">{meta.emoji}</span>
+          <span className={cn('text-sm font-semibold text-white', meta.color)}>
+            {meta.label}
+          </span>
         </div>
+        <Chip className="border border-white/15 bg-white/10 text-xs uppercase tracking-[0.18em] text-white/70">
+          {completedCount}/7 · {rate}%
+        </Chip>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {values.map((completed, idx) => (
+          <div
+            key={`${habit}-${idx}`}
+            className={cn(
+              'flex h-8 w-8 items-center justify-center rounded-lg border text-sm font-semibold',
+              completed
+                ? 'border-emerald-400/60 bg-emerald-500/15 text-emerald-100'
+                : 'border-white/10 bg-white/5 text-white/40',
+            )}
+          >
+            {completed ? '✓' : '–'}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
 
-        {/* Workout Summary */}
-        <section className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 to-red-500/5 rounded-2xl blur-sm" />
-          <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-orange-500/20 shadow-lg shadow-orange-500/10">
-            <div className="mb-4">
-              <h3 className="text-orange-400 flex items-center font-semibold text-lg">
-                <Dumbbell className="h-5 w-5 mr-2" />
-                💪 Workout Summary
-              </h3>
+export const WeeklyWellnessSection: React.FC<
+  WeeklyWellnessSectionProps
+> = ({ wellnessData }) => {
+  const { workouts, healthHabits, energySleep, nutrition } = wellnessData;
+
+  const averageWorkoutDuration = workouts.total
+    ? Math.round(workouts.totalMinutes / workouts.total)
+    : 0;
+
+  const habitsList = useMemo(
+    () => Object.keys(healthHabits) as HabitKey[],
+    [healthHabits],
+  );
+
+  return (
+    <div className="relative min-h-screen pb-28">
+      <div className="mx-auto w-full max-w-5xl px-4 pb-8 pt-4 sm:px-6 lg:px-8">
+        <Card className="border border-white/10 bg-gradient-to-br from-slate-950 via-slate-900/80 to-slate-950 shadow-2xl shadow-rose-500/10">
+          <CardHeader className="space-y-4">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+              <div className="space-y-2">
+                <Badge className="w-fit bg-rose-500/20 text-rose-100" variant="secondary">
+                  Weekly Health
+                </Badge>
+                <CardTitle className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+                  Did I look after my body and mind?
+                </CardTitle>
+                <p className="max-w-xl text-sm text-slate-300/80">
+                  Wellness isn’t a vibe check—it’s a scoreboard. Track workouts, recovery,
+                  discipline, and fueling so health doesn’t become an afterthought.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white/70 shadow-inner">
+                <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.25em] text-white/60">
+                  <Heart className="h-4 w-4" />
+                  Weekly cadence
+                </p>
+                <ul className="mt-3 space-y-2">
+                  <li>• Aim for 4+ strong workouts (Mon/Wed/Fri/Sat).</li>
+                  <li>• Morning + checkout habits keep discipline tight.</li>
+                  <li>• Track sleep/energy to prevent burnout.</li>
+                </ul>
+              </div>
             </div>
-            <div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-                <div className="bg-gray-800/50 rounded-lg p-4">
-                  <div className="text-sm text-gray-400 mb-1">Total Workouts</div>
-                  <div className="text-3xl font-bold text-orange-400">{workouts.total}</div>
+            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+              <StatTile
+                icon={<Dumbbell className="h-4 w-4" />}
+                label="Workouts Logged"
+                value={`${workouts.total}`}
+                helper={`${workouts.totalMinutes} total minutes`}
+              />
+              <StatTile
+                icon={<Activity className="h-4 w-4" />}
+                label="Average Energy"
+                value={energySleep.averageEnergy.toFixed(1)}
+                helper="Self-reported out of 10"
+              />
+              <StatTile
+                icon={<Moon className="h-4 w-4" />}
+                label="Average Sleep"
+                value={`${energySleep.averageSleep.toFixed(1)}h`}
+                helper={`Quality ${energySleep.sleepQuality}/10`}
+              />
+              <StatTile
+                icon={<Utensils className="h-4 w-4" />}
+                label="Calorie Intake"
+                value={`${nutrition.averageCalories} cal`}
+                helper={`Weight change ${nutrition.weightChange > 0 ? '+' : ''}${nutrition.weightChange}kg`}
+                tone="positive"
+              />
+            </div>
+          </CardHeader>
+
+          <CardContent className="space-y-8">
+            <section className="rounded-2xl border border-white/10 bg-white/5 p-5">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <h3 className="text-sm font-semibold uppercase tracking-[0.25em] text-slate-300">
+                  Workout breakdown
+                </h3>
+                <Chip className="border border-white/15 bg-white/10 text-xs uppercase tracking-[0.18em] text-white/70">
+                  Avg duration · {averageWorkoutDuration} min
+                </Chip>
+              </div>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                {workouts.types.map((type) => (
+                  <div
+                    key={type.type}
+                    className="rounded-2xl border border-white/10 bg-white/5 p-4"
+                  >
+                    <div className="flex items-center justify-between text-sm text-white/80">
+                      <span className="font-semibold">{type.type}</span>
+                      <span>{type.count}x</span>
+                    </div>
+                    <Progress
+                      value={Math.min(100, (type.count / (workouts.total || 1)) * 100)}
+                      indicatorColor="bg-gradient-to-r from-orange-400 to-red-500"
+                      className="mt-3 h-2 rounded-full bg-white/10"
+                    />
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <Separator className="bg-white/10" />
+
+            <section className="space-y-4">
+              <h3 className="text-sm font-semibold uppercase tracking-[0.25em] text-slate-300">
+                Habit accountability
+              </h3>
+              <div className="grid gap-3">
+                {habitsList.map((habit) => (
+                  <HabitRow key={habit} habit={habit} values={healthHabits[habit]} />
+                ))}
+              </div>
+            </section>
+
+            <Separator className="bg-white/10" />
+
+            <section className="grid gap-4 lg:grid-cols-2">
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.25em] text-white/60">
+                  <Moon className="h-4 w-4" />
+                  Sleep & recovery
                 </div>
-                <div className="bg-gray-800/50 rounded-lg p-4">
-                  <div className="text-sm text-gray-400 mb-1">Total Time</div>
-                  <div className="text-3xl font-bold text-orange-400">{workouts.totalMinutes} min</div>
-                </div>
-                <div className="bg-gray-800/50 rounded-lg p-4">
-                  <div className="text-sm text-gray-400 mb-1">Avg Duration</div>
-                  <div className="text-3xl font-bold text-orange-400">
-                    {Math.round(workouts.totalMinutes / workouts.total)} min
+                <div className="mt-4 space-y-3 text-sm text-white/80">
+                  <div className="flex justify-between">
+                    <span>Average Sleep</span>
+                    <span className="font-semibold">
+                      {energySleep.averageSleep.toFixed(1)}h
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Sleep Quality</span>
+                    <span className="font-semibold">
+                      {energySleep.sleepQuality}/10
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Energy Score</span>
+                    <span className="font-semibold">
+                      {energySleep.averageEnergy.toFixed(1)}/10
+                    </span>
                   </div>
                 </div>
               </div>
-              
-              <div className="space-y-2">
-                <div className="text-sm font-semibold text-gray-300 mb-3">Workout Types</div>
-                {workouts.types.map((type, idx) => (
-                  <motion.div
-                    key={type.type}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.1 }}
-                    className="flex items-center justify-between bg-gray-800/30 rounded-lg p-3"
-                  >
-                    <span className="text-gray-300 font-medium">{type.type}</span>
-                    <div className="flex items-center space-x-4">
-                      <span className="text-sm text-gray-400">{type.count}x</span>
-                      <div className="w-24 bg-gray-700/50 rounded-full h-2">
-                        <div 
-                          className="bg-gradient-to-r from-orange-400 to-red-500 h-2 rounded-full"
-                          style={{ width: `${(type.count / workouts.total) * 100}%` }}
-                        />
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Health Habits Grid */}
-        <section className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 to-emerald-500/5 rounded-2xl blur-sm" />
-          <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-green-500/20 shadow-lg shadow-green-500/10">
-            <div className="mb-4">
-              <h3 className="text-green-400 flex items-center font-semibold text-lg">
-                <Heart className="h-5 w-5 mr-2" />
-                ✅ Health Habits Checklist
-              </h3>
-            </div>
-            <div>
-              {/* Desktop Grid */}
-              <div className="hidden lg:block overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr>
-                      <th className="text-left text-sm font-semibold text-gray-300 pb-3">Habit</th>
-                      {DAYS.map(day => (
-                        <th key={day} className="text-center text-sm font-semibold text-gray-300 pb-3 px-2">
-                          {day}
-                        </th>
-                      ))}
-                      <th className="text-right text-sm font-semibold text-gray-300 pb-3">Rate</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {HABITS.map((habit, habitIdx) => {
-                      const completedDays = healthHabits[habit.key as keyof typeof healthHabits].filter(Boolean).length;
-                      const rate = Math.round((completedDays / 7) * 100);
-                      
-                      return (
-                        <motion.tr
-                          key={habit.key}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: habitIdx * 0.05 }}
-                          className="border-t border-gray-700/50"
-                        >
-                          <td className="py-3 text-sm text-gray-300 font-medium">
-                            <span className="mr-2">{habit.emoji}</span>
-                            {habit.label}
-                          </td>
-                          {healthHabits[habit.key as keyof typeof healthHabits].map((completed, dayIdx) => (
-                            <td key={dayIdx} className="py-3 text-center px-2">
-                              <div className={cn(
-                                'w-8 h-8 rounded-lg flex items-center justify-center mx-auto',
-                                completed 
-                                  ? 'bg-green-500/20 border-2 border-green-500' 
-                                  : 'bg-gray-700/30 border-2 border-gray-600/50'
-                              )}>
-                                {completed ? (
-                                  <span className="text-green-400 text-lg">✓</span>
-                                ) : (
-                                  <span className="text-gray-500 text-lg">−</span>
-                                )}
-                              </div>
-                            </td>
-                          ))}
-                          <td className="py-3 text-right">
-                            <span className={cn(
-                              'text-sm font-bold',
-                              rate >= 90 ? 'text-green-400' :
-                              rate >= 70 ? 'text-blue-400' :
-                              rate >= 50 ? 'text-yellow-400' : 'text-red-400'
-                            )}>
-                              {rate}%
-                            </span>
-                          </td>
-                        </motion.tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Mobile Grid */}
-              <div className="lg:hidden space-y-4">
-                {HABITS.map((habit, habitIdx) => {
-                  const completedDays = healthHabits[habit.key as keyof typeof healthHabits].filter(Boolean).length;
-                  const rate = Math.round((completedDays / 7) * 100);
-                  
-                  return (
-                    <motion.div
-                      key={habit.key}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: habitIdx * 0.05 }}
-                      className="bg-gray-800/30 rounded-lg p-4"
-                    >
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center">
-                          <span className="mr-2 text-lg">{habit.emoji}</span>
-                          <span className="text-sm font-medium text-gray-300">{habit.label}</span>
-                        </div>
-                        <span className={cn(
-                          'text-sm font-bold',
-                          rate >= 90 ? 'text-green-400' :
-                          rate >= 70 ? 'text-blue-400' :
-                          rate >= 50 ? 'text-yellow-400' : 'text-red-400'
-                        )}>
-                          {rate}%
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-7 gap-2">
-                        {healthHabits[habit.key as keyof typeof healthHabits].map((completed, dayIdx) => (
-                          <div key={dayIdx} className="flex flex-col items-center">
-                            <div className="text-xs text-gray-400 mb-1">{DAYS[dayIdx]}</div>
-                            <div className={cn(
-                              'w-8 h-8 rounded-lg flex items-center justify-center',
-                              completed 
-                                ? 'bg-green-500/20 border-2 border-green-500' 
-                                : 'bg-gray-700/30 border-2 border-gray-600/50'
-                            )}>
-                              {completed ? (
-                                <span className="text-green-400">✓</span>
-                              ) : (
-                                <span className="text-gray-500">−</span>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Energy & Sleep Analysis */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <section className="relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/5 to-orange-500/5 rounded-2xl blur-sm" />
-            <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-yellow-500/20 shadow-lg shadow-yellow-500/10">
-              <div className="mb-4">
-                <h3 className="text-yellow-400 flex items-center font-semibold text-lg">
-                  <Activity className="h-5 w-5 mr-2" />
-                  ⚡ Energy Levels
-                </h3>
-              </div>
-              <div>
-                <div className="text-5xl font-bold text-yellow-400 mb-2">
-                  {energySleep.averageEnergy.toFixed(1)}/10
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.25em] text-white/60">
+                  <Utensils className="h-4 w-4" />
+                  Fuel & weight
                 </div>
-                <div className="text-sm text-gray-400">Average energy level</div>
-                <div className="mt-4 w-full bg-gray-700/50 rounded-full h-3">
-                  <div 
-                    className="bg-gradient-to-r from-yellow-400 to-orange-500 h-3 rounded-full"
-                    style={{ width: `${(energySleep.averageEnergy / 10) * 100}%` }}
-                  />
+                <div className="mt-4 space-y-3 text-sm text-white/80">
+                  <div className="flex justify-between">
+                    <span>Average Calories</span>
+                    <span className="font-semibold">
+                      {nutrition.averageCalories} cal/day
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Weight Change</span>
+                    <span className="font-semibold">
+                      {nutrition.weightChange > 0 ? '+' : ''}
+                      {nutrition.weightChange} kg
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Workouts Logged</span>
+                    <span className="font-semibold">{workouts.total}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </section>
+            </section>
+          </CardContent>
 
-          <section className="relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/5 to-purple-500/5 rounded-2xl blur-sm" />
-            <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-indigo-500/20 shadow-lg shadow-indigo-500/10">
-              <div className="mb-4">
-                <h3 className="text-indigo-400 flex items-center font-semibold text-lg">
-                  <Moon className="h-5 w-5 mr-2" />
-                  😴 Sleep Quality
-                </h3>
-              </div>
-              <div>
-                <div className="text-5xl font-bold text-indigo-400 mb-2">
-                  {energySleep.sleepQuality}/10
-                </div>
-                <div className="text-sm text-gray-400">
-                  {energySleep.averageSleep.toFixed(1)}h average per night
-                </div>
-                <div className="mt-4 w-full bg-gray-700/50 rounded-full h-3">
-                  <div 
-                    className="bg-gradient-to-r from-indigo-400 to-purple-500 h-3 rounded-full"
-                    style={{ width: `${(energySleep.sleepQuality / 10) * 100}%` }}
-                  />
-                </div>
-              </div>
+          <CardFooter className="flex flex-col gap-3 border-t border-white/10 bg-black/40 px-6 py-5 text-sm text-slate-300/80 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3">
+              <CheckCircle2 className="h-4 w-4 text-emerald-200" />
+              <span>
+                Bring any breakdowns into the Review tab—call out missed workouts, late
+                wake-ups, or low energy so next week’s plan fixes it.
+              </span>
             </div>
-          </section>
-        </div>
-
+          </CardFooter>
+        </Card>
       </div>
     </div>
   );

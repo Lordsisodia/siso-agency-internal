@@ -19,6 +19,18 @@ export interface TimeboxTask {
   color: string;
   priority?: 'low' | 'medium' | 'high' | 'critical';
   intensity?: 'light' | 'moderate' | 'intense' | 'maximum';
+  originalStartTime?: string;
+  originalEndTime?: string;
+  wasAutoAdjusted?: boolean;
+  autoAdjustmentReason?: string;
+}
+
+export interface AutoAdjustment {
+  id: string;
+  newStartTime: string;
+  newEndTime: string;
+  originalStartTime: string;
+  originalEndTime: string;
 }
 
 // Category-specific styling
@@ -138,6 +150,7 @@ export type FocusSprintType = 'pomodoro' | 'extended' | 'deep';
 
 // Time slot for timeline rendering
 export interface TimeSlot {
+  displayIndex: number;
   hour: number;
   label: string;
   time24: string;

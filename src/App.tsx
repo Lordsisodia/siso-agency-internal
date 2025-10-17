@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Toaster } from '@/shared/ui/toaster';
@@ -12,6 +12,7 @@ import Index from './pages/Index';
 import Auth from './pages/Auth';
 import Home from './pages/Home';
 import { AdminAutoLogin } from '@/ecosystem/internal/admin/auth/AdminAutoLogin';
+import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
 
 // Lazy load all other pages for super-fast initial load
 const TestPage = lazy(() => import('./pages/TestPage'));
@@ -47,7 +48,7 @@ const Communication = lazy(() => import('./pages/Communication'));
 
 // Admin pages - heavy bundle, lazy load all
 const AdminDashboard = lazy(() => import('@/ecosystem/internal/pages/AdminDashboard.tsx'));
-const AdminClients = lazy(() => import('@/ecosystem/internal/pages/AdminClients.tsx'));
+const AdminClientsContent = lazy(() => import('@/ecosystem/internal/pages/AdminClients.tsx').then(m => ({ default: m.AdminClientsContent })));
 const AdminTasks = lazy(() => import('@/ecosystem/internal/pages/AdminTasks.tsx'));
 const AdminPlans = lazy(() => import('@/ecosystem/internal/pages/AdminPlans.tsx'));
 const AdminFeedback = lazy(() => import('@/ecosystem/internal/pages/AdminFeedback.tsx'));
@@ -65,7 +66,7 @@ const AdminLifeLockOverview = lazy(() => import('@/ecosystem/internal/admin/dash
 const WeeklyView = lazy(() => import('@/ecosystem/internal/lifelock/views/weekly/WeeklyView').then(m => ({ default: m.WeeklyView })));
 const MonthlyView = lazy(() => import('@/ecosystem/internal/lifelock/views/monthly/MonthlyView'));
 const YearlyView = lazy(() => import('@/ecosystem/internal/lifelock/views/yearly/YearlyView'));
-const ClientDetailPage = lazy(() => import('./pages/ClientDetailPage'));
+const ClientDetailContent = lazy(() => import('./pages/ClientDetailPage'));
 const AdminSettings = lazy(() => import('@/ecosystem/internal/pages/AdminSettings.tsx'));
 const AdminPrompts = lazy(() => import('@/ecosystem/internal/pages/AdminPrompts.tsx'));
 const AdminWireframes = lazy(() => import('@/ecosystem/internal/pages/AdminWireframes.tsx'));
@@ -130,6 +131,14 @@ const AdminPartnershipTraining = lazy(() => import('./pages/admin/AdminPartnersh
 
 // Automation & Dev Tools removed for core app
 
+const AdminClientsShell = () => (
+  <AuthGuard adminOnly={true}>
+    <AdminLayout>
+      <Outlet />
+    </AdminLayout>
+  </AuthGuard>
+);
+
 function ErrorFallback({error, resetErrorBoundary}: {error: Error, resetErrorBoundary: () => void}) {
   return (
     <div className="min-h-screen bg-black flex items-center justify-center">
@@ -156,6 +165,7 @@ function ErrorFallback({error, resetErrorBoundary}: {error: Error, resetErrorBou
 }
 
 function App() {
+  console.log('[App] render');
   return (
     <ClerkProvider>
       <Toaster />
@@ -238,8 +248,10 @@ function App() {
           {/* Admin routes - using adminOnly prop to enforce admin access */}
           <Route path="/admin" element={<AuthGuard adminOnly={true}><AdminDashboard /></AuthGuard>} />
           <Route path="/admin/dashboard" element={<AuthGuard adminOnly={true}><AdminDashboard /></AuthGuard>} />
-          <Route path="/admin/clients" element={<AuthGuard adminOnly={true}><AdminClients /></AuthGuard>} />
-          <Route path="/admin/clients/:clientId" element={<AuthGuard adminOnly={true}><ClientDetailPage /></AuthGuard>} />
+          <Route path="/admin/clients" element={<AdminClientsShell />}>
+            <Route index element={<AdminClientsContent />} />
+            <Route path=":clientId" element={<ClientDetailContent />} />
+          </Route>
           {/* Archived routes - removed from navigation
           <Route path="/admin/prompts" element={<AuthGuard adminOnly={true}><AdminPrompts /></AuthGuard>} />
           <Route path="/admin/outreach" element={<AuthGuard adminOnly={true}><AdminOutreach /></AuthGuard>} />

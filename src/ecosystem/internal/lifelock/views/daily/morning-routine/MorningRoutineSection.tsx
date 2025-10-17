@@ -26,7 +26,7 @@ import { format } from 'date-fns';
 import { cn } from '@/shared/lib/utils';
 import { useClerkUser } from '@/shared/hooks/useClerkUser';
 import { useSupabaseUserId } from '@/shared/lib/supabase-clerk';
-import { workTypeApiClient, MorningRoutineMetadata } from '@/services/workTypeApiClient';
+import { MorningRoutineMetadata, useMorningRoutineSupabase } from '@/shared/hooks/useMorningRoutineSupabase';
 import { SimpleThoughtDumpPage, ThoughtDumpResults, lifeLockVoiceTaskProcessor } from '@/ecosystem/internal/lifelock/features/ai-thought-dump';
 import type { ThoughtDumpResult } from '@/ecosystem/internal/lifelock/features/ai-thought-dump';
 import { getRotatingQuotes } from '@/data/motivational-quotes';
@@ -226,39 +226,32 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
 
   const routineDateKey = useMemo(() => format(routineDate, 'yyyy-MM-dd'), [routineDate]);
 
-  const [wakeUpTime, setWakeUpTime] = useState<string>(() => {
-    const saved = localStorage.getItem(`lifelock-${routineDateKey}-wakeUpTime`);
-    return saved || '';
-  });
+  const {
+    routine: morningRoutineState,
+    loading: routineLoading,
+    error: routineError,
+    toggleHabit: toggleMorningHabit,
+    updateMetadata: persistMorningMetadata,
+  } = useMorningRoutineSupabase(selectedDate);
+
+  const [wakeUpTime, setWakeUpTime] = useState<string>('');
 
   const [isEditingWakeTime, setIsEditingWakeTime] = useState(false);
   const [showTimeScrollPicker, setShowTimeScrollPicker] = useState(false);
 
-  const [meditationDuration, setMeditationDuration] = useState<string>(() => {
-    const saved = localStorage.getItem(`lifelock-${routineDateKey}-meditationDuration`);
-    return saved || '';
-  });
+  const [meditationDuration, setMeditationDuration] = useState<string>('');
 
   const [isEditingMeditationTime, setIsEditingMeditationTime] = useState(false);
   const [localProgressTrigger, setLocalProgressTrigger] = useState(0);
 
   // Plan Day completion state
-  const [isPlanDayComplete, setIsPlanDayComplete] = useState<boolean>(() => {
-    const saved = localStorage.getItem(`lifelock-${routineDateKey}-planDayComplete`);
-    return saved === 'true';
-  });
+  const [isPlanDayComplete, setIsPlanDayComplete] = useState<boolean>(false);
 
   // Water tracking state
-  const [waterAmount, setWaterAmount] = useState<number>(() => {
-    const saved = localStorage.getItem(`lifelock-${routineDateKey}-waterAmount`);
-    return saved ? parseInt(saved) : 0;
-  });
+  const [waterAmount, setWaterAmount] = useState<number>(0);
 
   // Push-ups tracking state
-  const [pushupReps, setPushupReps] = useState<number>(() => {
-    const saved = localStorage.getItem(`lifelock-${routineDateKey}-pushupReps`);
-    return saved ? parseInt(saved) : 0;
-  });
+  const [pushupReps, setPushupReps] = useState<number>(0);
 
   const [pushupPB, setPushupPB] = useState<number>(() => {
     // PB is global, not per day
@@ -267,10 +260,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   });
 
   // Top 3 Daily Priorities (after meditation)
-  const [dailyPriorities, setDailyPriorities] = useState<string[]>(() => {
-    const saved = localStorage.getItem(`lifelock-${routineDateKey}-dailyPriorities`);
-    return saved ? JSON.parse(saved) : ['', '', ''];
-  });
+  const [dailyPriorities, setDailyPriorities] = useState<string[]>(['', '', '']);
 
   // 🤖 Auto-create timeboxes based on wake-up time
   useAutoTimeblocks({
@@ -299,103 +289,50 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   const meditationPreviousValue = useRef<string>(meditationDuration);
   const planDayPreviousValue = useRef<boolean>(isPlanDayComplete);
 
-  // Reload date-specific data when date changes (from Supabase + localStorage fallback)
   useEffect(() => {
-    const loadDateSpecificData = async () => {
-      if (!selectedDate || isNaN(selectedDate.getTime()) || !user?.id) return;
-      const dateKey = format(selectedDate, 'yyyy-MM-dd');
-      
-      try {
-        // Try to load from Supabase first (use Clerk ID, not internal UUID)
-        const response = await fetch(`/api/morning-routine/metadata?userId=${user.id}&date=${dateKey}`);
-        const result = await response.json();
-        
-        if (result.success && result.data) {
-          const metadata = result.data;
-          // Load from Supabase if available
-          setWakeUpTime(metadata.wakeUpTime || '');
-          setWaterAmount(metadata.waterAmount || 0);
-          setMeditationDuration(metadata.meditationDuration || '');
-          setPushupReps(metadata.pushupReps || 0);
-          setDailyPriorities(metadata.dailyPriorities || ['', '', '']);
-          setIsPlanDayComplete(metadata.isPlanDayComplete || false);
-        } else {
-          throw new Error('No Supabase data, falling back to localStorage');
-        }
-      } catch (error) {
-        // Fallback to localStorage if Supabase fails
-        console.log('Loading from localStorage fallback');
-        const savedWakeUpTime = localStorage.getItem(`lifelock-${dateKey}-wakeUpTime`);
-        setWakeUpTime(savedWakeUpTime || '');
-        
-        const savedWaterAmount = localStorage.getItem(`lifelock-${dateKey}-waterAmount`);
-        setWaterAmount(savedWaterAmount ? parseInt(savedWaterAmount) : 0);
-        
-        const savedMeditationDuration = localStorage.getItem(`lifelock-${dateKey}-meditationDuration`);
-        setMeditationDuration(savedMeditationDuration || '');
-        
-        const savedPushupReps = localStorage.getItem(`lifelock-${dateKey}-pushupReps`);
-        setPushupReps(savedPushupReps ? parseInt(savedPushupReps) : 0);
-        
-        const savedDailyPriorities = localStorage.getItem(`lifelock-${dateKey}-dailyPriorities`);
-        setDailyPriorities(savedDailyPriorities ? JSON.parse(savedDailyPriorities) : ['', '', '']);
-        
-        const savedPlanDayComplete = localStorage.getItem(`lifelock-${dateKey}-planDayComplete`);
-        setIsPlanDayComplete(savedPlanDayComplete === 'true');
-      }
-    };
-    
-    loadDateSpecificData();
-  }, [selectedDate, user?.id]);
+    if (routineError) {
+      setError(routineError);
+    }
+  }, [routineError]);
+
+  useEffect(() => {
+    if (!morningRoutineState) return;
+
+    setMorningRoutine({
+      id: morningRoutineState.id,
+      userId: morningRoutineState.userId,
+      date: morningRoutineState.date,
+      items: morningRoutineState.items,
+      completedCount: morningRoutineState.completedCount,
+      totalCount: morningRoutineState.totalCount,
+      completionPercentage: morningRoutineState.completionPercentage,
+    });
+
+    setWakeUpTime(morningRoutineState.metadata.wakeUpTime ?? '');
+    setWaterAmount(morningRoutineState.metadata.waterAmount ?? 0);
+    setMeditationDuration(morningRoutineState.metadata.meditationDuration ?? '');
+    setPushupReps(morningRoutineState.metadata.pushupReps ?? 0);
+    setDailyPriorities(morningRoutineState.metadata.dailyPriorities ?? ['', '', '']);
+    setIsPlanDayComplete(morningRoutineState.metadata.isPlanDayComplete ?? false);
+  }, [morningRoutineState]);
 
   // Load morning routine data
   useEffect(() => {
-    const loadMorningRoutine = async () => {
-      if (!user?.id || !selectedDate) return;
-      
-      try {
-        setLoading(true);
-        setError(null);
-        
-        // Load from API (which reads from daily_routines table)
-        const apiData = await workTypeApiClient.getMorningRoutine(user.id, selectedDate);
-        
-        if (apiData) {
-          setMorningRoutine(apiData);
-          
-          // ✅ FIX: Sync checkbox states from Supabase to localStorage
-          const dateKey = format(selectedDate, 'yyyy-MM-dd');
-          if (apiData.items && Array.isArray(apiData.items)) {
-            apiData.items.forEach((item: MorningRoutineHabit) => {
-              localStorage.setItem(`lifelock-${dateKey}-${item.name}`, item.completed.toString());
-            });
-          }
-        }
-      } catch (error) {
-        console.error('Error loading morning routine:', error);
-        setError('Failed to load morning routine');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadMorningRoutine();
-  }, [user?.id, selectedDate]);
+    setLoading(routineLoading);
+  }, [routineLoading]);
 
   // Save wake-up time to Supabase + localStorage (debounced)
   const debouncedMetadataUpdate = useMemo(() => {
-    if (!user?.id || !selectedDate || isNaN(selectedDate.getTime())) {
+    if (!morningRoutineState) {
       return null;
     }
 
     const update = debounce((payload: Partial<MorningRoutineMetadata>) => {
-      workTypeApiClient.updateMorningRoutineMetadata(user.id!, selectedDate, payload).catch(error => {
-        console.error('Failed to save morning routine metadata to Supabase:', error);
-      });
+      void persistMorningMetadata(payload);
     }, 500);
 
     return update;
-  }, [user?.id, selectedDate]);
+  }, [morningRoutineState, persistMorningMetadata]);
 
   useEffect(() => {
     return () => {
@@ -406,16 +343,12 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   useEffect(() => {
     if (!selectedDate || isNaN(selectedDate.getTime())) return;
 
-    localStorage.setItem(`lifelock-${routineDateKey}-wakeUpTime`, wakeUpTime);
-
     debouncedMetadataUpdate?.({ wakeUpTime });
   }, [wakeUpTime, selectedDate, debouncedMetadataUpdate, routineDateKey]);
 
   // Save water amount to Supabase + localStorage (debounced)
   useEffect(() => {
     if (!selectedDate || isNaN(selectedDate.getTime())) return;
-
-    localStorage.setItem(`lifelock-${routineDateKey}-waterAmount`, waterAmount.toString());
 
     debouncedMetadataUpdate?.({ waterAmount });
   }, [waterAmount, selectedDate, debouncedMetadataUpdate, routineDateKey]);
@@ -424,16 +357,12 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   useEffect(() => {
     if (!selectedDate || isNaN(selectedDate.getTime())) return;
 
-    localStorage.setItem(`lifelock-${routineDateKey}-meditationDuration`, meditationDuration);
-
     debouncedMetadataUpdate?.({ meditationDuration });
   }, [meditationDuration, selectedDate, debouncedMetadataUpdate, routineDateKey]);
 
   // Save push-up reps to Supabase + localStorage (debounced)
   useEffect(() => {
     if (!selectedDate || isNaN(selectedDate.getTime())) return;
-
-    localStorage.setItem(`lifelock-${routineDateKey}-pushupReps`, pushupReps.toString());
 
     debouncedMetadataUpdate?.({ pushupReps });
   }, [pushupReps, selectedDate, debouncedMetadataUpdate, routineDateKey]);
@@ -447,16 +376,12 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   useEffect(() => {
     if (!selectedDate || isNaN(selectedDate.getTime()) || !internalUserId) return;
 
-    localStorage.setItem(`lifelock-${routineDateKey}-dailyPriorities`, JSON.stringify(dailyPriorities));
-
     debouncedMetadataUpdate?.({ dailyPriorities });
   }, [dailyPriorities, selectedDate, internalUserId, debouncedMetadataUpdate, routineDateKey]);
 
   // Save Plan Day completion to Supabase + localStorage (debounced)
   useEffect(() => {
     if (!selectedDate || isNaN(selectedDate.getTime()) || !internalUserId) return;
-
-    localStorage.setItem(`lifelock-${routineDateKey}-planDayComplete`, isPlanDayComplete.toString());
 
     debouncedMetadataUpdate?.({ isPlanDayComplete });
   }, [isPlanDayComplete, selectedDate, internalUserId, debouncedMetadataUpdate, routineDateKey]);
@@ -616,57 +541,19 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
 
   // Handle habit toggle
   const handleHabitToggle = async (habitKey: string, completed: boolean) => {
-    if (!user?.id || !selectedDate) return;
+    if (!selectedDate) return;
 
     try {
-      // Always save to localStorage for immediate feedback
-      const dateKey = format(selectedDate, 'yyyy-MM-dd');
-      localStorage.setItem(`lifelock-${dateKey}-${habitKey}`, completed.toString());
+      await toggleMorningHabit(habitKey, completed);
 
-      // ✅ Save to Supabase via API
-      await workTypeApiClient.updateMorningRoutineHabit(user.id, selectedDate, habitKey, completed);
-
-      // 🎮 Award XP for habit completion
       if (completed) {
         awardHabitCompletion(habitKey);
       }
 
-      // Update local state immediately for better UX
-      if (morningRoutine && morningRoutine.items && Array.isArray(morningRoutine.items)) {
-        const updatedItems = morningRoutine.items.map(item =>
-          item.name === habitKey ? { ...item, completed } : item
-        );
-        
-        // If habit doesn't exist, add it
-        if (!updatedItems.find(item => item.name === habitKey)) {
-          updatedItems.push({ name: habitKey, completed });
-        }
-        
-        const completedCount = updatedItems.filter(item => item.completed).length;
-        setMorningRoutine({
-          ...morningRoutine,
-          items: updatedItems,
-          completedCount,
-          completionPercentage: (completedCount / updatedItems.length) * 100
-        });
-      } else {
-        // Create new morningRoutine if it doesn't exist
-        setMorningRoutine({
-          id: '',
-          userId: user.id,
-          date: dateKey,
-          items: [{ name: habitKey, completed }],
-          completedCount: completed ? 1 : 0,
-          totalCount: 1,
-          completionPercentage: completed ? 100 : 0
-        });
-      }
-      
-      // Force re-render to update progress calculation
       setLocalProgressTrigger(prev => prev + 1);
     } catch (error) {
       console.error('Error updating habit:', error);
-      // LocalStorage save still works even if API fails
+      setError('Failed to update habit completion');
     }
   };
 
@@ -684,17 +571,13 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
 
   // Helper function to check if a habit is completed
   const isHabitCompleted = useCallback((habitKey: string): boolean => {
-    if (morningRoutine && morningRoutine.items) {
-      // Use API data if available
-      const habit = morningRoutine.items.find(item => item.name === habitKey);
-      return habit?.completed || false;
-    } else {
-      // Fallback to localStorage if API data not available
-      const dateKey = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd');
-      const stored = localStorage.getItem(`lifelock-${dateKey}-${habitKey}`);
-      return stored === 'true';
+    if (!morningRoutine || !morningRoutine.items) {
+      return false;
     }
-  }, [morningRoutine, selectedDate]);
+
+    const habit = morningRoutine.items.find(item => item.name === habitKey);
+    return habit?.completed ?? false;
+  }, [morningRoutine]);
 
   // Smart completion check based on data, not checkboxes
   const isTaskComplete = useCallback((taskKey: string, subtasks: any[]): boolean => {

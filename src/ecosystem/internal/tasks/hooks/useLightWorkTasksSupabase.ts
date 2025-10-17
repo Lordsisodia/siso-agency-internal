@@ -6,6 +6,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useClerkUser } from '@/shared/hooks/useClerkUser';
 import { useSupabaseClient, useSupabaseUserId } from '@/shared/lib/supabase-clerk';
 import { isBrowserOnline } from '../utils/network';
+import { syncService } from '@/shared/offline/syncService';
 import {
   loadLightWorkTasksFromCache,
   cacheSupabaseLightWorkTasks,
@@ -371,6 +372,55 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
     }
   }, [tasks, supabase, persistTask, replaceTaskInState]);
 
+  const updateTaskTitle = useCallback(async (taskId: string, newTitle: string) => {
+    const currentTask = tasks.find(task => task.id === taskId);
+    if (!currentTask) return null;
+
+    const now = optimisticNow();
+    const optimisticTask: LightWorkTask = {
+      ...currentTask,
+      title: newTitle,
+      updatedAt: now,
+    };
+
+    await persistTask(optimisticTask, true);
+
+    if (!supabase || !isBrowserOnline()) {
+      await queueLightWorkTask('update', optimisticTask);
+      return true;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('light_work_tasks')
+        .update({
+          title: newTitle,
+          updated_at: now,
+        })
+        .eq('id', taskId)
+        .select(`
+          *,
+          subtasks:light_work_subtasks(*)
+        `)
+        .single();
+
+      if (error || !data) {
+        throw error ?? new Error('Failed to update Light Work task title in Supabase');
+      }
+
+      const syncedTask = mapSupabaseLightWorkTask(data);
+      await persistTask(syncedTask, false);
+      await markLightWorkTaskSynced(taskId);
+      replaceTaskInState(syncedTask);
+      return true;
+    } catch (updateError) {
+      console.error('❌ Error updating Light Work task title:', updateError);
+      setError(updateError instanceof Error ? updateError.message : 'Failed to update task title');
+      await queueLightWorkTask('update', optimisticTask);
+      return false;
+    }
+  }, [tasks, supabase, persistTask, replaceTaskInState]);
+
   const addSubtask = useCallback(async (taskId: string, subtaskTitle: string, priority = 'MEDIUM') => {
     if (!supabase) return null;
 
@@ -648,6 +698,10 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
   useEffect(() => {
     loadTasks();
   }, [loadTasks]);
+
+  useEffect(() => {
+    syncService.setActiveUser(internalUserId ?? null);
+  }, [internalUserId]);
 
   return {
     tasks,

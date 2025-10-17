@@ -1,9 +1,59 @@
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { ClientData, ClientViewPreference } from '@/types/client.types';
 import { useClientsList } from '@/shared/hooks/client';
 import { useToast } from '@/shared/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+
+const COLUMN_DB_FIELD_MAP: Record<string, string> = {
+  business_name: 'company_name',
+  full_name: 'contact_name',
+  estimated_price: 'estimated_price',
+  project_name: 'project_name',
+  company_niche: 'company_niche',
+  next_steps: 'next_steps',
+  key_research: 'key_research',
+  status: 'status',
+  type: 'type',
+  progress: 'progress',
+};
+
+const EDITABLE_FIELDS = new Set<string>([
+  'business_name',
+  'full_name',
+  'status',
+  'type',
+  'project_name',
+  'company_niche',
+  'estimated_price',
+]);
+
+function normaliseValueForClient(field: string, value: string) {
+  if (field === 'estimated_price') {
+    const numeric = Number(value);
+    return Number.isNaN(numeric) ? null : numeric;
+  }
+
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed : null;
+  }
+
+  return value;
+}
+
+function normaliseValueForDatabase(field: string, value: string) {
+  if (field === 'estimated_price') {
+    const numeric = Number(value);
+    return Number.isNaN(numeric) ? null : numeric;
+  }
+
+  if (!value || value.trim().length === 0) {
+    return null;
+  }
+
+  return value;
+}
 
 export const useClientTable = (
   searchQuery: string = '',
@@ -16,10 +66,11 @@ export const useClientTable = (
   const [activeClient, setActiveClient] = useState<string | null>(null);
   const [editingCell, setEditingCell] = useState<{id: string, field: string} | null>(null);
   const [editValue, setEditValue] = useState<string>('');
+  const [tableClients, setTableClients] = useState<ClientData[]>([]);
   const editInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
-  const { clients, isLoading, totalCount, refetch } = useClientsList({
+  const { clients: rawClients, isLoading, totalCount, refetch } = useClientsList({
     page,
     pageSize: viewPreference.pageSize,
     searchQuery,
@@ -27,6 +78,10 @@ export const useClientTable = (
     sortColumn: viewPreference.sortColumn,
     sortDirection: viewPreference.sortDirection
   });
+
+  useEffect(() => {
+    setTableClients(rawClients);
+  }, [rawClients]);
 
   const handleSort = useCallback((column: string) => {
     if (viewPreference.sortColumn === column) {
@@ -43,9 +98,9 @@ export const useClientTable = (
 
   const handleSelectAll = useCallback(() => {
     setSelectedClients(prev => 
-      prev.length === clients.length ? [] : clients.map(client => client.id)
+      prev.length === tableClients.length ? [] : tableClients.map(client => client.id)
     );
-  }, [clients]);
+  }, [tableClients]);
 
   const handleSelectClient = useCallback((clientId: string) => {
     setSelectedClients(prev => 
@@ -56,16 +111,42 @@ export const useClientTable = (
   }, []);
 
   const handleStartEdit = useCallback((client: ClientData, field: string) => {
+    if (!EDITABLE_FIELDS.has(field)) {
+      return;
+    }
+
     setEditingCell({ id: client.id, field });
     setEditValue(String(client[field as keyof ClientData] || ''));
   }, []);
 
   const handleSaveEdit = useCallback(async ({ id, field, value }: { id: string; field: string; value: string }) => {
+    if (!EDITABLE_FIELDS.has(field)) {
+      return;
+    }
+
+    const dbField = COLUMN_DB_FIELD_MAP[field] || field;
+    const clientValue = normaliseValueForClient(field, value);
+    const dbValue = normaliseValueForDatabase(field, value);
+
+    setTableClients((prev) =>
+      prev.map((client) =>
+        client.id === id
+          ? {
+              ...client,
+              [field]: clientValue,
+              updated_at: new Date().toISOString(),
+            }
+          : client
+      )
+    );
+    setEditingCell(null);
+    setEditValue('');
+
     try {
       const { error } = await supabase
         .from('client_onboarding')
         .update({ 
-          [field]: value,
+          [dbField]: dbValue,
           updated_at: new Date().toISOString()
         })
         .eq('id', id);
@@ -82,11 +163,9 @@ export const useClientTable = (
       console.error('Error saving edit:', error);
       toast({
         variant: "destructive",
-        title: "Error updating client",
-        description: error.message || "Failed to save changes. Please try again."
+        title: "Couldn't sync change",
+        description: error.message || "Your update is visible locally but failed to sync to Supabase."
       });
-    } finally {
-      setEditingCell(null);
     }
   }, [toast, refetch]);
 
@@ -130,7 +209,7 @@ export const useClientTable = (
     editValue,
     setEditValue,
     editInputRef,
-    clients,
+    clients: tableClients,
     isLoading,
     totalCount,
     handleSort,

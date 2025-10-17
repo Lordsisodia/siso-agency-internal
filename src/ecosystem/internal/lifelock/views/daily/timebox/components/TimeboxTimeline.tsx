@@ -20,7 +20,7 @@ interface TimeboxTimelineProps {
   dragPreview: DragPreviewState | null;
   gapFiller: GapFillerState | null;
   gapSuggestions: any[];
-  getTaskPosition: (startTime: string, duration: number) => TaskPosition;
+  getTaskPosition: (task: TimeboxTask) => TaskPosition;
   onToggleComplete: (taskId: string) => void;
   onAddAfter: (task: TimeboxTask, minutes: number) => void;
   onDragStart: (taskId: string) => void;
@@ -76,12 +76,12 @@ export const TimeboxTimeline = forwardRef<HTMLDivElement, TimeboxTimelineProps>(
           <div className="absolute left-0 top-0 w-16 h-full bg-gray-950/80 border-r border-gray-700/30 rounded-l-2xl">
             {timeSlots.map((slot, index) => (
               <motion.div
-                key={slot.hour}
+                key={slot.displayIndex}
                 className={cn(
                   "absolute w-full flex items-center justify-end pr-2 group/hour transition-all duration-300",
                   slot.isCurrentHour && "bg-blue-500/10"
                 )}
-                style={{ top: `${slot.hour * TIMEBOX_HOUR_HEIGHT}px`, height: `${TIMEBOX_HOUR_HEIGHT}px` }}
+                style={{ top: `${slot.displayIndex * TIMEBOX_HOUR_HEIGHT}px`, height: `${TIMEBOX_HOUR_HEIGHT}px` }}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{
@@ -132,15 +132,15 @@ export const TimeboxTimeline = forwardRef<HTMLDivElement, TimeboxTimelineProps>(
           <div className="absolute left-16 right-0 top-0 bottom-0 pointer-events-none">
             {timeSlots.map((slot, index) => (
               <motion.div
-                key={`heatmap-${slot.hour}`}
+                key={`heatmap-${slot.displayIndex}`}
                 className={cn(
                   "absolute w-full transition-all duration-700",
-                  hourlyDensity[slot.hour] === 0 && "bg-transparent",
-                  hourlyDensity[slot.hour] === 1 && "bg-sky-500/12",
-                  hourlyDensity[slot.hour] === 2 && "bg-sky-400/18",
-                  hourlyDensity[slot.hour] >= 3 && "bg-violet-500/24"
+                  hourlyDensity[slot.displayIndex] === 0 && "bg-transparent",
+                  hourlyDensity[slot.displayIndex] === 1 && "bg-sky-500/12",
+                  hourlyDensity[slot.displayIndex] === 2 && "bg-sky-400/18",
+                  hourlyDensity[slot.displayIndex] >= 3 && "bg-violet-500/24"
                 )}
-                style={{ top: `${slot.hour * TIMEBOX_HOUR_HEIGHT}px`, height: `${TIMEBOX_HOUR_HEIGHT}px` }}
+                style={{ top: `${slot.displayIndex * TIMEBOX_HOUR_HEIGHT}px`, height: `${TIMEBOX_HOUR_HEIGHT}px` }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{
@@ -155,9 +155,9 @@ export const TimeboxTimeline = forwardRef<HTMLDivElement, TimeboxTimelineProps>(
           {/* Subtle Hour Dividers */}
           {timeSlots.map((slot, index) => (
             <motion.div
-              key={`divider-${slot.hour}`}
+              key={`divider-${slot.displayIndex}`}
               className="absolute left-16 right-0 border-t border-gray-700/40"
-              style={{ top: `${slot.hour * TIMEBOX_HOUR_HEIGHT}px` }}
+              style={{ top: `${slot.displayIndex * TIMEBOX_HOUR_HEIGHT}px` }}
               initial={{ opacity: 0, scaleX: 0 }}
               animate={{ opacity: 1, scaleX: 1 }}
               transition={{
@@ -238,8 +238,7 @@ export const TimeboxTimeline = forwardRef<HTMLDivElement, TimeboxTimelineProps>(
 
           {/* Enhanced Task Blocks Container */}
           <div
-            className="absolute left-16 right-2 top-0 bottom-0"
-            style={{ width: 'calc(100% - 72px)' }}
+            className="absolute left-16 right-0 top-0 bottom-0"
             onClick={onTimelineClick}
           >
             {/* Drag Time Preview */}
@@ -363,7 +362,7 @@ export const TimeboxTimeline = forwardRef<HTMLDivElement, TimeboxTimelineProps>(
               </div>
             ) : (
               validTasks.map((task, index) => {
-                const position = getTaskPosition(task.startTime, task.endTime);
+                const position = getTaskPosition(task);
                 return (
                   <TimeboxTaskCard
                     key={task.id}

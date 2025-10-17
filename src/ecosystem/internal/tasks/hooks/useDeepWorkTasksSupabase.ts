@@ -6,6 +6,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useClerkUser } from '@/shared/hooks/useClerkUser';
 import { useSupabaseClient, useSupabaseUserId } from '@/shared/lib/supabase-clerk';
 import { isBrowserOnline } from '../utils/network';
+import { syncService } from '@/shared/offline/syncService';
 import {
   loadDeepWorkTasksFromCache,
   cacheSupabaseDeepWorkTasks,
@@ -475,92 +476,6 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
     }
   }, [supabase]);
 
-  const updateTaskTitle = useCallback(async (taskId: string, newTitle: string) => {
-    if (!supabase) return null;
-
-    try {
-      const { error } = await supabase
-        .from('deep_work_tasks')
-        .update({
-          title: newTitle,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', taskId);
-
-      if (error) {
-        throw error;
-      }
-
-      setTasks(prev => prev.map(task =>
-        task.id === taskId ? { ...task, title: newTitle, updatedAt: new Date().toISOString() } : task,
-      ));
-
-      return true;
-    } catch (updateError) {
-      console.error('❌ Error updating Deep Work task title:', updateError);
-      setError(updateError instanceof Error ? updateError.message : 'Failed to update task title');
-      return null;
-    }
-  }, [supabase]);
-
-  const updateTaskPriority = useCallback(async (taskId: string, priority: 'low' | 'medium' | 'high' | 'urgent') => {
-    if (!supabase) return null;
-
-    const normalized = priority.toUpperCase() as 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
-
-    try {
-      const { error } = await supabase
-        .from('deep_work_tasks')
-        .update({
-          priority: normalized,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', taskId);
-
-      if (error) {
-        throw error;
-      }
-
-      setTasks(prev => prev.map(task =>
-        task.id === taskId ? { ...task, priority: normalized, updatedAt: new Date().toISOString() } : task,
-      ));
-
-      return true;
-    } catch (priorityError) {
-      console.error('❌ Error updating Deep Work task priority:', priorityError);
-      setError(priorityError instanceof Error ? priorityError.message : 'Failed to update task priority');
-      return null;
-    }
-  }, [supabase]);
-
-  const updateTaskTimeEstimate = useCallback(async (taskId: string, timeEstimate: string | null) => {
-    if (!supabase) return null;
-
-    try {
-      const { error } = await supabase
-        .from('deep_work_tasks')
-        .update({
-          time_estimate: timeEstimate,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', taskId);
-
-      if (error) {
-        throw error;
-      }
-
-      setTasks(prev => prev.map(task =>
-        task.id === taskId ? { ...task, timeEstimate: timeEstimate ?? undefined, updatedAt: new Date().toISOString() } : task,
-      ));
-
-      return true;
-    } catch (estimateError) {
-      console.error('❌ Error updating Deep Work task time estimate:', estimateError);
-      setError(estimateError instanceof Error ? estimateError.message : 'Failed to update time estimate');
-      return null;
-    }
-  }, [supabase]);
-
   // Subtask operations (Supabase only for now)
   const addSubtask = useCallback(async (taskId: string, subtaskTitle: string, priority = 'MEDIUM') => {
     if (!supabase) return null;
@@ -841,6 +756,10 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
   useEffect(() => {
     loadTasks();
   }, [loadTasks]);
+
+  useEffect(() => {
+    syncService.setActiveUser(internalUserId ?? null);
+  }, [internalUserId]);
 
   return {
     tasks,

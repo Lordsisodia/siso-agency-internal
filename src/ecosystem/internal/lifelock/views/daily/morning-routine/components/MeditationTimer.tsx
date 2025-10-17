@@ -6,12 +6,13 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Dialog, DialogContent } from '@/shared/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/shared/ui/dialog';
 import { Button } from '@/shared/ui/button';
 import { X, Play, Pause, RotateCcw } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useClerkUser } from '@/shared/hooks/useClerkUser';
 import { format } from 'date-fns';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
 interface MeditationTimerProps {
   isOpen: boolean;
@@ -157,6 +158,12 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={handleCancel}>
       <DialogContent className="max-w-full h-screen p-0 bg-gray-900 border-none">
+        <VisuallyHidden>
+          <DialogTitle>Meditation timer</DialogTitle>
+          <DialogDescription>
+            Start, pause, or complete your meditation session to log it to your wellness history.
+          </DialogDescription>
+        </VisuallyHidden>
         {/* Full-screen timer view */}
         <div className="relative w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 via-orange-900/20 to-gray-900">
 

@@ -36,15 +36,14 @@ import {
 } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
 import { format } from 'date-fns';
-import { useXPStore } from '@/ecosystem/internal/xp-store/hooks/useXPStore';
+import { useXPStoreContext } from '@/ecosystem/internal/xp-store/context/XPStoreContext';
 
 interface PurchaseHistoryProps {
-  userId: string;
   className?: string;
 }
 
-export const PurchaseHistory = ({ userId, className }: PurchaseHistoryProps) => {
-  const { purchaseHistory, loading, error } = useXPStore(userId);
+export const PurchaseHistory = ({ className }: PurchaseHistoryProps) => {
+  const { purchaseHistory, loading, error } = useXPStoreContext();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'date' | 'price' | 'satisfaction'>('date');

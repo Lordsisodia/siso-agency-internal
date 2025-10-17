@@ -3,8 +3,10 @@ import { ClientViewPreference } from '@/types/client.types';
 export const defaultViewPreference: ClientViewPreference = {
   columns: [
     { key: 'business_name', label: 'Business Name', visible: true, width: 200, pinned: true },
+    { key: 'full_name', label: 'Primary Contact', visible: true, width: 180 },
     { key: 'progress', label: 'Progress', visible: true, width: 150 },
     { key: 'status', label: 'Status', visible: true, width: 120, pinned: true },
+    { key: 'type', label: 'Type', visible: true, width: 140 },
     { key: 'project_name', label: 'Project', visible: true, width: 180 },
     { key: 'estimated_price', label: 'Balance', visible: true, width: 120 },
     { key: 'development_url', label: 'Website', visible: false, width: 150 },

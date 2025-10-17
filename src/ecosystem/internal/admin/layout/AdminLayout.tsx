@@ -14,6 +14,13 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   const isMobile = useIsMobile();
   const location = useLocation();
 
+  useEffect(() => {
+    console.log('[AdminLayout] rendering path:', location.pathname);
+    return () => {
+      console.log('[AdminLayout] unmounting path:', location.pathname);
+    };
+  }, [location.pathname]);
+
   // Save current admin page as preferred page for future logins
   useEffect(() => {
     // Only save admin routes as preferences
@@ -37,7 +44,9 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         onMobileMenuChange={setMobileMenuOpen}
       />
       <main className={`${getMainMargin()} overflow-y-auto admin-scrollbar min-h-screen transition-all duration-100 relative`} style={{ backgroundColor: '#121212' }}>
-        {children}
+        <div key={location.pathname} className="min-h-screen">
+          {children}
+        </div>
       </main>
     </div>
   );

@@ -27,6 +27,7 @@ dev-dist/
 .vite-cache/
 tests/
 docs/
+!src/ecosystem/internal/clients/components/docs/
 docs-bmad/
 pro-dev-feedback/
 

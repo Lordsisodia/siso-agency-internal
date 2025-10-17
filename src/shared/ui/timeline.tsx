@@ -1,28 +1,114 @@
 "use client";
-import {
-  useMotionValueEvent,
-  useScroll,
-  useTransform,
-  motion,
-} from "framer-motion";
-import React, { useEffect, useRef, useState } from "react";
+import { useScroll, useTransform, motion } from "framer-motion";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Clock } from "lucide-react";
 
 interface TimelineEntry {
   title: string;
   content: React.ReactNode;
 }
 
-export const Timeline = ({ data }: { data: TimelineEntry[] }) => {
+interface EnhancedTimelineItem {
+  title: string;
+  description?: React.ReactNode;
+  date?: React.ReactNode;
+  metadata?: React.ReactNode;
+  content?: React.ReactNode;
+}
+
+interface TimelineProps {
+  data?: TimelineEntry[];
+  items?: EnhancedTimelineItem[];
+  renderMetadata?: (metadata: EnhancedTimelineItem["metadata"]) => React.ReactNode;
+  renderDate?: (date: EnhancedTimelineItem["date"]) => React.ReactNode;
+  renderDescription?: (description: EnhancedTimelineItem["description"]) => React.ReactNode;
+  className?: string;
+}
+
+const DEFAULT_METADATA_CLASS =
+  "inline-flex items-center rounded-full bg-white/10 border border-white/15 px-3 py-1 text-xs uppercase tracking-[0.3em] text-white/60";
+
+const DEFAULT_DATE_CLASS = "flex items-center gap-2 text-xs text-white/60";
+
+export const Timeline: React.FC<TimelineProps> = ({
+  data,
+  items,
+  renderMetadata,
+  renderDate,
+  renderDescription,
+  className = "",
+}) => {
   const ref = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState(0);
+
+  const normalizedItems = useMemo<TimelineEntry[]>(() => {
+    if (items && items.length > 0) {
+      return items.map((item) => {
+        if (item.content) {
+          return {
+            title: item.title,
+            content: item.content,
+          };
+        }
+
+        const metadataNode =
+          typeof item.metadata !== "undefined" && item.metadata !== null
+            ? renderMetadata
+              ? renderMetadata(item.metadata)
+              : typeof item.metadata === "string"
+                ? <span className={DEFAULT_METADATA_CLASS}>{item.metadata}</span>
+                : item.metadata
+            : null;
+
+        const dateNode =
+          typeof item.date !== "undefined" && item.date !== null
+            ? renderDate
+              ? renderDate(item.date)
+              : (
+                <span className={DEFAULT_DATE_CLASS}>
+                  <Clock className="h-3.5 w-3.5" />
+                  {item.date}
+                </span>
+              )
+            : null;
+
+        const descriptionNode =
+          typeof item.description !== "undefined" && item.description !== null
+            ? renderDescription
+              ? renderDescription(item.description)
+              : (
+                <p className="text-sm leading-relaxed text-white/70">
+                  {item.description}
+                </p>
+              )
+            : null;
+
+        return {
+          title: item.title,
+          content: (
+            <div className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-5 shadow-[0_20px_40px_rgba(3,3,9,0.45)] space-y-3">
+              {(metadataNode || dateNode) && (
+                <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
+                  <div className="flex items-center gap-3">{metadataNode}</div>
+                  {dateNode}
+                </div>
+              )}
+              {descriptionNode}
+            </div>
+          ),
+        };
+      });
+    }
+    return data ?? [];
+  }, [items, data, renderMetadata, renderDate, renderDescription]);
 
   useEffect(() => {
     if (ref.current) {
       const rect = ref.current.getBoundingClientRect();
       setHeight(rect.height);
     }
-  }, [ref]);
+  }, [normalizedItems.length]);
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -34,11 +120,11 @@ export const Timeline = ({ data }: { data: TimelineEntry[] }) => {
 
   return (
     <div
-      className="w-full bg-transparent dark:bg-transparent font-sans md:px-10"
+      className={`w-full bg-transparent dark:bg-transparent font-sans md:px-10 ${className}`}
       ref={containerRef}
     >
       <div ref={ref} className="relative max-w-7xl mx-auto pt-8 pb-20">
-        {data.map((item, index) => (
+        {normalizedItems.map((item, index) => (
           <div
             key={index}
             className="flex justify-start pt-10 md:pt-40 md:gap-10"
@@ -56,7 +142,7 @@ export const Timeline = ({ data }: { data: TimelineEntry[] }) => {
               <h3 className="md:hidden block text-2xl mb-4 text-left font-bold text-white dark:text-white">
                 {item.title}
               </h3>
-              {item.content}{" "}
+              {item.content}
             </div>
           </div>
         ))}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, memo, useRef } from 'react';
+import React, { useState, useEffect, memo, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, Zap } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
@@ -14,10 +14,12 @@ import { useSupabaseUserId } from '@/shared/lib/supabase-clerk';
 
 import { TimeboxSectionProps, TimeboxTask, DragPreviewState, GapFillerState, FocusSprintType } from './types';
 import { mapUIToCategory } from './utils';
+import { useAutoTimeblocks } from '@/shared/hooks/useAutoTimeblocks';
 import { useTimeboxCalculations } from './hooks/useTimeboxCalculations';
 import { useTimeboxHandlers } from './hooks/useTimeboxHandlers';
 import { TimeboxStats } from './components/TimeboxStats';
 import { TimeboxTimeline } from './components/TimeboxTimeline';
+import { AUTO_TIMEBOX_CONFIG, createOrUpdateAutoTimeboxes } from '@/services/autoTimeblockService';
 
 const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }) => {
   // Authentication
@@ -38,7 +40,10 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
   const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
   const [gapFiller, setGapFiller] = useState<GapFillerState | null>(null);
   const [gapSuggestions, setGapSuggestions] = useState<any[]>([]);
+  const [wakeUpTime, setWakeUpTime] = useState('');
   const timelineContainerRef = useRef<HTMLDivElement | null>(null);
+  const processedAutoAdjustmentsRef = useRef<Set<string>>(new Set());
+  const autoSyncingRef = useRef(false);
 
   console.log('🔍 [TIMEBOX] RENDER with internalUserId:', internalUserId, 'isSignedIn:', isSignedIn, 'date:', format(selectedDate, 'yyyy-MM-dd'));
 
@@ -57,6 +62,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
     deleteTimeBlock,
     toggleCompletion,
     checkConflicts,
+    refreshTimeBlocks,
   } = useTimeBlocks({
     userId: internalUserId,
     selectedDate,
@@ -72,7 +78,8 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
     currentTimePosition,
     hourlyDensity,
     todayStats,
-    yesterdayStats
+    yesterdayStats,
+    autoAdjustments
   } = useTimeboxCalculations({ timeBlocks, selectedDate });
 
   // Handlers hook
@@ -112,6 +119,158 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
     userId: internalUserId,
     dateKey
   });
+
+  useEffect(() => {
+    if (!user?.id) {
+      setWakeUpTime('');
+      return;
+    }
+
+    let isActive = true;
+
+    const fetchWakeUpTime = async () => {
+      try {
+        const response = await fetch(`/api/morning-routine/metadata?userId=${user.id}&date=${dateKey}`);
+        if (response.ok) {
+          const result = await response.json();
+          const fetchedWakeUpTime =
+            result?.data?.wakeUpTime ??
+            result?.wakeUpTime ??
+            result?.metadata?.wakeUpTime ??
+            '';
+
+          if (isActive) {
+            setWakeUpTime(fetchedWakeUpTime || '');
+          }
+        } else if (isActive) {
+          setWakeUpTime('');
+        }
+      } catch (error) {
+        console.warn('Unable to fetch wake-up time metadata:', error);
+        if (isActive) {
+          setWakeUpTime('');
+        }
+      }
+    };
+
+    fetchWakeUpTime();
+
+    return () => {
+      isActive = false;
+    };
+  }, [user?.id, dateKey]);
+
+  const handleAutoBlocksUpdated = useCallback(() => {
+    refreshTimeBlocks();
+  }, [refreshTimeBlocks]);
+
+  useAutoTimeblocks({
+    wakeUpTime,
+    userId: internalUserId,
+    selectedDate,
+    enabled: Boolean(internalUserId && wakeUpTime),
+    onAutoBlocksUpdated: handleAutoBlocksUpdated
+  });
+
+  useEffect(() => {
+    processedAutoAdjustmentsRef.current.clear();
+  }, [dateKey, internalUserId]);
+
+  useEffect(() => {
+    if (!internalUserId || autoAdjustments.length === 0) {
+      return;
+    }
+
+    const pending = autoAdjustments.filter(adjustment => {
+      const key = `${adjustment.id}-${adjustment.newStartTime}-${adjustment.newEndTime}`;
+      return !processedAutoAdjustmentsRef.current.has(key);
+    });
+
+    if (pending.length === 0) {
+      return;
+    }
+
+    let cancelled = false;
+
+    (async () => {
+      let adjustedAny = false;
+
+      for (const adjustment of pending) {
+        const key = `${adjustment.id}-${adjustment.newStartTime}-${adjustment.newEndTime}`;
+        try {
+          const success = await updateTimeBlock(adjustment.id, {
+            userId: internalUserId,
+            date: dateKey,
+            startTime: adjustment.newStartTime,
+            endTime: adjustment.newEndTime
+          });
+
+          if (cancelled) {
+            return;
+          }
+
+          if (success) {
+            processedAutoAdjustmentsRef.current.add(key);
+            adjustedAny = true;
+          }
+        } catch (error) {
+          console.error('Failed to auto-adjust time block', adjustment, error);
+        }
+      }
+
+      if (!cancelled && adjustedAny) {
+        toast.info('Timeline auto-adjusted to prevent overlap.');
+        await refreshTimeBlocks();
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [autoAdjustments, updateTimeBlock, refreshTimeBlocks, internalUserId, dateKey]);
+
+  useEffect(() => {
+    if (!internalUserId || !wakeUpTime || autoSyncingRef.current) {
+      return;
+    }
+
+    const hasMorning = timeBlocks.some(block =>
+      block.title === AUTO_TIMEBOX_CONFIG.morningRoutine.title ||
+      (block.description ?? '').includes(AUTO_TIMEBOX_CONFIG.morningRoutine.metadataTag)
+    );
+
+    const hasNightly = timeBlocks.some(block =>
+      block.title === AUTO_TIMEBOX_CONFIG.nightlyCheckout.title ||
+      (block.description ?? '').includes(AUTO_TIMEBOX_CONFIG.nightlyCheckout.metadataTag)
+    );
+
+    if (hasMorning && hasNightly) {
+      return;
+    }
+
+    autoSyncingRef.current = true;
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const result = await createOrUpdateAutoTimeboxes(wakeUpTime, internalUserId, dateKey);
+        if (!cancelled && result.success) {
+          await refreshTimeBlocks();
+        }
+      } catch (error) {
+        console.error('Failed to ensure auto timeboxes exist:', error);
+      } finally {
+        if (!cancelled) {
+          autoSyncingRef.current = false;
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      autoSyncingRef.current = false;
+    };
+  }, [timeBlocks, internalUserId, wakeUpTime, dateKey, refreshTimeBlocks]);
 
   // Update current time every minute
   useEffect(() => {
@@ -182,7 +341,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
     return (
       <div className="min-h-screen w-full mb-24 bg-black">
         <div className="w-full relative">
-          <div className="max-w-7xl mx-auto px-2 sm:px-3 md:px-4 space-y-6">
+        <div className="max-w-screen-2xl mx-auto px-0 sm:px-4 md:px-6 lg:px-10 space-y-6">
             <Card className="bg-purple-900/10 border-purple-700/30">
               <CardContent className="p-6 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -234,7 +393,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
   return (
     <div className="min-h-screen w-full bg-transparent">
       <div className="w-full relative">
-        <div className="max-w-screen-2xl mx-auto px-2 sm:px-4 md:px-6 lg:px-10 py-6 pb-32 space-y-6">
+        <div className="max-w-screen-2xl mx-auto px-0 sm:px-4 md:px-6 lg:px-10 py-6 pb-32 space-y-6">
           {/* Stats Section */}
           <TimeboxStats
             validTasks={validTasks}
@@ -330,18 +489,22 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
           </motion.div>
 
           {/* Timeline */}
-          <Card className="w-full bg-transparent border-gray-800/30 rounded-2xl">
+          <Card className="w-full bg-transparent border-gray-800/30 sm:rounded-2xl rounded-none border-y sm:border">
             <CardContent className="p-0">
               <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 border-b border-gray-800/40">
                 <span className="text-sm font-semibold text-white/90">Daily Timeline</span>
                 <div className="flex flex-wrap items-center gap-4 text-[11px] text-gray-400">
                   <span className="flex items-center gap-1.5">
                     <span className="inline-flex h-3 w-3 rounded-sm bg-sky-500/15 border border-sky-400/30" />
-                    Balanced load (1-2 tasks)
+                    Solo block (1 active)
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="inline-flex h-3 w-3 rounded-sm bg-sky-400/20 border border-sky-300/40" />
+                    Paired blocks (2 overlapping)
                   </span>
                   <span className="flex items-center gap-1.5">
                     <span className="inline-flex h-3 w-3 rounded-sm bg-violet-500/20 border border-violet-400/40" />
-                    Peak load (3+ tasks)
+                    Peak load (3+ overlapping)
                   </span>
                 </div>
               </div>
@@ -429,6 +592,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
               onClose={() => setIsQuickSchedulerOpen(false)}
               selectedDate={selectedDate}
               onScheduleTask={handleScheduleTask}
+              onScheduleAndOpenTimer={handleScheduleAndPrompt}
             />
           </div>
         )}

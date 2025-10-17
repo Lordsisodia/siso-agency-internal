@@ -5,7 +5,7 @@
  * Features conflict detection, validation, and beautiful UI
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Clock,
@@ -25,6 +25,7 @@ import {
   CheckCircle2,
   Circle
 } from 'lucide-react';
+import { format as formatDate, parseISO } from 'date-fns';
 import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
@@ -76,6 +77,57 @@ const categoryColors: Record<TimeBlockCategory, string> = {
   ADMIN: 'from-indigo-600/20 to-purple-600/20 border-indigo-500/40'
 };
 
+const categoryThemes: Record<TimeBlockCategory, { header: string; accent: string; chip: string; icon: string }> = {
+  DEEP_WORK: {
+    header: 'from-indigo-600/35 via-indigo-500/15 to-transparent',
+    accent: 'text-indigo-100',
+    chip: 'bg-indigo-500/15 text-indigo-100 border-indigo-400/30',
+    icon: 'bg-indigo-500/25 border-indigo-400/40'
+  },
+  LIGHT_WORK: {
+    header: 'from-emerald-600/35 via-emerald-500/15 to-transparent',
+    accent: 'text-emerald-100',
+    chip: 'bg-emerald-500/15 text-emerald-100 border-emerald-400/30',
+    icon: 'bg-emerald-500/20 border-emerald-400/40'
+  },
+  MEETING: {
+    header: 'from-orange-600/35 via-orange-500/15 to-transparent',
+    accent: 'text-orange-100',
+    chip: 'bg-orange-500/15 text-orange-100 border-orange-400/30',
+    icon: 'bg-orange-500/20 border-orange-400/40'
+  },
+  BREAK: {
+    header: 'from-lime-500/30 via-lime-400/10 to-transparent',
+    accent: 'text-lime-100',
+    chip: 'bg-lime-500/15 text-lime-100 border-lime-400/30',
+    icon: 'bg-lime-500/20 border-lime-400/40'
+  },
+  PERSONAL: {
+    header: 'from-purple-600/35 via-pink-500/15 to-transparent',
+    accent: 'text-pink-100',
+    chip: 'bg-pink-500/15 text-pink-100 border-pink-400/30',
+    icon: 'bg-pink-500/20 border-pink-400/40'
+  },
+  HEALTH: {
+    header: 'from-teal-600/35 via-teal-500/15 to-transparent',
+    accent: 'text-teal-100',
+    chip: 'bg-teal-500/15 text-teal-100 border-teal-400/30',
+    icon: 'bg-teal-500/25 border-teal-400/40'
+  },
+  LEARNING: {
+    header: 'from-cyan-600/35 via-cyan-500/15 to-transparent',
+    accent: 'text-cyan-100',
+    chip: 'bg-cyan-500/15 text-cyan-100 border-cyan-400/30',
+    icon: 'bg-cyan-500/20 border-cyan-400/40'
+  },
+  ADMIN: {
+    header: 'from-purple-600/35 via-purple-500/15 to-transparent',
+    accent: 'text-purple-100',
+    chip: 'bg-purple-500/15 text-purple-100 border-purple-400/30',
+    icon: 'bg-purple-500/20 border-purple-400/40'
+  }
+};
+
 export const TimeBlockFormModal: React.FC<TimeBlockFormModalProps> = ({
   isOpen,
   onClose,
@@ -104,6 +156,17 @@ export const TimeBlockFormModal: React.FC<TimeBlockFormModalProps> = ({
   const [linkedTask, setLinkedTask] = useState<any>(null);
   const [loadingTask, setLoadingTask] = useState(false);
   const [addBuffer, setAddBuffer] = useState(true); // Buffer time toggle
+
+  const SelectedIcon = useMemo(() => categoryIcons[formData.category] ?? Clock, [formData.category]);
+  const theme = useMemo(() => categoryThemes[formData.category] ?? categoryThemes.DEEP_WORK, [formData.category]);
+  const dateLabel = useMemo(() => {
+    if (!dateKey) return '';
+    try {
+      return formatDate(parseISO(dateKey), 'EEE, MMM d');
+    } catch {
+      return dateKey;
+    }
+  }, [dateKey]);
 
   // Get smart default duration based on category and history
   const getSmartDefaultDuration = useCallback((category: TimeBlockCategory): number => {
@@ -394,265 +457,297 @@ export const TimeBlockFormModal: React.FC<TimeBlockFormModalProps> = ({
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           onClick={(e) => e.stopPropagation()}
         >
-          <Card className="bg-gradient-to-br from-gray-900/95 via-gray-800/95 to-gray-900/95 border-purple-500/30 shadow-2xl backdrop-blur-md">
-            <CardHeader className="border-b border-purple-500/20">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-white text-xl flex items-center">
-                  <Clock className="h-6 w-6 mr-3 text-purple-400" />
-                  {existingBlock ? 'Edit Time Block' : 'Create Time Block'}
-                </CardTitle>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={onClose}
-                  className="text-gray-400 hover:text-white hover:bg-gray-700/50"
-                >
-                  <X className="h-5 w-5" />
-                </Button>
+          <Card className="bg-gray-950/95 border-gray-800/70 shadow-2xl backdrop-blur-xl overflow-hidden">
+            <CardHeader className={cn('relative border-b border-white/5 px-6 py-5 overflow-hidden', theme.header)}>
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.35),transparent)] opacity-30 pointer-events-none" />
+              <div className="relative z-10 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                <div className="flex items-start gap-3">
+                  <div className={cn('h-12 w-12 rounded-xl flex items-center justify-center border', theme.icon)}>
+                    <SelectedIcon className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.35em] text-white/60 mb-1">
+                      {existingBlock ? 'Edit Timebox' : 'New Timebox'}
+                    </p>
+                    <CardTitle className="text-2xl font-semibold text-white">
+                      {formData.title || 'Untitled Block'}
+                    </CardTitle>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 flex-wrap md:justify-end">
+                  {dateLabel && (
+                    <span className="px-3 py-1 rounded-full text-xs font-medium bg-black/20 text-white/75 border border-white/10">
+                      <Calendar className="inline h-3.5 w-3.5 mr-1" />
+                      {dateLabel}
+                    </span>
+                  )}
+                  {formData.startTime && formData.endTime && (
+                    <span className="px-3 py-1 rounded-full text-xs font-medium bg-black/20 text-white/75 border border-white/10">
+                      <Clock className="inline h-3.5 w-3.5 mr-1" />
+                      {formData.startTime} – {formData.endTime}
+                    </span>
+                  )}
+                  {duration > 0 && (
+                    <span className="px-3 py-1 rounded-full text-xs font-medium bg-white/15 text-white border border-white/20">
+                      {TimeBlockUtils.formatDuration(duration)}
+                    </span>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={onClose}
+                    className="text-white/70 hover:text-white hover:bg-white/10"
+                  >
+                    <X className="h-5 w-5" />
+                  </Button>
+                </div>
               </div>
             </CardHeader>
 
-            <CardContent className="p-6">
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Title */}
-                <div className="space-y-2">
-                  <label className="text-white font-medium">Title</label>
-                  <Input
-                    value={formData.title}
-                    onChange={(e) => handleInputChange('title', e.target.value)}
-                    placeholder="e.g., Deep Work Session, Team Meeting..."
-                    className="bg-gray-800/50 border-gray-600/50 text-white placeholder:text-gray-400 focus:border-purple-500"
-                  />
-                </div>
-
-                {/* Time Range */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-white font-medium">Start Time</label>
-                    <Input
-                      type="time"
-                      value={formData.startTime}
-                      onChange={(e) => handleInputChange('startTime', e.target.value)}
-                      className="bg-gray-800/50 border-gray-600/50 text-white focus:border-purple-500"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-white font-medium">End Time</label>
-                    <Input
-                      type="time"
-                      value={formData.endTime}
-                      onChange={(e) => handleInputChange('endTime', e.target.value)}
-                      className="bg-gray-800/50 border-gray-600/50 text-white focus:border-purple-500"
-                    />
-                  </div>
-                </div>
-
-                {/* Duration Display */}
-                {duration > 0 && (
-                  <div className="flex items-center justify-center">
-                    <Badge className="bg-purple-500/20 text-purple-200 border-purple-500/40">
-                      <Clock className="h-3 w-3 mr-1" />
-                      Duration: {TimeBlockUtils.formatDuration(duration)}
-                    </Badge>
-                  </div>
-                )}
-
-                {/* Quick Duration Buttons */}
-                <div className="space-y-2">
-                  <label className="text-white font-medium text-sm">Quick Duration</label>
-                  <div className="grid grid-cols-5 gap-2">
-                    {[
-                      { label: '15m', minutes: 15 },
-                      { label: '30m', minutes: 30 },
-                      { label: '1h', minutes: 60 },
-                      { label: '2h', minutes: 120 },
-                      { label: '3h', minutes: 180 }
-                    ].map(({ label, minutes }) => (
-                      <Button
-                        key={label}
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          if (!formData.startTime) return;
-                          const [startHour, startMin] = formData.startTime.split(':').map(Number);
-                          const totalMinutes = startHour * 60 + startMin + minutes;
-                          const endHour = Math.floor(totalMinutes / 60);
-                          const endMin = totalMinutes % 60;
-                          if (endHour >= 24) return; // Don't go past midnight
-                          handleInputChange('endTime', `${endHour.toString().padStart(2, '0')}:${endMin.toString().padStart(2, '0')}`);
-                        }}
-                        className="bg-gray-800/50 border-gray-600/50 text-white hover:bg-purple-600/20 hover:border-purple-500"
-                        disabled={!formData.startTime}
-                      >
-                        {label}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Duration Adjustment Buttons */}
-                <div className="space-y-2">
-                  <label className="text-white font-medium text-sm">Adjust Duration</label>
-                  <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        if (!formData.endTime) return;
-                        const [endHour, endMin] = formData.endTime.split(':').map(Number);
-                        const totalMinutes = endHour * 60 + endMin - 15;
-                        if (totalMinutes < 0) return;
-                        const newHour = Math.floor(totalMinutes / 60);
-                        const newMin = totalMinutes % 60;
-                        handleInputChange('endTime', `${newHour.toString().padStart(2, '0')}:${newMin.toString().padStart(2, '0')}`);
-                      }}
-                      className="flex-1 bg-gray-800/50 border-gray-600/50 text-white hover:bg-red-600/20 hover:border-red-500"
-                      disabled={!formData.endTime}
-                    >
-                      -15 min
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        if (!formData.endTime) return;
-                        const [endHour, endMin] = formData.endTime.split(':').map(Number);
-                        const totalMinutes = endHour * 60 + endMin + 15;
-                        if (totalMinutes >= 24 * 60) return; // Don't go past midnight
-                        const newHour = Math.floor(totalMinutes / 60);
-                        const newMin = totalMinutes % 60;
-                        handleInputChange('endTime', `${newHour.toString().padStart(2, '0')}:${newMin.toString().padStart(2, '0')}`);
-                      }}
-                      className="flex-1 bg-gray-800/50 border-gray-600/50 text-white hover:bg-green-600/20 hover:border-green-500"
-                      disabled={!formData.endTime}
-                    >
-                      +15 min
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Buffer Time Option */}
-                <div className="flex items-center justify-between p-3 bg-blue-900/20 border border-blue-700/30 rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <Clock className="h-5 w-5 text-blue-400" />
-                    <div>
-                      <label className="text-white font-medium text-sm">Add Transition Buffer</label>
-                      <p className="text-gray-400 text-xs">Add 10min gap after this block</p>
-                    </div>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={addBuffer}
-                      onChange={(e) => setAddBuffer(e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                  </label>
-                </div>
-
-                {/* Description */}
-                <div className="space-y-2">
-                  <label className="text-white font-medium">Description (Optional)</label>
-                  <Textarea
-                    value={formData.description}
-                    onChange={(e) => handleInputChange('description', e.target.value)}
-                    placeholder="Brief description of what you'll be working on..."
-                    className="bg-gray-800/50 border-gray-600/50 text-white placeholder:text-gray-400 focus:border-purple-500 min-h-[80px]"
-                  />
-                </div>
-
-                {/* Notes */}
-                <div className="space-y-2">
-                  <label className="text-white font-medium">Notes (Optional)</label>
-                  <Textarea
-                    value={formData.notes}
-                    onChange={(e) => handleInputChange('notes', e.target.value)}
-                    placeholder="Additional notes or preparation needed..."
-                    className="bg-gray-800/50 border-gray-600/50 text-white placeholder:text-gray-400 focus:border-purple-500 min-h-[60px]"
-                  />
-                </div>
-
-                {/* Linked Task Subtasks */}
-                {linkedTask && linkedTask.subtasks && linkedTask.subtasks.length > 0 && (
-                  <div className="space-y-2">
-                    <label className="text-white font-medium flex items-center">
-                      <BookOpen className="h-4 w-4 mr-2 text-purple-400" />
-                      Subtasks ({linkedTask.subtasks.length})
-                    </label>
-                    <div className="bg-gray-800/30 border border-gray-700/50 rounded-lg p-4 space-y-2 max-h-[200px] overflow-y-auto">
-                      {linkedTask.subtasks.map((subtask: any) => (
-                        <motion.div
-                          key={subtask.id}
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          className="flex items-start space-x-3 p-2 rounded-md hover:bg-gray-700/30 transition-colors"
+            <CardContent className="p-0">
+              <form onSubmit={handleSubmit} className="flex flex-col gap-6 p-6">
+                <div className="grid gap-6 lg:grid-cols-[minmax(0,1.75fr)_minmax(0,1fr)]">
+                  <div className="space-y-5">
+                    <div className="rounded-2xl border border-white/5 bg-gray-900/70 p-5 space-y-5">
+                      <div className="space-y-2">
+                        <label className="text-sm font-semibold text-white" htmlFor="timebox-title">Title</label>
+                        <Input
+                          id="timebox-title"
+                          value={formData.title}
+                          onChange={(e) => handleInputChange('title', e.target.value)}
+                          placeholder="e.g., Deep Work Sprint, Team Sync..."
+                          className="bg-black/40 border-white/10 text-white placeholder:text-white/40 focus:border-white/40 focus:ring-0"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-semibold text-white" htmlFor="timebox-description">Description</label>
+                        <Textarea
+                          id="timebox-description"
+                          value={formData.description}
+                          onChange={(e) => handleInputChange('description', e.target.value)}
+                          placeholder="Add context, goals, or prep notes for this block..."
+                          className="bg-black/40 border-white/10 text-white placeholder:text-white/40 focus:border-white/40 focus:ring-0 min-h-[88px]"
+                        />
+                      </div>
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <div className="space-y-2">
+                          <label className="text-sm font-semibold text-white" htmlFor="timebox-start">Start</label>
+                          <Input
+                            id="timebox-start"
+                            type="time"
+                            value={formData.startTime}
+                            onChange={(e) => handleInputChange('startTime', e.target.value)}
+                            className="bg-black/40 border-white/10 text-white focus:border-white/40 focus:ring-0"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-semibold text-white" htmlFor="timebox-end">End</label>
+                          <Input
+                            id="timebox-end"
+                            type="time"
+                            value={formData.endTime}
+                            onChange={(e) => handleInputChange('endTime', e.target.value)}
+                            className="bg-black/40 border-white/10 text-white focus:border-white/40 focus:ring-0"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        {duration > 0 ? (
+                          <Badge className="bg-white/10 text-white border-white/20">
+                            <Clock className="h-3.5 w-3.5 mr-1" />
+                            Duration · {TimeBlockUtils.formatDuration(duration)}
+                          </Badge>
+                        ) : (
+                          <span className="text-xs text-white/50">Choose start and end time to see duration</span>
+                        )}
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={autoFit}
+                          className="border-white/20 text-white/80 hover:bg-white/10"
                         >
-                          {subtask.completed ? (
-                            <CheckCircle2 className="h-4 w-4 text-green-400 flex-shrink-0 mt-0.5" />
-                          ) : (
-                            <Circle className="h-4 w-4 text-gray-400 flex-shrink-0 mt-0.5" />
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <p className={cn(
-                              "text-sm",
-                              subtask.completed 
-                                ? "text-gray-400 line-through" 
-                                : "text-gray-200"
-                            )}>
-                              {subtask.title}
-                            </p>
-                            {subtask.description && (
-                              <p className="text-xs text-gray-500 mt-1">{subtask.description}</p>
-                            )}
-                          </div>
-                        </motion.div>
-                      ))}
+                          <Zap className="h-4 w-4 mr-2" /> Smart auto-fit
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="rounded-2xl border border-white/5 bg-gray-900/70 p-5 space-y-2">
+                      <label className="text-sm font-semibold text-white" htmlFor="timebox-notes">Notes (Optional)</label>
+                      <Textarea
+                        id="timebox-notes"
+                        value={formData.notes}
+                        onChange={(e) => handleInputChange('notes', e.target.value)}
+                        placeholder="Add checklists, reminders, or outcomes to capture..."
+                        className="bg-black/40 border-white/10 text-white placeholder:text-white/40 focus:border-white/40 focus:ring-0 min-h-[72px]"
+                      />
                     </div>
                   </div>
-                )}
 
-                {loadingTask && (
-                  <div className="text-center py-2">
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                      className="inline-block h-5 w-5 border-2 border-purple-500/30 border-t-purple-500 rounded-full"
-                    />
-                    <p className="text-gray-400 text-sm mt-2">Loading subtasks...</p>
+                  <div className="space-y-5">
+                    <div className="rounded-2xl border border-white/5 bg-gray-900/70 p-5 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs uppercase tracking-[0.32em] text-white/50">Time Helpers</span>
+                      </div>
+                      <div className="grid grid-cols-5 gap-2">
+                        {[
+                          { label: '15m', minutes: 15 },
+                          { label: '30m', minutes: 30 },
+                          { label: '1h', minutes: 60 },
+                          { label: '2h', minutes: 120 },
+                          { label: '3h', minutes: 180 }
+                        ].map(({ label, minutes }) => (
+                          <Button
+                            key={label}
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              if (!formData.startTime) return;
+                              const [startHour, startMin] = formData.startTime.split(':').map(Number);
+                              const totalMinutes = startHour * 60 + startMin + minutes;
+                              const endHour = Math.floor(totalMinutes / 60);
+                              const endMin = totalMinutes % 60;
+                              if (endHour >= 24) return;
+                              handleInputChange('endTime', `${endHour.toString().padStart(2, '0')}:${endMin.toString().padStart(2, '0')}`);
+                            }}
+                            className="border-white/15 bg-black/30 text-white/80 hover:border-white/40 hover:bg-white/10"
+                            disabled={!formData.startTime}
+                          >
+                            {label}
+                          </Button>
+                        ))}
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            if (!formData.endTime) return;
+                            const [endHour, endMin] = formData.endTime.split(':').map(Number);
+                            const totalMinutes = endHour * 60 + endMin - 15;
+                            if (totalMinutes < 0) return;
+                            const newHour = Math.floor(totalMinutes / 60);
+                            const newMin = totalMinutes % 60;
+                            handleInputChange('endTime', `${newHour.toString().padStart(2, '0')}:${newMin.toString().padStart(2, '0')}`);
+                          }}
+                          className="flex-1 border-white/15 bg-black/30 text-white/80 hover:border-red-400/60 hover:bg-red-500/20"
+                          disabled={!formData.endTime}
+                        >
+                          -15 min
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            if (!formData.endTime) return;
+                            const [endHour, endMin] = formData.endTime.split(':').map(Number);
+                            const totalMinutes = endHour * 60 + endMin + 15;
+                            if (totalMinutes >= 24 * 60) return;
+                            const newHour = Math.floor(totalMinutes / 60);
+                            const newMin = totalMinutes % 60;
+                            handleInputChange('endTime', `${newHour.toString().padStart(2, '0')}:${newMin.toString().padStart(2, '0')}`);
+                          }}
+                          className="flex-1 border-white/15 bg-black/30 text-white/80 hover:border-emerald-400/60 hover:bg-emerald-500/20"
+                          disabled={!formData.endTime}
+                        >
+                          +15 min
+                        </Button>
+                      </div>
+                      <div className="flex items-center justify-between rounded-xl border border-white/10 bg-black/30 px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <Clock className="h-5 w-5 text-white/60" />
+                          <div>
+                            <p className="text-sm font-semibold text-white">Add transition buffer</p>
+                            <p className="text-xs text-white/40">Reserve a 10min cool-down after this block</p>
+                          </div>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={addBuffer}
+                            onChange={(e) => setAddBuffer(e.target.checked)}
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 rounded-full bg-white/10 transition peer-focus:outline-none peer-checked:bg-emerald-500">
+                            <div className="absolute top-[3px] left-[3px] h-5 w-5 rounded-full bg-white shadow transition peer-checked:translate-x-5" />
+                          </div>
+                        </label>
+                      </div>
+                    </div>
+
+                    {loadingTask && (
+                      <div className="rounded-2xl border border-white/5 bg-gray-900/70 p-5 flex items-center gap-3 text-sm text-white/70">
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                          className="inline-block h-5 w-5 border-2 border-white/20 border-t-white rounded-full"
+                        />
+                        Loading linked task...
+                      </div>
+                    )}
+
+                    {linkedTask && (
+                      <div className="rounded-2xl border border-white/5 bg-gray-900/70 p-5 space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 text-white">
+                            <BookOpen className="h-4 w-4" />
+                            <span className="text-sm font-semibold">Linked task</span>
+                          </div>
+                          <Badge className="bg-white/10 text-white border-white/20">{linkedTask.priority || 'TASK'}</Badge>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-sm font-semibold text-white">{linkedTask.title}</p>
+                          {linkedTask.description && (
+                            <p className="text-xs text-white/50 leading-relaxed">{linkedTask.description}</p>
+                          )}
+                        </div>
+                        {linkedTask.subtasks && linkedTask.subtasks.length > 0 && (
+                          <div className="space-y-2">
+                            <p className="text-xs uppercase tracking-wider text-white/40">Subtasks</p>
+                            <div className="space-y-2 max-h-[180px] overflow-y-auto pr-1">
+                              {linkedTask.subtasks.map((subtask: any) => (
+                                <div key={subtask.id} className="flex items-start gap-2 rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm text-white/80">
+                                  {subtask.completed ? (
+                                    <CheckCircle2 className="h-4 w-4 text-emerald-400 mt-0.5" />
+                                  ) : (
+                                    <Circle className="h-4 w-4 text-white/30 mt-0.5" />
+                                  )}
+                                  <span>{subtask.title}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
 
-                {/* Conflicts Warning */}
                 {currentConflicts.length > 0 && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="p-4 bg-red-900/20 border border-red-700/30 rounded-lg"
+                    className="rounded-2xl border border-red-500/40 bg-red-500/10 p-5"
                   >
-                    <div className="flex items-start space-x-3">
-                      <AlertTriangle className="h-5 w-5 text-red-400 flex-shrink-0 mt-0.5" />
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="text-red-300 font-medium">Time Conflicts Detected</h4>
+                    <div className="flex items-start gap-3">
+                      <AlertTriangle className="h-5 w-5 text-red-300 mt-0.5" />
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-sm font-semibold text-red-100">Time conflicts detected</h4>
                           <Button
                             type="button"
                             size="sm"
                             onClick={autoFit}
-                            className="bg-yellow-600 hover:bg-yellow-700 text-white text-xs px-3 py-1"
+                            className="bg-yellow-500/20 text-yellow-100 hover:bg-yellow-500/30"
                           >
-                            <Zap className="h-3 w-3 mr-1" />
-                            Auto-fit
+                            <Zap className="h-3.5 w-3.5 mr-1" /> Resolve automatically
                           </Button>
                         </div>
-                        <div className="space-y-1">
+                        <div className="space-y-1 text-sm text-red-100/90">
                           {currentConflicts.map(conflict => (
-                            <p key={conflict.id} className="text-red-200/80 text-sm">
-                              • "{conflict.title}" ({conflict.startTime} - {conflict.endTime})
-                            </p>
+                            <p key={conflict.id}>• "{conflict.title}" ({conflict.startTime} - {conflict.endTime})</p>
                           ))}
                         </div>
                       </div>
@@ -660,60 +755,56 @@ export const TimeBlockFormModal: React.FC<TimeBlockFormModalProps> = ({
                   </motion.div>
                 )}
 
-                {/* Validation Errors */}
                 {validationErrors.length > 0 && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="p-4 bg-yellow-900/20 border border-yellow-700/30 rounded-lg"
+                    className="rounded-2xl border border-yellow-500/30 bg-yellow-500/10 p-5"
                   >
-                    <div className="flex items-start space-x-3">
-                      <AlertTriangle className="h-5 w-5 text-yellow-400 flex-shrink-0 mt-0.5" />
-                      <div>
-                        <h4 className="text-yellow-300 font-medium mb-2">Validation Errors</h4>
-                        <div className="space-y-1">
+                    <div className="flex items-start gap-3">
+                      <AlertTriangle className="h-5 w-5 text-yellow-200 mt-0.5" />
+                      <div className="space-y-2 text-sm text-yellow-100/90">
+                        <h4 className="text-sm font-semibold text-yellow-100">Please fix the issues below</h4>
+                        <ul className="space-y-1 list-disc list-inside">
                           {validationErrors.map((error, index) => (
-                            <p key={index} className="text-yellow-200/80 text-sm">• {error}</p>
+                            <li key={index}>{error}</li>
                           ))}
-                        </div>
+                        </ul>
                       </div>
                     </div>
                   </motion.div>
                 )}
 
-                {/* Action Buttons */}
-                <div className="flex justify-between items-center pt-4 border-t border-gray-700/30">
-                  {/* Delete button (only for existing blocks) */}
-                  {existingBlock && onDelete && (
+                <div className="flex flex-col gap-3 border-t border-white/5 pt-4 sm:flex-row sm:items-center sm:justify-between">
+                  {existingBlock && onDelete ? (
                     <Button
                       type="button"
                       variant="outline"
                       onClick={handleDelete}
                       disabled={isSubmitting}
-                      className="border-red-600/50 text-red-400 hover:bg-red-600/20 hover:border-red-500"
+                      className="border-red-500/50 text-red-200 hover:bg-red-500/20"
                     >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Delete
+                      <Trash2 className="h-4 w-4 mr-2" /> Delete
                     </Button>
+                  ) : (
+                    <span className="text-xs text-white/40">Buffers and adjustments apply automatically on save.</span>
                   )}
-
-                  {/* Right-side buttons */}
-                  <div className={cn("flex space-x-3", !existingBlock && "ml-auto")}>
+                  <div className="flex gap-3 sm:ml-auto">
                     <Button
                       type="button"
                       variant="outline"
                       onClick={onClose}
-                      className="border-gray-600 text-gray-300 hover:bg-gray-700/50"
+                      className="border-white/20 text-white/80 hover:bg-white/10"
                     >
                       Cancel
                     </Button>
                     <Button
                       type="submit"
                       disabled={isSubmitting || checkingConflicts || validationErrors.length > 0}
-                      className="bg-purple-600 hover:bg-purple-700 text-white"
+                      className="bg-white text-black hover:bg-white/80"
                     >
                       <Save className="h-4 w-4 mr-2" />
-                      {isSubmitting ? 'Saving...' : existingBlock ? 'Update Block' : 'Create Block'}
+                      {isSubmitting ? 'Saving…' : existingBlock ? 'Update Block' : 'Create Block'}
                     </Button>
                   </div>
                 </div>

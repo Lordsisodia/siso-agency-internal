@@ -49,3 +49,4 @@ archives/
 **/*-backup-*/
 **/*-archive-*/
 .serena/memories/
+.git2/

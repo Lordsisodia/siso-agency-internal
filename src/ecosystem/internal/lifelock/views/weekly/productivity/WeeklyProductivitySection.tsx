@@ -1,15 +1,25 @@
-/**
- * Weekly Productivity Section
- * 
- * Work output analysis - deep work, light work, priorities, week-over-week comparison
- */
-
-import React from 'react';
+import React, { useMemo } from 'react';
 import { format } from 'date-fns';
-import { Brain, CheckSquare, Target, TrendingUp, BarChart3 } from 'lucide-react';
-// Card components removed - using standard divs instead
-import { WeeklyStatsCard } from '../_shared/WeeklyStatsCard';
-import { motion } from 'framer-motion';
+import {
+  ArrowDownRight,
+  ArrowUpRight,
+  Brain,
+  Briefcase,
+  CheckSquare,
+  Target,
+  TrendingUp,
+} from 'lucide-react';
+import { Badge } from '@/shared/ui/badge';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/shared/ui/card';
+import { Chip } from '@/shared/ui/chip';
+import { Separator } from '@/shared/ui/separator';
+import { Progress } from '@/shared/ui/progress';
 import { cn } from '@/shared/lib/utils';
 import type { ProductivityData } from '../_shared/types';
 
@@ -17,249 +27,294 @@ interface WeeklyProductivitySectionProps {
   productivityData: ProductivityData;
 }
 
-export const WeeklyProductivitySection: React.FC<WeeklyProductivitySectionProps> = ({ productivityData }) => {
-  const { deepWork, lightWork, priorities, weekOverWeek } = productivityData;
+interface TimelineRow {
+  date: Date;
+  deepHours: number;
+  lightTasks: number;
+}
 
-  const priorityData = [
-    { level: 'P1', ...priorities.p1, color: 'from-red-500 to-rose-600' },
-    { level: 'P2', ...priorities.p2, color: 'from-orange-500 to-amber-600' },
-    { level: 'P3', ...priorities.p3, color: 'from-yellow-500 to-yellow-600' },
-    { level: 'P4', ...priorities.p4, color: 'from-green-500 to-emerald-600' },
-  ];
-
+const StatTile: React.FC<{
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  helper?: string;
+  tone?: 'neutral' | 'positive' | 'warning';
+}> = ({ icon, label, value, helper, tone = 'neutral' }) => {
+  const tones = {
+    neutral: 'border-white/10 bg-white/5 text-slate-100',
+    positive: 'border-emerald-400/40 bg-emerald-500/10 text-emerald-100',
+    warning: 'border-amber-400/40 bg-amber-500/10 text-amber-100',
+  };
   return (
-    <div className="min-h-screen w-full relative pb-24">
-      <div className="w-full max-w-none p-2 sm:p-3 md:p-4 lg:p-6 space-y-6">
-        
-        {/* Page Header */}
-        <section className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-indigo-500/5 rounded-2xl blur-sm" />
-          <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-purple-500/20 shadow-lg shadow-purple-500/10">
-            <div>
-              <h3 className="text-purple-400 flex items-center font-semibold text-2xl">
-                <BarChart3 className="h-6 w-6 mr-2" />
-                💼 Productivity Analysis
-              </h3>
-              <p className="text-gray-400 text-sm mt-2">
-                What did I accomplish this week?
-              </p>
-            </div>
-          </div>
-        </section>
+    <div
+      className={cn(
+        'rounded-2xl border px-4 py-4 shadow-inner backdrop-blur-sm',
+        tones[tone],
+      )}
+    >
+      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/70">
+        {icon}
+        {label}
+      </div>
+      <div className="mt-2 text-3xl font-semibold">{value}</div>
+      {helper && <p className="mt-2 text-xs text-white/70">{helper}</p>}
+    </div>
+  );
+};
 
-        {/* Summary Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <WeeklyStatsCard
-            title="Deep Work"
-            icon={Brain}
-            value={`${deepWork.totalHours}h`}
-            subtitle={`${deepWork.sessions} sessions`}
-            trend={{ 
-              direction: weekOverWeek.deepWorkChange > 0 ? 'up' : 'down', 
-              value: `${Math.abs(weekOverWeek.deepWorkChange)}%` 
-            }}
-          />
-          <WeeklyStatsCard
-            title="Light Work"
-            icon={CheckSquare}
-            value={`${lightWork.completedTasks}/${lightWork.totalTasks}`}
-            subtitle="Tasks completed"
-            trend={{ 
-              direction: weekOverWeek.lightWorkChange > 0 ? 'up' : 'down', 
-              value: `${Math.abs(weekOverWeek.lightWorkChange)}%` 
-            }}
-          />
-          <WeeklyStatsCard
-            title="Completion Rate"
-            icon={Target}
-            value={`${Math.round((lightWork.completedTasks / lightWork.totalTasks) * 100)}%`}
-            subtitle="Overall completion"
-            trend={{ 
-              direction: weekOverWeek.completionChange > 0 ? 'up' : 'down', 
-              value: `${Math.abs(weekOverWeek.completionChange)}%` 
-            }}
+const TrendChip: React.FC<{ label: string; change: number }> = ({
+  label,
+  change,
+}) => {
+  const positive = change >= 0;
+  const Icon = positive ? ArrowUpRight : ArrowDownRight;
+  return (
+    <Chip
+      className={cn(
+        'gap-2 border px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em]',
+        positive
+          ? 'border-emerald-400/40 bg-emerald-500/10 text-emerald-100'
+          : 'border-rose-400/40 bg-rose-500/10 text-rose-100',
+      )}
+    >
+      <Icon className="h-3.5 w-3.5" />
+      {label}: {positive ? '+' : '−'}
+      {Math.abs(change)}%
+    </Chip>
+  );
+};
+
+const PriorityRow: React.FC<{
+  label: string;
+  completed: number;
+  total: number;
+  gradient: string;
+}> = ({ label, completed, total, gradient }) => {
+  const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 text-sm font-semibold text-white">
+          <div className={cn('rounded-full px-3 py-1 text-xs text-white', gradient)}>
+            {label}
+          </div>
+          <span>
+            {completed}/{total} complete
+          </span>
+        </div>
+        <span className="text-sm font-bold text-blue-200">{rate}%</span>
+      </div>
+      <Progress
+        value={rate}
+        indicatorColor="bg-gradient-to-r from-sky-400 to-indigo-500"
+        className="mt-3 h-2 rounded-full bg-white/10"
+      />
+    </div>
+  );
+};
+
+const DayRow: React.FC<TimelineRow> = ({ date, deepHours, lightTasks }) => {
+  return (
+    <div className="rounded-2xl border border-white/5 bg-white/5 px-4 py-3 transition-colors duration-200 hover:border-white/15 hover:bg-white/10">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <Badge className="rounded-full bg-blue-500/15 text-xs font-semibold uppercase tracking-[0.2em] text-blue-100">
+            {format(date, 'EEE')}
+          </Badge>
+          <span className="text-sm font-medium text-white/80">
+            {format(date, 'MMM d')}
+          </span>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Chip className="border border-emerald-400/40 bg-emerald-500/10 text-[0.7rem] uppercase tracking-[0.18em] text-emerald-100">
+            Deep: {deepHours}h
+          </Chip>
+          <Chip className="border border-indigo-400/40 bg-indigo-500/10 text-[0.7rem] uppercase tracking-[0.18em] text-indigo-100">
+            Light: {lightTasks} tasks
+          </Chip>
+        </div>
+      </div>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <div>
+          <div className="flex items-center justify-between text-xs uppercase tracking-[0.2em] text-slate-400">
+            <span>Deep Work</span>
+            <span>{deepHours}h</span>
+          </div>
+          <Progress
+            value={Math.min(100, (deepHours / 8) * 100)}
+            indicatorColor="bg-gradient-to-r from-emerald-400 to-blue-400"
+            className="mt-2 h-2 rounded-full bg-white/10"
           />
         </div>
+        <div>
+          <div className="flex items-center justify-between text-xs uppercase tracking-[0.2em] text-slate-400">
+            <span>Light Work</span>
+            <span>{lightTasks}</span>
+          </div>
+          <Progress
+            value={Math.min(100, (lightTasks / 12) * 100)}
+            indicatorColor="bg-gradient-to-r from-indigo-400 to-purple-400"
+            className="mt-2 h-2 rounded-full bg-white/10"
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
 
-        {/* Deep Work Breakdown */}
-        <section className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-indigo-500/5 rounded-2xl blur-sm" />
-          <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-blue-500/20 shadow-lg shadow-blue-500/10">
-            <div className="mb-4">
-              <h3 className="text-blue-400 flex items-center font-semibold text-lg">
-                <Brain className="h-5 w-5 mr-2" />
-                🧠 Deep Work Breakdown
-              </h3>
+export const WeeklyProductivitySection: React.FC<
+  WeeklyProductivitySectionProps
+> = ({ productivityData }) => {
+  const { deepWork, lightWork, priorities, weekOverWeek } = productivityData;
+
+  const completionRate =
+    lightWork.totalTasks > 0
+      ? Math.round((lightWork.completedTasks / lightWork.totalTasks) * 100)
+      : 0;
+
+  const timeline: TimelineRow[] = useMemo(
+    () =>
+      deepWork.dailyBreakdown.map((day, index) => ({
+        date: day.date,
+        deepHours: day.hours,
+        lightTasks: lightWork.dailyBreakdown[index]?.tasks ?? 0,
+      })),
+    [deepWork.dailyBreakdown, lightWork.dailyBreakdown],
+  );
+
+  return (
+    <div className="relative min-h-screen pb-28">
+      <div className="mx-auto w-full max-w-5xl px-4 pb-8 pt-4 sm:px-6 lg:px-8">
+        <Card className="border border-white/10 bg-gradient-to-br from-slate-950 via-slate-900/80 to-slate-950 shadow-2xl shadow-purple-500/10">
+          <CardHeader className="space-y-4">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+              <div className="space-y-2">
+                <Badge className="w-fit bg-purple-500/20 text-purple-100" variant="secondary">
+                  Weekly Work
+                </Badge>
+                <CardTitle className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+                  What did I actually ship?
+                </CardTitle>
+                <p className="max-w-xl text-sm text-slate-300/80">
+                  Track deep focus, admin throughput, and task priority mix to
+                  keep the work cadence honest.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white/70 shadow-inner">
+                <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.25em] text-white/60">
+                  <Briefcase className="h-4 w-4" />
+                  Weekly cadence
+                </p>
+                <ul className="mt-3 space-y-2">
+                  <li>• Deep work = client deliverables, heavy lifts.</li>
+                  <li>• Light work = admin/life tasks that keep things moving.</li>
+                  <li>• Review trends vs last week to adjust workload.</li>
+                </ul>
+              </div>
             </div>
-            <div>
+            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+              <StatTile
+                icon={<Brain className="h-4 w-4" />}
+                label="Deep Work Hours"
+                value={`${deepWork.totalHours}h`}
+                helper={`${deepWork.sessions} focused sessions`}
+              />
+              <StatTile
+                icon={<CheckSquare className="h-4 w-4" />}
+                label="Light Tasks Completed"
+                value={`${lightWork.completedTasks}`}
+                helper={`${lightWork.totalTasks} logged`}
+              />
+              <StatTile
+                icon={<Target className="h-4 w-4" />}
+                label="Completion Rate"
+                value={`${completionRate}%`}
+                helper="Across all logged tasks"
+                tone={completionRate >= 90 ? 'positive' : completionRate >= 70 ? 'neutral' : 'warning'}
+              />
+              <StatTile
+                icon={<TrendingUp className="h-4 w-4" />}
+                label="Momentum"
+                value={
+                  weekOverWeek.deepWorkChange >= 0
+                    ? `+${weekOverWeek.deepWorkChange}%`
+                    : `${weekOverWeek.deepWorkChange}%`
+                }
+                helper="Deep work vs last week"
+                tone={weekOverWeek.deepWorkChange >= 0 ? 'positive' : 'warning'}
+              />
+            </div>
+          </CardHeader>
+
+          <CardContent className="space-y-8">
+            <section className="space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <h3 className="text-sm font-semibold uppercase tracking-[0.25em] text-slate-300">
+                  Weekly flow
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  <TrendChip label="Deep work" change={weekOverWeek.deepWorkChange} />
+                  <TrendChip label="Light work" change={weekOverWeek.lightWorkChange} />
+                  <TrendChip label="Completion" change={weekOverWeek.completionChange} />
+                </div>
+              </div>
               <div className="space-y-3">
-                {deepWork.dailyBreakdown.map((day, idx) => (
-                  <motion.div
+                {timeline.map((day) => (
+                  <DayRow
                     key={day.date.toISOString()}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.05 }}
-                    className="flex items-center justify-between"
-                  >
-                    <div className="flex items-center space-x-3 flex-1">
-                      <div className="text-sm font-medium text-gray-300 w-20">
-                        {format(day.date, 'EEE, MMM d')}
-                      </div>
-                      <div className="flex-1 bg-gray-700/50 rounded-full h-2">
-                        <div 
-                          className="bg-gradient-to-r from-blue-400 to-indigo-500 h-2 rounded-full transition-all duration-500"
-                          style={{ width: `${(day.hours / 8) * 100}%` }}
-                        />
-                      </div>
-                    </div>
-                    <div className="text-sm font-bold text-blue-400 ml-4 w-16 text-right">
-                      {day.hours}h
-                    </div>
-                  </motion.div>
+                    date={day.date}
+                    deepHours={day.deepHours}
+                    lightTasks={day.lightTasks}
+                  />
                 ))}
               </div>
-            </div>
-          </div>
-        </section>
+            </section>
 
-        {/* Light Work Completion */}
-        <section className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 to-emerald-500/5 rounded-2xl blur-sm" />
-          <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-green-500/20 shadow-lg shadow-green-500/10">
-            <div className="mb-4">
-              <h3 className="text-green-400 flex items-center font-semibold text-lg">
-                <CheckSquare className="h-5 w-5 mr-2" />
-                ✅ Light Work Completion
+            <Separator className="bg-white/10" />
+
+            <section className="space-y-4">
+              <h3 className="text-sm font-semibold uppercase tracking-[0.25em] text-slate-300">
+                Priority mix
               </h3>
-            </div>
-            <div>
-              <div className="space-y-3">
-                {lightWork.dailyBreakdown.map((day, idx) => (
-                  <motion.div
-                    key={day.date.toISOString()}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.05 }}
-                    className="flex items-center justify-between"
-                  >
-                    <div className="flex items-center space-x-3 flex-1">
-                      <div className="text-sm font-medium text-gray-300 w-20">
-                        {format(day.date, 'EEE, MMM d')}
-                      </div>
-                      <div className="flex-1 bg-gray-700/50 rounded-full h-2">
-                        <div 
-                          className="bg-gradient-to-r from-green-400 to-emerald-500 h-2 rounded-full transition-all duration-500"
-                          style={{ width: `${(day.tasks / 10) * 100}%` }}
-                        />
-                      </div>
-                    </div>
-                    <div className="text-sm font-bold text-green-400 ml-4 w-16 text-right">
-                      {day.tasks} tasks
-                    </div>
-                  </motion.div>
-                ))}
+              <div className="grid gap-4 sm:grid-cols-2">
+                <PriorityRow
+                  label="P1 Critical"
+                  completed={priorities.p1.completed}
+                  total={priorities.p1.total}
+                  gradient="bg-gradient-to-r from-rose-500 to-red-500"
+                />
+                <PriorityRow
+                  label="P2 Important"
+                  completed={priorities.p2.completed}
+                  total={priorities.p2.total}
+                  gradient="bg-gradient-to-r from-orange-500 to-amber-500"
+                />
+                <PriorityRow
+                  label="P3 Useful"
+                  completed={priorities.p3.completed}
+                  total={priorities.p3.total}
+                  gradient="bg-gradient-to-r from-yellow-500 to-lime-500"
+                />
+                <PriorityRow
+                  label="P4 Admin"
+                  completed={priorities.p4.completed}
+                  total={priorities.p4.total}
+                  gradient="bg-gradient-to-r from-sky-500 to-blue-500"
+                />
               </div>
-            </div>
-          </div>
-        </section>
+            </section>
+          </CardContent>
 
-        {/* Priority Breakdown */}
-        <section className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-pink-500/5 rounded-2xl blur-sm" />
-          <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-purple-500/20 shadow-lg shadow-purple-500/10">
-            <div className="mb-4">
-              <h3 className="text-purple-400 flex items-center font-semibold text-lg">
-                <Target className="h-5 w-5 mr-2" />
-                🎯 Priority Breakdown
-              </h3>
+          <CardFooter className="flex flex-col gap-3 border-t border-white/10 bg-black/40 px-6 py-5 text-sm text-slate-300/80 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3">
+              <TrendingUp className="h-4 w-4 text-purple-200" />
+              <span>
+                Close the loop in the Review tab to capture what worked, what slipped,
+                and the adjustments for next week.
+              </span>
             </div>
-            <div>
-              <div className="space-y-4">
-                {priorityData.map((priority, idx) => {
-                  const completionRate = Math.round((priority.completed / priority.total) * 100);
-                  return (
-                    <motion.div
-                      key={priority.level}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.1 }}
-                      className="space-y-2"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <div className={cn(
-                            'px-3 py-1 rounded-full text-sm font-bold',
-                            'bg-gradient-to-r text-white',
-                            priority.color
-                          )}>
-                            {priority.level}
-                          </div>
-                          <span className="text-sm text-gray-300">
-                            {priority.completed}/{priority.total} completed
-                          </span>
-                        </div>
-                        <span className="text-sm font-bold text-white">
-                          {completionRate}%
-                        </span>
-                      </div>
-                      <div className="w-full bg-gray-700/50 rounded-full h-2">
-                        <div 
-                          className={cn('h-2 rounded-full bg-gradient-to-r', priority.color)}
-                          style={{ width: `${completionRate}%` }}
-                        />
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Week-over-Week Comparison */}
-        <section className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 to-amber-500/5 rounded-2xl blur-sm" />
-          <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-orange-500/20 shadow-lg shadow-orange-500/10">
-            <div className="mb-4">
-              <h3 className="text-orange-400 flex items-center font-semibold text-lg">
-                <TrendingUp className="h-5 w-5 mr-2" />
-                📈 Week-over-Week Trends
-              </h3>
-            </div>
-            <div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="bg-gray-800/50 rounded-lg p-4">
-                  <div className="text-sm text-gray-400 mb-1">Deep Work</div>
-                  <div className={cn(
-                    'text-2xl font-bold',
-                    weekOverWeek.deepWorkChange > 0 ? 'text-green-400' : 'text-red-400'
-                  )}>
-                    {weekOverWeek.deepWorkChange > 0 ? '+' : ''}{weekOverWeek.deepWorkChange}%
-                  </div>
-                </div>
-                <div className="bg-gray-800/50 rounded-lg p-4">
-                  <div className="text-sm text-gray-400 mb-1">Light Work</div>
-                  <div className={cn(
-                    'text-2xl font-bold',
-                    weekOverWeek.lightWorkChange > 0 ? 'text-green-400' : 'text-red-400'
-                  )}>
-                    {weekOverWeek.lightWorkChange > 0 ? '+' : ''}{weekOverWeek.lightWorkChange}%
-                  </div>
-                </div>
-                <div className="bg-gray-800/50 rounded-lg p-4">
-                  <div className="text-sm text-gray-400 mb-1">Completion</div>
-                  <div className={cn(
-                    'text-2xl font-bold',
-                    weekOverWeek.completionChange > 0 ? 'text-green-400' : 'text-red-400'
-                  )}>
-                    {weekOverWeek.completionChange > 0 ? '+' : ''}{weekOverWeek.completionChange}%
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
+          </CardFooter>
+        </Card>
       </div>
     </div>
   );

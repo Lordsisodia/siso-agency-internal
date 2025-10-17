@@ -9,7 +9,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
 import { Badge } from '@/shared/ui/badge';
 import { Input } from '@/shared/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
 import {
   Select,
   SelectContent,
@@ -30,16 +29,17 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
-import { useXPStore } from '@/ecosystem/internal/xp-store/hooks/useXPStore';
+import { useXPStoreContext } from '@/ecosystem/internal/xp-store/context/XPStoreContext';
+import { Progress } from '@/shared/ui/progress';
+import type { RewardItem } from '@/services/xpStoreService';
 
 interface RewardCatalogProps {
-  userId: string;
   onPurchase: (rewardId: string) => void;
   className?: string;
 }
 
-export const RewardCatalog = ({ userId, onPurchase, className }: RewardCatalogProps) => {
-  const { rewards, balance, loading, error } = useXPStore(userId);
+export const RewardCatalog = ({ onPurchase, className }: RewardCatalogProps) => {
+  const { rewards, balance, loading, error } = useXPStoreContext();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'price' | 'popularity' | 'satisfaction'>('price');
@@ -50,6 +50,8 @@ export const RewardCatalog = ({ userId, onPurchase, className }: RewardCatalogPr
     if (!rewards) return [];
 
     const filtered = rewards.filter(reward => {
+      const state = getRewardAffordability(reward);
+
       // Search filter
       if (searchTerm && !reward.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
           !reward.description.toLowerCase().includes(searchTerm.toLowerCase())) {
@@ -62,13 +64,12 @@ export const RewardCatalog = ({ userId, onPurchase, className }: RewardCatalogPr
       }
 
       // Price filter
-      if (balance) {
-        if (priceFilter === 'affordable' && reward.currentPrice > balance.canSpend) {
-          return false;
-        }
-        if (priceFilter === 'saving' && reward.currentPrice <= balance.canSpend) {
-          return false;
-        }
+      if (priceFilter === 'affordable' && state !== 'affordable') {
+        return false;
+      }
+
+      if (priceFilter === 'saving' && (state === 'affordable' || state === 'unknown')) {
+        return false;
       }
 
       return true;
@@ -76,6 +77,10 @@ export const RewardCatalog = ({ userId, onPurchase, className }: RewardCatalogPr
 
     // Sort rewards
     filtered.sort((a, b) => {
+      if (a.unlockAt && b.unlockAt && a.unlockAt !== b.unlockAt) {
+        return a.unlockAt - b.unlockAt;
+      }
+
       switch (sortBy) {
         case 'price':
           return a.currentPrice - b.currentPrice;
@@ -102,10 +107,16 @@ export const RewardCatalog = ({ userId, onPurchase, className }: RewardCatalogPr
     }));
   }, [rewards]);
 
-  const getRewardAffordability = (reward: any) => {
+  const getRewardAffordability = (reward: RewardItem) => {
+    const totalEarned = balance?.totalEarned ?? 0;
+
+    if (reward.unlockAt && totalEarned < reward.unlockAt) {
+      return 'locked';
+    }
+
     if (!balance) return 'unknown';
     if (reward.currentPrice <= balance.canSpend) return 'affordable';
-    if (reward.currentPrice <= balance.canSpend + 200) return 'close';
+    if (reward.currentPrice <= balance.canSpend + 300) return 'close';
     return 'saving';
   };
 
@@ -214,6 +225,13 @@ export const RewardCatalog = ({ userId, onPurchase, className }: RewardCatalogPr
           {filteredRewards.map((reward, index) => {
             const affordability = getRewardAffordability(reward);
             const priceChange = getPriceChangeIndicator(reward);
+            const totalEarned = balance?.totalEarned ?? 0;
+            const unlockProgress = reward.unlockAt
+              ? Math.min(100, Math.round((totalEarned / reward.unlockAt) * 100))
+              : 100;
+            const unlockRemaining = reward.unlockAt
+              ? Math.max(reward.unlockAt - totalEarned, 0)
+              : 0;
             
             return (
               <motion.div
@@ -231,8 +249,9 @@ export const RewardCatalog = ({ userId, onPurchase, className }: RewardCatalogPr
                 <Card className={cn(
                   "h-full transition-all duration-200 hover:shadow-lg",
                   "bg-gradient-to-br from-siso-bg to-siso-bg-alt border-siso-border",
-                  affordability === 'affordable' && "ring-2 ring-green-500/20",
-                  affordability === 'close' && "ring-2 ring-orange-500/20"
+                  affordability === 'affordable' && "ring-2 ring-green-500/30 shadow-green-500/10",
+                  affordability === 'close' && "ring-2 ring-orange-500/30 shadow-orange-500/10",
+                  affordability === 'locked' && "opacity-80"
                 )}>
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between">
@@ -263,6 +282,12 @@ export const RewardCatalog = ({ userId, onPurchase, className }: RewardCatalogPr
                         <Badge variant="outline" className="border-siso-border">
                           <Lock className="h-3 w-3 mr-1" />
                           Saving
+                        </Badge>
+                      )}
+                      {affordability === 'locked' && (
+                        <Badge className="bg-siso-bg-alt text-siso-text-muted border-siso-border">
+                          <Lock className="h-3 w-3 mr-1" />
+                          Unlocks at {reward.unlockAt?.toLocaleString()} XP
                         </Badge>
                       )}
                     </div>
@@ -313,32 +338,61 @@ export const RewardCatalog = ({ userId, onPurchase, className }: RewardCatalogPr
 
                       {balance && affordability === 'saving' && (
                         <div className="text-xs text-orange-400">
-                          Need {(reward.currentPrice - balance.canSpend).toLocaleString()} more XP
+                          Need {(reward.currentPrice - balance.canSpend).toLocaleString()} more XP to purchase
                         </div>
                       )}
                     </div>
 
+                    {/* Unlock Progress */}
+                    {reward.unlockAt && (
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between text-xs text-siso-text-muted">
+                          <span>Milestone Unlock</span>
+                          <span>{unlockProgress}%</span>
+                        </div>
+                        <Progress value={unlockProgress} className="h-2 bg-siso-bg" />
+                        {affordability === 'locked' ? (
+                          <div className="text-xs text-siso-text-muted">
+                            {unlockRemaining > 0
+                              ? `${unlockRemaining.toLocaleString()} XP more to unlock`
+                              : 'Unlocking soon'}
+                          </div>
+                        ) : (
+                          <div className="text-xs text-green-400">
+                            Unlocked — you’ve banked nearly {totalEarned.toLocaleString()} XP.
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     {/* Availability & Restrictions */}
-                    {reward.restrictions && (
+                    {reward.availabilityWindow && (
                       <div className="text-xs text-siso-text-muted flex items-center gap-1">
                         <Clock className="h-3 w-3" />
-                        {reward.restrictions}
+                        {reward.availabilityWindow}
                       </div>
                     )}
 
                     {/* Purchase Button */}
                     <Button
                       onClick={() => onPurchase(reward.id)}
-                      disabled={affordability === 'saving'}
+                      disabled={
+                        affordability === 'saving' ||
+                        affordability === 'locked' ||
+                        affordability === 'unknown'
+                      }
                       className={cn(
                         "w-full transition-all duration-200",
                         affordability === 'affordable' && "bg-green-600 hover:bg-green-700",
-                        affordability === 'close' && "bg-orange-600 hover:bg-orange-700"
+                        affordability === 'close' && "bg-orange-600 hover:bg-orange-700",
+                        affordability === 'locked' && "bg-siso-bg-alt text-siso-text-muted cursor-not-allowed"
                       )}
                     >
                       {affordability === 'affordable' && "Purchase Now"}
-                      {affordability === 'close' && "Almost Affordable"}
+                      {affordability === 'close' && "Plan This Reward"}
                       {affordability === 'saving' && "Keep Earning"}
+                      {affordability === 'locked' && `Unlock at ${reward.unlockAt?.toLocaleString()} XP`}
+                      {affordability === 'unknown' && "Syncing XP..."}
                     </Button>
 
                     {/* Usage Stats */}

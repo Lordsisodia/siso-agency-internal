@@ -28,9 +28,9 @@ export function ClientTableHeader({
   moveColumn
 }: ClientTableHeaderProps) {
   return (
-    <TableHeader className="sticky top-0 z-20">
-      <TableRow className="hover:bg-transparent border-border/30">
-        <TableHead className="w-12 bg-background/95 backdrop-blur-sm sticky left-0 z-30 h-12 px-4">
+    <TableHeader className="sticky top-0 z-30">
+      <TableRow className="hover:bg-transparent border-b border-white/10 bg-[#0F0E16]/95 backdrop-blur-sm">
+        <TableHead className="sticky left-0 top-0 z-40 h-12 w-12 bg-[#0F0E16]/95 px-4 backdrop-blur-sm">
           <Checkbox 
             checked={selectedClients.length === clients.length && clients.length > 0}
             onCheckedChange={onSelectAll}
@@ -54,8 +54,8 @@ export function ClientTableHeader({
             <TableHead 
               key={column.key}
               className={cn(
-                "text-xs font-medium text-muted-foreground tracking-wider uppercase h-12",
-                isPinned ? 'sticky z-20 bg-background/95 backdrop-blur-sm' : ''
+                "sticky top-0 z-30 h-12 text-xs font-medium uppercase tracking-wider text-white/70 bg-[#0F0E16]/95 backdrop-blur-sm border-b border-white/10",
+                isPinned ? 'z-40' : ''
               )}
               style={{ 
                 minWidth: `${column.width || 150}px`,
@@ -74,6 +74,12 @@ export function ClientTableHeader({
             </TableHead>
           );
         })}
+
+        <TableHead
+          className="sticky top-0 right-0 z-30 h-12 w-28 bg-[#0F0E16]/95 text-xs font-medium uppercase tracking-wider text-white/60 backdrop-blur-sm"
+        >
+          Actions
+        </TableHead>
       </TableRow>
     </TableHeader>
   );

@@ -31,7 +31,7 @@ const getGradeTextColor = (grade: string): string => {
 
 export const WeekGrid: React.FC<WeekGridProps> = ({ dailyData, className }) => {
   return (
-    <div className={cn('grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2 sm:gap-3', className)}>
+    <div className={cn('flex flex-col gap-3', className)}>
       {dailyData.map((day, idx) => (
         <motion.div
           key={day.date.toISOString()}

@@ -121,100 +121,13 @@ export const WeeklyTopNav: React.FC<WeeklyTopNavProps> = ({
               </span>
             </div>
 
-            {/* Progress Bar Container with Enhanced Neon Effect */}
-            <div className="w-full bg-gray-700/60 rounded-full h-3 overflow-hidden relative shadow-inner">
-              {/* Main Progress Bar with Dynamic Colors */}
+            <div className="w-full bg-gray-800/60 rounded-full h-2 overflow-hidden">
               <motion.div
-                className={`h-full bg-gradient-to-r ${colors.primary} rounded-full relative overflow-hidden shadow-lg`}
+                className={`h-full bg-gradient-to-r ${colors.primary} rounded-full`}
                 initial={{ width: 0 }}
-                animate={{ width: `${weekCompletionPercentage}%` }}
-                transition={{ delay: 0.4, duration: 1.5, ease: "easeOut" }}
-              >
-                {/* Intense Breathing Glow Layer */}
-                <motion.div
-                  className={`absolute inset-0 ${colors.glow} blur-sm rounded-full`}
-                  animate={{
-                    opacity: [0.6, 1, 0.6],
-                    scale: [1, 1.1, 1]
-                  }}
-                  transition={{
-                    duration: 1.8,
-                    ease: "easeInOut",
-                    repeat: Infinity
-                  }}
-                />
-
-                {/* Fast Neon Shimmer Wave */}
-                <motion.div
-                  className={`absolute inset-0 bg-gradient-to-r from-transparent ${colors.shimmer} to-transparent rounded-full`}
-                  animate={{ x: ['-100%', '100%'] }}
-                  transition={{
-                    duration: 2,
-                    ease: "linear",
-                    repeat: Infinity,
-                    repeatDelay: 0.3
-                  }}
-                />
-
-                {/* Double Heartbeat Pulse */}
-                <motion.div
-                  className={`absolute inset-0 ${colors.pulse} rounded-full`}
-                  animate={{
-                    opacity: [0, 0.8, 0, 0.4, 0],
-                    scale: [0.96, 1.06, 0.96, 1.02, 0.96]
-                  }}
-                  transition={{
-                    duration: 2.2,
-                    ease: "easeInOut",
-                    repeat: Infinity,
-                    times: [0, 0.2, 0.4, 0.7, 1]
-                  }}
-                />
-
-                {/* Intense Outer Glow Ring */}
-                <motion.div
-                  className={`absolute -inset-1 ${colors.ring} blur-lg rounded-full`}
-                  animate={{
-                    opacity: [0.4, 0.8, 0.4],
-                    scale: [1, 1.2, 1]
-                  }}
-                  transition={{
-                    duration: 2.5,
-                    ease: "easeInOut",
-                    repeat: Infinity
-                  }}
-                />
-
-                {/* Lightning Spark Effect */}
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent rounded-full"
-                  animate={{
-                    x: ['-100%', '100%'],
-                    opacity: [0, 1, 0]
-                  }}
-                  transition={{
-                    duration: 0.8,
-                    ease: "easeInOut",
-                    repeat: Infinity,
-                    repeatDelay: 3
-                  }}
-                />
-
-                {/* Flowing Energy Particles */}
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent rounded-full"
-                  animate={{
-                    x: ['-50%', '150%'],
-                    scale: [1, 1.2, 1]
-                  }}
-                  transition={{
-                    duration: 3,
-                    ease: "easeInOut",
-                    repeat: Infinity,
-                    repeatDelay: 0.5
-                  }}
-                />
-              </motion.div>
+                animate={{ width: `${Math.max(0, Math.min(weekCompletionPercentage, 100))}%` }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+              />
             </div>
           </div>
         </motion.div>
