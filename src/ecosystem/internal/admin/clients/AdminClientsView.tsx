@@ -1,128 +1,106 @@
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { AirtableClientsTable } from './AirtableClientsTable';
 import { ClientsCardGrid } from './ClientsCardGrid';
-import { ClientViewPreference } from '@/types/client.types';
-import { useLocalStorage } from '@/shared/hooks/useLocalStorage';
 import { useClientsList } from '@/shared/hooks/client';
-import { DashboardStats } from './DashboardStats';
-import { PriorityListing } from './PriorityListing';
-import { ClientsHeader } from './ClientsHeader';
-import { notionSpacing } from '@/shared/lib/design-tokens';
-
-const defaultViewPreference: ClientViewPreference = {
-  columns: [
-    { key: 'business_name', label: 'Business Name', visible: true, width: 200, pinned: true },
-    { key: 'progress', label: 'Progress', visible: true, width: 150 },
-    { key: 'status', label: 'Status', visible: true, width: 120, pinned: true },
-    { key: 'project_name', label: 'Project', visible: true, width: 180 },
-    { key: 'estimated_price', label: 'Balance', visible: true, width: 120 },
-    { key: 'development_url', label: 'Website', visible: false, width: 150 },
-    { key: 'next_steps', label: 'Next Steps', visible: false, width: 200 },
-    { key: 'key_research', label: 'Key Research', visible: false, width: 180 },
-    { key: 'updated_at', label: 'Updated', visible: true, width: 150 },
-    { key: 'start_date', label: 'Start Date', visible: false, width: 150 },
-    { key: 'estimated_completion_date', label: 'Est. Completion', visible: false, width: 150 },
-  ],
-  sortColumn: 'updated_at',
-  sortDirection: 'desc',
-  pageSize: 20,
-  showAllColumns: false,
-};
+import { Button } from '@/shared/ui/button';
+import { Input } from '@/shared/ui/input';
+import { ClientStatus } from '@/types/client.types';
 
 interface AdminClientsViewProps {
   isAdmin: boolean;
 }
 
-export function AdminClientsView({ isAdmin }: AdminClientsViewProps) {
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [viewPreference, setViewPreference] = useLocalStorage<ClientViewPreference>(
-    'client_view_preference_v2',
-    defaultViewPreference
-  );
-  const [viewMode, setViewMode] = useState<"table" | "cards">("table");
-  const [searchQuery, setSearchQuery] = useState("");
+const STATUS_FILTERS: Array<ClientStatus | 'all'> = [
+  'all',
+  'potential',
+  'onboarding',
+  'active',
+  'completed',
+  'archived',
+];
 
-  const { clients = [], isLoading, refetch } = useClientsList({
+export function AdminClientsView({ isAdmin }: AdminClientsViewProps) {
+  const [statusFilter, setStatusFilter] = useState<ClientStatus | 'all'>('all');
+  const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const { clients = [], isLoading } = useClientsList({
     searchQuery,
     statusFilter,
-    sortColumn: viewPreference.sortColumn,
-    sortDirection: viewPreference.sortDirection,
-    pageSize: 1000,
+    sortColumn: 'updated_at',
+    sortDirection: 'desc',
   });
-  
-  const statsTotalClients = clients.length;
-  const statsProjectValue = useMemo(() => {
-    const total = clients.reduce((acc, curr) => {
-      const price = curr.estimated_price || 0;
-      console.log(`Client: ${curr.business_name}, Price: ${price}`);
-      return acc + price;
-    }, 0);
-    console.log('Total calculated project value:', total);
-    console.log('All clients data:', clients.map(c => ({ name: c.business_name, price: c.estimated_price })));
-    return total;
-  }, [clients]);
 
-  // Adapter for view preference
-  const handleViewPreferenceChange = (updates: Partial<ClientViewPreference>) => {
-    setViewPreference(prev => ({ ...prev, ...updates }));
-  };
+  const totalClients = clients.length;
+  const totalValue = useMemo(
+    () =>
+      clients.reduce((sum, client) => {
+        return sum + (client.estimated_price ?? 0);
+      }, 0),
+    [clients]
+  );
 
-  const handleRefetch = async () => {
-    try {
-      await refetch();
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  if (!isAdmin) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-black">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div className="space-y-6">
-          {/* Dashboard stats */}
-          <DashboardStats
-            totalClients={statsTotalClients}
-            totalProjectValue={statsProjectValue}
-          />
-          
-          {/* Priority Clients */}
-          <PriorityListing limit={3} />
-
-          {/* Controls with ClientsHeader */}
-          <ClientsHeader
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            statusFilter={statusFilter}
-            onStatusFilterChange={setStatusFilter}
-            viewPreference={viewPreference}
-            onViewPreferenceChange={handleViewPreferenceChange}
-            onAddClient={() => {}}
-            onRefetch={handleRefetch}
-            viewMode={viewMode}
-            setViewMode={setViewMode}
-          />
-
-          {/* Content View (Table or Cards) - Full Height */}
-          <div className="bg-gray-900 rounded-lg border border-gray-800 h-[calc(100vh-16rem)] flex flex-col">
-            <div className="flex-1 overflow-hidden">
-              {viewMode === "table" ? (
-                <AirtableClientsTable
-                  searchQuery={searchQuery}
-                  statusFilter={statusFilter}
-                  onSearchChange={setSearchQuery}
-                  onStatusFilterChange={setStatusFilter}
-                />
-              ) : (
-                <ClientsCardGrid
-                  searchQuery={searchQuery}
-                  statusFilter={statusFilter}
-                  sortColumn={viewPreference.sortColumn}
-                  sortDirection={viewPreference.sortDirection}
-                  viewMode={viewMode}
-                  setViewMode={setViewMode}
-                />
-              )}
+          <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h1 className="text-2xl font-semibold text-white">Clients</h1>
+              <p className="text-sm text-gray-400">
+                {totalClients} clients · ${totalValue.toLocaleString()} total value
+              </p>
             </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setViewMode(viewMode === 'table' ? 'cards' : 'table')}
+                className="border-gray-700 bg-gray-900 text-gray-200 hover:bg-gray-800"
+              >
+                {viewMode === 'table' ? '📇 Cards' : '📊 Table'}
+              </Button>
+              <Button className="bg-blue-600 text-white hover:bg-blue-500">+ Add Client</Button>
+            </div>
+          </header>
+
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <Input
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Search clients..."
+              className="max-w-sm border-gray-800 bg-gray-900 text-white placeholder:text-gray-500"
+            />
+            <div className="flex flex-wrap gap-2">
+              {STATUS_FILTERS.map((status) => (
+                <Button
+                  key={status}
+                  variant={statusFilter === status ? 'default' : 'outline'}
+                  onClick={() => setStatusFilter(status)}
+                  size="sm"
+                  className={
+                    statusFilter === status
+                      ? 'bg-blue-600 text-white hover:bg-blue-500'
+                      : 'border-gray-800 bg-gray-900 text-gray-300 hover:bg-gray-800'
+                  }
+                >
+                  {status === 'all'
+                    ? 'All'
+                    : `${status.charAt(0).toUpperCase()}${status.slice(1)}`}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-gray-800 bg-gray-950/80 p-4">
+            {viewMode === 'table' ? (
+              <AirtableClientsTable clients={clients} isLoading={isLoading} />
+            ) : (
+              <ClientsCardGrid clients={clients} isLoading={isLoading} />
+            )}
           </div>
         </div>
       </div>

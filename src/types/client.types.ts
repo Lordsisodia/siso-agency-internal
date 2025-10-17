@@ -12,6 +12,50 @@ export interface ClientDocument {
   position?: number;
 }
 
+export type ClientStatus =
+  | 'potential'
+  | 'onboarding'
+  | 'active'
+  | 'completed'
+  | 'archived';
+
+export interface OnboardingProgress {
+  initial_contact: boolean;
+  talked_to: boolean;
+  proposal_created: boolean;
+  quote_given: boolean;
+  mvp_created: boolean;
+  deposit_collected: boolean;
+  project_live: boolean;
+}
+
+export interface ClientType {
+  id: string;
+  user_id: string | null;
+  name: string;
+  is_system: boolean;
+  created_at: string;
+}
+
+export interface ClientTask {
+  id: string;
+  user_id: string;
+  client_id: string;
+  title: string;
+  description: string | null;
+  completed: boolean;
+  priority: 'low' | 'medium' | 'high';
+  due_date: string | null;
+  subtasks: Array<{
+    id: string;
+    title: string;
+    completed: boolean;
+  }>;
+  created_at: string;
+  updated_at: string;
+  completed_at: string | null;
+}
+
 export interface ClientData {
   id: string;
   full_name: string;
@@ -19,7 +63,7 @@ export interface ClientData {
   business_name: string | null;
   phone: string | null;
   avatar_url: string | null;
-  status: string;
+  status: ClientStatus | string;
   progress?: string | null;
   current_step: number;
   total_steps: number;
@@ -45,6 +89,9 @@ export interface ClientData {
   priority?: string | null;
   contact_name?: string | null;
   company_name?: string | null;
+  type?: string | null;
+  brief?: string | null;
+  onboarding_progress?: OnboardingProgress | null;
 }
 
 export interface TodoItem {
