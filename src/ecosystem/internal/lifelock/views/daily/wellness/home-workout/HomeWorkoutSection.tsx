@@ -521,10 +521,26 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({ selected
                     <span>🏋️</span>
                   </div>
                   <div>
-                    <CardTitle className="flex items-center gap-2 text-2xl font-semibold text-rose-100">
-                      <Dumbbell className="h-5 w-5 text-rose-300" />
-                      Home Workout Objective
-                    </CardTitle>
+                    <div className="flex items-center gap-3">
+                      <CardTitle className="flex items-center gap-2 text-2xl font-semibold text-rose-100">
+                        <Dumbbell className="h-5 w-5 text-rose-300" />
+                        Home Workout Objective
+                      </CardTitle>
+                      <XPPill
+                        xp={(() => {
+                          const exercises = normalizedItems.map(item => ({
+                            completed: item.completed,
+                            logged: item.loggedValue,
+                            target: item.goalValue,
+                            isPB: false // TODO: Track PBs per exercise
+                          }));
+                          const result = calculateTotalWorkoutXP(exercises);
+                          return result.total;
+                        })()}
+                        earned={normalizedItems.every(item => item.completed)}
+                        showGlow={normalizedItems.every(item => item.completed)}
+                      />
+                    </div>
                     <p className="text-sm text-rose-200/70">Daily targets for {readableDate}</p>
                   </div>
                 </div>
