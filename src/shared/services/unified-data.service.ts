@@ -267,6 +267,14 @@ class UnifiedDataService {
     };
   }
 
+  private buildCacheKey(userId: string, date: string) {
+    return `reflection:${userId}:${date}`;
+  }
+
+  private transformDbReflection(record: any): DailyReflection {
+    return this.mapDbReflectionToApp(record);
+  }
+
   // ===== DAILY REFLECTIONS =====
   async getDailyReflection(userId: string, date: string): Promise<DailyReflection | null> {
     // Try local first

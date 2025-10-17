@@ -14,6 +14,8 @@ import { usePhotoNutrition } from '../hooks/usePhotoNutrition';
 import { PhotoCapture } from './PhotoCapture';
 import { FoodPhotoCard } from './FoodPhotoCard';
 import { DailyMacroSummary } from './DailyMacroSummary';
+import { calculateTotalNutritionXP } from '../../views/daily/wellness/xpCalculations';
+import { XPPill } from '../../views/daily/morning-routine/components/XPPill';
 
 interface PhotoNutritionTrackerProps {
   selectedDate: Date;
@@ -115,9 +117,27 @@ export const PhotoNutritionTracker: React.FC<PhotoNutritionTrackerProps> = ({
         >
           <Card className="mb-24 bg-pink-900/20 border-pink-700/50">
             <CardHeader>
-              <CardTitle className="flex items-center text-pink-400">
-                <Sparkles className="h-5 w-5 mr-2" />
-                📸 AI Nutrition Tracker
+              <CardTitle className="flex items-center justify-between text-pink-400">
+                <div className="flex items-center">
+                  <Sparkles className="h-5 w-5 mr-2" />
+                  📸 AI Nutrition Tracker
+                </div>
+                <XPPill
+                  xp={(() => {
+                    // Calculate XP from logged meals
+                    const meals = photos.map(photo => ({
+                      hasPhoto: true,
+                      calories: photo.calories,
+                      protein: photo.protein,
+                      isHealthy: photo.is_healthy_meal,
+                      isBalanced: photo.is_balanced
+                    }));
+                    const result = calculateTotalNutritionXP(meals, totals);
+                    return result.total;
+                  })()}
+                  earned={photos.length >= 3}
+                  showGlow={photos.length >= 3}
+                />
               </CardTitle>
               <p className="text-sm text-pink-300/60 mt-2">
                 Snap a photo of your meal and let AI analyze the nutrition automatically
