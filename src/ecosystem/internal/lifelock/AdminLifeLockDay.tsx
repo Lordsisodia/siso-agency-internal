@@ -22,10 +22,16 @@ const AdminLifeLockDay: React.FC = () => {
 
   const internalUserId = useSupabaseUserId(user?.id || null);
 
+  // Parse date from query params or default to today - memoized to prevent infinite re-renders
+  const selectedDate = useMemo(() => {
+    const dateParam = searchParams.get('date');
+    return dateParam ? new Date(dateParam) : new Date();
+  }, [searchParams]);
+
   // 🎮 Initialize XP/Gamification system
   useGamificationInit();
 
-  // 🎮 Get today's XP breakdown
+  // 🎮 Get today's XP breakdown (AFTER selectedDate is defined)
   const todayXP = useTodayXP(selectedDate);
 
   // State for real-time day progress updates (same as AdminLifeLock.tsx)
@@ -39,12 +45,6 @@ const AdminLifeLockDay: React.FC = () => {
 
     return () => clearInterval(timer);
   }, []);
-
-  // Parse date from query params or default to today - memoized to prevent infinite re-renders
-  const selectedDate = useMemo(() => {
-    const dateParam = searchParams.get('date');
-    return dateParam ? new Date(dateParam) : new Date();
-  }, [searchParams]);
 
   // Compute day progress percentage using utility function
   const dayCompletionPercentage = calculateDayCompletionPercentage(currentTime);
