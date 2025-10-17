@@ -158,7 +158,7 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
     <Dialog open={isOpen} onOpenChange={handleCancel}>
       <DialogContent className="max-w-full h-screen p-0 bg-gray-900 border-none">
         {/* Full-screen timer view */}
-        <div className="relative w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900">
+        <div className="relative w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 via-orange-900/20 to-gray-900">
 
           {/* Close button */}
           <button
@@ -186,7 +186,7 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
                   repeat: Infinity,
                   ease: "easeInOut"
                 }}
-                className="absolute w-64 h-64 rounded-full bg-purple-500/20 blur-3xl"
+                className="absolute w-64 h-64 rounded-full bg-orange-500/20 blur-3xl"
               />
               <div className="relative z-10 text-8xl font-light text-white tracking-wider">
                 {formatTime(seconds)}
@@ -218,7 +218,7 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
                 <Button
                   onClick={handleStart}
                   size="lg"
-                  className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-6 text-lg rounded-full"
+                  className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-6 text-lg rounded-full"
                 >
                   <Play className="h-6 w-6 mr-2" />
                   {seconds === 0 ? 'Start' : 'Resume'}
@@ -228,7 +228,7 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
                   onClick={handlePause}
                   size="lg"
                   variant="outline"
-                  className="border-purple-500 text-purple-400 hover:bg-purple-500/10 px-8 py-6 text-lg rounded-full"
+                  className="border-orange-500 text-orange-400 hover:bg-orange-500/10 px-8 py-6 text-lg rounded-full"
                 >
                   <Pause className="h-6 w-6 mr-2" />
                   Pause
@@ -268,7 +268,7 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
 
             {/* Session tracking indicator */}
             {sessionStartTime && (
-              <div className="text-xs text-purple-400/60 pt-2">
+              <div className="text-xs text-orange-400/60 pt-2">
                 Session will be saved to your meditation history
               </div>
             )}
