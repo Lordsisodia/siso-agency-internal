@@ -30,6 +30,13 @@ export function useIsClient() {
           .maybeSingle();
 
         if (error) {
+          // Silently fail if table doesn't exist (internal app doesn't have client tables)
+          if (error.code === '42P01') {
+            setIsClient(false);
+            setLoading(false);
+            return;
+          }
+          // Only log other errors
           console.error('Error checking client status:', error);
           setIsClient(false);
           setLoading(false);
