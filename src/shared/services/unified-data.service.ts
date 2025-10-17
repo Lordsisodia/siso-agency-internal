@@ -271,31 +271,8 @@ class UnifiedDataService {
     return `reflection:${userId}:${date}`;
   }
 
-<<<<<<< HEAD
   private transformDbReflection(record: any): DailyReflection {
     return this.mapDbReflectionToApp(record);
-=======
-  private transformDbReflection(data: any): DailyReflection {
-    return {
-      id: data.id,
-      user_id: data.user_id,
-      date: data.date,
-      winOfDay: data.win_of_day || '',
-      mood: data.mood || '',
-      bedTime: data.bed_time || '',
-      wentWell: data.went_well || [],
-      evenBetterIf: data.even_better_if || [],
-      dailyAnalysis: data.daily_analysis || '',
-      actionItems: data.action_items || '',
-      overallRating: data.overall_rating,
-      energyLevel: data.energy_level,
-      keyLearnings: data.key_learnings || '',
-      tomorrowFocus: data.tomorrow_focus || '',
-      tomorrowTopTasks: data.tomorrow_top_tasks || [],
-      created_at: data.created_at,
-      updated_at: data.updated_at
-    };
->>>>>>> e8c5ff2a (Optimize nightly checkout reflection fetching)
   }
 
   // ===== DAILY REFLECTIONS =====
