@@ -12,6 +12,7 @@ import { useRefactoredLifeLockData } from '@/ecosystem/internal/lifelock/useRefa
 import { LoadingState } from '@/shared/ui/loading-state';
 import { selectImplementation } from '@/migration/feature-flags';
 import { calculateDayCompletionPercentage } from '@/utils/dayProgress';
+import { DailyXPSummaryWidget } from './components/DailyXPSummaryWidget';
 
 const AdminLifeLockDay: React.FC = () => {
   const navigate = useNavigate();
@@ -157,6 +158,19 @@ return (
         hideBottomNav={false}
         dayCompletionPercentage={dayCompletionPercentage}
       />
+
+      {/* XP Summary Widget - Collapsible */}
+      <div className="max-w-7xl mx-auto px-4 pb-6">
+        <DailyXPSummaryWidget
+          date={selectedDate}
+          // TODO: Pass actual XP values from each section when available
+          morningXP={0}
+          lightWorkXP={0}
+          deepWorkXP={0}
+          wellnessXP={0}
+          checkoutXP={0}
+        />
+      </div>
 
       {/* Global Modals */}
       {lastThoughtDumpResult && (
