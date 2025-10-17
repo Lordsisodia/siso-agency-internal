@@ -70,13 +70,36 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
 
   const dateString = selectedDate?.toISOString()?.split('T')[0] || new Date().toISOString().split('T')[0];
 
-  const getIsOnline = useCallback(() => {
-    if (typeof window === 'undefined') {
-      return false;
-    }
+  type OfflineDeepWorkTaskRecord = Parameters<typeof offlineDb.saveDeepWorkTask>[0];
 
-    return window.navigator?.onLine ?? false;
-  }, []);
+  const mapToOfflineDeepWorkTask = useCallback((task: DeepWorkTask): OfflineDeepWorkTaskRecord => ({
+    id: task.id,
+    user_id: task.userId,
+    title: task.title,
+    description: task.description,
+    priority: task.priority,
+    completed: task.completed,
+    original_date: task.originalDate,
+    task_date: task.currentDate || task.originalDate,
+    estimated_duration: task.estimatedDuration,
+    focus_blocks: task.focusBlocks,
+    actual_duration_min: task.actualDurationMin,
+    created_at: task.createdAt,
+    updated_at: task.updatedAt,
+    completed_at: task.completedAt ?? null,
+    due_date: task.dueDate ?? null,
+    time_estimate: task.timeEstimate ?? null
+  } as OfflineDeepWorkTaskRecord), []);
+
+  const applyDeepWorkTaskUpdate = useCallback(async (updatedTask: DeepWorkTask, markForSync: boolean) => {
+    setTasks(prev => prev.map(task => (task.id === updatedTask.id ? updatedTask : task)));
+
+    try {
+      await offlineDb.saveDeepWorkTask(mapToOfflineDeepWorkTask(updatedTask), markForSync);
+    } catch (offlineError) {
+      console.error('❌ Failed to persist Deep Work task offline:', offlineError);
+    }
+  }, [mapToOfflineDeepWorkTask]);
 
   // Load deep work tasks - INSTANT CACHE + BACKGROUND SYNC
   const loadTasks = useCallback(async () => {
@@ -218,7 +241,7 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
       setLoading(false);
     }
     // No finally block - loading is set false immediately after IndexedDB load
-  }, [isSignedIn, internalUserId, dateString, supabase, getIsOnline]);
+  }, [isSignedIn, internalUserId, dateString, supabase]);
 
   // Create new deep work task - OFFLINE-FIRST
   const createTask = useCallback(async (taskData: Partial<DeepWorkTask>) => {
@@ -318,56 +341,67 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
       setError(error instanceof Error ? error.message : 'Failed to create task in Supabase');
       return null;
     }
-  }, [internalUserId, dateString, supabase, getIsOnline]);
+  }, [internalUserId, dateString, supabase]);
 
   // Toggle task completion in Supabase
   const toggleTaskCompletion = useCallback(async (taskId: string) => {
-    if (!supabase) return null;
-    
-    try {
-      console.log(`🔄 Toggling Deep Work task completion in Supabase: ${taskId}`);
+    const currentTask = tasks.find(t => t.id === taskId);
+    if (!currentTask) return null;
 
-      // Get current task state
-      const currentTask = tasks.find(t => t.id === taskId);
-      if (!currentTask) return null;
+    const newCompleted = !currentTask.completed;
+    const now = new Date().toISOString();
+    const optimisticTask: DeepWorkTask = {
+      ...currentTask,
+      completed: newCompleted,
+      completedAt: newCompleted ? now : undefined,
+      updatedAt: now
+    };
 
-      const newCompleted = !currentTask.completed;
-      const now = new Date().toISOString();
+    const canUseSupabase = Boolean(supabase) && getIsOnline();
 
-      const { data, error } = await supabase
-        .from('deep_work_tasks')
-        .update({
-          completed: newCompleted,
-          completed_at: newCompleted ? now : null,
-          updated_at: now
-        })
-        .eq('id', taskId)
-        .select()
-        .single();
+    if (canUseSupabase) {
+      try {
+        console.log(`🔄 Toggling Deep Work task completion in Supabase: ${taskId}`);
 
-      if (error) {
-        throw new Error(`Supabase error: ${error.message}`);
+        const { data, error } = await supabase
+          .from('deep_work_tasks')
+          .update({
+            completed: newCompleted,
+            completed_at: newCompleted ? now : null,
+            updated_at: now
+          })
+          .eq('id', taskId)
+          .select()
+          .single();
+
+        if (error) {
+          throw new Error(`Supabase error: ${error.message}`);
+        }
+
+        const updatedTask: DeepWorkTask = {
+          ...currentTask,
+          completed: data.completed,
+          completedAt: data.completed_at ?? undefined,
+          updatedAt: data.updated_at
+        };
+
+        console.log(`✅ Toggled Deep Work task completion in Supabase: ${taskId} -> ${newCompleted}`);
+        await applyDeepWorkTaskUpdate(updatedTask, false);
+        return updatedTask;
+
+      } catch (supabaseError) {
+        console.warn('⚠️ Supabase toggle failed, queuing offline sync:', supabaseError);
+        setError(null);
+        await applyDeepWorkTaskUpdate(optimisticTask, true);
+        return optimisticTask;
       }
-
-      const updatedTask: DeepWorkTask = {
-        ...currentTask,
-        completed: data.completed,
-        completedAt: data.completed_at,
-        updatedAt: data.updated_at
-      };
-
-      console.log(`✅ Toggled Deep Work task completion in Supabase: ${taskId} -> ${newCompleted}`);
-      setTasks(prev => prev.map(task => 
-        task.id === taskId ? updatedTask : task
-      ));
-      return updatedTask;
-
-    } catch (error) {
-      console.error('❌ Error toggling Deep Work task completion in Supabase:', error);
-      setError(error instanceof Error ? error.message : 'Failed to toggle task in Supabase');
-      return null;
     }
-  }, [tasks, supabase]);
+
+    console.log(`📴 Offline toggle for Deep Work task: ${taskId}`);
+    setError(null);
+    await applyDeepWorkTaskUpdate(optimisticTask, true);
+    return optimisticTask;
+  }, [applyDeepWorkTaskUpdate, supabase, tasks]);
 
   // Add subtask to task in Supabase
   const addSubtask = useCallback(async (taskId: string, subtaskTitle: string, priority = 'HIGH') => {
@@ -542,213 +576,272 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
 
   // Update task title
   const updateTaskTitle = useCallback(async (taskId: string, newTitle: string) => {
-    if (!supabase) return null;
+    const currentTask = tasks.find(task => task.id === taskId);
+    if (!currentTask) return null;
 
-    try {
-      console.log(`✏️ Updating Deep Work task title: ${taskId}`);
-      
-      const { error } = await supabase
-        .from('deep_work_tasks')
-        .update({
-          title: newTitle,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', taskId);
-      
-      if (error) {
-        throw new Error(`Supabase error: ${error.message}`);
+    const now = new Date().toISOString();
+    const optimisticTask: DeepWorkTask = {
+      ...currentTask,
+      title: newTitle,
+      updatedAt: now
+    };
+
+    const canUseSupabase = Boolean(supabase) && getIsOnline();
+
+    if (canUseSupabase) {
+      try {
+        console.log(`✏️ Updating Deep Work task title: ${taskId}`);
+
+        const { error } = await supabase
+          .from('deep_work_tasks')
+          .update({
+            title: newTitle,
+            updated_at: now
+          })
+          .eq('id', taskId);
+
+        if (error) {
+          throw new Error(`Supabase error: ${error.message}`);
+        }
+
+        console.log(`✅ Updated Deep Work task title: ${taskId}`);
+        await applyDeepWorkTaskUpdate(optimisticTask, false);
+        return true;
+
+      } catch (supabaseError) {
+        console.warn('⚠️ Supabase title update failed, storing offline:', supabaseError);
       }
-      
-      console.log(`✅ Updated Deep Work task title: ${taskId}`);
-      
-      // Update local state
-      setTasks(prev => prev.map(task => 
-        task.id === taskId 
-          ? { ...task, title: newTitle }
-          : task
-      ));
-      
-      return true;
-      
-    } catch (error) {
-      console.error('❌ Error updating Deep Work task title:', error);
-      setError(error instanceof Error ? error.message : 'Failed to update task title');
-      return null;
     }
-  }, [supabase]);
+
+    console.log(`📴 Offline title update for Deep Work task: ${taskId}`);
+    setError(null);
+    await applyDeepWorkTaskUpdate(optimisticTask, true);
+    return true;
+  }, [applyDeepWorkTaskUpdate, supabase, tasks]);
 
   const updateTaskPriority = useCallback(async (taskId: string, priority: 'low' | 'medium' | 'high' | 'urgent') => {
-    if (!supabase) return null;
+    const currentTask = tasks.find(task => task.id === taskId);
+    if (!currentTask) return null;
 
-    try {
-      console.log(`🎯 Updating Deep Work task priority: ${taskId} -> ${priority}`);
+    const normalizedPriority = priority.toUpperCase() as 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+    const now = new Date().toISOString();
+    const optimisticTask: DeepWorkTask = {
+      ...currentTask,
+      priority: normalizedPriority,
+      updatedAt: now
+    };
 
-      const normalizedPriority = priority.toUpperCase() as 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+    const canUseSupabase = Boolean(supabase) && getIsOnline();
 
-      const { error } = await supabase
-        .from('deep_work_tasks')
-        .update({
-          priority: normalizedPriority,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', taskId);
+    if (canUseSupabase) {
+      try {
+        console.log(`🎯 Updating Deep Work task priority: ${taskId} -> ${priority}`);
 
-      if (error) {
-        throw new Error(`Supabase error: ${error.message}`);
+        const { error } = await supabase
+          .from('deep_work_tasks')
+          .update({
+            priority: normalizedPriority,
+            updated_at: now
+          })
+          .eq('id', taskId);
+
+        if (error) {
+          throw new Error(`Supabase error: ${error.message}`);
+        }
+
+        console.log(`✅ Updated Deep Work task priority: ${taskId}`);
+        await applyDeepWorkTaskUpdate(optimisticTask, false);
+        return true;
+
+      } catch (supabaseError) {
+        console.warn('⚠️ Supabase priority update failed, storing offline:', supabaseError);
       }
-
-      console.log(`✅ Updated Deep Work task priority: ${taskId}`);
-
-      setTasks(prev => prev.map(task =>
-        task.id === taskId
-          ? { ...task, priority: normalizedPriority }
-          : task
-      ));
-
-      return true;
-    } catch (error) {
-      console.error('❌ Error updating Deep Work task priority:', error);
-      setError(error instanceof Error ? error.message : 'Failed to update task priority');
-      return null;
     }
-  }, [supabase]);
+
+    console.log(`📴 Offline priority update for Deep Work task: ${taskId}`);
+    setError(null);
+    await applyDeepWorkTaskUpdate(optimisticTask, true);
+    return true;
+  }, [applyDeepWorkTaskUpdate, supabase, tasks]);
 
   const updateTaskTimeEstimate = useCallback(async (taskId: string, timeEstimate: string | null) => {
-    if (!supabase) return null;
+    const currentTask = tasks.find(task => task.id === taskId);
+    if (!currentTask) return null;
 
-    try {
-      console.log(`⏱️ Updating Deep Work task time estimate: ${taskId} -> ${timeEstimate}`);
+    const now = new Date().toISOString();
+    const optimisticTask: DeepWorkTask = {
+      ...currentTask,
+      timeEstimate: timeEstimate || null,
+      updatedAt: now
+    };
 
-      const { error } = await supabase
-        .from('deep_work_tasks')
-        .update({
-          time_estimate: timeEstimate,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', taskId);
+    const canUseSupabase = Boolean(supabase) && getIsOnline();
 
-      if (error) {
-        throw new Error(`Supabase error: ${error.message}`);
+    if (canUseSupabase) {
+      try {
+        console.log(`⏱️ Updating Deep Work task time estimate: ${taskId} -> ${timeEstimate}`);
+
+        const { error } = await supabase
+          .from('deep_work_tasks')
+          .update({
+            time_estimate: timeEstimate,
+            updated_at: now
+          })
+          .eq('id', taskId);
+
+        if (error) {
+          throw new Error(`Supabase error: ${error.message}`);
+        }
+
+        console.log(`✅ Updated Deep Work task time estimate: ${taskId}`);
+        await applyDeepWorkTaskUpdate(optimisticTask, false);
+        return true;
+
+      } catch (supabaseError) {
+        console.warn('⚠️ Supabase time estimate update failed, storing offline:', supabaseError);
       }
-
-      console.log(`✅ Updated Deep Work task time estimate: ${taskId}`);
-
-      setTasks(prev => prev.map(task =>
-        task.id === taskId
-          ? { ...task, timeEstimate: timeEstimate || null }
-          : task
-      ));
-
-      return true;
-    } catch (error) {
-      console.error('❌ Error updating Deep Work task time estimate:', error);
-      setError(error instanceof Error ? error.message : 'Failed to update task time estimate');
-      return null;
     }
-  }, [supabase]);
+
+    console.log(`📴 Offline time estimate update for Deep Work task: ${taskId}`);
+    setError(null);
+    await applyDeepWorkTaskUpdate(optimisticTask, true);
+    return true;
+  }, [applyDeepWorkTaskUpdate, supabase, tasks]);
 
   // Push task to another day (reschedule)
   const pushTaskToAnotherDay = useCallback(async (taskId: string, newDate: string) => {
-    if (!supabase) return null;
-    
-    try {
-      console.log(`📅 Rescheduling Deep Work task: ${taskId} to ${newDate}`);
-      
-      const { error } = await supabase
-        .from('deep_work_tasks')
-        .update({
-          task_date: newDate,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', taskId);
-      
-      if (error) {
-        throw new Error(`Supabase error: ${error.message}`);
+    const currentTask = tasks.find(task => task.id === taskId);
+    if (!currentTask) return null;
+
+    const now = new Date().toISOString();
+    const optimisticTask: DeepWorkTask = {
+      ...currentTask,
+      currentDate: newDate,
+      updatedAt: now
+    };
+
+    const canUseSupabase = Boolean(supabase) && getIsOnline();
+
+    if (canUseSupabase) {
+      try {
+        console.log(`📅 Rescheduling Deep Work task: ${taskId} to ${newDate}`);
+
+        const { error } = await supabase
+          .from('deep_work_tasks')
+          .update({
+            task_date: newDate,
+            updated_at: now
+          })
+          .eq('id', taskId);
+
+        if (error) {
+          throw new Error(`Supabase error: ${error.message}`);
+        }
+
+        console.log(`✅ Rescheduled Deep Work task: ${taskId} to ${newDate}`);
+        await applyDeepWorkTaskUpdate(optimisticTask, false);
+        setTasks(prev => prev.map(task =>
+          task.id === taskId ? { ...task, isPushed: true } : task
+        ));
+        return true;
+
+      } catch (supabaseError) {
+        console.warn('⚠️ Supabase reschedule failed, storing offline:', supabaseError);
       }
-      
-      console.log(`✅ Rescheduled Deep Work task: ${taskId} to ${newDate}`);
-      
-      // Update local state
-      setTasks(prev => prev.map(task => 
-        task.id === taskId 
-          ? { ...task, currentDate: newDate, isPushed: true }
-          : task
-      ));
-      
-      return true;
-      
-    } catch (error) {
-      console.error('❌ Error rescheduling Deep Work task:', error);
-      setError(error instanceof Error ? error.message : 'Failed to reschedule task');
-      return null;
     }
-  }, [supabase]);
+
+    console.log(`📴 Offline reschedule for Deep Work task: ${taskId}`);
+    setError(null);
+    await applyDeepWorkTaskUpdate(optimisticTask, true);
+    setTasks(prev => prev.map(task =>
+      task.id === taskId ? { ...task, isPushed: true } : task
+    ));
+    return true;
+  }, [applyDeepWorkTaskUpdate, supabase, tasks]);
 
   // Update task due date (works on both tasks and subtasks)
   const updateTaskDueDate = useCallback(async (taskOrSubtaskId: string, dueDate: Date | null) => {
-    if (!supabase) return null;
-    
-    try {
-      console.log(`📅 Updating Deep Work due date in Supabase: ${taskOrSubtaskId}`);
-      
-      // Format date for database
-      const dateString = dueDate ? dueDate.toISOString() : null;
-      
-      // First try updating as a subtask
-      const { error: subtaskError } = await supabase
-        .from('deep_work_subtasks')
-        .update({
-          due_date: dateString,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', taskOrSubtaskId);
-      
-      if (!subtaskError) {
-        console.log(`✅ Updated Deep Work subtask due date: ${taskOrSubtaskId}`);
-        
-        // Update local state
-        setTasks(prev => prev.map(task => ({
-          ...task,
-          subtasks: task.subtasks.map(subtask => 
-            subtask.id === taskOrSubtaskId 
-              ? { ...subtask, dueDate: dateString }
-              : subtask
-          )
-        })));
-        
+    const taskMatch = tasks.find(task => task.id === taskOrSubtaskId);
+    const dateString = dueDate ? dueDate.toISOString() : null;
+    const now = new Date().toISOString();
+    const canUseSupabase = Boolean(supabase) && getIsOnline();
+
+    if (canUseSupabase) {
+      try {
+        console.log(`📅 Updating Deep Work due date in Supabase: ${taskOrSubtaskId}`);
+
+        const { error: subtaskError } = await supabase
+          .from('deep_work_subtasks')
+          .update({
+            due_date: dateString,
+            updated_at: now
+          })
+          .eq('id', taskOrSubtaskId);
+
+        if (!subtaskError) {
+          console.log(`✅ Updated Deep Work subtask due date: ${taskOrSubtaskId}`);
+          setTasks(prev => prev.map(task => ({
+            ...task,
+            subtasks: task.subtasks.map(subtask =>
+              subtask.id === taskOrSubtaskId
+                ? { ...subtask, dueDate: dateString }
+                : subtask
+            )
+          })));
+          return true;
+        }
+
+        const { error: taskError } = await supabase
+          .from('deep_work_tasks')
+          .update({
+            due_date: dateString,
+            updated_at: now
+          })
+          .eq('id', taskOrSubtaskId);
+
+        if (taskError) {
+          throw new Error(`Supabase error: ${taskError.message}`);
+        }
+
+        console.log(`✅ Updated Deep Work task due date: ${taskOrSubtaskId}`);
+
+        if (taskMatch) {
+          const updatedTask: DeepWorkTask = {
+            ...taskMatch,
+            dueDate: dateString,
+            updatedAt: now
+          };
+          await applyDeepWorkTaskUpdate(updatedTask, false);
+        } else {
+          setTasks(prev => prev.map(task =>
+            task.id === taskOrSubtaskId
+              ? { ...task, dueDate: dateString }
+              : task
+          ));
+        }
+
         return true;
+
+      } catch (supabaseError) {
+        console.warn('⚠️ Supabase due date update failed, storing offline if possible:', supabaseError);
       }
-      
-      // If subtask update failed, try updating as a task
-      const { error: taskError } = await supabase
-        .from('deep_work_tasks')
-        .update({
-          due_date: dateString,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', taskOrSubtaskId);
-      
-      if (taskError) {
-        throw new Error(`Supabase error: ${taskError.message}`);
-      }
-      
-      console.log(`✅ Updated Deep Work task due date: ${taskOrSubtaskId}`);
-      
-      // Update local state
-      setTasks(prev => prev.map(task => 
-        task.id === taskOrSubtaskId 
-          ? { ...task, dueDate: dateString }
-          : task
-      ));
-      
-      return true;
-      
-    } catch (error) {
-      console.error('❌ Error updating Deep Work due date:', error);
-      setError(error instanceof Error ? error.message : 'Failed to update due date');
-      return null;
     }
-  }, [supabase]);
+
+    if (taskMatch) {
+      console.log(`📴 Offline due date update for Deep Work task: ${taskOrSubtaskId}`);
+      setError(null);
+      const offlineTask: DeepWorkTask = {
+        ...taskMatch,
+        dueDate: dateString,
+        updatedAt: now
+      };
+      await applyDeepWorkTaskUpdate(offlineTask, true);
+      return true;
+    }
+
+    console.warn('⚠️ Unable to queue offline due date update for Deep Work subtask without Supabase connection');
+    return null;
+  }, [applyDeepWorkTaskUpdate, supabase, tasks]);
 
   // Update subtask title in Supabase
   const updateSubtaskTitle = useCallback(async (subtaskId: string, newTitle: string) => {

@@ -298,12 +298,8 @@ class UnifiedDataService {
           .maybeSingle(); // ✅ FIX: Use maybeSingle() instead of single() to handle no records gracefully
 
         if (!error && data) {
-<<<<<<< HEAD
-          const appRecord = this.mapDbReflectionToApp(data);
-=======
           // Transform snake_case from DB to camelCase for app
           const appRecord = this.transformDbReflection(data);
->>>>>>> e8c5ff2a (Optimize nightly checkout reflection fetching)
 
           // Cache locally
           await offlineDb.setSetting(key, appRecord);
