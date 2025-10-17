@@ -67,7 +67,7 @@ export const PhotoNutritionTracker: React.FC<PhotoNutritionTrackerProps> = ({
     return (
       <div className="w-full">
         <div className="max-w-7xl mx-auto p-2 sm:p-3 md:p-4 lg:p-6 space-y-6">
-          <Card className="mb-24 bg-pink-900/20 border-pink-700/50">
+          <Card className="mb-24 bg-gradient-to-br from-purple-950/60 via-pink-900/60 to-purple-950/60 border border-pink-500/40 shadow-xl">
             <CardHeader className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -83,7 +83,7 @@ export const PhotoNutritionTracker: React.FC<PhotoNutritionTrackerProps> = ({
                 {Array.from({ length: 3 }).map((_, index) => (
                   <div
                     key={`nutrition-summary-skeleton-${index}`}
-                    className="p-4 rounded-xl border border-pink-700/40 bg-pink-900/30 space-y-3"
+                    className="p-4 rounded-xl border border-pink-500/30 bg-slate-950/40 space-y-3 backdrop-blur-lg"
                   >
                     <Skeleton className="h-4 w-1/2 bg-pink-400/20" />
                     <Skeleton className="h-8 w-20 bg-pink-400/30" />
@@ -96,7 +96,7 @@ export const PhotoNutritionTracker: React.FC<PhotoNutritionTrackerProps> = ({
                 {Array.from({ length: 4 }).map((_, index) => (
                   <Skeleton
                     key={`nutrition-photo-skeleton-${index}`}
-                    className="h-40 w-full bg-pink-900/30 border border-pink-700/40 rounded-2xl"
+                    className="h-40 w-full bg-slate-950/40 border border-pink-500/30 rounded-2xl"
                   />
                 ))}
               </div>
@@ -115,12 +115,14 @@ export const PhotoNutritionTracker: React.FC<PhotoNutritionTrackerProps> = ({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <Card className="mb-24 bg-pink-900/20 border-pink-700/50">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between text-pink-400">
-                <div className="flex items-center">
-                  <Sparkles className="h-5 w-5 mr-2" />
-                  📸 AI Nutrition Tracker
+          <Card className="mb-24 bg-gradient-to-br from-purple-950/60 via-pink-900/60 to-purple-950/60 border border-pink-500/40 shadow-xl">
+            <CardHeader className="flex flex-col gap-3 pb-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-pink-200">
+                  <Sparkles className="h-5 w-5" />
+                  <CardTitle className="text-lg font-semibold text-pink-100">
+                    📸 AI Nutrition Tracker
+                  </CardTitle>
                 </div>
                 <XPPill
                   xp={(() => {
@@ -138,8 +140,8 @@ export const PhotoNutritionTracker: React.FC<PhotoNutritionTrackerProps> = ({
                   earned={photos.length >= 3}
                   showGlow={photos.length >= 3}
                 />
-              </CardTitle>
-              <p className="text-sm text-pink-300/60 mt-2">
+              </div>
+              <p className="text-sm text-pink-200/80 mt-1">
                 Snap a photo of your meal and let AI analyze the nutrition automatically
               </p>
             </CardHeader>
@@ -172,8 +174,8 @@ export const PhotoNutritionTracker: React.FC<PhotoNutritionTrackerProps> = ({
               {/* Meals Section */}
               {photos.length > 0 && (
                 <div>
-                  <h3 className="text-lg font-semibold text-pink-300 mb-4 flex items-center gap-2">
-                    <Camera className="h-4 w-4" />
+                  <h3 className="text-lg font-semibold text-pink-100 mb-4 flex items-center gap-2">
+                    <Camera className="h-5 w-5 text-pink-200" />
                     Today's Meals
                   </h3>
 
@@ -198,11 +200,11 @@ export const PhotoNutritionTracker: React.FC<PhotoNutritionTrackerProps> = ({
                   animate={{ opacity: 1 }}
                   className="text-center py-12"
                 >
-                  <Camera className="h-16 w-16 text-pink-400/30 mx-auto mb-4" />
-                  <p className="text-pink-300/60">
+                  <Camera className="h-16 w-16 text-pink-400/30 mx-auto mb-4 animate-pulse" />
+                  <p className="text-pink-100 font-medium">
                     No meals logged yet today
                   </p>
-                  <p className="text-sm text-pink-400/40 mt-2">
+                  <p className="text-sm text-pink-200/60 mt-2">
                     Take a photo of your food to get started
                   </p>
                 </motion.div>

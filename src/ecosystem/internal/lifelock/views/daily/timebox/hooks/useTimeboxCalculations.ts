@@ -11,11 +11,30 @@ import { TimeboxTask, TaskPosition, TIMEBOX_HOUR_HEIGHT, mapCategoryToUI } from 
 const sanitizeTime = (time: string): string => {
   if (!time) return '';
 
-  const parts = time.trim().split(':');
-  const hours = parts[0] ?? '00';
-  const minutes = parts[1] ?? '00';
+  const match = time.trim().match(/(\d{1,2}):(\d{2})/);
+  if (!match) return '';
 
-  return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
+  let hours = Number(match[1]);
+  let minutes = Number(match[2]);
+
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) {
+    return '';
+  }
+
+  if (hours >= 24) {
+    hours = 23;
+    minutes = 59;
+  } else if (hours < 0) {
+    hours = 0;
+  }
+
+  if (minutes >= 60) {
+    minutes = 59;
+  } else if (minutes < 0) {
+    minutes = 0;
+  }
+
+  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
 };
 
 const extractTimeParts = (time: string): { hours: number; minutes: number; isValid: boolean } => {

@@ -15,13 +15,14 @@
 import React from 'react';
 import { CleanDateNav } from '@/ecosystem/internal/lifelock/views/daily/_shared/components';
 import { cn } from '@/shared/lib/utils';
-import { 
-  TabId, 
-  EnhancedTabConfig, 
+import {
+  TabId,
+  EnhancedTabConfig,
   TabLayoutProps,
   getEnhancedTabConfig,
-  isSpecialLayout 
+  isSpecialLayout
 } from '@/ecosystem/internal/lifelock/admin-lifelock-tabs';
+import { useTodayXP } from '@/ecosystem/internal/lifelock/hooks/useTodayXP';
 
 /**
  * Standard tab layout wrapper - used by most tabs
@@ -35,19 +36,23 @@ const StandardTabLayout: React.FC<{
 }> = ({ config, layoutProps, children, activeTab }) => {
   const { selectedDate, dayCompletionPercentage, navigateDay } = layoutProps;
 
+  // Fetch today's XP data
+  const todayXP = useTodayXP(selectedDate);
+
   return (
     <div
       className={cn('font-sans', config.backgroundClass)}
       style={{ fontFamily: 'Inter, sans-serif' }}
     >
       {config.showDateNav && (
-        <CleanDateNav 
+        <CleanDateNav
           selectedDate={selectedDate}
           completionPercentage={dayCompletionPercentage}
           className="mb-6"
           onPreviousDate={() => navigateDay?.('prev')}
           onNextDate={() => navigateDay?.('next')}
           activeTab={activeTab}
+          totalXP={todayXP.total}
         />
       )}
       

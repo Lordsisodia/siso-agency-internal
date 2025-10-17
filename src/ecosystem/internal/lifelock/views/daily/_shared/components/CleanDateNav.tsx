@@ -10,6 +10,7 @@ interface CleanDateNavProps {
   onPreviousDate?: () => void;
   onNextDate?: () => void;
   activeTab?: string; // Add active tab prop for dynamic colors
+  totalXP?: number; // Total XP earned today
 }
 
 export const CleanDateNav: React.FC<CleanDateNavProps> = ({
@@ -18,7 +19,8 @@ export const CleanDateNav: React.FC<CleanDateNavProps> = ({
   className = '',
   onPreviousDate,
   onNextDate,
-  activeTab = 'dashboard'
+  activeTab = 'dashboard',
+  totalXP
 }) => {
   // Dynamic color system based on active tab
   const getTabColors = useMemo(() => {
@@ -155,6 +157,20 @@ export const CleanDateNav: React.FC<CleanDateNavProps> = ({
                 <Calendar className="h-3 w-3" />
                 {dateInfo.formattedDate}
               </p>
+
+              {/* XP Badge */}
+              {totalXP !== undefined && totalXP > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="mt-2 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-yellow-500/20 border border-yellow-500/30"
+                >
+                  <span className="text-yellow-300 text-xs font-semibold">
+                    ⚡ {totalXP} XP
+                  </span>
+                </motion.div>
+              )}
             </motion.div>
           </AnimatePresence>
         </div>

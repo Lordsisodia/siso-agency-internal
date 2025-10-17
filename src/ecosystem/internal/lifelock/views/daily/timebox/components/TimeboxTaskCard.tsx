@@ -44,6 +44,12 @@ export const TimeboxTaskCard: React.FC<TimeboxTaskCardProps> = ({
   onTaskDoubleClick
 }) => {
   const categoryStyles = getCategoryStyles(task.category, task.completed);
+  const taskTitle = typeof task.title === 'string' ? task.title : '';
+  const leadingEmojiMatch = taskTitle
+    ? taskTitle.match(/^(\p{Extended_Pictographic}+)\s+(.*)$/u)
+    : null;
+  const leadingEmoji = leadingEmojiMatch?.[1] ?? null;
+  const titleWithoutEmoji = leadingEmojiMatch?.[2] ?? taskTitle;
 
   return (
     <motion.div
@@ -175,7 +181,14 @@ export const TimeboxTaskCard: React.FC<TimeboxTaskCardProps> = ({
                 "font-semibold text-sm leading-snug transition-all duration-300 group-hover:text-white",
                 task.completed ? "text-green-100 line-through decoration-2 decoration-green-400/60" : "text-white"
               )}>
-                {task.title}
+                {leadingEmoji ? (
+                  <span className="inline-flex items-center gap-1">
+                    <span>{leadingEmoji}</span>
+                    <span className="whitespace-pre-line">{titleWithoutEmoji}</span>
+                  </span>
+                ) : (
+                  titleWithoutEmoji
+                )}
               </h4>
               {/* Time slot in tiny text */}
               <p className="text-[10px] text-white/50 mt-0.5 font-medium">

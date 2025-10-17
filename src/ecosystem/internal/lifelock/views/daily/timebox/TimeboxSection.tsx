@@ -234,7 +234,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
   return (
     <div className="min-h-screen w-full bg-transparent">
       <div className="w-full relative">
-        <div className="max-w-7xl mx-auto px-2 sm:px-3 md:px-4 py-6 pb-32 space-y-6">
+        <div className="max-w-screen-2xl mx-auto px-2 sm:px-4 md:px-6 lg:px-10 py-6 pb-32 space-y-6">
           {/* Stats Section */}
           <TimeboxStats
             validTasks={validTasks}
@@ -332,6 +332,19 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
           {/* Timeline */}
           <Card className="w-full bg-transparent border-gray-800/30 rounded-2xl">
             <CardContent className="p-0">
+              <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 border-b border-gray-800/40">
+                <span className="text-sm font-semibold text-white/90">Daily Timeline</span>
+                <div className="flex flex-wrap items-center gap-4 text-[11px] text-gray-400">
+                  <span className="flex items-center gap-1.5">
+                    <span className="inline-flex h-3 w-3 rounded-sm bg-sky-500/15 border border-sky-400/30" />
+                    Balanced load (1-2 tasks)
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="inline-flex h-3 w-3 rounded-sm bg-violet-500/20 border border-violet-400/40" />
+                    Peak load (3+ tasks)
+                  </span>
+                </div>
+              </div>
               <div className="w-full">
                 <TimeboxTimeline
                   ref={timelineContainerRef}

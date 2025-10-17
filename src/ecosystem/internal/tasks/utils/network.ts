@@ -6,8 +6,7 @@ export function isBrowserOnline(): boolean {
   try {
     return navigator.onLine ?? false;
   } catch (error) {
-    console.warn('[network] Failed to read navigator.onLine:', error);
+    console.warn('[network] navigator.onLine check failed:', error);
     return false;
   }
 }
-

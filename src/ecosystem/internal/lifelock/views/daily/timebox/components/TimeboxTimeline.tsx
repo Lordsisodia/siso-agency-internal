@@ -78,7 +78,7 @@ export const TimeboxTimeline = forwardRef<HTMLDivElement, TimeboxTimelineProps>(
               <motion.div
                 key={slot.hour}
                 className={cn(
-                  "absolute w-full flex items-center justify-center group/hour transition-all duration-300",
+                  "absolute w-full flex items-center justify-end pr-2 group/hour transition-all duration-300",
                   slot.isCurrentHour && "bg-blue-500/10"
                 )}
                 style={{ top: `${slot.hour * TIMEBOX_HOUR_HEIGHT}px`, height: `${TIMEBOX_HOUR_HEIGHT}px` }}
@@ -102,7 +102,7 @@ export const TimeboxTimeline = forwardRef<HTMLDivElement, TimeboxTimelineProps>(
                   transition={{ duration: 0.2 }}
                 >
                   <span className={cn(
-                    "text-xs font-medium tracking-wide",
+                    "text-xs font-medium tracking-wide text-right",
                     slot.isCurrentHour
                       ? "text-blue-200"
                       : "text-gray-300 group-hover/hour:text-gray-200"
@@ -136,9 +136,9 @@ export const TimeboxTimeline = forwardRef<HTMLDivElement, TimeboxTimelineProps>(
                 className={cn(
                   "absolute w-full transition-all duration-700",
                   hourlyDensity[slot.hour] === 0 && "bg-transparent",
-                  hourlyDensity[slot.hour] === 1 && "bg-green-500/8",
-                  hourlyDensity[slot.hour] === 2 && "bg-yellow-500/15",
-                  hourlyDensity[slot.hour] >= 3 && "bg-red-500/25"
+                  hourlyDensity[slot.hour] === 1 && "bg-sky-500/12",
+                  hourlyDensity[slot.hour] === 2 && "bg-sky-400/18",
+                  hourlyDensity[slot.hour] >= 3 && "bg-violet-500/24"
                 )}
                 style={{ top: `${slot.hour * TIMEBOX_HOUR_HEIGHT}px`, height: `${TIMEBOX_HOUR_HEIGHT}px` }}
                 initial={{ opacity: 0 }}
@@ -238,8 +238,8 @@ export const TimeboxTimeline = forwardRef<HTMLDivElement, TimeboxTimelineProps>(
 
           {/* Enhanced Task Blocks Container */}
           <div
-            className="absolute left-16 right-4 top-0 bottom-0"
-            style={{ width: 'calc(100% - 80px)' }}
+            className="absolute left-16 right-2 top-0 bottom-0"
+            style={{ width: 'calc(100% - 72px)' }}
             onClick={onTimelineClick}
           >
             {/* Drag Time Preview */}
