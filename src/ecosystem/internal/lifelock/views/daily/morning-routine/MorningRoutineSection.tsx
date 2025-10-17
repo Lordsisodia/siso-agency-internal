@@ -21,6 +21,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
 import { Checkbox } from '@/shared/ui/checkbox';
 import { Input } from '@/shared/ui/input';
+import TextareaAutosize from 'react-textarea-autosize';
 import { format } from 'date-fns';
 import { cn } from '@/shared/lib/utils';
 import { useClerkUser } from '@/shared/hooks/useClerkUser';
@@ -1057,11 +1058,11 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                   </p>
                   <div className="space-y-3">
                     {dailyPriorities.map((priority, idx) => (
-                      <div key={idx} className="flex items-center space-x-2">
-                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-yellow-600/30 border-2 border-yellow-500/50 flex items-center justify-center">
+                      <div key={idx} className="flex items-start space-x-2">
+                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-yellow-600/30 border-2 border-yellow-500/50 flex items-center justify-center mt-1">
                           <span className="text-yellow-300 font-bold text-sm">#{idx + 1}</span>
                         </div>
-                        <Input
+                        <TextareaAutosize
                           value={priority}
                           onChange={(e) => {
                             const newPriorities = [...dailyPriorities];
@@ -1069,7 +1070,9 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                             setDailyPriorities(newPriorities);
                           }}
                           placeholder={`Priority ${idx + 1}...`}
-                          className="bg-yellow-900/20 border-yellow-700/30 text-white placeholder:text-yellow-300/40 focus:border-yellow-400 focus:ring-yellow-400/20 rounded-lg"
+                          minRows={1}
+                          maxRows={4}
+                          className="flex-1 bg-yellow-900/20 border border-yellow-700/30 text-white text-sm placeholder:text-yellow-300/40 focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400/20 rounded-lg px-3 py-2 resize-none overflow-hidden"
                         />
                       </div>
                     ))}
