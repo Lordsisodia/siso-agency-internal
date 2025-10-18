@@ -91,7 +91,7 @@
     "@types/pg": "^8.15.5",
     "@uidotdev/usehooks": "^2.4.1",
     "@uiw/react-md-editor": "^4.0.4",
-    "ai": "^5.0.44",
+    "ai": "^5.0.56",
     "axios": "^1.12.2",
     "canvas-confetti": "^1.9.3",
     "class-variance-authority": "^0.7.1",
