@@ -7,7 +7,7 @@
 
 import React from 'react';
 import { Button } from '@/shared/ui/button';
-import { Clock } from 'lucide-react';
+import { Clock, X } from 'lucide-react';
 
 interface WakeUpTimeTrackerProps {
   time: string;
@@ -15,6 +15,7 @@ interface WakeUpTimeTrackerProps {
   onOpenPicker: () => void;
   onUseNow: () => void;
   getCurrentTime: () => string;
+  onClear?: () => void;
 }
 
 export const WakeUpTimeTracker: React.FC<WakeUpTimeTrackerProps> = ({
@@ -22,14 +23,23 @@ export const WakeUpTimeTracker: React.FC<WakeUpTimeTrackerProps> = ({
   onTimeChange,
   onOpenPicker,
   onUseNow,
-  getCurrentTime
+  getCurrentTime,
+  onClear
 }) => {
+  const handleClear = () => {
+    if (onClear) {
+      onClear();
+    } else {
+      onTimeChange('');
+    }
+  };
+
   return (
     <div className="mt-2">
       <div className="space-y-2">
         {time ? (
           <div className="flex items-center space-x-2">
-            <div className="flex items-center space-x-1 bg-transparent border border-yellow-700/50 rounded-md px-3 py-2">
+            <div className="flex items-center space-x-1 bg-transparent border border-yellow-700/50 rounded-md px-3 py-2 flex-1">
               <Clock className="h-4 w-4 text-yellow-400" />
               <span className="text-yellow-100 font-semibold">
                 Woke up at: {time}
@@ -42,6 +52,15 @@ export const WakeUpTimeTracker: React.FC<WakeUpTimeTrackerProps> = ({
               className="border-yellow-600 text-yellow-400 hover:bg-yellow-900/20"
             >
               Edit
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleClear}
+              className="border-red-600/50 text-red-400 hover:bg-red-900/20 hover:border-red-500 min-w-[44px] min-h-[44px]"
+              title="Clear wake-up time"
+            >
+              <X className="h-4 w-4" />
             </Button>
           </div>
         ) : null}

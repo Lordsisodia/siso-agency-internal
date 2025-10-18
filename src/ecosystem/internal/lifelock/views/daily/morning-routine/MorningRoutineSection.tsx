@@ -848,6 +848,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                             onOpenPicker={() => setShowTimeScrollPicker(true)}
                             onUseNow={setCurrentTimeAsWakeUp}
                             getCurrentTime={getCurrentTime}
+                            onClear={() => setWakeUpTime('')}
                           />
                         )}
 

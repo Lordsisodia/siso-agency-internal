@@ -7,7 +7,7 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/shared/ui/button';
-import { Timer } from 'lucide-react';
+import { Timer, X } from 'lucide-react';
 import { MeditationTimer } from './MeditationTimer';
 
 interface MeditationTrackerProps {
@@ -36,6 +36,10 @@ export const MeditationTracker: React.FC<MeditationTrackerProps> = ({
   const handleIncrementFive = () => {
     const current = parseInt(duration) || 0;
     onChange((current + 5).toString());
+  };
+
+  const handleClear = () => {
+    onChange('');
   };
 
   const handleTimerComplete = (durationMinutes: number) => {
@@ -80,6 +84,17 @@ export const MeditationTracker: React.FC<MeditationTrackerProps> = ({
               >
                 +5
               </Button>
+              {duration && parseInt(duration) > 0 && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleClear}
+                  className="border-red-600/50 text-red-400 hover:bg-red-900/20 hover:border-red-500 h-7 px-2 flex-shrink-0"
+                  title="Clear meditation time"
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              )}
             </div>
 
             {/* Timer Button */}
