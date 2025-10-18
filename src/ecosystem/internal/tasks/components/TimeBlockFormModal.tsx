@@ -619,7 +619,7 @@ export const TimeBlockFormModal: React.FC<TimeBlockFormModalProps> = ({
                             type="button"
                             variant="outline"
                             size="sm"
-                            onClick={() => {
+                            onClick={async () => {
                               if (!formData.startTime) {
                                 toast?.error?.('Please set a start time first');
                                 return;
@@ -633,8 +633,22 @@ export const TimeBlockFormModal: React.FC<TimeBlockFormModalProps> = ({
                                 return;
                               }
                               const newEndTime = `${endHour.toString().padStart(2, '0')}:${endMin.toString().padStart(2, '0')}`;
-                              console.log('🕐 Setting duration:', label, 'New end time:', newEndTime);
-                              handleInputChange('endTime', newEndTime);
+                              console.log('🕐 Quick duration change:', label, 'New end time:', newEndTime);
+
+                              // Auto-save immediately for quick duration buttons
+                              if (existingBlock && onUpdate) {
+                                const updatedData = { ...formData, endTime: newEndTime };
+                                const success = await onUpdate(existingBlock.id, updatedData);
+                                if (success) {
+                                  toast?.success?.(`Duration updated to ${label}`);
+                                  onClose(); // Close modal after successful save
+                                } else {
+                                  toast?.error?.('Failed to update duration');
+                                }
+                              } else {
+                                // For new blocks, just update the form (they still need to click Save)
+                                handleInputChange('endTime', newEndTime);
+                              }
                             }}
                             className={cn(
                               "border-white/15 bg-black/30 text-white/80 hover:border-white/40 hover:bg-white/10 transition-all",
@@ -651,14 +665,26 @@ export const TimeBlockFormModal: React.FC<TimeBlockFormModalProps> = ({
                           type="button"
                           variant="outline"
                           size="sm"
-                          onClick={() => {
+                          onClick={async () => {
                             if (!formData.endTime) return;
                             const [endHour, endMin] = formData.endTime.split(':').map(Number);
                             const totalMinutes = endHour * 60 + endMin - 15;
                             if (totalMinutes < 0) return;
                             const newHour = Math.floor(totalMinutes / 60);
                             const newMin = totalMinutes % 60;
-                            handleInputChange('endTime', `${newHour.toString().padStart(2, '0')}:${newMin.toString().padStart(2, '0')}`);
+                            const newEndTime = `${newHour.toString().padStart(2, '0')}:${newMin.toString().padStart(2, '0')}`;
+
+                            // Auto-save for existing blocks
+                            if (existingBlock && onUpdate) {
+                              const updatedData = { ...formData, endTime: newEndTime };
+                              const success = await onUpdate(existingBlock.id, updatedData);
+                              if (success) {
+                                toast?.success?.('Duration decreased by 15 min');
+                                onClose();
+                              }
+                            } else {
+                              handleInputChange('endTime', newEndTime);
+                            }
                           }}
                           className="flex-1 border-white/15 bg-black/30 text-white/80 hover:border-red-400/60 hover:bg-red-500/20"
                           disabled={!formData.endTime}
@@ -669,14 +695,26 @@ export const TimeBlockFormModal: React.FC<TimeBlockFormModalProps> = ({
                           type="button"
                           variant="outline"
                           size="sm"
-                          onClick={() => {
+                          onClick={async () => {
                             if (!formData.endTime) return;
                             const [endHour, endMin] = formData.endTime.split(':').map(Number);
                             const totalMinutes = endHour * 60 + endMin + 15;
                             if (totalMinutes >= 24 * 60) return;
                             const newHour = Math.floor(totalMinutes / 60);
                             const newMin = totalMinutes % 60;
-                            handleInputChange('endTime', `${newHour.toString().padStart(2, '0')}:${newMin.toString().padStart(2, '0')}`);
+                            const newEndTime = `${newHour.toString().padStart(2, '0')}:${newMin.toString().padStart(2, '0')}`;
+
+                            // Auto-save for existing blocks
+                            if (existingBlock && onUpdate) {
+                              const updatedData = { ...formData, endTime: newEndTime };
+                              const success = await onUpdate(existingBlock.id, updatedData);
+                              if (success) {
+                                toast?.success?.('Duration increased by 15 min');
+                                onClose();
+                              }
+                            } else {
+                              handleInputChange('endTime', newEndTime);
+                            }
                           }}
                           className="flex-1 border-white/15 bg-black/30 text-white/80 hover:border-emerald-400/60 hover:bg-emerald-500/20"
                           disabled={!formData.endTime}

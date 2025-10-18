@@ -35,10 +35,10 @@ const StandardTabLayout: React.FC<{
   children: React.ReactNode;
   activeTab: TabId;
 }> = ({ config, layoutProps, children, activeTab }) => {
-  const { selectedDate, dayCompletionPercentage, navigateDay } = layoutProps;
+  const { selectedDate, dayCompletionPercentage, navigateDay, userId } = layoutProps;
 
   // Fetch today's XP data
-  const todayXP = useTodayXP(selectedDate);
+  const todayXP = useTodayXP(selectedDate, userId);
 
   return (
     <div
