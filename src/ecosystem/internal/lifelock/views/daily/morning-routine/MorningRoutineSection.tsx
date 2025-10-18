@@ -862,20 +862,22 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
                       </div>
                     </div>
                     
-                    {/* Sub-tasks - Enhanced with better visual hierarchy */}
+                    {/* Sub-tasks - Enhanced with better visual hierarchy and mobile touch targets */}
                     {task.subtasks.length > 0 && (
                       <div className="mt-4 ml-4 space-y-3">
                         {task.subtasks.map((subtask) => (
                           <div key={subtask.key}>
-                            <div className="group flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 hover:scale-[1.01]">
-                              {/* Checkbox without connector line */}
-                              <Checkbox
-                                checked={isHabitCompleted(subtask.key)}
-                                onCheckedChange={(checked) => handleHabitToggle(subtask.key, !!checked)}
-                                className="h-4 w-4 border-yellow-400/70 data-[state=checked]:bg-yellow-500 data-[state=checked]:border-yellow-500 transition-all duration-200 group-hover:border-yellow-400"
-                              />
+                            <div className="group flex items-center space-x-3 rounded-lg transition-all duration-200">
+                              {/* Enhanced checkbox with larger touch target for mobile (44px minimum) */}
+                              <label className="flex items-center cursor-pointer -m-2 p-2 min-w-[44px] min-h-[44px]">
+                                <Checkbox
+                                  checked={isHabitCompleted(subtask.key)}
+                                  onCheckedChange={(checked) => handleHabitToggle(subtask.key, !!checked)}
+                                  className="h-5 w-5 border-2 border-yellow-400/70 data-[state=checked]:bg-yellow-500 data-[state=checked]:border-yellow-500 transition-all duration-200 group-hover:border-yellow-400"
+                                />
+                              </label>
                               <span className={cn(
-                                "text-sm font-medium transition-all duration-200 flex-1",
+                                "text-sm font-medium transition-all duration-200 flex-1 py-3",
                                 isHabitCompleted(subtask.key)
                                   ? "text-gray-500 line-through"
                                   : "text-yellow-100/90 group-hover:text-yellow-50"
