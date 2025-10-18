@@ -592,7 +592,6 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
               onClose={() => setIsQuickSchedulerOpen(false)}
               selectedDate={selectedDate}
               onScheduleTask={handleScheduleTask}
-              onScheduleAndOpenTimer={handleScheduleAndPrompt}
             />
           </div>
         )}
