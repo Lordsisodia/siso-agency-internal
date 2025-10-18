@@ -379,6 +379,7 @@ export class GamificationService {
   private static saveUserProgress(progress: UserProgress): void {
     // Save to localStorage immediately (offline-first)
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(progress));
+    this.notifyProgressUpdate(progress);
 
     // Sync to Supabase in background (if user is logged in)
     if (this.currentUserId) {
@@ -387,20 +388,56 @@ export class GamificationService {
   }
 
   /**
+   * Broadcast gamification progress updates so React hooks can re-render.
+   */
+  private static notifyProgressUpdate(progress: UserProgress): void {
+    if (typeof window === 'undefined' || typeof window.dispatchEvent !== 'function') {
+      return;
+    }
+
+    try {
+      window.dispatchEvent(
+        new CustomEvent('sisoGamificationProgressUpdated', {
+          detail: { progress }
+        })
+      );
+    } catch (error) {
+      logger.warn('Failed to dispatch gamification progress update event', error);
+    }
+  }
+
+  /**
    * Load progress from Supabase (call on app startup)
    */
   public static async loadFromSupabase(userId: string): Promise<void> {
     try {
+      const existingProgress = this.getUserProgress();
       const supabaseProgress = await loadProgressFromSupabase(userId);
 
       if (supabaseProgress) {
-        // Supabase has data - use it as source of truth
-        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(supabaseProgress));
-        console.log('✅ Loaded XP progress from Supabase');
+        const todayKey = new Date().toISOString().split('T')[0];
+        const localTodayXP = existingProgress.dailyStats?.[todayKey]?.totalXP ?? 0;
+        const supabaseTodayXP = supabaseProgress.dailyStats?.[todayKey]?.totalXP ?? 0;
+
+        const remoteHasMoreProgress =
+          supabaseProgress.totalXP > existingProgress.totalXP ||
+          supabaseTodayXP > localTodayXP;
+
+        if (remoteHasMoreProgress) {
+          // Supabase is ahead - adopt remote data
+          localStorage.setItem(this.STORAGE_KEY, JSON.stringify(supabaseProgress));
+          this.notifyProgressUpdate(supabaseProgress);
+          console.log('✅ Loaded XP progress from Supabase');
+        } else {
+          // Local progress is more up-to-date - keep it and push to Supabase
+          localStorage.setItem(this.STORAGE_KEY, JSON.stringify(existingProgress));
+          this.notifyProgressUpdate(existingProgress);
+          scheduleSyncToSupabase(userId, existingProgress, 0);
+          console.log('🔄 Preserved newer local XP progress and synced to Supabase');
+        }
       } else {
         // No Supabase data - sync current localStorage data up
-        const localProgress = this.getUserProgress();
-        await scheduleSyncToSupabase(userId, localProgress, 0); // Immediate sync
+        await scheduleSyncToSupabase(userId, existingProgress, 0); // Immediate sync
         console.log('✅ Synced local XP progress to Supabase');
       }
     } catch (error) {

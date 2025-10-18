@@ -211,7 +211,25 @@ export const TimeBlockFormModal: React.FC<TimeBlockFormModalProps> = ({
   }, [formData.category, existingBlock, getSmartDefaultDuration]);
 
   // Initialize form data when modal opens or existing block changes
+  // CRITICAL: Only reset when modal actually opens (isOpen changes from false to true)
+  // or when existingBlock.id changes - NOT on every render!
+  const prevIsOpen = React.useRef(false);
+  const prevBlockId = React.useRef<string | undefined>(undefined);
+
   useEffect(() => {
+    // Only initialize if:
+    // 1. Modal just opened (isOpen changed from false to true), OR
+    // 2. Block ID changed (different block being edited)
+    const justOpened = isOpen && !prevIsOpen.current;
+    const blockChanged = existingBlock?.id !== prevBlockId.current;
+
+    prevIsOpen.current = isOpen;
+    prevBlockId.current = existingBlock?.id;
+
+    if (!justOpened && !blockChanged) {
+      return; // Don't reset form data unnecessarily
+    }
+
     if (existingBlock) {
       setFormData({
         title: existingBlock.title,
@@ -233,11 +251,11 @@ export const TimeBlockFormModal: React.FC<TimeBlockFormModalProps> = ({
       const now = new Date();
       const roundedMinutes = Math.ceil(now.getMinutes() / 15) * 15;
       const startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), roundedMinutes);
-      
+
       // Use smart default duration based on category
       const defaultDuration = getSmartDefaultDuration('DEEP_WORK');
       const endTime = new Date(startTime.getTime() + defaultDuration * 60 * 1000);
-      
+
       setFormData({
         title: '',
         description: '',
@@ -248,7 +266,7 @@ export const TimeBlockFormModal: React.FC<TimeBlockFormModalProps> = ({
       });
       setLinkedTask(null);
     }
-    
+
     setCurrentConflicts([]);
     setValidationErrors([]);
   }, [existingBlock, isOpen, userId, dateKey]);
@@ -602,15 +620,26 @@ export const TimeBlockFormModal: React.FC<TimeBlockFormModalProps> = ({
                             variant="outline"
                             size="sm"
                             onClick={() => {
-                              if (!formData.startTime) return;
+                              if (!formData.startTime) {
+                                toast?.error?.('Please set a start time first');
+                                return;
+                              }
                               const [startHour, startMin] = formData.startTime.split(':').map(Number);
                               const totalMinutes = startHour * 60 + startMin + minutes;
                               const endHour = Math.floor(totalMinutes / 60);
                               const endMin = totalMinutes % 60;
-                              if (endHour >= 24) return;
-                              handleInputChange('endTime', `${endHour.toString().padStart(2, '0')}:${endMin.toString().padStart(2, '0')}`);
+                              if (endHour >= 24) {
+                                toast?.error?.('End time would exceed midnight');
+                                return;
+                              }
+                              const newEndTime = `${endHour.toString().padStart(2, '0')}:${endMin.toString().padStart(2, '0')}`;
+                              console.log('🕐 Setting duration:', label, 'New end time:', newEndTime);
+                              handleInputChange('endTime', newEndTime);
                             }}
-                            className="border-white/15 bg-black/30 text-white/80 hover:border-white/40 hover:bg-white/10"
+                            className={cn(
+                              "border-white/15 bg-black/30 text-white/80 hover:border-white/40 hover:bg-white/10 transition-all",
+                              !formData.startTime && "opacity-50 cursor-not-allowed"
+                            )}
                             disabled={!formData.startTime}
                           >
                             {label}
