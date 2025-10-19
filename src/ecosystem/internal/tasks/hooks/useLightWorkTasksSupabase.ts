@@ -17,6 +17,7 @@ import {
   persistOptimisticLightTask as persistLightWorkTask,
   queueLightWorkTask,
 } from './lightWork/lightWorkTaskSync';
+import { formatLocalDate, formatLocalDateOrUndefined } from '../utils/dateUtils';
 
 export interface LightWorkTask {
   id: string;
@@ -328,7 +329,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
     if (!currentTask) return null;
 
     const now = optimisticNow();
-    const dueDateString = dueDate ? dueDate.toISOString().split('T')[0] : undefined;
+    const dueDateString = formatLocalDateOrUndefined(dueDate);
     const optimisticTask: LightWorkTask = {
       ...currentTask,
       dueDate: dueDateString,
@@ -541,7 +542,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
       const { error } = await supabase
         .from('light_work_subtasks')
         .update({
-          due_date: dueDate ? dueDate.toISOString().split('T')[0] : null,
+          due_date: dueDate ? formatLocalDate(dueDate) : null,
           updated_at: new Date().toISOString(),
         })
         .eq('id', subtaskId);
@@ -553,7 +554,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
       setTasks(prev => prev.map(task => ({
         ...task,
         subtasks: task.subtasks.map(subtask =>
-          subtask.id === subtaskId ? { ...subtask, dueDate: dueDate ? dueDate.toISOString().split('T')[0] : undefined } : subtask,
+          subtask.id === subtaskId ? { ...subtask, dueDate: formatLocalDateOrUndefined(dueDate) } : subtask,
         ),
       })));
 

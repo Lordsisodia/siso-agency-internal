@@ -17,6 +17,7 @@ import {
   persistOptimisticDeepTask as persistDeepWorkTask,
   queueDeepWorkTask,
 } from './deepWork/deepWorkTaskSync';
+import { formatLocalDate, formatLocalDateOrUndefined } from '../utils/dateUtils';
 
 export interface DeepWorkSubtask {
   id: string;
@@ -37,6 +38,7 @@ export interface DeepWorkSubtask {
 export interface DeepWorkTask {
   id: string;
   userId: string;
+  clientId?: string | null;
   title: string;
   description?: string;
   priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
@@ -144,6 +146,7 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
     const optimisticTask: DeepWorkTask = {
       id: taskId,
       userId: internalUserId,
+      clientId: taskData.clientId ?? null,
       title: taskData.title || '',
       description: taskData.description,
       priority: (taskData.priority as DeepWorkTask['priority']) || 'MEDIUM',
@@ -177,6 +180,7 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
         .insert({
           id: taskId,
           user_id: internalUserId,
+          client_id: taskData.clientId ?? null,
           title: taskData.title ?? '',
           description: taskData.description,
           priority: taskData.priority || 'MEDIUM',
@@ -340,7 +344,7 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
     if (!currentTask) return null;
 
     const now = optimisticNow();
-    const dueDateString = dueDate ? dueDate.toISOString().split('T')[0] : null;
+    const dueDateString = dueDate ? formatLocalDate(dueDate) : null;
     const optimisticTask: DeepWorkTask = {
       ...currentTask,
       dueDate: dueDateString,
@@ -599,7 +603,7 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
       const { error } = await supabase
         .from('deep_work_subtasks')
         .update({
-          due_date: dueDate ? dueDate.toISOString().split('T')[0] : null,
+          due_date: dueDate ? formatLocalDate(dueDate) : null,
           updated_at: new Date().toISOString(),
         })
         .eq('id', subtaskId);
@@ -611,7 +615,7 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
       setTasks(prev => prev.map(task => ({
         ...task,
         subtasks: task.subtasks.map(subtask =>
-          subtask.id === subtaskId ? { ...subtask, dueDate: dueDate ? dueDate.toISOString().split('T')[0] : undefined } : subtask,
+          subtask.id === subtaskId ? { ...subtask, dueDate: formatLocalDateOrUndefined(dueDate) } : subtask,
         ),
       })));
 
