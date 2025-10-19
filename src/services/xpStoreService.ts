@@ -15,6 +15,8 @@ export interface XPStoreBalance {
   reserveXP: number;
   canSpend: number;
   pendingLoans: number;
+  isInDebt: boolean;
+  debtAmount: number;
 }
 
 export interface RewardItem {
@@ -70,7 +72,9 @@ export class XPStoreService {
     totalSpent: 0,
     reserveXP: 0,
     canSpend: 0,
-    pendingLoans: 0
+    pendingLoans: 0,
+    isInDebt: false,
+    debtAmount: 0
   };
 
   private static isValidUuid(value: string | null | undefined): value is string {
@@ -157,6 +161,7 @@ export class XPStoreService {
         return { ...this.fallbackBalance };
       }
 
+      // Fetch user's total earned XP
       const { data: progress, error: progressError } = await supabaseAnon
         .from('user_gamification_progress')
         .select('total_xp,current_level,daily_xp,current_streak,best_streak,updated_at')
@@ -178,16 +183,39 @@ export class XPStoreService {
         console.warn('XP Store daily stats fetch failed:', statsError);
       }
 
+      // Fetch total spent XP from purchases
+      const { data: purchases, error: purchasesError } = await supabaseAnon
+        .from('xp_purchases')
+        .select('xp_cost')
+        .eq('user_id', userId);
+
+      if (purchasesError) {
+        console.warn('XP Store purchases fetch failed:', purchasesError);
+      }
+
       const totalEarned = progress?.total_xp ?? recentStats?.[0]?.total_xp ?? 0;
-      const reserveXP = Math.round(totalEarned * 0.1);
-      const currentXP = Math.max(totalEarned - reserveXP, 0);
+      const totalSpent = purchases?.reduce((sum, p) => sum + p.xp_cost, 0) ?? 0;
+
+      // Calculate current balance (can be negative!)
+      const currentXP = totalEarned - totalSpent;
+      const isInDebt = currentXP < 0;
+      const debtAmount = isInDebt ? Math.abs(currentXP) : 0;
+
+      // Reserve XP only if not in debt
+      const reserveXP = isInDebt ? 0 : Math.round(totalEarned * 0.1);
+
+      // Can spend = current balance (allows going into debt)
+      const canSpend = currentXP;
+
       return {
         currentXP,
         totalEarned,
-        totalSpent: 0,
+        totalSpent,
         reserveXP,
-        canSpend: Math.max(currentXP - Math.round(reserveXP * 0.2), 0),
-        pendingLoans: 0
+        canSpend,
+        pendingLoans: 0,
+        isInDebt,
+        debtAmount
       };
     } catch (error) {
       // Return fallback data on error (graceful degradation)
@@ -312,7 +340,28 @@ export class XPStoreService {
    * Get purchase history for analytics
    */
   static async getPurchaseHistory(userId: string, limit: number = 20) {
-    return [];
+    try {
+      if (!this.isValidUuid(userId)) {
+        return [];
+      }
+
+      const { data, error } = await supabaseAnon
+        .from('xp_purchases')
+        .select('*')
+        .eq('user_id', userId)
+        .order('purchased_at', { ascending: false })
+        .limit(limit);
+
+      if (error) {
+        console.error('Error fetching purchase history:', error);
+        return [];
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error('Error getting purchase history:', error);
+      return [];
+    }
   }
 
   /**

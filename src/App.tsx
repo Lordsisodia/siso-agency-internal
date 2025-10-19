@@ -27,6 +27,7 @@ const MCPWorkflowVisualizer = lazy(() => import('@/shared/mcp/MCPWorkflowVisuali
 
 // XP Store Components
 const XPStorePage = lazy(() => import('./pages/XPStorePage'));
+const XPDashboardPage = lazy(() => import('./pages/XPDashboardPage'));
 const OnboardingSocial = lazy(() => import('./pages/onboarding/social'));
 const OnboardingChat = lazy(() => import('./pages/OnboardingChat'));
 const ThankYou = lazy(() => import('./pages/ThankYou'));
@@ -67,6 +68,7 @@ const WeeklyView = lazy(() => import('@/ecosystem/internal/lifelock/views/weekly
 const MonthlyView = lazy(() => import('@/ecosystem/internal/lifelock/views/monthly/MonthlyView'));
 const YearlyView = lazy(() => import('@/ecosystem/internal/lifelock/views/yearly/YearlyView'));
 const ClientDetailContent = lazy(() => import('./pages/ClientDetailPage'));
+const AdminIndustriesViewLazy = lazy(() => import('@/ecosystem/internal/admin/industries').then(m => ({ default: m.AdminIndustriesView })));
 const AdminSettings = lazy(() => import('@/ecosystem/internal/pages/AdminSettings.tsx'));
 const AdminPrompts = lazy(() => import('@/ecosystem/internal/pages/AdminPrompts.tsx'));
 const AdminWireframes = lazy(() => import('@/ecosystem/internal/pages/AdminWireframes.tsx'));
@@ -128,6 +130,8 @@ const AdminPartnershipLeaderboard = lazy(() => import('./pages/admin/AdminPartne
 const AdminPartnershipReferrals = lazy(() => import('./pages/admin/AdminPartnershipReferrals'));
 const AdminPartnershipStatistics = lazy(() => import('./pages/admin/AdminPartnershipStatistics'));
 const AdminPartnershipTraining = lazy(() => import('./pages/admin/AdminPartnershipTraining'));
+const PartnersDirectoryAdminPage = lazy(() => import('./pages/partner/PartnersDirectoryPage'));
+const PartnerWorkspaceAdminPage = lazy(() => import('./pages/partner/PartnerDetailPage'));
 
 // Automation & Dev Tools removed for core app
 
@@ -138,6 +142,15 @@ const AdminClientsShell = () => (
     </AdminLayout>
   </AuthGuard>
 );
+
+const AdminIndustriesPage = () => (
+  <AuthGuard adminOnly={true}>
+    <AdminLayout>
+      <AdminIndustriesViewLazy />
+    </AdminLayout>
+  </AuthGuard>
+);
+
 
 function ErrorFallback({error, resetErrorBoundary}: {error: Error, resetErrorBoundary: () => void}) {
   return (
@@ -252,6 +265,7 @@ function App() {
             <Route index element={<AdminClientsContent />} />
             <Route path=":clientId" element={<ClientDetailContent />} />
           </Route>
+          <Route path="/admin/industries" element={<AdminIndustriesPage />} />
           {/* Archived routes - removed from navigation
           <Route path="/admin/prompts" element={<AuthGuard adminOnly={true}><AdminPrompts /></AuthGuard>} />
           <Route path="/admin/outreach" element={<AuthGuard adminOnly={true}><AdminOutreach /></AuthGuard>} />
@@ -303,6 +317,26 @@ function App() {
           <Route path="/admin/partnership/referrals" element={<AuthGuard adminOnly={true}><AdminPartnershipReferrals /></AuthGuard>} />
           <Route path="/admin/partnership/statistics" element={<AuthGuard adminOnly={true}><AdminPartnershipStatistics /></AuthGuard>} />
           <Route path="/admin/partnership/training" element={<AuthGuard adminOnly={true}><AdminPartnershipTraining /></AuthGuard>} />
+          <Route
+            path="/admin/partners"
+            element={
+              <AuthGuard adminOnly={true}>
+                <AdminLayout>
+                  <PartnersDirectoryAdminPage />
+                </AdminLayout>
+              </AuthGuard>
+            }
+          />
+          <Route
+            path="/admin/partners/:partnerId"
+            element={
+              <AuthGuard adminOnly={true}>
+                <AdminLayout>
+                  <PartnerWorkspaceAdminPage />
+                </AdminLayout>
+              </AuthGuard>
+            }
+          />
           
           {/* MCP Testing Routes */}
           <Route path="/mcp-testing" element={<AuthGuard><MCPTestingDashboard /></AuthGuard>} />
@@ -315,6 +349,7 @@ function App() {
           {/* XP Store Routes */}
           <Route path="/xp-store" element={<AuthGuard><XPStorePage /></AuthGuard>} />
           <Route path="/xp-store/:section" element={<AuthGuard><XPStorePage /></AuthGuard>} />
+          <Route path="/xp-dashboard" element={<AuthGuard><XPDashboardPage /></AuthGuard>} />
           
           {/* Protected Project Routes */}
           <Route path="/projects" element={<AuthGuard><ProjectsAndTasksPage /></AuthGuard>} />

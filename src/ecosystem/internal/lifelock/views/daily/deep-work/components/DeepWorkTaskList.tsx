@@ -42,6 +42,9 @@ import { sortSubtasksHybrid } from "@/ecosystem/internal/tasks/utils/subtaskSort
 import { format } from 'date-fns';
 import { GamificationService } from "@/services/gamificationService";
 import { getDeepWorkPriorityMultiplier } from "@/ecosystem/internal/tasks/utils/taskXpCalculations";
+import { useClientsList } from "@/shared/hooks/client/useClientsList";
+import { Building2 } from "lucide-react";
+import { useGamificationInit } from "@/shared/hooks/useGamificationInit";
 
 // Type definitions - exact same as original
 interface Subtask {
@@ -105,6 +108,9 @@ function transformSupabaseToUITasks(tasks: DeepWorkTask[]): Task[] {
 }
 
 export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = new Date() }: DeepWorkTaskListProps) {
+  // Initialize gamification system for XP tracking
+  useGamificationInit();
+
   // BLUE THEME - Hardcoded from working version
   const theme = {
     title: '🧠 Deep Work Sessions',
@@ -160,6 +166,18 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
     updateTaskTimeEstimate
   } = useDeepWorkTasksSupabase({ selectedDate });
 
+  // Fetch clients for displaying client badges
+  const { clients } = useClientsList();
+
+  // Create client lookup map for efficient badge rendering
+  const clientMap = useMemo(() => {
+    const map = new Map<string, string>();
+    clients.forEach((client) => {
+      map.set(client.id, client.business_name || client.full_name || 'Unnamed Client');
+    });
+    return map;
+  }, [clients]);
+
   // Transform data
   const tasks = useMemo(() => transformSupabaseToUITasks(rawTasks), [rawTasks]);
   const hasTasks = tasks.length > 0;
@@ -179,6 +197,8 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
   const [activeFocusSession, setActiveFocusSession] = useState<string | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [addingNewTask, setAddingNewTask] = useState(false);
+  const [newTaskTitle, setNewTaskTitle] = useState('');
   const [calendarSubtaskId, setCalendarSubtaskId] = useState<string | null>(null);
   const [activeTaskCalendarId, setActiveTaskCalendarId] = useState<string | null>(null);
   const [taskPriorityMenuId, setTaskPriorityMenuId] = useState<string | null>(null);
@@ -709,6 +729,48 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
     });
   };
 
+  const handleStartAddingTask = () => {
+    setAddingNewTask(true);
+    setNewTaskTitle('');
+  };
+
+  const handleNewTaskTitleChange = (title: string) => {
+    setNewTaskTitle(title);
+  };
+
+  const handleSaveNewTask = async () => {
+    if (newTaskTitle.trim()) {
+      try {
+        const newTask = await createTask({
+          title: newTaskTitle.trim(),
+          priority: 'HIGH',
+        });
+        console.log('✅ New task created successfully');
+
+        if (newTask) {
+          setTimeout(() => {
+            setEditingMainTask(newTask.id);
+            setEditMainTaskTitle(newTask.title);
+          }, 100);
+        }
+      } catch (error) {
+        console.error('❌ Failed to create new task:', error);
+      }
+    }
+    setAddingNewTask(false);
+    setNewTaskTitle('');
+  };
+
+  const handleNewTaskKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSaveNewTask();
+    } else if (e.key === 'Escape') {
+      setAddingNewTask(false);
+      setNewTaskTitle('');
+    }
+  };
+
   // Animation variants - EXACT COPY
   const taskVariants = {
     hidden: { opacity: 0, y: prefersReducedMotion ? 0 : -5 },
@@ -1012,6 +1074,17 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
                               <span>{priorityConfig.label}</span>
                             </button>
 
+                            {/* Client Badge */}
+                            {task.clientId && clientMap.has(task.clientId) && (
+                              <div
+                                className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-purple-900/20 text-purple-200 border border-purple-700/40"
+                                title={`Linked to ${clientMap.get(task.clientId)}`}
+                              >
+                                <Building2 className="h-3.5 w-3.5" />
+                                <span className="max-w-[120px] truncate">{clientMap.get(task.clientId)}</span>
+                              </div>
+                            )}
+
                             {editingTaskTimeId === task.id ? (
                               <input
                                 type="text"
@@ -1301,34 +1374,30 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
               })}
             </ul>
 
-            {/* Add Task Button */}
+            {/* Add Task Input/Button */}
             <div className="mt-4 px-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full text-blue-300 hover:text-blue-200 hover:bg-blue-900/20 border-blue-700/30 hover:border-blue-600/40 transition-all duration-200 text-sm border"
-                onClick={async () => {
-                  try {
-                    const taskTitle = 'New Deep Work Task';
-                    const newTask = await createTask({
-                      title: taskTitle,
-                      priority: 'HIGH'
-                    });
-
-                    if (newTask) {
-                      setTimeout(() => {
-                        setEditingMainTask(newTask.id);
-                        setEditMainTaskTitle(newTask.title);
-                      }, 100);
-                    }
-                  } catch (error) {
-                    console.error('Error creating new task:', error);
-                  }
-                }}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Task
-              </Button>
+              {addingNewTask ? (
+                <input
+                  type="text"
+                  value={newTaskTitle}
+                  onChange={(e) => handleNewTaskTitleChange(e.target.value)}
+                  onKeyDown={handleNewTaskKeyDown}
+                  onBlur={handleSaveNewTask}
+                  placeholder="Enter task title..."
+                  className="w-full bg-blue-900/40 text-blue-100 border-blue-600/50 focus:border-blue-400 text-sm px-3 py-2 rounded border focus:outline-none"
+                  autoFocus
+                />
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full text-blue-300 hover:text-blue-200 hover:bg-blue-900/20 border-blue-700/30 hover:border-blue-600/40 transition-all duration-200 text-sm border"
+                  onClick={handleStartAddingTask}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Task
+                </Button>
+              )}
             </div>
 
               </div>

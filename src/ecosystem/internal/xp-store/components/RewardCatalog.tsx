@@ -45,6 +45,34 @@ export const RewardCatalog = ({ onPurchase, className }: RewardCatalogProps) => 
   const [sortBy, setSortBy] = useState<'price' | 'popularity' | 'satisfaction'>('price');
   const [priceFilter, setPriceFilter] = useState<'all' | 'affordable' | 'saving'>('all');
 
+  // Helper functions (defined before useMemo)
+  const getRewardAffordability = (reward: RewardItem) => {
+    const totalEarned = balance?.totalEarned ?? 0;
+
+    if (reward.unlockAt && totalEarned < reward.unlockAt) {
+      return 'locked';
+    }
+
+    if (!balance) return 'unknown';
+    if (reward.currentPrice <= balance.canSpend) return 'affordable';
+    if (reward.currentPrice <= balance.canSpend + 300) return 'close';
+    return 'saving';
+  };
+
+  const getPriceChangeIndicator = (reward: any) => {
+    if (!reward.basePrice || reward.currentPrice === reward.basePrice) return null;
+    
+    const change = reward.currentPrice - reward.basePrice;
+    const percentChange = (change / reward.basePrice) * 100;
+    
+    return {
+      isIncrease: change > 0,
+      amount: Math.abs(change),
+      percent: Math.abs(percentChange),
+      reason: change > 0 ? 'High demand' : 'Streak bonus'
+    };
+  };
+
   // Filter and sort rewards
   const filteredRewards = useMemo(() => {
     if (!rewards) return [];
@@ -106,33 +134,6 @@ export const RewardCatalog = ({ onPurchase, className }: RewardCatalogProps) => 
       count: rewards.filter(r => r.category === category).length
     }));
   }, [rewards]);
-
-  const getRewardAffordability = (reward: RewardItem) => {
-    const totalEarned = balance?.totalEarned ?? 0;
-
-    if (reward.unlockAt && totalEarned < reward.unlockAt) {
-      return 'locked';
-    }
-
-    if (!balance) return 'unknown';
-    if (reward.currentPrice <= balance.canSpend) return 'affordable';
-    if (reward.currentPrice <= balance.canSpend + 300) return 'close';
-    return 'saving';
-  };
-
-  const getPriceChangeIndicator = (reward: any) => {
-    if (!reward.basePrice || reward.currentPrice === reward.basePrice) return null;
-    
-    const change = reward.currentPrice - reward.basePrice;
-    const percentChange = (change / reward.basePrice) * 100;
-    
-    return {
-      isIncrease: change > 0,
-      amount: Math.abs(change),
-      percent: Math.abs(percentChange),
-      reason: change > 0 ? 'High demand' : 'Streak bonus'
-    };
-  };
 
   if (loading) {
     return (

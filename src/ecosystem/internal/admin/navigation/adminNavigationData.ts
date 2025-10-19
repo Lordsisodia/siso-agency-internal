@@ -1,10 +1,20 @@
 import {
-  LayoutDashboard, Users, UserCheck,
-  ListTodo, Building2,
-  Lock, ShoppingCart, Calendar, CalendarRange,
-  CalendarClock, CalendarDays, Infinity as InfinityIcon
+  LayoutDashboard,
+  Users,
+  UserCheck,
+  ListTodo,
+  Building2,
+  Lock,
+  ShoppingCart,
+  Calendar,
+  CalendarRange,
+  CalendarClock,
+  CalendarDays,
+  Infinity as InfinityIcon,
+  Handshake,
+  Trophy,
 } from 'lucide-react';
-import { MenuSection } from './types';
+import { MenuSection } from '@/shared/sidebar/types';
 
 export const getAdminMenuSections = (): MenuSection[] => {
   const sections: MenuSection[] = [
@@ -23,8 +33,25 @@ export const getAdminMenuSections = (): MenuSection[] => {
           href: '/admin/clients',
           icon: Building2,
           label: 'Clients',
-        }
-      ]
+        },
+        {
+          href: '/admin/industries',
+          icon: Building2,
+          label: 'Industries',
+        },
+      ],
+    },
+    {
+      type: 'section',
+      title: 'Partner Workspace',
+      icon: Handshake,
+      items: [
+        {
+          href: '/admin/partners',
+          icon: Handshake,
+          label: 'Partners',
+        },
+      ],
     },
     {
       type: 'section',
@@ -35,8 +62,8 @@ export const getAdminMenuSections = (): MenuSection[] => {
           href: '/admin/tasks',
           icon: ListTodo,
           label: 'Tasks',
-        }
-      ]
+        },
+      ],
     },
     {
       type: 'section',
@@ -69,12 +96,17 @@ export const getAdminMenuSections = (): MenuSection[] => {
           label: 'Life View',
         },
         {
+          href: '/xp-dashboard',
+          icon: Trophy,
+          label: 'XP Dashboard',
+        },
+        {
           href: '/xp-store',
           icon: ShoppingCart,
           label: 'XP Store',
-        }
-      ]
-    }
+        },
+      ],
+    },
   ];
 
   return sections;

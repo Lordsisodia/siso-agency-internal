@@ -114,42 +114,86 @@ export const XPStoreBalance = ({ className }: XPStoreBalanceProps) => {
         <CardContent className="space-y-4">
           {/* Current Balance Display */}
           <div className="text-center space-y-2">
-            <motion.div 
-              className="text-4xl font-bold text-siso-orange"
-              animate={celebrateBalance ? { scale: [1, 1.1, 1] } : {}}
-            >
-              {balance.currentXP.toLocaleString()}
-            </motion.div>
-            <div className="text-sm text-siso-text-muted">
-              Total XP Earned: {balance.totalEarned.toLocaleString()}
-            </div>
+            {balance.isInDebt ? (
+              <>
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <AlertCircle className="h-5 w-5 text-red-400" />
+                  <span className="text-sm font-medium text-red-400">XP Debt</span>
+                </div>
+                <motion.div
+                  className="text-4xl font-bold text-red-400"
+                  animate={celebrateBalance ? { scale: [1, 1.1, 1] } : {}}
+                >
+                  -{balance.debtAmount.toLocaleString()}
+                </motion.div>
+                <div className="text-sm text-siso-text-muted">
+                  Earn {balance.debtAmount.toLocaleString()} XP to break even
+                </div>
+              </>
+            ) : (
+              <>
+                <motion.div
+                  className="text-4xl font-bold text-siso-orange"
+                  animate={celebrateBalance ? { scale: [1, 1.1, 1] } : {}}
+                >
+                  {balance.currentXP.toLocaleString()}
+                </motion.div>
+                <div className="text-sm text-siso-text-muted">
+                  Total XP Earned: {balance.totalEarned.toLocaleString()}
+                </div>
+              </>
+            )}
           </div>
 
           {/* Spending Power */}
           <div className="bg-siso-bg-alt rounded-lg p-4 space-y-3">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <span className="text-siso-text font-medium">Available to Spend</span>
-              <Badge 
-                variant="outline" 
-                className="bg-green-500/20 text-green-400 border-green-500/20 w-max"
-              >
-                <Coins className="h-3 w-3 mr-1" />
-                {balance.canSpend.toLocaleString()} XP
-              </Badge>
-            </div>
-            
-            {balance.reserveXP > 0 && (
-              <div className="text-xs text-siso-text-muted flex items-center gap-1">
-                <Shield className="h-3 w-3" />
-                Reserve Fund: {balance.reserveXP.toLocaleString()} XP (protected)
-              </div>
-            )}
-            
-            {balance.pendingLoans > 0 && (
-              <div className="text-xs text-red-400 flex items-center gap-1">
-                <AlertCircle className="h-3 w-3" />
-                Outstanding Loans: {balance.pendingLoans.toLocaleString()} XP
-              </div>
+            {balance.isInDebt ? (
+              <>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <span className="text-siso-text font-medium">XP Debt</span>
+                  <Badge
+                    variant="outline"
+                    className="bg-red-500/20 text-red-400 border-red-500/20 w-max"
+                  >
+                    <AlertCircle className="h-3 w-3 mr-1" />
+                    -{balance.debtAmount.toLocaleString()} XP
+                  </Badge>
+                </div>
+                <div className="text-xs text-siso-text-muted">
+                  💪 Work off your debt by completing tasks and earning XP!
+                </div>
+                <div className="text-xs text-siso-text-muted flex items-center gap-1">
+                  <TrendingUp className="h-3 w-3 text-green-400" />
+                  Earned: {balance.totalEarned.toLocaleString()} XP | Spent: {balance.totalSpent.toLocaleString()} XP
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <span className="text-siso-text font-medium">Available to Spend</span>
+                  <Badge
+                    variant="outline"
+                    className="bg-green-500/20 text-green-400 border-green-500/20 w-max"
+                  >
+                    <Coins className="h-3 w-3 mr-1" />
+                    {balance.canSpend.toLocaleString()} XP
+                  </Badge>
+                </div>
+
+                {balance.reserveXP > 0 && (
+                  <div className="text-xs text-siso-text-muted flex items-center gap-1">
+                    <Shield className="h-3 w-3" />
+                    Reserve Fund: {balance.reserveXP.toLocaleString()} XP (protected)
+                  </div>
+                )}
+
+                {balance.pendingLoans > 0 && (
+                  <div className="text-xs text-red-400 flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3" />
+                    Outstanding Loans: {balance.pendingLoans.toLocaleString()} XP
+                  </div>
+                )}
+              </>
             )}
           </div>
 

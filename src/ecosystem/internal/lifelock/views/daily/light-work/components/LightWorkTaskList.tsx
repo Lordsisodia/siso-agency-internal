@@ -38,6 +38,7 @@ import { useLightWorkTasksSupabase, LightWorkTask, LightWorkSubtask } from "@/ec
 import { sortSubtasksHybrid } from "@/ecosystem/internal/tasks/utils/subtaskSorting";
 import { GamificationService } from "@/services/gamificationService";
 import { getLightWorkPriorityMultiplier } from "@/ecosystem/internal/tasks/utils/taskXpCalculations";
+import { useGamificationInit } from "@/shared/hooks/useGamificationInit";
 
 // Type definitions - exact same as original
 interface Subtask {
@@ -99,6 +100,9 @@ function transformSupabaseToUITasks(tasks: LightWorkTask[]): Task[] {
 }
 
 export default function LightWorkTaskList({ onStartFocusSession, selectedDate = new Date() }: LightWorkTaskListProps) {
+  // Initialize gamification system for XP tracking
+  useGamificationInit();
+
   // GREEN THEME - Hardcoded from working version
   const theme = {
     title: '🌱 Light Work Tasks',
