@@ -1,8 +1,10 @@
 {
   "mcpServers": {
     "siso-internal-supabase": {
-      "command": "/Users/shaansisodia/DEV/SISO-ECOSYSTEM/SISO-INTERNAL/node_modules/.bin/mcp-server-supabase",
+      "command": "npx",
       "args": [
+        "-y",
+        "@supabase/mcp-server-supabase@latest",
         "--project-ref=avdgyrepwrvsvwgxrccr"
       ],
       "env": {

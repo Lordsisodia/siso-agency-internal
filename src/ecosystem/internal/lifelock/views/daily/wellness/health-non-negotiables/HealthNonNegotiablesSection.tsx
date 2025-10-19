@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Heart, Plus, Minus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
@@ -12,6 +12,7 @@ import { useNutritionSupabase } from '@/shared/hooks/useNutritionSupabase';
 import { CleanDateNav } from '@/ecosystem/internal/lifelock/views/daily/_shared/components';
 import { MealInput } from './components/MealInput';
 import { MacroTracker } from './components/MacroTracker';
+import { GamificationService } from '@/services/gamificationService';
 
 interface HealthNonNegotiablesSectionProps {
   selectedDate: Date;
@@ -33,6 +34,11 @@ export const HealthNonNegotiablesSection: React.FC<HealthNonNegotiablesSectionPr
   const [dailyTotals, setDailyTotals] = useState(nutrition.macros);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const hasLoadedInitialData = useRef(false);
+  const nutritionXPRef = useRef(0);
+  const nutritionXPStorageKey = useMemo(() => {
+    const userSuffix = internalUserId ?? 'anonymous';
+    return `lifelock-${userSuffix}-${dateKey}-nutritionXP`;
+  }, [internalUserId, dateKey]);
 
   // Update local state when nutrition data loads from server
   useEffect(() => {
@@ -72,6 +78,54 @@ export const HealthNonNegotiablesSection: React.FC<HealthNonNegotiablesSectionPr
       saveData(meals, dailyTotals);
     }
   }, [meals, dailyTotals]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    const stored = window.localStorage.getItem(nutritionXPStorageKey);
+    nutritionXPRef.current = stored ? Number(stored) || 0 : 0;
+  }, [nutritionXPStorageKey]);
+
+  const nutritionXP = useMemo(() => {
+    const mealCount = Object.values(meals).filter((value) => value && value.trim().length > 0).length;
+    const mealXP = mealCount * 12;
+
+    const proteinGrams = Number(dailyTotals.protein) || 0;
+    const proteinBonus = proteinGrams >= 150 ? 20 : 0;
+
+    return mealXP + proteinBonus;
+  }, [meals, dailyTotals]);
+
+  useEffect(() => {
+    nutritionXPRef.current = 0;
+  }, [dateKey]);
+
+  useEffect(() => {
+    if (!hasLoadedInitialData.current) {
+      return;
+    }
+
+    const todayKey = format(new Date(), 'yyyy-MM-dd');
+    if (dateKey !== todayKey) {
+      return;
+    }
+
+    if (nutritionXP > nutritionXPRef.current) {
+      const diff = nutritionXP - nutritionXPRef.current;
+      const multiplier = diff / 40;
+      GamificationService.awardXP('healthy_meal', multiplier);
+      nutritionXPRef.current = nutritionXP;
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(nutritionXPStorageKey, nutritionXP.toString());
+      }
+    } else if (nutritionXP < nutritionXPRef.current) {
+      nutritionXPRef.current = nutritionXP;
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(nutritionXPStorageKey, nutritionXP.toString());
+      }
+    }
+  }, [dateKey, nutritionXP, nutritionXPStorageKey]);
 
   // Cleanup timeout on unmount
   useEffect(() => {

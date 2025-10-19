@@ -1,8 +1,8 @@
-import { useClientDetails } from '@/shared/hooks/client/useClientDetails';
 import { useClientTasks } from '@/shared/hooks/client/useClientTasks';
 import { ClientData, ClientTask } from '@/types/client.types';
 import { useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useClientDetails } from '@/shared/hooks/client/useClientDetails';
 
 interface TimelineEvent {
   id: string;
@@ -44,6 +44,17 @@ interface ClientWorkspaceState {
   };
 }
 
+const isUuid = (value: string | null | undefined) =>
+  typeof value === 'string' &&
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+
+const generateLocalId = () => {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return `local-${Math.random().toString(36).slice(2, 11)}`;
+};
+
 export function useClientWorkspace(clientId: string | null): ClientWorkspaceState {
   const {
     clientData,
@@ -58,6 +69,8 @@ export function useClientWorkspace(clientId: string | null): ClientWorkspaceStat
     mutate: mutateTasks,
     isLoading: tasksLoading,
   } = useClientTasks(clientId || undefined);
+
+  const sampleMode = !isUuid(clientId);
 
   const timeline: TimelineEvent[] = useMemo(() => {
     // Placeholder until dedicated timeline data exists.
@@ -113,9 +126,35 @@ export function useClientWorkspace(clientId: string | null): ClientWorkspaceStat
   const handleCreateTask = async (payload: Partial<ClientTask>) => {
     if (!clientId) return;
 
+    if (sampleMode) {
+      const now = new Date().toISOString();
+      await mutateTasks(
+        (existing) => {
+          const current = existing ?? [];
+          const newTask: ClientTask = {
+            id: generateLocalId(),
+            client_id: clientId,
+            user_id: clientData?.user_id ?? 'sample-user',
+            title: payload.title ?? 'New task',
+            description: payload.description ?? null,
+            priority: (payload.priority ?? 'medium') as ClientTask['priority'],
+            due_date: payload.due_date ?? null,
+            completed: payload.completed ?? false,
+            subtasks: Array.isArray(payload.subtasks) ? payload.subtasks : [],
+            created_at: now,
+            updated_at: now,
+            completed_at: null,
+          };
+          return [newTask, ...current];
+        },
+        false,
+      );
+      return;
+    }
+
     await supabase.from('client_onboarding_tasks').insert({
       client_id: clientId,
-      user_id: client?.user_id ?? null,
+      user_id: clientData?.user_id ?? null,
       title: payload.title ?? 'New task',
       description: payload.description ?? null,
       priority: payload.priority ?? 'medium',
@@ -141,12 +180,65 @@ export function useClientWorkspace(clientId: string | null): ClientWorkspaceStat
       return;
     }
 
+    if (sampleMode) {
+      await mutateTasks(
+        (existing) => {
+          if (!existing) return existing;
+          return existing.map((task) =>
+            task.id === taskId
+              ? {
+                  ...task,
+                  title:
+                    typeof updates.title !== 'undefined' && updates.title !== null
+                      ? updates.title
+                      : task.title,
+                  description:
+                    typeof updates.description !== 'undefined'
+                      ? updates.description ?? null
+                      : task.description,
+                  priority:
+                    typeof updates.priority !== 'undefined'
+                      ? (updates.priority ?? task.priority ?? 'medium') as ClientTask['priority']
+                      : task.priority,
+                  due_date:
+                    typeof updates.due_date !== 'undefined'
+                      ? updates.due_date ?? null
+                      : task.due_date,
+                  completed:
+                    typeof updates.completed !== 'undefined'
+                      ? Boolean(updates.completed)
+                      : task.completed,
+                  subtasks:
+                    typeof updates.subtasks !== 'undefined'
+                      ? (Array.isArray(updates.subtasks) ? updates.subtasks : task.subtasks)
+                      : task.subtasks,
+                  updated_at: new Date().toISOString(),
+                }
+              : task,
+          );
+        },
+        false,
+      );
+      return;
+    }
+
     await supabase.from('client_onboarding_tasks').update(updatePayload).eq('id', taskId);
 
     await mutateTasks();
   };
 
   const handleDeleteTask = async (taskId: string) => {
+    if (sampleMode) {
+      await mutateTasks(
+        (existing) => {
+          if (!existing) return existing;
+          return existing.filter((task) => task.id !== taskId);
+        },
+        false,
+      );
+      return;
+    }
+
     await supabase.from('client_onboarding_tasks').delete().eq('id', taskId);
     await mutateTasks();
   };

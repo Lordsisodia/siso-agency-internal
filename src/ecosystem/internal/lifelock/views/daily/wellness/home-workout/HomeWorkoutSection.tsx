@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Dumbbell, Settings } from 'lucide-react';
 import { format } from 'date-fns';
@@ -29,6 +29,7 @@ import {
 } from './components/WorkoutItemCard';
 import { XPPill } from '@/ecosystem/internal/lifelock/views/daily/morning-routine/components/XPPill';
 import { calculateTotalWorkoutXP } from '@/ecosystem/internal/lifelock/views/daily/wellness/xpCalculations';
+import { GamificationService } from '@/services/gamificationService';
 
 type WorkoutItemRow = Database['public']['Tables']['workout_items']['Row'];
 
@@ -138,6 +139,7 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({ selected
   const [isEditingGoals, setIsEditingGoals] = useState(false);
   const [goalDrafts, setGoalDrafts] = useState<Record<string, string>>({});
   const [loggedDrafts, setLoggedDrafts] = useState<Record<string, string>>({});
+  const workoutXPRef = useRef(0);
 
   const loadWorkoutItems = useCallback(async () => {
     setIsLoading(true);
@@ -263,6 +265,55 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({ selected
     () => new Map(normalizedItems.map((item) => [item.id, item])),
     [normalizedItems],
   );
+
+  const totalWorkoutXP = useMemo(() => {
+    const exercises = normalizedItems.map(item => ({
+      completed: item.isComplete,
+      logged: item.loggedValue,
+      target: item.goalValue,
+      isPB: false,
+    }));
+    return calculateTotalWorkoutXP(exercises).total;
+  }, [normalizedItems]);
+
+  const workoutXPStorageKey = useMemo(() => {
+    const userSuffix = internalUserId ?? 'anonymous';
+    return `lifelock-${userSuffix}-${dateKey}-workoutXP`;
+  }, [internalUserId, dateKey]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    const stored = window.localStorage.getItem(workoutXPStorageKey);
+    workoutXPRef.current = stored ? Number(stored) || 0 : 0;
+  }, [workoutXPStorageKey]);
+
+  useEffect(() => {
+    if (!selectedDate || Number.isNaN(selectedDate.getTime())) {
+      return;
+    }
+
+    const todayKey = format(new Date(), 'yyyy-MM-dd');
+    if (dateKey !== todayKey) {
+      return;
+    }
+
+    if (totalWorkoutXP > workoutXPRef.current) {
+      const diff = totalWorkoutXP - workoutXPRef.current;
+      const multiplier = diff / 80;
+      GamificationService.awardXP('workout_complete', multiplier);
+      workoutXPRef.current = totalWorkoutXP;
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(workoutXPStorageKey, totalWorkoutXP.toString());
+      }
+    } else if (totalWorkoutXP < workoutXPRef.current) {
+      workoutXPRef.current = totalWorkoutXP;
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(workoutXPStorageKey, totalWorkoutXP.toString());
+      }
+    }
+  }, [dateKey, selectedDate, totalWorkoutXP, workoutXPStorageKey]);
 
   const totals = useMemo(
     () =>
@@ -535,16 +586,7 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({ selected
                         Home Workout Objective
                       </CardTitle>
                       <XPPill
-                        xp={(() => {
-                          const exercises = normalizedItems.map(item => ({
-                            completed: item.completed,
-                            logged: item.loggedValue,
-                            target: item.goalValue,
-                            isPB: false // TODO: Track PBs per exercise
-                          }));
-                          const result = calculateTotalWorkoutXP(exercises);
-                          return result.total;
-                        })()}
+                        xp={totalWorkoutXP}
                         earned={normalizedItems.every(item => item.completed)}
                         showGlow={normalizedItems.every(item => item.completed)}
                       />

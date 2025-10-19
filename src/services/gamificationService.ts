@@ -7,6 +7,7 @@
  * - Supabase: Background sync (cross-device persistence)
  */
 
+import { format } from 'date-fns';
 import { logger } from '@/shared/utils/logger';
 import { scheduleSyncToSupabase, loadProgressFromSupabase } from './gamification/supabaseXpSync';
 
@@ -74,6 +75,13 @@ export class GamificationService {
   private static readonly STORAGE_KEY = 'siso_gamification_data';
   private static readonly LEVEL_XP_THRESHOLD = 1000; // XP needed per level
   private static currentUserId: string | null = null;
+
+  /**
+   * Normalize date keys to the viewer's local calendar day.
+   */
+  private static getDateKey(date: Date = new Date()): string {
+    return format(date, 'yyyy-MM-dd');
+  }
 
   // XP Activities Configuration
   private static readonly XP_ACTIVITIES: XPActivity[] = [
@@ -165,7 +173,7 @@ export class GamificationService {
 
     const points = Math.round(activity.basePoints * multiplier);
     const progress = this.getUserProgress();
-    const today = new Date().toISOString().split('T')[0];
+    const today = this.getDateKey();
 
     // Update daily XP
     progress.dailyXP += points;
@@ -209,8 +217,8 @@ export class GamificationService {
    */
   public static updateStreak(completed: boolean): void {
     const progress = this.getUserProgress();
-    const today = new Date().toISOString().split('T')[0];
-    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const today = this.getDateKey();
+    const yesterday = this.getDateKey(new Date(Date.now() - 24 * 60 * 60 * 1000));
 
     if (completed) {
       // Check if yesterday was completed to continue streak
@@ -243,7 +251,7 @@ export class GamificationService {
    */
   public static getDailyXPBreakdown(date: Date = new Date()): DailyStats | null {
     const progress = this.getUserProgress();
-    const dateKey = date.toISOString().split('T')[0];
+    const dateKey = this.getDateKey(date);
     return progress.dailyStats[dateKey] || null;
   }
 
@@ -415,7 +423,7 @@ export class GamificationService {
       const supabaseProgress = await loadProgressFromSupabase(userId);
 
       if (supabaseProgress) {
-        const todayKey = new Date().toISOString().split('T')[0];
+        const todayKey = this.getDateKey();
         const localTodayXP = existingProgress.dailyStats?.[todayKey]?.totalXP ?? 0;
         const supabaseTodayXP = supabaseProgress.dailyStats?.[todayKey]?.totalXP ?? 0;
 

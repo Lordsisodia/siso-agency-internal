@@ -10,7 +10,7 @@
  * ⚠️ DO NOT MODIFY - Pixel-perfect from working version
  */
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import {
   CheckCircle2,
   Circle,
@@ -36,6 +36,8 @@ import { CustomCalendar } from "../../_shared/components";
 import { SubtaskItem } from "@/components/tasks/SubtaskItem";
 import { useLightWorkTasksSupabase, LightWorkTask, LightWorkSubtask } from "@/ecosystem/internal/tasks/hooks/useLightWorkTasksSupabase";
 import { sortSubtasksHybrid } from "@/ecosystem/internal/tasks/utils/subtaskSorting";
+import { GamificationService } from "@/services/gamificationService";
+import { getLightWorkPriorityMultiplier } from "@/ecosystem/internal/tasks/utils/taskXpCalculations";
 
 // Type definitions - exact same as original
 interface Subtask {
@@ -109,6 +111,25 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
       '• Quick breaks encouraged between tasks'
     ]
   };
+
+  const awardLightWorkTaskCompletion = useCallback((task: LightWorkTask) => {
+    const priorityMultiplier = getLightWorkPriorityMultiplier(task.priority);
+    const baseXP = 20;
+    const desiredXP = Math.round(baseXP * priorityMultiplier);
+
+    if (desiredXP <= 0) {
+      return;
+    }
+
+    const multiplier = desiredXP / baseXP;
+    const awarded = GamificationService.awardXP('light_task_complete', multiplier);
+
+    if (import.meta.env.DEV) {
+      console.debug(
+        `[XP] Light work task complete → priority=${task.priority}, multiplier=${multiplier.toFixed(2)}, awarded=${awarded} XP`
+      );
+    }
+  }, []);
 
   // Use Light Work Supabase hook
   const {
@@ -229,8 +250,15 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
   };
 
   const handleToggleTaskStatus = async (taskId: string) => {
+    const previousTask = rawTasks.find(task => task.id === taskId);
+    const wasCompleted = previousTask?.completed ?? false;
+
     try {
-      await toggleTaskCompletion(taskId);
+      const updatedTask = await toggleTaskCompletion(taskId);
+
+      if (updatedTask && !wasCompleted && updatedTask.completed) {
+        awardLightWorkTaskCompletion(updatedTask);
+      }
     } catch (error) {
       console.error('Error toggling task completion:', error);
     }

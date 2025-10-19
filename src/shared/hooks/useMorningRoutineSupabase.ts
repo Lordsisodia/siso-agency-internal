@@ -273,9 +273,13 @@ export function useMorningRoutineSupabase(selectedDate: Date): UseMorningRoutine
     async (habitName: string, completed: boolean) => {
       if (!routine || !internalUserId) return;
 
-      const items = routine.items.map(item =>
+      let items = routine.items.map(item =>
         item.name === habitName ? { ...item, completed } : item,
       );
+
+      if (!items.some(item => item.name === habitName)) {
+        items = [...items, { name: habitName, completed }];
+      }
 
       const completedCount = items.filter(item => item.completed).length;
       const totalCount = items.length;

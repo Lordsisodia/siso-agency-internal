@@ -13,6 +13,14 @@
  * - Each subtask: 10 XP (if estimated time < 30 min)
  * - Simple and fast
  */
+export function getLightWorkPriorityMultiplier(priority?: string): number {
+  const basePriority = (priority || 'medium').toLowerCase();
+  if (basePriority === 'urgent') return 2.0;
+  if (basePriority === 'high') return 1.5;
+  if (basePriority === 'medium') return 1.2;
+  return 1.0;
+}
+
 export function calculateLightWorkTaskXP(task: {
   priority?: string;
   subtasks?: Array<{ completed?: boolean; estimatedTime?: string }>;
@@ -23,11 +31,7 @@ export function calculateLightWorkTaskXP(task: {
   }
 
   // Base task XP with priority multiplier
-  const basePriority = (task.priority || 'medium').toLowerCase();
-  const priorityMultiplier =
-    basePriority === 'urgent' ? 2.0 :
-    basePriority === 'high' ? 1.5 :
-    basePriority === 'medium' ? 1.2 : 1.0;
+  const priorityMultiplier = getLightWorkPriorityMultiplier(task.priority);
 
   const taskXP = task.completed ? Math.round(20 * priorityMultiplier) : 0;
 
@@ -64,6 +68,14 @@ export function calculateLightWorkTaskXP(task: {
  * - Time bonus: +25 to +100 XP based on total time
  * - More rewarding for complex work
  */
+export function getDeepWorkPriorityMultiplier(priority?: string): number {
+  const basePriority = (priority || 'medium').toLowerCase();
+  if (basePriority === 'urgent') return 2.5;
+  if (basePriority === 'high') return 1.7;
+  if (basePriority === 'medium') return 1.3;
+  return 1.0;
+}
+
 export function calculateDeepWorkTaskXP(task: {
   priority?: string;
   subtasks?: Array<{ completed?: boolean; estimatedTime?: string }>;
@@ -75,11 +87,7 @@ export function calculateDeepWorkTaskXP(task: {
   }
 
   // Base task XP with higher priority multipliers
-  const basePriority = (task.priority || 'medium').toLowerCase();
-  const priorityMultiplier =
-    basePriority === 'urgent' ? 2.5 :
-    basePriority === 'high' ? 1.7 :
-    basePriority === 'medium' ? 1.3 : 1.0;
+  const priorityMultiplier = getDeepWorkPriorityMultiplier(task.priority);
 
   const taskXP = task.completed ? Math.round(50 * priorityMultiplier) : 0;
 

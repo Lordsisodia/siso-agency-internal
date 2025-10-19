@@ -32,8 +32,8 @@ export const DailyBottomNav: React.FC<DailyBottomNavProps> = ({
   className = ''
 }) => {
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-50 flex justify-center pointer-events-none">
-      <div className="pointer-events-auto">
+    <div className="fixed inset-x-0 bottom-0 z-50 flex justify-center px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pointer-events-none">
+      <div className="pointer-events-auto w-full max-w-xl">
         <ExpandableTabs
           tabs={tabs}
           activeIndex={activeIndex}

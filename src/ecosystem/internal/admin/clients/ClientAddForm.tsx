@@ -26,10 +26,10 @@ import { Loader2 } from 'lucide-react';
 
 const clientFormSchema = z.object({
   contact_name: z.string().min(2, 'Contact name is required'),
-  company_name: z.string().min(2, 'Company name is required'),
+  company_name: z.string().optional(),
   website_url: z.string().url('Please enter a valid URL').or(z.string().length(0)),
   company_niche: z.string().min(2, 'Company niche/industry is required'),
-  project_name: z.string().min(2, 'Project name is required'),
+  project_name: z.string().optional(),
 });
 
 type ClientFormValues = z.infer<typeof clientFormSchema>;
@@ -59,16 +59,20 @@ export function ClientAddForm({ open, onOpenChange, onSuccess }: ClientAddFormPr
     setIsLoading(true);
     
     try {
+      const companyName = values.company_name?.trim();
+      const projectName = values.project_name?.trim();
+      const websiteUrl = values.website_url?.trim();
+
       console.log('Submitting client form with values:', values);
       
       const { data, error } = await supabase
         .from('client_onboarding')
         .insert({
           contact_name: values.contact_name,
-          company_name: values.company_name,
-          website_url: values.website_url || null,
+          company_name: companyName?.length ? companyName : null,
+          website_url: websiteUrl?.length ? websiteUrl : null,
           company_niche: values.company_niche,
-          project_name: values.project_name,
+          project_name: projectName?.length ? projectName : null,
           status: 'pending',
           current_step: 1,
           total_steps: 5,
@@ -85,7 +89,7 @@ export function ClientAddForm({ open, onOpenChange, onSuccess }: ClientAddFormPr
       
       toast({
         title: 'Client added successfully',
-        description: `${values.company_name} has been added to your clients.`,
+        description: `${companyName?.length ? companyName : values.contact_name} has been added to your clients.`,
       });
       
       form.reset();
@@ -134,7 +138,7 @@ export function ClientAddForm({ open, onOpenChange, onSuccess }: ClientAddFormPr
               name="company_name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Company Name</FormLabel>
+                  <FormLabel>Company Name (optional)</FormLabel>
                   <FormControl>
                     <Input placeholder="Acme Inc." {...field} />
                   </FormControl>
@@ -176,7 +180,7 @@ export function ClientAddForm({ open, onOpenChange, onSuccess }: ClientAddFormPr
               name="project_name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Project Name</FormLabel>
+                  <FormLabel>Project Name (optional)</FormLabel>
                   <FormControl>
                     <Input placeholder="Website Redesign" {...field} />
                   </FormControl>

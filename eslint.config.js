@@ -31,6 +31,7 @@ export default tseslint.config(
       "tests/**/*",
       "scripts/**/*",
       ".codex/**/*",
+      ".git2/**/*",
       ".serena/**/*",
       "**/*.template.tsx",
       "**/*.template.ts",

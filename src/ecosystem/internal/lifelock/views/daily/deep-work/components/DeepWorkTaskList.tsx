@@ -10,7 +10,7 @@
  * ⚠️ DO NOT MODIFY - Pixel-perfect from working version
  */
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import {
   CheckCircle2,
   Circle,
@@ -40,6 +40,8 @@ import { SubtaskItem } from "@/components/tasks/SubtaskItem";
 import { useDeepWorkTasksSupabase, DeepWorkTask, DeepWorkSubtask } from "@/ecosystem/internal/tasks/hooks/useDeepWorkTasksSupabase";
 import { sortSubtasksHybrid } from "@/ecosystem/internal/tasks/utils/subtaskSorting";
 import { format } from 'date-fns';
+import { GamificationService } from "@/services/gamificationService";
+import { getDeepWorkPriorityMultiplier } from "@/ecosystem/internal/tasks/utils/taskXpCalculations";
 
 // Type definitions - exact same as original
 interface Subtask {
@@ -115,6 +117,26 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
       '• Deep cognitive work only'
     ]
   };
+
+  const awardDeepWorkTaskCompletion = useCallback((task: DeepWorkTask) => {
+    const priorityMultiplier = getDeepWorkPriorityMultiplier(task.priority);
+    const baseXP = 50;
+    const desiredXP = Math.round(baseXP * priorityMultiplier);
+
+    if (desiredXP <= 0) {
+      return;
+    }
+
+    const deepWorkBasePoints = 75;
+    const multiplier = desiredXP / deepWorkBasePoints;
+    const awarded = GamificationService.awardXP('deep_task_complete', multiplier);
+
+    if (import.meta.env.DEV) {
+      console.debug(
+        `[XP] Deep work task complete → priority=${task.priority}, multiplier=${multiplier.toFixed(2)}, awarded=${awarded} XP`
+      );
+    }
+  }, []);
 
   // Use Deep Work Supabase hook
   const {
@@ -295,8 +317,15 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
   };
 
   const handleToggleTaskStatus = async (taskId: string) => {
+    const previousTask = rawTasks.find(task => task.id === taskId);
+    const wasCompleted = previousTask?.completed ?? false;
+
     try {
-      await toggleTaskCompletion(taskId);
+      const updatedTask = await toggleTaskCompletion(taskId);
+
+      if (updatedTask && !wasCompleted && updatedTask.completed) {
+        awardDeepWorkTaskCompletion(updatedTask);
+      }
     } catch (error) {
       console.error('Error toggling task completion:', error);
     }

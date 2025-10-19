@@ -1,6 +1,6 @@
 import React, { useMemo, useEffect, useState } from 'react';
 import { AdminLayout } from '@/ecosystem/internal/admin/layout/AdminLayout';
-import { format, addWeeks, subWeeks, getYear } from 'date-fns';
+import { format, addWeeks, subWeeks, getYear, parse, isValid } from 'date-fns';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useClerkUser } from '@/shared/hooks/useClerkUser';
 import { useSupabaseUserId } from '@/shared/lib/supabase-clerk';
@@ -23,7 +23,18 @@ const AdminLifeLockDay: React.FC = () => {
   // Parse date from query params or default to today - memoized to prevent infinite re-renders
   const selectedDate = useMemo(() => {
     const dateParam = searchParams.get('date');
-    return dateParam ? new Date(dateParam) : new Date();
+    if (!dateParam) {
+      return new Date();
+    }
+
+    const parsed = parse(dateParam, 'yyyy-MM-dd', new Date());
+    if (isValid(parsed)) {
+      return parsed;
+    }
+
+    // Fallback to native parsing (e.g., legacy URLs with timestamps)
+    const fallback = new Date(dateParam);
+    return isValid(fallback) ? fallback : new Date();
   }, [searchParams]);
 
   // 🎮 Initialize XP/Gamification system

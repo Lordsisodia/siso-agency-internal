@@ -57,6 +57,7 @@ import {
   calculatePrioritiesXP,
   calculateTotalMorningXP
 } from './xpCalculations';
+import { calculateWaterXP } from '@/ecosystem/internal/lifelock/views/daily/wellness/xpCalculations';
 import { XPPill } from './components/XPPill';
 import { XPFooterSummary } from './components/XPFooterSummary';
 
@@ -247,8 +248,9 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   // Plan Day completion state
   const [isPlanDayComplete, setIsPlanDayComplete] = useState<boolean>(false);
 
-  // Water tracking state
-  const [waterAmount, setWaterAmount] = useState<number>(0);
+// Water tracking state
+const [waterAmount, setWaterAmount] = useState<number>(0);
+const waterXPRef = useRef(0);
 
   // Push-ups tracking state
   const [pushupReps, setPushupReps] = useState<number>(0);
@@ -271,10 +273,15 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   });
 
   // 🎮 XP System State
-  const xpStorageKey = useMemo(
-    () => `lifelock-${routineDateKey}-morningXpState`,
-    [routineDateKey]
-  );
+  const xpStorageKey = useMemo(() => {
+    const userSuffix = internalUserId ?? 'anonymous';
+    return `lifelock-${userSuffix}-${routineDateKey}-morningXpState`;
+  }, [internalUserId, routineDateKey]);
+
+  const waterXPStorageKey = useMemo(() => {
+    const userSuffix = internalUserId ?? 'anonymous';
+    return `lifelock-${userSuffix}-${routineDateKey}-waterXP`;
+  }, [internalUserId, routineDateKey]);
 
   const [xpState, setXpState] = useState<MorningRoutineXPState>(() => loadXpStateFromStorage(xpStorageKey));
 
@@ -285,6 +292,14 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   useEffect(() => {
     persistXpStateToStorage(xpStorageKey, xpState);
   }, [xpState, xpStorageKey]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    const stored = window.localStorage.getItem(waterXPStorageKey);
+    waterXPRef.current = stored ? Number(stored) || 0 : 0;
+  }, [waterXPStorageKey]);
 
   const meditationPreviousValue = useRef<string>(meditationDuration);
   const planDayPreviousValue = useRef<boolean>(isPlanDayComplete);
@@ -637,6 +652,62 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
     });
     return result;
   }, [wakeUpTime, selectedDate, isHabitCompleted, pushupReps, pushupPB, waterAmount, isPlanDayComplete, meditationDuration, dailyPriorities]);
+
+  const waterXP = useMemo(() => {
+    const result = calculateWaterXP(waterAmount, 2000, 0);
+    return result.total;
+  }, [waterAmount]);
+
+  useEffect(() => {
+    if (!selectedDate || Number.isNaN(selectedDate.getTime())) {
+      return;
+    }
+
+    const isViewingToday = format(selectedDate, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
+
+    if (!isViewingToday) {
+      return;
+    }
+
+    if (todayXP.total <= 0) {
+      return;
+    }
+
+    const breakdown = GamificationService.getDailyXPBreakdown(selectedDate);
+    const recordedRoutineXP = breakdown?.categories?.routine ?? 0;
+    const diff = todayXP.total - recordedRoutineXP;
+
+    if (diff > 0) {
+      const multiplier = diff / 100;
+      GamificationService.awardXP('morning_routine_complete', multiplier);
+    }
+  }, [selectedDate, todayXP.total]);
+
+  useEffect(() => {
+    if (!selectedDate || Number.isNaN(selectedDate.getTime())) {
+      return;
+    }
+
+    const isViewingToday = format(selectedDate, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
+    if (!isViewingToday) {
+      return;
+    }
+
+    if (waterXP > waterXPRef.current) {
+      const diff = waterXP - waterXPRef.current;
+      const multiplier = diff / 30;
+      GamificationService.awardXP('water_goal_met', multiplier);
+      waterXPRef.current = waterXP;
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(waterXPStorageKey, waterXP.toString());
+      }
+    } else if (waterXP < waterXPRef.current) {
+      waterXPRef.current = waterXP;
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(waterXPStorageKey, waterXP.toString());
+      }
+    }
+  }, [selectedDate, waterXP, waterXPStorageKey]);
 
   // Thought dump handler
   const handleThoughtDumpSubmit = async (input: string) => {

@@ -7,6 +7,7 @@
  * - Conflict resolution: Supabase wins on load, localStorage wins on save
  */
 
+import { format } from 'date-fns';
 import { supabaseAnon as supabase } from '@/shared/lib/supabase-clerk';
 import type { UserProgress, DailyStats, Achievement, WeeklyChallenge } from '../gamificationService';
 
@@ -126,7 +127,7 @@ export async function saveProgressToSupabase(userId: string, progress: UserProgr
         daily_xp: progress.dailyXP,
         current_streak: progress.currentStreak,
         best_streak: progress.bestStreak,
-        last_activity_date: new Date().toISOString().split('T')[0],
+        last_activity_date: format(new Date(), 'yyyy-MM-dd'),
         updated_at: new Date().toISOString()
       }, {
         onConflict: 'user_id'
@@ -138,7 +139,7 @@ export async function saveProgressToSupabase(userId: string, progress: UserProgr
     }
 
     // Save today's daily stats
-    const today = new Date().toISOString().split('T')[0];
+    const today = format(new Date(), 'yyyy-MM-dd');
     const todayStats = progress.dailyStats[today];
 
     if (todayStats) {

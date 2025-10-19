@@ -32,7 +32,14 @@ const mapSampleTodosToTasks = (clientId: string): ClientTask[] => {
   }));
 };
 
+const isUuid = (value: string) =>
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+
 const fetchClientTasks = async (clientId: string): Promise<ClientTask[]> => {
+  if (!isUuid(clientId)) {
+    return mapSampleTodosToTasks(clientId);
+  }
+
   const { data, error } = await supabase
     .from('client_onboarding_tasks')
     .select('*')

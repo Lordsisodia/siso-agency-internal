@@ -64,11 +64,7 @@ export function ClientWorkspaceLayout({
         <div className="relative z-10 px-6 pt-12 pb-10 max-w-6xl mx-auto">
           <header className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-[0_20px_80px_rgba(0,0,0,0.35)]">
             <div className="flex flex-col lg:flex-row justify-between gap-8">
-              <div className="flex gap-6">
-                <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-siso-orange/30 to-siso-purple/30 border border-white/20 flex items-center justify-center text-3xl font-semibold">
-                  {client?.business_name?.[0] ?? client?.full_name?.[0] ?? 'C'}
-                </div>
-
+              <div className="flex-1">
                 <div>
                   <div className="flex items-center gap-3 flex-wrap mb-2">
                     <h1 className="text-3xl md:text-4xl font-semibold bg-gradient-to-r from-white via-white to-white/60 bg-clip-text text-transparent">
@@ -134,11 +130,9 @@ export function ClientWorkspaceLayout({
         </div>
       </div>
 
-      <main className="relative z-10 px-6 pb-24">
-        <div className="max-w-6xl mx-auto">
-          <div className="rounded-3xl border border-white/5 bg-black/40 backdrop-blur-2xl p-8 shadow-[0_20px_60px_rgba(3,3,9,0.65)]">
-            {children}
-          </div>
+      <main className="relative z-10 px-6 pb-32 md:pb-24">
+        <div className="max-w-6xl mx-auto space-y-10">
+          {children}
         </div>
       </main>
     </div>
