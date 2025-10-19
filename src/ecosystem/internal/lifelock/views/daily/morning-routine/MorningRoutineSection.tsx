@@ -801,9 +801,8 @@ const waterXPRef = useRef(0);
                 <Sun className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                 🌅 Morning Routine
               </div>
-              <div className="flex items-center gap-3 text-sm font-medium">
-                <span className="text-yellow-300">{todayXP.total} XP</span>
-                <span className="text-yellow-500/70">|</span>
+              <div className="flex items-center gap-3 text-sm font-medium text-yellow-300/80">
+                <span className="uppercase tracking-[0.2em] text-yellow-200/70">Progress</span>
                 <span>{Math.round(morningRoutineProgress)}%</span>
               </div>
             </CardTitle>

@@ -14,6 +14,7 @@
 
 import React from 'react';
 import { CleanDateNav } from '@/ecosystem/internal/lifelock/views/daily/_shared/components';
+import { DailyXPSummaryWidget } from '@/ecosystem/internal/lifelock/components/DailyXPSummaryWidget';
 import { cn } from '@/shared/lib/utils';
 import {
   TabId,
@@ -56,7 +57,16 @@ const StandardTabLayout: React.FC<{
         />
       )}
       
-      <div className="space-y-4">{children}</div>
+      <div className="space-y-4">
+        <DailyXPSummaryWidget
+          morningXP={todayXP.morningXP}
+          lightWorkXP={todayXP.lightWorkXP}
+          deepWorkXP={todayXP.deepWorkXP}
+          wellnessXP={todayXP.wellnessXP}
+          checkoutXP={todayXP.checkoutXP}
+        />
+        {children}
+      </div>
     </div>
   );
 };
