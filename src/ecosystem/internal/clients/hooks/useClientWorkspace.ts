@@ -1,8 +1,11 @@
-import { useClientTasks } from '@/shared/hooks/client/useClientTasks';
+import { useClientDeepWorkTasks } from '@/shared/hooks/client/useClientDeepWorkTasks';
 import { ClientData, ClientTask } from '@/types/client.types';
 import { useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useClientDetails } from '@/shared/hooks/client/useClientDetails';
+import { useClerkUser } from '@/shared/hooks/useClerkUser';
+import { useSupabaseUserId } from '@/shared/lib/supabase-clerk';
+import type { DeepWorkTask } from '@/ecosystem/internal/tasks/hooks/useDeepWorkTasksSupabase';
 
 interface TimelineEvent {
   id: string;
@@ -55,7 +58,30 @@ const generateLocalId = () => {
   return `local-${Math.random().toString(36).slice(2, 11)}`;
 };
 
+// Convert DeepWorkTask to ClientTask for compatibility
+const convertDeepWorkTaskToClientTask = (task: DeepWorkTask): ClientTask => ({
+  id: task.id,
+  user_id: task.userId,
+  client_id: task.clientId ?? '',
+  title: task.title,
+  description: task.description ?? null,
+  priority: task.priority === 'URGENT' ? 'high' : task.priority === 'HIGH' ? 'high' : task.priority === 'MEDIUM' ? 'medium' : 'low',
+  due_date: task.dueDate ?? null,
+  completed: task.completed,
+  subtasks: task.subtasks.map(st => ({
+    id: st.id,
+    title: st.title,
+    completed: st.completed,
+  })),
+  created_at: task.createdAt,
+  updated_at: task.updatedAt,
+  completed_at: task.completedAt ?? null,
+});
+
 export function useClientWorkspace(clientId: string | null): ClientWorkspaceState {
+  const { user } = useClerkUser();
+  const internalUserId = useSupabaseUserId(user?.id || null);
+
   const {
     clientData,
     loading,
@@ -65,12 +91,19 @@ export function useClientWorkspace(clientId: string | null): ClientWorkspaceStat
   } = useClientDetails(clientId || null);
 
   const {
-    tasks,
-    mutate: mutateTasks,
-    isLoading: tasksLoading,
-  } = useClientTasks(clientId || undefined);
+    tasks: deepWorkTasks,
+    loading: tasksLoading,
+    refresh: refreshTasks,
+    updateTasks,
+  } = useClientDeepWorkTasks({ clientId: clientId || '' });
 
   const sampleMode = !isUuid(clientId);
+
+  // Convert deep work tasks to client tasks format for UI compatibility
+  const tasks = useMemo(() =>
+    deepWorkTasks.map(convertDeepWorkTaskToClientTask),
+    [deepWorkTasks]
+  );
 
   const timeline: TimelineEvent[] = useMemo(() => {
     // Placeholder until dedicated timeline data exists.
@@ -120,127 +153,146 @@ export function useClientWorkspace(clientId: string | null): ClientWorkspaceStat
   };
 
   const handleRefresh = async () => {
-    await mutateTasks();
+    await refreshTasks();
   };
 
   const handleCreateTask = async (payload: Partial<ClientTask>) => {
     if (!clientId) return;
 
+    const now = new Date().toISOString();
+    const taskId = `deep-${Date.now()}`;
+
+    // Map client task priority to deep work priority
+    const priorityMap: Record<string, 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'> = {
+      low: 'LOW',
+      medium: 'MEDIUM',
+      high: 'HIGH',
+    };
+
+    // Sample mode: Create task in local state only
     if (sampleMode) {
-      const now = new Date().toISOString();
-      await mutateTasks(
-        (existing) => {
-          const current = existing ?? [];
-          const newTask: ClientTask = {
-            id: generateLocalId(),
-            client_id: clientId,
-            user_id: clientData?.user_id ?? 'sample-user',
-            title: payload.title ?? 'New task',
-            description: payload.description ?? null,
-            priority: (payload.priority ?? 'medium') as ClientTask['priority'],
-            due_date: payload.due_date ?? null,
-            completed: payload.completed ?? false,
-            subtasks: Array.isArray(payload.subtasks) ? payload.subtasks : [],
-            created_at: now,
-            updated_at: now,
-            completed_at: null,
-          };
-          return [newTask, ...current];
-        },
-        false,
-      );
+      const newTask: DeepWorkTask = {
+        id: taskId,
+        userId: internalUserId || 'sample-user',
+        clientId: clientId,
+        title: payload.title ?? 'New task',
+        description: payload.description ?? null,
+        priority: priorityMap[payload.priority ?? 'medium'],
+        completed: payload.completed ?? false,
+        originalDate: now.split('T')[0],
+        currentDate: now.split('T')[0],
+        dueDate: payload.due_date ?? null,
+        focusBlocks: 4,
+        breakDuration: 15,
+        interruptionMode: false,
+        rollovers: 0,
+        tags: [],
+        category: undefined,
+        createdAt: now,
+        updatedAt: now,
+        subtasks: [],
+      };
+
+      updateTasks((current) => [newTask, ...current]);
       return;
     }
 
-    await supabase.from('client_onboarding_tasks').insert({
-      client_id: clientId,
-      user_id: clientData?.user_id ?? null,
+    // Real mode: Save to database
+    if (!internalUserId) return;
+
+    await supabase.from('deep_work_tasks').insert({
+      id: taskId,
+      user_id: internalUserId,
+      client_id: clientId,  // Auto-set client_id
       title: payload.title ?? 'New task',
       description: payload.description ?? null,
-      priority: payload.priority ?? 'medium',
-      due_date: payload.due_date ?? null,
+      priority: priorityMap[payload.priority ?? 'medium'],
+      original_date: now.split('T')[0],
+      task_date: now.split('T')[0],
       completed: payload.completed ?? false,
-      subtasks: payload.subtasks ?? [],
+      due_date: payload.due_date ?? null,
+      focus_blocks: 4,
+      break_duration: 15,
+      interruption_mode: false,
+      rollovers: 0,
+      tags: [],
     });
 
-    await mutateTasks();
+    await refreshTasks();
   };
 
   const handleUpdateTask = async (taskId: string, updates: Partial<ClientTask>) => {
-    const updatePayload: Record<string, unknown> = {};
+    const now = new Date().toISOString();
+
+    // Sample mode: Update local state
+    if (sampleMode) {
+      updateTasks((current) =>
+        current.map((task) => {
+          if (task.id !== taskId) return task;
+
+          const priorityMap: Record<string, 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'> = {
+            low: 'LOW',
+            medium: 'MEDIUM',
+            high: 'HIGH',
+          };
+
+          return {
+            ...task,
+            title: updates.title ?? task.title,
+            description: updates.description ?? task.description ?? undefined,
+            dueDate: updates.due_date ?? task.dueDate,
+            priority: updates.priority ? priorityMap[updates.priority] : task.priority,
+            completed: updates.completed ?? task.completed,
+            completedAt: updates.completed ? now : task.completedAt,
+            updatedAt: now,
+          };
+        })
+      );
+      return;
+    }
+
+    // Real mode: Update database
+    const updatePayload: Record<string, unknown> = { updated_at: now };
 
     if (typeof updates.title !== 'undefined') updatePayload.title = updates.title;
     if (typeof updates.description !== 'undefined') updatePayload.description = updates.description;
-    if (typeof updates.priority !== 'undefined') updatePayload.priority = updates.priority;
     if (typeof updates.due_date !== 'undefined') updatePayload.due_date = updates.due_date;
-    if (typeof updates.completed !== 'undefined') updatePayload.completed = updates.completed;
-    if (typeof updates.subtasks !== 'undefined') updatePayload.subtasks = updates.subtasks;
 
-    if (Object.keys(updatePayload).length === 0) {
+    // Map priority
+    if (typeof updates.priority !== 'undefined') {
+      const priorityMap: Record<string, 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'> = {
+        low: 'LOW',
+        medium: 'MEDIUM',
+        high: 'HIGH',
+      };
+      updatePayload.priority = priorityMap[updates.priority];
+    }
+
+    // Handle completion
+    if (typeof updates.completed !== 'undefined') {
+      updatePayload.completed = updates.completed;
+      updatePayload.completed_at = updates.completed ? now : null;
+    }
+
+    if (Object.keys(updatePayload).length <= 1) {  // Only updated_at
       return;
     }
 
-    if (sampleMode) {
-      await mutateTasks(
-        (existing) => {
-          if (!existing) return existing;
-          return existing.map((task) =>
-            task.id === taskId
-              ? {
-                  ...task,
-                  title:
-                    typeof updates.title !== 'undefined' && updates.title !== null
-                      ? updates.title
-                      : task.title,
-                  description:
-                    typeof updates.description !== 'undefined'
-                      ? updates.description ?? null
-                      : task.description,
-                  priority:
-                    typeof updates.priority !== 'undefined'
-                      ? (updates.priority ?? task.priority ?? 'medium') as ClientTask['priority']
-                      : task.priority,
-                  due_date:
-                    typeof updates.due_date !== 'undefined'
-                      ? updates.due_date ?? null
-                      : task.due_date,
-                  completed:
-                    typeof updates.completed !== 'undefined'
-                      ? Boolean(updates.completed)
-                      : task.completed,
-                  subtasks:
-                    typeof updates.subtasks !== 'undefined'
-                      ? (Array.isArray(updates.subtasks) ? updates.subtasks : task.subtasks)
-                      : task.subtasks,
-                  updated_at: new Date().toISOString(),
-                }
-              : task,
-          );
-        },
-        false,
-      );
-      return;
-    }
+    await supabase.from('deep_work_tasks').update(updatePayload).eq('id', taskId);
 
-    await supabase.from('client_onboarding_tasks').update(updatePayload).eq('id', taskId);
-
-    await mutateTasks();
+    await refreshTasks();
   };
 
   const handleDeleteTask = async (taskId: string) => {
+    // Sample mode: Remove from local state
     if (sampleMode) {
-      await mutateTasks(
-        (existing) => {
-          if (!existing) return existing;
-          return existing.filter((task) => task.id !== taskId);
-        },
-        false,
-      );
+      updateTasks((current) => current.filter((task) => task.id !== taskId));
       return;
     }
 
-    await supabase.from('client_onboarding_tasks').delete().eq('id', taskId);
-    await mutateTasks();
+    // Real mode: Delete from database
+    await supabase.from('deep_work_tasks').delete().eq('id', taskId);
+    await refreshTasks();
   };
 
   const noop = async () => {
@@ -258,9 +310,7 @@ export function useClientWorkspace(clientId: string | null): ClientWorkspaceStat
     mutations: {
       updateClient: handleUpdateClient,
       refreshAll: handleRefresh,
-      refreshTasks: async () => {
-        await mutateTasks();
-      },
+      refreshTasks,
       createTask: handleCreateTask,
       updateTask: handleUpdateTask,
       deleteTask: handleDeleteTask,

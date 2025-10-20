@@ -1,0 +1,1 @@
+export { AdminIndustriesView } from './AdminIndustriesView';

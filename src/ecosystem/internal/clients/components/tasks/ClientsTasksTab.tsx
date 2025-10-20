@@ -1,45 +1,26 @@
-import { ClientData, ClientTask } from '@/types/client.types';
+import { ClientData } from '@/types/client.types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { CheckCircle2, Flame, Sparkles, Timer } from 'lucide-react';
-import { useMemo } from 'react';
 import { format } from 'date-fns';
 import { ClientDeepWorkTaskList } from './ClientDeepWorkTaskList';
+import { useClientDeepWorkTasks } from '@/shared/hooks/client/useClientDeepWorkTasks';
 
 interface ClientsTasksTabProps {
   client: ClientData;
-  tasks: ClientTask[];
-  onCreateTask: (task: Partial<ClientTask>) => Promise<void>;
-  onUpdateTask: (taskId: string, updates: Partial<ClientTask>) => Promise<void>;
-  onDeleteTask: (taskId: string) => Promise<void>;
-  onRefreshTasks: () => Promise<void>;
 }
 
-export function ClientsTasksTab({
-  client,
-  tasks,
-  onCreateTask,
-  onUpdateTask,
-  onDeleteTask,
-  onRefreshTasks,
-}: ClientsTasksTabProps) {
-  const metrics = useMemo(() => {
-    const total = tasks.length;
-    const completed = tasks.filter((task) => task.completed).length;
-    const urgent = tasks.filter((task) => task.priority === 'high').length;
-    const upcoming = tasks
-      .filter((task) => !task.completed && task.due_date)
-      .sort(
-        (a, b) =>
-          new Date(a.due_date ?? '').getTime() - new Date(b.due_date ?? '').getTime(),
-      );
+export function ClientsTasksTab({ client }: ClientsTasksTabProps) {
+  // Fetch client deep work tasks for metrics
+  const { tasks: deepWorkTasks } = useClientDeepWorkTasks({ clientId: client.id });
 
-    return {
-      total,
-      completed,
-      urgent,
-      nextDue: upcoming[0]?.due_date ?? null,
-    };
-  }, [tasks]);
+  const metrics = {
+    total: deepWorkTasks.length,
+    completed: deepWorkTasks.filter(t => t.completed).length,
+    urgent: deepWorkTasks.filter(t => t.priority === 'URGENT' && !t.completed).length,
+    nextDue: deepWorkTasks
+      .filter(t => !t.completed && t.dueDate)
+      .sort((a, b) => (a.dueDate || '').localeCompare(b.dueDate || ''))[0]?.dueDate ?? null,
+  };
 
   return (
     <div className="space-y-8">
@@ -103,14 +84,7 @@ export function ClientsTasksTab({
         </Card>
       </div>
 
-      <ClientDeepWorkTaskList
-        client={client}
-        tasks={tasks}
-        onCreateTask={onCreateTask}
-        onUpdateTask={onUpdateTask}
-        onDeleteTask={onDeleteTask}
-        onRefreshTasks={onRefreshTasks}
-      />
+      <ClientDeepWorkTaskList clientId={client.id} />
     </div>
   );
 }

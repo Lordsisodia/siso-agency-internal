@@ -4,6 +4,7 @@ import type { DeepWorkSubtask, DeepWorkTask } from '../useDeepWorkTasksSupabase'
 export type DeepWorkTaskRow = {
   id: string;
   user_id: string;
+  client_id?: string | null;
   title: string;
   description?: string | null;
   priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
@@ -48,6 +49,7 @@ const mapSupabaseSubtask = (subtask: any): DeepWorkSubtask => ({
 export const mapSupabaseDeepWorkTask = (task: DeepWorkTaskRow): DeepWorkTask => ({
   id: task.id,
   userId: task.user_id,
+  clientId: task.client_id ?? null,
   title: task.title,
   description: task.description ?? undefined,
   priority: task.priority || DEFAULT_PRIORITY,
@@ -77,6 +79,7 @@ export const mapSupabaseDeepWorkTask = (task: DeepWorkTaskRow): DeepWorkTask => 
 export const mapOfflineRecordToDeepWorkTask = (record: any): DeepWorkTask => ({
   id: record.id,
   userId: record.user_id,
+  clientId: record.client_id ?? null,
   title: record.title,
   description: record.description ?? undefined,
   priority: record.priority || DEFAULT_PRIORITY,
@@ -106,6 +109,7 @@ export const mapOfflineRecordToDeepWorkTask = (record: any): DeepWorkTask => ({
 export const mapDeepWorkTaskToOfflineRecord = (task: DeepWorkTask) => ({
   id: task.id,
   user_id: task.userId,
+  client_id: task.clientId ?? null,
   title: task.title,
   description: task.description,
   priority: task.priority,

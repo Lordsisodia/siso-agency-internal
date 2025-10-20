@@ -104,14 +104,7 @@ export function ClientWorkspacePage({ clientId }: ClientWorkspacePageProps) {
         </TabsContent>
 
         <TabsContent value="tasks">
-          <ClientsTasksTab
-            client={client}
-            tasks={tasks}
-            onCreateTask={mutations.createTask}
-            onUpdateTask={mutations.updateTask}
-            onDeleteTask={mutations.deleteTask}
-            onRefreshTasks={mutations.refreshTasks}
-          />
+          <ClientsTasksTab client={client} />
         </TabsContent>
 
         <TabsContent value="timeline">

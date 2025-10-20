@@ -42,9 +42,10 @@ export function ClientTableBody({
     const isCheckbox = (event.target as HTMLElement).closest('[role="checkbox"]');
     const isEditingAction = (event.target as HTMLElement).closest('button');
     if (isCheckbox || isEditingAction || editingCell) return;
-    
-    // Navigate to client detail page
-    navigate(`/admin/clients/${client.id}`);
+
+    // Navigate to client detail page using slug (fallback to ID for backward compatibility)
+    const clientIdentifier = client.slug || client.id;
+    navigate(`/admin/clients/${clientIdentifier}`);
   };
 
   if (clients.length === 0) {
@@ -76,8 +77,8 @@ export function ClientTableBody({
           )}
           onClick={(e) => handleRowClick(client, e)}
         >
-          <TableCell className="sticky left-0 bg-background z-10">
-            <Checkbox 
+          <TableCell className="sticky left-0 bg-background z-10 px-2 py-2">
+            <Checkbox
               checked={selectedClients.includes(client.id)}
               onCheckedChange={() => onSelectClient(client.id)}
               aria-label={`Select ${client.full_name}`}
@@ -86,7 +87,7 @@ export function ClientTableBody({
           
           {visibleColumns.map((column, colIndex) => {
             const isPinned = !!column.pinned;
-            let leftPosition = 40;
+            let leftPosition = 36;
             if (isPinned) {
               for (let i = 0; i < colIndex; i++) {
                 if (visibleColumns[i].pinned) {
@@ -103,7 +104,7 @@ export function ClientTableBody({
                 className={cn(
                   "group-hover:bg-muted/40 transition-colors duration-200",
                   isPinned ? 'sticky bg-background z-10' : '',
-                  "p-4 align-middle [&:has([role=checkbox])]:pr-0 whitespace-nowrap overflow-hidden text-ellipsis"
+                  "px-2 py-2 align-middle [&:has([role=checkbox])]:pr-0 whitespace-nowrap overflow-hidden text-ellipsis"
                 )}
                 style={{ 
                   left: isPinned ? `${leftPosition}px` : undefined,
@@ -137,17 +138,17 @@ export function ClientTableBody({
             );
           })}
 
-          <TableCell className="sticky right-0 z-30 bg-[#0F0E16]/80 p-4 text-right backdrop-blur-sm">
+          <TableCell className="sticky right-0 z-30 bg-[#0F0E16]/80 px-2 py-2 text-right backdrop-blur-sm">
             <Button
               asChild
               variant="ghost"
-              size="sm"
-              className="inline-flex items-center gap-1 text-white/80 hover:text-white"
+size="sm"
+              className="inline-flex items-center gap-1 text-xs text-white/80 hover:text-white"
               onClick={(event) => event.stopPropagation()}
             >
-              <Link to={`/admin/clients/${client.id}`}>
+              <Link to={`/admin/clients/${client.slug || client.id}`}>
                 Open
-                <ArrowUpRight className="h-4 w-4" />
+                <ArrowUpRight className="h-3.5 w-3.5" />
               </Link>
             </Button>
           </TableCell>

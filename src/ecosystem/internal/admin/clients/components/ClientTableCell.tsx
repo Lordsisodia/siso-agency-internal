@@ -158,7 +158,7 @@ export function ClientTableCell({
             title={client.business_name || ''}
             onDoubleClick={onDoubleClick}
           >
-            <span className="font-medium text-gray-100">{client.business_name || 'Unknown Business'}</span>
+            <span className="text-xs font-medium text-gray-100">{client.business_name || 'Unknown Business'}</span>
           </div>
         );
 

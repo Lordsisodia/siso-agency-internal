@@ -58,6 +58,7 @@ export interface ClientTask {
 
 export interface ClientData {
   id: string;
+  slug?: string | null;
   full_name: string;
   email: string | null;
   business_name: string | null;

@@ -191,11 +191,20 @@ export function useClientsList(params: ClientsListParams = {}): ClientsListRespo
       filtered = filtered.filter(client => client.status === filters.statusFilter);
     }
 
-    // Apply sorting
+    // Apply sorting - archived clients always at bottom
     filtered.sort((a, b) => {
+      // First priority: archived status (archived goes to bottom)
+      const aIsArchived = a.status === 'archived';
+      const bIsArchived = b.status === 'archived';
+
+      if (aIsArchived !== bIsArchived) {
+        return aIsArchived ? 1 : -1;
+      }
+
+      // Second priority: sort by requested column within each group
       const aValue = a[sortColumn as keyof ClientData] || '';
       const bValue = b[sortColumn as keyof ClientData] || '';
-      
+
       if (sortDirection === 'asc') {
         return aValue > bValue ? 1 : -1;
       } else {
