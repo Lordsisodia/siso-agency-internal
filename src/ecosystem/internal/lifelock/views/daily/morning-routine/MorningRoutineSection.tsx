@@ -938,15 +938,15 @@ const waterXPRef = useRef(0);
                       <div className="mt-4 ml-4 space-y-3">
                         {task.subtasks.map((subtask) => (
                           <div key={subtask.key}>
-                            <div className="group flex items-center gap-3 rounded-lg transition-all duration-200">
-                              {/* Enhanced checkbox with larger touch target for mobile (44px minimum) */}
-                              <div
-                                className="flex items-center justify-center cursor-pointer min-w-[44px] min-h-[44px] touch-manipulation"
-                                onClick={() => handleHabitToggle(subtask.key, !isHabitCompleted(subtask.key))}
-                              >
+                            {/* Full row clickable - makes it easier to tap on mobile */}
+                            <div
+                              className="group flex items-center gap-3 rounded-lg transition-all duration-200 cursor-pointer touch-manipulation min-h-[44px] p-2 -m-2 hover:bg-yellow-900/20 active:bg-yellow-900/30"
+                              onClick={() => handleHabitToggle(subtask.key, !isHabitCompleted(subtask.key))}
+                            >
+                              {/* Checkbox - visual indicator only, click handled by parent */}
+                              <div className="flex items-center justify-center">
                                 <Checkbox
                                   checked={isHabitCompleted(subtask.key)}
-                                  onCheckedChange={(checked) => handleHabitToggle(subtask.key, !!checked)}
                                   className="h-6 w-6 border-2 border-yellow-400/70 data-[state=checked]:bg-yellow-500 data-[state=checked]:border-yellow-500 transition-all duration-200 group-hover:border-yellow-400 pointer-events-none"
                                 />
                               </div>

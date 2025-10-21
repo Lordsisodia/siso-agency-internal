@@ -22,6 +22,7 @@ type SyncTableConfig = {
   primaryKey: string;
   userKey: string;
   staticFilters?: Record<string, string | number | boolean>;
+  onConflict?: string; // Custom conflict resolution key (defaults to primaryKey)
 };
 
 const SYNC_TABLE_MAP: Record<SyncableTable, SyncTableConfig> = {
@@ -40,6 +41,7 @@ const SYNC_TABLE_MAP: Record<SyncableTable, SyncTableConfig> = {
     primaryKey: 'id',
     userKey: 'user_id',
     staticFilters: { routine_type: 'morning' },
+    onConflict: 'user_id,date,routine_type', // Composite unique constraint
   },
   workoutSessions: {
     table: TABLES.HOME_WORKOUTS ?? 'home_workouts',
@@ -375,6 +377,7 @@ export class SyncService {
     const mapping = SYNC_TABLE_MAP[action.table];
     const supabaseTable = mapping.table;
     const primaryKey = mapping.primaryKey;
+    const conflictKey = mapping.onConflict ?? primaryKey; // Use custom or default to primaryKey
 
     const sanitizedData = this.stripLocalMetadata(action.data);
     const payloadId = (sanitizedData?.[primaryKey] ??
@@ -411,7 +414,7 @@ export class SyncService {
 
         const { data, error } = await supabase
           .from(supabaseTable)
-          .upsert(sanitizedData, { onConflict: primaryKey })
+          .upsert(sanitizedData, { onConflict: conflictKey })
           .select()
           .maybeSingle();
 
