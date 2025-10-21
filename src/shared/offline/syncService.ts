@@ -47,21 +47,25 @@ const SYNC_TABLE_MAP: Record<SyncableTable, SyncTableConfig> = {
     table: TABLES.HOME_WORKOUTS ?? 'home_workouts',
     primaryKey: 'id',
     userKey: 'user_id',
+    onConflict: 'user_id,date', // Composite unique constraint
   },
   nightlyCheckouts: {
     table: TABLES.DAILY_REFLECTIONS ?? 'daily_reflections',
     primaryKey: 'id',
     userKey: 'user_id',
+    onConflict: 'user_id,date', // Composite unique constraint
   },
   dailyReflections: {
     table: TABLES.DAILY_REFLECTIONS ?? 'daily_reflections',
     primaryKey: 'id',
     userKey: 'user_id',
+    onConflict: 'user_id,date', // Composite unique constraint
   },
   timeBlocks: {
     table: TABLES.TIME_BLOCKS ?? 'time_blocks',
     primaryKey: 'id',
     userKey: 'user_id',
+    onConflict: 'user_id,date,start_time', // Composite unique constraint
   },
 };
 
