@@ -6,6 +6,7 @@
 import { offlineDb, OfflineSyncAction, SyncableTable } from './offlineDb';
 import { supabase, TABLES } from '@/integrations/supabase/client';
 import type { Database } from '@/types/supabase';
+import { syncMonitor } from './syncMonitor';
 
 export interface SyncStatus {
   isOnline: boolean;
@@ -346,6 +347,10 @@ export class SyncService {
         errors.push(message);
 
         const retries = action.retry_count + 1;
+
+        // Record failure for monitoring
+        syncMonitor.recordFailure(action.table, action.action, message, retries);
+
         if (retries >= RETRY_BACKOFF_MS.length) {
           console.error('[SyncService] Dropping action after max retries:', action);
           await offlineDb.removeAction(action.id);

@@ -12,6 +12,9 @@ npm run lint
 echo "🧪 Running component mounting tests..."
 npm run test:components
 
+echo "🔄 Validating Supabase sync configuration..."
+npm run test:sync
+
 # 3. TypeScript type checking
 echo "🔎 TypeScript type checking..."
 npx tsc --noEmit
