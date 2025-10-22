@@ -27,3 +27,10 @@ Developer guides and configuration documentation.
 **Primary docs remain in root for visibility:**
 - `README.md` - Main project readme
 - `CLAUDE.md` - AI configuration (must be in root for Claude Code)
+
+
+---
+
+## New Docs (October 21, 2025)
+- Offline/Sync: `docs/architecture/offline-sync/OFFLINE-CONFLICT-RESOLUTION-PROTOCOL.md`
+- Research: `docs/research/DEEP-RESEARCH-QUESTION-BANK.md`, `docs/research/DEEP-RESEARCH-BRIEFS.md`
