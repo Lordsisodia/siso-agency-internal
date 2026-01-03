@@ -1,13 +1,13 @@
 import React from 'react';
 import { FolderOpen } from 'lucide-react';
-import { Button } from '@/shared/ui/button';
+import { Button } from '@/components/ui/button';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/shared/ui/tooltip";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
+} from "@/components/ui/tooltip";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface CollapsedProjectCardProps {
   projectName: string;

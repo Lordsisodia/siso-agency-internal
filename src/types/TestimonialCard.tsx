@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Volume2 } from 'lucide-react';
-import { Button } from '@/shared/ui/button';
-import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { supabase } from '@/services/integrations/supabase/client';
 
 interface TestimonialCardProps {
   name: string;

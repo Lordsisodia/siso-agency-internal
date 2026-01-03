@@ -3,8 +3,8 @@
  * Connects to OpenAI/Groq APIs and has full Supabase task CRUD operations
  */
 
-import { hybridLifelockApi } from '@/api/hybridLifelockApi';
-import { timeboxApi, TimeBoxTask, DaySchedule } from '@/api/timeboxApi';
+import { hybridLifelockApi } from '@/services/api/hybridLifelockApi';
+import { timeboxApi, TimeBoxTask, DaySchedule } from '@/services/api/timeboxApi';
 import { format, addDays } from 'date-fns';
 
 // Environment variables for API keys

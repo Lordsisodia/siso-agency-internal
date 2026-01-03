@@ -3,7 +3,7 @@
 // Agent 3 Task 52: Comprehensive Workflow Automation
 // =====================================================
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/services/integrations/supabase/client';
 import type {
   WorkflowDefinition,
   WorkflowInstance,

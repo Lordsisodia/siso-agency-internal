@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { cn } from '@/shared/lib/utils';
+import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from "./card";
 
 interface AnimatedCardProps {

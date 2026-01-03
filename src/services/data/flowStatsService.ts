@@ -1,4 +1,4 @@
-import { FlowSession, FlowStats, TaskContext, FocusIntensity } from '@/ecosystem/internal/tasks/ui/FlowStateTimer';
+import { FlowSession, FlowStats, TaskContext, FocusIntensity } from '@/domains/tasks/ui/FlowStateTimer';
 
 export class FlowStatsService {
   private static readonly STORAGE_KEY = 'lifelock-flow-stats';

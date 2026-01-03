@@ -1,5 +1,5 @@
-import { supabase } from '@/integrations/supabase/client';
-import { logger } from '@/shared/utils/logger';
+import { supabase } from '@/services/integrations/supabase/client';
+import { logger } from '@/lib/utils/logger';
 
 export interface ChatMessage {
   id: string;

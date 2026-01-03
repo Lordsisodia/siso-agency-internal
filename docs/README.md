@@ -1,36 +1,42 @@
 # Documentation
 
-## Structure
+Use this file as the map. Content is organized into six top-level areas with consistent subfolders.
 
-### `/migration-reports`
-Historical documentation from the October 2025 consolidation project.
-- Phase reports (PHASE-1 through PHASE-4)
-- Health reports and verification results
-- These are historical artifacts - reference only
+## Top-Level Areas
+- 🏗️ `platform/` — architecture, migrations, offline, BMAD
+- 📦 `product/` — LifeLock domain + planning, PRDs, features
+- ⚙️ `process/` — guides, AI ops, testing, decisions
+- 📚 `knowledge/` — research, feedback, stories, thought-dumps
+- 🎨 `design/` — UI/UX design plans
+- 🕰️ `history/` — archive + legacy root notes
 
-### `/decisions`
-Architecture decision records and planning documents.
-- Consolidation planning
-- Cleanup decisions
-- Architecture reviews
+## Deeper Guide (2–3 levels)
+- `platform/`
+  - `architecture/` (decisions, patterns, system-maps, risk-reviews, lifelock, database, ecosystem, partner, duplication, tasks, offline-sync, misc)
+  - `migration-reports/` (with `completion/` for final reports)
+  - `offline/` — strategy/implementation/testing
+  - `bmad/` — BMAD framework + outputs
+- `product/`
+  - `lifelock/` — domain, cleanup, migration, issues, timebox-notes, daily
+  - `planning/` — lifelock-timeline, morning-routine, light-deep-work, daily-view, migration, timebox, ai-platform, features
+  - `features/` — feature briefs
+  - `prd/` — product requirements
+- `process/`
+  - `guides/` (fixes, qa, ai-sessions)
+  - `ai-ops/` — AI session protection & prompt playbooks
+  - `testing/` — reports & quick starts
+  - `decisions/` — process/cleanup decisions
+- `knowledge/`
+  - `feedback/` — `pro-dev-feedback/`, `dated/`
+  - `research/` — briefs, questions, comparisons
+  - `stories/` — narrative docs
+  - `thought-dumps/` — brainstorms
+- `design/`
+  - `ui-ux/` — design plans
+- `history/`
+  - `archive/` — historical/low-signal
+  - `root-notes/` — legacy root markdowns
 
-### `/guides`
-Developer guides and configuration documentation.
-- AI agent configuration
-- Component registry
-- Codebase overview
-
----
-
-## Main Documentation
-
-**Primary docs remain in root for visibility:**
-- `README.md` - Main project readme
-- `CLAUDE.md` - AI configuration (must be in root for Claude Code)
-
-
----
-
-## New Docs (October 21, 2025)
-- Offline/Sync: `docs/architecture/offline-sync/OFFLINE-CONFLICT-RESOLUTION-PROTOCOL.md`
-- Research: `docs/research/DEEP-RESEARCH-QUESTION-BANK.md`, `docs/research/DEEP-RESEARCH-BRIEFS.md`
+## Notes
+- Root-level under `docs/` now only has this README and the six area folders.
+- When in doubt, park old/low-signal items in `history/archive/` instead of deleting.

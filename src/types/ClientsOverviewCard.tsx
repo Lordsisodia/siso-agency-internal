@@ -1,9 +1,9 @@
 
-import { Card } from "@/shared/ui/card";
+import { Card } from "@/components/ui/card";
 import { Users, UserPlus, UserMinus } from "lucide-react";
-import { Progress } from "@/shared/ui/progress";
+import { Progress } from "@/components/ui/progress";
 import { motion } from "framer-motion";
-import { formatNumber } from "@/shared/lib/formatters";
+import { formatNumber } from "@/lib/formatters";
 import { useNavigate } from "react-router-dom";
 
 export function ClientsOverviewCard() {

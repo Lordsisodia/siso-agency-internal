@@ -1,4 +1,4 @@
-import { TimelineTask } from '@/ecosystem/internal/projects/hooks/useTimelineTasks';
+import { TimelineTask } from '@/domains/projects/hooks/useTimelineTasks';
 
 export interface MutationOperation {
   id: string;

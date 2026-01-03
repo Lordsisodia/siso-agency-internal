@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
-import { Card, CardContent, CardHeader } from '@/shared/ui/card';
-import { Button } from '@/shared/ui/button';
-import { Badge } from '@/shared/ui/badge';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { 
   Circle, 
   ChevronDown, 
@@ -14,19 +14,19 @@ import {
   EyeOff,
   CheckCircle2
 } from 'lucide-react';
-import { cn } from '@/shared/lib/utils';
+import { cn } from '@/lib/utils';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { FocusSessionTimer } from './FocusSessionTimer';
 import { MilkTracker } from './MilkTracker';
 
 // Extracted components
-import { MobileSectionCard } from '@/shared/components/InteractiveTodayCard/MobileSectionCard';
-import { TaskSectionGrid } from '@/shared/components/InteractiveTodayCard/TaskSectionGrid';
-import { QuickActions } from '@/shared/components/InteractiveTodayCard/QuickActions';
-import { DailyInsights } from '@/shared/components/InteractiveTodayCard/DailyInsights';
+import { MobileSectionCard } from '@/components/shared/InteractiveTodayCard/MobileSectionCard';
+import { TaskSectionGrid } from '@/components/shared/InteractiveTodayCard/TaskSectionGrid';
+import { QuickActions } from '@/components/shared/InteractiveTodayCard/QuickActions';
+import { DailyInsights } from '@/components/shared/InteractiveTodayCard/DailyInsights';
 
 // Extracted hook
-import { useLifeLockDataLoader } from '@/shared/hooks/useLifeLockDataLoader';
+import { useLifeLockDataLoader } from '@/lib/hooks/useLifeLockDataLoader';
 
 interface TaskCard {
   id: string;

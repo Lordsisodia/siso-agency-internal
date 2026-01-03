@@ -1,5 +1,5 @@
 
-import { Card } from "@/shared/ui/card";
+import { Card } from "@/components/ui/card";
 import { Calendar as CalendarIcon, Clock } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";

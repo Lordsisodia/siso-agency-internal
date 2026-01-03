@@ -5,7 +5,7 @@
  * Replaces multiple fragmented service patterns with single composable API.
  */
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/services/integrations/supabase/client';
 
 // Task operations unified from scattered API routes
 export const taskService = {

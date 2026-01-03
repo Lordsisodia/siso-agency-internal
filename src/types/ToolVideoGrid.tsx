@@ -1,9 +1,9 @@
 
 import { useState } from 'react';
 import { ToolVideoCard } from './ToolVideoCard';
-import { Input } from "@/shared/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
-import { Badge } from "@/shared/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { Search } from 'lucide-react';
 
 const categories = [

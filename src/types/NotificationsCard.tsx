@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Bell, Calendar, FileText, MessageSquare } from 'lucide-react';
-import { Badge } from '@/shared/ui/badge';
+import { Badge } from '@/components/ui/badge';
 
 // Sample notifications - in a real app, these would come from an API
 const notifications = [

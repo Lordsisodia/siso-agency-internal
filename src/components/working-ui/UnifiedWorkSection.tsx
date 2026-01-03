@@ -14,12 +14,12 @@ import {
   Trash,
   Settings
 } from 'lucide-react';
-import { Card, CardContent } from '@/shared/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { format } from 'date-fns';
 import { selectImplementation } from '@/migration/feature-flags';
 import { theme } from '@/styles/theme';
-import { LoadingState } from '@/shared/ui/loading-state';
-import { ErrorState } from '@/shared/ui/error-state';
+import { LoadingState } from '@/components/ui/loading-state';
+import { ErrorState } from '@/components/ui/error-state';
 import { TaskActionButtons } from './TaskActionButtons';
 import { TaskSeparator } from '@/components/tasks/TaskSeparator';
 import { TaskProgress } from '@/components/tasks/TaskProgress';
@@ -27,10 +27,10 @@ import { SubtaskMetadata } from '@/components/tasks/SubtaskMetadata';
 import { TaskHeader } from '@/components/tasks/TaskHeader';
 import { SubtaskItem } from '@/components/tasks/SubtaskItem';
 import { AddSubtaskInput } from '@/components/tasks/AddSubtaskInput';
-import { useTaskEditing } from '@/hooks/useTaskEditing';
-import { useThoughtDump } from '@/hooks/useThoughtDump';
-import { useTaskFiltering } from '@/hooks/useTaskFiltering';
-import { WORK_THEMES } from '@/config/work-themes';
+import { useTaskEditing } from '@/lib/hooks/useTaskEditing';
+import { useThoughtDump } from '@/lib/hooks/useThoughtDump';
+import { useTaskFiltering } from '@/lib/hooks/useTaskFiltering';
+import { WORK_THEMES } from '@/lib/config/work-themes';
 import { CustomCalendar } from '@/components/ui/CustomCalendar';
 import { TaskStatsGrid } from '@/components/tasks/TaskStatsGrid';
 import { WorkProtocolCard } from '@/components/tasks/WorkProtocolCard';

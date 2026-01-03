@@ -1,10 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { PartnershipLayout } from '@/components/partnership/PartnershipLayout';
-import { LeaderboardTemplate, LeaderboardEntry } from '@/shared/ui/leaderboard-template';
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
-import { Button } from '@/shared/ui/button';
-import { DashboardGreetingCard } from '@/shared/ui/dashboard-templates';
+import { LeaderboardTemplate, LeaderboardEntry } from '@/components/ui/leaderboard-template';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { DashboardGreetingCard } from '@/components/ui/dashboard-templates';
 import { 
   Trophy, 
   Star,

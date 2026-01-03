@@ -4,7 +4,11 @@ node_modules/
 # Build outputs
 dist/
 build/
+.vite/
 .vite-cache/
+dev-dist/
+playwright-report/
+test-results/
 
 # Environment files
 .env
@@ -50,3 +54,6 @@ archives/
 **/*-archive-*/
 .serena/memories/
 .git2/
+
+# Large generated admin dashboard components (avoid Codex snapshot bloat)
+src/domains/admin/dashboard/components/

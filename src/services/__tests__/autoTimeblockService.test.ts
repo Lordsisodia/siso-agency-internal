@@ -3,9 +3,9 @@ import {
   createOrUpdateMorningRoutineTimebox,
   createOrUpdateNightlyCheckoutTimebox,
   AUTO_TIMEBOX_CONFIG
-} from '@/services/autoTimeblockService';
-import { TimeBlocksAPI } from '@/api/timeblocksApi.offline';
-import type { TimeBlock } from '@/api/timeblocksApi.offline';
+} from '@/domains/lifelock/_shared/services/autoTimeblockService';
+import { TimeBlocksAPI } from '@/services/api/timeblocksApi.offline';
+import type { TimeBlock } from '@/services/api/timeblocksApi.offline';
 
 const baseTimeBlock: TimeBlock = {
   id: 'block-id',

@@ -1,19 +1,19 @@
 
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { AspectRatio } from '@/shared/ui/aspect-ratio';
-import { cn } from '@/shared/lib/utils';
+import { AspectRatio } from '@/components/ui/aspect-ratio';
+import { cn } from '@/lib/utils';
 import { Brain, Info, Video, User, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/shared/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useState } from 'react';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/shared/ui/accordion";
-import { Badge } from '@/shared/ui/badge';
-import { Button } from '@/shared/ui/button';
+} from "@/components/ui/accordion";
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 // [Analysis] Mock data structure for sources and analysis
 const mockSources = [

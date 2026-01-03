@@ -1,9 +1,9 @@
 import React, { useCallback } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/shared/ui/card';
-import { Badge } from '@/shared/ui/badge';
-import { Button } from '@/shared/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { ExternalLink, Eye, FileIcon } from 'lucide-react';
-import { Wireframe } from '@/shared/hooks/useProjectWireframes';
+import { Wireframe } from '@/lib/hooks/useProjectWireframes';
 import { useNavigate } from 'react-router-dom';
 
 interface WireframeCardProps {

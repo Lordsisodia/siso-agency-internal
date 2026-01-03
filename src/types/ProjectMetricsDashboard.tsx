@@ -1,10 +1,10 @@
 
 import React from 'react';
-import { Card } from '@/shared/ui/card';
+import { Card } from '@/components/ui/card';
 import { CircularProgress } from './CircularProgress';
 import { motion } from 'framer-motion';
 import { Calendar, CheckCircle, Clock, AlertCircle } from 'lucide-react';
-import { formatDate } from '@/shared/lib/formatters';
+import { formatDate } from '@/lib/formatters';
 
 interface ProjectMetricsDashboardProps {
   projectId: string;

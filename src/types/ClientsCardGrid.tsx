@@ -1,5 +1,5 @@
 
-import { useClientsList } from '@/shared/hooks/client';
+import { useClientsList } from '@/domains/client/hooks';
 import { ClientCard } from './ClientCard';
 import { ClientDetailSheet } from './ClientDetailSheet';
 import { useState } from 'react';

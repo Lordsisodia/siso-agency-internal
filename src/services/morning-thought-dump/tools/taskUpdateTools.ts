@@ -3,7 +3,7 @@
  * Allows AI to set times, durations, priorities, schedule to timebox
  */
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/services/integrations/supabase/client';
 
 export class TaskUpdateTools {
   constructor(

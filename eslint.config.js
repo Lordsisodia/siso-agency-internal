@@ -22,6 +22,7 @@ export default tseslint.config(
       ".archive-src/**/*",
       ".ai-first-backup*/**/*",
       "archive/**/*",
+      "history/**/*",
       "archived-directories/**/*",
       "backup-*/**/*",
       "backups/**/*",

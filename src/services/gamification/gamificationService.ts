@@ -3,7 +3,7 @@
  * Transforms daily productivity into an engaging game-like experience
  */
 
-import { logger } from '@/shared/utils/logger';
+import { logger } from '@/lib/utils/logger';
 
 export interface XPActivity {
   id: string;

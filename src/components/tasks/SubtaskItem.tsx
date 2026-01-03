@@ -8,7 +8,7 @@
 import React, { useState } from 'react';
 import { Check, ChevronDown, ChevronRight, Clock, AlertCircle, Wrench } from 'lucide-react';
 import { SubtaskMetadata } from './SubtaskMetadata';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface SubtaskItemProps {
   subtask: {

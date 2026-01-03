@@ -19,7 +19,7 @@
  */
 
 import { Task, Subtask } from '@/components/tasks/TaskCard';
-import { supabase, TABLES } from '@/shared/lib/supabase';
+import { supabase, TABLES } from '@/lib/supabase';
 
 // Core database result structure for consistent error handling
 // This standardizes how we handle both successful and failed database operations

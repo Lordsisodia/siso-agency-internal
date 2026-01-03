@@ -14,9 +14,9 @@ import {
   Copy,
   Archive
 } from 'lucide-react';
-import { cn } from '@/shared/lib/utils';
-import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover';
-import { Calendar as CalendarComponent } from '@/shared/ui/calendar';
+import { cn } from '@/lib/utils';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 
 // Task types
 interface Subtask {

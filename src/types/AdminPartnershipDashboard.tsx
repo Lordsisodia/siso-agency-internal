@@ -1,12 +1,12 @@
 import { AdminLayout } from '@/components/admin/layout/AdminLayout';
 import { AdminPageTitle } from '@/components/admin/layout/AdminPageTitle';
-import { Card } from '@/shared/ui/card';
+import { Card } from '@/components/ui/card';
 import StatsCard from '@/components/dashboard/StatsCard';
 import { RecentActivityCard } from '@/components/dashboard/cards/RecentActivityCard';
 import { EnhancedProgressCard } from '@/components/dashboard/EnhancedProgressCard';
 import { LeaderboardPreviewCard } from '@/components/dashboard/LeaderboardPreviewCard';
 import { DollarSign, Users, TrendingUp, Award, Target, Activity, BookOpen, Zap } from 'lucide-react';
-import { Button } from '@/shared/ui/button';
+import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 
 const AdminPartnershipDashboard = () => {

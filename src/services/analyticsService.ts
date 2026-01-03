@@ -2,7 +2,7 @@
 // Agent 3 - Task 51: Advanced Analytics Engine
 // Phase 2 Enterprise Backend Features
 
-import { supabase } from '../integrations/supabase/client'
+import { supabase } from '../services/integrations/supabase/client'
 import type {
   PartnerAnalytics,
   CohortAnalysis,

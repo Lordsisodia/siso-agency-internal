@@ -1,10 +1,10 @@
 
 import React from 'react';
-import { Avatar } from "@/shared/ui/avatar"
+import { Avatar } from "@/components/ui/avatar"
 import { AvatarImage, AvatarFallback } from "@radix-ui/react-avatar"
 import { CommunityMember } from '@/types/community';
 import { LeaderboardEntry } from './types';
-import { Badge } from '@/shared/ui/badge';
+import { Badge } from '@/components/ui/badge';
 import { SparklesIcon } from 'lucide-react';
 
 interface LeaderboardProps {

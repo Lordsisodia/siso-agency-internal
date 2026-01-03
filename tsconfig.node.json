@@ -16,7 +16,19 @@
     "strict": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@domains/*": ["./src/domains/*"],
+      "@services/*": ["./src/services/*"],
+      "@components/*": ["./src/components/*"],
+      "@lib/*": ["./src/lib/*"],
+      "@app/*": ["./src/app/*"],
+      "@providers/*": ["./src/providers/*"],
+      "@stores/*": ["./src/lib/stores/*"],
+      "@scripts/*": ["./src/lib/scripts/*"]
+    }
   },
   "include": ["vite.config.ts"]
 }

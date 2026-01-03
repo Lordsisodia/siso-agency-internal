@@ -1,7 +1,7 @@
 // Voice Service for AI Chat
 // Handles speech-to-text and text-to-speech functionality
 
-import { logger } from '@/shared/utils/logger';
+import { logger } from '@/lib/utils/logger';
 
 export interface VoiceConfig {
   language?: string;

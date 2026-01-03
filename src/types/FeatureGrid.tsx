@@ -1,7 +1,7 @@
 import { Bot, Rocket, Users, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Feature } from './types';
-import { cn } from '@/shared/lib/utils';
+import { cn } from '@/lib/utils';
 
 const featureItems: Feature[] = [
   {

@@ -1,10 +1,10 @@
 import { motion } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Trophy, ArrowRight, TrendingUp, TrendingDown, Briefcase } from 'lucide-react';
-import { Button } from '@/shared/ui/button';
+import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useLeaderboardData } from '@/components/leaderboard/hooks/useLeaderboardData';
-import { Badge } from '@/shared/ui/badge';
+import { Badge } from '@/components/ui/badge';
 
 export function LeaderboardPreviewCard() {
   const navigate = useNavigate();

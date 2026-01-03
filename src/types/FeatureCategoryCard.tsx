@@ -2,8 +2,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle } from 'lucide-react';
-import { cn } from '@/shared/lib/utils';
-import { Badge } from '@/shared/ui/badge';
+import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 import { FeatureCategory } from '@/models/plan/features';
 import { FeatureItem } from './FeatureItem';
 

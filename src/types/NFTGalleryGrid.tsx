@@ -1,9 +1,9 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
-import { Button } from '@/shared/ui/button';
+import { Button } from '@/components/ui/button';
 import { NFTCard } from './NFTCard';
-import { cn } from '@/shared/lib/utils';
+import { cn } from '@/lib/utils';
 
 interface NFT {
   name: string;

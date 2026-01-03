@@ -1,0 +1,3 @@
+# Root Notes — Migration
+- MIGRATION-COMPLETE
+- PRISMA-TO-SUPABASE-MIGRATION

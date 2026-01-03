@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Button } from "@/shared/ui/button";
-import { Card } from "@/shared/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
-import { Badge } from "@/shared/ui/badge";
-import { api, type UsageStats, type ProjectUsage } from "@/shared/lib/claudia-api";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { api, type UsageStats, type ProjectUsage } from "@/lib/claudia-api";
 import { 
   ArrowLeft, 
   TrendingUp, 
@@ -16,7 +16,7 @@ import {
   FileText,
   Briefcase
 } from "lucide-react";
-import { cn } from "@/shared/lib/utils";
+import { cn } from "@/lib/utils";
 
 interface UsageDashboardProps {
   /**

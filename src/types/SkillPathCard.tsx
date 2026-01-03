@@ -1,9 +1,9 @@
 
 import { motion } from 'framer-motion';
 import { SkillPath, Skill, UserSkillProgress } from '@/types/skills';
-import { Progress } from '@/shared/ui/progress';
+import { Progress } from '@/components/ui/progress';
 import { LucideIcon, GraduationCap, PenTool, Users, Code } from 'lucide-react';
-import { cn } from '@/shared/lib/utils';
+import { cn } from '@/lib/utils';
 
 interface SkillPathCardProps {
   path: SkillPath;

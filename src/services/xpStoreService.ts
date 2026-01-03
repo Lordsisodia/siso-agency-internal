@@ -1,4 +1,4 @@
-import { supabaseAnon } from '@/shared/lib/supabase-clerk';
+import { supabaseAnon } from '@/lib/supabase-clerk';
 
 /**
  * XP Store Service - Safe Backend Implementation

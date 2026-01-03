@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { ClientData } from '@/types/client.types';
-import { Badge } from '@/shared/ui/badge';
-import { Button } from '@/shared/ui/button';
-import { Card, CardContent, CardFooter, CardHeader } from '@/shared/ui/card';
-import { Progress } from '@/shared/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 import { formatDistanceToNow } from 'date-fns';
 import { ArrowRight, Calendar, CircleUser } from 'lucide-react';
 import { ClientInviteDialog } from "./ClientInviteDialog";

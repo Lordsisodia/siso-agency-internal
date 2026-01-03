@@ -1,0 +1,2 @@
+# Architecture — Offline Sync
+- OFFLINE-CONFLICT-RESOLUTION-PROTOCOL

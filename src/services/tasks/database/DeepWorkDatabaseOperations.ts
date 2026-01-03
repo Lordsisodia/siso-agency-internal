@@ -19,7 +19,7 @@
  * - Optimistic locking for concurrent deep work sessions
  */
 
-import { supabase } from '@/shared/lib/supabase';
+import { supabase } from '@/lib/supabase';
 import { Task } from '@/components/tasks/TaskCard';
 
 // Deep work specific database configuration

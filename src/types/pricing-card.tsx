@@ -1,11 +1,11 @@
 "use client";
 
-import { Card, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion, useInView } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { Button } from "@/shared/ui/button";
+import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
-import { Separator } from "@/shared/ui/separator";
+import { Separator } from "@/components/ui/separator";
 
 interface PricingFeature {
   title: string;

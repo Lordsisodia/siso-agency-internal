@@ -1,4 +1,4 @@
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/services/integrations/supabase/client';
 import { RateLimitManager } from './RateLimitManager';
 import { TokenUsageTracker } from './TokenUsageTracker';
 // NOTE: ClaudeCodeIntegration uses Node.js modules and cannot be imported in browser

@@ -14,6 +14,7 @@
     "build:dev": "vite build",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:unit": "vitest run",
     "test:unit:smoke": "vitest run tests/smoke",
@@ -43,7 +44,7 @@
     "validate:files": "node scripts/validate-files.mjs",
     "validate:sync": "tsx scripts/validate-supabase-sync.ts",
     "validate": "npm run validate:files && npm run typecheck && npm run validate:sync",
-    "test:sync": "vitest run src/shared/offline/__tests__/syncService.validation.test.ts",
+    "test:sync": "vitest run src/services/offline/__tests__/syncService.validation.test.ts",
     "ai:snapshot": "bash scripts/ai-session-snapshot.sh",
     "ai:restore": "ls -lt .git/ai-snapshots/ && echo '\nRun: bash .git/ai-snapshots/restore_TIMESTAMP.sh'",
     "ai:protect": "bash scripts/ai-session-snapshot.sh && echo '\n✅ Safe to start AI session'"
@@ -154,7 +155,6 @@
     "@types/node": "^22.5.5",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
-    "@vitejs/plugin-react-swc": "^3.8.0",
     "autoprefixer": "^10.4.21",
     "concurrently": "^9.2.1",
     "eslint": "^9.9.0",
@@ -169,7 +169,8 @@
     "tailwindcss": "^3.4.11",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.1",
-    "vite": "^5.4.1",
-    "vitest": "^1.6.1"
+    "vite": "^7.2.4",
+    "vitest": "^4.0.14",
+    "@vitejs/plugin-react-swc": "^4.2.2"
   }
 }

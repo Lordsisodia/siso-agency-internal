@@ -3,7 +3,7 @@
  * Each function is tested to return real data
  */
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/services/integrations/supabase/client';
 
 export class TaskQueryTools {
   constructor(

@@ -15,7 +15,7 @@
 import { LightWorkTaskService } from './database/LightWorkTaskService';
 import { DeepWorkTaskService } from './database/DeepWorkTaskService';
 import { Task, Subtask, WorkType, TaskStatus } from '@/types/task.types';
-import { timeboxApi } from '@/api/timeboxApi';
+import { timeboxApi } from '@/services/api/timeboxApi';
 
 export interface UnifiedTimeBoxTask {
   id: string;

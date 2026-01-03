@@ -1,5 +1,5 @@
 
-import { Card } from "@/shared/ui/card";
+import { Card } from "@/components/ui/card";
 import { Activity, User, FileText, DollarSign, CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";

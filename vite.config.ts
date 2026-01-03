@@ -9,7 +9,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 export default defineConfig(({ mode }) => ({
   server: {
     host: true, // Allow network access
-    port: 5173, // Use Vite default port to match Tauri config
+    port: 4249, // Use alternate dev port to avoid clash with other instance
     strictPort: false, // Allow fallback to other ports if needed
     open: false, // Don't auto-open browser
     // https: true, // Enable HTTPS for voice recognition (commented out - see alternative solutions below)
@@ -41,7 +41,7 @@ export default defineConfig(({ mode }) => ({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,json,vue,txt,woff2}'],
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,json,webmanifest,txt,woff2}'],
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
@@ -169,18 +169,22 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: [
       { find: "@/ai-first", replacement: path.resolve(__dirname, "./ai-first") },
-      { find: "@/internal", replacement: path.resolve(__dirname, "./src/ecosystem/internal") },
-      { find: "@/client", replacement: path.resolve(__dirname, "./src/ecosystem/client") },
-      { find: "@/partnership", replacement: path.resolve(__dirname, "./src/ecosystem/partnership") },
-      { find: "@/shared", replacement: path.resolve(__dirname, "./src/shared") },
       { find: "@", replacement: path.resolve(__dirname, "./src") },
+      { find: "@app", replacement: path.resolve(__dirname, "./src/app") },
+      { find: "@domains", replacement: path.resolve(__dirname, "./src/domains") },
+      { find: "@services", replacement: path.resolve(__dirname, "./src/services") },
+      { find: "@components", replacement: path.resolve(__dirname, "./src/components") },
+      { find: "@lib", replacement: path.resolve(__dirname, "./src/lib") },
+      { find: "@stores", replacement: path.resolve(__dirname, "./src/lib/stores") },
+      { find: "@scripts", replacement: path.resolve(__dirname, "./src/lib/scripts") },
+      { find: "@providers", replacement: path.resolve(__dirname, "./src/providers") },
       { find: "../../generated/prisma", replacement: path.resolve(__dirname, "./generated/prisma") },
     ]
   },
   build: {
     target: mode === 'production' ? 'es2015' : 'esnext',
     minify: 'esbuild',
-    cssMinify: true,
+    cssMinify: false,
     cssCodeSplit: false, // Prevent CSS splitting issues
     sourcemap: mode === 'development',
     rollupOptions: {

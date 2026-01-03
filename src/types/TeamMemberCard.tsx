@@ -1,8 +1,8 @@
 
 import { motion } from 'framer-motion';
-import { Card } from '@/shared/ui/card';
+import { Card } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/shared/ui/hover-card';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { Users, Clock, CheckCircle } from 'lucide-react';
 
 interface TeamMemberCardProps {

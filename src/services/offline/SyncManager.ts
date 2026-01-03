@@ -1,4 +1,4 @@
-import { supabase } from '@/shared/lib/supabase';
+import { supabase } from '@/lib/supabase';
 import { offlineStorageService, MutationOperation } from './OfflineStorageService';
 
 export class SyncManager {

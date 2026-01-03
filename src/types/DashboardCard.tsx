@@ -1,10 +1,10 @@
 
 import React from 'react';
-import { Card } from "@/shared/ui/card";
+import { Card } from "@/components/ui/card";
 import { ArrowRight } from "lucide-react";
-import { Button } from "@/shared/ui/button";
+import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Spotlight } from '@/shared/ui/spotlight';
+import { Spotlight } from '@/components/ui/spotlight';
 import { motion } from 'framer-motion';
 
 interface DashboardCardProps {

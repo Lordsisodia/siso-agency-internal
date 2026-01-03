@@ -4,7 +4,7 @@
  */
 
 import { IntelligentXPService, TaskImportanceDetector, type TaskXPContext } from './intelligentXPService';
-import { type TaskWithSubtasks } from '@/ecosystem/internal/services/task-database-service-fixed';
+import { type TaskWithSubtasks } from '@/domains/services/task-database-service-fixed';
 
 export interface XPPreview {
   estimatedXP: number;

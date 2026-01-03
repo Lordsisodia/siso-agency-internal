@@ -1,11 +1,11 @@
 import { format, subDays } from 'date-fns';
-import { supabase } from '@/shared/lib/supabase';
+import { supabase } from '@/lib/supabase';
 import type { Tables, TablesInsert } from '@/types/supabase';
 import type {
   WaterGoalPreferences,
   WaterLogEntry,
   WaterTrackerSnapshot
-} from '@/ecosystem/internal/lifelock/wellness/types';
+} from '@/domains/lifelock/1-daily/5-wellness/hydration/types';
 
 const DEFAULT_GOAL_ML = 2000;
 const WATER_HISTORY_LOOKBACK_DAYS = 30;

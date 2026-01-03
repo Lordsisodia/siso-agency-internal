@@ -1,10 +1,10 @@
 
 import { motion } from 'framer-motion';
 import { ExternalLink, Github, Clock } from 'lucide-react';
-import { Button } from '@/shared/ui/button';
+import { Button } from '@/components/ui/button';
 import { PortfolioItem } from '@/types/portfolio';
-import { Badge } from '@/shared/ui/badge';
-import { Card, CardHeader, CardContent, CardFooter } from '@/shared/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
 
 interface PortfolioCardProps {
   item: PortfolioItem;

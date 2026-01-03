@@ -3,7 +3,7 @@
  * WebSocket-based streaming transcription for natural conversations
  */
 
-import { logger } from '@/shared/utils/logger';
+import { logger } from '@/lib/utils/logger';
 
 interface DeepgramConfig {
   language?: string;

@@ -1,4 +1,4 @@
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/services/integrations/supabase/client';
 import { GeneratedAppPlan } from '@/types/appPlan.types';
 
 export interface NewAppPlanData {

@@ -30,13 +30,13 @@ import {
   ChevronDown,
   ChevronRight
 } from 'lucide-react';
-import { Button } from '@/shared/ui/button';
-import { Input } from '@/shared/ui/input';
-import { Card, CardContent, CardHeader } from '@/shared/ui/card';
-import { TaskCard } from '@/ecosystem/internal/tasks/components/TaskCard';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { TaskCard } from '@/domains/tasks/components/TaskCard';
 import { TaskDetailModal } from './ui/task-detail-modal';
-import { useTasks } from '../stores/tasks/taskProviderCompat';
-import { Task } from '@/ecosystem/internal/tasks/components/TaskCard';
+import { useTasks } from '.@/lib/stores/tasks/taskProviderCompat';
+import { Task } from '@/domains/tasks/components/TaskCard';
 
 /**
  * TaskManager component props

@@ -1,805 +1,685 @@
-# Library System 📚
+# Lib Directory
 
-Third-party library integrations, custom implementations, and external service wrappers.
+**20+ utility modules, configurations, and helper functions for application infrastructure**
 
-## 🎯 Purpose
-Centralized library integrations providing abstraction layers for external dependencies, custom implementations of common patterns, and reusable library configurations.
+## 🏗️ Directory Overview
 
-## 🏗️ Architecture
+This directory contains all utility modules, configuration files, helper functions, and infrastructure code that supports the SISO Internal application. These modules provide foundational functionality used throughout the application.
 
-### Library Structure
-```typescript
-├── integrations/
-│   ├── analytics/           // Analytics service integrations
-│   ├── monitoring/          // Performance monitoring libraries
-│   ├── authentication/     // Auth provider integrations
-│   ├── payments/           // Payment processing libraries
-│   └── notifications/      // Push notification services
-├── ui/
-│   ├── date-picker/        // Custom date picker implementation
-│   ├── data-grid/          // Enhanced table/grid components
-│   ├── charts/             // Chart visualization libraries
-│   ├── forms/              // Form validation and handling
-│   └── modals/             // Modal and dialog implementations
-├── utils/
-│   ├── validation/         // Extended validation libraries
-│   ├── formatting/         // Data formatting utilities
-│   ├── async/              // Async operation helpers
-│   ├── performance/        // Performance optimization utilities
-│   └── testing/            // Testing utility libraries
-├── security/
-│   ├── encryption/         // Encryption library wrappers
-│   ├── sanitization/       // Input sanitization libraries
-│   ├── csrf/               // CSRF protection implementations
-│   └── rate-limiting/      // Rate limiting utilities
-└── data/
-    ├── orm/                // Database ORM configurations
-    ├── cache/              // Caching library implementations
-    ├── serialization/      // Data serialization libraries
-    └── validation/         // Schema validation libraries
+### 📊 Library Statistics  
+- **Total Modules**: 20+ utility and configuration files
+- **Organization**: Functional grouping by purpose
+- **Coverage**: Database, API, Utils, Workflow, Design System
+- **TypeScript Coverage**: 100% (strict mode)
+
+## 📁 Library Structure
+
+### Core Infrastructure
+
+#### Database Configuration
+```
+database/
+└── prisma.ts              # Prisma client configuration and setup
 ```
 
-## 📁 Core Library Integrations
-
-### Analytics Integration
-```typescript
-// integrations/analytics/analytics-wrapper.ts
-export class AnalyticsWrapper {
-  private providers: Map<string, AnalyticsProvider> = new Map();
-  private config: AnalyticsConfig;
-
-  constructor(config: AnalyticsConfig) {
-    this.config = config;
-    this.initializeProviders();
-  }
-
-  private initializeProviders() {
-    // Google Analytics 4
-    if (this.config.googleAnalytics?.enabled) {
-      this.providers.set('ga4', new GoogleAnalyticsProvider(this.config.googleAnalytics));
-    }
-
-    // Mixpanel for detailed event tracking
-    if (this.config.mixpanel?.enabled) {
-      this.providers.set('mixpanel', new MixpanelProvider(this.config.mixpanel));
-    }
-
-    // Amplitude for user behavior analysis
-    if (this.config.amplitude?.enabled) {
-      this.providers.set('amplitude', new AmplitudeProvider(this.config.amplitude));
-    }
-
-    // Custom internal analytics
-    if (this.config.internal?.enabled) {
-      this.providers.set('internal', new InternalAnalyticsProvider(this.config.internal));
-    }
-  }
-
-  // Unified event tracking across all providers
-  public trackEvent(eventName: string, properties: Record<string, any> = {}) {
-    const enrichedProperties = {
-      ...properties,
-      timestamp: new Date().toISOString(),
-      sessionId: this.getSessionId(),
-      userId: this.getUserId(),
-      environment: process.env.NODE_ENV,
-      buildVersion: process.env.REACT_APP_VERSION
-    };
-
-    // Send to all enabled providers
-    this.providers.forEach((provider, name) => {
-      try {
-        provider.track(eventName, enrichedProperties);
-      } catch (error) {
-        console.error(`Analytics error in ${name}:`, error);
-      }
-    });
-  }
-
-  // Feature flag usage tracking
-  public trackFeatureFlag(flagName: string, enabled: boolean, context?: any) {
-    this.trackEvent('feature_flag_usage', {
-      flag_name: flagName,
-      enabled,
-      context,
-      category: 'feature_flags'
-    });
-  }
-
-  // Performance metrics tracking
-  public trackPerformance(metric: PerformanceMetric) {
-    this.trackEvent('performance_metric', {
-      metric_name: metric.name,
-      value: metric.value,
-      unit: metric.unit,
-      category: 'performance',
-      component: metric.component
-    });
-  }
-
-  // Error tracking with context
-  public trackError(error: Error, context?: ErrorContext) {
-    this.trackEvent('application_error', {
-      error_message: error.message,
-      error_stack: error.stack,
-      context,
-      category: 'errors'
-    });
-  }
-}
+#### API & External Services
+```
+api.ts                      # Generic API client and HTTP utilities
+autonomous-api.ts           # Autonomous API handling and processing
+claudia-api.ts             # Claudia Lambda API integration
+supabase.ts                # Supabase client configuration
+supabase-clerk.ts          # Supabase + Clerk integration
 ```
 
-### Form Library Integration
-```typescript
-// ui/forms/form-builder.ts - Enhanced form handling
-import { useForm, FormProvider } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+### Workflow & Automation
 
-export class FormBuilder<T extends Record<string, any>> {
-  private schema: z.ZodSchema<T>;
-  private defaultValues: Partial<T>;
-  private validationMode: 'onChange' | 'onBlur' | 'onSubmit';
-
-  constructor(schema: z.ZodSchema<T>, options: FormBuilderOptions<T> = {}) {
-    this.schema = schema;
-    this.defaultValues = options.defaultValues || {};
-    this.validationMode = options.validationMode || 'onBlur';
-  }
-
-  // Create form hook with validation
-  public useFormWithValidation() {
-    return useForm<T>({
-      resolver: zodResolver(this.schema),
-      defaultValues: this.defaultValues,
-      mode: this.validationMode,
-      criteriaMode: 'all',
-      shouldFocusError: true
-    });
-  }
-
-  // Generate form fields from schema
-  public generateFields(): FormFieldConfig[] {
-    return this.extractFieldsFromSchema(this.schema);
-  }
-
-  // Custom validation rules for LifeLock data
-  public static createLifeLockValidation() {
-    return z.object({
-      email: z.string().email('Invalid email address'),
-      ssn: z.string().regex(/^\d{3}-?\d{2}-?\d{4}$/, 'Invalid SSN format'),
-      phone: z.string().regex(/^\+?1?[-.\s]?\(?([0-9]{3})\)?[-.\s]?([0-9]{3})[-.\s]?([0-9]{4})$/, 'Invalid phone number'),
-      address: z.object({
-        street: z.string().min(1, 'Street address required'),
-        city: z.string().min(1, 'City required'),
-        state: z.string().length(2, 'State must be 2 characters'),
-        zipCode: z.string().regex(/^\d{5}(-\d{4})?$/, 'Invalid ZIP code')
-      }),
-      dateOfBirth: z.date().max(new Date(), 'Date cannot be in the future'),
-      protectionLevel: z.enum(['basic', 'advanced', 'premium', 'enterprise'])
-    });
-  }
-}
-
-// Form components for UnifiedTaskCard
-export const TaskCardFormLibrary = {
-  // Task creation form
-  createTaskForm: FormBuilder.create(z.object({
-    title: z.string().min(1, 'Title required').max(100, 'Title too long'),
-    description: z.string().min(10, 'Description must be at least 10 characters'),
-    priority: z.enum(['low', 'medium', 'high', 'urgent']),
-    dueDate: z.date().min(new Date(), 'Due date must be in the future'),
-    assignee: z.string().optional(),
-    tags: z.array(z.string()).max(5, 'Maximum 5 tags allowed')
-  })),
-
-  // Task edit form with validation
-  editTaskForm: FormBuilder.create(z.object({
-    title: z.string().min(1, 'Title required'),
-    description: z.string().min(10, 'Description required'),
-    status: z.enum(['pending', 'in_progress', 'completed', 'cancelled']),
-    priority: z.enum(['low', 'medium', 'high', 'urgent']),
-    dueDate: z.date().optional(),
-    completedAt: z.date().optional()
-  }))
-};
+#### Claude AI Workflow System
+```
+claude-workflow-engine.ts   # Core Claude workflow processing engine
+claude-workflow-manager.ts  # Claude workflow orchestration and management
+auto-continuation.ts        # Automatic workflow continuation logic
+smart-continuation.ts       # Intelligent continuation strategies
 ```
 
-### Data Visualization Library
-```typescript
-// ui/charts/chart-wrapper.ts - Unified charting interface
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement
-} from 'chart.js';
-import { Line, Bar, Pie, Doughnut } from 'react-chartjs-2';
+#### Analysis & Processing
+```
+result-analyzer.ts          # Result analysis and interpretation
+outputCache.tsx            # Output caching and performance optimization
+```
 
-// Register Chart.js components
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement
+### Utilities & Helpers
+
+#### Core Utilities
+```
+utils.ts                   # General utility functions and helpers
+formatters.ts              # Data formatting and transformation utilities
+date-utils.ts              # Date/time manipulation and formatting
+```
+
+#### Design System
+```
+design-tokens.ts           # Design system tokens and theme configuration
+```
+
+#### Monitoring & Error Handling
+```
+sentry.ts                  # Sentry error tracking configuration
+```
+
+## 🔧 Core Utility Modules
+
+### API Client (`api.ts`)
+```typescript
+// Generic API client with retry logic
+import { api } from '@/lib/api';
+
+// Basic usage
+const response = await api.get('/users');
+const user = await api.post('/users', userData);
+
+// With options
+const data = await api.request({
+  url: '/protected-endpoint',
+  method: 'GET',
+  headers: { Authorization: `Bearer ${token}` },
+  retry: 3,
+  timeout: 30000
+});
+```
+
+### Supabase Configuration (`supabase.ts`)
+```typescript
+// Supabase client setup
+import { supabase } from '@/lib/supabase';
+
+// Database operations
+const { data: users } = await supabase
+  .from('users')
+  .select('*')
+  .eq('active', true);
+
+// Authentication
+const { data: user } = await supabase.auth.getUser();
+
+// Real-time subscriptions
+supabase
+  .from('tasks')
+  .on('INSERT', payload => {
+    console.log('New task:', payload.new);
+  })
+  .subscribe();
+```
+
+### Utility Functions (`utils.ts`)
+```typescript
+// Common utility functions
+import { cn, formatCurrency, truncateText, generateId } from '@/lib/utils';
+
+// Tailwind class merging
+const className = cn(
+  'base-classes',
+  'additional-classes',
+  condition && 'conditional-classes'
 );
 
-export class ChartLibrary {
-  private static defaultOptions: ChartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'top' as const,
-      },
-      tooltip: {
-        backgroundColor: 'var(--color-surface-elevated)',
-        titleColor: 'var(--color-text-primary)',
-        bodyColor: 'var(--color-text-secondary)',
-        borderColor: 'var(--color-border)',
-        borderWidth: 1
-      }
-    },
-    scales: {
-      x: {
-        grid: {
-          color: 'var(--color-border)'
-        },
-        ticks: {
-          color: 'var(--color-text-secondary)'
-        }
-      },
-      y: {
-        grid: {
-          color: 'var(--color-border)'
-        },
-        ticks: {
-          color: 'var(--color-text-secondary)'
-        }
-      }
-    }
+// Data formatting
+const price = formatCurrency(29.99); // "$29.99"
+const excerpt = truncateText("Long text...", 100); // "Long text..."
+const id = generateId(); // "uuid-v4-string"
+```
+
+### Date Utilities (`date-utils.ts`)
+```typescript
+// Date manipulation and formatting
+import { 
+  formatDate, 
+  formatRelativeTime, 
+  addDays, 
+  isToday, 
+  getTimeOfDay 
+} from '@/lib/date-utils';
+
+// Date formatting
+const formatted = formatDate(new Date()); // "Jan 29, 2025"
+const relative = formatRelativeTime(date); // "2 hours ago"
+
+// Date calculations
+const futureDate = addDays(new Date(), 7); // 7 days from now
+const todayCheck = isToday(someDate); // true/false
+const period = getTimeOfDay(new Date()); // "morning", "afternoon", "evening"
+```
+
+## 🤖 Claude AI Workflow System
+
+### Workflow Engine (`claude-workflow-engine.ts`)
+```typescript
+// Advanced Claude workflow processing
+import { ClaudeWorkflowEngine } from '@/lib/claude-workflow-engine';
+
+const engine = new ClaudeWorkflowEngine({
+  apiKey: process.env.CLAUDE_API_KEY,
+  model: 'claude-3-sonnet-20240229',
+  maxRetries: 3,
+  temperature: 0.1
+});
+
+// Execute workflow
+const result = await engine.executeWorkflow({
+  type: 'code_analysis',
+  input: codeString,
+  context: { language: 'typescript', framework: 'react' }
+});
+
+// Batch processing
+const results = await engine.processBatch([
+  { type: 'summarize', input: text1 },
+  { type: 'analyze', input: data2 },
+  { type: 'generate', input: prompt3 }
+]);
+```
+
+### Workflow Manager (`claude-workflow-manager.ts`)
+```typescript
+// Workflow orchestration and management
+import { ClaudeWorkflowManager } from '@/lib/claude-workflow-manager';
+
+const manager = new ClaudeWorkflowManager();
+
+// Register workflows
+manager.registerWorkflow('code_review', {
+  steps: [
+    'analyze_syntax',
+    'check_security',
+    'evaluate_performance',
+    'generate_recommendations'
+  ],
+  parallel: false,
+  retryPolicy: { maxRetries: 2, backoff: 'exponential' }
+});
+
+// Execute managed workflow
+const reviewResult = await manager.executeWorkflow('code_review', {
+  codebase: files,
+  language: 'typescript'
+});
+```
+
+### Smart Continuation (`smart-continuation.ts`)
+```typescript
+// Intelligent workflow continuation
+import { SmartContinuation } from '@/lib/smart-continuation';
+
+const continuation = new SmartContinuation({
+  contextWindow: 200000,
+  priorityThreshold: 0.8,
+  compressionStrategy: 'semantic'
+});
+
+// Automatic continuation detection
+const shouldContinue = await continuation.shouldContinue({
+  currentContext: conversationHistory,
+  pendingTasks: remainingWork,
+  userIntent: 'complete_feature'
+});
+
+// Context compression
+const compressedContext = await continuation.compressContext(
+  largeContext,
+  { preserveKeyPoints: true, maxTokens: 50000 }
+);
+```
+
+## 🎨 Design System (`design-tokens.ts`)
+
+### Design Token Configuration
+```typescript
+// Design system tokens and theme
+import { designTokens, createTheme, getColorScale } from '@/lib/design-tokens';
+
+// Access design tokens
+const primaryColor = designTokens.colors.primary[500];
+const spacing = designTokens.spacing.lg;
+const typography = designTokens.typography.heading.h1;
+
+// Theme creation
+const theme = createTheme({
+  mode: 'dark',
+  accentColor: '#ea384c',
+  borderRadius: 'medium'
+});
+
+// Color scale generation
+const blueScale = getColorScale('blue', {
+  steps: 9,
+  saturation: 0.8,
+  lightness: { min: 0.1, max: 0.9 }
+});
+```
+
+## 🔍 Database Integration
+
+### Prisma Configuration (`database/prisma.ts`)
+```typescript
+// Prisma client setup and configuration
+import { prisma } from '@/lib/database/prisma';
+
+// Type-safe database operations
+const users = await prisma.user.findMany({
+  where: { active: true },
+  include: { tasks: true, profile: true }
+});
+
+// Transactions
+const result = await prisma.$transaction([
+  prisma.task.create({ data: taskData }),
+  prisma.user.update({ 
+    where: { id: userId }, 
+    data: { tasksCount: { increment: 1 } } 
+  })
+]);
+
+// Raw queries (when needed)
+const customQuery = await prisma.$queryRaw`
+  SELECT u.*, COUNT(t.id) as task_count
+  FROM users u
+  LEFT JOIN tasks t ON u.id = t.user_id
+  GROUP BY u.id
+`;
+```
+
+## 📊 Caching & Performance (`outputCache.tsx`)
+
+### Output Caching System
+```typescript
+// Performance optimization through caching
+import { OutputCache, useCachedResult } from '@/lib/outputCache';
+
+// Initialize cache
+const cache = new OutputCache({
+  maxSize: 1000,
+  ttl: 300000, // 5 minutes
+  strategy: 'lru'
+});
+
+// Cache expensive operations
+const expensiveOperation = cache.memoize(
+  'complex-calculation',
+  async (params) => {
+    // Expensive computation here
+    return await performComplexCalculation(params);
+  },
+  { ttl: 600000 } // 10 minutes for this operation
+);
+
+// React hook for cached results
+const CachedComponent = ({ data }) => {
+  const { result, loading, error } = useCachedResult(
+    ['processed-data', data.id],
+    () => processData(data),
+    { dependencies: [data.updatedAt] }
+  );
+
+  if (loading) return <LoadingSpinner />;
+  if (error) return <ErrorMessage error={error} />;
+  
+  return <DataVisualization data={result} />;
+};
+```
+
+## 🔍 Analysis & Processing (`result-analyzer.ts`)
+
+### Result Analysis System
+```typescript
+// Advanced result analysis and interpretation
+import { ResultAnalyzer, AnalysisConfig } from '@/lib/result-analyzer';
+
+const analyzer = new ResultAnalyzer({
+  confidenceThreshold: 0.8,
+  analysisDepth: 'comprehensive',
+  includeRecommendations: true
+});
+
+// Analyze complex results
+const analysis = await analyzer.analyze({
+  data: complexDataSet,
+  context: { domain: 'finance', timeframe: 'quarterly' },
+  metrics: ['accuracy', 'trends', 'anomalies', 'correlations']
+});
+
+// Get insights
+const insights = analysis.insights.filter(
+  insight => insight.confidence > 0.9
+);
+
+// Generate recommendations
+const recommendations = await analyzer.generateRecommendations(
+  analysis,
+  { priority: 'high', feasibility: 'medium' }
+);
+```
+
+## 📝 Data Formatting (`formatters.ts`)
+
+### Comprehensive Formatters
+```typescript
+// Data formatting utilities
+import {
+  formatCurrency,
+  formatNumber,
+  formatPercentage,
+  formatFileSize,
+  formatDuration,
+  formatPhoneNumber,
+  sanitizeHTML,
+  slugify
+} from '@/lib/formatters';
+
+// Financial formatting
+const price = formatCurrency(1234.56, { currency: 'USD' }); // "$1,234.56"
+const percent = formatPercentage(0.1234); // "12.34%"
+
+// Technical formatting
+const fileSize = formatFileSize(1048576); // "1.0 MB"
+const duration = formatDuration(3661); // "1h 1m 1s"
+
+// Text processing
+const clean = sanitizeHTML(userInput); // XSS protection
+const slug = slugify("My Blog Post Title"); // "my-blog-post-title"
+
+// International formatting
+const phoneNumber = formatPhoneNumber("+1234567890", "US"); // "(123) 456-7890"
+```
+
+## 🚨 Error Handling & Monitoring (`sentry.ts`)
+
+### Sentry Configuration
+```typescript
+// Error tracking and monitoring
+import { initSentry, captureError, addBreadcrumb } from '@/lib/sentry';
+
+// Initialize Sentry
+initSentry({
+  dsn: process.env.SENTRY_DSN,
+  environment: process.env.NODE_ENV,
+  sampleRate: 1.0,
+  tracesSampleRate: 0.1
+});
+
+// Error capture with context
+try {
+  await riskyOperation();
+} catch (error) {
+  captureError(error, {
+    tags: { operation: 'data_processing' },
+    extra: { userId, timestamp: Date.now() },
+    level: 'error'
+  });
+}
+
+// Add breadcrumbs for debugging
+addBreadcrumb({
+  message: 'User started task creation',
+  category: 'user_action',
+  data: { taskType: 'project_planning' }
+});
+```
+
+## 🔧 Configuration Patterns
+
+### Environment Configuration
+```typescript
+// lib/config.ts (inferred from usage patterns)
+interface AppConfig {
+  api: {
+    baseUrl: string;
+    timeout: number;
+    retries: number;
   };
-
-  // LifeLock threat analytics charts
-  public static createThreatChart(data: ThreatData[]): ChartConfig {
-    return {
-      type: 'line',
-      data: {
-        labels: data.map(d => d.date),
-        datasets: [{
-          label: 'Threats Detected',
-          data: data.map(d => d.threatCount),
-          borderColor: 'var(--color-error)',
-          backgroundColor: 'var(--color-error-light)',
-          tension: 0.4
-        }, {
-          label: 'Threats Resolved',
-          data: data.map(d => d.resolvedCount),
-          borderColor: 'var(--color-success)',
-          backgroundColor: 'var(--color-success-light)',
-          tension: 0.4
-        }]
-      },
-      options: {
-        ...this.defaultOptions,
-        plugins: {
-          ...this.defaultOptions.plugins,
-          title: {
-            display: true,
-            text: 'Threat Detection Overview'
-          }
-        }
-      }
-    };
-  }
-
-  // Task completion analytics
-  public static createTaskAnalyticsChart(tasks: TaskCard[]): ChartConfig {
-    const statusCounts = tasks.reduce((acc, task) => {
-      acc[task.status] = (acc[task.status] || 0) + 1;
-      return acc;
-    }, {} as Record<TaskStatus, number>);
-
-    return {
-      type: 'doughnut',
-      data: {
-        labels: Object.keys(statusCounts),
-        datasets: [{
-          data: Object.values(statusCounts),
-          backgroundColor: [
-            'var(--color-warning)',    // pending
-            'var(--color-info)',       // in_progress
-            'var(--color-success)',    // completed
-            'var(--color-error)'       // cancelled
-          ]
-        }]
-      },
-      options: {
-        ...this.defaultOptions,
-        plugins: {
-          ...this.defaultOptions.plugins,
-          title: {
-            display: true,
-            text: 'Task Status Distribution'
-          }
-        }
-      }
-    };
-  }
-
-  // Performance metrics visualization
-  public static createPerformanceChart(metrics: PerformanceMetric[]): ChartConfig {
-    return {
-      type: 'bar',
-      data: {
-        labels: metrics.map(m => m.name),
-        datasets: [{
-          label: 'Response Time (ms)',
-          data: metrics.map(m => m.responseTime),
-          backgroundColor: 'var(--color-primary-light)',
-          borderColor: 'var(--color-primary)',
-          borderWidth: 1
-        }]
-      },
-      options: {
-        ...this.defaultOptions,
-        plugins: {
-          ...this.defaultOptions.plugins,
-          title: {
-            display: true,
-            text: 'Component Performance Metrics'
-          }
-        },
-        scales: {
-          ...this.defaultOptions.scales,
-          y: {
-            ...this.defaultOptions.scales?.y,
-            beginAtZero: true,
-            title: {
-              display: true,
-              text: 'Response Time (ms)'
-            }
-          }
-        }
-      }
-    };
-  }
+  database: {
+    url: string;
+    maxConnections: number;
+  };
+  features: {
+    enableAnalytics: boolean;
+    enableCaching: boolean;
+    enableWorkflows: boolean;
+  };
 }
-```
 
-### Security Library Integration
-```typescript
-// security/encryption/encryption-wrapper.ts
-import CryptoJS from 'crypto-js';
-import { Buffer } from 'buffer';
-
-export class EncryptionLibrary {
-  private readonly algorithm = 'AES-256-GCM';
-  private readonly keyLength = 32; // 256 bits
-  private readonly ivLength = 12;  // 96 bits for GCM
-  private readonly tagLength = 16; // 128 bits
-
-  // PII encryption for LifeLock compliance
-  public async encryptPII(data: PIIData, key?: string): Promise<EncryptedData> {
-    try {
-      const encryptionKey = key || await this.generateKey();
-      const iv = CryptoJS.lib.WordArray.random(this.ivLength);
-      
-      const encrypted = CryptoJS.AES.encrypt(
-        JSON.stringify(data),
-        encryptionKey,
-        {
-          iv: iv,
-          mode: CryptoJS.mode.GCM,
-          padding: CryptoJS.pad.NoPadding
-        }
-      );
-
-      return {
-        encryptedData: encrypted.toString(),
-        iv: iv.toString(),
-        algorithm: this.algorithm,
-        keyId: await this.getKeyId(encryptionKey),
-        timestamp: new Date().toISOString()
-      };
-    } catch (error) {
-      throw new EncryptionError('Failed to encrypt PII data', { cause: error });
-    }
-  }
-
-  public async decryptPII(encryptedData: EncryptedData, key?: string): Promise<PIIData> {
-    try {
-      const decryptionKey = key || await this.getKeyById(encryptedData.keyId);
-      
-      const decrypted = CryptoJS.AES.decrypt(
-        encryptedData.encryptedData,
-        decryptionKey,
-        {
-          iv: CryptoJS.enc.Hex.parse(encryptedData.iv),
-          mode: CryptoJS.mode.GCM,
-          padding: CryptoJS.pad.NoPadding
-        }
-      );
-
-      const decryptedString = decrypted.toString(CryptoJS.enc.Utf8);
-      return JSON.parse(decryptedString);
-    } catch (error) {
-      throw new EncryptionError('Failed to decrypt PII data', { cause: error });
-    }
-  }
-
-  // Secure token generation
-  public generateSecureToken(length: number = 32): string {
-    return CryptoJS.lib.WordArray.random(length).toString();
-  }
-
-  // Password hashing with salt
-  public async hashPassword(password: string, salt?: string): Promise<HashedPassword> {
-    const passwordSalt = salt || CryptoJS.lib.WordArray.random(16).toString();
-    const hash = CryptoJS.PBKDF2(password, passwordSalt, {
-      keySize: 256/32,
-      iterations: 100000
-    }).toString();
-
-    return {
-      hash,
-      salt: passwordSalt,
-      algorithm: 'PBKDF2',
-      iterations: 100000
-    };
-  }
-}
-```
-
-## 🔧 Library Configuration Management
-
-### Centralized Library Config
-```typescript
-// lib/config/library-config.ts
-export const libraryConfig = {
-  // Analytics configuration
-  analytics: {
-    googleAnalytics: {
-      enabled: process.env.NODE_ENV === 'production',
-      measurementId: process.env.REACT_APP_GA_ID,
-      dataStreamId: process.env.REACT_APP_GA_STREAM_ID
-    },
-    mixpanel: {
-      enabled: process.env.NODE_ENV === 'production',
-      token: process.env.REACT_APP_MIXPANEL_TOKEN,
-      trackAutomaticEvents: true
-    },
-    amplitude: {
-      enabled: false, // Disabled for now
-      apiKey: process.env.REACT_APP_AMPLITUDE_KEY
-    }
+export const config: AppConfig = {
+  api: {
+    baseUrl: process.env.VITE_API_BASE_URL || 'http://localhost:3000',
+    timeout: parseInt(process.env.API_TIMEOUT || '30000'),
+    retries: parseInt(process.env.API_RETRIES || '3')
   },
-
-  // UI library preferences
-  ui: {
-    dateLibrary: 'date-fns', // vs moment.js
-    chartLibrary: 'chart.js', // vs recharts, d3
-    formLibrary: 'react-hook-form', // vs formik
-    tableLibrary: 'react-table', // vs ag-grid
-    modalLibrary: 'radix-ui' // vs react-modal
+  database: {
+    url: process.env.DATABASE_URL!,
+    maxConnections: parseInt(process.env.DB_MAX_CONNECTIONS || '10')
   },
-
-  // Security library settings
-  security: {
-    encryption: {
-      algorithm: 'AES-256-GCM',
-      keyRotationDays: 90,
-      keyStorage: 'environment' // vs key-management-service
-    },
-    authentication: {
-      provider: 'auth0', // vs firebase-auth, cognito
-      sessionTimeout: 3600000, // 1 hour
-      refreshThreshold: 300000 // 5 minutes
-    }
-  },
-
-  // Performance monitoring
-  monitoring: {
-    errorTracking: {
-      enabled: process.env.NODE_ENV === 'production',
-      service: 'sentry',
-      dsn: process.env.REACT_APP_SENTRY_DSN
-    },
-    performanceMonitoring: {
-      enabled: true,
-      sampleRate: 0.1, // 10% of sessions
-      service: 'web-vitals'
-    }
+  features: {
+    enableAnalytics: process.env.VITE_ENABLE_ANALYTICS === 'true',
+    enableCaching: process.env.VITE_ENABLE_CACHING !== 'false',
+    enableWorkflows: process.env.VITE_ENABLE_WORKFLOWS === 'true'
   }
 };
 ```
 
-### Library Loading Strategy
+## 🎯 Integration Patterns
+
+### Service Layer Integration
 ```typescript
-// lib/utils/library-loader.ts - Dynamic library loading
-export class LibraryLoader {
-  private static loadedLibraries: Set<string> = new Set();
-  private static loadingPromises: Map<string, Promise<any>> = new Map();
+// Integration with services
+import { api } from '@/lib/api';
+import { supabase } from '@/lib/supabase';
+import { ClaudeWorkflowEngine } from '@/lib/claude-workflow-engine';
 
-  // Lazy load libraries when needed
-  public static async loadLibrary<T>(
-    libraryName: string,
-    importFn: () => Promise<T>
-  ): Promise<T> {
-    if (this.loadedLibraries.has(libraryName)) {
-      return importFn();
-    }
+class IntegratedService {
+  private api = api;
+  private db = supabase;
+  private claude = new ClaudeWorkflowEngine();
 
-    if (this.loadingPromises.has(libraryName)) {
-      return this.loadingPromises.get(libraryName)!;
-    }
-
-    const loadingPromise = importFn().then(lib => {
-      this.loadedLibraries.add(libraryName);
-      this.loadingPromises.delete(libraryName);
-      return lib;
+  async processUserRequest(request: UserRequest) {
+    // Use multiple lib utilities together
+    const sanitizedInput = sanitizeHTML(request.content);
+    const analysis = await this.claude.analyze(sanitizedInput);
+    
+    const result = await this.api.post('/process', {
+      input: sanitizedInput,
+      analysis: analysis,
+      timestamp: new Date().toISOString()
     });
-
-    this.loadingPromises.set(libraryName, loadingPromise);
-    return loadingPromise;
-  }
-
-  // Preload critical libraries
-  public static async preloadCriticalLibraries(): Promise<void> {
-    const criticalLibraries = [
-      () => import('react-hook-form'),
-      () => import('date-fns'),
-      () => import('crypto-js')
-    ];
-
-    await Promise.all(
-      criticalLibraries.map((importFn, index) =>
-        this.loadLibrary(`critical-${index}`, importFn)
-      )
-    );
-  }
-
-  // Feature flag controlled library loading
-  public static async loadFeatureLibrary(
-    featureFlag: string,
-    importFn: () => Promise<any>
-  ): Promise<any> {
-    const { isEnabled } = useFeatureFlags();
     
-    if (!isEnabled(featureFlag as keyof FeatureFlags)) {
-      return null;
-    }
-
-    return this.loadLibrary(featureFlag, importFn);
+    await this.db.from('processed_requests').insert({
+      user_id: request.userId,
+      result: result.data,
+      created_at: new Date()
+    });
+    
+    return result;
   }
 }
 ```
 
-## 📊 Library Performance Optimization
-
-### Bundle Size Analysis
+### React Component Integration
 ```typescript
-// lib/utils/bundle-analyzer.ts
-export const libraryBundleAnalysis = {
-  // Current library bundle sizes
-  current: {
-    'react-hook-form': '45KB',
-    'date-fns': '78KB', // Tree-shakeable
-    'chart.js': '156KB', // Lazy loaded
-    'crypto-js': '87KB',
-    'zod': '23KB',
-    'radix-ui': '234KB', // Component-based loading
-    total: '623KB'
-  },
+// Using lib utilities in components
+import { cn, formatCurrency, formatRelativeTime } from '@/lib/utils';
+import { useCachedResult } from '@/lib/outputCache';
+import { designTokens } from '@/lib/design-tokens';
 
-  // Optimization strategies
-  optimization: {
-    treeShaking: {
-      'date-fns': 'Import specific functions only',
-      'lodash': 'Use lodash-es for tree shaking',
-      'chart.js': 'Register only needed components'
-    },
+const TaskCard = ({ task, className, ...props }) => {
+  const { result: processedTask } = useCachedResult(
+    ['task-processing', task.id],
+    () => processTaskData(task),
+    { dependencies: [task.updatedAt] }
+  );
+
+  return (
+    <div 
+      className={cn(
+        'p-4 rounded-lg border',
+        'bg-white dark:bg-gray-900',
+        className
+      )}
+      style={{ 
+        borderColor: designTokens.colors.gray[200],
+        padding: designTokens.spacing.md 
+      }}
+      {...props}
+    >
+      <h3>{task.title}</h3>
+      <p>{formatRelativeTime(task.createdAt)}</p>
+      {task.budget && (
+        <span>{formatCurrency(task.budget)}</span>
+      )}
+    </div>
+  );
+};
+```
+
+## 🔍 Library Discovery & Usage
+
+### Finding Utilities
+```bash
+# Search by functionality
+find src/lib -name "*api*" -type f
+find src/lib -name "*utils*" -type f
+find src/lib -name "*claude*" -type f
+
+# Search for specific features
+grep -r "formatCurrency" src/lib/
+grep -r "supabase" src/lib/
+grep -r "workflow" src/lib/
+```
+
+### Import Patterns
+```typescript
+// Core utilities
+import { cn, formatCurrency, generateId } from '@/lib/utils';
+import { formatDate, addDays, isToday } from '@/lib/date-utils';
+import { designTokens, createTheme } from '@/lib/design-tokens';
+
+// API and database
+import { api } from '@/lib/api';
+import { supabase } from '@/lib/supabase';
+import { prisma } from '@/lib/database/prisma';
+
+// Advanced features
+import { ClaudeWorkflowEngine } from '@/lib/claude-workflow-engine';
+import { OutputCache, useCachedResult } from '@/lib/outputCache';
+import { ResultAnalyzer } from '@/lib/result-analyzer';
+
+// Formatting
+import { sanitizeHTML, slugify, formatFileSize } from '@/lib/formatters';
+
+// Error handling
+import { captureError, addBreadcrumb } from '@/lib/sentry';
+```
+
+## 🚨 Common Patterns & Best Practices
+
+### Library Organization Principles
+- **Single Responsibility**: Each module has a focused purpose
+- **Framework Agnostic**: Core utilities work outside React context
+- **Type Safety**: Full TypeScript coverage with strict types
+- **Performance**: Optimized for production use with caching
+
+### Error Boundaries
+```typescript
+// Robust error handling in utilities
+export const safeAsyncOperation = async <T>(
+  operation: () => Promise<T>,
+  fallback: T,
+  errorHandler?: (error: Error) => void
+): Promise<T> => {
+  try {
+    return await operation();
+  } catch (error) {
+    const err = error instanceof Error ? error : new Error('Unknown error');
     
-    lazyLoading: {
-      'chart.js': 'Load when chart components mount',
-      'file-upload': 'Load when upload dialog opens',
-      'pdf-viewer': 'Load when PDF needs display'
-    },
-
-    alternatives: {
-      'moment.js': 'Replaced with date-fns (90% smaller)',
-      'lodash': 'Replaced with native methods where possible',
-      'bootstrap': 'Replaced with custom design system'
+    if (errorHandler) {
+      errorHandler(err);
+    } else {
+      captureError(err, { tags: { source: 'safe-async-operation' } });
     }
-  },
-
-  // Performance targets
-  targets: {
-    criticalPath: '<200KB',
-    totalBundle: '<1MB',
-    chunkSize: '<250KB',
-    lazyChunks: '<100KB'
-  }
-};
-```
-
-### Library Compatibility Matrix
-```typescript
-// lib/compatibility/compatibility-matrix.ts
-export const libraryCompatibility = {
-  // React version compatibility
-  react: {
-    version: '18.x',
-    compatibleLibraries: [
-      'react-hook-form@7.x',
-      'react-router@6.x',
-      'react-query@4.x',
-      'framer-motion@10.x'
-    ],
-    incompatibleLibraries: [
-      'react-router@5.x', // Upgrade required
-      'react-query@3.x'   // Upgrade required
-    ]
-  },
-
-  // TypeScript compatibility
-  typescript: {
-    version: '5.x',
-    strictMode: true,
-    requiresTypes: [
-      '@types/crypto-js',
-      '@types/chart.js',
-      '@types/node'
-    ]
-  },
-
-  // Build tool compatibility
-  buildTools: {
-    vite: {
-      version: '4.x',
-      optimizedDeps: [
-        'react-hook-form',
-        'date-fns',
-        'crypto-js'
-      ],
-      externals: [
-        'chart.js' // Lazy loaded
-      ]
-    }
-  }
-};
-```
-
-## 🎯 Migration Integration
-
-### Feature Flag Library Integration
-```typescript
-// lib/feature-flags/library-flags.ts
-export const libraryFeatureFlags = {
-  // Chart library migration
-  useModernCharts: {
-    enabled: false, // Phase 3 target
-    description: 'Migrate from Chart.js to modern charting solution',
-    libraries: {
-      current: 'chart.js',
-      target: 'recharts',
-      fallback: 'chart.js'
-    }
-  },
-
-  // Form library optimization
-  useOptimizedForms: {
-    enabled: true,
-    description: 'Use React Hook Form with Zod validation',
-    libraries: {
-      current: 'react-hook-form + zod',
-      performance: '40% faster validation'
-    }
-  },
-
-  // Security library updates
-  useEnhancedSecurity: {
-    enabled: true,
-    description: 'Enhanced encryption for PII data',
-    libraries: {
-      encryption: 'crypto-js',
-      compliance: 'GDPR + CCPA ready'
-    }
-  }
-};
-```
-
-## 🎯 Development Guidelines
-
-### Library Selection Criteria
-```typescript
-// lib/guidelines/selection-criteria.ts
-export const librarySelectionCriteria = {
-  // Evaluation matrix
-  criteria: {
-    bundleSize: { weight: 25, threshold: '100KB' },
-    performance: { weight: 30, threshold: 'Sub-100ms' },
-    maintenance: { weight: 20, threshold: 'Active development' },
-    compatibility: { weight: 15, threshold: 'React 18+' },
-    documentation: { weight: 10, threshold: 'Comprehensive docs' }
-  },
-
-  // Decision framework
-  decisionFramework: {
-    required: [
-      'TypeScript support',
-      'Tree shaking support',
-      'React 18 compatibility',
-      'Active maintenance'
-    ],
-    preferred: [
-      'Zero dependencies',
-      'Small bundle size',
-      'Good documentation',
-      'Strong community'
-    ],
-    avoiding: [
-      'Abandoned projects',
-      'Large bundle size',
-      'Poor TypeScript support',
-      'Breaking changes frequently'
-    ]
-  }
-};
-```
-
-### Testing Integration
-```typescript
-// lib/testing/library-testing.ts
-export const libraryTesting = {
-  // Mock configurations for testing
-  mocks: {
-    'crypto-js': () => ({
-      AES: { encrypt: jest.fn(), decrypt: jest.fn() },
-      lib: { WordArray: { random: jest.fn() } }
-    }),
     
-    'chart.js': () => ({
-      Chart: jest.fn(),
-      registerables: []
-    }),
-    
-    'react-hook-form': () => ({
-      useForm: () => ({
-        register: jest.fn(),
-        handleSubmit: jest.fn(),
-        formState: { errors: {} }
-      })
-    })
-  },
-
-  // Performance testing
-  performanceBenchmarks: {
-    formValidation: '<10ms',
-    chartRendering: '<50ms',
-    encryption: '<20ms',
-    dataFormatting: '<5ms'
+    return fallback;
   }
 };
 ```
 
-## 🎯 Next Steps
-1. **Phase 2A**: Optimize library loading for decomposed hooks
-2. **Phase 2B**: Implement library performance monitoring
-3. **Phase 3A**: Migrate to modern chart library
-4. **Phase 3B**: Add library compatibility validation
-5. **Phase 4**: AI-assisted library optimization and selection
+### Performance Considerations
+```typescript
+// Memory-efficient utilities
+export const memoize = <T extends (...args: any[]) => any>(
+  fn: T,
+  keyGenerator?: (...args: Parameters<T>) => string
+): T => {
+  const cache = new Map<string, ReturnType<T>>();
+  const maxSize = 1000; // Prevent memory leaks
+  
+  return ((...args: Parameters<T>): ReturnType<T> => {
+    const key = keyGenerator ? keyGenerator(...args) : JSON.stringify(args);
+    
+    if (cache.has(key)) {
+      return cache.get(key)!;
+    }
+    
+    const result = fn(...args);
+    
+    // LRU eviction when cache is full
+    if (cache.size >= maxSize) {
+      const firstKey = cache.keys().next().value;
+      cache.delete(firstKey);
+    }
+    
+    cache.set(key, result);
+    return result;
+  }) as T;
+};
+```
+
+### Testing Utilities
+```typescript
+// lib/test-utils.ts (common pattern)
+export const createMockUser = (overrides?: Partial<User>): User => ({
+  id: generateId(),
+  email: 'test@example.com',
+  name: 'Test User',
+  createdAt: new Date(),
+  ...overrides
+});
+
+export const waitFor = (ms: number): Promise<void> => 
+  new Promise(resolve => setTimeout(resolve, ms));
+
+export const createTestApiClient = () => ({
+  get: jest.fn(),
+  post: jest.fn(),
+  put: jest.fn(),
+  delete: jest.fn()
+});
+```
+
+## 📈 Performance & Reliability
+
+### Bundle Optimization
+- **Tree Shaking**: All utilities support tree shaking
+- **Code Splitting**: Large modules can be dynamically imported
+- **Minimal Dependencies**: Reduced external dependencies where possible
+- **TypeScript**: Full type safety without runtime overhead
+
+### Reliability Features
+- **Error Recovery**: Graceful degradation on failures
+- **Retry Logic**: Configurable retry strategies for network operations
+- **Circuit Breakers**: Prevent cascade failures in service calls
+- **Monitoring**: Comprehensive error tracking and performance monitoring
 
 ---
-*Centralized library system with optimized loading and performance monitoring*
+
+**Last Updated**: January 29, 2025  
+**Total Modules**: 20+ utility and configuration modules  
+**Integration Coverage**: API, Database, Workflow, Design, Analytics  
+**Performance**: Optimized with caching, memoization, and tree shaking support
+
+> Need help with a specific utility? Check the import patterns above or refer to the service documentation in `/src/services/README.md` for integration examples.

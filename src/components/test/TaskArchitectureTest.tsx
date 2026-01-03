@@ -10,7 +10,7 @@
 
 import React from 'react';
 import { TaskContainerV2 } from '@/components/tasks/TaskContainerV2';
-import { Card, CardHeader, CardTitle, CardContent } from '@/shared/ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
 /**
  * Test component that demonstrates both task types side by side

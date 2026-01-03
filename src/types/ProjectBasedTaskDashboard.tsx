@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card';
-import { Button } from '@/shared/ui/button';
-import { Badge } from '@/shared/ui/badge';
-import { Input } from '@/shared/ui/input';
-import { Textarea } from '@/shared/ui/textarea';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   FolderOpen, 
   Clock, 
@@ -22,8 +22,8 @@ import {
   TrendingUp,
   Timer
 } from 'lucide-react';
-import { useToast } from '@/shared/ui/use-toast';
-import { useAuthSession } from '@/shared/hooks/useAuthSession';
+import { useToast } from '@/components/ui/use-toast';
+import { useAuthSession } from '@/lib/hooks/useAuthSession';
 import ProjectBasedTaskAgent, { 
   ProjectTaskSummary, 
   WorkTypeTaskSummary, 

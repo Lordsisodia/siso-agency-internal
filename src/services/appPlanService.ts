@@ -1,5 +1,5 @@
-import { supabase } from '@/integrations/supabase/client';
-import { multiStagePromptSystem, type ResearchPromptInput } from '@/shared/services/ai.service';
+import { supabase } from '@/services/integrations/supabase/client';
+import { multiStagePromptSystem, type ResearchPromptInput } from '@/services/shared/ai.service';
 import { type AppPlanInput } from '@/types/appPlan.types';
 
 export interface AppPlanData {

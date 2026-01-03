@@ -1,14 +1,12 @@
 {
   "mcpServers": {
     "siso-internal-supabase": {
-      "command": "npx",
+      "command": "/Users/shaansisodia/.npm-global/bin/mcp-server-supabase",
       "args": [
-        "-y",
-        "@supabase/mcp-server-supabase@latest",
         "--project-ref=avdgyrepwrvsvwgxrccr"
       ],
       "env": {
-        "SUPABASE_ACCESS_TOKEN": "sbp_46f04e75f8bba39917efda341bbf260ac60d3c8d"
+        "SUPABASE_ACCESS_TOKEN": "sbp_0a734f1ce509418785bdebfe10efe7eaea6ef0e7"
       }
     },
     "neo4j-memory-siso": {
@@ -41,6 +39,12 @@
         "@smithery/cli@latest",
         "run",
         "https://server.smithery.ai/@waldzellai/clear-thought/mcp"
+      ]
+    },
+    "filesystem": {
+      "command": "/Users/shaansisodia/.npm-global/bin/mcp-server-filesystem",
+      "args": [
+        "/Users/shaansisodia"
       ]
     }
   }
