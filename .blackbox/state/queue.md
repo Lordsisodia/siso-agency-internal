@@ -1,0 +1,1 @@
+- [planned] ISSUE-20260105-0011_timebox-full-screen-add-task-availability-planning-ui — 2026-01-04 — agent 02_classification_options
