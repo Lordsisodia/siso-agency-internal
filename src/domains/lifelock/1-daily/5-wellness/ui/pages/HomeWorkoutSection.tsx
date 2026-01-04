@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { motion } from 'framer-motion';
 import { Dumbbell, Settings } from 'lucide-react';
 import { format } from 'date-fns';
+import { subDays } from 'date-fns';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useClerkUser } from '@/lib/hooks/useClerkUser';
 import { useSupabaseUserId } from '@/lib/supabase-clerk';
 import { supabaseWorkoutService } from '@/domains/lifelock/_shared/services/supabaseWorkoutService';
+import type { WorkoutSessionSummary } from '@/domains/lifelock/_shared/services/supabaseWorkoutService';
 import type { Database } from '@/types/supabase';
 
 import {
@@ -30,6 +32,7 @@ import {
 import { XPPill } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/XPPill';
 import { calculateTotalWorkoutXP } from '@/domains/lifelock/1-daily/5-wellness/domain/xpCalculations';
 import { GamificationService } from '@/domains/lifelock/_shared/services/gamificationService';
+import { StreakTracker } from '@/domains/lifelock/2-weekly/_shared/StreakTracker';
 
 type WorkoutItemRow = Database['public']['Tables']['workout_items']['Row'];
 
@@ -124,6 +127,37 @@ const parseGoalValue = (value: string | null | undefined, config: ExerciseConfig
 const parseLoggedValue = (value: string | null | undefined, config: ExerciseConfig): number =>
   Math.max(0, parseValueForUnit(value, config, 0));
 
+const fillMissingDays = (
+  startKey: string,
+  endKey: string,
+  sessions: WorkoutSessionSummary[],
+): WorkoutSessionSummary[] => {
+  const byDate = new Map(sessions.map((s) => [s.date, s]));
+  const start = new Date(startKey);
+  const end = new Date(endKey);
+  const result: WorkoutSessionSummary[] = [];
+
+  const toKey = (d: Date) => format(d, 'yyyy-MM-dd');
+
+  for (let cursor = new Date(start); cursor <= end; cursor.setDate(cursor.getDate() + 1)) {
+    const key = toKey(cursor);
+    const existing = byDate.get(key);
+    if (existing) {
+      result.push(existing);
+    } else {
+      result.push({
+        date: key,
+        completed_count: 0,
+        total_count: 0,
+        completion_percentage: 0,
+        items: [],
+      });
+    }
+  }
+
+  return result;
+};
+
 interface HomeWorkoutSectionProps {
   selectedDate: Date;
 }
@@ -136,6 +170,8 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({ selected
 
   const [workoutItems, setWorkoutItems] = useState<WorkoutItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [weeklySessions, setWeeklySessions] = useState<WorkoutSessionSummary[]>([]);
+  const [streak, setStreak] = useState<{ current: number; best: number }>({ current: 0, best: 0 });
   const [isEditingGoals, setIsEditingGoals] = useState(false);
   const [goalDrafts, setGoalDrafts] = useState<Record<string, string>>({});
   const [loggedDrafts, setLoggedDrafts] = useState<Record<string, string>>({});
@@ -213,6 +249,27 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({ selected
   useEffect(() => {
     void loadWorkoutItems();
   }, [loadWorkoutItems]);
+
+  useEffect(() => {
+    const loadWeekly = async () => {
+      if (!internalUserId) {
+        setWeeklySessions([]);
+        setStreak({ current: 0, best: 0 });
+        return;
+      }
+
+      const endKey = format(selectedDate, 'yyyy-MM-dd');
+      const startKey = format(subDays(selectedDate, 6), 'yyyy-MM-dd');
+
+      const sessions = await supabaseWorkoutService.getWorkoutSessionsRange(internalUserId, startKey, endKey);
+      setWeeklySessions(fillMissingDays(startKey, endKey, sessions));
+
+      const streakResult = await supabaseWorkoutService.computeWorkoutStreak(internalUserId, 30, 90);
+      setStreak(streakResult);
+    };
+
+    void loadWeekly();
+  }, [internalUserId, selectedDate]);
 
   const updateItem = useCallback(async (id: string, updates: Partial<WorkoutItem>) => {
     if (!internalUserId) return;
@@ -350,6 +407,21 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({ selected
   const remainingTotal = Math.max(totals.goal - totals.logged, 0);
   const overallPercentColor = getPercentColorClass(overallPercent);
   const overallProgressGradient = getProgressGradient(overallPercent);
+
+  const weeklyXP = useMemo(() => {
+    return weeklySessions.reduce((sum, session) => {
+      const exercises = session.items.map(item => {
+        const config = resolveExerciseConfig(item.title);
+        return {
+          completed: item.completed,
+          logged: parseLoggedValue(item.logged, config),
+          target: parseGoalValue(item.target, config),
+          isPB: false,
+        };
+      });
+      return sum + calculateTotalWorkoutXP(exercises).total;
+    }, 0);
+  }, [weeklySessions]);
 
   const applyGoalValue = useCallback(
     async (item: WorkoutExerciseDisplay, nextGoal: number) => {
@@ -592,6 +664,10 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({ selected
                       />
                     </div>
                     <p className="text-sm text-rose-200/70">Daily targets for {readableDate}</p>
+                    <div className="mt-2 flex flex-wrap gap-3 text-xs text-rose-200/70">
+                      <span>Weekly XP: {weeklyXP}</span>
+                      <span>Streak: {streak.current}d (best {streak.best}d)</span>
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -641,6 +717,53 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({ selected
               </div>
             </CardHeader>
             <CardContent className="space-y-4 pb-24">
+              <div className="grid gap-3 rounded-2xl border border-rose-500/20 bg-black/30 p-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <div className="text-xs uppercase tracking-[0.2em] text-rose-200/70">Weekly Completion</div>
+                  <div className="flex items-end gap-2">
+                    <div className="text-2xl font-semibold text-rose-100">
+                      {Math.round(
+                        weeklySessions.reduce((sum, s) => sum + s.completion_percentage, 0) /
+                          (weeklySessions.length || 1),
+                      )}%
+                    </div>
+                    <span className="text-xs text-rose-200/60">avg last 7 days</span>
+                  </div>
+                  <div className="flex items-end gap-1">
+                    {weeklySessions.map(session => {
+                      const height = Math.max(12, Math.min(72, session.completion_percentage * 0.7));
+                      const gradient = session.completion_percentage >= 90
+                        ? 'from-emerald-400 to-emerald-600'
+                        : session.completion_percentage >= 60
+                          ? 'from-amber-400 to-amber-600'
+                          : 'from-rose-400 to-rose-600';
+
+                      return (
+                        <div key={session.date} className="flex flex-1 flex-col items-center gap-1">
+                          <div
+                            className={`w-full rounded-t-md bg-gradient-to-t ${gradient}`}
+                            style={{ height }}
+                            title={`${session.date}: ${session.completion_percentage}%`}
+                          />
+                          <span className="text-[10px] text-rose-200/60">
+                            {format(new Date(session.date), 'EEE')}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <div className="text-xs uppercase tracking-[0.2em] text-rose-200/70">Streaks</div>
+                  <StreakTracker
+                    streaks={[
+                      { name: 'Home Workout', count: streak.current, emoji: '🔥' },
+                      { name: 'Best', count: streak.best, emoji: '🏆' },
+                    ]}
+                  />
+                </div>
+              </div>
+
               {normalizedItems.map((item) => (
                 <WorkoutItemCard
                   key={item.id}

@@ -15,6 +15,14 @@ const DEFAULT_WORKOUT_ITEMS = [
 type WorkoutItem = Database['public']['Tables']['workout_items']['Row'];
 type WorkoutItemUpdate = Database['public']['Tables']['workout_items']['Update'];
 
+export interface WorkoutSessionSummary {
+  date: string;
+  completed_count: number;
+  total_count: number;
+  completion_percentage: number;
+  items: WorkoutSessionRecord['items'];
+}
+
 type WorkoutSessionRecord = {
   id: string;
   user_id: string;
@@ -326,6 +334,128 @@ export class SupabaseWorkoutService {
     const session = buildSessionRecord(userId, workoutDate, DEFAULT_WORKOUT_ITEMS);
     await this.persistSession(session);
     return mapSessionToItems(session);
+  }
+
+  async getWorkoutSessionsRange(userId: string, startDate: string, endDate: string): Promise<WorkoutSessionSummary[]> {
+    if (!userId) return [];
+
+    const offline = await offlineDb.getWorkoutSessions();
+    const normalizedOffline = offline
+      .filter(session => session.user_id === userId && session.workout_date >= startDate && session.workout_date <= endDate)
+      .map(session => buildSessionRecord(userId, session.workout_date, session.items as WorkoutSessionRecord['items'], session.id));
+
+    const offlineByDate = new Map(normalizedOffline.map(session => [session.date, session]));
+
+    let remote: WorkoutSessionRecord[] = [];
+    if (isOnline()) {
+      remote = await this.fetchSessionsRangeFromSupabase(userId, startDate, endDate);
+      for (const session of remote) {
+        await saveSessionOffline(session, false);
+        offlineByDate.set(session.date, session);
+      }
+    }
+
+    const allSessions = Array.from(offlineByDate.values()).sort((a, b) => a.date.localeCompare(b.date));
+
+    return allSessions.map(session => ({
+      date: session.date,
+      completed_count: session.completed_count,
+      total_count: session.total_count,
+      completion_percentage: session.completion_percentage,
+      items: session.items,
+    }));
+  }
+
+  async computeWorkoutStreak(userId: string, lookbackDays = 30, completionThreshold = 90): Promise<{ current: number; best: number; }> {
+    const end = new Date();
+    const start = new Date(end);
+    start.setDate(end.getDate() - (lookbackDays - 1));
+    const startKey = start.toISOString().slice(0, 10);
+    const endKey = end.toISOString().slice(0, 10);
+
+    const sessions = await this.getWorkoutSessionsRange(userId, startKey, endKey);
+    const byDate = new Map(sessions.map(s => [s.date, s]));
+
+    let current = 0;
+    let best = 0;
+    const cursor = new Date(end);
+
+    while (cursor >= start) {
+      const key = cursor.toISOString().slice(0, 10);
+      const entry = byDate.get(key);
+      const completed = entry ? entry.completion_percentage >= completionThreshold : false;
+
+      if (completed) {
+        current += 1;
+        best = Math.max(best, current);
+      } else {
+        best = Math.max(best, current);
+        current = 0;
+      }
+
+      cursor.setDate(cursor.getDate() - 1);
+    }
+
+    return { current, best };
+  }
+
+  private async fetchSessionsRangeFromSupabase(userId: string, startDate: string, endDate: string): Promise<WorkoutSessionRecord[]> {
+    const sessions: WorkoutSessionRecord[] = [];
+
+    const { data, error } = await supabase
+      .from('home_workouts')
+      .select('*')
+      .eq('user_id', userId)
+      .gte('date', startDate)
+      .lte('date', endDate)
+      .order('date', { ascending: true });
+
+    if (!error && data) {
+      data.forEach(row => {
+        sessions.push({
+          id: row.id,
+          user_id: row.user_id,
+          date: row.date,
+          items: row.workout_items ?? [],
+          completed_count: row.completed_count ?? 0,
+          total_count: row.total_count ?? (row.workout_items?.length ?? 0),
+          completion_percentage: row.completion_percentage ?? 0,
+          created_at: row.created_at ?? new Date().toISOString(),
+          updated_at: row.updated_at ?? new Date().toISOString(),
+        });
+      });
+
+      return sessions;
+    }
+
+    const { data: itemRows, error: itemsError } = await supabase
+      .from('workout_items')
+      .select('*')
+      .eq('user_id', userId)
+      .gte('workout_date', startDate)
+      .lte('workout_date', endDate)
+      .order('workout_date', { ascending: true })
+      .order('created_at', { ascending: true });
+
+    if (itemsError || !itemRows) {
+      if (itemsError) {
+        console.warn('[WorkoutService] Failed to fetch range from workout_items:', itemsError.message);
+      }
+      return sessions;
+    }
+
+    const grouped = new Map<string, WorkoutItem[]>();
+    for (const row of itemRows) {
+      const list = grouped.get(row.workout_date) ?? [];
+      list.push(row as WorkoutItem);
+      grouped.set(row.workout_date, list);
+    }
+
+    grouped.forEach((items, dateKey) => {
+      sessions.push(buildSessionFromItems(userId, dateKey, items));
+    });
+
+    return sessions;
   }
 }
 
