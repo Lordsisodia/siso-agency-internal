@@ -58,6 +58,7 @@ import {
   calculateTotalMorningXP
 } from '../../domain/xpCalculations';
 import { calculateWaterXP } from '@/domains/lifelock/1-daily/5-wellness/domain/xpCalculations';
+import type { WaterTrackerSnapshot } from '@/domains/lifelock/1-daily/5-wellness/domain/types';
 import { XPPill } from '../components/XPPill';
 import { XPFooterSummary } from '../components/XPFooterSummary';
 
@@ -248,8 +249,8 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   // Plan Day completion state
   const [isPlanDayComplete, setIsPlanDayComplete] = useState<boolean>(false);
 
-// Water tracking state
-const [waterAmount, setWaterAmount] = useState<number>(0);
+// Water tracking state (Supabase-backed via waterService)
+const [waterSnapshot, setWaterSnapshot] = useState<WaterTrackerSnapshot | null>(null);
 const waterXPRef = useRef(0);
 
   // Push-ups tracking state
@@ -300,10 +301,6 @@ const waterXPRef = useRef(0);
     localStorage.setItem(`lifelock-pushups-${routineDateKey}`, String(pushupReps));
   }, [pushupReps, routineDateKey]);
 
-  useEffect(() => {
-    localStorage.setItem(`lifelock-water-amount-${routineDateKey}`, String(waterAmount));
-  }, [waterAmount, routineDateKey]);
-
   const [xpState, setXpState] = useState<MorningRoutineXPState>(() => loadXpStateFromStorage(xpStorageKey));
 
   useEffect(() => {
@@ -345,7 +342,7 @@ const waterXPRef = useRef(0);
     });
 
     setWakeUpTime(morningRoutineState.metadata.wakeUpTime ?? '');
-    setWaterAmount(morningRoutineState.metadata.waterAmount ?? 0);
+    setWaterSnapshot(null); // will be populated by WaterTracker fetch
     setMeditationDuration(morningRoutineState.metadata.meditationDuration ?? '');
     setPushupReps(morningRoutineState.metadata.pushupReps ?? 0);
     setDailyPriorities(morningRoutineState.metadata.dailyPriorities ?? ['', '', '']);
@@ -381,13 +378,6 @@ const waterXPRef = useRef(0);
 
     debouncedMetadataUpdate?.({ wakeUpTime });
   }, [wakeUpTime, selectedDate, debouncedMetadataUpdate, routineDateKey]);
-
-  // Save water amount to Supabase + localStorage (debounced)
-  useEffect(() => {
-    if (!selectedDate || isNaN(selectedDate.getTime())) return;
-
-    debouncedMetadataUpdate?.({ waterAmount });
-  }, [waterAmount, selectedDate, debouncedMetadataUpdate, routineDateKey]);
 
   // Save meditation duration to Supabase + localStorage (debounced)
   useEffect(() => {
@@ -557,14 +547,9 @@ const waterXPRef = useRef(0);
     planDayPreviousValue.current = isPlanDayComplete;
   }, [isPlanDayComplete, xpState.steps.planDay, awardHabitCompletion]);
 
-  // Water tracking functions
-  const incrementWater = () => {
-    setWaterAmount(prev => prev + 100);
-  };
-
-  const decrementWater = () => {
-    setWaterAmount(prev => Math.max(0, prev - 100)); // Don't go below 0
-  };
+  // Water tracking handled inside WaterTracker via Supabase snapshot
+  const incrementWater = () => {};
+  const decrementWater = () => {};
 
   // Push-up tracking functions
   const updatePushupReps = (reps: number) => {
@@ -665,19 +650,19 @@ const waterXPRef = useRef(0);
       },
       pushupReps,
       pushupPB,
-      waterAmount,
+      waterAmount: waterSnapshot?.dailyTotalMl ?? 0,
       supplementsCompleted: isHabitCompleted('supplements'),
       planDayComplete: isPlanDayComplete,
       meditationDuration,
       priorities: dailyPriorities
     });
     return result;
-  }, [wakeUpTime, selectedDate, isHabitCompleted, pushupReps, pushupPB, waterAmount, isPlanDayComplete, meditationDuration, dailyPriorities]);
+  }, [wakeUpTime, selectedDate, isHabitCompleted, pushupReps, pushupPB, waterSnapshot, isPlanDayComplete, meditationDuration, dailyPriorities]);
 
   const waterXP = useMemo(() => {
-    const result = calculateWaterXP(waterAmount, 2000, 0);
+    const result = calculateWaterXP(waterSnapshot?.dailyTotalMl ?? 0, waterSnapshot?.goalMl ?? 2000, 0);
     return result.total;
-  }, [waterAmount]);
+  }, [waterSnapshot]);
 
   useEffect(() => {
     if (!selectedDate || Number.isNaN(selectedDate.getTime())) {
@@ -996,9 +981,9 @@ const waterXPRef = useRef(0);
                             {/* Water Tracking UI - Special case for water subtask */}
                             {subtask.key === 'water' && (
                               <WaterTracker
-                                value={waterAmount}
-                                onIncrement={incrementWater}
-                                onDecrement={decrementWater}
+                                selectedDate={selectedDate}
+                                userId={internalUserId}
+                                onSnapshotChange={setWaterSnapshot}
                               />
                             )}
                           </div>
