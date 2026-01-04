@@ -15,7 +15,8 @@ export const mapCategoryToUI = (dbCategory: TimeBlockCategory): string => {
     PERSONAL: 'wellness',
     HEALTH: 'wellness',
     LEARNING: 'light-work',
-    ADMIN: 'admin'
+    ADMIN: 'admin',
+    AVAILABILITY: 'availability'
   };
   return categoryMap[dbCategory] || 'admin';
 };
@@ -26,7 +27,8 @@ export const mapUIToCategory = (uiCategory: string): TimeBlockCategory => {
     'light-work': 'LIGHT_WORK',
     'admin': 'ADMIN',
     'wellness': 'PERSONAL',
-    'morning': 'PERSONAL'
+    'morning': 'PERSONAL',
+    'availability': 'AVAILABILITY'
   };
   return uiMap[uiCategory] || 'ADMIN';
 };

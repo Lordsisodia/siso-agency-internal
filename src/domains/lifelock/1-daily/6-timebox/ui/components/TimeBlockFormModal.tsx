@@ -54,6 +54,8 @@ export interface TimeBlockFormModalProps {
   onCheckConflicts?: (startTime: string, endTime: string, excludeId?: string) => Promise<TimeBlockConflict[]>;
   userId?: string | null;
   dateKey?: string;
+  initialCategory?: TimeBlockCategory;
+  variant?: 'modal' | 'fullscreen';
 }
 
 const categoryIcons: Record<TimeBlockCategory, React.ComponentType<{ className?: string }>> = {
@@ -64,7 +66,8 @@ const categoryIcons: Record<TimeBlockCategory, React.ComponentType<{ className?:
   PERSONAL: Heart,
   HEALTH: Heart,
   LEARNING: BookOpen,
-  ADMIN: Settings
+  ADMIN: Settings,
+  AVAILABILITY: Calendar
 };
 
 const categoryColors: Record<TimeBlockCategory, string> = {
@@ -75,7 +78,8 @@ const categoryColors: Record<TimeBlockCategory, string> = {
   PERSONAL: 'from-purple-600/20 to-pink-600/20 border-purple-500/40',
   HEALTH: 'from-teal-600/20 to-cyan-600/20 border-teal-500/40',
   LEARNING: 'from-cyan-600/20 to-blue-600/20 border-cyan-500/40',
-  ADMIN: 'from-indigo-600/20 to-purple-600/20 border-indigo-500/40'
+  ADMIN: 'from-indigo-600/20 to-purple-600/20 border-indigo-500/40',
+  AVAILABILITY: 'from-amber-500/20 via-amber-400/15 to-transparent border-amber-400/40'
 };
 
 const categoryThemes: Record<TimeBlockCategory, { header: string; accent: string; chip: string; icon: string }> = {
@@ -126,6 +130,12 @@ const categoryThemes: Record<TimeBlockCategory, { header: string; accent: string
     accent: 'text-purple-100',
     chip: 'bg-purple-500/15 text-purple-100 border-purple-400/30',
     icon: 'bg-purple-500/20 border-purple-400/40'
+  },
+  AVAILABILITY: {
+    header: 'from-amber-500/35 via-amber-400/20 to-transparent',
+    accent: 'text-amber-100',
+    chip: 'bg-amber-500/15 text-amber-100 border-amber-400/30',
+    icon: 'bg-amber-500/25 border-amber-400/40'
   }
 };
 
@@ -139,14 +149,16 @@ export const TimeBlockFormModal: React.FC<TimeBlockFormModalProps> = ({
   conflicts = [],
   onCheckConflicts,
   userId,
-  dateKey
+  dateKey,
+  initialCategory,
+  variant = 'modal'
 }) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     startTime: '',
     endTime: '',
-    category: 'DEEP_WORK' as TimeBlockCategory,
+    category: (initialCategory ?? 'DEEP_WORK') as TimeBlockCategory,
     notes: ''
   });
   
@@ -262,7 +274,7 @@ export const TimeBlockFormModal: React.FC<TimeBlockFormModalProps> = ({
         description: '',
         startTime: startTime.toTimeString().slice(0, 5),
         endTime: endTime.toTimeString().slice(0, 5),
-        category: 'DEEP_WORK',
+        category: (initialCategory ?? 'DEEP_WORK') as TimeBlockCategory,
         notes: ''
       });
       setLinkedTask(null);
@@ -457,6 +469,16 @@ export const TimeBlockFormModal: React.FC<TimeBlockFormModalProps> = ({
   const duration = formData.startTime && formData.endTime ? 
     TimeBlockUtils.calculateDuration(formData.startTime, formData.endTime) : 0;
 
+  const containerClass = variant === 'fullscreen'
+    ? 'w-full max-w-5xl max-h-[95vh]'
+    : 'w-full max-w-2xl max-h-[90vh]';
+
+  const availabilityPresets = [
+    { label: 'Heads-down', duration: 120, notes: 'Protect this window for deep focus. Meeting-free.', startShift: 0 },
+    { label: 'No meetings', duration: 60, notes: 'Hold for async work; decline meetings.', startShift: 0 },
+    { label: 'Recovery', duration: 45, notes: 'Recovery / bio break buffer between tasks.', startShift: 0 }
+  ];
+
   return (
     <AnimatePresence>
       <motion.div
@@ -470,10 +492,12 @@ export const TimeBlockFormModal: React.FC<TimeBlockFormModalProps> = ({
           className="w-full max-w-2xl max-h-[90vh] overflow-y-auto"
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          onClick={(e) => e.stopPropagation()}
+        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+        onClick={(e) => e.stopPropagation()}
         >
-          <Card className="bg-gray-950/95 border-gray-800/70 shadow-2xl backdrop-blur-xl overflow-hidden">
+          <Card className="bg-gray-950/95 border-gray-800/70 shadow-2xl backdrop-blur-xl overflow-hidden"
+            style={{ width: '100%' }}
+          >
             <CardHeader className={cn('relative border-b border-white/5 px-6 py-5 overflow-hidden', theme.header)}>
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.35),transparent)] opacity-30 pointer-events-none" />
               <div className="relative z-10 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
@@ -603,6 +627,17 @@ export const TimeBlockFormModal: React.FC<TimeBlockFormModalProps> = ({
                     <div className="rounded-2xl border border-white/5 bg-gray-900/70 p-5 space-y-4">
                       <div className="flex items-center justify-between">
                         <span className="text-xs uppercase tracking-[0.32em] text-white/50">Time Helpers</span>
+                        {formData.category !== 'AVAILABILITY' && (
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            className="border-amber-400/50 text-amber-100 hover:bg-amber-500/20"
+                            onClick={() => handleInputChange('category', 'AVAILABILITY')}
+                          >
+                            Plan availability
+                          </Button>
+                        )}
                       </div>
                       <div className="grid grid-cols-5 gap-2">
                         {[
@@ -739,6 +774,44 @@ export const TimeBlockFormModal: React.FC<TimeBlockFormModalProps> = ({
                             <div className="absolute top-[3px] left-[3px] h-5 w-5 rounded-full bg-white shadow transition peer-checked:translate-x-5" />
                           </div>
                         </label>
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-amber-400/40 bg-amber-500/10 p-5 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs uppercase tracking-[0.32em] text-amber-100/80">Availability presets</span>
+                        <Badge className="bg-amber-500/20 text-amber-100 border-amber-400/50">Beta</Badge>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        {availabilityPresets.map((preset) => (
+                          <Button
+                            key={preset.label}
+                            type="button"
+                            className="border border-amber-400/40 bg-amber-500/15 text-amber-50 hover:bg-amber-500/25"
+                            onClick={() => {
+                              if (!formData.startTime) {
+                                toast?.error?.('Set a start time first');
+                                return;
+                              }
+                              const duration = preset.duration;
+                              const [h, m] = formData.startTime.split(':').map(Number);
+                              const endMinutes = h * 60 + m + duration;
+                              if (endMinutes >= 24 * 60) {
+                                toast?.error?.('End time would exceed midnight');
+                                return;
+                              }
+                              const endTime = `${Math.floor(endMinutes / 60).toString().padStart(2, '0')}:${(endMinutes % 60).toString().padStart(2, '0')}`;
+                              setFormData(prev => ({
+                                ...prev,
+                                category: 'AVAILABILITY',
+                                endTime,
+                                notes: preset.notes
+                              }));
+                            }}
+                          >
+                            {preset.label}
+                          </Button>
+                        ))}
                       </div>
                     </div>
 

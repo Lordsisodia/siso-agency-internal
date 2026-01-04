@@ -556,7 +556,8 @@ class UnifiedDataService {
       'PERSONAL': 'personal',
       'HEALTH': 'health',
       'LEARNING': 'learning',
-      'ADMIN': 'admin'
+      'ADMIN': 'admin',
+      'AVAILABILITY': 'availability'
     };
 
     const dbType = categoryToTypeMap[timeBlock.category || ''] || timeBlock.type || 'work';
@@ -651,7 +652,8 @@ class UnifiedDataService {
       'PERSONAL': 'personal',
       'HEALTH': 'health',
       'LEARNING': 'learning',
-      'ADMIN': 'admin'
+      'ADMIN': 'admin',
+      'AVAILABILITY': 'availability'
     };
 
     const dbType = updates.category ? categoryToTypeMap[updates.category] : (updatedBlock.type || 'work');
