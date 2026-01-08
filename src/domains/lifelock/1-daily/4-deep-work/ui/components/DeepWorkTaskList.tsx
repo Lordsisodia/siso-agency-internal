@@ -46,6 +46,7 @@ import { getDeepWorkPriorityMultiplier } from "@/domains/lifelock/1-daily/_share
 import { useClientsList } from "@/domains/client/hooks/useClientsList";
 import { Building2 } from "lucide-react";
 import { useGamificationInit } from "@/lib/hooks/useGamificationInit";
+import { useDeepWorkTimers, formatMsAsClock } from "@/hooks/useDeepWorkTimers";
 
 // Type definitions - exact same as original
 interface Subtask {
@@ -214,6 +215,20 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
     const saved = localStorage.getItem(`deepwork-${dateKey}-taskOrder`);
     return saved ? JSON.parse(saved) : [];
   });
+
+  // Timestamp-based deep work timers
+  const { activeTimer, start, stop, getElapsedMsForTask, totalMsForDay } = useDeepWorkTimers(dateKey);
+  const activeTimerTaskTitle = useMemo(
+    () => tasks.find(t => t.id === activeTimer?.taskId)?.title || 'Deep Work',
+    [tasks, activeTimer]
+  );
+  const handleTimerToggle = (taskId: string) => {
+    if (activeTimer?.taskId === taskId) {
+      stop(taskId);
+    } else {
+      start(taskId);
+    }
+  };
 
   const [editingSubtask, setEditingSubtask] = useState<string | null>(null);
   const [editSubtaskTitle, setEditSubtaskTitle] = useState('');
@@ -1117,6 +1132,22 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
                                 <span>{summary.formatted}</span>
                               </button>
                             )}
+
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleTimerToggle(task.id);
+                              }}
+                              className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium border transition-colors ${
+                                activeTimer?.taskId === task.id
+                                  ? 'bg-green-900/30 text-green-200 border-green-700/60 hover:bg-green-900/40'
+                                  : 'bg-blue-900/20 text-blue-200 border-blue-700/50 hover:bg-blue-900/30'
+                              }`}
+                              title="Start or stop deep work timer"
+                            >
+                              <Timer className="h-3.5 w-3.5" />
+                              <span>{activeTimer?.taskId === task.id ? 'Stop' : 'Start'} • {formatMsAsClock(getElapsedMsForTask(task.id))}</span>
+                            </button>
 
                             {/* Reorder Arrows - Inline */}
                             <div className="flex items-center gap-1 ml-auto">

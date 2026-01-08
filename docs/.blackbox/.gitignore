@@ -1,0 +1,16 @@
+# Runtime artifacts (keep markdown plans/decisions committed; ignore ephemeral artifacts)
+.cache/
+.local/
+*.log
+
+# Per-run artifacts (avoid large binaries by default)
+.runs/**/artifacts/raw.md
+.runs/**/artifacts/*.html
+.runs/**/artifacts/*.pdf
+.runs/**/artifacts/*.png
+.runs/**/artifacts/*.jpg
+.runs/**/artifacts/*.jpeg
+
+# Optional caches inside runs
+.runs/**/.cache/
+.runs/**/.tmp/

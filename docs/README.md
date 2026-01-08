@@ -2,6 +2,14 @@
 
 Use this file as the map. Content is organized into six top-level areas with consistent subfolders.
 
+## Blackbox (agent workflow)
+- `docs/.blackbox/` — agent-operable runtime for feedback → grouping → plans → implementation → verification
+- Canonical docs routing + ledger:
+  - `docs/process/information-routing.md`
+  - `docs/process/docs-ledger.md`
+ - Runs (per-batch workspaces): `docs/.blackbox/.runs/`
+ - Domain knowledge (durable context): `docs/.blackbox/domains/`
+
 ## Top-Level Areas
 - 🏗️ `platform/` — architecture, migrations, offline, BMAD
 - 📦 `product/` — LifeLock domain + planning, PRDs, features

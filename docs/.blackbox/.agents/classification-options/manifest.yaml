@@ -1,0 +1,13 @@
+id: classification-options
+role: "Classify issues and propose 3 realistic solution options (A/B/C)"
+
+skills:
+  - "../../.skills/repo-codebase-navigation.md"
+
+prompts:
+  - "../../.prompts/00_siso_internal_context_pack.md"
+  - "../../.prompts/30_solution_options.md"
+
+outputs:
+  - ".runs/<run>/issues/<issue>/options.md"
+

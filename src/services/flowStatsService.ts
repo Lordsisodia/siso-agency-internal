@@ -1,4 +1,5 @@
 import { FlowSession, FlowStats, TaskContext, FocusIntensity } from '@/domains/tasks/ui/FlowStateTimer';
+import { DeepWorkTimerService } from './deepWorkTimerService';
 
 export class FlowStatsService {
   private static readonly STORAGE_KEY = 'lifelock-flow-stats';
@@ -20,6 +21,17 @@ export class FlowStatsService {
     } catch (error) {
       console.error('Failed to save flow session:', error);
     }
+  }
+
+  /**
+   * Deep work total minutes for a given day (derived from deepWorkTimerService)
+   */
+  static getDeepWorkMinutes(date: Date): number {
+    const month = `${date.getMonth() + 1}`.padStart(2, '0');
+    const day = `${date.getDate()}`.padStart(2, '0');
+    const dateKey = `${date.getFullYear()}-${month}-${day}`;
+    const { totalMs } = DeepWorkTimerService.getDailyTotals(dateKey);
+    return Math.round(totalMs / 60000);
   }
 
   /**
