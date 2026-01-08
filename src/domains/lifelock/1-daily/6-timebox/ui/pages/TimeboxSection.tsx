@@ -20,6 +20,7 @@ import { useTimeboxHandlers } from '../../domain/useTimeboxHandlers';
 import { TimeboxStats } from '../components/TimeboxStats';
 import { TimeboxTimeline } from '../components/TimeboxTimeline';
 import { AUTO_TIMEBOX_CONFIG, createOrUpdateAutoTimeboxes } from '@/domains/lifelock/_shared/services/autoTimeblockService';
+import { Badge } from '@/components/ui/badge';
 
 const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }) => {
   // Authentication
@@ -40,6 +41,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
   const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
   const [gapFiller, setGapFiller] = useState<GapFillerState | null>(null);
   const [gapSuggestions, setGapSuggestions] = useState<any[]>([]);
+  const [availabilityMode, setAvailabilityMode] = useState(false);
   const [wakeUpTime, setWakeUpTime] = useState('');
   const timelineContainerRef = useRef<HTMLDivElement | null>(null);
   const processedAutoAdjustmentsRef = useRef<Set<string>>(new Set());
@@ -393,7 +395,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
   return (
     <div className="min-h-screen w-full bg-transparent">
       <div className="w-full relative">
-        <div className="max-w-screen-2xl mx-auto px-0 sm:px-4 md:px-6 lg:px-10 py-6 pb-32 space-y-6">
+          <div className="max-w-screen-2xl mx-auto px-0 sm:px-4 md:px-6 lg:px-10 py-6 pb-32 space-y-6">
           {/* Stats Section */}
           <TimeboxStats
             validTasks={validTasks}
@@ -430,6 +432,23 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
                 <Zap className="h-4 w-4 mr-2" />
                 Focus Sprint
               </Button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                onClick={() => {
+                  setAvailabilityMode(true);
+                  setIsFormModalOpen(true);
+                  setEditingBlock(null);
+                }}
+                className="bg-amber-500/80 hover:bg-amber-500 text-black font-semibold shadow-xl border border-amber-300/60"
+                size="lg"
+              >
+                <Calendar className="h-4 w-4 mr-2" />
+                Add Availability
+              </Button>
+
+              <Badge className="justify-center bg-amber-500/15 text-amber-50 border-amber-300/40 py-3 text-xs uppercase tracking-[0.18em]">Availability beta</Badge>
             </div>
 
             {/* Sprint Selection Menu */}
@@ -574,6 +593,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
           onClose={() => {
             setIsFormModalOpen(false);
             setEditingBlock(null);
+            setAvailabilityMode(false);
           }}
           onSubmit={handleCreateBlock}
           onUpdate={handleUpdateBlock}
@@ -583,6 +603,8 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
           onCheckConflicts={handleCheckConflicts}
           userId={internalUserId}
           dateKey={dateKey}
+          initialCategory={availabilityMode ? 'AVAILABILITY' : undefined}
+          variant={availabilityMode ? 'fullscreen' : 'modal'}
         />
 
         {isQuickSchedulerOpen && (

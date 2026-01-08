@@ -10,7 +10,16 @@
 import { unifiedDataService } from '@/services/shared/unified-data.service';
 
 // Types (no Prisma dependency)
-export type TimeBlockCategory = 'DEEP_WORK' | 'LIGHT_WORK' | 'MEETING' | 'BREAK' | 'PERSONAL' | 'HEALTH' | 'LEARNING' | 'ADMIN';
+export type TimeBlockCategory =
+  | 'DEEP_WORK'
+  | 'LIGHT_WORK'
+  | 'MEETING'
+  | 'BREAK'
+  | 'PERSONAL'
+  | 'HEALTH'
+  | 'LEARNING'
+  | 'ADMIN'
+  | 'AVAILABILITY';
 
 export interface TimeBlock {
   id: string;
@@ -94,7 +103,12 @@ export class TimeBlockUtils {
       'DEEP_WORK': 'Deep Work',
       'LIGHT_WORK': 'Light Work',
       'BREAK': 'Break',
-      'MEETING': 'Meeting'
+      'MEETING': 'Meeting',
+      'PERSONAL': 'Personal',
+      'HEALTH': 'Health',
+      'LEARNING': 'Learning',
+      'ADMIN': 'Admin',
+      'AVAILABILITY': 'Availability'
     };
     return labels[category] || category;
   }
@@ -132,6 +146,7 @@ export class TimeBlocksAPI {
         'health': 'HEALTH',
         'learning': 'LEARNING',
         'admin': 'ADMIN',
+        'availability': 'AVAILABILITY',
         'work': 'LIGHT_WORK' // Default fallback
       };
 
