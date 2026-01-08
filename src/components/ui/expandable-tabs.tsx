@@ -6,6 +6,29 @@ import { useOnClickOutside } from "usehooks-ts";
 import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
 
+// Custom 9-dot icon (circle with 9 smaller circles inside)
+export const NineDotsIcon = ({ className }: { className?: string }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+  >
+    {/* Outer circle */}
+    <circle cx="12" cy="12" r="11" strokeWidth="2" />
+    {/* 9 inner dots in 3x3 grid */}
+    <circle cx="8" cy="8" r="1.5" fill="currentColor" />
+    <circle cx="12" cy="8" r="1.5" fill="currentColor" />
+    <circle cx="16" cy="8" r="1.5" fill="currentColor" />
+    <circle cx="8" cy="12" r="1.5" fill="currentColor" />
+    <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+    <circle cx="16" cy="12" r="1.5" fill="currentColor" />
+    <circle cx="8" cy="16" r="1.5" fill="currentColor" />
+    <circle cx="12" cy="16" r="1.5" fill="currentColor" />
+    <circle cx="16" cy="16" r="1.5" fill="currentColor" />
+  </svg>
+);
+
 interface Tab {
   title: string;
   icon: LucideIcon;
@@ -30,26 +53,7 @@ interface ExpandableTabsProps {
   onChange?: (index: number | null) => void;
 }
 
-const buttonVariants = {
-  initial: {
-    gap: 0,
-    paddingLeft: ".375rem",
-    paddingRight: ".375rem",
-  },
-  animate: (isSelected: boolean) => ({
-    gap: isSelected ? ".5rem" : 0,
-    paddingLeft: isSelected ? ".75rem" : ".375rem",
-    paddingRight: isSelected ? ".75rem" : ".375rem",
-  }),
-};
-
-const spanVariants = {
-  initial: { width: 0, opacity: 0 },
-  animate: { width: "auto", opacity: 1 },
-  exit: { width: 0, opacity: 0 },
-};
-
-const transition = { delay: 0.1, type: "spring", bounce: 0, duration: 0.6 };
+const transition = { type: "spring", bounce: 0, duration: 0.4 };
 
 export const ExpandableTabs = React.memo(function ExpandableTabs({
   tabs,
@@ -65,11 +69,6 @@ export const ExpandableTabs = React.memo(function ExpandableTabs({
   // Use activeIndex prop directly - eliminates state synchronization race condition
   const selected = activeIndex;
 
-  // Don't collapse tabs on outside click - keep them expanded based on active page
-  // useOnClickOutside(outsideClickRef, () => {
-  //   onChange?.(null);
-  // });
-
   const handleSelect = (index: number) => {
     // Only call parent onChange - no local state to manage
     onChange?.(index);
@@ -83,7 +82,7 @@ export const ExpandableTabs = React.memo(function ExpandableTabs({
     <div
       ref={outsideClickRef}
       className={cn(
-        "flex flex-wrap items-center justify-center gap-2 rounded-2xl border border-white/10 bg-gray-900/30 backdrop-blur-xl p-1 shadow-2xl",
+        "flex flex-wrap items-center justify-center gap-1 rounded-2xl border border-white/10 bg-gray-900/30 backdrop-blur-xl p-1.5 shadow-2xl",
         className
       )}
     >
@@ -93,40 +92,31 @@ export const ExpandableTabs = React.memo(function ExpandableTabs({
         }
 
         const Icon = tab.icon;
+        const isLastTab = index === tabs.length - 1;
+        const isSelected = selected === index;
+
+        // Use NineDotsIcon for the last tab (More button)
+        const DisplayIcon = isLastTab ? NineDotsIcon : Icon;
+
         return (
           <motion.button
             key={tab.title}
-            variants={buttonVariants}
-            initial={false}
-            animate="animate"
-            custom={selected === index}
             onClick={() => handleSelect(index)}
             transition={transition}
             className={cn(
-              "relative flex items-center rounded-xl px-3 py-2 text-xs font-medium transition-colors duration-300",
-              selected === index
+              "relative flex flex-col items-center justify-center gap-1 rounded-xl px-2 py-2 min-w-[60px] transition-all duration-300",
+              isSelected
                 ? cn(activeBgColor, activeColor)
                 : cn(
                     inactiveColor,
-                    "hover:bg-muted hover:text-white focus-visible:text-white"
+                    "hover:bg-white/5"
                   )
             )}
           >
-            <Icon size={16} />
-            <AnimatePresence initial={false}>
-              {selected === index && (
-                <motion.span
-                  variants={spanVariants}
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                  transition={transition}
-                  className="overflow-hidden whitespace-nowrap"
-                >
-                  {tab.title}
-                </motion.span>
-              )}
-            </AnimatePresence>
+            <DisplayIcon size={20} strokeWidth={2} />
+            <span className="text-[10px] font-medium whitespace-nowrap">
+              {tab.title}
+            </span>
           </motion.button>
         );
       })}

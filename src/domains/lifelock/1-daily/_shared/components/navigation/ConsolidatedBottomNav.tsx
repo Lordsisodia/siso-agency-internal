@@ -4,17 +4,17 @@
  * Wraps the existing DailyBottomNav to provide 4-button layout + Smart View Navigator + More menu
  * - Button 1-3: Timebox, Tasks, Wellness (with sub-nav support)
  * - Button 4: Smart View Navigator (contextual based on current view)
- * - Button 5: More menu (bottom sheet with additional pages)
+ * - Button 5: More menu (popover with additional pages)
  */
 
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Grid2x2, X } from 'lucide-react';
 import { NAV_SECTIONS, MORE_MENU_ITEMS, getViewNavigator } from '@/services/shared/navigation-config';
 import { DailyBottomNav, DailyBottomNavTab } from './DailyBottomNav';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { NineDotsIcon } from '@/components/ui/expandable-tabs';
 
 interface ConsolidatedBottomNavProps {
   activeSection: string;
@@ -52,7 +52,7 @@ export const ConsolidatedBottomNav: React.FC<ConsolidatedBottomNavProps> = ({
     // Add More button as 5th button
     baseTabs.push({
       title: 'More',
-      icon: Grid2x2
+      icon: NineDotsIcon
     });
 
     return baseTabs;
@@ -66,7 +66,7 @@ export const ConsolidatedBottomNav: React.FC<ConsolidatedBottomNavProps> = ({
 
     // Check if it's the More button (last index, index 4)
     if (index === tabs.length - 1) {
-      setMoreMenuOpen(true);
+      setMoreMenuOpen(!moreMenuOpen);
       return;
     }
 
@@ -99,34 +99,40 @@ export const ConsolidatedBottomNav: React.FC<ConsolidatedBottomNavProps> = ({
         className={className}
       />
 
-      {/* More Menu - Bottom Sheet */}
-      <Sheet open={moreMenuOpen} onOpenChange={setMoreMenuOpen}>
-        <SheetTrigger asChild>
-          <Button variant="ghost" className="hidden" />
-        </SheetTrigger>
-        <SheetContent
-          side="bottom"
-          className="h-[60vh] bg-gray-900/95 backdrop-blur-xl border-white/10"
+      {/* More Menu - Popover that appears above nav */}
+      <Popover open={moreMenuOpen} onOpenChange={setMoreMenuOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="ghost"
+            className="fixed bottom-24 right-6 opacity-0 pointer-events-none"
+            id="more-menu-trigger"
+          />
+        </PopoverTrigger>
+        <PopoverContent
+          align="center"
+          side="top"
+          className="w-[calc(100vw-2rem)] max-w-xl bg-gray-900/95 backdrop-blur-xl border-white/10 shadow-2xl p-4"
+          sideOffset={16}
         >
-          <SheetHeader>
-            <SheetTitle className="text-white text-left">More</SheetTitle>
-          </SheetHeader>
-
-          <div className="py-6 grid grid-cols-2 gap-4">
-            {MORE_MENU_ITEMS.map(item => (
-              <Button
-                key={item.id}
-                variant="ghost"
-                onClick={() => handleMoreMenuClick(item.path)}
-                className="h-24 flex flex-col gap-2 bg-white/5 hover:bg-white/10 border border-white/10"
-              >
-                <item.icon className="h-8 w-8 text-amber-400" />
-                <span className="text-sm font-medium text-white">{item.label}</span>
-              </Button>
-            ))}
+          <div className="space-y-2">
+            <h3 className="text-sm font-semibold text-white mb-4">More</h3>
+            <div className="grid grid-cols-3 gap-3">
+              {MORE_MENU_ITEMS.map(item => (
+                <button
+                  key={item.id}
+                  onClick={() => handleMoreMenuClick(item.path)}
+                  className="flex flex-col items-center gap-2 p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
+                >
+                  <item.icon className="h-6 w-6 text-amber-400" />
+                  <span className="text-xs font-medium text-white text-center leading-tight">
+                    {item.label}
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
-        </SheetContent>
-      </Sheet>
+        </PopoverContent>
+      </Popover>
     </>
   );
 };
