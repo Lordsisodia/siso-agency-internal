@@ -1,17 +1,19 @@
 import React, { useState, ReactNode, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { format, addDays, subDays } from 'date-fns';
-import { 
+import {
   ChevronLeft,
   ChevronRight,
   ArrowLeft,
   Menu
 } from 'lucide-react';
 import { TAB_CONFIG, TabId, getAllTabIds } from '@/services/shared/tab-config';
+import { NAV_SECTIONS, LEGACY_TAB_MAPPING } from '@/services/shared/navigation-config';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { DailyBottomNav } from '@/domains/lifelock/1-daily/_shared/components';
+import { ConsolidatedBottomNav } from '@/domains/lifelock/1-daily/_shared/components/navigation/ConsolidatedBottomNav';
+import { SectionSubNav } from '@/components/navigation/SectionSubNav';
 import { cn } from '@/lib/utils';
 
 // Use centralized tab configuration to prevent routing inconsistencies
@@ -56,32 +58,78 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  // Get smart default tab based on time of day
+  const location = useLocation();
+
+  // NEW: Section and subtab state for consolidated navigation
+  const [activeSection, setActiveSection] = useState<string>('timebox');
+  const [activeSubTab, setActiveSubTab] = useState<string>('timebox');
+
+  // Handle legacy tab URLs for backward compatibility
+  useEffect(() => {
+    const legacyTab = searchParams.get('tab');
+    if (legacyTab && LEGACY_TAB_MAPPING[legacyTab]) {
+      const { section, subtab } = LEGACY_TAB_MAPPING[legacyTab];
+      setActiveSection(section);
+      if (subtab) setActiveSubTab(subtab);
+      // Remove legacy tab param
+      searchParams.delete('tab');
+      setSearchParams(searchParams);
+    }
+  }, []);
+
+  // Read from URL params on mount (new format)
+  useEffect(() => {
+    const sectionParam = searchParams.get('section');
+    const subtabParam = searchParams.get('subtab');
+
+    if (sectionParam) {
+      setActiveSection(sectionParam);
+      if (subtabParam) {
+        setActiveSubTab(subtabParam);
+      }
+    }
+  }, []);
+
+  // Get smart defaults based on time of day
   const getSmartDefaultTab = (): string => {
-    // BUSINESS FIX: Always default to morning to show comprehensive morning routine
     return 'morning';
-    
-    // TODO: Re-enable time-based logic after morning routine is stable
-    // const hour = new Date().getHours();
-    // const relevantTab = tabs.find(tab => tab.timeRelevance.includes(hour));
-    // return relevantTab?.id || 'morning';
   };
 
+  // Legacy: keep activeTabId for compatibility with existing children
   const [activeTabId, setActiveTabId] = useState<string>(
     searchParams.get('tab') || getSmartDefaultTab()
   );
 
-  const activeTabIndex = tabs.findIndex(tab => tab.id === activeTabId);
+  // Use activeSubTab if available, otherwise fall back to activeSection, then legacy tab
+  const effectiveTabId = activeSubTab || activeSection || activeTabId;
+
+  const activeTabIndex = tabs.findIndex(tab => tab.id === effectiveTabId);
   const activeTab = tabs[activeTabIndex];
 
-  // Initialize URL with current tab if not present
+  // Get current section config
+  const currentSection = NAV_SECTIONS.find(s => s.id === activeSection);
+
+  // Initialize URL with current tab if not present (legacy)
   useEffect(() => {
-    if (!searchParams.get('tab')) {
+    if (!searchParams.get('tab') && !searchParams.get('section')) {
       setSearchParams({ tab: activeTabId }, { replace: true });
     }
-  }, []); // Run only on mount
+  }, []);
 
-  // Clean URLs - no query params for tab/date (managed in component state only)
+  // Update URL when section/subtab changes
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (activeSection) params.set('section', activeSection);
+    if (activeSubTab && activeSubTab !== activeSection) params.set('subtab', activeSubTab);
+    if (params.toString()) {
+      setSearchParams(params, { replace: true });
+    }
+  }, [activeSection, activeSubTab]);
+
+  // Sync legacy activeTabId with new state
+  useEffect(() => {
+    setActiveTabId(effectiveTabId);
+  }, [effectiveTabId]);
 
   // Day navigation - memoized to prevent child re-renders
   const navigateDay = useCallback((direction: 'prev' | 'next') => {
@@ -167,7 +215,7 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
         >
           <AnimatePresence mode="popLayout" custom={activeTabIndex}>
             <motion.div
-              key={activeTabId}
+              key={effectiveTabId}
               custom={activeTabIndex}
               variants={slideVariants}
               initial="enter"
@@ -201,8 +249,19 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
                 </Button>
               </div>
 
+              {/* NEW: Sub-navigation for sections that have it */}
+              {currentSection?.hasSubNav && (
+                <SectionSubNav
+                  subSections={currentSection.subSections || []}
+                  activeSubTab={activeSubTab}
+                  onSubTabChange={(subTab) => setActiveSubTab(subTab)}
+                  activeColor={currentSection.color}
+                  activeBgColor={currentSection.bgActive}
+                />
+              )}
+
               {/* Render tab content via children function */}
-              {children(activeTabId, navigateDay)}
+              {children(effectiveTabId, navigateDay)}
             </motion.div>
           </AnimatePresence>
         </motion.div>
@@ -210,18 +269,12 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
 
       {/* Bottom Tab Navigation - Hidden when AI chat is open */}
       {!hideBottomNav && (
-        <DailyBottomNav
-          tabs={tabs.map(tab => ({
-            title: tab.name,
-            icon: tab.icon
-          }))}
-          activeIndex={activeTabIndex}
-          activeColor={TAB_COLORS[activeTabId] || 'text-orange-400'}
-          activeBgColor={TAB_BG_COLORS[activeTabId] || 'bg-orange-400/20'}
-          onChange={(index) => {
-            if (index !== null) {
-              handleTabClick(tabs[index].id);
-            }
+        <ConsolidatedBottomNav
+          activeSection={activeSection}
+          activeSubTab={activeSubTab}
+          onSectionChange={(section, subtab) => {
+            setActiveSection(section);
+            if (subtab) setActiveSubTab(subtab);
           }}
         />
       )}
