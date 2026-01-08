@@ -476,6 +476,57 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
     }
   }, [tasks, supabase, persistTask, replaceTaskInState]);
 
+  const updateTaskActualDuration = useCallback(async (taskId: string, actualDurationMin: number | null) => {
+    const currentTask = tasks.find(task => task.id === taskId);
+    if (!currentTask) return null;
+
+    const now = optimisticNow();
+
+    const optimisticTask: LightWorkTask = {
+      ...currentTask,
+      actualDurationMin: actualDurationMin ?? undefined,
+      updatedAt: now,
+      completedAt: currentTask.completedAt ?? (actualDurationMin ? now : undefined),
+    };
+
+    await persistTask(optimisticTask, true);
+
+    if (!supabase || !isBrowserOnline()) {
+      await queueLightWorkTask('update', optimisticTask);
+      return optimisticTask;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('light_work_tasks')
+        .update({
+          actual_duration_min: actualDurationMin,
+          completed_at: optimisticTask.completedAt ?? null,
+          updated_at: now,
+        })
+        .eq('id', taskId)
+        .select(`
+          *,
+          subtasks:light_work_subtasks(*)
+        `)
+        .single();
+
+      if (error || !data) {
+        throw error ?? new Error('Failed to update Light Work task actual duration in Supabase');
+      }
+
+      const syncedTask = mapSupabaseLightWorkTask(data);
+      await persistTask(syncedTask, false);
+      await markLightWorkTaskSynced(taskId);
+      replaceTaskInState(syncedTask);
+      return syncedTask;
+    } catch (supabaseError) {
+      console.warn('⚠️ Supabase actual duration update failed, queued for sync:', supabaseError);
+      await queueLightWorkTask('update', optimisticTask);
+      return optimisticTask;
+    }
+  }, [tasks, supabase, persistTask, replaceTaskInState]);
+
   const updateTaskTitle = useCallback(async (taskId: string, newTitle: string) => {
     const currentTask = tasks.find(task => task.id === taskId);
     if (!currentTask) return null;
@@ -826,6 +877,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
     updateSubtaskEstimatedTime,
     updateSubtaskDescription,
     updateSubtaskDueDate,
+    updateTaskActualDuration,
     pushTaskToAnotherDay,
     refreshTasks,
   };

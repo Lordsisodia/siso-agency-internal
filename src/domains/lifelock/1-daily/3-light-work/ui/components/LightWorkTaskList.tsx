@@ -67,6 +67,7 @@ interface Task {
   context?: string;
   dueDate?: string | null;
   timeEstimate?: string | null;
+  actualDurationMin?: number;
 }
 
 interface LightWorkTaskListProps {
@@ -88,6 +89,7 @@ function transformSupabaseToUITasks(tasks: LightWorkTask[]): Task[] {
     context: "coding",
     dueDate: task.dueDate || task.currentDate || task.createdAt,
     timeEstimate: task.timeEstimate || null,
+    actualDurationMin: task.actualDurationMin,
     subtasks: task.subtasks.map(subtask => ({
       id: subtask.id,
       title: subtask.title,
