@@ -1,9 +1,10 @@
 import React, { useMemo, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Calendar, X } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { format, isToday, isTomorrow, isYesterday, subDays, addDays } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useClerkUser } from '@/lib/hooks/useClerkUser';
+import { MonthlyDatePickerModal } from './MonthlyDatePickerModal';
 
 interface BevelDateHeaderProps {
   selectedDate: Date;
@@ -14,6 +15,8 @@ interface BevelDateHeaderProps {
   className?: string;
   // Optional: Map of dates to completion percentages for the dropdown dots
   dateCompletionMap?: Record<string, number>;
+  // Callback for when picker opens/closes (to hide bottom nav)
+  onPickerOpenChange?: (isOpen: boolean) => void;
 }
 
 export const BevelDateHeader: React.FC<BevelDateHeaderProps> = ({
@@ -23,10 +26,16 @@ export const BevelDateHeader: React.FC<BevelDateHeaderProps> = ({
   activeTab = 'timebox',
   totalXP = 0,
   className = '',
-  dateCompletionMap = {}
+  dateCompletionMap = {},
+  onPickerOpenChange
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { user } = useClerkUser();
+
+  // Notify parent when picker state changes
+  React.useEffect(() => {
+    onPickerOpenChange?.(isDropdownOpen);
+  }, [isDropdownOpen, onPickerOpenChange]);
 
   // Dynamic color system based on active tab
   const getTabColors = useMemo(() => {
@@ -96,16 +105,6 @@ export const BevelDateHeader: React.FC<BevelDateHeaderProps> = ({
     return { relativeDay, formattedDate, fullDate };
   }, [selectedDate]);
 
-  // Generate last 14 days for dropdown
-  const recentDates = useMemo(() => {
-    const dates = [];
-    for (let i = 13; i >= 0; i--) {
-      const date = subDays(new Date(), i);
-      dates.push(date);
-    }
-    return dates;
-  }, []);
-
   const handlePreviousDay = () => {
     onDateChange(subDays(selectedDate, 1));
   };
@@ -116,6 +115,13 @@ export const BevelDateHeader: React.FC<BevelDateHeaderProps> = ({
 
   const handleDateSelect = (date: Date) => {
     onDateChange(date);
+  };
+
+  const handleOpenPicker = () => {
+    setIsDropdownOpen(true);
+  };
+
+  const handleClosePicker = () => {
     setIsDropdownOpen(false);
   };
 
@@ -131,7 +137,7 @@ export const BevelDateHeader: React.FC<BevelDateHeaderProps> = ({
           <div className="flex-1 flex items-center justify-end gap-2">
             {/* Date Display - Clickable to open dropdown */}
             <motion.button
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              onClick={handleOpenPicker}
               className="text-right hover:bg-white/5 rounded-xl px-4 py-2 transition-all duration-200"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -186,116 +192,14 @@ export const BevelDateHeader: React.FC<BevelDateHeaderProps> = ({
         </div>
       </div>
 
-      {/* Date Picker Dropdown */}
-      <AnimatePresence>
-        {isDropdownOpen && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
-              onClick={() => setIsDropdownOpen(false)}
-            />
-
-            {/* Dropdown Content */}
-            <motion.div
-              initial={{ opacity: 0, y: -20, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -20, scale: 0.95 }}
-              transition={{ duration: 0.2, ease: "easeOut" }}
-              className="absolute top-full left-0 right-0 mt-2 z-50 bg-[#1a1a1a] border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
-            >
-              {/* Header with close button */}
-              <div className="flex items-center justify-between p-4 border-b border-white/10">
-                <h3 className="text-sm font-semibold text-gray-300">Select Date</h3>
-                <button
-                  onClick={() => setIsDropdownOpen(false)}
-                  className="w-8 h-8 rounded-lg hover:bg-white/5 flex items-center justify-center text-gray-400 hover:text-white transition-colors"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-
-              {/* Dates Grid */}
-              <div className="p-4 grid grid-cols-7 gap-2">
-                {recentDates.map((date, index) => {
-                  const dateKey = format(date, 'yyyy-MM-dd');
-                  const isSelected = format(date, 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd');
-                  const completion = dateCompletionMap[dateKey] || 0;
-                  const isDayToday = isToday(date);
-
-                  return (
-                    <motion.button
-                      key={dateKey}
-                      onClick={() => handleDateSelect(date)}
-                      className={cn(
-                        'relative flex flex-col items-center justify-center p-3 rounded-xl transition-all duration-200',
-                        isSelected
-                          ? cn('bg-gradient-to-br', getTabColors.gradient, 'scale-105 shadow-lg')
-                          : 'hover:bg-white/5'
-                      )}
-                      whileHover={{ scale: isSelected ? 1.05 : 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      {/* Day name */}
-                      <span className={cn(
-                        'text-xs font-medium mb-1',
-                        isSelected ? 'text-white' : 'text-gray-400'
-                      )}>
-                        {format(date, 'EEE')}
-                      </span>
-
-                      {/* Date number */}
-                      <span className={cn(
-                        'text-lg font-bold',
-                        isSelected ? 'text-white' : 'text-gray-300'
-                      )}>
-                        {format(date, 'd')}
-                      </span>
-
-                      {/* Completion dot indicator */}
-                      <div className="mt-2 flex gap-0.5">
-                        {completion > 0 && (
-                          <div
-                            className={cn(
-                              'w-1.5 h-1.5 rounded-full',
-                              completion >= 100
-                                ? cn(getTabColors.bg)
-                                : isSelected
-                                  ? 'bg-white/70'
-                                  : 'bg-gray-500'
-                            )}
-                          />
-                        )}
-                        {completion >= 50 && completion < 100 && (
-                          <div
-                            className={cn(
-                              'w-1.5 h-1.5 rounded-full',
-                              isSelected ? 'bg-white/70' : 'bg-gray-500'
-                            )}
-                          />
-                        )}
-                      </div>
-
-                      {/* Today indicator */}
-                      {isDayToday && (
-                        <div className={cn(
-                          'absolute -top-1 -right-1 w-2 h-2 rounded-full',
-                          getTabColors.bg,
-                          'shadow-lg'
-                        )} />
-                      )}
-                    </motion.button>
-                  );
-                })}
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      {/* Monthly Date Picker Modal */}
+      <MonthlyDatePickerModal
+        selectedDate={selectedDate}
+        onDateChange={handleDateSelect}
+        isOpen={isDropdownOpen}
+        onClose={handleClosePicker}
+        dateCompletionMap={dateCompletionMap}
+      />
     </div>
   );
 };

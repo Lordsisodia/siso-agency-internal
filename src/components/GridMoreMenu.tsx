@@ -1,9 +1,10 @@
 /**
- * Grid More Menu Component
+ * Grid More Menu Component V2
  *
  * 3x3 grid layout popup for the More menu
  * Features animated AI orb in center position
  * Staggered entrance animations
+ * Glassmorphism design matching V2 aesthetic
  */
 
 import React from 'react';
@@ -72,8 +73,8 @@ export const GridMoreMenu: React.FC<GridMoreMenuProps> = ({ open, onOpenChange }
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60]"
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 bg-black/70 backdrop-blur-md z-[60]"
             onClick={() => onOpenChange(false)}
           />
 
@@ -84,17 +85,19 @@ export const GridMoreMenu: React.FC<GridMoreMenuProps> = ({ open, onOpenChange }
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="pointer-events-auto bg-gray-900/95 backdrop-blur-xl border-t border-x border-gray-700/50 rounded-t-3xl shadow-2xl p-6 max-w-md w-full pb-8"
+              className="pointer-events-auto bg-gradient-to-b from-[#1a1a1a] to-[#0f0f0f] border-t border-x border-white/10 rounded-t-[2.5rem] shadow-2xl p-6 max-w-md w-full pb-8"
             >
               {/* Handle Bar */}
-              <div className="flex justify-center mb-4">
-                <div className="w-12 h-1.5 bg-gray-600 rounded-full" />
+              <div className="flex justify-center mb-5">
+                <div className="w-14 h-1.5 bg-white/20 rounded-full" />
               </div>
 
               {/* Header */}
               <div className="text-center mb-6">
-                <h2 className="text-xl font-semibold text-white mb-1">Quick Access</h2>
-                <p className="text-sm text-gray-400">Navigate to any view</p>
+                <h2 className="text-2xl font-bold bg-gradient-to-r from-white via-white to-white/70 bg-clip-text text-transparent mb-1">
+                  Quick Access
+                </h2>
+                <p className="text-sm text-white/40">Navigate to any view</p>
               </div>
 
               {/* 3x3 Grid */}
@@ -129,25 +132,26 @@ export const GridMoreMenu: React.FC<GridMoreMenuProps> = ({ open, onOpenChange }
                       onClick={() => handleItemClick(item)}
                       className={cn(
                         'aspect-square rounded-2xl',
-                        'bg-gradient-to-br from-gray-800/50 to-gray-700/30',
-                        'border border-gray-600/30',
+                        'bg-gradient-to-br from-white/5 to-white/[0.02]',
+                        'border border-white/10',
                         'flex flex-col items-center justify-center gap-2',
                         'hover:scale-105 active:scale-95',
                         'transition-all duration-200',
-                        'group'
+                        'group shadow-lg'
                       )}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                      whileHover={{ scale: 1.05, y: -2 }}
+                      whileTap={{ scale: 0.97 }}
                     >
                       <div className={cn(
                         'h-12 w-12 rounded-xl',
-                        'bg-gradient-to-br from-gray-700/50 to-gray-600/30',
+                        'bg-gradient-to-br from-white/10 to-white/5',
                         'flex items-center justify-center',
-                        'group-hover:scale-110 transition-transform duration-200'
+                        'group-hover:scale-110 transition-transform duration-200',
+                        'shadow-inner'
                       )}>
                         <item.icon className={cn('h-6 w-6', item.color)} strokeWidth={2} />
                       </div>
-                      <span className="text-xs font-medium text-gray-300 group-hover:text-white transition-colors">
+                      <span className="text-xs font-medium text-white/60 group-hover:text-white transition-colors">
                         {item.label}
                       </span>
                     </motion.button>
@@ -156,8 +160,8 @@ export const GridMoreMenu: React.FC<GridMoreMenuProps> = ({ open, onOpenChange }
               </div>
 
               {/* Footer hint */}
-              <div className="mt-4 text-center">
-                <p className="text-xs text-gray-500">Tap anywhere to close</p>
+              <div className="mt-5 text-center">
+                <p className="text-xs text-white/30">Tap anywhere to close</p>
               </div>
             </motion.div>
           </div>

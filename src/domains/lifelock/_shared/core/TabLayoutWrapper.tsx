@@ -15,9 +15,13 @@ import { Badge } from '@/components/ui/badge';
 import { ConsolidatedBottomNav } from '@/domains/lifelock/1-daily/_shared/components/navigation/ConsolidatedBottomNav';
 import { BevelDateHeader, UnifiedTopNav, SwipeableSubTabContent } from '@/domains/lifelock/1-daily/_shared/components';
 import { useDateCompletionMap } from '@/domains/lifelock/1-daily/_shared/hooks/useDateCompletionMap';
+import { useDateXPMap } from '@/domains/lifelock/1-daily/_shared/hooks/useDateXPMap';
+import { useDateScreenTimeMap } from '@/domains/lifelock/1-daily/_shared/hooks/useDateScreenTimeMap';
 import { SectionSubNav } from '@/components/navigation/SectionSubNav';
 import { cn } from '@/lib/utils';
 import { calculateDayCompletionPercentage } from '@/lib/utils/dayProgress';
+import { checkMorningRoutineCompletion, getDefaultTimeboxSubtab } from '@/domains/lifelock/_shared/utils/timeboxNavigation';
+import { useSubtabCompletion } from '@/domains/lifelock/_shared/services/subtabCompletionService';
 
 // Use centralized tab configuration to prevent routing inconsistencies
 const tabs = Object.values(TAB_CONFIG);
@@ -66,9 +70,80 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
   // NEW: Section and subtab state for consolidated navigation
   const [activeSection, setActiveSection] = useState<string>('timebox');
   const [activeSubTab, setActiveSubTab] = useState<string>('timebox');
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState<boolean>(false);
+  const [morningRoutineCompleted, setMorningRoutineCompleted] = useState<boolean>(false);
+  const [hasCheckedMorningRoutine, setHasCheckedMorningRoutine] = useState<boolean>(false);
 
   // Fetch date completion map for the dropdown
   const { completionMap } = useDateCompletionMap(userId || undefined);
+
+  // Fetch XP map for the date picker modal
+  const { xpMap } = useDateXPMap(userId || undefined, selectedDate);
+
+  // Fetch screen time map for the date picker modal
+  const { screenTimeMap } = useDateScreenTimeMap(userId || undefined, selectedDate);
+
+  // Subtab completion management
+  const { completedSubtabs, toggleCompleted, setCompleted } = useSubtabCompletion(selectedDate, userId);
+
+  // Completion percentages for subtabs
+  const [completionPercentages, setCompletionPercentages] = useState<Record<string, number>>({});
+
+  // Fetch morning routine completion percentage
+  useEffect(() => {
+    if (!userId || activeSection !== 'timebox') return;
+
+    const isToday = format(selectedDate, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
+    if (!isToday) return;
+
+    const fetchMorningProgress = async () => {
+      try {
+        const dateKey = format(selectedDate, 'yyyy-MM-dd');
+        const response = await fetch(`/api/morning-routine?userId=${userId}&date=${dateKey}`);
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data?.completionPercentage !== undefined) {
+            setCompletionPercentages(prev => ({
+              ...prev,
+              morning: data.completionPercentage
+            }));
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch morning routine progress:', error);
+      }
+    };
+
+    fetchMorningProgress();
+  }, [selectedDate, userId, activeSection, morningRoutineCompleted]);
+
+  // Bulk action handlers
+  const handleBulkAction = useCallback((action: 'markAllComplete' | 'markAllIncomplete') => {
+    const currentSection = NAV_SECTIONS.find(s => s.id === activeSection);
+    if (!currentSection?.subSections) return;
+
+    const subtabIds = currentSection.subSections.map(s => s.id);
+
+    if (action === 'markAllComplete') {
+      subtabIds.forEach(subtabId => {
+        if (!completedSubtabs.includes(subtabId)) {
+          setCompleted(subtabId, true);
+        }
+      });
+      // Trigger confetti for bulk complete
+      if (typeof window !== 'undefined') {
+        const { celebrateSides } = require('@/lib/utils/confetti');
+        celebrateSides();
+      }
+    } else {
+      subtabIds.forEach(subtabId => {
+        if (completedSubtabs.includes(subtabId)) {
+          setCompleted(subtabId, false);
+        }
+      });
+    }
+  }, [activeSection, completedSubtabs, setCompleted]);
 
   // Handle legacy tab URLs for backward compatibility
   useEffect(() => {
@@ -92,7 +167,15 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
       setActiveSection(sectionParam);
       if (subtabParam) {
         setActiveSubTab(subtabParam);
+      } else if (sectionParam === 'timebox') {
+        // For timebox section, default to morning tab initially
+        // This will be updated by the morning routine completion check
+        setActiveSubTab('morning');
       }
+    } else {
+      // Default to timebox section with morning subtab
+      setActiveSection('timebox');
+      setActiveSubTab('morning');
     }
   }, []);
 
@@ -106,14 +189,16 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
     searchParams.get('tab') || getSmartDefaultTab()
   );
 
+  // Get current section config (moved before effectiveTabId calculation)
+  const currentSection = NAV_SECTIONS.find(s => s.id === activeSection);
+
   // Use activeSubTab if available, otherwise fall back to activeSection, then legacy tab
-  const effectiveTabId = activeSubTab || activeSection || activeTabId;
+  // For sections without sub-nav, use the section ID directly as the tab ID
+  const hasSubNav = currentSection?.hasSubNav;
+  const effectiveTabId = hasSubNav ? (activeSubTab || activeSection || activeTabId) : activeSection;
 
   const activeTabIndex = tabs.findIndex(tab => tab.id === effectiveTabId);
   const activeTab = tabs[activeTabIndex];
-
-  // Get current section config
-  const currentSection = NAV_SECTIONS.find(s => s.id === activeSection);
 
   // Initialize URL with current tab if not present (legacy)
   useEffect(() => {
@@ -136,6 +221,101 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
   useEffect(() => {
     setActiveTabId(effectiveTabId);
   }, [effectiveTabId]);
+
+  // Check morning routine completion when on timebox section
+  useEffect(() => {
+    // Only check if we're on the timebox section and viewing today
+    if (activeSection !== 'timebox') {
+      return;
+    }
+
+    const isToday = format(selectedDate, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
+    if (!isToday || !userId) {
+      // If not today or no user, don't check - use current subtab as-is
+      return;
+    }
+
+    // Check morning routine completion status
+    const checkCompletion = async () => {
+      try {
+        const completed = await checkMorningRoutineCompletion(selectedDate, userId);
+        setMorningRoutineCompleted(completed);
+        setHasCheckedMorningRoutine(true);
+
+        // Only auto-switch if we haven't already set a subtab via URL
+        const subtabParam = searchParams.get('subtab');
+        if (!subtabParam) {
+          const defaultSubtab = getDefaultTimeboxSubtab({
+            morningRoutineCompleted: completed,
+            selectedDate,
+            userId
+          });
+          setActiveSubTab(defaultSubtab);
+        }
+      } catch (error) {
+        console.error('Failed to check morning routine completion:', error);
+        setHasCheckedMorningRoutine(true);
+      }
+    };
+
+    checkCompletion();
+  }, [selectedDate, userId, activeSection]);
+
+  // Auto-switch to checkout based on time (when morning routine is completed)
+  useEffect(() => {
+    // Only apply this logic when on timebox section and viewing today
+    if (activeSection !== 'timebox') {
+      return;
+    }
+
+    const isToday = format(selectedDate, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
+    if (!isToday) {
+      return;
+    }
+
+    // Don't override if user has manually selected a subtab
+    const subtabParam = searchParams.get('subtab');
+    if (subtabParam) {
+      return;
+    }
+
+    // If morning routine is completed, check if we should show checkout
+    if (hasCheckedMorningRoutine && morningRoutineCompleted) {
+      const defaultSubtab = getDefaultTimeboxSubtab({
+        morningRoutineCompleted: true,
+        selectedDate,
+        userId
+      });
+
+      // Update subtab if it should be checkout
+      if (defaultSubtab === 'checkout' && activeSubTab !== 'checkout') {
+        setActiveSubTab('checkout');
+      } else if (defaultSubtab === 'timebox' && activeSubTab === 'morning') {
+        // Transition from morning to timebox after completion
+        setActiveSubTab('timebox');
+      }
+    }
+  }, [morningRoutineCompleted, hasCheckedMorningRoutine, selectedDate, activeSection, activeSubTab]);
+
+  // Sync morning routine completion with subtab completion state
+  useEffect(() => {
+    if (!hasCheckedMorningRoutine || !userId) {
+      return;
+    }
+
+    const isToday = format(selectedDate, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
+    if (!isToday) {
+      return;
+    }
+
+    // Automatically mark morning subtab as completed if morning routine is completed
+    if (morningRoutineCompleted && !completedSubtabs.includes('morning')) {
+      toggleCompleted('morning');
+    } else if (!morningRoutineCompleted && completedSubtabs.includes('morning')) {
+      // Unmark if morning routine is no longer completed (shouldn't happen normally)
+      toggleCompleted('morning');
+    }
+  }, [morningRoutineCompleted, hasCheckedMorningRoutine, selectedDate, userId]);
 
   // Day navigation - memoized to prevent child re-renders
   const navigateDay = useCallback((direction: 'prev' | 'next') => {
@@ -207,7 +387,7 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
   return (
     <div className="flex flex-col h-screen w-full overflow-hidden" style={{ backgroundColor: '#121212' }}>
       {/* SCROLLABLE CONTENT AREA - Contains header, pills, and content */}
-      <div className="flex-1 relative overflow-hidden">
+      <div className="flex-1 relative overflow-x-hidden overflow-y-hidden">
         <AnimatePresence mode="popLayout" custom={activeTabIndex}>
           <motion.div
             key={effectiveTabId}
@@ -220,7 +400,7 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
               x: { type: "spring", stiffness: 400, damping: 35 },
               opacity: { duration: 0.15 },
             }}
-            className="h-full overflow-y-auto"
+            className="h-full overflow-x-hidden overflow-y-auto"
             style={{
               paddingBottom: '100px',
               WebkitOverflowScrolling: 'touch',
@@ -234,6 +414,9 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
               completionPercentage={calculateDayCompletionPercentage(selectedDate)}
               activeTab={effectiveTabId}
               dateCompletionMap={completionMap}
+              dateXPMap={xpMap}
+              dateScreenTimeMap={screenTimeMap}
+              onPickerOpenChange={setIsDatePickerOpen}
             />
 
             {/* NEW: Sub-navigation for sections that have it */}
@@ -244,6 +427,10 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
                 onSubTabChange={(subTab) => setActiveSubTab(subTab)}
                 activeColor={currentSection.color}
                 activeBgColor={currentSection.bgActive}
+                completedSubTabs={completedSubtabs}
+                onToggleComplete={toggleCompleted}
+                completionPercentages={completionPercentages}
+                onBulkAction={handleBulkAction}
               />
             )}
 
@@ -263,8 +450,8 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
         </AnimatePresence>
       </div>
 
-      {/* Bottom Tab Navigation - Hidden when AI chat is open */}
-      {!hideBottomNav && (
+      {/* Bottom Tab Navigation - Hidden when AI chat is open or date picker is open */}
+      {!hideBottomNav && !isDatePickerOpen && (
         <ConsolidatedBottomNav
           activeSection={activeSection}
           activeSubTab={activeSubTab}

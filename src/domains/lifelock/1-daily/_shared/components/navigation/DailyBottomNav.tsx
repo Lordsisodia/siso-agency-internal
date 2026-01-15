@@ -27,27 +27,31 @@ export interface DailyBottomNavProps {
   activeBgColor?: string;
   onChange: (index: number | null) => void;
   className?: string;
+  hidden?: boolean;
 }
 
 export const DailyBottomNav: React.FC<DailyBottomNavProps> = ({
   tabs,
   activeIndex,
   onChange,
-  className = ''
+  className = '',
+  hidden = false
 }) => {
   // Extract first 4 tabs for main navigation
   const navTabs = tabs.slice(0, 4);
   const moreTabIndex = tabs.length - 1;
 
+  if (hidden) return null;
+
   return (
     <div className="fixed inset-x-0 bottom-0 z-50 flex justify-center pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pointer-events-none">
       <div className="pointer-events-auto flex items-center px-4 w-full">
-        {/* Main Navigation Bar - Taller callout card style */}
+        {/* Main Navigation Bar - Glossy Glass Pill Design */}
         <div
           className={cn(
-            "flex items-center justify-around gap-1 sm:gap-2",
-            "px-3 py-3 h-18 sm:h-20 rounded-full flex-1",
-            "bg-gray-900/60 backdrop-blur-xl border border-white/10 shadow-2xl",
+            "flex items-center justify-around gap-2 sm:gap-3",
+            "px-4 py-3 h-14 rounded-full flex-1",
+            "bg-white/10 backdrop-blur-2xl border border-white/20 shadow-xl",
             className
           )}
         >
@@ -58,7 +62,7 @@ export const DailyBottomNav: React.FC<DailyBottomNavProps> = ({
             return (
               <motion.button
                 key={tab.title}
-                className="flex flex-col items-center gap-1 relative min-w-[3rem]"
+                className="flex flex-col items-center gap-0.5 relative min-w-[3rem]"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => onChange(index)}
@@ -66,27 +70,29 @@ export const DailyBottomNav: React.FC<DailyBottomNavProps> = ({
                 aria-pressed={isActive}
               >
                 <Icon
-                  size={28}
+                  size={24}
                   className={cn(
-                    "text-white/70 transition-colors",
-                    isActive && "text-white"
+                    "transition-all duration-200",
+                    isActive ? tab.color || "text-white" : "text-gray-300"
                   )}
                 />
                 <span
                   className={cn(
-                    "text-[11px] sm:text-[12px] font-medium whitespace-nowrap",
-                    "text-white/70 transition-colors",
-                    isActive && "text-white"
+                    "text-[10px] font-medium whitespace-nowrap transition-all duration-200",
+                    isActive ? "text-white" : "text-gray-300"
                   )}
                 >
                   {tab.title}
                 </span>
 
-                {/* Active State: White Underline */}
+                {/* Active State: Colored Underline */}
                 {isActive && (
                   <motion.div
                     layoutId="activeTab"
-                    className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-white"
+                    className={cn(
+                      "absolute -bottom-1 left-1/2 -translate-x-1/2 w-5 h-0.5 rounded-full",
+                      tab.color || "bg-white"
+                    )}
                     initial={false}
                     transition={{
                       type: "spring",
@@ -100,20 +106,22 @@ export const DailyBottomNav: React.FC<DailyBottomNavProps> = ({
           })}
         </div>
 
-        {/* Spacer - equal to the screen padding (16px) */}
-        <div className="w-4 flex-shrink-0" />
+        {/* Spacer between pill and circle */}
+        <div className="w-5 flex-shrink-0" />
 
-        {/* FAB (9-dot) Button - Same height as main bar */}
+        {/* FAB (9-dot) Button - Glossy Glass Circle Design */}
         <motion.button
-          className="w-16 h-16 sm:w-18 sm:h-18 rounded-full bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-xl border-2 border-white/20 shadow-2xl shadow-purple-500/10 flex items-center justify-center relative overflow-hidden flex-shrink-0"
-          whileHover={{ scale: 1.1 }}
+          className="w-14 h-14 rounded-full bg-white/10 backdrop-blur-2xl border border-white/20 shadow-xl flex items-center justify-center relative overflow-hidden flex-shrink-0"
+          whileHover={{ scale: 1.08 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => onChange(moreTabIndex)}
           aria-label="More options"
         >
-          {/* Subtle glow effect */}
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10 rounded-full" />
-          <NineDotsIcon className="w-7 h-7 text-white relative z-10" />
+          {/* Glossy glass shine effect */}
+          <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-white/10 to-transparent rounded-full" />
+          {/* Subtle glow on hover */}
+          <div className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-300 bg-gradient-to-br from-white/30 to-transparent rounded-full" />
+          <NineDotsIcon className="w-6 h-6 text-white relative z-10" />
         </motion.button>
       </div>
     </div>

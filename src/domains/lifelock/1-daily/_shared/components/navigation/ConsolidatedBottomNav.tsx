@@ -20,13 +20,15 @@ interface ConsolidatedBottomNavProps {
   activeSubTab?: string;
   onSectionChange: (section: string, subtab?: string) => void;
   className?: string;
+  hidden?: boolean;
 }
 
 export const ConsolidatedBottomNav: React.FC<ConsolidatedBottomNavProps> = ({
   activeSection,
   activeSubTab,
   onSectionChange,
-  className = ''
+  className = '',
+  hidden = false
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -99,6 +101,7 @@ export const ConsolidatedBottomNav: React.FC<ConsolidatedBottomNavProps> = ({
         activeIndex={effectiveActiveIndex}
         onChange={handleTabChange}
         className={className}
+        hidden={hidden}
       />
 
       {/* Grid More Menu - 3x3 overlay */}

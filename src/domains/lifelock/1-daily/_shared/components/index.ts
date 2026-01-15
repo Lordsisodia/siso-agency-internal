@@ -23,6 +23,10 @@ export { UnifiedTopNav } from './UnifiedTopNav';
 export { DayProgressPill } from './DayProgressPill';
 export { XPPill } from './XPPill';
 export { SwipeableSubTabContent } from './SwipeableSubTabContent';
+export { MonthlyDatePickerModal } from './MonthlyDatePickerModal';
+export { MonthlyDatePickerModalV2 } from './MonthlyDatePickerModalV2';
+export type { MonthlyDatePickerModalProps } from './MonthlyDatePickerModal';
+export type { MonthlyDatePickerModalV2Props } from './MonthlyDatePickerModalV2';
 
 // Task Components
 export { TaskHeader } from './task/TaskHeader';
