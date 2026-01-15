@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DeepResearchRunOutput",
+  "type": "object",
+  "required": ["accomplishments", "artifacts", "rankings"],
+  "properties": {
+    "accomplishments": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "High-level list of what was accomplished."
+    },
+    "artifacts": {
+      "type": "array",
+      "description": "List of artifacts created/updated with paths.",
+      "items": {
+        "type": "object",
+        "required": ["path", "description"],
+        "properties": {
+          "path": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "rankings": {
+      "type": "array",
+      "description": "Ranked ideas/findings scored out of 100.",
+      "items": {
+        "type": "object",
+        "required": ["title", "score", "rationale", "next_step"],
+        "properties": {
+          "title": { "type": "string" },
+          "score": { "type": "number", "minimum": 0, "maximum": 100 },
+          "rationale": { "type": "string" },
+          "evidence": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Paths/links to supporting sources."
+          },
+          "next_step": { "type": "string" },
+          "breakdown": {
+            "type": "object",
+            "additionalProperties": { "type": "number" }
+          }
+        }
+      }
+    }
+  }
+}
+

@@ -32,6 +32,7 @@ const AdminIndustriesViewLazy = lazy(() => import('@/domains/industries').then(m
 const AdminSettings = lazy(() => import('@/domains/admin/pages/AdminSettings'));
 const AdminClients = lazy(() => import('@/domains/admin/pages/AdminClients'));
 const TeamMemberTasksPage = lazy(() => import('@/domains/tasks/pages/TeamMemberTasksPage'));
+const AIAssistantPage = lazy(() => import('@/domains/ai-assistant').then(m => ({ default: m.AIAssistantPage })));
 
 // Resources pages
 const DocumentLibraryPage = lazy(() => import('@/domains/resources/pages/DocumentLibraryPage'));
@@ -118,6 +119,10 @@ function App() {
             <Route path="/admin/tasks/:memberId" element={<ClerkAuthGuard><TeamMemberTasksPage /></ClerkAuthGuard>} />
             <Route path="/admin/feedback" element={<ClerkAuthGuard><AdminFeedback /></ClerkAuthGuard>} />
             <Route path="/admin/settings" element={<ClerkAuthGuard><AdminSettings /></ClerkAuthGuard>} />
+
+            {/* AI Assistant */}
+            <Route path="/admin/ai-assistant" element={<ClerkAuthGuard><AIAssistantPage /></ClerkAuthGuard>} />
+
             {/* XP Store */}
             <Route path="/xp-store" element={<ClerkAuthGuard><XPStorePage /></ClerkAuthGuard>} />
             <Route path="/xp-store/:section" element={<ClerkAuthGuard><XPStorePage /></ClerkAuthGuard>} />

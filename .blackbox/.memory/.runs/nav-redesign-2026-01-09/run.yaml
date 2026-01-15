@@ -1,0 +1,12 @@
+runId: nav-redesign-2026-01-09
+runType: feature-planning
+createdAt: 2026-01-09
+status: in-progress
+title: Bottom Navigation Redesign - Daily View
+description: Redesign bottom navigation to 4-button layout with "More" popup menu
+priority: high
+tags:
+  - navigation
+  - ui-redesign
+  - daily-view
+  - mobile-ux

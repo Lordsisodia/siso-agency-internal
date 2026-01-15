@@ -1,0 +1,138 @@
+{
+  "mcpServers": {
+    "supabase": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-supabase"
+      ],
+      "description": "Supabase database operations, migrations, and edge functions",
+      "capabilities": [
+        "database_operations",
+        "migrations",
+        "edge_functions",
+        "auth_management",
+        "storage_operations"
+      ],
+      "enabled": true
+    },
+    "shopify": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-shopify"
+      ],
+      "env": {
+        "SHOPIFY_STORE_URL": "",
+        "SHOPIFY_ACCESS_TOKEN": ""
+      },
+      "description": "Shopify e-commerce integration",
+      "capabilities": [
+        "store_management",
+        "product_operations",
+        "order_management",
+        "customer_operations"
+      ],
+      "enabled": false
+    },
+    "github": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_TOKEN": ""
+      },
+      "description": "GitHub repository management",
+      "capabilities": [
+        "repo_operations",
+        "issue_management",
+        "pr_management",
+        "code_review"
+      ],
+      "enabled": false
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/Users/shaansisodia/DEV/AI-HUB"
+      ],
+      "description": "Advanced filesystem operations",
+      "capabilities": [
+        "file_operations",
+        "directory_operations",
+        "search",
+        "watch"
+      ],
+      "enabled": true
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@executeautomation/playwright-mcp-server"
+      ],
+      "description": "Browser automation and testing",
+      "capabilities": [
+        "browser_automation",
+        "web_scraping",
+        "testing",
+        "screenshot"
+      ],
+      "enabled": true
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ],
+      "description": "Chain-of-thought reasoning",
+      "capabilities": [
+        "reasoning",
+        "thought_chains",
+        "logical_progression"
+      ],
+      "enabled": true
+    },
+    "exa": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-exa"
+      ],
+      "env": {
+        "EXA_API_KEY": ""
+      },
+      "description": "Web search with Exa AI",
+      "capabilities": [
+        "web_search",
+        "content_retrieval",
+        "neural_search"
+      ],
+      "enabled": false
+    },
+    "fetch": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-fetch"
+      ],
+      "description": "HTTP request handling",
+      "capabilities": [
+        "http_requests",
+        "web_fetching",
+        "api_calls"
+      ],
+      "enabled": true
+    }
+  },
+  "settings": {
+    "autoStart": true,
+    "timeout": 30000,
+    "retryAttempts": 3
+  }
+}

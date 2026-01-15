@@ -18,6 +18,11 @@
 export { DailyBottomNav } from './navigation/DailyBottomNav';
 export type { DailyBottomNavTab, DailyBottomNavProps } from './navigation/DailyBottomNav';
 export { CleanDateNav } from './CleanDateNav';
+export { BevelDateHeader } from './BevelDateHeader';
+export { UnifiedTopNav } from './UnifiedTopNav';
+export { DayProgressPill } from './DayProgressPill';
+export { XPPill } from './XPPill';
+export { SwipeableSubTabContent } from './SwipeableSubTabContent';
 
 // Task Components
 export { TaskHeader } from './task/TaskHeader';

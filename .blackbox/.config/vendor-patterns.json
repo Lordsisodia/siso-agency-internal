@@ -1,0 +1,11 @@
+{"vendors":{
+"Shopify":{"pattern":"gid://shopify/|shopify\.com|@shopify/shopify-api","severity":"warning"},
+"Stripe":{"pattern":"sk_live_|sk_test_|pk_live_|pk_test_|stripe\.com","severity":"warning"},
+"AWS":{"pattern":"amazonaws\.com|aws_|s3\.amazonaws\.com","severity":"warning"},
+"GitHub":{"pattern":"github\.com|api\.github\.com|ghp_|gho_|ghu_","severity":"warning"},
+"Google":{"pattern":"google\.com|googleapis\.com|gcp_","severity":"warning"},
+"Firebase":{"pattern":"firebaseio\.com|firebase\.com|firebaseapp\.com","severity":"warning"},
+"Twilio":{"pattern":"AC[a-z0-9]{32}|twilio\.com|api\.twilio\.com","severity":"warning"},
+"SendGrid":{"pattern":"SG\.|sendgrid\.com|api\.sendgrid\.com","severity":"warning"},
+"Mailgun":{"pattern":"mailgun\.com|api\.mailgun\.com","severity":"warning"},
+"Auth0":{"pattern":"auth0\.com|\.auth0\.com|client_id=auth0","severity":"warning"}}}

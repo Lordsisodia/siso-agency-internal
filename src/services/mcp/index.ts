@@ -55,6 +55,7 @@ import { MCPMonitor, mcpMonitor } from './mcp-monitor';
 import { MCPMiddleware, mcpMiddleware } from './mcp-middleware';
 import DesktopCommanderClient from './desktop-commander-client';
 import SupabaseMCPClient from './supabase-client';
+import GLMMCPClient from './glm-client';
 
 /**
  * Quick start function to initialize all MCP services
@@ -75,7 +76,7 @@ export function initializeMCPServices(config?: {
   
   // Register common MCPs (these would be actual MCP clients in production)
   // Example registration - replace with actual MCP clients
-  const mcps = ['supabase', 'context7', 'notion', 'github', 'exa', 'slack', 'desktop-commander'];
+  const mcps = ['supabase', 'glm', 'context7', 'notion', 'github', 'exa', 'slack', 'desktop-commander'];
   mcps.forEach(mcp => {
     if (mcp === 'desktop-commander') {
       const allowExec = (typeof process !== 'undefined' && process.env && (process.env.SISO_ALLOW_CODE_EXEC === '1' || process.env.SISO_ALLOW_CODE_EXEC === 'true')) || false;
@@ -96,6 +97,16 @@ export function initializeMCPServices(config?: {
         // If env not present, register a stub that throws informative error
         orchestrator.registerMCPClient(mcp, {
           executeSql() { throw new Error('Supabase MCP not configured: set SUPABASE_URL and SUPABASE_ANON_KEY'); }
+        });
+      }
+    } else if (mcp === 'glm') {
+      try {
+        const glm = new GLMMCPClient();
+        orchestrator.registerMCPClient(mcp, glm);
+      } catch (e: any) {
+        // If env not present, register a stub that throws informative error
+        orchestrator.registerMCPClient(mcp, {
+          async assist() { throw new Error(`GLM MCP not configured: ${e.message}`); }
         });
       }
     } else {

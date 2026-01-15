@@ -1,0 +1,20 @@
+QUICK REFERENCE CARD
+====================
+
+TASK: Implement an advanced product search feature for an e-commerce site with full-text search, autocomplete, filters (category, price, rating, stock, sale, brand, color), sorting (relevance, price, rating, newest), grid/list view toggle, infinite scroll, API design, database indexing, Redis caching, and handle 100K+ products using Next.js, PostgreSQL, Redis
+COMPLEXITY: complex
+
+RUN A (RAW AI):
+- Start: [_____:____]  End: [_____:____]
+- Tokens: _____  Iterations: _____  Switches: _____
+- Quality: [_____/10]  Mental Load: [_____/10]
+
+RUN B (WITH BLACKBOX3):
+- Start: [_____:____]  End: [_____:____]
+- Tokens: _____  Iterations: _____  Switches: _____
+- Quality: [_____/10]  Mental Load: [_____/10]
+
+CALCULATIONS:
+- Time Improvement: _____%
+- Token Efficiency: _____%
+- Winner: [RAW | BB3 | TIE]

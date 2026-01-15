@@ -1,0 +1,80 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pre-commit --file $FILE",
+            "description": "Run pre-commit hooks before file changes"
+          },
+          {
+            "type": "script",
+            "script": "$BLACKBOX4_HOME/4-scripts/hooks/validate-changes.sh",
+            "args": ["$FILE"],
+            "description": "Validate changes against project rules"
+          }
+        ]
+      },
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "script",
+            "script": "$BLACKBOX4_HOME/4-scripts/hooks/inject-context.sh",
+            "args": ["$FILE"],
+            "description": "Inject AGENTS.md context on file reads"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "bash",
+        "hooks": [
+          {
+            "type": "script",
+            "script": "$BLACKBOX4_HOME/4-scripts/hooks/analyze-command.sh",
+            "args": ["$COMMAND", "$OUTPUT"],
+            "description": "Analyze bash commands for security patterns"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "script",
+            "script": "$BLACKBOX4_HOME/4-scripts/hooks/analyze-changes.sh",
+            "args": ["$FILE"],
+            "description": "Analyze changes for quality"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "script",
+            "script": "$BLACKBOX4_HOME/4-scripts/hooks/enhance-prompt.sh",
+            "description": "Enhance user prompt with context and best practices"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "script",
+            "script": "$BLACKBOX4_HOME/4-scripts/hooks/session-summary.sh",
+            "description": "Generate session summary with next steps"
+          }
+        ]
+      }
+    ]
+  },
+  "enabled": true
+}

@@ -13,7 +13,6 @@
  */
 
 import React from 'react';
-import { CleanDateNav } from '@/domains/lifelock/1-daily/_shared/components';
 import { DailyXPSummaryWidget } from '@/domains/lifelock/_shared/components';
 import { useTodayXP } from '@/domains/lifelock/_shared/hooks/useTodayXP';
 import { cn } from '@/lib/utils';
@@ -35,7 +34,7 @@ const StandardTabLayout: React.FC<{
   children: React.ReactNode;
   activeTab: TabId;
 }> = ({ config, layoutProps, children, activeTab }) => {
-  const { selectedDate, dayCompletionPercentage, navigateDay } = layoutProps;
+  const { selectedDate, navigateDay } = layoutProps;
 
   // Fetch today's XP totals for the header badge
   const todayXP = useTodayXP(selectedDate);
@@ -45,19 +44,9 @@ const StandardTabLayout: React.FC<{
       className={cn('font-sans', config.backgroundClass)}
       style={{ fontFamily: 'Inter, sans-serif' }}
     >
-      {config.showDateNav && (
-        <CleanDateNav
-          selectedDate={selectedDate}
-          completionPercentage={dayCompletionPercentage}
-          className="mb-6"
-          onPreviousDate={() => navigateDay?.('prev')}
-          onNextDate={() => navigateDay?.('next')}
-          activeTab={activeTab}
-          totalXP={todayXP.total}
-        />
-      )}
-      
       <div className="space-y-4">
+        {/* DailyXPSummaryWidget - HIDDEN */}
+        {/*
         <DailyXPSummaryWidget
           morningXP={todayXP.morningXP}
           lightWorkXP={todayXP.lightWorkXP}
@@ -65,6 +54,7 @@ const StandardTabLayout: React.FC<{
           wellnessXP={todayXP.wellnessXP}
           checkoutXP={todayXP.checkoutXP}
         />
+        */}
         {children}
       </div>
     </div>

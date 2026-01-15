@@ -1,0 +1,228 @@
+================================================================================
+                      BLACKBOX4 DIRECTORY STRUCTURE
+================================================================================
+
+ROOT LEVEL (12 folders: 5 dot-folders + 7 numbered)
+--------------------------------------------------------------------------------
+
+.blackbox4/
+│
+├── README.md                    # System overview (you are here)
+├── protocol.md                  # How the system works
+├── context.md                   # Current project state
+├── tasks.md                     # Project backlog
+├── manifest.yaml                # System manifest
+│
+├── .config/                     # System configuration
+├── .docs/                       # ALL documentation (6 numbered sections)
+├── .memory/                     # 3-tier memory system
+├── .plans/                      # Active project plans
+├── .runtime/                    # Runtime/state data
+│
+├── 1-agents/                    # ALL agent definitions (6 categories)
+├── 2-frameworks/                # Framework patterns (4 frameworks)
+├── 3-modules/                   # Domain modules (7 modules)
+├── 4-scripts/                   # All executable scripts
+├── 5-templates/                 # Document/file templates
+├── 6-tools/                     # Helper utilities
+└── 7-workspace/                 # Active workspace
+
+================================================================================
+
+.DOT-FOLDERS (System Space)
+--------------------------------------------------------------------------------
+
+.config/                          # Configuration files
+├── blackbox4.yaml               # Main configuration
+├── mcp-servers.json             # MCP server configs
+├── agents.yaml                  # Agent registry
+└── memory.yaml                  # Memory configuration
+
+.docs/                            # ALL documentation
+├── INDEX.md                     # Start here
+├── 1-getting-started/          # New user guides
+├── 2-reference/                # Technical reference
+├── 3-components/               # Component documentation
+├── 4-frameworks/               # Framework documentation
+├── 5-workflows/                # Workflow guides
+└── 6-archives/                 # Historical documentation
+
+.memory/                          # 3-tier memory system
+├── working/                    # 10MB - Active session
+│   ├── current-session.md
+│   └── compact/                # Auto-compacted sessions
+├── extended/                   # 500MB - Project knowledge
+│   ├── chroma-db/              # Vector database
+│   └── entities.json           # Knowledge graph
+└── archival/                   # 5GB - Historical records
+    ├── sessions/               # Session history
+    └── projects/               # Project archives
+
+.plans/                           # Active project plans
+├── _template/                  # Plan template
+│   ├── README.md
+│   ├── checklist.md
+│   ├── status.md
+│   └── artifacts/
+└── active/                     # Active projects
+    └── YYYY-MM-DD_HHMM_goal/
+        ├── README.md
+        ├── checklist.md
+        ├── status.md
+        ├── artifacts/
+        └── [ralph-files]
+
+.runtime/                         # Runtime/state data
+├── .ralph/                     # Ralph runtime state
+├── monitoring/                 # Observability dashboard
+├── cache/                      # Runtime cache
+├── locks/                      # Process locks
+└── state/                      # Application state
+
+================================================================================
+
+.NUMBERED FOLDERS (User Space)
+--------------------------------------------------------------------------------
+
+1-agents/                         # ALL agent definitions
+├── README.md
+├── 1-core/                     # Core agent system
+├── 2-bmad/                     # BMAD methodology (12+ agents)
+├── 3-research/                 # Research agents
+├── 4-specialists/              # Specialist agents
+├── 5-enhanced/                 # Enhanced AI agents
+└── .skills/                    # Skills system
+    ├── 1-core/                 # Core skills
+    ├── 2-mcp/                  # MCP skills
+    └── 3-workflow/             # Workflow skills
+
+2-frameworks/                     # Framework patterns
+├── README.md
+├── 1-bmad/                     # BMAD 4-phase methodology
+├── 2-speckit/                  # Spec Kit patterns
+├── 3-metagpt/                  # MetaGPT templates
+└── 4-swarm/                    # Swarm patterns
+
+3-modules/                        # Domain modules
+├── context/                    # Context management
+├── domain/                     # Domain knowledge
+├── first-principles/           # First-principles reasoning
+├── implementation/             # Implementation patterns
+├── kanban/                     # Task board management
+├── planning/                   # Planning patterns
+└── research/                   # Research patterns
+
+4-scripts/                        # All executable scripts (organized by category)
+├── autonomous-loop.sh          # Start Ralph autonomous loop
+├── lib.sh                      # Shared utilities
+├── agents/                     # Agent management scripts
+│   ├── new-agent.sh
+│   ├── agent-handoff.sh
+│   └── start-agent-cycle.sh
+├── planning/                   # Plan creation scripts
+│   ├── new-plan.sh
+│   ├── new-run.sh
+│   ├── new-step.sh
+│   └── promote.sh
+├── memory/                     # Memory management scripts
+│   ├── auto-compact.sh
+│   ├── manage-memory-tiers.sh
+│   └── compact-context.sh
+├── monitoring/                 # Monitoring scripts
+│   ├── ralph-status.sh
+│   └── start-10h-monitor.sh
+├── testing/                    # Testing scripts
+│   ├── benchmark-task.sh
+│   ├── start-testing.sh
+│   └── check-ui-constraints.sh
+├── validation/                 # Validation scripts
+│   ├── check-dependencies.sh
+│   ├── validate-all.sh
+│   └── verify-readmes.sh
+├── utility/                    # Utility scripts
+│   ├── generate-readmes.sh
+│   ├── fix-perms.sh
+│   └── install-hooks.sh
+└── python/                     # Python scripts
+    ├── validate-docs.py
+    └── plan-status.py
+
+5-templates/                      # Document/file templates
+├── 1-documents/                # Document templates
+├── 2-plans/                    # Plan templates
+└── 3-code/                     # Code templates
+
+6-tools/                          # Helper utilities
+├── validation/                 # Validation tools
+├── migration/                  # Migration scripts
+└── maintenance/                # Maintenance utilities
+
+7-workspace/                      # Active workspace
+├── artifacts/                  # Generated artifacts
+├── benchmarks/                 # Benchmark results
+├── projects/                   # Active projects
+└── runs/                       # Run outputs
+
+================================================================================
+
+NAVIGATION EXAMPLES
+--------------------------------------------------------------------------------
+
+Find an agent:
+  → 1-agents/
+    → 2-bmad/        (BMAD methodology)
+    → 3-research/     (Research agents)
+    → 5-enhanced/     (Oracle, Librarian, Explore)
+
+Find documentation:
+  → .docs/
+    → 1-getting-started/  (Learn the basics)
+    → 2-reference/        (Technical info)
+    → 5-workflows/        (Workflow guides)
+
+Find skills:
+  → 1-agents/.skills/
+    → 1-core/     (Core skills)
+    → 2-mcp/      (MCP integration)
+    → 3-workflow/ (Workflow skills)
+
+================================================================================
+
+KEY STATISTICS
+--------------------------------------------------------------------------------
+
+  • Root folders:        12 (5 dot + 7 numbered)
+  • Agent categories:    6 (down from 17+)
+  • Skill categories:    3 (organized from 19 flat)
+  • Documentation:       6 numbered sections
+  • Frameworks:          4 consolidated
+  • Max items/level:     7 (never overwhelming)
+  • Empty folders:       0 (all have purpose)
+
+================================================================================
+
+QUICK START
+--------------------------------------------------------------------------------
+
+  1. Create a plan:
+     ./4-scripts/planning/new-plan.sh "your goal here"
+
+  2. Navigate to plan:
+     cd .plans/active/YYYY-MM-DD_HHMM_your-goal/
+
+  3. Edit plan:
+     vim README.md
+     vim checklist.md
+
+  4. Use agents:
+     # "Read: 1-agents/5-enhanced/oracle.md"
+     # "Review this architecture"
+
+  5. Run autonomous (optional):
+     blackbox4 generate-ralph
+     blackbox4 autonomous-loop
+
+  6. Monitor Ralph:
+     ./4-scripts/monitoring/ralph-status.sh
+
+================================================================================

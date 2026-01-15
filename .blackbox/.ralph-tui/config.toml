@@ -1,0 +1,23 @@
+# Ralph TUI Configuration for Blackbox4
+
+# Default tracker and agent
+tracker = "json"
+agent = "claude"
+
+# Execution limits
+maxIterations = 10
+
+# Agent-specific options
+[agentOptions]
+model = "sonnet"
+
+# Error handling
+[errorHandling]
+strategy = "skip"
+maxRetries = 3
+retryDelayMs = 5000
+continueOnNonZeroExit = false
+
+# Subagent tracing detail level
+# off | minimal | moderate | full
+subagentTracingDetail = "full"

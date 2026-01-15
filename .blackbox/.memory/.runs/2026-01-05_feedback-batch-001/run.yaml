@@ -1,0 +1,13 @@
+id: "2026-01-05_feedback-batch-001"
+type: "feedback-batch"
+status: "planned"
+created_at: "2026-01-05"
+owner: "shaun"
+
+inputs:
+  inbox: "inbox.md"
+
+artifacts:
+  normalized: "normalized.md"
+  grouping: "grouping.md"
+

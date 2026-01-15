@@ -1,0 +1,22 @@
+{
+  "name": "Ralph TUI Test",
+  "branchName": "test/ralph-tui-integration",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Say Hello",
+      "description": "As a user, I want Claude to respond with a greeting to verify Ralph TUI works",
+      "acceptanceCriteria": [
+        "Claude responds with a greeting",
+        "Task is marked complete"
+      ],
+      "priority": 1,
+      "passes": true,
+      "dependsOn": [],
+      "completionNotes": "Completed by agent"
+    }
+  ],
+  "metadata": {
+    "updatedAt": "2026-01-15T01:23:18.943Z"
+  }
+}

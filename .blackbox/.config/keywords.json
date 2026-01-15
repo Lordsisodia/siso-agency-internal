@@ -1,0 +1,39 @@
+{
+  "keywords": {
+    "ultrawork": {
+      "triggers": ["ultrawork", "ulw"],
+      "mode": "parallel",
+      "description": "Maximum performance with parallel agents",
+      "features": [
+        "parallel_agents",
+        "background_tasks",
+        "aggressive_execution",
+        "todo_continuation"
+      ]
+    },
+    "search": {
+      "triggers": ["search", "find", "look for", "찾아", "검색"],
+      "mode": "research",
+      "description": "Deep research mode with parallel search",
+      "features": [
+        "parallel_explore_librarian",
+        "maximized_grep",
+        "context7_active",
+        "grep_app_active"
+      ]
+    },
+    "analyze": {
+      "triggers": ["analyze", "investigate", "분석", "조사"],
+      "mode": "analysis",
+      "description": "Multi-phase expert consultation",
+      "features": [
+        "oracle_first",
+        "explore_librarian_data",
+        "sequential_investigation",
+        "synthesis_report"
+      ]
+    }
+  },
+  "current_mode": "normal",
+  "mode_history": []
+}

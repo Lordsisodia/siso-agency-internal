@@ -111,6 +111,38 @@ export class UnifiedMCPClient {
       confidence: 0.85,
       suggestedMCP: 'slack'
     });
+
+    // AI assistance patterns
+    this.addIntentPattern(/\b(help|assist|suggest|advise|recommend|how to|what should|explain)\b/i, {
+      type: 'code',
+      action: 'assist',
+      confidence: 0.8,
+      suggestedMCP: 'glm'
+    });
+
+    // Task management patterns
+    this.addIntentPattern(/\b(prioritize|organize|manage|plan|schedule|task|goal)\b/i, {
+      type: 'code',
+      action: 'manageTasks',
+      confidence: 0.85,
+      suggestedMCP: 'glm'
+    });
+
+    // Code analysis patterns
+    this.addIntentPattern(/\b(review|analyze|improve|optimize|refactor)\s+(code|function|implementation)\b/i, {
+      type: 'code',
+      action: 'analyzeCode',
+      confidence: 0.9,
+      suggestedMCP: 'glm'
+    });
+
+    // Workflow optimization patterns
+    this.addIntentPattern(/\b(optimize|improve|streamline)\s+(workflow|process|routine)\b/i, {
+      type: 'code',
+      action: 'optimizeWorkflow',
+      confidence: 0.85,
+      suggestedMCP: 'glm'
+    });
   }
 
   /**
@@ -144,6 +176,24 @@ export class UnifiedMCPClient {
       match: /github|repository/i,
       mcp: 'github-cli',
       fallback: 'github-mcp'
+    });
+
+    this.addRoute({
+      match: /help|assist|suggest/i,
+      mcp: 'glm',
+      autoInvoke: true
+    });
+
+    this.addRoute({
+      match: /prioritize|manage.*tasks/i,
+      mcp: 'glm',
+      autoInvoke: true
+    });
+
+    this.addRoute({
+      match: /review.*code|analyze.*code/i,
+      mcp: 'glm',
+      autoInvoke: true
     });
   }
 
@@ -330,6 +380,18 @@ export class UnifiedMCPClient {
           id: 'main',
           mcp: mcpName,
           action: intent.action === 'manage' ? 'createBranch' : 'getPullRequest',
+          params,
+          retryConfig: {
+            maxRetries: 2,
+            backoffMs: 1000
+          }
+        }];
+
+      case 'glm':
+        return [{
+          id: 'main',
+          mcp: mcpName,
+          action: intent.action === 'assist' ? 'assist' : intent.action,
           params,
           retryConfig: {
             maxRetries: 2,

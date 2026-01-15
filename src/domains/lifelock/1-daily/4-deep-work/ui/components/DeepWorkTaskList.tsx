@@ -11,6 +11,7 @@
  */
 
 import React, { useState, useMemo, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   CheckCircle2,
   Circle,
@@ -35,6 +36,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TaskDetailModal } from "@/domains/lifelock/components/TaskDetailModal";
+import { TaskDetailSheet } from "@/domains/lifelock/_shared/components/ui/TaskDetailSheet";
 import { CustomCalendar } from "../../../_shared/components";
 import { SubtaskItem } from "@/domains/lifelock/1-daily/_shared/components/subtask/SubtaskItem";
 import { useDeepWorkTasksSupabase, DeepWorkTask, DeepWorkSubtask } from "@/domains/lifelock/1-daily/4-deep-work/domain/useDeepWorkTasksSupabase";
@@ -110,6 +112,8 @@ function transformSupabaseToUITasks(tasks: DeepWorkTask[]): Task[] {
 }
 
 export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = new Date() }: DeepWorkTaskListProps) {
+  const navigate = useNavigate();
+
   // Initialize gamification system for XP tracking
   useGamificationInit();
 
@@ -201,6 +205,7 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
   const [activeFocusSession, setActiveFocusSession] = useState<string | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [addingNewTask, setAddingNewTask] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [calendarSubtaskId, setCalendarSubtaskId] = useState<string | null>(null);
@@ -1040,7 +1045,10 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
                             ) : (
                               <h4
                                 className="text-blue-100 hover:text-blue-50 font-semibold text-sm sm:text-base cursor-pointer transition-colors break-words"
-                                onClick={() => handleMainTaskStartEditing(task.id, task.title)}
+                                onClick={() => {
+                                  setSelectedTask(task);
+                                  setIsSheetOpen(true);
+                                }}
                               >
                                 {task.title}
                               </h4>
@@ -1463,6 +1471,27 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
           setIsModalOpen(false);
           onStartFocusSession?.(taskId, tasks.find(t => t.id === taskId)?.focusIntensity || 2);
         }}
+      />
+
+      {/* Task Detail Sheet */}
+      <TaskDetailSheet
+        task={selectedTask}
+        isOpen={isSheetOpen}
+        onClose={() => {
+          setIsSheetOpen(false);
+          setSelectedTask(null);
+        }}
+        workType="deep"
+        selectedDate={selectedDate}
+        onToggleSubtaskCompletion={handleToggleSubtaskStatus}
+        onAddSubtask={async (taskId, title) => {
+          await addSubtask(taskId, title);
+        }}
+        onUpdateSubtaskDueDate={handleUpdateSubtaskDueDate}
+        onUpdateSubtaskPriority={handleUpdateSubtaskPriority}
+        onUpdateSubtaskDescription={handleUpdateSubtaskDescription}
+        onUpdateSubtaskEstimatedTime={handleUpdateSubtaskEstimatedTime}
+        onDeleteSubtask={handleDeleteSubtask}
       />
     </div>
   );

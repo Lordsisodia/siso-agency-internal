@@ -1,0 +1,37 @@
+{
+  "channels": {
+    "local": {
+      "enabled": true,
+      "type": "desktop",
+      "command": "osascript"
+    },
+    "mobile": {
+      "enabled": false,
+      "type": "push",
+      "service": "ntfy",
+      "topic": ""
+    },
+    "telegram": {
+      "enabled": false,
+      "type": "bot",
+      "bot_token": "",
+      "chat_id": ""
+    }
+  },
+  "settings": {
+    "quiet_hours": {
+      "enabled": false,
+      "start": "22:00",
+      "end": "08:00"
+    },
+    "priority_filter": {
+      "min_priority": "info",
+      "quiet_urgent_only": false
+    },
+    "throttle": {
+      "enabled": true,
+      "max_per_hour": 10,
+      "cooldown_seconds": 60
+    }
+  }
+}

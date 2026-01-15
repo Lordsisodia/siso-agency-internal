@@ -1,0 +1,21 @@
+{
+  "limits": {
+    "working_memory": 10485760,
+    "extended_memory": 524288000,
+    "archival_memory": 5368709120,
+    "max_tokens": 200000
+  },
+  "settings": {
+    "auto_compact": true,
+    "compact_threshold": 0.9,
+    "backup_before_compact": true,
+    "preserve_metadata": true,
+    "priority_rules": {
+      "keep_first_lines": 50,
+      "keep_last_lines": 50,
+      "keep_markdown_headers": true,
+      "keep_code_blocks": true
+    }
+  },
+  "history": []
+}

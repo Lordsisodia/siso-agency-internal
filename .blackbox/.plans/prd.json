@@ -1,0 +1,65 @@
+{
+  "name": "Blackbox4 Improvements",
+  "project": "Improvements and enhancements to Blackbox4 autonomous agent system",
+  "branchName": "feature/blackbox4-improvements",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Improve Dashboard Backend",
+      "description": "As a developer, I want to enhance the FastAPI backend with additional endpoints and better error handling so that the dashboard is more reliable and feature-complete",
+      "acceptanceCriteria": [
+        "Add missing API endpoints for agent management",
+        "Implement proper error handling and logging",
+        "Add rate limiting for API calls",
+        "Write API documentation"
+      ],
+      "priority": 1,
+      "passes": false,
+      "dependsOn": []
+    },
+    {
+      "id": "US-002",
+      "title": "Fix Dashboard Frontend",
+      "description": "As a user, I want the React dashboard to load without errors so that I can monitor my autonomous agents",
+      "acceptanceCriteria": [
+        "Fix PieChart import conflicts between lucide-react and recharts",
+        "Fix missing WebSocketMessage interface",
+        "Ensure production build succeeds",
+        "Test all pages load correctly"
+      ],
+      "priority": 1,
+      "passes": true,
+      "dependsOn": []
+    },
+    {
+      "id": "US-003",
+      "title": "Integrate Ralph TUI",
+      "description": "As a user, I want to use Ralph TUI as the terminal interface for Blackbox4 so that I can run autonomous agent loops",
+      "acceptanceCriteria": [
+        "Clone Ralph TUI repository",
+        "Build and install dependencies",
+        "Create wrapper script for easy access",
+        "Test TUI launches correctly",
+        "Create sample prd.json with user stories"
+      ],
+      "priority": 1,
+      "passes": true,
+      "dependsOn": []
+    },
+    {
+      "id": "US-004",
+      "title": "Create Documentation",
+      "description": "As a developer, I want comprehensive documentation for the Blackbox4 system so that I can understand and maintain it",
+      "acceptanceCriteria": [
+        "Document Phase 1: Agent Behavior Protocol",
+        "Document Phase 2: Intelligence Layer",
+        "Document Phase 3: Observability Layer",
+        "Document Ralph TUI integration",
+        "Create quick start guide"
+      ],
+      "priority": 2,
+      "passes": false,
+      "dependsOn": ["US-001", "US-002", "US-003"]
+    }
+  ]
+}

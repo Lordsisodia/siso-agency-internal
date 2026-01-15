@@ -22,7 +22,11 @@ import {
   Sunrise,
   Moon,
   Coffee,
-  Zap
+  Zap,
+  Building2,
+  LayoutDashboard,
+  Infinity as InfinityIcon,
+  Calendar as CalendarIcon
 } from 'lucide-react';
 
 // Types
@@ -47,6 +51,16 @@ export interface MoreMenuItem {
   label: string;
   path: string;
   icon: LucideIcon;
+}
+
+export interface GridMenuItem {
+  id: string;
+  label: string;
+  path: string;
+  icon: LucideIcon;
+  position: number; // 0-8 for 3x3 grid
+  isSpecial?: boolean; // For center AI Legacy button
+  color?: string; // Optional color scheme
 }
 
 // Main Navigation Sections (Bottom Nav Buttons 1-3)
@@ -97,10 +111,52 @@ export const VIEW_NAVIGATOR_MAP: Record<string, { label: string; path: string; i
 
 // More Menu Items (Button 5) - Pages NOT in bottom nav
 export const MORE_MENU_ITEMS: MoreMenuItem[] = [
-  { id: 'clients', label: 'Clients', path: '/admin/clients', icon: Users },
+  // Main
+  { id: 'admin-dashboard', label: 'Dashboard', path: '/admin', icon: LayoutDashboard },
+
+  // Client Management
+  { id: 'clients', label: 'Clients', path: '/admin/clients', icon: Building2 },
+  { id: 'industries', label: 'Industries', path: '/admin/industries', icon: Building2 },
+
+  // Partner Workspace
   { id: 'partners', label: 'Partners', path: '/admin/partners', icon: Handshake },
+
+  // LifeLock Views
+  { id: 'daily-view', label: 'Daily', path: '/admin/lifelock/daily', icon: CalendarIcon },
+  { id: 'weekly-view', label: 'Weekly', path: '/admin/lifelock/weekly', icon: CalendarRange },
+  { id: 'monthly-view', label: 'Monthly', path: '/admin/lifelock/monthly', icon: CalendarClock },
+  { id: 'yearly-view', label: 'Yearly', path: '/admin/lifelock/yearly', icon: CalendarDays },
+  { id: 'life-view', label: 'Life', path: '/admin/lifelock/life', icon: InfinityIcon },
+
+  // XP Features
   { id: 'xp-dashboard', label: 'XP Dashboard', path: '/xp-dashboard', icon: Trophy },
   { id: 'xp-store', label: 'XP Store', path: '/xp-store', icon: ShoppingBag }
+];
+
+// Grid Menu Items (3x3 Layout) - NEW!
+// Layout:
+// ┌─────────┬─────────┬─────────┐
+// │ Daily   │ Weekly  │ Clients │
+// ├─────────┼─────────┼─────────┤
+// │ Monthly │ XP Hub  │Partners │
+// ├─────────┼─────────┼─────────┤
+// │ Yearly  │ Life    │ AI Legacy│
+// └─────────┴─────────┴─────────┘
+export const GRID_MENU_ITEMS: GridMenuItem[] = [
+  // Top Row
+  { id: 'daily-view', label: 'Daily', path: '/admin/lifelock/daily', icon: CalendarIcon, position: 0, color: 'text-blue-400' },
+  { id: 'weekly-view', label: 'Weekly', path: '/admin/lifelock/weekly', icon: CalendarDays, position: 1, color: 'text-green-400' },
+  { id: 'clients', label: 'Clients', path: '/admin/clients', icon: Building2, position: 2, color: 'text-amber-400' },
+
+  // Middle Row
+  { id: 'monthly-view', label: 'Monthly', path: '/admin/lifelock/monthly', icon: CalendarRange, position: 3, color: 'text-purple-400' },
+  { id: 'xp-hub', label: 'XP Hub', path: '/xp-dashboard', icon: Trophy, position: 4, color: 'text-yellow-400' },
+  { id: 'partners', label: 'Partners', path: '/admin/partners', icon: Handshake, position: 5, color: 'text-cyan-400' },
+
+  // Bottom Row
+  { id: 'yearly-view', label: 'Yearly', path: '/admin/lifelock/yearly', icon: CalendarClock, position: 6, color: 'text-red-400' },
+  { id: 'life-view', label: 'Life', path: '/admin/lifelock/life', icon: InfinityIcon, position: 7, color: 'text-pink-400' },
+  { id: 'ai-legacy', label: 'AI Legacy', path: '/ai-assistant', icon: Sparkles, position: 8, isSpecial: true, color: 'text-purple-400' }
 ];
 
 // Map old tabs to new structure for backward compatibility

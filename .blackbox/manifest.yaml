@@ -1,0 +1,21 @@
+# Blackbox4 Manifest
+# Root identification file for the Blackbox4 framework
+
+name: blackbox4
+version: 4.0.0
+description: AI Agent Orchestration Framework
+author: Blackbox Team
+
+phases:
+  - phase: 1
+    name: Context Variables
+    status: complete
+    source: OpenAI Swarm
+  - phase: 2
+    name: Hierarchical Tasks
+    status: complete
+    source: CrewAI + MetaGPT
+  - phase: 3
+    name: Structured Spec Creation
+    status: complete
+    source: Spec Kit

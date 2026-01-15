@@ -1,0 +1,42 @@
+# Blackbox4 Git Ignore
+
+# Runtime directories
+.runtime/
+artifacts/
+
+# Run manifests (for test execution tracking)
+runs/manifests/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Node modules if any
+node_modules/
+
+# Python cache if any
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment files
+.env
+.env.local
+
+# API keys and secrets (specific files with secrets)
+3-modules/research/oss-catalog/catalog.json
+3-modules/research/oss-catalog/curator.json
+3-modules/research/oss-catalog/curation.json

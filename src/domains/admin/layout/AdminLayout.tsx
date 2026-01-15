@@ -31,10 +31,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
   // Calculate margin based on sidebar state
   const getMainMargin = () => {
-    if (isMobile) {
-      return 'ml-0'; // Mobile has no margin, sidebar overlays
-    }
-    return 'ml-16'; // Desktop: Always collapsed (4rem width)
+    // TEMPORARY: No margin since sidebar is hidden
+    return 'ml-0';
   };
 
   return (
@@ -43,7 +41,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         onExpandedChange={setSidebarExpanded}
         onMobileMenuChange={setMobileMenuOpen}
       />
-      <main className={`${getMainMargin()} overflow-y-auto admin-scrollbar min-h-screen transition-all duration-100 relative`} style={{ backgroundColor: '#121212' }}>
+      <main className={`${getMainMargin()} overflow-y-auto admin-scrollbar min-h-screen transition-all duration-100 relative pb-24`} style={{ backgroundColor: '#121212' }}>
         <div key={location.pathname} className="min-h-screen">
           {children}
         </div>

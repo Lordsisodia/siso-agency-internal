@@ -9,10 +9,9 @@
 
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { NAV_SECTIONS, MORE_MENU_ITEMS, getViewNavigator } from '@/services/shared/navigation-config';
+import { NAV_SECTIONS, getViewNavigator } from '@/services/shared/navigation-config';
 import { DailyBottomNav, DailyBottomNavTab } from './DailyBottomNav';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Button } from '@/components/ui/button';
+import { GridMoreMenu } from '@/components/GridMoreMenu';
 import { cn } from '@/lib/utils';
 import { NineDotsIcon } from '@/components/ui/expandable-tabs';
 
@@ -40,13 +39,17 @@ export const ConsolidatedBottomNav: React.FC<ConsolidatedBottomNavProps> = ({
   const buildTabs = (): DailyBottomNavTab[] => {
     const baseTabs = NAV_SECTIONS.map(section => ({
       title: section.name,
-      icon: section.icon
+      icon: section.icon,
+      color: section.color,
+      bgActive: section.bgActive
     }));
 
     // Add Smart View Navigator as 4th button
     baseTabs.push({
       title: viewNavigator.label,
-      icon: viewNavigator.icon
+      icon: viewNavigator.icon,
+      color: 'text-blue-400', // Weekly view color
+      bgActive: 'bg-blue-400/20'
     });
 
     // Add More button as 5th button
@@ -60,6 +63,10 @@ export const ConsolidatedBottomNav: React.FC<ConsolidatedBottomNavProps> = ({
 
   const tabs = buildTabs();
   const activeIndex = NAV_SECTIONS.findIndex(s => s.id === activeSection);
+
+  // Determine if View Navigator (index 3) is active
+  const isViewNavigatorActive = location.pathname === viewNavigator.path;
+  const effectiveActiveIndex = isViewNavigatorActive ? 3 : activeIndex;
 
   const handleTabChange = (index: number | null) => {
     if (index === null) return;
@@ -85,54 +92,17 @@ export const ConsolidatedBottomNav: React.FC<ConsolidatedBottomNavProps> = ({
     }
   };
 
-  const handleMoreMenuClick = (path: string) => {
-    navigate(path);
-    setMoreMenuOpen(false);
-  };
-
   return (
     <>
       <DailyBottomNav
         tabs={tabs}
-        activeIndex={activeIndex}
+        activeIndex={effectiveActiveIndex}
         onChange={handleTabChange}
         className={className}
       />
 
-      {/* More Menu - Popover that appears above nav */}
-      <Popover open={moreMenuOpen} onOpenChange={setMoreMenuOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="ghost"
-            className="fixed bottom-24 right-6 opacity-0 pointer-events-none"
-            id="more-menu-trigger"
-          />
-        </PopoverTrigger>
-        <PopoverContent
-          align="center"
-          side="top"
-          className="w-[calc(100vw-2rem)] max-w-xl bg-gray-900/95 backdrop-blur-xl border-white/10 shadow-2xl p-4"
-          sideOffset={16}
-        >
-          <div className="space-y-2">
-            <h3 className="text-sm font-semibold text-white mb-4">More</h3>
-            <div className="grid grid-cols-3 gap-3">
-              {MORE_MENU_ITEMS.map(item => (
-                <button
-                  key={item.id}
-                  onClick={() => handleMoreMenuClick(item.path)}
-                  className="flex flex-col items-center gap-2 p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
-                >
-                  <item.icon className="h-6 w-6 text-amber-400" />
-                  <span className="text-xs font-medium text-white text-center leading-tight">
-                    {item.label}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </PopoverContent>
-      </Popover>
+      {/* Grid More Menu - 3x3 overlay */}
+      <GridMoreMenu open={moreMenuOpen} onOpenChange={setMoreMenuOpen} />
     </>
   );
 };

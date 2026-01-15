@@ -1,0 +1,54 @@
+{
+  "version": "1.0.0",
+  "embedding": {
+    "mode": "local",
+    "primary_backend": "local",
+    "fallback_backend": "glm",
+    "backends": {
+      "glm": {
+        "enabled": false,
+        "model": "embedding-2",
+        "dimensions": 1024,
+        "api_key_env": "ZHIPUAI_API_KEY",
+        "timeout": 30,
+        "max_retries": 3,
+        "batch_size": 100
+      },
+      "local": {
+        "enabled": true,
+        "model": "nomic-ai/nomic-embed-text-v1",
+        "device": "cpu",
+        "normalize_embeddings": true
+      }
+    }
+  },
+  "vector_store": {
+    "type": "chromadb",
+    "path": ".memory/extended/chroma-db",
+    "collection_name": "blackbox4_memory",
+    "persist_directory": ".memory/extended/chroma-db"
+  },
+  "indexing": {
+    "auto_index": true,
+    "index_interval_hours": 24,
+    "paths_to_index": [
+      ".memory/working/shared",
+      ".memory/working/agents",
+      ".docs",
+      ".plans/active"
+    ],
+    "file_patterns": ["*.md", "*.json", "*.txt"],
+    "exclude_patterns": ["node_modules", ".git", "*.pyc"]
+  },
+  "search": {
+    "default_top_k": 10,
+    "similarity_threshold": 0.7,
+    "rerank_enabled": false,
+    "max_context_length": 8192
+  },
+  "cache": {
+    "enabled": true,
+    "path": ".memory/extended/embedding-cache",
+    "max_size_mb": 1000
+  }
+}

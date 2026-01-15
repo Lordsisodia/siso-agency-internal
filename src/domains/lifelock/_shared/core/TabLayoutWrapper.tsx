@@ -13,8 +13,11 @@ import { NAV_SECTIONS, LEGACY_TAB_MAPPING } from '@/services/shared/navigation-c
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ConsolidatedBottomNav } from '@/domains/lifelock/1-daily/_shared/components/navigation/ConsolidatedBottomNav';
+import { BevelDateHeader, UnifiedTopNav, SwipeableSubTabContent } from '@/domains/lifelock/1-daily/_shared/components';
+import { useDateCompletionMap } from '@/domains/lifelock/1-daily/_shared/hooks/useDateCompletionMap';
 import { SectionSubNav } from '@/components/navigation/SectionSubNav';
 import { cn } from '@/lib/utils';
+import { calculateDayCompletionPercentage } from '@/lib/utils/dayProgress';
 
 // Use centralized tab configuration to prevent routing inconsistencies
 const tabs = Object.values(TAB_CONFIG);
@@ -63,6 +66,9 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
   // NEW: Section and subtab state for consolidated navigation
   const [activeSection, setActiveSection] = useState<string>('timebox');
   const [activeSubTab, setActiveSubTab] = useState<string>('timebox');
+
+  // Fetch date completion map for the dropdown
+  const { completionMap } = useDateCompletionMap(userId || undefined);
 
   // Handle legacy tab URLs for backward compatibility
   useEffect(() => {
@@ -200,71 +206,61 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
 
   return (
     <div className="flex flex-col h-screen w-full overflow-hidden" style={{ backgroundColor: '#121212' }}>
-      {/* Clean Offline Indicator - Moved to bottom as part of BottomActionBars */}
-      {/* <OfflineIndicator /> */}
-
-      {/* UNIFIED SCROLL CONTAINER - Single scroll area for entire screen */}
+      {/* SCROLLABLE CONTENT AREA - Contains header, pills, and content */}
       <div className="flex-1 relative overflow-hidden">
-        <motion.div
-          className="h-full relative z-10"
-          style={{
-            // PWA-optimized touch handling - full scroll freedom
-            touchAction: 'auto',
-            backgroundColor: 'transparent'
-          }}
-        >
-          <AnimatePresence mode="popLayout" custom={activeTabIndex}>
-            <motion.div
-              key={effectiveTabId}
-              custom={activeTabIndex}
-              variants={slideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{
-                x: { type: "spring", stiffness: 400, damping: 35 },
-                opacity: { duration: 0.15 },
-              }}
-              className="h-full overflow-y-auto"
-              style={{
-                // SINGLE SCROLL CONTAINER - this is the ONLY scrollable area
-                paddingBottom: '92px', // Optimized: ExpandableTabs (50px) + gaps (42px)
-                // PWA scroll optimization for mobile
-                WebkitOverflowScrolling: 'touch',
-                overscrollBehavior: 'contain',
-                // Prevent bounce effects that compete with swipe gestures
-                overscrollBehaviorY: 'contain'
-              }}
-            >
-              {/* Header with Back button - Scrollable */}
-              <div className="flex items-center justify-between px-4 py-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => navigate('/admin/lifelock/weekly')}
-                  className="text-siso-text-muted hover:text-siso-text hover:bg-transparent -ml-2"
-                >
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Weekly View
-                </Button>
-              </div>
+        <AnimatePresence mode="popLayout" custom={activeTabIndex}>
+          <motion.div
+            key={effectiveTabId}
+            custom={activeTabIndex}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{
+              x: { type: "spring", stiffness: 400, damping: 35 },
+              opacity: { duration: 0.15 },
+            }}
+            className="h-full overflow-y-auto"
+            style={{
+              paddingBottom: '100px',
+              WebkitOverflowScrolling: 'touch',
+              overscrollBehavior: 'contain',
+            }}
+          >
+            {/* NEW Unified Top Navigation */}
+            <UnifiedTopNav
+              selectedDate={selectedDate}
+              onDateChange={onDateChange}
+              completionPercentage={calculateDayCompletionPercentage(selectedDate)}
+              activeTab={effectiveTabId}
+              dateCompletionMap={completionMap}
+            />
 
-              {/* NEW: Sub-navigation for sections that have it */}
-              {currentSection?.hasSubNav && (
-                <SectionSubNav
-                  subSections={currentSection.subSections || []}
-                  activeSubTab={activeSubTab}
-                  onSubTabChange={(subTab) => setActiveSubTab(subTab)}
-                  activeColor={currentSection.color}
-                  activeBgColor={currentSection.bgActive}
-                />
-              )}
+            {/* NEW: Sub-navigation for sections that have it */}
+            {currentSection?.hasSubNav && (
+              <SectionSubNav
+                subSections={currentSection.subSections || []}
+                activeSubTab={activeSubTab}
+                onSubTabChange={(subTab) => setActiveSubTab(subTab)}
+                activeColor={currentSection.color}
+                activeBgColor={currentSection.bgActive}
+              />
+            )}
 
-              {/* Render tab content via children function */}
-              {children(effectiveTabId, navigateDay)}
-            </motion.div>
-          </AnimatePresence>
-        </motion.div>
+            {/* Render tab content via children function */}
+            {currentSection?.hasSubNav ? (
+              <SwipeableSubTabContent
+                subSections={currentSection.subSections || []}
+                activeSubTab={activeSubTab}
+                onSubTabChange={(subTab) => setActiveSubTab(subTab)}
+              >
+                {(subTab) => children(subTab, navigateDay)}
+              </SwipeableSubTabContent>
+            ) : (
+              children(effectiveTabId, navigateDay)
+            )}
+          </motion.div>
+        </AnimatePresence>
       </div>
 
       {/* Bottom Tab Navigation - Hidden when AI chat is open */}

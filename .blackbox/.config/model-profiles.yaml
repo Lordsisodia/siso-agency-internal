@@ -1,0 +1,167 @@
+# Model Profiles for Blackbox3
+# Scale-adaptive intelligence based on task complexity
+
+profiles:
+  # Fast profile - For simple, quick tasks
+  fast:
+    name: "Fast"
+    description: "Quick responses for simple tasks"
+    model_id: "claude-3-5-haiku-20250108"
+    max_tokens: 16384
+    temperature: 0.7
+    timeout: 30
+    cost_level: "low"
+    estimated_cost_per_1m_tokens: 0.25
+
+    use_cases:
+      - "Simple questions"
+      - "File navigation"
+      - "Quick edits"
+      - "Documentation lookup"
+      - "Status checks"
+      - "Basic analysis"
+
+    capabilities:
+      - "Fast responses"
+      - "Lower cost"
+      - "Good for simple tasks"
+      - "High throughput"
+
+    limitations:
+      - "Less detailed analysis"
+      - "Simpler reasoning"
+      - "May miss nuance"
+
+  # Balanced profile - Default for most tasks
+  balanced:
+    name: "Balanced"
+    description: "Balanced performance and quality for general use"
+    model_id: "claude-3-5-sonnet-20241022"
+    max_tokens: 8192
+    temperature: 0.5
+    timeout: 60
+    cost_level: "medium"
+    estimated_cost_per_1m_tokens: 3.0
+
+    use_cases:
+      - "Code generation"
+      - "Feature planning"
+      - "Debugging"
+      - "Refactoring"
+      - "Documentation writing"
+      - "Data analysis"
+
+    capabilities:
+      - "Strong reasoning"
+      - "Good code generation"
+      - "Balanced speed/quality"
+      - "Cost-effective"
+
+    limitations:
+      - "Not fastest"
+      - "Not highest quality"
+
+  # High Quality profile - For complex, critical tasks
+  hq:
+    name: "High Quality"
+    description: "Maximum quality for complex tasks"
+    model_id: "claude-3-5-sonnet-20241022"
+    max_tokens: 200000
+    temperature: 0.3
+    timeout: 120
+    cost_level: "high"
+    estimated_cost_per_1m_tokens: 15.0
+
+    use_cases:
+      - "Architecture design"
+      - "Complex refactoring"
+      - "Security analysis"
+      - "Performance optimization"
+      - "System design"
+      - "Critical decision making"
+
+    capabilities:
+      - "Deep reasoning"
+      - "Comprehensive analysis"
+      - "Nuanced understanding"
+      - "Best quality output"
+      - "Large context handling"
+
+    limitations:
+      - "Slower responses"
+      - "Higher cost"
+      - "May be overkill for simple tasks"
+
+# Default profiles by agent type
+defaults:
+  # Planning agents need high quality
+  orchestrator: "balanced"
+  analyst: "hq"
+  pm: "balanced"
+  architect: "hq"
+
+  # Building agents
+  dev: "balanced"
+  qa: "balanced"
+
+  # Specialized agents
+  "deep-research": "hq"
+  "feature-research": "balanced"
+  "oss-discovery": "balanced"
+  "docs-feedback": "balanced"
+
+  # Simple agents use fast profile
+  simple_agents: "fast"
+
+# Auto-upgrade rules
+auto_upgrade:
+  # Upgrade to hq if:
+  - condition: "task_complexity == 'complex'"
+    target_profile: "hq"
+
+  - condition: "token_count > 50000"
+    target_profile: "hq"
+
+  - condition: "importance == 'critical'"
+    target_profile: "hq"
+
+  # Upgrade to balanced if:
+  - condition: "task_complexity == 'medium'"
+    target_profile: "balanced"
+
+  - condition: "token_count > 10000"
+    target_profile: "balanced"
+
+  # Downgrade to fast if:
+  - condition: "task_complexity == 'simple'"
+    target_profile: "fast"
+
+  - condition: "token_count < 5000"
+    from_profile: "balanced"
+    target_profile: "fast"
+
+# Cost optimization
+cost_limits:
+  max_cost_per_operation: 1.0  # $1 max per operation
+  daily_budget: 10.0              # $10 daily budget
+  monthly_budget: 100.0           # $100 monthly budget
+
+  # Budget alerts
+  alert_at_percentage: 0.8        # Alert at 80% of budget
+
+# Performance targets
+performance:
+  max_response_time:
+    fast: 30       # seconds
+    balanced: 60
+    hq: 120
+
+  max_thinking_time:
+    fast: 10
+    balanced: 30
+    hq: 60
+
+# Version tracking
+version: "1.0"
+last_updated: "2026-01-12"
+reviewed_by: "team"

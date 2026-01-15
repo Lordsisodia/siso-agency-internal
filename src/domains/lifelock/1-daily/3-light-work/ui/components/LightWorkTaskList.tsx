@@ -11,6 +11,7 @@
  */
 
 import React, { useState, useMemo, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   CheckCircle2,
   Circle,
@@ -33,6 +34,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TaskDetailModal } from "@/domains/lifelock/components/TaskDetailModal";
+import { TaskDetailSheet } from "@/domains/lifelock/_shared/components/ui/TaskDetailSheet";
 import { CustomCalendar } from "../../../_shared/components";
 import { SubtaskItem } from "@/domains/lifelock/1-daily/_shared/components/subtask/SubtaskItem";
 import { useLightWorkTasksSupabase, LightWorkTask, LightWorkSubtask } from "@/domains/lifelock/1-daily/3-light-work/domain/useLightWorkTasksSupabase";
@@ -40,6 +42,7 @@ import { sortSubtasksHybrid } from "@/domains/lifelock/1-daily/_shared/utils/sub
 import { GamificationService } from "@/domains/lifelock/_shared/services/gamificationService";
 import { getLightWorkPriorityMultiplier } from "@/domains/lifelock/1-daily/_shared/utils/taskXpCalculations";
 import { useGamificationInit } from "@/lib/hooks/useGamificationInit";
+import { format } from 'date-fns';
 
 // Type definitions - exact same as original
 interface Subtask {
@@ -105,6 +108,8 @@ function transformSupabaseToUITasks(tasks: LightWorkTask[]): Task[] {
 }
 
 export default function LightWorkTaskList({ onStartFocusSession, selectedDate = new Date() }: LightWorkTaskListProps) {
+  const navigate = useNavigate();
+
   // Initialize gamification system for XP tracking
   useGamificationInit();
 
@@ -181,6 +186,7 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
   const [activeFocusSession, setActiveFocusSession] = useState<string | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [calendarSubtaskId, setCalendarSubtaskId] = useState<string | null>(null);
   const [activeTaskCalendarId, setActiveTaskCalendarId] = useState<string | null>(null);
   const [taskPriorityMenuId, setTaskPriorityMenuId] = useState<string | null>(null);
@@ -880,7 +886,10 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
                             ) : (
                               <h4
                                 className="text-green-100 hover:text-green-50 font-semibold text-sm sm:text-base cursor-pointer transition-colors truncate"
-                                onClick={() => handleMainTaskStartEditing(task.id, task.title)}
+                                onClick={() => {
+                                  setSelectedTask(task);
+                                  setIsSheetOpen(true);
+                                }}
                               >
                                 {task.title}
                               </h4>
@@ -1252,6 +1261,27 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
           setIsModalOpen(false);
           onStartFocusSession?.(taskId, tasks.find(t => t.id === taskId)?.focusIntensity || 2);
         }}
+      />
+
+      {/* Task Detail Sheet */}
+      <TaskDetailSheet
+        task={selectedTask}
+        isOpen={isSheetOpen}
+        onClose={() => {
+          setIsSheetOpen(false);
+          setSelectedTask(null);
+        }}
+        workType="light"
+        selectedDate={selectedDate}
+        onToggleSubtaskCompletion={handleToggleSubtaskStatus}
+        onAddSubtask={async (taskId, title) => {
+          await addSubtask(taskId, title);
+        }}
+        onUpdateSubtaskDueDate={handleUpdateSubtaskDueDate}
+        onUpdateSubtaskPriority={handleUpdateSubtaskPriority}
+        onUpdateSubtaskDescription={handleUpdateSubtaskDescription}
+        onUpdateSubtaskEstimatedTime={handleUpdateSubtaskEstimatedTime}
+        onDeleteSubtask={handleDeleteSubtask}
       />
     </div>
   );

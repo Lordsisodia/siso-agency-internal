@@ -1,0 +1,329 @@
+{
+  "config": {
+    "configFile": "/Users/shaansisodia/DEV/SISO-ECOSYSTEM/SISO-INTERNAL/playwright.config.ts",
+    "rootDir": "/Users/shaansisodia/DEV/SISO-ECOSYSTEM/SISO-INTERNAL/tests",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 4
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "playwright-report",
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/Users/shaansisodia/DEV/SISO-ECOSYSTEM/SISO-INTERNAL/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "smoke",
+        "name": "smoke",
+        "testDir": "/Users/shaansisodia/DEV/SISO-ECOSYSTEM/SISO-INTERNAL/tests/smoke",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.smoke.spec.ts"
+        ],
+        "timeout": 20000
+      },
+      {
+        "outputDir": "/Users/shaansisodia/DEV/SISO-ECOSYSTEM/SISO-INTERNAL/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "e2e-chrome",
+        "name": "e2e-chrome",
+        "testDir": "/Users/shaansisodia/DEV/SISO-ECOSYSTEM/SISO-INTERNAL/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.e2e.spec.ts"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/Users/shaansisodia/DEV/SISO-ECOSYSTEM/SISO-INTERNAL/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "mobile",
+        "name": "mobile",
+        "testDir": "/Users/shaansisodia/DEV/SISO-ECOSYSTEM/SISO-INTERNAL/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/mobile/*.spec.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/shaansisodia/DEV/SISO-ECOSYSTEM/SISO-INTERNAL/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/Users/shaansisodia/DEV/SISO-ECOSYSTEM/SISO-INTERNAL/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.e2e.spec.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/shaansisodia/DEV/SISO-ECOSYSTEM/SISO-INTERNAL/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "safari",
+        "name": "safari",
+        "testDir": "/Users/shaansisodia/DEV/SISO-ECOSYSTEM/SISO-INTERNAL/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.e2e.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.57.0",
+    "workers": 4,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "e2e/desktop-navigation-fix.e2e.spec.ts",
+      "file": "e2e/desktop-navigation-fix.e2e.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Desktop Navigation Fix - feedback_20260115_001",
+          "file": "e2e/desktop-navigation-fix.e2e.spec.ts",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should display bottom navigation on desktop",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e-chrome",
+                  "projectName": "e2e-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5318,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-01-15T20:21:00.250Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "aef83580abec228ee8f6-ce1d2a6b40e972f084fb",
+              "file": "e2e/desktop-navigation-fix.e2e.spec.ts",
+              "line": 31,
+              "column": 3
+            },
+            {
+              "title": "should have proper bottom padding to prevent content overlap",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e-chrome",
+                  "projectName": "e2e-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 5475,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-01-15T20:21:00.242Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "aef83580abec228ee8f6-54b98da6cfa74dc9a6e3",
+              "file": "e2e/desktop-navigation-fix.e2e.spec.ts",
+              "line": 71,
+              "column": 3
+            },
+            {
+              "title": "should center bottom navigation on desktop with max-width",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e-chrome",
+                  "projectName": "e2e-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 5355,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-01-15T20:21:00.261Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "aef83580abec228ee8f6-d9776ae8d2169f67f150",
+              "file": "e2e/desktop-navigation-fix.e2e.spec.ts",
+              "line": 97,
+              "column": 3
+            },
+            {
+              "title": "should work on mobile viewport as well",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e-chrome",
+                  "projectName": "e2e-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 5325,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-01-15T20:21:00.243Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "aef83580abec228ee8f6-1b1d5328daf66b5d7f26",
+              "file": "e2e/desktop-navigation-fix.e2e.spec.ts",
+              "line": 131,
+              "column": 3
+            },
+            {
+              "title": "navigation buttons should be clickable",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "e2e-chrome",
+                  "projectName": "e2e-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 6907,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-01-15T20:21:06.020Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "aef83580abec228ee8f6-58ffd31fcec4f0883244",
+              "file": "e2e/desktop-navigation-fix.e2e.spec.ts",
+              "line": 154,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-01-15T20:20:59.504Z",
+    "duration": 13481.425,
+    "expected": 5,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

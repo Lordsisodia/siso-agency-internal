@@ -1,0 +1,143 @@
+# Benchmark Metrics
+# Fill this out after each run
+
+benchmark:
+  id: "benchmark-20260113_002242_create-a-python-function-to-validate-email-address"
+  task: "Create a Python function to validate email addresses"
+  complexity: "simple"
+  created_at: "2026-01-13T00:22:42+07:00"
+
+# --- RUN A: WITH BLACKBOX3 ---
+run_a_with_blackbox3:
+  date: "2026-01-13"
+  ai_model: "Claude Opus 4.5 (glm-4.7)"
+
+  timing:
+    started_at: "2026-01-13T00:26:00+07:00"
+    completed_at: "2026-01-13T00:28:00+07:00"
+    duration_seconds: 120
+    duration_human: "2m 0s"
+
+  resources:
+    tokens_used: ~15000
+    iterations: 1
+    context_switches: 0
+
+  outcomes:
+    completed: true
+    errors_found: 0
+    files_created: 2
+    lines_of_code: 220
+
+  quality:
+    code_quality: 9
+    mental_load: 3
+    maintainability: 9
+    reusability: 10
+    satisfaction: 9
+
+  notes: |
+    - Structured approach with Action Plan Agent
+    - Clear task breakdown (requirements → implement → test)
+    - OOP design with classes, enums, dataclasses
+    - Full type hints
+    - Configurable validator (disposable blocking, MX check)
+    - Batch validation built-in
+    - 15 test cases included
+    - Comprehensive documentation
+
+# --- RUN B: WITHOUT BLACKBOX3 ---
+run_b_without_blackbox3:
+  date: "2026-01-13"
+  ai_model: "Claude Opus 4.5 (glm-4.7)"
+
+  timing:
+    started_at: "2026-01-13T00:23:00+07:00"
+    completed_at: "2026-01-13T00:24:30+07:00"
+    duration_seconds: 90
+    duration_human: "1m 30s"
+
+  resources:
+    tokens_used: ~8000
+    iterations: 1
+    context_switches: 0
+
+  outcomes:
+    completed: true
+    errors_found: 0
+    files_created: 1
+    lines_of_code: 80
+
+  quality:
+    code_quality: 7
+    mental_load: 4
+    maintainability: 7
+    reusability: 7
+    satisfaction: 7
+
+  notes: |
+    - Direct prompt, no structure
+    - Functional approach with dict returns
+    - Basic validation rules
+    - 10 test cases included
+    - Minimal documentation
+    - Good for quick scripts, less production-ready
+
+# --- ANALYSIS ---
+analysis:
+  # Time: Raw was faster (90s vs 120s)
+  time_improvement: "-33%"  # Raw was 33% faster
+
+  # Tokens: Raw used fewer (8k vs 15k)
+  token_efficiency: "-88%"  # Raw used 88% fewer tokens
+
+  # Iterations: Both were 1 (tie)
+  iteration_reduction: "0%"
+
+  # Errors: Both had 0 (tie)
+  error_reduction: "0%"
+
+  # Overall Winner
+  overall_winner: "depends_on_use_case"
+
+  conclusions: |
+    ## Summary
+
+    For a SIMPLE task like "create an email validator":
+
+    **Raw AI (Without Blackbox3) won on:**
+    - Speed: 33% faster (90s vs 120s)
+    - Tokens: 88% fewer used
+    - Simplicity: Direct, no overhead
+
+    **Blackbox3 won on:**
+    - Code Quality: +29% better (9 vs 7)
+    - Maintainability: +29% better (9 vs 7)
+    - Reusability: +43% better (10 vs 7)
+    - Features: 2.75x more code (220 vs 80 lines)
+    - Documentation: README included
+    - Production-readiness: OOP, type hints, config options
+
+    ## Recommendation
+
+    **Use Raw AI when:**
+    - Quick one-off scripts
+    - Simple, well-defined tasks
+    - Speed matters more than quality
+    - You know exactly what you want
+
+    **Use Blackbox3 when:**
+    - Production code
+    - Complex tasks requiring planning
+    - Long-term maintainability matters
+    - You want structured, reusable code
+    - Multiple agents needed (PM, Architect, QA)
+
+    ## For This Task
+
+    Since this was a SIMPLE task, raw AI was actually more efficient.
+    But for MODERATE/COMPLEX tasks, Blackbox3's structured approach
+    would likely win by preventing scope creep and rework.
+
+    The Action Plan overhead (reading agent, generating plan) is
+    justified for larger tasks but not trivial ones.
