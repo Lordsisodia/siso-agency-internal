@@ -31,19 +31,20 @@ export const GridMoreMenu: React.FC<GridMoreMenuProps> = ({ open, onOpenChange }
   const centerItem = sortedItems.find(item => item.isSpecial);
 
   const containerVariants = {
-    hidden: { opacity: 0, scale: 0.9 },
+    hidden: { opacity: 0, y: '100%' },
     visible: {
       opacity: 1,
-      scale: 1,
+      y: 0,
       transition: {
-        duration: 0.3,
-        ease: 'easeOut',
+        type: 'spring',
+        damping: 25,
+        stiffness: 300,
         staggerChildren: 0.05
       }
     },
     exit: {
       opacity: 0,
-      scale: 0.9,
+      y: '100%',
       transition: { duration: 0.2, ease: 'easeIn' }
     }
   };
@@ -77,14 +78,19 @@ export const GridMoreMenu: React.FC<GridMoreMenuProps> = ({ open, onOpenChange }
           />
 
           {/* Grid Menu */}
-          <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 pointer-events-none">
+          <div className="fixed inset-0 z-[70] flex items-end justify-center p-4 pointer-events-none">
             <motion.div
               variants={containerVariants}
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="pointer-events-auto bg-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-3xl shadow-2xl p-6 max-w-md w-full"
+              className="pointer-events-auto bg-gray-900/95 backdrop-blur-xl border-t border-x border-gray-700/50 rounded-t-3xl shadow-2xl p-6 max-w-md w-full pb-8"
             >
+              {/* Handle Bar */}
+              <div className="flex justify-center mb-4">
+                <div className="w-12 h-1.5 bg-gray-600 rounded-full" />
+              </div>
+
               {/* Header */}
               <div className="text-center mb-6">
                 <h2 className="text-xl font-semibold text-white mb-1">Quick Access</h2>

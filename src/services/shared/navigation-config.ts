@@ -136,27 +136,27 @@ export const MORE_MENU_ITEMS: MoreMenuItem[] = [
 // Grid Menu Items (3x3 Layout) - NEW!
 // Layout:
 // ┌─────────┬─────────┬─────────┐
-// │ Daily   │ Weekly  │ Clients │
+// │ XP Hub  │ Clients │ Daily   │
 // ├─────────┼─────────┼─────────┤
-// │ Monthly │ XP Hub  │Partners │
+// │Partners │ AI LEGACY│ Weekly │
 // ├─────────┼─────────┼─────────┤
-// │ Yearly  │ Life    │ AI Legacy│
+// │ Life    │ Yearly  │ Monthly │
 // └─────────┴─────────┴─────────┘
 export const GRID_MENU_ITEMS: GridMenuItem[] = [
   // Top Row
-  { id: 'daily-view', label: 'Daily', path: '/admin/lifelock/daily', icon: CalendarIcon, position: 0, color: 'text-blue-400' },
-  { id: 'weekly-view', label: 'Weekly', path: '/admin/lifelock/weekly', icon: CalendarDays, position: 1, color: 'text-green-400' },
-  { id: 'clients', label: 'Clients', path: '/admin/clients', icon: Building2, position: 2, color: 'text-amber-400' },
+  { id: 'xp-hub', label: 'XP Hub', path: '/xp-dashboard', icon: Trophy, position: 0, color: 'text-yellow-400' },
+  { id: 'clients', label: 'Clients', path: '/admin/clients', icon: Building2, position: 1, color: 'text-amber-400' },
+  { id: 'daily-view', label: 'Daily', path: '/admin/lifelock/daily', icon: CalendarIcon, position: 2, color: 'text-blue-400' },
 
   // Middle Row
-  { id: 'monthly-view', label: 'Monthly', path: '/admin/lifelock/monthly', icon: CalendarRange, position: 3, color: 'text-purple-400' },
-  { id: 'xp-hub', label: 'XP Hub', path: '/xp-dashboard', icon: Trophy, position: 4, color: 'text-yellow-400' },
-  { id: 'partners', label: 'Partners', path: '/admin/partners', icon: Handshake, position: 5, color: 'text-cyan-400' },
+  { id: 'partners', label: 'Partners', path: '/admin/partners', icon: Handshake, position: 3, color: 'text-cyan-400' },
+  { id: 'ai-legacy', label: 'AI Legacy', path: '/ai-assistant', icon: Sparkles, position: 4, isSpecial: true, color: 'text-purple-400' },
+  { id: 'weekly-view', label: 'Weekly', path: '/admin/lifelock/weekly', icon: CalendarDays, position: 5, color: 'text-green-400' },
 
   // Bottom Row
-  { id: 'yearly-view', label: 'Yearly', path: '/admin/lifelock/yearly', icon: CalendarClock, position: 6, color: 'text-red-400' },
-  { id: 'life-view', label: 'Life', path: '/admin/lifelock/life', icon: InfinityIcon, position: 7, color: 'text-pink-400' },
-  { id: 'ai-legacy', label: 'AI Legacy', path: '/ai-assistant', icon: Sparkles, position: 8, isSpecial: true, color: 'text-purple-400' }
+  { id: 'life-view', label: 'Life', path: '/admin/lifelock/life', icon: InfinityIcon, position: 6, color: 'text-pink-400' },
+  { id: 'yearly-view', label: 'Yearly', path: '/admin/lifelock/yearly', icon: CalendarClock, position: 7, color: 'text-red-400' },
+  { id: 'monthly-view', label: 'Monthly', path: '/admin/lifelock/monthly', icon: CalendarRange, position: 8, color: 'text-purple-400' }
 ];
 
 // Map old tabs to new structure for backward compatibility
