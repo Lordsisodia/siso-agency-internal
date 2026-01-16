@@ -103,9 +103,7 @@ export class TaskCacheManager {
   private cleanupInterval?: NodeJS.Timeout;
 
   private constructor() {
-    console.log('🗄️ Initializing Task Cache Manager...');
     this.startCleanupInterval();
-    console.log('✅ Task Cache Manager initialized with intelligent caching');
   }
 
   /**
@@ -145,7 +143,6 @@ export class TaskCacheManager {
     
     this.cache.set(cacheKey, entry);
     
-    console.log(`💾 Cached ${namespace}:${key} (TTL: ${ttl}ms, Size: ${entry.metadata?.size}b)`);
   }
 
   /**
@@ -160,7 +157,6 @@ export class TaskCacheManager {
 
     if (!entry) {
       this.stats.totalMisses++;
-      console.log(`❌ Cache miss: ${namespace}:${key}`);
       return {
         hit: false,
         metadata: {
@@ -175,7 +171,6 @@ export class TaskCacheManager {
     if (Date.now() - entry.timestamp > entry.ttl) {
       this.cache.delete(cacheKey);
       this.stats.totalMisses++;
-      console.log(`⏰ Cache expired: ${namespace}:${key}`);
       return {
         hit: false,
         metadata: {
@@ -192,7 +187,6 @@ export class TaskCacheManager {
     this.stats.totalHits++;
 
     const responseTime = Date.now() - startTime;
-    console.log(`✅ Cache hit: ${namespace}:${key} (${responseTime}ms, hits: ${entry.hitCount})`);
 
     return {
       hit: true,
@@ -305,7 +299,6 @@ export class TaskCacheManager {
     patterns.forEach(pattern => {
       if (this.cache.has(pattern)) {
         this.cache.delete(pattern);
-        console.log(`🗑️ Invalidated cache: ${pattern}`);
       }
     });
 
@@ -322,7 +315,6 @@ export class TaskCacheManager {
     for (const [key] of this.cache) {
       if (key.startsWith(listPattern)) {
         this.cache.delete(key);
-        console.log(`🗑️ Invalidated list cache: ${key}`);
       }
     }
 
@@ -339,7 +331,6 @@ export class TaskCacheManager {
     for (const [key] of this.cache) {
       if (key.startsWith(statsPattern)) {
         this.cache.delete(key);
-        console.log(`🗑️ Invalidated stats cache: ${key}`);
       }
     }
   }
@@ -353,7 +344,6 @@ export class TaskCacheManager {
     for (const [key] of this.cache) {
       if (key.startsWith(searchPattern)) {
         this.cache.delete(key);
-        console.log(`🗑️ Invalidated search cache: ${key}`);
       }
     }
   }
@@ -362,7 +352,6 @@ export class TaskCacheManager {
    * Warm cache with anticipated data.
    */
   async warmCache(warmingStrategy: 'light-work' | 'deep-work' | 'dashboard' | 'all'): Promise<void> {
-    console.log(`🔥 Cache warming started: ${warmingStrategy}`);
     
     // This would integrate with actual data fetching services
     // For now, we'll simulate the warming process
@@ -389,7 +378,6 @@ export class TaskCacheManager {
       }
       
       const duration = Date.now() - startTime;
-      console.log(`✅ Cache warming completed: ${warmingStrategy} (${duration}ms)`);
       
     } catch (error) {
       console.error(`❌ Cache warming failed: ${warmingStrategy}`, error);
@@ -431,11 +419,9 @@ export class TaskCacheManager {
           this.cache.delete(key);
         }
       }
-      console.log(`🧹 Cleared cache namespace: ${namespace}`);
     } else {
       this.cache.clear();
       this.resetStats();
-      console.log('🧹 Cleared entire cache');
     }
   }
 
@@ -493,7 +479,6 @@ export class TaskCacheManager {
         .sort(([, a], [, b]) => a.lastAccessed - b.lastAccessed)[0];
       
       this.cache.delete(lruEntry[0]);
-      console.log(`♻️ Evicted LRU cache entry: ${lruEntry[0]}`);
     }
   }
 
@@ -515,23 +500,19 @@ export class TaskCacheManager {
     }
     
     if (expiredCount > 0) {
-      console.log(`🧹 Cleaned up ${expiredCount} expired cache entries`);
     }
   }
 
   private async warmLightWorkCache(): Promise<void> {
     // Simulate warming light work cache
-    console.log('🔥 Warming light work cache...');
   }
 
   private async warmDeepWorkCache(): Promise<void> {
     // Simulate warming deep work cache
-    console.log('🔥 Warming deep work cache...');
   }
 
   private async warmDashboardCache(): Promise<void> {
     // Simulate warming dashboard cache
-    console.log('🔥 Warming dashboard cache...');
   }
 
   private calculateAverageResponseTime(): number {
@@ -563,6 +544,5 @@ export class TaskCacheManager {
       clearInterval(this.cleanupInterval);
     }
     this.cache.clear();
-    console.log('🛑 Task Cache Manager shutdown complete');
   }
 }

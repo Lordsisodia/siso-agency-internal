@@ -36,7 +36,6 @@ export class LightWorkTaskService {
 
   constructor() {
     this.orchestrator = new LightWorkOrchestrator();
-    console.log('✨ LightWorkTaskService upgraded to micro-decomposed architecture');
   }
 
   /**

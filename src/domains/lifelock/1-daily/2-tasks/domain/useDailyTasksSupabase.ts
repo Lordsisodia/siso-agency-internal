@@ -52,7 +52,8 @@ export function useDailyTasksSupabase({ selectedDate }: UseDailyTasksSupabasePro
       setLoading(true);
       setError(null);
 
-      const { data, error: fetchError } = await supabase
+      // Load regular daily tasks
+      const { data: dailyTasks, error: dailyError } = await supabase
         .from('tasks')
         .select('id, title, status, completed_at, due_date, created_at')
         .eq('created_by', internalUserId)
@@ -61,12 +62,27 @@ export function useDailyTasksSupabase({ selectedDate }: UseDailyTasksSupabasePro
         .lt('due_date', endIso)
         .order('created_at', { ascending: true });
 
-      if (fetchError) {
-        throw fetchError;
+      if (dailyError) {
+        throw dailyError;
       }
 
-      const mapped: DailyTask[] =
-        data?.map((task) => ({
+      // Load deep work tasks scheduled for today
+      const todayDate = new Date().toISOString().split('T')[0];
+      const { data: deepWorkTasks, error: deepWorkError } = await supabase
+        .from('deep_work_tasks')
+        .select('id, title, completed, task_date, created_at')
+        .eq('user_id', internalUserId)
+        .eq('completed', false)
+        .lte('task_date', todayDate) // Today or overdue
+        .order('task_date', { ascending: true }); // Overdue first
+
+      if (deepWorkError) {
+        console.warn('⚠️ Failed to load deep work tasks:', deepWorkError);
+      }
+
+      // Map daily tasks
+      const mappedDaily: DailyTask[] =
+        dailyTasks?.map((task) => ({
           id: task.id,
           title: task.title,
           status: (task.status as DailyTaskStatus) ?? 'pending',
@@ -75,7 +91,22 @@ export function useDailyTasksSupabase({ selectedDate }: UseDailyTasksSupabasePro
           createdAt: task.created_at,
         })) ?? [];
 
-      setTasks(mapped);
+      // Map deep work tasks (only those that aren't already in daily tasks)
+      const mappedDeepWork: DailyTask[] =
+        deepWorkTasks
+          ?.filter((dw) => !mappedDaily.some((dt) => dt.title === dw.title))
+          .map((task) => ({
+            id: `dw-${task.id}`, // Prefix to distinguish from regular tasks
+            title: task.title,
+            status: 'pending' as DailyTaskStatus,
+            dueDate: task.task_date,
+            completedAt: null,
+            createdAt: task.created_at,
+          })) ?? [];
+
+      // Combine tasks: deep work first (overdue prioritized), then daily tasks
+      const allTasks = [...mappedDeepWork, ...mappedDaily];
+      setTasks(allTasks);
     } catch (fetchErr) {
       console.error('❌ Failed to load daily tasks', fetchErr);
       setError(fetchErr instanceof Error ? fetchErr.message : 'Failed to load tasks');

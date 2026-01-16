@@ -71,7 +71,20 @@ export const TabContentRenderer: React.FC<{
   layoutProps: TabLayoutProps;
 }> = ({ activeTab, layoutProps }) => {
   const config = getEnhancedTabConfig(activeTab);
-  
+
+  // Handle undefined config (shouldn't happen with proper registration)
+  if (!config) {
+    console.error('[TabContentRenderer] No config found for tab:', activeTab);
+    return (
+      <div className="min-h-screen bg-[#121212] flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-white text-xl font-bold mb-2">Tab Not Found</h2>
+          <p className="text-white/60">The tab "{activeTab}" is not configured.</p>
+        </div>
+      </div>
+    );
+  }
+
   // Handle standard tab layout
   return (
     <StandardTabLayout config={config} layoutProps={layoutProps} activeTab={activeTab}>
@@ -81,6 +94,7 @@ export const TabContentRenderer: React.FC<{
           key={`${activeTab}-component-${index}`}
           selectedDate={layoutProps.selectedDate}
           userId={layoutProps.userId}
+          activeSubTab={layoutProps.activeSubTab}
           {...config.componentProps}
         />
       ))}

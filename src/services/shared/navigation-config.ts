@@ -1,8 +1,12 @@
 /**
  * NAVIGATION CONFIGURATION - Consolidated Bottom Navigation
  *
- * Defines the 4-button + More navigation structure for Daily View
- * consolidates 7 tabs into logical groupings with sub-navigation
+ * Defines the 5-button navigation structure for Daily View
+ * 1. Plan (Timebox, Morning, Checkout)
+ * 2. Tasks (Today, Light Work, Deep Work)
+ * 3. Health (wellness features)
+ * 4. Diet (nutrition tracking)
+ * 5. Timeline (contextual: Weekly/Monthly/Yearly/Life)
  */
 
 import { LucideIcon } from 'lucide-react';
@@ -26,7 +30,9 @@ import {
   Building2,
   LayoutDashboard,
   Infinity as InfinityIcon,
-  Calendar as CalendarIcon
+  Calendar as CalendarIcon,
+  Apple,
+  Timeline
 } from 'lucide-react';
 
 // Types
@@ -63,18 +69,18 @@ export interface GridMenuItem {
   color?: string; // Optional color scheme
 }
 
-// Main Navigation Sections (Bottom Nav Buttons 1-3)
+// Main Navigation Sections (Bottom Nav Buttons 1-4)
 export const NAV_SECTIONS: NavSection[] = [
   {
-    id: 'timebox',
-    name: 'Timebox',
+    id: 'plan',
+    name: 'Plan',
     icon: Calendar,
     color: 'text-purple-400',
     bgActive: 'bg-purple-400/20',
     hasSubNav: true,
     subSections: [
-      { id: 'timebox', name: 'Timebox', icon: Calendar },
       { id: 'morning', name: 'Morning', icon: Sunrise },
+      { id: 'timebox', name: 'Timebox', icon: Calendar },
       { id: 'checkout', name: 'Checkout', icon: Moon }
     ]
   },
@@ -92,15 +98,28 @@ export const NAV_SECTIONS: NavSection[] = [
     ]
   },
   {
-    id: 'wellness',
-    name: 'Wellness',
+    id: 'health',
+    name: 'Health',
     icon: Heart,
-    color: 'text-red-400',
-    bgActive: 'bg-red-400/20'
+    color: 'text-blue-400',
+    bgActive: 'bg-blue-400/20',
+    hasSubNav: true,
+    subSections: [
+      { id: 'water', name: 'Water', icon: Heart },
+      { id: 'fitness', name: 'Fitness', icon: Heart },
+      { id: 'smoking', name: 'Smoking', icon: Heart }
+    ]
+  },
+  {
+    id: 'diet',
+    name: 'Diet',
+    icon: Apple,
+    color: 'text-green-400',
+    bgActive: 'bg-green-400/20'
   }
 ];
 
-// Smart View Navigator - Contextual based on current view (Button 4)
+// Smart View Navigator - Contextual based on current view (Button 5 - Timeline)
 export const VIEW_NAVIGATOR_MAP: Record<string, { label: string; path: string; icon: LucideIcon }> = {
   'daily': { label: 'Weekly', path: '/admin/lifelock/weekly', icon: CalendarDays },
   'weekly': { label: 'Monthly', path: '/admin/lifelock/monthly', icon: CalendarRange },
@@ -109,7 +128,7 @@ export const VIEW_NAVIGATOR_MAP: Record<string, { label: string; path: string; i
   'life': { label: 'Daily', path: '/admin/lifelock/daily', icon: Calendar }
 };
 
-// More Menu Items (Button 5) - Pages NOT in bottom nav
+// Explore Menu Items (Removed - now using Grid Menu for everything)
 export const MORE_MENU_ITEMS: MoreMenuItem[] = [
   // Main
   { id: 'admin-dashboard', label: 'Dashboard', path: '/admin', icon: LayoutDashboard },
@@ -161,13 +180,14 @@ export const GRID_MENU_ITEMS: GridMenuItem[] = [
 
 // Map old tabs to new structure for backward compatibility
 export const LEGACY_TAB_MAPPING: Record<string, { section: string; subtab?: string }> = {
-  'morning': { section: 'timebox', subtab: 'morning' },
+  'morning': { section: 'plan', subtab: 'morning' },
   'light-work': { section: 'tasks', subtab: 'light-work' },
-  'work': { section: 'tasks', subtab: 'deep-work' },
-  'wellness': { section: 'wellness' },
+  'work': { section: 'tasks', subtab: 'deep-work' }, // Legacy 'work' tab maps to 'deep-work' subtab
+  'deep-work': { section: 'tasks', subtab: 'deep-work' }, // Direct mapping
+  'wellness': { section: 'health' },
   'tasks': { section: 'tasks', subtab: 'tasks' },
-  'timebox': { section: 'timebox', subtab: 'timebox' },
-  'checkout': { section: 'timebox', subtab: 'checkout' }
+  'timebox': { section: 'plan', subtab: 'timebox' },
+  'checkout': { section: 'plan', subtab: 'checkout' }
 };
 
 // Helper functions

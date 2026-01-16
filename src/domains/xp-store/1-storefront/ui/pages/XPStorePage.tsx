@@ -185,7 +185,12 @@ const XPStoreContent = ({ activeSection, onSectionChange }: XPStoreContentProps)
 
           {activeSection === 'history' && <PurchaseHistory />}
 
-          {activeSection === 'analytics' && <XPAnalytics />}
+          {activeSection === 'analytics' && (
+            <XPAnalytics
+              onNavigateToStore={() => onSectionChange('store')}
+              onNavigateBack={() => onSectionChange('store')}
+            />
+          )}
         </motion.div>
 
         <motion.div

@@ -138,33 +138,35 @@ const AdminLifeLock: React.FC = memo(() => {
         selectedDate: allProps.selectedDate,
         dayCompletionPercentage: allProps.dayCompletionPercentage,
         navigateDay: allProps.navigateDay,
+        activeSubTab: allProps.activeSubTab,
       };
     }
-    
+
     // Use TabRegistry's prop filtering capabilities
     // Base props that all tabs need
     const baseProps = {
       selectedDate: allProps.selectedDate,
       dayCompletionPercentage: allProps.dayCompletionPercentage,
       navigateDay: allProps.navigateDay,
+      activeSubTab: allProps.activeSubTab,
     };
-    
+
     // Add tab-specific props based on TabRegistry configuration
     const specificProps = tabConfig.features?.includes('organization') ? {
       handleOrganizeTasks: allProps.handleOrganizeTasks,
       isAnalyzingTasks: allProps.isAnalyzingTasks,
       todayCard: allProps.todayCard
     } : {};
-    
+
     const quickAddProps = tabConfig.features?.includes('quickAdd') ? {
       handleQuickAdd: allProps.handleQuickAdd
     } : {};
-    
+
     const voiceProps = tabConfig.features?.includes('voice') ? {
       handleVoiceCommand: allProps.handleVoiceCommand,
       isProcessingVoice: allProps.isProcessingVoice
     } : {};
-    
+
     return {
       ...baseProps,
       ...specificProps,
@@ -181,12 +183,13 @@ const AdminLifeLock: React.FC = memo(() => {
               selectedDate={dateNavigation.currentDate} 
               onDateChange={dateNavigation.setCurrentDate}
             >
-              {(activeTab, navigateDay) => {
+              {(activeTab, navigateDay, activeSubTab) => {
                 // Get tab-specific props using TabRegistry integration
                 const tabSpecificProps = getTabSpecificProps(activeTab, {
                   selectedDate: dateNavigation.currentDate,
                   dayCompletionPercentage,
                   navigateDay,
+                  activeSubTab,
                   handleQuickAdd,
                   handleOrganizeTasks: lifeLockHook?.handleOrganizeTasks,
                   isAnalyzingTasks: lifeLockHook?.isAnalyzingTasks,

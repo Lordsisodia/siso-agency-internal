@@ -8,6 +8,13 @@ import { vi } from 'vitest';
 // Setup IndexedDB for offline tests
 import 'fake-indexeddb/auto';
 
+// Mock ResizeObserver for components that use it
+global.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+} as any;
+
 // Enhanced fetch mock for Supabase operations
 if (!(global as any).fetch) {
   (global as any).fetch = vi.fn(async (url: string, options?: any) => {

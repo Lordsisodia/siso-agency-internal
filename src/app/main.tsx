@@ -45,10 +45,13 @@ if (import.meta.env.DEV) {
   const originalError = console.error;
   console.error = (...args) => {
     const message = args.join(' ');
-    // Suppress common development tool connection errors
+    // Suppress common development tool connection errors and missing API endpoints
     if (message.includes('net::ERR_CONNECTION_REFUSED') ||
         message.includes('18883') ||
-        message.includes('Failed to load resource')) {
+        message.includes('Failed to load resource') ||
+        message.includes('Unexpected token') && message.includes('<!DOCTYPE') ||
+        message.includes('fetchCompletions') ||
+        message.includes('wake-up time')) {
       return; // Suppress these specific errors
     }
     originalError.apply(console, args);

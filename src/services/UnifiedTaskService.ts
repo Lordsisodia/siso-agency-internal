@@ -36,7 +36,7 @@ import { Task } from '@/components/tasks/TaskCard';
  */
 export class UnifiedTaskService {
   constructor() {
-    console.log('🔄 UnifiedTaskService initialized - providing backward compatibility with enhanced architecture');
+    // Silently initialized
   }
 
   /**
@@ -45,23 +45,19 @@ export class UnifiedTaskService {
    * and reliability while preserving the exact same return format.
    */
   async getLightWorkTasks(): Promise<Task[]> {
-    console.log('🔄 UnifiedTaskService.getLightWorkTasks() - routing to LightWorkTaskService');
-    
     try {
       // Route to specialized light work service
       // The registry handles service instantiation and health monitoring
       const lightWorkService = taskServiceRegistry.getService('light-work');
       const tasks = await lightWorkService.getTasks();
-      
-      console.log(`✅ Retrieved ${tasks.length} light work tasks via unified service`);
+
       return tasks;
-      
+
     } catch (error) {
       console.error('❌ UnifiedTaskService.getLightWorkTasks() failed:', error);
-      
+
       // Provide fallback behavior to maintain service reliability
       // This ensures the app continues working even if there are service issues
-      console.log('🔄 Attempting fallback for light work tasks...');
       return this.getFallbackLightWorkTasks();
     }
   }
@@ -72,7 +68,6 @@ export class UnifiedTaskService {
    * with any existing components that depend on this method.
    */
   async getDeepWorkTasks(): Promise<Task[]> {
-    console.log('🔄 UnifiedTaskService.getDeepWorkTasks() - routing to DeepWorkTaskService');
     
     try {
       // Route to specialized deep work service

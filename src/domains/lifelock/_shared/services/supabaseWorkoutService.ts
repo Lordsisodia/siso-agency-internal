@@ -457,6 +457,94 @@ export class SupabaseWorkoutService {
 
     return sessions;
   }
+
+  /**
+   * Get previous day's performance for a specific exercise
+   */
+  async getPreviousDayPerformance(userId: string, exerciseTitle: string, currentDate: string): Promise<{ date: string; value: number } | null> {
+    const yesterday = new Date(currentDate);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayKey = yesterday.toISOString().slice(0, 10);
+
+    const sessions = await this.getWorkoutSessionsRange(userId, yesterdayKey, yesterdayKey);
+    const session = sessions[0];
+
+    if (!session) return null;
+
+    const exercise = session.items.find(item => item.title === exerciseTitle);
+    if (!exercise || !exercise.logged) return null;
+
+    const value = parseInt(exercise.logged) || 0;
+    return value > 0 ? { date: yesterdayKey, value } : null;
+  }
+
+  /**
+   * Get personal best for a specific exercise
+   */
+  async getPersonalBest(userId: string, exerciseTitle: string): Promise<{ value: number; date: string } | null> {
+    const end = new Date();
+    const start = new Date(end);
+    start.setDate(end.getDate() - 365); // Look back up to a year
+
+    const startKey = start.toISOString().slice(0, 10);
+    const endKey = end.toISOString().slice(0, 10);
+
+    const sessions = await this.getWorkoutSessionsRange(userId, startKey, endKey);
+
+    let maxValue = 0;
+    let bestDate = '';
+
+    for (const session of sessions) {
+      const exercise = session.items.find(item => item.title === exerciseTitle);
+      if (exercise && exercise.logged) {
+        const value = parseInt(exercise.logged) || 0;
+        if (value > maxValue) {
+          maxValue = value;
+          bestDate = session.date;
+        }
+      }
+    }
+
+    return maxValue > 0 ? { value: maxValue, date: bestDate } : null;
+  }
+
+  /**
+   * Get last 7 days statistics for a specific exercise
+   */
+  async getLast7DaysStats(userId: string, exerciseTitle: string, currentDate: string): Promise<{
+    total: number;
+    average: number;
+    days: number;
+  } | null> {
+    const end = new Date(currentDate);
+    const start = new Date(end);
+    start.setDate(end.getDate() - 7);
+
+    const startKey = start.toISOString().slice(0, 10);
+    const endKey = end.toISOString().slice(0, 10);
+
+    const sessions = await this.getWorkoutSessionsRange(userId, startKey, endKey);
+
+    let total = 0;
+    let days = 0;
+
+    for (const session of sessions) {
+      const exercise = session.items.find(item => item.title === exerciseTitle);
+      if (exercise && exercise.logged) {
+        const value = parseInt(exercise.logged) || 0;
+        if (value > 0) {
+          total += value;
+          days++;
+        }
+      }
+    }
+
+    return days > 0 ? {
+      total,
+      average: total / days,
+      days
+    } : null;
+  }
 }
 
 export const supabaseWorkoutService = new SupabaseWorkoutService();

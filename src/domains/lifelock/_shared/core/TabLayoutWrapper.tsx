@@ -29,23 +29,43 @@ const tabs = Object.values(TAB_CONFIG);
 // Section-specific colors for bottom navigation
 const TAB_COLORS: Record<string, string> = {
   'morning': 'text-orange-400',      // Morning routine - orange
-  'light-work': 'text-emerald-400',  // Light work - green  
+  'light-work': 'text-emerald-400',  // Light work - green
   'work': 'text-blue-400',           // Deep work - blue
-  'wellness': 'text-red-400',        // Wellness - red
+  'health': 'text-rose-400',         // Health - rose
   'tasks': 'text-amber-400',         // Tasks - amber
-  'timebox': 'text-sky-400',         // Timebox - light blue
+  'plan': 'text-purple-400',         // Plan - purple
+  'diet': 'text-green-400',          // Diet - green
+  'timebox': 'text-purple-400',       // Timebox (for backward compat)
   'checkout': 'text-purple-400'      // Checkout - purple
 };
 
 // Section-specific background colors for active tab (lighter versions)
 const TAB_BG_COLORS: Record<string, string> = {
   'morning': 'bg-orange-400/20',      // Morning routine - light orange
-  'light-work': 'bg-emerald-400/20',  // Light work - light green  
+  'light-work': 'bg-emerald-400/20',  // Light work - light green
   'work': 'bg-blue-400/20',           // Deep work - light blue
-  'wellness': 'bg-red-400/20',        // Wellness - light red
+  'health': 'bg-rose-400/20',         // Health - light rose
   'tasks': 'bg-amber-400/20',         // Tasks - light amber
-  'timebox': 'bg-sky-400/20',         // Timebox - lighter blue
+  'plan': 'bg-purple-400/20',         // Plan - light purple
+  'diet': 'bg-green-400/20',          // Diet - light green
+  'timebox': 'bg-purple-400/20',      // Timebox (for backward compat)
   'checkout': 'bg-purple-400/20'      // Checkout - light purple
+};
+
+// Section-specific accent line colors (left border)
+const ACCENT_LINE_COLORS: Record<string, { from: string; via: string; to: string; shadow: string }> = {
+  'morning': { from: 'from-orange-500/60', via: 'via-orange-600/60', to: 'to-orange-700/60', shadow: 'shadow-orange-500/20' },
+  'light-work': { from: 'from-emerald-500/60', via: 'via-green-500/60', to: 'to-emerald-600/60', shadow: 'shadow-emerald-500/20' },
+  'work': { from: 'from-blue-500/60', via: 'via-blue-600/60', to: 'to-blue-700/60', shadow: 'shadow-blue-500/20' },
+  'health': { from: 'from-blue-500/60', via: 'via-cyan-500/60', to: 'to-blue-600/60', shadow: 'shadow-blue-500/20' },
+  'water': { from: 'from-blue-500/60', via: 'via-cyan-500/60', to: 'to-blue-600/60', shadow: 'shadow-blue-500/20' },
+  'fitness': { from: 'from-rose-500/60', via: 'via-red-500/60', to: 'to-rose-600/60', shadow: 'shadow-rose-500/20' },
+  'smoking': { from: 'from-purple-500/60', via: 'via-pink-500/60', to: 'to-purple-600/60', shadow: 'shadow-purple-500/20' },
+  'tasks': { from: 'from-amber-500/60', via: 'via-yellow-500/60', to: 'to-amber-600/60', shadow: 'shadow-amber-500/20' },
+  'plan': { from: 'from-purple-500/60', via: 'via-purple-600/60', to: 'to-purple-700/60', shadow: 'shadow-purple-500/20' },
+  'diet': { from: 'from-green-500/60', via: 'via-emerald-500/60', to: 'to-green-600/60', shadow: 'shadow-green-500/20' },
+  'timebox': { from: 'from-purple-500/60', via: 'via-purple-600/60', to: 'to-purple-700/60', shadow: 'shadow-purple-500/20' },
+  'checkout': { from: 'from-purple-500/60', via: 'via-purple-600/60', to: 'to-purple-700/60', shadow: 'shadow-purple-500/20' }
 };
 
 interface TabLayoutWrapperProps {
@@ -53,7 +73,7 @@ interface TabLayoutWrapperProps {
   onDateChange: (date: Date) => void;
   userId?: string | null;  // Add userId prop
   hideBottomNav?: boolean;  // Hide navigation when AI chat is open
-  children: (activeTab: string, navigateDay?: (direction: 'prev' | 'next') => void) => ReactNode;
+  children: (activeTab: string, navigateDay?: (direction: 'prev' | 'next') => void, activeSubTab?: string) => ReactNode;
 }
 
 export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
@@ -68,7 +88,7 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
   const location = useLocation();
 
   // NEW: Section and subtab state for consolidated navigation
-  const [activeSection, setActiveSection] = useState<string>('timebox');
+  const [activeSection, setActiveSection] = useState<string>('plan');
   const [activeSubTab, setActiveSubTab] = useState<string>('timebox');
   const [isDatePickerOpen, setIsDatePickerOpen] = useState<boolean>(false);
   const [morningRoutineCompleted, setMorningRoutineCompleted] = useState<boolean>(false);
@@ -91,7 +111,7 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
 
   // Fetch morning routine completion percentage
   useEffect(() => {
-    if (!userId || activeSection !== 'timebox') return;
+    if (!userId || activeSection !== 'plan') return;
 
     const isToday = format(selectedDate, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
     if (!isToday) return;
@@ -167,14 +187,20 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
       setActiveSection(sectionParam);
       if (subtabParam) {
         setActiveSubTab(subtabParam);
-      } else if (sectionParam === 'timebox') {
-        // For timebox section, default to morning tab initially
+      } else if (sectionParam === 'plan') {
+        // For plan section, default to morning tab initially
         // This will be updated by the morning routine completion check
         setActiveSubTab('morning');
+      } else if (sectionParam === 'health') {
+        // For health section, default to water tab
+        setActiveSubTab('water');
+      } else if (sectionParam === 'tasks') {
+        // For tasks section, default to tasks tab
+        setActiveSubTab('tasks');
       }
     } else {
-      // Default to timebox section with morning subtab
-      setActiveSection('timebox');
+      // Default to plan section with morning subtab
+      setActiveSection('plan');
       setActiveSubTab('morning');
     }
   }, []);
@@ -384,8 +410,15 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
   const today = new Date();
   const isToday = format(selectedDate, 'yyyy-MM-dd') === format(today, 'yyyy-MM-dd');
 
+  // Get accent line colors based on active section or subtab
+  // For sections with sub-navigation, use the subtab color for more specific theming
+  const colorKey = hasSubNav ? activeSubTab : activeSection;
+  const accentColors = ACCENT_LINE_COLORS[colorKey] || ACCENT_LINE_COLORS[activeSection] || ACCENT_LINE_COLORS['plan'];
+
   return (
-    <div className="flex flex-col h-screen w-full overflow-hidden" style={{ backgroundColor: '#121212' }}>
+    <div className="flex flex-col h-screen w-full overflow-hidden relative" style={{ backgroundColor: '#121212' }}>
+      {/* Page accent line on left side - fixed to true viewport edge, dynamic color based on section */}
+      <div className={`fixed top-0 left-0 w-1 h-screen bg-gradient-to-b ${accentColors.from} ${accentColors.via} ${accentColors.to} shadow-lg ${accentColors.shadow} pointer-events-none z-50`} />
       {/* SCROLLABLE CONTENT AREA - Contains header, pills, and content */}
       <div className="flex-1 relative overflow-x-hidden overflow-y-hidden">
         <AnimatePresence mode="popLayout" custom={activeTabIndex}>
@@ -400,7 +433,7 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
               x: { type: "spring", stiffness: 400, damping: 35 },
               opacity: { duration: 0.15 },
             }}
-            className="h-full overflow-x-hidden overflow-y-auto"
+            className="h-full overflow-x-hidden overflow-y-auto hide-scrollbar"
             style={{
               paddingBottom: '100px',
               WebkitOverflowScrolling: 'touch',
@@ -441,10 +474,10 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
                 activeSubTab={activeSubTab}
                 onSubTabChange={(subTab) => setActiveSubTab(subTab)}
               >
-                {(subTab) => children(subTab, navigateDay)}
+                {(subTab) => children(subTab, navigateDay, subTab)}
               </SwipeableSubTabContent>
             ) : (
-              children(effectiveTabId, navigateDay)
+              children(effectiveTabId, navigateDay, undefined)
             )}
           </motion.div>
         </AnimatePresence>

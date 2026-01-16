@@ -164,7 +164,9 @@ export default defineConfig(({ mode }) => ({
   esbuild: {
     target: 'es2022',
     platform: 'neutral',
-    keepNames: true
+    keepNames: true,
+    // Drop console logs in production to reduce spam and improve performance
+    drop: mode === 'production' ? ['console', 'debugger'] : []
   },
   resolve: {
     alias: [
@@ -216,8 +218,8 @@ export default defineConfig(({ mode }) => ({
   
   optimizeDeps: {
     include: [
-      'react', 
-      'react-dom', 
+      'react',
+      'react-dom',
       'react-router-dom',
       '@radix-ui/react-dialog',
       '@radix-ui/react-slot',
@@ -227,12 +229,14 @@ export default defineConfig(({ mode }) => ({
       'lucide-react',
       'framer-motion', // Pre-bundle framer-motion to avoid context issues
     ],
-    exclude: ['moralis'],
+    exclude: ['moralis', 'zhipuai-sdk-nodejs-v4', 'jsonwebtoken'],
     // M4 Optimizations
     esbuildOptions: {
       target: 'es2022',
       platform: 'neutral',
-      keepNames: true
+      keepNames: true,
+      // Also drop console in dev dependencies pre-bundling
+      drop: mode === 'production' ? ['console', 'debugger'] : []
     },
     // Pre-bundle heavy dependencies
     force: mode === 'development'

@@ -11,10 +11,13 @@
  * - Color changes based on active sub-tab
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { CheckCircle2, MoreVertical } from 'lucide-react';
 import { NavSubSection } from '@/services/shared/navigation-config';
 import { cn } from '@/lib/utils';
+import { useLongPress } from '@/lib/hooks/useLongPress';
+import { miniCelebrate } from '@/lib/utils/confetti';
 
 interface SectionSubNavProps {
   subSections: NavSubSection[];
@@ -22,6 +25,10 @@ interface SectionSubNavProps {
   onSubTabChange: (subTab: string) => void;
   activeColor?: string;
   activeBgColor?: string;
+  completedSubTabs?: string[]; // Array of completed sub-tab IDs
+  onToggleComplete?: (subTab: string) => void; // Optional handler for toggling completion
+  completionPercentages?: Record<string, number>; // Completion percentage for each subtab
+  onBulkAction?: (action: 'markAllComplete' | 'markAllIncomplete') => void; // Bulk action handler
 }
 
 // Sub-tab specific colors - each sub-tab has its own color
@@ -55,6 +62,21 @@ const SUBTAB_COLORS: Record<string, { color: string; bg: string; gradient: strin
     color: 'text-blue-400',
     bg: 'bg-blue-400/20',
     gradient: 'from-blue-500 to-cyan-400'
+  },
+  'water': {
+    color: 'text-blue-400',
+    bg: 'bg-blue-400/20',
+    gradient: 'from-blue-500 to-cyan-400'
+  },
+  'fitness': {
+    color: 'text-rose-400',
+    bg: 'bg-rose-400/20',
+    gradient: 'from-rose-500 to-pink-400'
+  },
+  'smoking': {
+    color: 'text-purple-400',
+    bg: 'bg-purple-400/20',
+    gradient: 'from-purple-500 to-pink-400'
   }
 };
 
@@ -63,8 +85,14 @@ export const SectionSubNav: React.FC<SectionSubNavProps> = ({
   activeSubTab,
   onSubTabChange,
   activeColor,
-  activeBgColor
+  activeBgColor,
+  completedSubTabs = [],
+  onToggleComplete,
+  completionPercentages = {},
+  onBulkAction
 }) => {
+  const [showBulkMenu, setShowBulkMenu] = useState(false);
+
   if (!subSections || subSections.length <= 1) return null;
 
   // Get colors for the active sub-tab
@@ -79,56 +107,172 @@ export const SectionSubNav: React.FC<SectionSubNavProps> = ({
   const tabWidth = 100 / subSections.length; // Equal width for each tab
 
   return (
-    <div className="px-4 py-3">
-      <div className="relative bg-white/5 rounded-full p-1">
-        {/* Sliding gradient background for active tab */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeSubTab}
-            className={cn(
-              "absolute top-1 bottom-1 rounded-full",
-              activeSubTabColors.bg
-            )}
-            initial={false}
-            animate={{
-              left: `${activeIndex * tabWidth}%`,
-              width: `${tabWidth}%`
-            }}
-            transition={{
-              type: "spring",
-              stiffness: 400,
-              damping: 35
-            }}
-          />
-        </AnimatePresence>
+    <div className="px-4 py-3 overflow-x-hidden">
+      <div className="relative">
+        {/* Bulk actions menu */}
+        {onBulkAction && (
+          <div className="absolute -top-12 right-0 z-50">
+            <AnimatePresence>
+              {showBulkMenu && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  className="bg-gray-800 rounded-lg shadow-xl border border-gray-700 py-2 min-w-[200px]"
+                >
+                  <button
+                    onClick={() => {
+                      onBulkAction('markAllComplete');
+                      setShowBulkMenu(false);
+                    }}
+                    className="w-full px-4 py-2 text-left text-sm text-gray-200 hover:bg-gray-700 transition-colors flex items-center gap-2"
+                  >
+                    <CheckCircle2 className="h-4 w-4 text-green-400" />
+                    Mark All Complete
+                  </button>
+                  <button
+                    onClick={() => {
+                      onBulkAction('markAllIncomplete');
+                      setShowBulkMenu(false);
+                    }}
+                    className="w-full px-4 py-2 text-left text-sm text-gray-200 hover:bg-gray-700 transition-colors flex items-center gap-2"
+                  >
+                    <CheckCircle2 className="h-4 w-4 text-gray-400" />
+                    Mark All Incomplete
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
 
-        {/* Tab buttons */}
-        <div className="relative flex">
-          {subSections.map((sub, index) => {
-            const isActive = activeSubTab === sub.id;
-
-            return (
-              <button
-                key={sub.id}
-                onClick={() => onSubTabChange(sub.id)}
+        <div className="flex items-center gap-2 overflow-x-hidden">
+          {/* Main navigation */}
+          <div className="flex-1 bg-white/5 rounded-full p-1 overflow-x-hidden">
+            {/* Sliding gradient background for active tab */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeSubTab}
                 className={cn(
-                  "flex-1 flex items-center justify-center gap-2",
-                  "py-2 px-3 rounded-full",
-                  "transition-all duration-200",
-                  "text-sm font-medium whitespace-nowrap",
-                  isActive
-                    ? activeSubTabColors.color
-                    : "text-gray-400 hover:text-gray-300"
+                  "absolute top-1 bottom-1 rounded-full",
+                  activeSubTabColors.bg
                 )}
-              >
-                <sub.icon className={cn(
-                  "h-4 w-4 transition-colors",
-                  isActive && "bg-gradient-to-br bg-clip-text"
-                )} style={isActive ? { backgroundImage: `linear-gradient(to right, var(--tw-gradient-stops))` } : {}} />
-                <span>{sub.name}</span>
-              </button>
-            );
-          })}
+                initial={false}
+                animate={{
+                  left: `${activeIndex * tabWidth}%`,
+                  width: `${tabWidth}%`
+                }}
+                transition={{
+                  type: "spring",
+                  stiffness: 400,
+                  damping: 35
+                }}
+              />
+            </AnimatePresence>
+
+            {/* Tab buttons */}
+            <div className="relative flex">
+              {subSections.map((sub, index) => {
+                const isActive = activeSubTab === sub.id;
+                const isCompleted = completedSubTabs.includes(sub.id);
+                const completionPercentage = completionPercentages[sub.id];
+                const wasJustCompleted = React.useRef(false);
+
+                // Long-press handler for mobile
+                const longPress = useLongPress({
+                  onLongPress: () => {
+                    if (onToggleComplete) {
+                      const newCompletedState = !isCompleted;
+
+                      // Trigger confetti if marking as complete
+                      if (newCompletedState && !wasJustCompleted.current) {
+                        miniCelebrate();
+                        wasJustCompleted.current = true;
+                        setTimeout(() => {
+                          wasJustCompleted.current = false;
+                        }, 1000);
+                      }
+
+                      onToggleComplete(sub.id);
+                    }
+                  },
+                  ms: 500,
+                });
+
+                return (
+                  <button
+                    key={sub.id}
+                    onClick={() => onSubTabChange(sub.id)}
+                    onContextMenu={(e) => {
+                      e.preventDefault();
+                      // Right-click to toggle completion
+                      if (onToggleComplete) {
+                        const newCompletedState = !isCompleted;
+
+                        // Trigger confetti if marking as complete
+                        if (newCompletedState && !wasJustCompleted.current) {
+                          miniCelebrate();
+                          wasJustCompleted.current = true;
+                          setTimeout(() => {
+                            wasJustCompleted.current = false;
+                          }, 1000);
+                        }
+
+                        onToggleComplete(sub.id);
+                      }
+                    }}
+                    {...longPress}
+                    className={cn(
+                      "flex-1 flex items-center justify-center gap-2",
+                      "py-2 px-3 rounded-full",
+                      "transition-all duration-200",
+                      "text-sm font-medium whitespace-nowrap",
+                      "relative group",
+                      isActive
+                        ? activeSubTabColors.color
+                        : "text-gray-400 hover:text-gray-300"
+                    )}
+                  >
+                    <sub.icon className={cn(
+                      "h-4 w-4 transition-colors",
+                      isActive && "bg-gradient-to-br bg-clip-text"
+                    )} style={isActive ? { backgroundImage: `linear-gradient(to right, var(--tw-gradient-stops))` } : {}} />
+                    <span className="relative">
+                      {sub.name}
+                      {/* Completion percentage badge */}
+                      {completionPercentage !== undefined && completionPercentage > 0 && !isCompleted && (
+                        <span className="absolute -top-2 -right-3 bg-gray-700 text-white text-[9px] px-1 rounded-full font-semibold">
+                          {completionPercentage}%
+                        </span>
+                      )}
+                    </span>
+
+                    {/* Completion indicator - checkmark */}
+                    {isCompleted && (
+                      <motion.div
+                        initial={{ scale: 0, opacity: 0, rotate: -180 }}
+                        animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 300,
+                          damping: 20
+                        }}
+                        className={cn(
+                          "absolute -top-1 -right-1",
+                          isActive
+                            ? activeSubTabColors.color.replace('text-', 'bg-').replace('/20', '/40')
+                            : "bg-green-500/80",
+                          "rounded-full p-0.5 shadow-lg"
+                        )}
+                      >
+                        <CheckCircle2 className="h-3.5 w-3.5 text-white drop-shadow-md" />
+                      </motion.div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
     </div>

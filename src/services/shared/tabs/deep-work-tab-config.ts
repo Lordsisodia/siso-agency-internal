@@ -33,7 +33,7 @@ import { Zap } from 'lucide-react';
  */
 export const deepWorkTabConfig: TabConfig = {
   // CORE IDENTIFICATION
-  id: 'work', // Maintains backward compatibility with existing 'work' id
+  id: 'deep-work', // Updated to match navigation-config subtab ID
   label: 'Deep',
   icon: Zap,
   component: null as any, // Will be set by registry during initialization

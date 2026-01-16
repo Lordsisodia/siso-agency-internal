@@ -1,6 +1,9 @@
 import type { SupabaseClient, PostgrestError } from '@supabase/supabase-js';
+import { logger } from '@/lib/utils/logger';
 import { offlineDb } from '@/services/offline/offlineDb';
+import { logger } from '@/lib/utils/logger';
 import type { DeepWorkTask } from '../useDeepWorkTasksSupabase';
+import { logger } from '@/lib/utils/logger';
 import {
   buildDeepWorkQueuePayload,
   markDeepWorkTaskSynced,

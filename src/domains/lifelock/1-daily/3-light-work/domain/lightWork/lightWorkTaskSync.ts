@@ -1,6 +1,9 @@
 import type { SupabaseClient, PostgrestError } from '@supabase/supabase-js';
+import { logger } from '@/lib/utils/logger';
 import { offlineDb } from '@/services/offline/offlineDb';
+import { logger } from '@/lib/utils/logger';
 import type { LightWorkTask } from '../useLightWorkTasksSupabase';
+import { logger } from '@/lib/utils/logger';
 import {
   buildLightWorkQueuePayload,
   markLightWorkTaskSynced,

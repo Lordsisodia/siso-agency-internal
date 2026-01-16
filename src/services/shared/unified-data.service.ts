@@ -19,6 +19,55 @@ import type { Database } from '@/types/supabase';
 const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL || '').trim();
 
 // ===== TYPES =====
+
+// Nightly Checkout Metrics Types
+export interface MeditationMetrics {
+  minutes?: number;
+  quality?: number; // 1-100
+}
+
+export interface WorkoutMetrics {
+  completed?: boolean;
+  type?: string; // e.g., "strength", "cardio", "hiit", "yoga"
+  duration?: number; // minutes
+  intensity?: string; // e.g., "low", "medium", "high"
+}
+
+export interface NutritionMetrics {
+  calories?: number;
+  protein?: number; // grams
+  carbs?: number; // grams
+  fats?: number; // grams
+  hit_goal?: boolean;
+}
+
+export interface DeepWorkMetrics {
+  hours?: number;
+  quality?: number; // 1-100
+}
+
+export interface ResearchMetrics {
+  hours?: number;
+  topic?: string;
+  notes?: string;
+}
+
+export interface SleepMetrics {
+  hours?: number;
+  bed_time?: string; // ISO time string
+  wake_time?: string; // ISO time string
+  quality?: number; // 1-100
+}
+
+export interface NightlyCheckoutMetrics {
+  meditation?: MeditationMetrics;
+  workout?: WorkoutMetrics;
+  nutrition?: NutritionMetrics;
+  deep_work?: DeepWorkMetrics;
+  research?: ResearchMetrics;
+  sleep?: SleepMetrics;
+}
+
 export interface DailyReflection {
   id?: string;
   user_id: string;
@@ -35,6 +84,13 @@ export interface DailyReflection {
   keyLearnings?: string;
   tomorrowFocus?: string;
   tomorrowTopTasks?: string[]; // NEW: Top 3 specific tasks
+  // NEW: Nightly checkout metrics
+  meditation?: MeditationMetrics;
+  workout?: WorkoutMetrics;
+  nutrition?: NutritionMetrics;
+  deep_work?: DeepWorkMetrics;
+  research?: ResearchMetrics;
+  sleep?: SleepMetrics;
   created_at?: string;
   updated_at?: string;
 }
@@ -521,7 +577,6 @@ class UnifiedDataService {
     // If online, try Supabase
     if (this.isOnline()) {
       try {
-        console.log('🌐 Fetching time blocks from Supabase...');
         const { data, error } = await supabaseAnon
           .from('time_blocks')
           .select('*')
@@ -530,7 +585,6 @@ class UnifiedDataService {
           .order('start_time', { ascending: true });
 
         if (!error && data) {
-          console.log('✅ Fetched time blocks from Supabase:', data.length);
           for (const record of data) {
             await offlineDb.saveTimeBlock(record, false);
           }

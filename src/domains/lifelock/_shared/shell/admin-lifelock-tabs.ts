@@ -13,15 +13,16 @@
  */
 
 import React from 'react';
-import { LucideIcon } from 'lucide-react';
+import { LucideIcon, Apple } from 'lucide-react';
 
 // Import tab components (relative paths; this file lives at lifelock/_shared/shell)
 import { MorningRoutineSection } from '../../1-daily/1-morning-routine/ui/pages/MorningRoutineSection';
 import { DeepFocusWorkSection } from '../../1-daily/4-deep-work/ui/pages/DeepFocusWorkSection';
 import { LightFocusWorkSection } from '../../1-daily/3-light-work/ui/pages/LightFocusWorkSection';
+import { HealthTrackerSection } from '../../1-daily/5-wellness/ui/pages/HealthTrackerSection';
 import { HomeWorkoutSection } from '../../1-daily/5-wellness/ui/pages/HomeWorkoutSection';
-import { WaterTracker } from '../../1-daily/5-wellness/ui/components/WaterTracker';
-import { PhotoNutritionTracker } from '../../1-daily/5-wellness/features/photo-nutrition/components/PhotoNutritionTracker';
+import { SmokingTracker } from '../../1-daily/5-wellness/ui/components/SmokingTracker';
+import { DietSection } from '../../1-daily/8-diet/ui/pages/DietSection';
 import { TimeboxSection } from '../../1-daily/6-timebox/ui/pages/TimeboxSection';
 import { NightlyCheckoutSection } from '../../1-daily/7-checkout/ui/pages/NightlyCheckoutSection';
 import { TasksSection } from '../../1-daily/2-tasks/ui/pages/TasksSection';
@@ -66,6 +67,7 @@ export interface TabLayoutProps {
   dayCompletionPercentage: number;
   navigateDay?: (direction: 'prev' | 'next') => void;
   userId?: string;
+  activeSubTab?: string; // Active subtab for sections with sub-navigation
   // Handler props for interactive tabs
   handleQuickAdd?: (task: string) => void;
   handleOrganizeTasks?: () => void;
@@ -104,12 +106,74 @@ export const ENHANCED_TAB_CONFIG: Record<TabId, EnhancedTabConfig> = {
     components: [DeepFocusWorkSection],
   },
 
+  'deep-work': {
+    ...TAB_CONFIG['deep-work'],
+    layoutType: 'standard',
+    backgroundClass: 'min-h-screen bg-[#121212] p-4 pb-24',
+    showDateNav: true,
+    components: [DeepFocusWorkSection],
+  },
+
   'wellness': {
     ...TAB_CONFIG['wellness'],
     layoutType: 'standard',
     backgroundClass: 'min-h-screen bg-[#121212] p-4 pb-24',
     showDateNav: true,
-    components: [WaterTracker, HomeWorkoutSection, PhotoNutritionTracker],
+    components: [HomeWorkoutSection],
+  },
+
+  // Health is an alias for wellness (renamed in navigation)
+  'health': {
+    ...TAB_CONFIG['wellness'],
+    id: 'health' as TabId,
+    name: 'Health',
+    layoutType: 'standard',
+    backgroundClass: 'min-h-screen bg-[#121212] p-4 pb-24',
+    showDateNav: true,
+    components: [HealthTrackerSection],
+  },
+
+  // Health subtabs
+  'water': {
+    ...TAB_CONFIG['wellness'],
+    id: 'water' as TabId,
+    name: 'Water',
+    layoutType: 'standard',
+    backgroundClass: 'min-h-screen bg-[#121212] p-4 pb-24',
+    showDateNav: true,
+    components: [HealthTrackerSection],
+  },
+
+  'fitness': {
+    ...TAB_CONFIG['wellness'],
+    id: 'fitness' as TabId,
+    name: 'Fitness',
+    layoutType: 'standard',
+    backgroundClass: 'min-h-screen bg-[#121212] p-4 pb-24',
+    showDateNav: true,
+    components: [HealthTrackerSection],
+  },
+
+  'smoking': {
+    ...TAB_CONFIG['wellness'],
+    id: 'smoking' as TabId,
+    name: 'Smoking',
+    layoutType: 'standard',
+    backgroundClass: 'min-h-screen bg-[#121212] p-4 pb-24',
+    showDateNav: true,
+    components: [HealthTrackerSection],
+  },
+
+  'diet': {
+    id: 'diet' as TabId,
+    name: 'Diet',
+    icon: Apple,
+    color: 'text-green-400',
+    description: 'AI-powered nutrition tracking',
+    layoutType: 'standard',
+    backgroundClass: 'min-h-screen bg-[#121212] p-4 pb-24',
+    showDateNav: true,
+    components: [DietSection],
   },
   
   'timebox': {
@@ -144,7 +208,12 @@ export const ENHANCED_TAB_CONFIG: Record<TabId, EnhancedTabConfig> = {
  * Get enhanced tab configuration
  */
 export function getEnhancedTabConfig(tabId: TabId): EnhancedTabConfig {
-  return ENHANCED_TAB_CONFIG[tabId];
+  const config = ENHANCED_TAB_CONFIG[tabId];
+  if (!config) {
+    console.error('[getEnhancedTabConfig] No config found for tab:', tabId);
+    console.error('[getEnhancedTabConfig] Available tabs:', Object.keys(ENHANCED_TAB_CONFIG));
+  }
+  return config;
 }
 
 /**

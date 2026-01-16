@@ -76,7 +76,7 @@ export const UnifiedTopNav: React.FC<UnifiedTopNavProps> = ({
   return (
     <div className={cn('relative', className)}>
       {/* Main Header Bar */}
-      <div className="bg-[#121212] border-b border-white/10">
+      <div className="bg-[#121212]">
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
             {/* Left: Date + Dropdown */}
@@ -86,17 +86,17 @@ export const UnifiedTopNav: React.FC<UnifiedTopNavProps> = ({
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              <span className="text-white font-semibold text-lg">
+              <span className="text-white font-semibold text-xl">
                 {formatDateDisplay}
               </span>
-              <ChevronDown className="h-4 w-4 text-gray-400" />
+              <ChevronDown className="h-5 w-5 text-gray-400" />
             </motion.button>
 
             {/* Right: Profile Avatar */}
             <img
               src={user?.imageUrl || ''}
               alt={user?.fullName || 'Profile'}
-              className="w-8 h-8 rounded-lg object-cover"
+              className="w-10 h-10 rounded-lg object-cover"
             />
           </div>
         </div>

@@ -21,6 +21,7 @@ import { TimeboxStats } from '../components/TimeboxStats';
 import { TimeboxTimeline } from '../components/TimeboxTimeline';
 import { AUTO_TIMEBOX_CONFIG, createOrUpdateAutoTimeboxes } from '@/domains/lifelock/_shared/services/autoTimeblockService';
 import { Badge } from '@/components/ui/badge';
+import { PlanningAssistant } from '../components/PlanningAssistant';
 
 const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }) => {
   // Authentication
@@ -47,7 +48,6 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
   const processedAutoAdjustmentsRef = useRef<Set<string>>(new Set());
   const autoSyncingRef = useRef(false);
 
-  console.log('🔍 [TIMEBOX] RENDER with internalUserId:', internalUserId, 'isSignedIn:', isSignedIn, 'date:', format(selectedDate, 'yyyy-MM-dd'));
 
   const dateKey = format(selectedDate, 'yyyy-MM-dd');
 
@@ -148,7 +148,10 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
           setWakeUpTime('');
         }
       } catch (error) {
-        console.warn('Unable to fetch wake-up time metadata:', error);
+        // API endpoint not available - user can manually set wake-up time
+        if (import.meta.env.DEV) {
+          console.debug('Wake-up time metadata API not available');
+        }
         if (isActive) {
           setWakeUpTime('');
         }
@@ -341,9 +344,9 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
   // Loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen w-full mb-24 bg-black">
+      <div className="min-h-screen w-full mb-24 bg-black overflow-x-hidden">
         <div className="w-full relative">
-        <div className="max-w-screen-2xl mx-auto px-0 sm:px-4 md:px-6 lg:px-10 space-y-6">
+        <div className="w-full mx-auto px-2 sm:px-4 md:px-6 lg:px-8 space-y-6">
             <Card className="bg-purple-900/10 border-purple-700/30">
               <CardContent className="p-6 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -393,175 +396,43 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
   }
 
   return (
-    <div className="min-h-screen w-full bg-transparent">
+    <div className="min-h-screen w-full bg-transparent overflow-x-hidden">
       <div className="w-full relative">
-          <div className="max-w-screen-2xl mx-auto px-0 sm:px-4 md:px-6 lg:px-10 py-6 pb-32 space-y-6">
-          {/* Stats Section */}
-          <TimeboxStats
-            validTasks={validTasks}
-            todayStats={todayStats}
-            yesterdayStats={yesterdayStats}
-            showComparison={showComparison}
-            setShowComparison={setShowComparison}
-          />
-
-          {/* Add Tasks Button + Sprint Menu */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.2 }}
-            className="mx-4 mb-3 space-y-2"
-          >
-            <div className="grid grid-cols-2 gap-2">
-              <Button
-                onClick={() => setIsQuickSchedulerOpen(true)}
-                disabled={isCreating || isUpdating}
-                className="bg-gradient-to-r from-emerald-500 to-blue-600 hover:from-emerald-600 hover:to-blue-700 text-white py-3 text-sm font-semibold shadow-xl hover:shadow-2xl border border-white/20 hover:border-white/30 transition-all duration-300 rounded-xl disabled:opacity-50"
-                size="lg"
-              >
-                <Calendar className="h-4 w-4 mr-2" />
-                Add Tasks
-              </Button>
-
-              <Button
-                onClick={() => setShowSprintMenu(!showSprintMenu)}
-                disabled={isCreating || isUpdating}
-                className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white py-3 text-sm font-semibold shadow-xl hover:shadow-2xl border border-white/20 hover:border-white/30 transition-all duration-300 rounded-xl disabled:opacity-50"
-                size="lg"
-              >
-                <Zap className="h-4 w-4 mr-2" />
-                Focus Sprint
-              </Button>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2">
-              <Button
-                onClick={() => {
-                  setAvailabilityMode(true);
-                  setIsFormModalOpen(true);
-                  setEditingBlock(null);
-                }}
-                className="bg-amber-500/80 hover:bg-amber-500 text-black font-semibold shadow-xl border border-amber-300/60"
-                size="lg"
-              >
-                <Calendar className="h-4 w-4 mr-2" />
-                Add Availability
-              </Button>
-
-              <Badge className="justify-center bg-amber-500/15 text-amber-50 border-amber-300/40 py-3 text-xs uppercase tracking-[0.18em]">Availability beta</Badge>
-            </div>
-
-            {/* Sprint Selection Menu */}
-            <AnimatePresence>
-              {showSprintMenu && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="overflow-hidden"
-                >
-                  <div className="bg-gray-900/95 border border-purple-500/30 rounded-xl p-4 space-y-3">
-                    <h4 className="text-white font-semibold text-sm flex items-center">
-                      <Zap className="h-4 w-4 mr-2 text-purple-400" />
-                      Choose Sprint Type
-                    </h4>
-
-                    <div className="space-y-2">
-                      {(['pomodoro', 'extended', 'deep'] as FocusSprintType[]).map((type) => {
-                        const configs = {
-                          pomodoro: { icon: '🍅', name: 'Classic Pomodoro', desc: '4x (25min work + 5min break) = 2 hours' },
-                          extended: { icon: '⚡', name: 'Extended Focus', desc: '2x (50min work + 10min break) = 2 hours' },
-                          deep: { icon: '🧠', name: 'Deep Immersion', desc: '2x (90min work + 20min break) = 3.5 hours' }
-                        };
-                        const config = configs[type];
-                        return (
-                          <Button
-                            key={type}
-                            onClick={() => {
-                              const now = new Date();
-                              const startTime = `${now.getHours().toString().padStart(2, '0')}:${Math.ceil(now.getMinutes() / 15) * 15}`;
-                              createFocusSprint(startTime, type);
-                            }}
-                            className="w-full bg-blue-600/20 hover:bg-blue-600/40 border border-blue-500/40 text-white justify-start"
-                          >
-                            <div className="flex flex-col items-start w-full">
-                              <span className="font-semibold">{config.icon} {config.name}</span>
-                              <span className="text-xs text-gray-300">{config.desc}</span>
-                            </div>
-                          </Button>
-                        );
-                      })}
-                    </div>
-
-                    <Button
-                      onClick={() => setShowSprintMenu(false)}
-                      variant="outline"
-                      size="sm"
-                      className="w-full text-gray-400 border-gray-600"
-                    >
-                      Cancel
-                    </Button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
-
-          {/* Timeline */}
-          <Card className="w-full bg-transparent border-gray-800/30 sm:rounded-2xl rounded-none border-y sm:border">
-            <CardContent className="p-0">
-              <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 border-b border-gray-800/40">
-                <span className="text-sm font-semibold text-white/90">Daily Timeline</span>
-                <div className="flex flex-wrap items-center gap-4 text-[11px] text-gray-400">
-                  <span className="flex items-center gap-1.5">
-                    <span className="inline-flex h-3 w-3 rounded-sm bg-sky-500/15 border border-sky-400/30" />
-                    Solo block (1 active)
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <span className="inline-flex h-3 w-3 rounded-sm bg-sky-400/20 border border-sky-300/40" />
-                    Paired blocks (2 overlapping)
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <span className="inline-flex h-3 w-3 rounded-sm bg-violet-500/20 border border-violet-400/40" />
-                    Peak load (3+ overlapping)
-                  </span>
-                </div>
-              </div>
-              <div className="w-full">
-                <TimeboxTimeline
-                  ref={timelineContainerRef}
-                  timeSlots={timeSlots}
-                  validTasks={validTasks}
-                  hourlyDensity={hourlyDensity}
-                  currentTime={currentTime}
-                  currentTimePosition={currentTimePosition}
-                  draggingTaskId={draggingTaskId}
-                  swipingTaskId={swipingTaskId}
-                  swipeDirection={swipeDirection}
-                  dragPreview={dragPreview}
-                  gapFiller={gapFiller}
-                  gapSuggestions={gapSuggestions}
-                  getTaskPosition={getTaskPosition}
-                  onToggleComplete={handleToggleComplete}
-                  onAddAfter={handleAddAfter}
-                  onDragStart={setDraggingTaskId}
-                  onDrag={handleDrag}
-                  onDragEnd={handleDragEnd}
-                  onPan={handlePan}
-                  onPanEnd={handlePanEnd}
-                  onTaskClick={setSelectedTask}
-                  onTaskDoubleClick={handleEditBlock}
-                  onTimelineClick={handleTimelineClick}
-                  onGapSchedule={(task) => handleGapSchedule(task, gapFiller)}
-                  onCloseGapFiller={() => {
-                    setGapFiller(null);
-                    setGapSuggestions([]);
-                  }}
-                  setIsQuickSchedulerOpen={setIsQuickSchedulerOpen}
-                />
-              </div>
-            </CardContent>
-          </Card>
+          <div className="w-full mx-auto px-2 sm:px-4 md:px-6 lg:px-8 pb-32">
+          {/* Timeline - No header, no stats, just the timeline */}
+          <div className="w-full">
+            <TimeboxTimeline
+              ref={timelineContainerRef}
+              timeSlots={timeSlots}
+              validTasks={validTasks}
+              hourlyDensity={hourlyDensity}
+              currentTime={currentTime}
+              currentTimePosition={currentTimePosition}
+              draggingTaskId={draggingTaskId}
+              swipingTaskId={swipingTaskId}
+              swipeDirection={swipeDirection}
+              dragPreview={dragPreview}
+              gapFiller={gapFiller}
+              gapSuggestions={gapSuggestions}
+              getTaskPosition={getTaskPosition}
+              onToggleComplete={handleToggleComplete}
+              onAddAfter={handleAddAfter}
+              onDragStart={setDraggingTaskId}
+              onDrag={handleDrag}
+              onDragEnd={handleDragEnd}
+              onPan={handlePan}
+              onPanEnd={handlePanEnd}
+              onTaskClick={setSelectedTask}
+              onTaskDoubleClick={handleEditBlock}
+              onTimelineClick={handleTimelineClick}
+              onGapSchedule={(task) => handleGapSchedule(task, gapFiller)}
+              onCloseGapFiller={() => {
+                setGapFiller(null);
+                setGapSuggestions([]);
+              }}
+              setIsQuickSchedulerOpen={setIsQuickSchedulerOpen}
+            />
+          </div>
         </div>
 
         {/* Modals */}
@@ -617,6 +488,13 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
             />
           </div>
         )}
+
+        {/* AI Planning Assistant */}
+        <PlanningAssistant
+          selectedDate={selectedDate}
+          createTimeBlock={handleCreateBlock}
+          timeBlocks={timeBlocks}
+        />
       </div>
     </div>
   );

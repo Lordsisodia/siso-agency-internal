@@ -49,6 +49,10 @@ export const XPPill: React.FC<XPPillProps> = ({
         return {
           gradient: 'from-purple-500 to-pink-400'
         };
+      case 'diet':
+        return {
+          gradient: 'from-green-500 to-emerald-400'
+        };
       default:
         return {
           gradient: 'from-indigo-500 to-cyan-400'
@@ -61,33 +65,33 @@ export const XPPill: React.FC<XPPillProps> = ({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2, duration: 0.4 }}
-      className="bg-white/5 border border-white/10 rounded-full p-3"
+      className="bg-white/5 border border-white/10 rounded-full px-3.5 py-2.5"
       whileHover={{ scale: 1.02 }}
       transition={{ duration: 0.2 }}
     >
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2.5">
         {/* Icon with colored background */}
         <div className={cn(
-          'w-8 h-8 rounded-full bg-gradient-to-br flex items-center justify-center flex-shrink-0',
+          'w-7 h-7 rounded-full bg-gradient-to-br flex items-center justify-center flex-shrink-0',
           getTabColors.gradient
         )}>
-          {icon || <Trophy className="h-4 w-4 text-white" />}
+          {icon || <Trophy className="h-3.5 w-3.5 text-white" />}
         </div>
 
         {/* Content Area */}
         <div className="flex-1">
           {/* Text Row */}
-          <div className="flex items-center justify-between mb-1.5">
-            <span className="text-xs font-medium text-gray-400">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-[11px] font-medium text-gray-400">
               {label}
             </span>
-            <span className="text-xs font-medium text-white">
+            <span className="text-[11px] font-medium text-white">
               {xp.toLocaleString()}
             </span>
           </div>
 
           {/* Progress Bar */}
-          <div className="w-full bg-white/10 rounded-full h-3 overflow-hidden relative shadow-inner">
+          <div className="w-full bg-white/10 rounded-full h-2.5 overflow-hidden relative shadow-inner">
             <motion.div
               className={cn(
                 'h-full bg-gradient-to-r rounded-full relative overflow-hidden',

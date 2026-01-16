@@ -62,7 +62,6 @@ export class LightWorkOrchestrator {
 
   constructor() {
     this.cacheManager = TaskCacheManager.getInstance();
-    console.log('🎼 Light Work Orchestrator initialized');
   }
 
   /**
@@ -79,9 +78,8 @@ export class LightWorkOrchestrator {
     try {
       // Try cache first for light work (optimized for speed)
       const cacheResult = this.cacheManager.getCachedTaskList(LIGHT_WORK_CONFIG.TASK_TYPE, filters);
-      
+
       if (cacheResult.hit && cacheResult.data) {
-        console.log('✅ Light work tasks retrieved from cache');
         return {
           success: true,
           data: cacheResult.data,
@@ -142,11 +140,9 @@ export class LightWorkOrchestrator {
       }
 
       const tasks = transformResult.data || [];
-      
+
       // Cache the results for future requests
       this.cacheManager.cacheTaskList(tasks, LIGHT_WORK_CONFIG.TASK_TYPE, filters);
-
-      console.log(`✅ Retrieved ${tasks.length} light work tasks from database`);
 
       return {
         success: true,
@@ -261,7 +257,6 @@ export class LightWorkOrchestrator {
       // Invalidate task list caches
       this.cacheManager.invalidateTaskLists(LIGHT_WORK_CONFIG.CACHE_NAMESPACE);
 
-      console.log(`✅ Created light work task: ${createdTask.id}`);
 
       return {
         success: true,
@@ -355,7 +350,6 @@ export class LightWorkOrchestrator {
       // Invalidate related caches
       this.cacheManager.invalidateTask(taskId, LIGHT_WORK_CONFIG.TASK_TYPE);
 
-      console.log(`✅ Updated light work task: ${taskId}`);
 
       return {
         success: true,
@@ -420,7 +414,6 @@ export class LightWorkOrchestrator {
       // Invalidate caches for updated task
       this.cacheManager.invalidateTask(taskId, LIGHT_WORK_CONFIG.TASK_TYPE);
 
-      console.log(`✅ Updated light work task status: ${taskId} -> ${completed ? 'completed' : 'pending'}`);
 
       return {
         success: true,
@@ -481,7 +474,6 @@ export class LightWorkOrchestrator {
       // Invalidate related caches (light work subtasks affect parent task)
       this.cacheManager.invalidateTaskLists(LIGHT_WORK_CONFIG.CACHE_NAMESPACE);
 
-      console.log(`✅ Updated light work subtask status: ${subtaskId} -> ${completed ? 'completed' : 'pending'}`);
 
       return {
         success: true,
@@ -542,7 +534,6 @@ export class LightWorkOrchestrator {
       // Clean up caches
       this.cacheManager.invalidateTask(taskId, LIGHT_WORK_CONFIG.TASK_TYPE);
 
-      console.log(`✅ Deleted light work task: ${taskId}`);
 
       return {
         success: true,

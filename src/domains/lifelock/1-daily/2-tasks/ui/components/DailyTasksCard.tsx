@@ -64,6 +64,9 @@ export const DailyTasksCard: React.FC<DailyTasksCardProps> = ({ selectedDate, cl
 
   const allDone = tasks.length > 0 && completedCount === tasks.length;
 
+  // Check if a task is a synced deep work task
+  const isDeepWorkTask = (taskId: string) => taskId.startsWith('dw-');
+
   const availableDeepTasks = useMemo(
     () =>
       deepWorkTasks
@@ -86,11 +89,11 @@ export const DailyTasksCard: React.FC<DailyTasksCardProps> = ({ selectedDate, cl
     <div
       className={cn(
         'w-full rounded-3xl shadow-2xl border overflow-hidden bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 transition-all duration-300',
-        allDone ? 'border-emerald-300/70 ring-2 ring-emerald-300/50' : 'border-blue-800/40',
+        allDone ? 'border-emerald-300/70 ring-2 ring-emerald-300/50' : 'border-slate-700/40',
         className,
       )}
     >
-      <div className="flex items-center justify-between px-4 py-4 bg-gradient-to-r from-blue-700 via-indigo-600 to-cyan-500 text-white shadow-inner">
+      <div className="flex items-center justify-between px-4 py-4 bg-gradient-to-r from-slate-700 via-slate-600 to-slate-700 text-white shadow-inner">
         <div className="flex items-center space-x-3">
           <div className="text-sm font-semibold">{dateInfo.date}</div>
           <div className="bg-black/20 text-white text-xs font-semibold px-2 py-1 rounded-md">
@@ -114,13 +117,13 @@ export const DailyTasksCard: React.FC<DailyTasksCardProps> = ({ selectedDate, cl
             onChange={(e) => setNewTask(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="New task..."
-            className="flex-1 rounded-xl border border-blue-700/40 bg-blue-900/60 px-3 py-3 text-sm text-blue-50 placeholder:text-blue-200/60 outline-none focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/30 shadow-sm"
+            className="flex-1 rounded-xl border border-slate-700/40 bg-slate-900/60 px-3 py-3 text-sm text-slate-50 placeholder:text-slate-400/60 outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-500/30 shadow-sm"
           />
           <button
             type="button"
             onClick={() => void handleAdd()}
             disabled={saving || !newTask.trim()}
-            className="inline-flex items-center gap-2 rounded-xl bg-cyan-400/90 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-cyan-300 disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-xl bg-slate-600/90 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-500 disabled:opacity-60"
           >
             <Plus className="h-4 w-4" />
             Add
@@ -128,7 +131,7 @@ export const DailyTasksCard: React.FC<DailyTasksCardProps> = ({ selectedDate, cl
           <button
             type="button"
             onClick={() => setShowImport((prev) => !prev)}
-            className="inline-flex items-center gap-2 rounded-xl border border-blue-700/50 bg-blue-900/70 px-4 py-3 text-sm font-semibold text-blue-50 hover:bg-blue-800/70"
+            className="inline-flex items-center gap-2 rounded-xl border border-slate-700/50 bg-slate-900/70 px-4 py-3 text-sm font-semibold text-slate-50 hover:bg-slate-800/70"
             title="Select from Deep Work tasks"
           >
             <FolderPlus className="h-4 w-4" />
@@ -143,31 +146,31 @@ export const DailyTasksCard: React.FC<DailyTasksCardProps> = ({ selectedDate, cl
         )}
 
         {showImport && (
-          <div className="rounded-xl border border-blue-800/60 bg-blue-900/40 p-3 space-y-2">
-            <div className="flex items-center justify-between text-blue-100 font-semibold text-sm">
+          <div className="rounded-xl border border-slate-700/60 bg-slate-900/40 p-3 space-y-2">
+            <div className="flex items-center justify-between text-slate-100 font-semibold text-sm">
               <span>Select Deep Work task</span>
-              <button onClick={() => setShowImport(false)} className="p-1 text-blue-200 hover:text-white">
+              <button onClick={() => setShowImport(false)} className="p-1 text-slate-400 hover:text-slate-100">
                 <X className="h-4 w-4" />
               </button>
             </div>
             {deepLoading ? (
-              <div className="text-xs text-blue-200">Loading deep work tasks…</div>
+              <div className="text-xs text-slate-400">Loading deep work tasks…</div>
             ) : availableDeepTasks.length === 0 ? (
-              <div className="text-xs text-blue-200">No open deep work tasks for this date.</div>
+              <div className="text-xs text-slate-400">No open deep work tasks for this date.</div>
             ) : (
               <div className="space-y-2 max-h-56 overflow-auto pr-1">
                 {availableDeepTasks.map((t) => (
                   <button
                     key={t.id}
                     onClick={() => void importDeepTask(t.title)}
-                    className="w-full text-left flex items-center gap-3 rounded-lg border border-blue-800/50 bg-blue-900/50 hover:border-cyan-300/60 hover:bg-blue-800/70 transition p-2 text-blue-50"
+                    className="w-full text-left flex items-center gap-3 rounded-lg border border-slate-700/50 bg-slate-900/50 hover:border-slate-500/60 hover:bg-slate-800/70 transition p-2 text-slate-50"
                   >
-                    <span className="flex-shrink-0 h-6 w-6 rounded-md bg-blue-800/70 flex items-center justify-center text-[11px] font-bold capitalize">
+                    <span className="flex-shrink-0 h-6 w-6 rounded-md bg-slate-800/70 flex items-center justify-center text-[11px] font-bold capitalize">
                       {t.priority.slice(0, 1)}
                     </span>
                     <div className="flex-1 min-w-0">
                       <div className="text-sm font-semibold truncate">{t.title}</div>
-                      <div className="text-[11px] text-blue-200/80 flex items-center gap-1">
+                      <div className="text-[11px] text-slate-400/80 flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
                         {t.due ? new Date(t.due).toLocaleDateString() : 'No date'}
                       </div>
@@ -181,22 +184,23 @@ export const DailyTasksCard: React.FC<DailyTasksCardProps> = ({ selectedDate, cl
 
         <div className="space-y-3">
           {loading ? (
-            <div className="text-sm text-blue-100">Loading tasks…</div>
+            <div className="text-sm text-slate-300">Loading tasks…</div>
           ) : tasks.length === 0 ? (
-            <div className="text-sm text-blue-100/80 rounded-2xl border border-blue-800/50 bg-blue-900/40 px-4 py-5 text-center">
+            <div className="text-sm text-slate-300/80 rounded-2xl border border-slate-700/50 bg-slate-900/40 px-4 py-5 text-center">
               No tasks for this day yet. Add one above or import from Deep Work.
             </div>
           ) : (
             tasks.map((task) => {
               const isDone = task.status === 'completed';
+              const isDeepWork = isDeepWorkTask(task.id);
               return (
                 <div
                   key={task.id}
                   className={cn(
                     'flex items-center gap-3 px-4 py-3 rounded-2xl border transition shadow-sm',
                     isDone
-                      ? 'bg-blue-950/60 border-emerald-400/30'
-                      : 'bg-gradient-to-r from-blue-950/80 via-blue-900/70 to-blue-950/60 border-blue-700/50 hover:border-cyan-300/60 hover:shadow-cyan-300/20',
+                      ? 'bg-slate-950/60 border-emerald-400/30'
+                      : 'bg-gradient-to-r from-slate-950/80 via-slate-900/70 to-slate-950/60 border-slate-700/50 hover:border-slate-500/60 hover:shadow-slate-500/20',
                   )}
                 >
                   <button
@@ -206,7 +210,7 @@ export const DailyTasksCard: React.FC<DailyTasksCardProps> = ({ selectedDate, cl
                       'h-7 w-7 rounded-full border flex items-center justify-center transition',
                       isDone
                         ? 'bg-emerald-400 border-emerald-400 text-slate-900'
-                        : 'border-blue-500/70 bg-blue-900/80 text-blue-200 hover:border-cyan-300 hover:text-cyan-200',
+                        : 'border-slate-500/70 bg-slate-900/80 text-slate-400 hover:border-slate-400 hover:text-slate-300',
                     )}
                     aria-label={isDone ? 'Mark as pending' : 'Mark as completed'}
                   >
@@ -214,16 +218,23 @@ export const DailyTasksCard: React.FC<DailyTasksCardProps> = ({ selectedDate, cl
                   </button>
 
                   <div className="flex-1 min-w-0">
-                    <div
-                      className={cn(
-                        'text-sm font-semibold',
-                        isDone ? 'text-blue-200/60 line-through' : 'text-blue-50',
+                    <div className="flex items-center gap-2">
+                      <div
+                        className={cn(
+                          'text-sm font-semibold',
+                          isDone ? 'text-slate-400/60 line-through' : 'text-slate-50',
+                        )}
+                      >
+                        {task.title}
+                      </div>
+                      {isDeepWork && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-purple-500/20 border border-purple-500/40 text-[10px] font-semibold text-purple-200">
+                          Deep Work
+                        </span>
                       )}
-                    >
-                      {task.title}
                     </div>
-                    <div className="flex items-center gap-2 mt-1 text-[11px] text-blue-200/80">
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-800/50 border border-blue-700/40">
+                    <div className="flex items-center gap-2 mt-1 text-[11px] text-slate-400/80">
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-slate-800/50 border border-slate-700/40">
                         <Calendar className="h-3 w-3" />
                         {task.dueDate
                           ? new Date(task.dueDate).toLocaleDateString(undefined, {
@@ -237,7 +248,7 @@ export const DailyTasksCard: React.FC<DailyTasksCardProps> = ({ selectedDate, cl
                           'inline-flex items-center gap-1 px-2 py-1 rounded-full border text-[11px]',
                           isDone
                             ? 'border-emerald-400/50 text-emerald-200 bg-emerald-900/30'
-                            : 'border-cyan-300/40 text-cyan-100 bg-cyan-900/20',
+                            : 'border-slate-500/40 text-slate-200 bg-slate-800/20',
                         )}
                       >
                         {isDone ? 'Done' : 'Pending'}
@@ -248,7 +259,7 @@ export const DailyTasksCard: React.FC<DailyTasksCardProps> = ({ selectedDate, cl
                   <button
                     type="button"
                     onClick={() => void deleteTask(task.id)}
-                    className="p-2 rounded-lg text-blue-300 hover:text-red-200 hover:bg-red-900/30 transition"
+                    className="p-2 rounded-lg text-slate-400 hover:text-red-200 hover:bg-red-900/30 transition"
                     aria-label="Delete task"
                   >
                     <Trash2 className="h-4 w-4" />

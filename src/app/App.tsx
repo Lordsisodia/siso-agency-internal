@@ -75,7 +75,6 @@ function ErrorFallback({error, resetErrorBoundary}: {error: Error, resetErrorBou
 }
 
 function App() {
-  console.log('[App] render');
   return (
     <>
       <Toaster />

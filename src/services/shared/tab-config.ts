@@ -8,14 +8,15 @@
  * This can be renamed to tab-config.ts to replace the original file seamlessly.
  */
 
-import { 
-  Sunrise, 
+import {
+  Sunrise,
   Coffee,
-  Zap, 
+  Zap,
   Heart,
-  Calendar, 
-  Moon, 
+  Calendar,
+  Moon,
   ListChecks,
+  Apple,
   LucideIcon
 } from 'lucide-react';
 
@@ -33,14 +34,20 @@ export {
 export type * from '../types/tab-types';
 
 // EXACT LEGACY COMPATIBILITY - maintains original interface
-export type TabId = 
+export type TabId =
   | 'morning'
-  | 'light-work' 
+  | 'light-work'
   | 'work'
+  | 'deep-work'  // New ID for deep work tab
   | 'wellness'
+  | 'health'  // Alias for wellness (renamed in navigation)
+  | 'water'  // Health subtab
+  | 'fitness'  // Health subtab
+  | 'smoking'  // Health subtab
   | 'tasks'
   | 'timebox'
-  | 'checkout';
+  | 'checkout'
+  | 'diet';
 
 export interface TabConfig {
   id: TabId;
@@ -84,6 +91,15 @@ export const TAB_CONFIG: Record<TabId, TabConfig> = {
     description: 'Deep focus work sessions',
     componentPath: 'DeepFocusWorkSection'
   },
+  'deep-work': {
+    id: 'deep-work',
+    name: 'Deep Work',
+    icon: Zap,
+    timeRelevance: [9, 10, 11, 12, 13, 14, 15, 16, 17],
+    color: 'from-purple-500 to-purple-600',
+    description: 'Deep focus work sessions',
+    componentPath: 'DeepFocusWorkSection'
+  },
   'wellness': {
     id: 'wellness',
     name: 'Wellness',
@@ -92,6 +108,42 @@ export const TAB_CONFIG: Record<TabId, TabConfig> = {
     color: 'from-green-500 to-emerald-500',
     description: 'Health, fitness, and wellness activities',
     componentPath: 'HomeWorkoutSection + HealthNonNegotiablesSection'
+  },
+  'health': {
+    id: 'health',
+    name: 'Health',
+    icon: Heart,
+    timeRelevance: [6, 7, 8, 12, 18, 19],
+    color: 'from-rose-500 to-pink-500',
+    description: 'Health, fitness, and wellness activities',
+    componentPath: 'HomeWorkoutSection + WaterTracker'
+  },
+  'water': {
+    id: 'water',
+    name: 'Water',
+    icon: Heart,
+    timeRelevance: [6, 7, 8, 12, 18, 19],
+    color: 'from-blue-500 to-cyan-500',
+    description: 'Hydration tracking',
+    componentPath: 'WaterTrackerCard'
+  },
+  'fitness': {
+    id: 'fitness',
+    name: 'Fitness',
+    icon: Heart,
+    timeRelevance: [6, 7, 8, 12, 18, 19],
+    color: 'from-rose-500 to-pink-500',
+    description: 'Fitness and workout tracking',
+    componentPath: 'HomeWorkoutSection'
+  },
+  'smoking': {
+    id: 'smoking',
+    name: 'Smoking',
+    icon: Heart,
+    timeRelevance: [6, 7, 8, 12, 18, 19],
+    color: 'from-purple-500 to-pink-500',
+    description: 'Smoking cessation tracking',
+    componentPath: 'SmokingTracker'
   },
   'timebox': {
     id: 'timebox',
@@ -119,6 +171,15 @@ export const TAB_CONFIG: Record<TabId, TabConfig> = {
     color: 'from-indigo-500 to-blue-600',
     description: 'Evening review and wrap-up',
     componentPath: 'NightlyCheckoutSection'
+  },
+  'diet': {
+    id: 'diet',
+    name: 'Diet',
+    icon: Apple,
+    timeRelevance: [7, 8, 12, 13, 18, 19],
+    color: 'from-green-500 to-emerald-500',
+    description: 'AI-powered nutrition tracking and meal logging',
+    componentPath: 'DietSection'
   }
 };
 

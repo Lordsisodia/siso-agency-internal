@@ -386,11 +386,17 @@ export class TabRegistry extends EventEmitter {
 
   /**
    * GET TAB
-   * 
+   *
    * Retrieves a specific tab configuration by ID.
    * Returns null if tab doesn't exist or is not accessible.
+   * Includes backward compatibility mapping for legacy 'work' ID to 'deep-work'.
    */
   public getTab(id: string): TabConfig | null {
+    // Handle legacy 'work' ID mapping to 'deep-work'
+    if (id === 'work') {
+      id = 'deep-work';
+    }
+
     const tab = this.tabs.get(id);
     if (!tab) {
       this.debugLog(`Tab not found: ${id}`);
@@ -626,12 +632,12 @@ export class TabRegistry extends EventEmitter {
 
   /**
    * GET LEGACY TAB IDS
-   * 
+   *
    * Returns tab IDs in the legacy format for backward compatibility.
    */
   public getLegacyTabIds(): LegacyTabId[] {
-    return Array.from(this.tabs.keys()).filter(id => 
-      ['morning', 'light-work', 'work', 'wellness', 'timebox', 'checkout'].includes(id)
+    return Array.from(this.tabs.keys()).filter(id =>
+      ['morning', 'light-work', 'work', 'deep-work', 'wellness', 'timebox', 'checkout'].includes(id)
     ) as LegacyTabId[];
   }
 }

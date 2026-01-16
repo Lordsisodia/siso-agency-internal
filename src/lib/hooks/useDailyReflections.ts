@@ -12,6 +12,54 @@ import { useClerkUser } from './useClerkUser';
 import { useSupabaseUserId } from '@/lib/supabase-clerk';
 import { unifiedDataService } from '@/services/shared/unified-data.service';
 
+// Nightly Checkout Metrics Types
+export interface MeditationMetrics {
+  minutes?: number;
+  quality?: number; // 1-100
+}
+
+export interface WorkoutMetrics {
+  completed?: boolean;
+  type?: string; // e.g., "strength", "cardio", "hiit", "yoga"
+  duration?: number; // minutes
+  intensity?: string; // e.g., "low", "medium", "high"
+}
+
+export interface NutritionMetrics {
+  calories?: number;
+  protein?: number; // grams
+  carbs?: number; // grams
+  fats?: number; // grams
+  hit_goal?: boolean;
+}
+
+export interface DeepWorkMetrics {
+  hours?: number;
+  quality?: number; // 1-100
+}
+
+export interface ResearchMetrics {
+  hours?: number;
+  topic?: string;
+  notes?: string;
+}
+
+export interface SleepMetrics {
+  hours?: number;
+  bed_time?: string; // ISO time string
+  wake_time?: string; // ISO time string
+  quality?: number; // 1-100
+}
+
+export interface NightlyCheckoutMetrics {
+  meditation?: MeditationMetrics;
+  workout?: WorkoutMetrics;
+  nutrition?: NutritionMetrics;
+  deep_work?: DeepWorkMetrics;
+  research?: ResearchMetrics;
+  sleep?: SleepMetrics;
+}
+
 export interface DailyReflection {
   id: string;
   userId: string;
@@ -28,6 +76,13 @@ export interface DailyReflection {
   keyLearnings?: string;
   tomorrowFocus?: string;
   tomorrowTopTasks?: string[]; // NEW: Top 3 specific tasks
+  // NEW: Nightly checkout metrics
+  meditation?: MeditationMetrics;
+  workout?: WorkoutMetrics;
+  nutrition?: NutritionMetrics;
+  deep_work?: DeepWorkMetrics;
+  research?: ResearchMetrics;
+  sleep?: SleepMetrics;
   createdAt: string;
   updatedAt: string;
 }

@@ -12,7 +12,8 @@ export type SyncableTable =
   | 'workoutSessions'
   | 'nightlyCheckouts'
   | 'timeBlocks'
-  | 'dailyReflections';
+  | 'dailyReflections'
+  | 'smokingTracker';
 
 // Database schema for offline storage
 interface OfflineDB extends DBSchema {
@@ -174,6 +175,22 @@ interface OfflineDB extends DBSchema {
       updated_at: string;
     };
   };
+  smokingTracker: {
+    key: string;
+    value: {
+      id: string;
+      user_id: string;
+      date: string;
+      cigarettes_today: number;
+      cravings_resisted: number;
+      notes: string;
+      created_at: string;
+      updated_at: string;
+      _needs_sync?: boolean;
+      _last_synced?: string;
+      _sync_status?: 'pending' | 'syncing' | 'synced' | 'error';
+    };
+  };
 }
 
 export type OfflineSyncAction = OfflineDB['offlineActions']['value'];
@@ -181,7 +198,7 @@ export type OfflineSyncAction = OfflineDB['offlineActions']['value'];
 class OfflineDatabase {
   private db: IDBPDatabase<OfflineDB> | null = null;
   private readonly DB_NAME = 'SISOOfflineDB';
-  private readonly DB_VERSION = 3; // v3: Added timeBlocks store and expanded sync support
+  private readonly DB_VERSION = 4; // v4: Added smokingTracker store
 
   async init(): Promise<void> {
     if (this.db) return;
@@ -257,10 +274,17 @@ class OfflineDatabase {
           timeBlockStore.createIndex('user_id', 'user_id');
           timeBlockStore.createIndex('needs_sync', '_needs_sync');
         }
+
+        // Smoking tracker store (v4)
+        if (!db.objectStoreNames.contains('smokingTracker')) {
+          const smokingStore = db.createObjectStore('smokingTracker', { keyPath: 'id' });
+          smokingStore.createIndex('date', 'date');
+          smokingStore.createIndex('user_id', 'user_id');
+          smokingStore.createIndex('needs_sync', '_needs_sync');
+        }
       },
     });
 
-    console.log('📱 Offline database initialized');
   }
 
   // ===== LIGHT WORK TASKS =====
@@ -534,6 +558,45 @@ class OfflineDatabase {
     await this.queueAction('delete', 'timeBlocks', { id: blockId });
   }
 
+  // ===== SMOKING TRACKER =====
+  async getSmokingTracker(date?: string): Promise<OfflineDB['smokingTracker']['value'][]> {
+    if (!this.db) await this.init();
+
+    const tx = this.db!.transaction('smokingTracker', 'readonly');
+    const store = tx.objectStore('smokingTracker');
+
+    if (date) {
+      const index = store.index('date');
+      return await index.getAll(date);
+    }
+
+    return await store.getAll();
+  }
+
+  async saveSmokingTracker(data: OfflineDB['smokingTracker']['value'], markForSync = true): Promise<void> {
+    if (!this.db) await this.init();
+
+    const dataWithMeta = {
+      ...data,
+      _needs_sync: markForSync,
+      _sync_status: markForSync ? ('pending' as const) : ('synced' as const),
+      updated_at: new Date().toISOString()
+    };
+
+    const tx = this.db!.transaction('smokingTracker', 'readwrite');
+    await tx.objectStore('smokingTracker').put(dataWithMeta);
+    await tx.done;
+
+    if (markForSync) {
+      const { _needs_sync, _sync_status, _last_synced, ...payload } = dataWithMeta as typeof dataWithMeta & {
+        _needs_sync?: boolean;
+        _sync_status?: string;
+        _last_synced?: string;
+      };
+      await this.queueAction('upsert', 'smokingTracker', payload);
+    }
+  }
+
   // ===== OFFLINE ACTIONS QUEUE =====
   async queueAction(
     action: OfflineSyncAction['action'],
@@ -624,6 +687,8 @@ class OfflineDatabase {
           return 'nightlyCheckouts';
         case 'timeBlocks':
           return 'timeBlocks';
+        case 'smokingTracker':
+          return 'smokingTracker';
         default:
           return null;
       }
@@ -678,7 +743,7 @@ class OfflineDatabase {
   async clear(): Promise<void> {
     if (!this.db) await this.init();
 
-    const stores = ['lightWorkTasks', 'deepWorkTasks', 'morningRoutines', 'workoutSessions', 'healthHabits', 'nightlyCheckouts', 'offlineActions', 'settings'] as const;
+    const stores = ['lightWorkTasks', 'deepWorkTasks', 'morningRoutines', 'workoutSessions', 'healthHabits', 'nightlyCheckouts', 'offlineActions', 'settings', 'smokingTracker'] as const;
     
     for (const storeName of stores) {
       const tx = this.db!.transaction(storeName, 'readwrite');
@@ -697,6 +762,7 @@ class OfflineDatabase {
     healthHabits: number;
     nightlyCheckouts: number;
     timeBlocks: number;
+    smokingTracker: number;
     pendingActions: number;
     lastSync?: string;
   }> {
@@ -709,6 +775,7 @@ class OfflineDatabase {
     const healthHabitsCount = await this.db!.count('healthHabits');
     const nightlyCheckoutsCount = await this.db!.count('nightlyCheckouts');
     const timeBlocksCount = await this.db!.count('timeBlocks');
+    const smokingTrackerCount = await this.db!.count('smokingTracker');
     const pendingActionsCount = await this.db!.count('offlineActions');
     const lastSync = await this.getSetting('lastSync');
 
@@ -720,9 +787,19 @@ class OfflineDatabase {
       healthHabits: healthHabitsCount,
       nightlyCheckouts: nightlyCheckoutsCount,
       timeBlocks: timeBlocksCount,
+      smokingTracker: smokingTrackerCount,
       pendingActions: pendingActionsCount,
       lastSync
     };
+  }
+
+  // Force close and reopen database to trigger schema upgrade
+  async forceReinitialize(): Promise<void> {
+    if (this.db) {
+      await this.db.close();
+      this.db = null;
+    }
+    await this.init();
   }
 }
 

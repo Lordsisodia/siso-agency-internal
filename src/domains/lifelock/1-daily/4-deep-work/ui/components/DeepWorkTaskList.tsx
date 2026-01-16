@@ -43,6 +43,7 @@ import { useDeepWorkTasksSupabase, DeepWorkTask, DeepWorkSubtask } from "@/domai
 import { sortDeepWorkTasksHybrid } from "@/domains/lifelock/1-daily/4-deep-work/utils/taskSorting";
 import { sortSubtasksHybrid } from "@/domains/lifelock/1-daily/4-deep-work/domain/subtaskSorting";
 import { format } from 'date-fns';
+import { logger } from '@/lib/utils/logger';
 import { GamificationService } from "@/domains/lifelock/_shared/services/gamificationService";
 import { getDeepWorkPriorityMultiplier } from "@/domains/lifelock/1-daily/_shared/utils/taskXpCalculations";
 import { useClientsList } from "@/domains/client/hooks/useClientsList";
@@ -687,9 +688,16 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
 
   const handleTaskCalendarSelect = async (taskId: string, date: Date | null) => {
     try {
-      await updateTaskDueDate(taskId, date);
+      // Convert Date to YYYY-MM-DD string format for pushTaskToAnotherDay
+      const dateString = date
+        ? date.toISOString().split('T')[0]
+        : null;
+
+      if (dateString) {
+        await pushTaskToAnotherDay(taskId, dateString);
+      }
     } catch (error) {
-      console.error('Error updating task due date:', error);
+      console.error('Error updating task date:', error);
     } finally {
       setActiveTaskCalendarId(null);
     }
@@ -1116,31 +1124,6 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
                               </div>
                             )}
 
-                            {editingTaskTimeId === task.id ? (
-                              <input
-                                type="text"
-                                value={editTaskTimeValue}
-                                onChange={(e) => setEditTaskTimeValue(e.target.value)}
-                                onKeyDown={(e) => handleTaskTimeKeyDown(e, task.id)}
-                                onBlur={() => handleTaskTimeSave(task.id)}
-                                autoFocus
-                                className="px-2 py-1 rounded-md text-xs font-medium bg-blue-900/40 border border-blue-600/60 text-blue-100 focus:border-blue-300 focus:outline-none"
-                                placeholder="e.g. 2h"
-                              />
-                            ) : (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleTaskTimeStartEditing(task, summary.formatted);
-                                }}
-                                className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium text-blue-200/90 bg-blue-900/20 hover:bg-blue-900/30 transition-colors"
-                                title="Set total focus time"
-                              >
-                                <Clock className="h-3.5 w-3.5" />
-                                <span>{summary.formatted}</span>
-                              </button>
-                            )}
-
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -1453,10 +1436,10 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
         </CardContent>
       </Card>
 
-      {/* Feedback Button */}
-      <div className="mt-4">
+      {/* Feedback Button - Hidden for now */}
+      {/* <div className="mt-4">
         <SimpleFeedbackButton variant="bar" className="w-full" />
-      </div>
+      </div> */}
 
       {/* Task Detail Modal */}
       <TaskDetailModal

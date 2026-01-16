@@ -94,10 +94,10 @@ export const SwipeableSubTabContent: React.FC<SwipeableSubTabContentProps> = ({
   };
 
   return (
-    <div className="relative">
+    <div className="relative overflow-x-hidden">
       {/* Outer drag container - handles swipe gestures */}
       <motion.div
-        className="relative"
+        className="relative overflow-x-hidden"
         drag="x"
         dragConstraints={{ left: 0, right: 0 }}
         dragElastic={0.7}
@@ -119,6 +119,7 @@ export const SwipeableSubTabContent: React.FC<SwipeableSubTabContentProps> = ({
               x: { type: "spring", stiffness: 400, damping: 35 },
               opacity: { duration: 0.2 },
             }}
+            className="overflow-x-hidden"
           >
             {children(activeSubTab)}
           </motion.div>

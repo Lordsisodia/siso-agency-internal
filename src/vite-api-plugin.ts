@@ -18,8 +18,31 @@ export function apiRoutesPlugin(): Plugin {
             return next();
           }
           
-          const filePath = path.resolve(process.cwd(), `api${apiPath}.js`);
-          
+          // Prefer .js (transpiled) over .ts
+          const filePathJs = path.resolve(process.cwd(), `api${apiPath}.js`);
+          const filePathTs = path.resolve(process.cwd(), `api${apiPath}.ts`);
+          let filePath = filePathJs;
+          let fileExists = true;
+
+          try {
+            // Use .js if it exists, otherwise try .ts
+            await import('fs').then(fs => {
+              if (fs.existsSync(filePathJs)) {
+                filePath = filePathJs;
+              } else if (fs.existsSync(filePathTs)) {
+                filePath = filePathTs;
+              } else {
+                fileExists = false;
+              }
+            });
+          } catch (e) {
+            // Ignore fs check errors
+          }
+
+          if (!fileExists) {
+            return next();
+          }
+
           try {
             // Use import() instead of require for proper ESM support
             const fileUrl = pathToFileURL(filePath).href;

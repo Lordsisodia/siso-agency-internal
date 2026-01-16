@@ -112,7 +112,6 @@ export class LightWorkDatabaseOperations {
       }
 
       const executionTime = Date.now() - startTime;
-      console.log(`✅ Retrieved ${data?.length || 0} light work tasks (${executionTime}ms)`);
 
       return {
         success: true,

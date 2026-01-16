@@ -58,7 +58,6 @@ export const MotivationalQuotes: React.FC<MotivationalQuotesProps> = ({
 
   return (
     <div>
-      <h3 className="font-bold text-yellow-300 mb-3 text-sm sm:text-base">💪 Daily Mindset</h3>
       <div className="relative">
         <div className="bg-gradient-to-br from-yellow-900/10 to-orange-900/10 border border-yellow-600/30 rounded-lg overflow-hidden">
           <AnimatePresence mode="wait" custom={swipeDirection}>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { DailyTasksCard } from '../components/DailyTasksCard';
+import TodayTasksList from '../components/TodayTasksList';
 
 interface TasksSectionProps {
   selectedDate: Date;
@@ -9,7 +9,7 @@ interface TasksSectionProps {
 export const TasksSection: React.FC<TasksSectionProps> = ({ selectedDate }) => {
   return (
     <div className="space-y-3 text-amber-100">
-      <DailyTasksCard selectedDate={selectedDate} className="w-full" />
+      <TodayTasksList selectedDate={selectedDate} />
     </div>
   );
 };

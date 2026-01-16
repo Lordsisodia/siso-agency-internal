@@ -4,7 +4,7 @@
  * Shared bottom navigation with glassmorphism effect for LifeLock daily views.
  * Provides consistent styling and behavior across all daily sections.
  *
- * Design: Single rounded rectangular bar with underline active state + 9-dot FAB button
+ * Design: 4-pill navigation + 9-dot FAB button (matching XPBottomNav design)
  */
 
 import React from 'react';
@@ -39,88 +39,101 @@ export const DailyBottomNav: React.FC<DailyBottomNavProps> = ({
 }) => {
   // Extract first 4 tabs for main navigation
   const navTabs = tabs.slice(0, 4);
-  const moreTabIndex = tabs.length - 1;
+
+  // Color gradients for each tab (matching XPBottomNav style)
+  const tabColors = [
+    'from-purple-500 to-violet-500',  // Plan
+    'from-amber-500 to-orange-500',    // Tasks
+    'from-blue-500 to-cyan-500',       // Health
+    'from-green-500 to-emerald-500',   // Diet
+  ];
 
   if (hidden) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 flex justify-center pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pointer-events-none">
-      <div className="pointer-events-auto flex items-center px-4 w-full">
-        {/* Main Navigation Bar - Glossy Glass Pill Design */}
-        <div
-          className={cn(
-            "flex items-center justify-around gap-2 sm:gap-3",
-            "px-4 py-3 h-14 rounded-full flex-1",
-            "bg-white/10 backdrop-blur-2xl border border-white/20 shadow-xl",
-            className
-          )}
-        >
-          {navTabs.map((tab, index) => {
-            const Icon = tab.icon;
-            const isActive = activeIndex === index;
+    <div className="fixed inset-x-0 bottom-6 z-50 flex justify-center px-4 pointer-events-none">
+      <div className="pointer-events-auto flex items-center gap-3 w-full max-w-lg">
+        {/* Main Navigation Pill - 4-pill design */}
+        <div className="flex-1 h-14 bg-white/10 backdrop-blur-2xl border border-white/20 rounded-full shadow-2xl overflow-hidden">
+          <div className="flex items-center h-full">
+            {navTabs.map((tab, index) => {
+              const Icon = tab.icon;
+              const isActive = activeIndex === index;
+              const gradient = tabColors[index % tabColors.length];
 
-            return (
-              <motion.button
-                key={tab.title}
-                className="flex flex-col items-center gap-0.5 relative min-w-[3rem]"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => onChange(index)}
-                aria-label={tab.title}
-                aria-pressed={isActive}
-              >
-                <Icon
-                  size={24}
-                  className={cn(
-                    "transition-all duration-200",
-                    isActive ? tab.color || "text-white" : "text-gray-300"
-                  )}
-                />
-                <span
-                  className={cn(
-                    "text-[10px] font-medium whitespace-nowrap transition-all duration-200",
-                    isActive ? "text-white" : "text-gray-300"
-                  )}
+              return (
+                <motion.button
+                  key={tab.title}
+                  className="flex-1 relative min-w-[4rem] h-full px-2"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => onChange(index)}
+                  aria-label={tab.title}
+                  aria-pressed={isActive}
                 >
-                  {tab.title}
-                </span>
+                  {/* Active Background */}
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeTabBg"
+                      className={cn(
+                        'absolute inset-0 bg-gradient-to-br',
+                        gradient
+                      )}
+                      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                    />
+                  )}
 
-                {/* Active State: Colored Underline */}
-                {isActive && (
-                  <motion.div
-                    layoutId="activeTab"
+                  {/* Icon */}
+                  <Icon
+                    size={20}
                     className={cn(
-                      "absolute -bottom-1 left-1/2 -translate-x-1/2 w-5 h-0.5 rounded-full",
-                      tab.color || "bg-white"
+                      'mx-auto mb-0.5 transition-colors relative z-10',
+                      isActive ? 'text-white' : 'text-gray-400'
                     )}
-                    initial={false}
-                    transition={{
-                      type: "spring",
-                      stiffness: 500,
-                      damping: 30
-                    }}
                   />
-                )}
-              </motion.button>
-            );
-          })}
+
+                  {/* Label */}
+                  <span
+                    className={cn(
+                      'block text-[9px] font-medium text-center relative z-10',
+                      isActive ? 'text-white' : 'text-gray-400'
+                    )}
+                  >
+                    {tab.title}
+                  </span>
+
+                  {/* Active Glow */}
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeGlow"
+                      className={cn(
+                        'absolute inset-0 bg-gradient-to-br opacity-30 blur-lg',
+                        gradient
+                      )}
+                      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                    />
+                  )}
+                </motion.button>
+              );
+            })}
+          </div>
         </div>
 
-        {/* Spacer between pill and circle */}
-        <div className="w-5 flex-shrink-0" />
-
-        {/* FAB (9-dot) Button - Glossy Glass Circle Design */}
+        {/* More Button - 9-dot FAB */}
         <motion.button
-          className="w-14 h-14 rounded-full bg-white/10 backdrop-blur-2xl border border-white/20 shadow-xl flex items-center justify-center relative overflow-hidden flex-shrink-0"
+          className="w-14 h-14 rounded-full bg-gradient-to-br from-white/20 to-white/10 backdrop-blur-2xl border-2 border-white/30 shadow-xl flex items-center justify-center relative overflow-hidden flex-shrink-0"
           whileHover={{ scale: 1.08 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => onChange(moreTabIndex)}
+          onClick={() => onChange(null)} // Pass null to indicate more button was clicked
           aria-label="More options"
         >
-          {/* Glossy glass shine effect */}
-          <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-white/10 to-transparent rounded-full" />
-          {/* Subtle glow on hover */}
-          <div className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-300 bg-gradient-to-br from-white/30 to-transparent rounded-full" />
+          {/* Animated gradient background */}
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 via-blue-500/20 to-cyan-500/20 animate-pulse" />
+
+          {/* Shine effect */}
+          <div className="absolute inset-0 bg-gradient-to-br from-white/30 via-transparent to-transparent rounded-full" />
+
+          {/* Icon */}
           <NineDotsIcon className="w-6 h-6 text-white relative z-10" />
         </motion.button>
       </div>

@@ -103,20 +103,16 @@ export class TaskServiceRegistry {
       this.config = { ...this.config, ...config };
     }
 
-    console.log('🎛️ Initializing Task Service Registry with micro-decomposed services...');
-    
     // Register service factories for lazy loading
     // Services are created only when first requested
     this.registerServiceFactory('light-work', () => new LightWorkTaskService());
     this.registerServiceFactory('deep-work', () => new DeepWorkTaskService());
-    
+
     // Start health monitoring if enabled
     // This provides proactive service health management
     if (this.config.enableHealthChecks) {
       this.startHealthMonitoring();
     }
-    
-    console.log('✅ Task Service Registry initialized with micro-decomposed architecture enabled');
   }
 
   /**
@@ -125,7 +121,6 @@ export class TaskServiceRegistry {
    * improving startup performance and memory usage.
    */
   private registerServiceFactory(type: string, factory: () => BaseTaskService): void {
-    console.log(`📋 Registering service factory for type: ${type}`);
     this.serviceFactories.set(type, factory);
   }
 
@@ -135,11 +130,9 @@ export class TaskServiceRegistry {
    * Also tracks usage metrics and health status.
    */
   getService(taskType: string): BaseTaskService {
-    console.log(`🔍 Requesting service for task type: ${taskType}`);
-    
     // Check if service is already instantiated
     let registration = this.services.get(taskType);
-    
+
     if (!registration) {
       // Lazy loading: create service on first access
       // This improves startup performance by only creating needed services
@@ -149,10 +142,9 @@ export class TaskServiceRegistry {
         console.error('❌ Service not found:', error.message);
         throw error;
       }
-      
-      console.log(`🏭 Creating new service instance for type: ${taskType}`);
+
       const serviceInstance = factory();
-      
+
       // Create registration metadata
       registration = {
         instance: serviceInstance,
@@ -162,20 +154,15 @@ export class TaskServiceRegistry {
         isHealthy: true,
         errorCount: 0
       };
-      
+
       this.services.set(taskType, registration);
-      console.log(`✅ Service created and registered for type: ${taskType}`);
     }
-    
+
     // Update usage metrics
     // This helps identify which services are most used for optimization
     registration.lastUsed = new Date();
     registration.usageCount++;
-    
-    if (this.config.enableServiceMetrics) {
-      console.log(`📊 Service ${taskType} usage count: ${registration.usageCount}`);
-    }
-    
+
     return registration.instance;
   }
 
@@ -184,8 +171,6 @@ export class TaskServiceRegistry {
    * This bypasses lazy loading and registers a service immediately.
    */
   registerService(type: string, service: BaseTaskService): void {
-    console.log(`📋 Registering pre-instantiated service for type: ${type}`);
-    
     const registration: ServiceRegistration = {
       instance: service,
       created: new Date(),
@@ -194,9 +179,8 @@ export class TaskServiceRegistry {
       isHealthy: true,
       errorCount: 0
     };
-    
+
     this.services.set(type, registration);
-    console.log(`✅ Pre-instantiated service registered for type: ${type}`);
   }
 
   /**
@@ -208,11 +192,10 @@ export class TaskServiceRegistry {
     // This provides a complete view of available service types
     const instantiatedTypes = Array.from(this.services.keys());
     const factoryTypes = Array.from(this.serviceFactories.keys());
-    
+
     // Remove duplicates and return sorted list
     const allTypes = [...new Set([...instantiatedTypes, ...factoryTypes])].sort();
-    
-    console.log(`📋 Available service types: ${allTypes.join(', ')}`);
+
     return allTypes;
   }
 
@@ -229,26 +212,22 @@ export class TaskServiceRegistry {
    * This helps identify problematic services before they affect users.
    */
   async performHealthCheck(): Promise<RegistryHealthStatus> {
-    console.log('🏥 Performing comprehensive health check on all services...');
-    
     const serviceResults: Record<string, ServiceHealthResult> = {};
     let healthyCount = 0;
     const totalServices = this.services.size;
-    
+
     // Check each instantiated service
     // Only check services that have been created to avoid unnecessary instantiation
     for (const [type, registration] of this.services) {
       const startTime = Date.now();
       let result: ServiceHealthResult;
-      
+
       try {
-        console.log(`🔬 Health checking ${type} service...`);
-        
         // Perform a lightweight health check
         // Try to get tasks without specifying a user to test basic functionality
         const tasks = await registration.instance.getTasks();
         const responseTime = Date.now() - startTime;
-        
+
         result = {
           serviceType: type,
           isHealthy: true,
@@ -256,18 +235,16 @@ export class TaskServiceRegistry {
           lastChecked: new Date(),
           taskCount: tasks.length
         };
-        
+
         // Update registration health status
         registration.isHealthy = true;
         registration.errorCount = 0;
         healthyCount++;
-        
-        console.log(`✅ ${type} service healthy (${responseTime}ms, ${tasks.length} tasks)`);
-        
+
       } catch (error) {
         const responseTime = Date.now() - startTime;
         const errorMessage = (error as Error).message;
-        
+
         result = {
           serviceType: type,
           isHealthy: false,
@@ -275,27 +252,27 @@ export class TaskServiceRegistry {
           lastChecked: new Date(),
           errorMessage
         };
-        
+
         // Update registration error tracking
         registration.isHealthy = false;
         registration.errorCount++;
         registration.lastError = error as Error;
-        
+
         console.error(`❌ ${type} service unhealthy (${responseTime}ms): ${errorMessage}`);
-        
+
         // If error count exceeds threshold, consider additional actions
         if (registration.errorCount >= this.config.maxErrorCount) {
           console.warn(`⚠️ Service ${type} has exceeded error threshold (${this.config.maxErrorCount})`);
           // Could implement automatic service recreation or circuit breaker here
         }
       }
-      
+
       serviceResults[type] = result;
     }
-    
+
     // Compile overall health status
     const overallHealth = healthyCount === totalServices && totalServices > 0;
-    
+
     const healthStatus: RegistryHealthStatus = {
       overall: overallHealth,
       services: serviceResults,
@@ -303,9 +280,7 @@ export class TaskServiceRegistry {
       registeredServices: totalServices,
       healthyServices: healthyCount
     };
-    
-    console.log(`🏥 Health check complete: ${healthyCount}/${totalServices} services healthy`);
-    
+
     return healthStatus;
   }
 
@@ -315,23 +290,18 @@ export class TaskServiceRegistry {
    */
   private startHealthMonitoring(): void {
     if (this.healthCheckTimer) {
-      console.log('⏰ Health monitoring already running');
       return;
     }
-    
-    console.log(`⏰ Starting health monitoring (interval: ${this.config.healthCheckInterval}ms)`);
-    
+
     this.healthCheckTimer = setInterval(async () => {
       try {
         const healthStatus = await this.performHealthCheck();
-        
-        // Log summary of health status
+
+        // Log summary of health status only when there are issues
         if (!healthStatus.overall) {
           console.warn(`⚠️ Registry health issue: ${healthStatus.healthyServices}/${healthStatus.registeredServices} services healthy`);
-        } else {
-          console.log(`✅ All services healthy (${healthStatus.healthyServices}/${healthStatus.registeredServices})`);
         }
-        
+
       } catch (error) {
         console.error('❌ Health monitoring error:', error);
       }
@@ -346,7 +316,6 @@ export class TaskServiceRegistry {
     if (this.healthCheckTimer) {
       clearInterval(this.healthCheckTimer);
       this.healthCheckTimer = undefined;
-      console.log('⏰ Health monitoring stopped');
     }
   }
 
@@ -356,7 +325,7 @@ export class TaskServiceRegistry {
    */
   getServiceMetrics(): Record<string, { usageCount: number; lastUsed: Date; errorCount: number }> {
     const metrics: Record<string, { usageCount: number; lastUsed: Date; errorCount: number }> = {};
-    
+
     for (const [type, registration] of this.services) {
       metrics[type] = {
         usageCount: registration.usageCount,
@@ -364,8 +333,7 @@ export class TaskServiceRegistry {
         errorCount: registration.errorCount
       };
     }
-    
-    console.log('📊 Service metrics retrieved:', Object.keys(metrics).length, 'services tracked');
+
     return metrics;
   }
 
@@ -374,8 +342,6 @@ export class TaskServiceRegistry {
    * Useful for recovery after resolving system issues.
    */
   resetErrorCounts(): void {
-    console.log('🔄 Resetting error counts for all services...');
-    
     let resetCount = 0;
     for (const [type, registration] of this.services) {
       if (registration.errorCount > 0) {
@@ -385,8 +351,6 @@ export class TaskServiceRegistry {
         resetCount++;
       }
     }
-    
-    console.log(`✅ Reset error counts for ${resetCount} services`);
   }
 
   /**
@@ -394,16 +358,12 @@ export class TaskServiceRegistry {
    * Important for proper application lifecycle management.
    */
   shutdown(): void {
-    console.log('🛑 Shutting down Task Service Registry...');
-    
     // Stop health monitoring
     this.stopHealthMonitoring();
-    
+
     // Clear service registrations
     this.services.clear();
     this.serviceFactories.clear();
-    
-    console.log('✅ Task Service Registry shutdown complete');
   }
 
   /**

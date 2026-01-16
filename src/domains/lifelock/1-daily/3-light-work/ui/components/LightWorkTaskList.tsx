@@ -25,7 +25,9 @@ import {
   Clock,
   Plus,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  ArrowUp,
+  ArrowDown
 } from "lucide-react";
 import { TaskSeparator } from "@/components/tasks/TaskSeparator";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
@@ -42,7 +44,9 @@ import { sortSubtasksHybrid } from "@/domains/lifelock/1-daily/_shared/utils/sub
 import { GamificationService } from "@/domains/lifelock/_shared/services/gamificationService";
 import { getLightWorkPriorityMultiplier } from "@/domains/lifelock/1-daily/_shared/utils/taskXpCalculations";
 import { useGamificationInit } from "@/lib/hooks/useGamificationInit";
+import { useDeepWorkTimers, formatMsAsClock } from "@/hooks/useDeepWorkTimers";
 import { format } from 'date-fns';
+import { logger } from '@/lib/utils/logger';
 
 // Type definitions - exact same as original
 interface Subtask {
@@ -201,6 +205,27 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   const [showCompletedSubtasks, setShowCompletedSubtasks] = useState<{[taskId: string]: boolean}>({});
 
+  // Persist task order to localStorage (per-date)
+  const dateKey = useMemo(() => selectedDate ? format(selectedDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd'), [selectedDate]);
+  const [taskOrder, setTaskOrder] = useState<string[]>(() => {
+    const saved = localStorage.getItem(`lightwork-${dateKey}-taskOrder`);
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  // Timer functionality for light work tasks
+  const { activeTimer, start, stop, getElapsedMsForTask, totalMsForDay } = useDeepWorkTimers(dateKey);
+  const activeTimerTaskTitle = useMemo(
+    () => tasks.find(t => t.id === activeTimer?.taskId)?.title || 'Light Work',
+    [tasks, activeTimer]
+  );
+  const handleTimerToggle = (taskId: string) => {
+    if (activeTimer?.taskId === taskId) {
+      stop(taskId);
+    } else {
+      start(taskId);
+    }
+  };
+
   const isInitialExpansionSet = React.useRef(false);
 
   React.useEffect(() => {
@@ -254,6 +279,33 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
   }, [calendarSubtaskId, activeTaskCalendarId]);
+
+  // Load task order from localStorage when date changes
+  React.useEffect(() => {
+    const saved = localStorage.getItem(`lightwork-${dateKey}-taskOrder`);
+    if (saved) {
+      setTaskOrder(JSON.parse(saved));
+    } else {
+      setTaskOrder([]);
+    }
+  }, [dateKey]);
+
+  // Sync task order with current tasks (handle new/deleted tasks)
+  React.useEffect(() => {
+    setTaskOrder(prevOrder => {
+      const currentTaskIds = tasks.map(task => task.id);
+      const validOrder = prevOrder.filter(id => currentTaskIds.includes(id));
+      const newTasks = currentTaskIds.filter(id => !prevOrder.includes(id));
+      return [...validOrder, ...newTasks];
+    });
+  }, [tasks]);
+
+  // Save task order to localStorage whenever it changes
+  React.useEffect(() => {
+    if (taskOrder.length > 0) {
+      localStorage.setItem(`lightwork-${dateKey}-taskOrder`, JSON.stringify(taskOrder));
+    }
+  }, [taskOrder, dateKey]);
 
   // Handlers - EXACT COPY
 
@@ -597,9 +649,16 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
 
   const handleTaskCalendarSelect = async (taskId: string, date: Date | null) => {
     try {
-      await updateTaskDueDate(taskId, date);
+      // Convert Date to YYYY-MM-DD string format for pushTaskToAnotherDay
+      const dateString = date
+        ? date.toISOString().split('T')[0]
+        : null;
+
+      if (dateString) {
+        await pushTaskToAnotherDay(taskId, dateString);
+      }
     } catch (error) {
-      console.error('Error updating task due date:', error);
+      console.error('Error updating task date:', error);
     } finally {
       setActiveTaskCalendarId(null);
     }
@@ -640,6 +699,31 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
       setEditingTaskTimeId(null);
       setEditTaskTimeValue('');
     }
+  };
+
+  const handleMoveTask = (taskId: string, direction: 'up' | 'down') => {
+    setTaskOrder(prevOrder => {
+      const baseOrder = prevOrder.length ? [...prevOrder] : tasks.map(task => task.id);
+      const index = baseOrder.indexOf(taskId);
+
+      if (index === -1) {
+        return baseOrder;
+      }
+
+      if (direction === 'up') {
+        if (index === 0) {
+          return baseOrder;
+        }
+        [baseOrder[index - 1], baseOrder[index]] = [baseOrder[index], baseOrder[index - 1]];
+      } else {
+        if (index === baseOrder.length - 1) {
+          return baseOrder;
+        }
+        [baseOrder[index + 1], baseOrder[index]] = [baseOrder[index], baseOrder[index + 1]];
+      }
+
+      return baseOrder;
+    });
   };
 
   // Animation variants - EXACT COPY
@@ -820,9 +904,24 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
 	            <LayoutGroup>
 	              <div className="overflow-hidden">
 	                <ul className="space-y-1 overflow-hidden">
-	              {tasks.map((task, index) => {
+	              {(() => {
+	                // Order tasks based on custom order or use original order
+	                let displayTasks = tasks;
+	                if (taskOrder.length > 0) {
+	                  const orderMap = new Map(taskOrder.map((id, index) => [id, index]));
+	                  displayTasks = [...tasks].sort((a, b) => {
+	                    const aIndex = orderMap.has(a.id) ? orderMap.get(a.id)! : Number.MAX_SAFE_INTEGER;
+	                    const bIndex = orderMap.has(b.id) ? orderMap.get(b.id)! : Number.MAX_SAFE_INTEGER;
+	                    return aIndex - bIndex;
+	                  });
+	                }
+	                const activeTasks = displayTasks.filter(task => task.status !== "completed");
+
+	                return activeTasks.map((task, index) => {
 	                const isExpanded = expandedTasks.includes(task.id);
 	                const isCompleted = task.status === "completed";
+	                const isFirst = index === 0;
+	                const isLast = index === activeTasks.length - 1;
 	                const summary = getTaskTimeSummary(task);
 	                const priorityConfig = getPriorityConfig(task.priority);
 	
@@ -972,6 +1071,52 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
 	                                <span>{summary.formatted}</span>
 	                              </button>
 	                            )}
+
+	                            <button
+	                              onClick={(e) => {
+	                                e.stopPropagation();
+	                                handleTimerToggle(task.id);
+	                              }}
+	                              className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium border transition-colors ${
+	                                activeTimer?.taskId === task.id
+	                                  ? 'bg-green-900/30 text-green-200 border-green-700/60 hover:bg-green-900/40'
+	                                  : 'bg-green-900/20 text-green-200 border-green-700/50 hover:bg-green-900/30'
+	                              }`}
+	                              title="Start or stop light work timer"
+	                            >
+	                              <Timer className="h-3.5 w-3.5" />
+	                              <span>{activeTimer?.taskId === task.id ? 'Stop' : 'Start'} • {formatMsAsClock(getElapsedMsForTask(task.id))}</span>
+	                            </button>
+
+	                            {/* Reorder Arrows - Inline */}
+	                            <div className="flex items-center gap-1 ml-auto">
+	                              <button
+	                                onClick={(e) => {
+	                                  e.stopPropagation();
+	                                  handleMoveTask(task.id, 'up');
+	                                }}
+	                                disabled={isFirst}
+	                                className={`p-1 rounded-md border border-green-700/40 text-green-300 transition-colors ${
+	                                  isFirst ? 'opacity-40 cursor-not-allowed' : 'hover:bg-green-900/25'
+	                                }`}
+	                                title="Move up"
+	                              >
+	                                <ArrowUp className="h-3.5 w-3.5" />
+	                              </button>
+	                              <button
+	                                onClick={(e) => {
+	                                  e.stopPropagation();
+	                                  handleMoveTask(task.id, 'down');
+	                                }}
+	                                disabled={isLast}
+	                                className={`p-1 rounded-md border border-green-700/40 text-green-300 transition-colors ${
+	                                  isLast ? 'opacity-40 cursor-not-allowed' : 'hover:bg-green-900/25'
+	                                }`}
+	                                title="Move down"
+	                              >
+	                                <ArrowDown className="h-3.5 w-3.5" />
+	                              </button>
+	                            </div>
 	                          </div>
 	
 	                          {activeTaskCalendarId === task.id && (
@@ -1203,8 +1348,9 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
                     )}
                     </div>
                   </motion.li>
-                );
-              })}
+                  );
+                });
+              })()}
             </ul>
 
             {/* Add Task Button */}
@@ -1243,10 +1389,10 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
         </CardContent>
       </Card>
 
-      {/* Feedback Button */}
-      <div className="mt-4">
+      {/* Feedback Button - Hidden for now */}
+      {/* <div className="mt-4">
         <SimpleFeedbackButton variant="bar" className="w-full" />
-      </div>
+      </div> */}
 
       {/* Task Detail Modal */}
       <TaskDetailModal

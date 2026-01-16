@@ -235,7 +235,6 @@ export function scheduleSyncToSupabase(userId: string, progress: UserProgress, d
     saveProgressToSupabase(userId, progress)
       .then(success => {
         if (success) {
-          console.log('✅ XP data synced to Supabase');
         }
       })
       .catch(error => {

@@ -40,7 +40,6 @@ export function useSupabaseUserId(clerkUserId: string | null): string | null {
           setInternalUserId(null);
         } else {
           setInternalUserId(data?.id || null);
-          console.log(`🔗 Mapped Clerk user ${clerkUserId} to internal ID ${data?.id}`);
         }
       } catch (error) {
         console.error('❌ Error mapping user IDs:', error);

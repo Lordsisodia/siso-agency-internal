@@ -2,20 +2,26 @@ export type ExerciseUnit = 'reps' | 'seconds';
 
 export type ExerciseKey = 'pushUps' | 'squats' | 'planks' | 'sitUps' | 'custom';
 
+import { LucideIcon } from 'lucide-react';
+import { Hand, PersonStanding, Timer, Activity, Dumbbell } from 'lucide-react';
+
 export interface ExerciseConfig {
   key: ExerciseKey;
   title: string;
-  icon: string;
+  emoji: string;
+  icon: LucideIcon;
   unit: ExerciseUnit;
   defaultGoal: number;
   aliases?: string[];
 }
 
-const DEFAULT_EXERCISE_ICON = '🏋️';
+const DEFAULT_EXERCISE_EMOJI = '🏋️';
+const DEFAULT_EXERCISE_ICON = Dumbbell;
 
 const DEFAULT_EXERCISE_CONFIG: ExerciseConfig = {
   key: 'custom',
   title: 'Custom Exercise',
+  emoji: DEFAULT_EXERCISE_EMOJI,
   icon: DEFAULT_EXERCISE_ICON,
   unit: 'reps',
   defaultGoal: 50,
@@ -25,7 +31,8 @@ export const HOME_WORKOUT_EXERCISES: ExerciseConfig[] = [
   {
     key: 'pushUps',
     title: 'Push-ups',
-    icon: '💪',
+    emoji: '💪',
+    icon: Hand,
     unit: 'reps',
     defaultGoal: 200,
     aliases: ['pushups', 'push up', 'push-up'],
@@ -33,7 +40,8 @@ export const HOME_WORKOUT_EXERCISES: ExerciseConfig[] = [
   {
     key: 'squats',
     title: 'Squats',
-    icon: '🦵',
+    emoji: '🦵',
+    icon: PersonStanding,
     unit: 'reps',
     defaultGoal: 100,
     aliases: ['squat', 'bodyweight squat'],
@@ -41,7 +49,8 @@ export const HOME_WORKOUT_EXERCISES: ExerciseConfig[] = [
   {
     key: 'planks',
     title: 'Planks',
-    icon: '⏱️',
+    emoji: '⏱️',
+    icon: Timer,
     unit: 'seconds',
     defaultGoal: 300,
     aliases: ['plank', 'planking'],
@@ -49,7 +58,8 @@ export const HOME_WORKOUT_EXERCISES: ExerciseConfig[] = [
   {
     key: 'sitUps',
     title: 'Sit-ups',
-    icon: '🏋️',
+    emoji: '🏋️',
+    icon: Activity,
     unit: 'reps',
     defaultGoal: 100,
     aliases: ['situps', 'sit up', 'sit-up', 'ab crunch'],
