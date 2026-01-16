@@ -39,6 +39,7 @@ import morningTabConfig from './tabs/morning-tab-config';
 import lightWorkTabConfig from './tabs/light-work-tab-config';
 import deepWorkTabConfig from './tabs/deep-work-tab-config';
 import wellnessTabConfig from './tabs/wellness-tab-config';
+import smokingTabConfig from './tabs/smoking-tab-config';
 import timeboxTabConfig from './tabs/timebox-tab-config';
 import tasksTabConfig from './tabs/tasks-tab-config';
 import checkoutTabConfig from './tabs/checkout-tab-config';
@@ -210,6 +211,7 @@ export class TabRegistry extends EventEmitter {
         lightWorkTabConfig,
         deepWorkTabConfig,
         wellnessTabConfig,
+        smokingTabConfig,
         timeboxTabConfig,
         tasksTabConfig,
         checkoutTabConfig

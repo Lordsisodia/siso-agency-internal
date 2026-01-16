@@ -43,6 +43,7 @@ import { XPPill } from '@/domains/lifelock/1-daily/1-morning-routine/ui/componen
 import { calculateTotalWorkoutXP } from '@/domains/lifelock/1-daily/5-wellness/domain/xpCalculations';
 import { GamificationService } from '@/domains/lifelock/_shared/services/gamificationService';
 import { WaterTrackerCard } from '../components/WaterTrackerCard';
+import { WorkoutStatistics } from '../components/WorkoutStatistics';
 
 type WorkoutItemRow = Database['public']['Tables']['workout_items']['Row'];
 
@@ -107,6 +108,8 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({ selected
   const [streak, setStreak] = useState<{ current: number; best: number }>({ current: 0, best: 0 });
   const [isEditingGoals, setIsEditingGoals] = useState(false);
   const [expandedExercise, setExpandedExercise] = useState<string | null>(null);
+  const [exerciseStatistics, setExerciseStatistics] = useState<Map<string, any>>(new Map());
+  const [isLoadingStats, setIsLoadingStats] = useState(false);
   const workoutXPRef = useRef(0);
 
   const loadWorkoutItems = useCallback(async () => {
@@ -215,6 +218,34 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({ selected
       console.error('❌ [WORKOUT] Failed to update workout item:', error);
     }
   }, [dateKey, internalUserId]);
+
+  // Fetch exercise statistics when an exercise is expanded
+  const fetchExerciseStatistics = useCallback(async (exerciseTitle: string) => {
+    if (!internalUserId) return;
+
+    setIsLoadingStats(true);
+    try {
+      const [previousDay, personalBest, last7Days] = await Promise.all([
+        supabaseWorkoutService.getPreviousDayPerformance(internalUserId, exerciseTitle, dateKey),
+        supabaseWorkoutService.getPersonalBest(internalUserId, exerciseTitle),
+        supabaseWorkoutService.getLast7DaysStats(internalUserId, exerciseTitle, dateKey)
+      ]);
+
+      setExerciseStatistics(prev => {
+        const newMap = new Map(prev);
+        newMap.set(exerciseTitle, {
+          previousDay: previousDay ? { ...previousDay, unit: 'reps' } : null,
+          personalBest: personalBest ? { ...personalBest, unit: 'reps' } : null,
+          last7Days: last7Days ? { ...last7Days, unit: 'reps' } : null
+        });
+        return newMap;
+      });
+    } catch (error) {
+      console.error('Failed to fetch exercise statistics:', error);
+    } finally {
+      setIsLoadingStats(false);
+    }
+  }, [internalUserId, dateKey]);
 
   const normalizedItems = useMemo(() =>
     workoutItems
@@ -347,6 +378,9 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({ selected
             onToggleExpand={() => setExpandedExercise(expandedExercise === item.id ? null : item.id)}
             onUpdate={(updates) => updateItem(item.id, updates)}
             index={index}
+            fetchExerciseStatistics={fetchExerciseStatistics}
+            exerciseStatistics={exerciseStatistics}
+            isLoadingStats={isLoadingStats}
           />
         ))}
       </div>
@@ -432,6 +466,9 @@ interface ExerciseCardProps {
   onToggleExpand: () => void;
   onUpdate: (updates: any) => void;
   index: number;
+  fetchExerciseStatistics: (title: string) => void;
+  exerciseStatistics: Map<string, any>;
+  isLoadingStats: boolean;
 }
 
 const ExerciseCard: React.FC<ExerciseCardProps> = ({
@@ -441,6 +478,9 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
   onToggleExpand,
   onUpdate,
   index,
+  fetchExerciseStatistics,
+  exerciseStatistics,
+  isLoadingStats,
 }) => {
   const [goalInput, setGoalInput] = useState(item.goalValue.toString());
   const [loggedInput, setLoggedInput] = useState(item.loggedValue.toString());
@@ -451,6 +491,13 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
     setCurrentLogged(item.loggedValue);
     setLoggedInput(item.loggedValue.toString());
   }, [item.loggedValue]);
+
+  // Fetch statistics when exercise is expanded
+  useEffect(() => {
+    if (isExpanded && !exerciseStatistics.has(item.config.title)) {
+      fetchExerciseStatistics(item.config.title);
+    }
+  }, [isExpanded, item.config.title, exerciseStatistics, fetchExerciseStatistics]);
 
   const isTimeBased = item.config.unit === 'seconds';
   const unitLabel = isTimeBased ? 'sec' : 'reps';
@@ -639,66 +686,15 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
                     />
                   </div>
 
-                  {/* Quick Log Buttons */}
-                  {!isEditingGoal && (
-                    <div>
-                      <p className="text-xs text-white/60 mb-2">Quick Add</p>
-                      <div className="flex gap-2">
-                        {isTimeBased ? (
-                          <>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleQuickLog(15)}
-                              className="flex-1 border-rose-500/30 text-rose-300 hover:bg-rose-500/20"
-                            >
-                              +15 sec
-                            </Button>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleQuickLog(30)}
-                              className="flex-1 border-rose-500/30 text-rose-300 hover:bg-rose-500/20"
-                            >
-                              +30 sec
-                            </Button>
-                          </>
-                        ) : (
-                          <>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleQuickLog(1)}
-                              className="flex-1 border-rose-500/30 text-rose-300 hover:bg-rose-500/20"
-                            >
-                              +1
-                            </Button>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleQuickLog(5)}
-                              className="flex-1 border-rose-500/30 text-rose-300 hover:bg-rose-500/20"
-                            >
-                              +5
-                            </Button>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleQuickLog(10)}
-                              className="flex-1 border-rose-500/30 text-rose-300 hover:bg-rose-500/20"
-                            >
-                              +10
-                            </Button>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  )}
+                  {/* Workout Statistics - replaces redundant quick actions */}
+                  <WorkoutStatistics
+                    exerciseTitle={item.config.title}
+                    exerciseKey={item.config.key}
+                    currentValue={item.loggedValue}
+                    unit={unitLabel}
+                    history={exerciseStatistics.get(item.config.title)}
+                    isLoading={isLoadingStats}
+                  />
 
                   {/* Goal Input (Edit Mode) */}
                   {isEditingGoal && (

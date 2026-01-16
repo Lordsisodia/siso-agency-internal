@@ -3,48 +3,28 @@
 /**
  * 📅 Today Tasks List - Unified View
  *
- * Shows BOTH Light Work and Deep Work tasks that are due today
- * Reuses the exact same UI components from Light Work
- * Filters tasks where:
- * - Main task's task_date = today, OR
- * - Any subtask's due_date = today
+ * Shows BOTH Light Work and Deep Work tasks scheduled for today
+ * Uses the shared UnifiedTaskCard component with SLATE theme
  */
 
 import React, { useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  CheckCircle2,
-  Circle,
-  CircleAlert,
-  CircleDotDashed,
   Calendar,
-  Timer,
-  Play,
-  Pause,
-  Brain,
-  Clock,
   Plus,
-  ChevronDown,
-  ChevronRight
 } from "lucide-react";
-import { TaskSeparator } from "@/components/tasks/TaskSeparator";
-import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
-import { SimpleFeedbackButton } from "@/domains/feedback/SimpleFeedbackButton";
+import { motion, LayoutGroup } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { TaskDetailModal } from "@/domains/lifelock/components/TaskDetailModal";
-import { TaskDetailSheet } from "@/domains/lifelock/_shared/components/ui/TaskDetailSheet";
-import { CustomCalendar } from "../../../_shared/components";
 import { SubtaskItem } from "@/domains/lifelock/1-daily/_shared/components/subtask/SubtaskItem";
-import { useLightWorkTasksSupabase, LightWorkTask, LightWorkSubtask } from "@/domains/lifelock/1-daily/3-light-work/domain/useLightWorkTasksSupabase";
-import { useDeepWorkTasksSupabase, DeepWorkTask, DeepWorkSubtask } from "@/domains/lifelock/1-daily/4-deep-work/domain/useDeepWorkTasksSupabase";
+import { useLightWorkTasksSupabase, LightWorkTask } from "@/domains/lifelock/1-daily/3-light-work/domain/useLightWorkTasksSupabase";
+import { useDeepWorkTasksSupabase, DeepWorkTask } from "@/domains/lifelock/1-daily/4-deep-work/domain/useDeepWorkTasksSupabase";
 import { sortSubtasksHybrid } from "@/domains/lifelock/1-daily/_shared/utils/subtaskSorting";
-import { GamificationService } from "@/domains/lifelock/_shared/services/gamificationService";
-import { getLightWorkPriorityMultiplier } from "@/domains/lifelock/1-daily/_shared/utils/taskXpCalculations";
 import { useGamificationInit } from "@/lib/hooks/useGamificationInit";
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { UnifiedTaskCard, UnifiedTask, SLATE_THEME } from "@/domains/lifelock/1-daily/_shared/components/UnifiedTaskCard";
 
 // Type definitions - unified for both work types
 interface UnifiedSubtask {
@@ -61,24 +41,6 @@ interface UnifiedSubtask {
   taskId: string;
 }
 
-interface UnifiedTask {
-  id: string;
-  title: string;
-  description: string;
-  status: string;
-  priority: string;
-  level: number;
-  dependencies: string[];
-  subtasks: UnifiedSubtask[];
-  focusIntensity?: 1 | 2 | 3 | 4;
-  context?: string;
-  dueDate?: string | null;
-  deadline?: string | null;
-  timeEstimate?: string | null;
-  actualDurationMin?: number;
-  workType: 'light' | 'deep';
-}
-
 interface TodayTasksListProps {
   selectedDate?: Date;
   onStartFocusSession?: (taskId: string, intensity: number) => void;
@@ -92,15 +54,6 @@ function transformLightWorkTask(task: LightWorkTask): UnifiedTask {
     description: task.description || "",
     status: task.completed ? "completed" : "in-progress",
     priority: (task.priority || 'MEDIUM').toLowerCase(),
-    level: 0,
-    dependencies: [],
-    focusIntensity: (task.focusBlocks || 2) as 1 | 2 | 3 | 4,
-    context: "coding",
-    dueDate: task.currentDate || task.createdAt,
-    deadline: task.dueDate || null,
-    timeEstimate: task.timeEstimate || null,
-    actualDurationMin: task.actualDurationMin,
-    workType: 'light',
     subtasks: task.subtasks.map(subtask => ({
       id: subtask.id,
       taskId: task.id,
@@ -113,7 +66,11 @@ function transformLightWorkTask(task: LightWorkTask): UnifiedTask {
       completed: subtask.completed,
       dueDate: subtask.dueDate,
       workType: 'light' as const
-    }))
+    })),
+    focusIntensity: (task.focusBlocks || 2) as 1 | 2 | 3 | 4,
+    dueDate: task.currentDate || task.createdAt,
+    timeEstimate: task.timeEstimate || null,
+    actualDurationMin: task.actualDurationMin,
   };
 }
 
@@ -125,15 +82,6 @@ function transformDeepWorkTask(task: DeepWorkTask): UnifiedTask {
     description: task.description || "",
     status: task.completed ? "completed" : "in-progress",
     priority: (task.priority || 'MEDIUM').toLowerCase(),
-    level: 0,
-    dependencies: [],
-    focusIntensity: (task.focusBlocks || 4) as 1 | 2 | 3 | 4,
-    context: "deep-work",
-    dueDate: task.taskDate || task.originalDate,
-    deadline: task.dueDate || null,
-    timeEstimate: task.timeEstimate || null,
-    actualDurationMin: task.actualDurationMin,
-    workType: 'deep',
     subtasks: task.subtasks.map(subtask => ({
       id: subtask.id,
       taskId: task.id,
@@ -146,7 +94,11 @@ function transformDeepWorkTask(task: DeepWorkTask): UnifiedTask {
       completed: subtask.completed,
       dueDate: subtask.dueDate,
       workType: 'deep' as const
-    }))
+    })),
+    focusIntensity: (task.focusBlocks || 4) as 1 | 2 | 3 | 4,
+    dueDate: task.taskDate || task.originalDate,
+    timeEstimate: task.timeEstimate || null,
+    actualDurationMin: task.actualDurationMin,
   };
 }
 
@@ -163,14 +115,6 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     const dateStr = `${year}-${month}-${day}`;
-    console.log('🔍 [TodayTasksList] getLocalDate():', {
-      selectedDate: selectedDate?.toISOString(),
-      dateObject: date,
-      year,
-      month,
-      day,
-      result: dateStr
-    });
     return dateStr;
   };
   const todayDate = getLocalDate();
@@ -178,7 +122,6 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
   // Helper function to normalize date strings for comparison
   const normalizeDate = (dateStr: string | null | undefined): string | null => {
     if (!dateStr) return null;
-    // Extract just the date part (YYYY-MM-DD) from any datetime string
     const match = dateStr.match(/^\d{4}-\d{2}-\d{2}/);
     return match ? match[0] : null;
   };
@@ -187,7 +130,6 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
   const {
     tasks: rawLightTasks,
     loading: lightLoading,
-    error: lightError,
     toggleTaskCompletion: toggleLightTaskCompletion,
     toggleSubtaskCompletion: toggleLightSubtaskCompletion,
     createTask: createLightTask,
@@ -209,7 +151,6 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
   const {
     tasks: rawDeepTasks,
     loading: deepLoading,
-    error: deepError,
     toggleTaskCompletion: toggleDeepTaskCompletion,
     toggleSubtaskCompletion: toggleDeepSubtaskCompletion,
     createTask: createDeepTask,
@@ -232,41 +173,16 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
   const tasks = useMemo(() => {
     const allTasks: UnifiedTask[] = [];
 
-    // Debug logging to track filtering
-    console.log('🔍 [TodayTasksList] Filtering for today:', {
-      todayDate,
-      rawLightTasksCount: rawLightTasks.length,
-      rawDeepTasksCount: rawDeepTasks.length
-    });
-
     // Process Light Work tasks
     rawLightTasks.forEach(task => {
-      // Skip completed tasks
       if (task.completed) return;
-
       const transformed = transformLightWorkTask(task);
-      // Include if task is scheduled for today OR any subtask is due today
       const normalizedCurrentDate = normalizeDate(task.currentDate);
       const normalizedTaskDate = normalizeDate(task.taskDate);
       const taskScheduledToday = normalizedCurrentDate === todayDate || normalizedTaskDate === todayDate;
       const hasSubtaskDueToday = task.subtasks.some(sub =>
         sub.dueDate && normalizeDate(sub.dueDate) === todayDate
       );
-
-      // Debug: Log first few tasks
-      if (allTasks.length < 5) {
-        console.log('🔍 [TodayTasksList] Light task:', {
-          title: task.title,
-          completed: task.completed,
-          currentDate: task.currentDate,
-          taskDate: task.taskDate,
-          normalizedCurrentDate,
-          normalizedTaskDate,
-          taskScheduledToday,
-          hasSubtaskDueToday,
-          comparison: `normalizedCurrentDate (${normalizedCurrentDate}) === todayDate (${todayDate}): ${normalizedCurrentDate === todayDate}`
-        });
-      }
 
       if (taskScheduledToday || hasSubtaskDueToday) {
         allTasks.push(transformed);
@@ -275,11 +191,8 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
 
     // Process Deep Work tasks
     rawDeepTasks.forEach(task => {
-      // Skip completed tasks
       if (task.completed) return;
-
       const transformed = transformDeepWorkTask(task);
-      // Include if task is scheduled for today OR any subtask is due today
       const normalizedCurrentDate = normalizeDate(task.currentDate);
       const normalizedTaskDate = normalizeDate(task.taskDate);
       const taskScheduledToday = normalizedCurrentDate === todayDate || normalizedTaskDate === todayDate;
@@ -287,31 +200,15 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
         sub.dueDate && normalizeDate(sub.dueDate) === todayDate
       );
 
-      // Debug: Log first few tasks
-      if (allTasks.length < 3) {
-        console.log('🔍 [TodayTasksList] Deep task:', {
-          title: task.title,
-          completed: task.completed,
-          currentDate: task.currentDate,
-          taskDate: task.taskDate,
-          normalizedCurrentDate,
-          normalizedTaskDate,
-          taskScheduledToday,
-          hasSubtaskDueToday
-        });
-      }
-
       if (taskScheduledToday || hasSubtaskDueToday) {
         allTasks.push(transformed);
       }
     });
 
-    console.log('✅ [TodayTasksList] Filtered tasks:', allTasks.length);
-
     // Sort: Deep work first, then by priority
     return allTasks.sort((a, b) => {
-      if (a.workType !== b.workType) {
-        return a.workType === 'deep' ? -1 : 1;
+      if (a.id.startsWith('deep-') !== b.id.startsWith('deep-')) {
+        return a.id.startsWith('deep-') ? -1 : 1;
       }
       const priorityOrder = { urgent: 0, high: 1, medium: 2, low: 3 };
       const aPriority = priorityOrder[a.priority as keyof typeof priorityOrder] ?? 2;
@@ -321,14 +218,12 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
   }, [rawLightTasks, rawDeepTasks, todayDate]);
 
   const loading = lightLoading || deepLoading;
-  const hasTasks = tasks.length > 0;
 
   // State management
   const [expandedTasks, setExpandedTasks] = useState<string[]>([]);
   const [expandedSubtasks, setExpandedSubtasks] = useState<{
     [key: string]: boolean;
   }>({});
-  const [activeFocusSession, setActiveFocusSession] = useState<string | null>(null);
   const [selectedTask, setSelectedTask] = useState<UnifiedTask | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -361,14 +256,46 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
     }
   }, [tasks]);
 
-  // Theme config for SubtaskItem - SLATE for Today view
-  const themeConfig = {
-    colors: {
-      text: 'text-slate-400',
-      border: 'border-slate-700',
-      input: 'border-gray-600 focus:border-slate-500',
-      textSecondary: 'text-slate-300'
-    }
+  // Animation variants
+  const taskVariants = {
+    hidden: { opacity: 0, y: -5 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 500,
+        damping: 30,
+      }
+    },
+  };
+
+  const subtaskListVariants = {
+    hidden: { opacity: 0, height: 0, overflow: "hidden" },
+    visible: {
+      height: "auto",
+      opacity: 1,
+      overflow: "visible",
+      transition: {
+        duration: 0.25,
+        staggerChildren: 0.05,
+        when: "beforeChildren",
+        ease: [0.2, 0.65, 0.3, 0.9]
+      }
+    },
+  };
+
+  const subtaskVariants = {
+    hidden: { opacity: 0, x: -10 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        type: "spring",
+        stiffness: 500,
+        damping: 25,
+      }
+    },
   };
 
   // Handlers
@@ -414,69 +341,264 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
     }
   };
 
-  // ... (rest of the handlers - similar to LightWorkTaskList but with unified logic)
-
-  const TASK_PRIORITY_CONFIG: Record<string, { icon: string; label: string; badgeClass: string }> = {
-    low: { icon: '🟢', label: 'Low', badgeClass: 'text-green-200 bg-green-900/30 hover:bg-green-900/40' },
-    medium: { icon: '🟡', label: 'Medium', badgeClass: 'text-yellow-200 bg-yellow-900/30 hover:bg-yellow-900/40' },
-    high: { icon: '🔴', label: 'High', badgeClass: 'text-red-200 bg-red-900/30 hover:bg-red-900/40' },
-    urgent: { icon: '🚨', label: 'Urgent', badgeClass: 'text-purple-200 bg-purple-900/30 hover:bg-purple-900/40' }
+  const handleTaskCalendarToggle = (taskId: string) => {
+    setActiveTaskCalendarId(prev => (prev === taskId ? null : taskId));
+    setCalendarSubtaskId(null);
+    setTaskPriorityMenuId(null);
+    setEditingTaskTimeId(null);
   };
 
-  const getPriorityConfig = (priority: string) => {
-    const normalized = priority?.toLowerCase() || 'medium';
-    return TASK_PRIORITY_CONFIG[normalized] || TASK_PRIORITY_CONFIG['medium'];
+  const handleTaskCalendarSelect = async (taskId: string, date: Date | null) => {
+    const [workType, originalId] = taskId.split('-');
+    try {
+      const dateString = date ? date.toISOString().split('T')[0] : null;
+      if (dateString) {
+        if (workType === 'light') {
+          await pushLightTaskToAnotherDay(originalId, dateString);
+        } else {
+          await pushDeepTaskToAnotherDay(originalId, dateString);
+        }
+      }
+    } catch (error) {
+      console.error('Error updating task date:', error);
+    } finally {
+      setActiveTaskCalendarId(null);
+    }
   };
 
-  const formatShortDate = (dateString?: string | null) => {
-    if (!dateString) return '--/--';
-    const date = new Date(dateString);
-    if (Number.isNaN(date.getTime())) return '--/--';
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${month}/${day}`;
+  const handleTaskPrioritySelect = async (taskId: string, priority: 'low' | 'medium' | 'high' | 'urgent') => {
+    const [workType, originalId] = taskId.split('-');
+    try {
+      const upperPriority = priority.toUpperCase() as any;
+      if (workType === 'light') {
+        await updateLightTaskPriority(originalId, upperPriority);
+      } else {
+        await updateDeepTaskPriority(originalId, upperPriority);
+      }
+      setTaskPriorityMenuId(null);
+    } catch (error) {
+      console.error('Error updating task priority:', error);
+    }
   };
 
-  const getDueDateClasses = (dateString?: string | null) => {
-    if (!dateString) {
-      return 'text-slate-200/80 bg-slate-900/20 hover:bg-slate-900/30';
-    }
-
-    const date = new Date(dateString);
-    if (Number.isNaN(date.getTime())) {
-      return 'text-slate-200/80 bg-slate-900/20 hover:bg-slate-900/30';
-    }
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const target = new Date(date);
-    target.setHours(0, 0, 0, 0);
-
-    if (target.getTime() === today.getTime()) {
-      return 'text-yellow-300 bg-yellow-900/30 hover:bg-yellow-900/40';
-    }
-
-    if (target < today) {
-      return 'text-red-300 bg-red-900/30 hover:bg-red-900/40';
-    }
-
-    return 'text-slate-200 bg-slate-900/30 hover:bg-slate-900/40';
+  const handleTaskTimeStartEditing = (task: any, fallbackLabel: string) => {
+    setEditingTaskTimeId(task.id);
+    setEditTaskTimeValue(task.timeEstimate || fallbackLabel);
+    setActiveTaskCalendarId(null);
+    setTaskPriorityMenuId(null);
   };
 
-  // Helper: Schedule first available task for today (for testing)
-  const scheduleFirstTaskForToday = async () => {
-    // Try Light Work tasks first
-    if (rawLightTasks.length > 0) {
-      const firstTask = rawLightTasks[0];
-      await pushLightTaskToAnotherDay(firstTask.id, todayDate);
-      return;
+  const handleTaskTimeSave = async (taskId: string) => {
+    const [workType, originalId] = taskId.split('-');
+    try {
+      const trimmed = editTaskTimeValue.trim();
+      if (workType === 'light') {
+        await updateLightTaskTimeEstimate(originalId, trimmed ? trimmed : null);
+      } else {
+        await updateDeepTaskTimeEstimate(originalId, trimmed ? trimmed : null);
+      }
+    } catch (error) {
+      console.error('Error updating task time estimate:', error);
     }
-    // Try Deep Work tasks
-    if (rawDeepTasks.length > 0) {
-      const firstTask = rawDeepTasks[0];
-      await pushDeepTaskToAnotherDay(firstTask.id, todayDate);
-      return;
+    setEditingTaskTimeId(null);
+    setEditTaskTimeValue('');
+  };
+
+  const handleTaskTimeKeyDown = (event: React.KeyboardEvent<HTMLInputElement>, taskId: string) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      handleTaskTimeSave(taskId);
+    } else if (event.key === 'Escape') {
+      setEditingTaskTimeId(null);
+      setEditTaskTimeValue('');
+    }
+  };
+
+  const handleMoveTask = (taskId: string, direction: 'up' | 'down') => {
+    // No-op for TodayTasksList - no reordering
+  };
+
+  const handleTimerToggle = (taskId: string) => {
+    // No-op for TodayTasksList - no timer
+  };
+
+  const toggleSubtaskVisibility = (taskId: string) => {
+    setShowCompletedSubtasks(prev => ({
+      ...prev,
+      [taskId]: !prev[taskId]
+    }));
+  };
+
+  const handleSubtaskStartEditing = (subtaskId: string, currentTitle: string) => {
+    setEditingSubtask(subtaskId);
+    setEditSubtaskTitle(currentTitle);
+  };
+
+  const handleSubtaskEditTitleChange = (title: string) => {
+    setEditSubtaskTitle(title);
+  };
+
+  const handleSubtaskSaveEdit = async (taskId: string, subtaskId: string) => {
+    if (editSubtaskTitle.trim()) {
+      const [workType, originalTaskId] = taskId.split('-');
+      try {
+        if (workType === 'light') {
+          await updateLightSubtaskTitle(subtaskId, editSubtaskTitle.trim());
+        } else {
+          await updateDeepSubtaskTitle(subtaskId, editSubtaskTitle.trim());
+        }
+      } catch (error) {
+        console.error('Failed to update subtask title:', error);
+      }
+    }
+    setEditingSubtask(null);
+    setEditSubtaskTitle('');
+  };
+
+  const handleSubtaskKeyDown = (e: React.KeyboardEvent, type: 'subtask', taskId: string, subtaskId?: string) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (type === 'subtask' && subtaskId) {
+        handleSubtaskSaveEdit(taskId, subtaskId);
+      }
+    } else if (e.key === 'Escape') {
+      setEditingSubtask(null);
+      setEditSubtaskTitle('');
+    }
+  };
+
+  const handleCalendarToggle = (subtaskId: string) => {
+    setCalendarSubtaskId(prev => prev === subtaskId ? null : subtaskId);
+  };
+
+  const handleMainTaskStartEditing = (taskId: string, currentTitle: string) => {
+    setEditingMainTask(taskId);
+    setEditMainTaskTitle(currentTitle);
+  };
+
+  const handleMainTaskEditTitleChange = (value: string) => {
+    setEditMainTaskTitle(value);
+  };
+
+  const handleMainTaskSaveEdit = async (taskId: string) => {
+    if (editMainTaskTitle.trim()) {
+      const [workType, originalId] = taskId.split('-');
+      try {
+        const success = workType === 'light'
+          ? await updateLightTaskTitle(originalId, editMainTaskTitle.trim())
+          : await updateDeepTaskTitle(originalId, editMainTaskTitle.trim());
+        if (success) {
+          setEditingMainTask(null);
+          setEditMainTaskTitle('');
+        }
+      } catch (error) {
+        console.error('Error updating main task title:', error);
+      }
+    }
+  };
+
+  const handleMainTaskKeyDown = (e: React.KeyboardEvent, taskId: string) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleMainTaskSaveEdit(taskId);
+    } else if (e.key === 'Escape') {
+      setEditingMainTask(null);
+      setEditMainTaskTitle('');
+    }
+  };
+
+  const handleDeleteSubtask = async (subtaskId: string) => {
+    // Find which task this subtask belongs to
+    for (const task of tasks) {
+      const subtask = task.subtasks.find(st => st.id === subtaskId);
+      if (subtask) {
+        const [workType, originalTaskId] = task.id.split('-');
+        try {
+          if (workType === 'light') {
+            await deleteLightSubtask(subtaskId);
+          } else {
+            await deleteDeepSubtask(subtaskId);
+          }
+        } catch (error) {
+          console.error('Error deleting subtask:', error);
+        }
+        break;
+      }
+    }
+  };
+
+  const handleUpdateSubtaskPriority = async (subtaskId: string, priority: string) => {
+    const [workType] = subtaskId.split('-');
+    try {
+      if (workType === 'light') {
+        await updateLightSubtaskPriority(subtaskId, priority);
+      } else {
+        await updateDeepSubtaskPriority(subtaskId, priority);
+      }
+    } catch (error) {
+      console.error('Error updating subtask priority:', error);
+    }
+  };
+
+  const handleUpdateSubtaskDescription = async (subtaskId: string, description: string) => {
+    const [workType] = subtaskId.split('-');
+    try {
+      if (workType === 'light') {
+        await updateLightSubtaskDescription(subtaskId, description);
+      } else {
+        await updateDeepSubtaskDescription(subtaskId, description);
+      }
+    } catch (error) {
+      console.error('Error updating subtask description:', error);
+    }
+  };
+
+  const handleUpdateSubtaskEstimatedTime = async (subtaskId: string, estimatedTime: string) => {
+    const [workType] = subtaskId.split('-');
+    try {
+      if (workType === 'light') {
+        await updateLightSubtaskEstimatedTime(subtaskId, estimatedTime);
+      } else {
+        await updateDeepSubtaskEstimatedTime(subtaskId, estimatedTime);
+      }
+    } catch (error) {
+      console.error('Error updating subtask estimated time:', error);
+    }
+  };
+
+  const handleStartAddingSubtask = (taskId: string) => {
+    setAddingSubtaskToTask(taskId);
+    setNewSubtaskTitle('');
+  };
+
+  const handleNewSubtaskTitleChange = (title: string) => {
+    setNewSubtaskTitle(title);
+  };
+
+  const handleSaveNewSubtask = async (taskId: string) => {
+    if (newSubtaskTitle.trim()) {
+      const [workType, originalId] = taskId.split('-');
+      try {
+        if (workType === 'light') {
+          await addLightSubtask(originalId, newSubtaskTitle.trim());
+        } else {
+          await addDeepSubtask(originalId, newSubtaskTitle.trim());
+        }
+      } catch (error) {
+        console.error('Failed to create new subtask:', error);
+      }
+    }
+    setAddingSubtaskToTask(null);
+    setNewSubtaskTitle('');
+  };
+
+  const handleNewSubtaskKeyDown = (e: React.KeyboardEvent, taskId: string) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSaveNewSubtask(taskId);
+    } else if (e.key === 'Escape') {
+      setAddingSubtaskToTask(null);
+      setNewSubtaskTitle('');
     }
   };
 
@@ -518,6 +640,20 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
     }
   };
 
+  // Helper: Schedule first available task for today (for testing)
+  const scheduleFirstTaskForToday = async () => {
+    if (rawLightTasks.length > 0) {
+      const firstTask = rawLightTasks[0];
+      await pushLightTaskToAnotherDay(firstTask.id, todayDate);
+      return;
+    }
+    if (rawDeepTasks.length > 0) {
+      const firstTask = rawDeepTasks[0];
+      await pushDeepTaskToAnotherDay(firstTask.id, todayDate);
+      return;
+    }
+  };
+
   // Loading state
   if (loading) {
     return (
@@ -537,6 +673,79 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
       </div>
     );
   }
+
+  // Format helpers for UnifiedTaskCard
+  const formatMsAsClock = (ms: number) => {
+    const seconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    return hours > 0 ? `${hours}:${remainingMinutes.toString().padStart(2, '0')}` : `${minutes}`;
+  };
+
+  const getTaskTimeSummary = (task: UnifiedTask) => {
+    const baseSubtaskMinutes = task.id.startsWith('deep-') ? 45 : 30;
+    const parseTimeEstimateToMinutes = (value?: string | null): number => {
+      if (!value) return 0;
+      const normalized = value.toString().toLowerCase();
+      let minutes = 0;
+
+      const hourMatches = normalized.matchAll(/(\d+(?:\.\d+)?)\s*(?:h|hr|hrs|hour|hours)/g);
+      for (const match of hourMatches) {
+        minutes += Math.round(parseFloat(match[1]) * 60);
+      }
+
+      const minuteMatches = normalized.matchAll(/(\d+(?:\.\d+)?)\s*(?:m|min|mins|minute|minutes)/g);
+      for (const match of minuteMatches) {
+        minutes += Math.round(parseFloat(match[1]));
+      }
+
+      if (minutes === 0) {
+        const numberMatch = normalized.match(/(\d+(?:\.\d+)?)/);
+        if (numberMatch) {
+          minutes = Math.round(parseFloat(numberMatch[1]));
+        }
+      }
+
+      return minutes;
+    };
+
+    const formatMinutes = (totalMinutes: number): string => {
+      const rounded = Math.max(0, Math.round(totalMinutes));
+      const hours = Math.floor(rounded / 60);
+      const minutes = rounded % 60;
+
+      if (hours > 0 && minutes > 0) {
+        return `${hours}h ${minutes}m`;
+      }
+      if (hours > 0) {
+        return `${hours}h`;
+      }
+      return `${minutes}m`;
+    };
+
+    let totalMinutes = 0;
+
+    task.subtasks
+      .filter(subtask => subtask.status !== 'completed')
+      .forEach(subtask => {
+        const estimateMinutes = parseTimeEstimateToMinutes(subtask.estimatedTime);
+        totalMinutes += estimateMinutes > 0 ? estimateMinutes : baseSubtaskMinutes;
+      });
+
+    const manualMinutes = parseTimeEstimateToMinutes(task.timeEstimate);
+
+    if (task.subtasks.length === 0) {
+      totalMinutes = manualMinutes > 0 ? manualMinutes : baseSubtaskMinutes;
+    } else if (manualMinutes > 0) {
+      totalMinutes = manualMinutes;
+    }
+
+    return {
+      totalMinutes,
+      formatted: formatMinutes(totalMinutes)
+    };
+  };
 
   return (
     <div className="text-slate-50 h-full">
@@ -579,247 +788,77 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
                 <ul className="space-y-1 overflow-hidden">
                   {tasks.map((task, index) => {
                     const isExpanded = expandedTasks.includes(task.id);
-                    const isCompleted = task.status === "completed";
-                    const priorityConfig = getPriorityConfig(task.priority);
+                    const isFirst = index === 0;
+                    const isLast = index === tasks.length - 1;
 
                     return (
-                      <motion.li
+                      <UnifiedTaskCard
                         key={task.id}
-                        className={`${index !== 0 ? "mt-1 pt-2" : ""}`}
-                        initial={{ opacity: 0, y: -5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <div className="group bg-slate-900/10 border-slate-700/30 hover:bg-slate-900/15 hover:border-slate-600/40 hover:shadow-slate-500/5 rounded-xl transition-all duration-300 hover:shadow-lg">
-                          <div className="p-3 sm:p-4">
-                            <div className="flex items-center gap-3">
-                              {/* Checkbox */}
-                              <motion.div
-                                className="flex-shrink-0 cursor-pointer"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleToggleTaskStatus(task.id);
-                                }}
-                                whileTap={{ scale: 0.9 }}
-                                whileHover={{ scale: 1.1 }}
-                              >
-                                <AnimatePresence mode="wait">
-                                  <motion.div
-                                    key={task.status}
-                                    initial={{ opacity: 0, scale: 0.8 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0.8 }}
-                                    transition={{ duration: 0.2 }}
-                                  >
-                                    {task.status === "completed" ? (
-                                      <CheckCircle2 className="h-5 w-5 text-emerald-400" />
-                                    ) : task.status === "in-progress" ? (
-                                      <CircleDotDashed className="h-5 w-5 text-slate-400" />
-                                    ) : (
-                                      <Circle className="h-5 w-5 text-gray-400" />
-                                    )}
-                                  </motion.div>
-                                </AnimatePresence>
-                              </motion.div>
-
-                              {/* Title */}
-                              <div className="flex-1 min-w-0">
-                                <h4
-                                  className={cn(
-                                    "text-sm sm:text-base font-semibold truncate",
-                                    isCompleted ? "text-slate-400/60 line-through" : "text-slate-100"
-                                  )}
-                                >
-                                  {task.title}
-                                </h4>
-                              </div>
-
-                              {/* Work Type Badge */}
-                              <span className={cn(
-                                "inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold",
-                                task.workType === 'deep'
-                                  ? "bg-purple-500/20 border border-purple-500/40 text-purple-200"
-                                  : "bg-green-500/20 border border-green-500/40 text-green-200"
-                              )}>
-                                {task.workType === 'deep' ? 'Deep' : 'Light'}
-                              </span>
-
-                              {/* Toggle Button */}
-                              <div className="flex items-center flex-shrink-0">
-                                <motion.button
-                                  className="p-1 rounded-md hover:bg-slate-900/20 transition-colors"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    toggleTaskExpansion(task.id);
-                                  }}
-                                  whileTap={{ scale: 0.9 }}
-                                >
-                                  {isExpanded ? (
-                                    <ChevronDown className="h-4 w-4 text-slate-300" />
-                                  ) : (
-                                    <ChevronRight className="h-4 w-4 text-slate-300" />
-                                  )}
-                                </motion.button>
-                              </div>
-                            </div>
-
-                            {/* Top divider */}
-                            <div className="border-t border-slate-600/50 mt-3"></div>
-
-                            <div className="pt-3">
-                              {/* Metadata: Date | Priority | Time */}
-                              <div className="flex items-center gap-2">
-                                <button
-                                  className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${getDueDateClasses(task.dueDate)}`}
-                                  title="Scheduled date"
-                                >
-                                  <Calendar className="h-3.5 w-3.5" />
-                                  <span>{formatShortDate(task.dueDate)}</span>
-                                </button>
-
-                                <span className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${priorityConfig.badgeClass}`}>
-                                  <span>{priorityConfig.icon}</span>
-                                  <span>{priorityConfig.label}</span>
-                                </span>
-
-                                {task.timeEstimate && (
-                                  <span className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium text-slate-200/90 bg-slate-900/20 transition-colors">
-                                    <Clock className="h-3.5 w-3.5" />
-                                    <span>{task.timeEstimate}</span>
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-
-                            <div className="border-t border-slate-600/50 mt-3"></div>
-                          </div>
-
-                          {/* Subtasks */}
-                          <AnimatePresence mode="wait">
-                            {isExpanded && (
-                              <motion.div
-                                className="relative overflow-hidden"
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: "auto" }}
-                                exit={{ opacity: 0, height: 0 }}
-                                transition={{ duration: 0.25 }}
-                              >
-                                {task.subtasks.length > 0 && (
-                                  <ul className="mt-1 mr-2 mb-2 ml-2 space-y-1">
-                                    {task.subtasks
-                                      .filter((subtask) => {
-                                        const shouldShowCompleted = showCompletedSubtasks[task.id];
-                                        if (shouldShowCompleted === undefined) return subtask.status !== "completed";
-                                        return shouldShowCompleted ? subtask.status === "completed" : subtask.status !== "completed";
-                                      })
-                                      .map((subtask) => (
-                                        <motion.li
-                                          key={subtask.id}
-                                          className="pl-1"
-                                          initial={{ opacity: 0, x: -10 }}
-                                          animate={{ opacity: 1, x: 0 }}
-                                          transition={{ duration: 0.2 }}
-                                        >
-                                          <SubtaskItem
-                                            subtask={{
-                                              id: subtask.id,
-                                              title: subtask.title,
-                                              completed: subtask.completed,
-                                              dueDate: subtask.dueDate,
-                                              description: subtask.description,
-                                              priority: subtask.priority,
-                                              estimatedTime: subtask.estimatedTime,
-                                              tools: subtask.tools
-                                            }}
-                                            taskId={task.id}
-                                            themeConfig={themeConfig}
-                                            isEditing={editingSubtask === subtask.id}
-                                            editTitle={editSubtaskTitle}
-                                            calendarSubtaskId={calendarSubtaskId}
-                                            isExpanded={expandedSubtasks[`${task.id}-${subtask.id}`] || false}
-                                            onToggleCompletion={handleToggleSubtaskStatus}
-                                            onToggleExpansion={toggleSubtaskExpansion}
-                                            onStartEditing={(subtaskId, currentTitle) => {
-                                              setEditingSubtask(subtaskId);
-                                              setEditSubtaskTitle(currentTitle);
-                                            }}
-                                            onEditTitleChange={(title) => setEditSubtaskTitle(title)}
-                                            onSaveEdit={(taskId, subtaskId) => {
-                                              // Handle save
-                                              setEditingSubtask(null);
-                                              setEditSubtaskTitle('');
-                                            }}
-                                            onKeyDown={(e, type, taskId, subtaskId) => {
-                                              if (e.key === 'Enter') {
-                                                setEditingSubtask(null);
-                                                setEditSubtaskTitle('');
-                                              }
-                                            }}
-                                            onCalendarToggle={(subtaskId) => {
-                                              setCalendarSubtaskId(prev => prev === subtaskId ? null : subtaskId);
-                                            }}
-                                            onDeleteSubtask={(subtaskId) => {
-                                              // Handle delete
-                                            }}
-                                            onPriorityUpdate={(subtaskId, priority) => {
-                                              // Handle priority update
-                                            }}
-                                            onEstimatedTimeUpdate={(subtaskId, time) => {
-                                              // Handle time update
-                                            }}
-                                            onDescriptionUpdate={(subtaskId, desc) => {
-                                              // Handle description update
-                                            }}
-                                          />
-                                        </motion.li>
-                                      ))}
-                                  </ul>
-                                )}
-
-                                {/* Progress Summary */}
-                                <div className="mt-3 pb-2 px-3">
-                                  <div className="flex items-center justify-between">
-                                    <div></div>
-                                    <button
-                                      className="text-xs text-slate-400 hover:text-slate-300 cursor-pointer transition-colors"
-                                      onClick={() => {
-                                        setShowCompletedSubtasks(prev => ({
-                                          ...prev,
-                                          [task.id]: !prev[task.id]
-                                        }));
-                                      }}
-                                      title="Toggle completed subtasks visibility"
-                                    >
-                                      {task.subtasks.filter(s => s.status === "completed").length} of {task.subtasks.length} subtasks completed
-                                    </button>
-                                  </div>
-                                </div>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-
-                          {/* Progress Summary when collapsed */}
-                          {!isExpanded && (
-                            <div className="px-3 pb-3">
-                              <div className="flex items-center justify-between">
-                                <div></div>
-                                <button
-                                  className="text-xs text-slate-400 hover:text-slate-300 cursor-pointer transition-colors"
-                                  onClick={() => {
-                                    setShowCompletedSubtasks(prev => ({
-                                      ...prev,
-                                      [task.id]: !prev[task.id]
-                                    }));
-                                  }}
-                                  title="Toggle completed subtasks visibility"
-                                >
-                                  {task.subtasks.filter(s => s.status === "completed").length} of {task.subtasks.length} subtasks completed
-                                </button>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </motion.li>
+                        task={task}
+                        theme={SLATE_THEME}
+                        index={index}
+                        isExpanded={isExpanded}
+                        isFirst={isFirst}
+                        isLast={isLast}
+                        taskVariants={taskVariants}
+                        subtaskListVariants={subtaskListVariants}
+                        subtaskVariants={subtaskVariants}
+                        activeTaskCalendarId={activeTaskCalendarId}
+                        taskPriorityMenuId={taskPriorityMenuId}
+                        editingTaskTimeId={editingTaskTimeId}
+                        editTaskTimeValue={editTaskTimeValue}
+                        editingMainTask={editingMainTask}
+                        editMainTaskTitle={editMainTaskTitle}
+                        calendarSubtaskId={calendarSubtaskId}
+                        editingSubtask={editingSubtask}
+                        editSubtaskTitle={editSubtaskTitle}
+                        addingSubtaskToTask={addingSubtaskToTask}
+                        newSubtaskTitle={newSubtaskTitle}
+                        showCompletedSubtasks={showCompletedSubtasks}
+                        sortSubtasks={sortSubtasksHybrid}
+                        onToggleTaskStatus={handleToggleTaskStatus}
+                        onToggleExpansion={toggleTaskExpansion}
+                        onTaskCalendarToggle={handleTaskCalendarToggle}
+                        onTaskCalendarSelect={handleTaskCalendarSelect}
+                        onTaskPrioritySelect={handleTaskPrioritySelect}
+                        onTaskTimeStartEditing={handleTaskTimeStartEditing}
+                        onTaskTimeSave={handleTaskTimeSave}
+                        onTaskTimeKeyDown={handleTaskTimeKeyDown}
+                        onTaskTimeChange={(value) => setEditTaskTimeValue(value)}
+                        onMoveTask={handleMoveTask}
+                        onTimerToggle={handleTimerToggle}
+                        onToggleSubtaskVisibility={toggleSubtaskVisibility}
+                        onDeleteTask={async (taskId) => {
+                          const [workType, originalId] = taskId.split('-');
+                          if (workType === 'light') {
+                            await deleteLightTask(originalId);
+                          } else {
+                            await deleteDeepTask(originalId);
+                          }
+                        }}
+                        onMainTaskStartEditing={handleMainTaskStartEditing}
+                        onMainTaskEditTitleChange={handleMainTaskEditTitleChange}
+                        onMainTaskSaveEdit={handleMainTaskSaveEdit}
+                        onMainTaskKeyDown={handleMainTaskKeyDown}
+                        onToggleSubtaskStatus={handleToggleSubtaskStatus}
+                        onToggleSubtaskExpansion={toggleSubtaskExpansion}
+                        onSubtaskStartEditing={handleSubtaskStartEditing}
+                        onSubtaskEditTitleChange={handleSubtaskEditTitleChange}
+                        onSubtaskSaveEdit={handleSubtaskSaveEdit}
+                        onSubtaskKeyDown={handleSubtaskKeyDown}
+                        onCalendarToggle={handleCalendarToggle}
+                        onDeleteSubtask={handleDeleteSubtask}
+                        onUpdateSubtaskPriority={handleUpdateSubtaskPriority}
+                        onUpdateSubtaskEstimatedTime={handleUpdateSubtaskEstimatedTime}
+                        onUpdateSubtaskDescription={handleUpdateSubtaskDescription}
+                        onStartAddingSubtask={handleStartAddingSubtask}
+                        onNewSubtaskTitleChange={handleNewSubtaskTitleChange}
+                        onSaveNewSubtask={handleSaveNewSubtask}
+                        onNewSubtaskKeyDown={handleNewSubtaskKeyDown}
+                        formatMsAsClock={formatMsAsClock}
+                        getTaskTimeSummary={getTaskTimeSummary}
+                        themeName="DEEP"
+                      />
                     );
                   })}
                 </ul>

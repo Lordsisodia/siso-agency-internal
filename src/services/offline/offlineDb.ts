@@ -198,7 +198,7 @@ export type OfflineSyncAction = OfflineDB['offlineActions']['value'];
 class OfflineDatabase {
   private db: IDBPDatabase<OfflineDB> | null = null;
   private readonly DB_NAME = 'SISOOfflineDB';
-  private readonly DB_VERSION = 4; // v4: Added smokingTracker store
+  private readonly DB_VERSION = 5; // v5: Bumped to ensure smokingTracker store is created
 
   async init(): Promise<void> {
     if (this.db) return;
