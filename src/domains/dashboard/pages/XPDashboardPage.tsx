@@ -5,7 +5,7 @@
 
 import { motion } from 'framer-motion';
 import { AdminLayout } from '@/domains/admin/layout/AdminLayout';
-import { GamificationDashboard } from '@/domains/admin/dashboard/components/GamificationDashboard';
+import { GamificationDashboard } from '@/types/GamificationDashboard';
 import { Trophy, Zap } from 'lucide-react';
 
 const XPDashboardPage = () => {
