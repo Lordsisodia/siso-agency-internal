@@ -1,12 +1,6 @@
 {
   "buildCommand": "rm -rf dist node_modules/.vite && npm ci && npm run build",
   "outputDirectory": "dist",
-  "functions": {
-    "api/**/*.ts": {
-      "runtime": "nodejs18.x",
-      "maxDuration": 30
-    }
-  },
   "rewrites": [
     {
       "source": "/api/:path*",
