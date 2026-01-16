@@ -55,8 +55,6 @@ archives/
 .serena/memories/
 .git2/
 
-# Large generated admin dashboard components (avoid Codex snapshot bloat)
-src/domains/admin/dashboard/components/
 
 # Blackbox upstream clone (do not commit)
 .blackbox_upstream/
