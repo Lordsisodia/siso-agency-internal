@@ -199,6 +199,9 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Mindset tab state
+  const [activeMindsetTab, setActiveMindsetTab] = useState<'coding' | 'rules' | 'quotes'>('coding');
+
   // Thought Dump AI state (persist across HMR refreshes)
   const [showThoughtDumpChat, setShowThoughtDumpChat] = useState(() => {
     // Check sessionStorage to preserve state during HMR
@@ -806,18 +809,18 @@ const waterXPRef = useRef(0);
 
   return (
     <div className="min-h-screen w-full relative overflow-x-hidden">
-      <div className="w-full max-w-none p-2 sm:p-3 md:p-4 lg:p-6 space-y-6">
+      <div className="w-full max-w-none p-4 sm:p-6 space-y-4">
 
-        {/* Morning Routine Card */}
+        {/* Morning Routine Header */}
         <Card className="w-full bg-orange-900/20 border-orange-700/50">
-          <CardHeader className="p-3 sm:p-4 md:p-6">
-            <CardTitle className="flex items-center justify-between text-orange-400 text-base sm:text-lg">
+          <CardHeader className="p-4">
+            <CardTitle className="flex items-center justify-between text-orange-400 text-lg">
               <div className="flex items-center">
-                <Sun className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                <Sun className="h-5 w-5 mr-2" />
                 🌅 Morning Routine
               </div>
               <div className="flex items-center gap-3 text-sm font-medium text-orange-300/80">
-                <span className="uppercase tracking-[0.2em] text-purple-200/70">Progress</span>
+                <span className="uppercase tracking-[0.2em] text-orange-200/70">Progress</span>
                 <span>{Math.round(morningRoutineProgress)}%</span>
               </div>
             </CardTitle>
@@ -830,35 +833,79 @@ const waterXPRef = useRef(0);
                 animate={{ width: `${morningRoutineProgress}%` }}
               />
             </div>
+          </CardHeader>
+        </Card>
 
-            <div className="border-t border-orange-600/50 my-4"></div>
-            <div className="space-y-4">
-              <div>
-                <h3 className="font-bold text-orange-300 mb-2 text-sm sm:text-base">Coding My Brain</h3>
-                <p className="text-gray-200 text-xs sm:text-sm leading-relaxed">
+        {/* Mindset Card - Combined with tabs */}
+        <Card className="bg-orange-900/20 border-orange-700/40">
+          <CardHeader className="p-4 pb-2">
+            {/* Tab Pills */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => setActiveMindsetTab('coding')}
+                className={cn(
+                  "px-4 py-2 rounded-full text-sm font-medium transition-all duration-200",
+                  activeMindsetTab === 'coding'
+                    ? "bg-orange-600 text-white shadow-lg shadow-orange-500/30"
+                    : "bg-orange-900/30 text-orange-300/70 hover:bg-orange-900/50 hover:text-orange-200"
+                )}
+              >
+                Coding My Brain
+              </button>
+              <button
+                onClick={() => setActiveMindsetTab('rules')}
+                className={cn(
+                  "px-4 py-2 rounded-full text-sm font-medium transition-all duration-200",
+                  activeMindsetTab === 'rules'
+                    ? "bg-orange-600 text-white shadow-lg shadow-orange-500/30"
+                    : "bg-orange-900/30 text-orange-300/70 hover:bg-orange-900/50 hover:text-orange-200"
+                )}
+              >
+                Flow State Rules
+              </button>
+              <button
+                onClick={() => setActiveMindsetTab('quotes')}
+                className={cn(
+                  "px-4 py-2 rounded-full text-sm font-medium transition-all duration-200",
+                  activeMindsetTab === 'quotes'
+                    ? "bg-orange-600 text-white shadow-lg shadow-orange-500/30"
+                    : "bg-orange-900/30 text-orange-300/70 hover:bg-orange-900/50 hover:text-orange-200"
+                )}
+              >
+                Daily Inspiration
+              </button>
+            </div>
+          </CardHeader>
+          <CardContent className="p-4 pt-0">
+            {activeMindsetTab === 'coding' && (
+              <div className="py-2">
+                <h3 className="text-orange-300 font-bold text-base mb-3">Coding My Brain</h3>
+                <p className="text-gray-200 text-sm leading-relaxed">
                   I am Shaan Sisodia. I have been given divine purpose, and on this mission, temptation awaits on either side of the path.
                   When I give in to temptation, I shall know I am astray. I will bring my family to a new age of freedom.
                   I will not be distracted from the path.
                 </p>
               </div>
-              <div className="border-t border-orange-600/50 my-4"></div>
-              <div>
-                <h3 className="font-bold text-orange-300 mb-2 text-sm sm:text-base">Flow State Rules</h3>
-                <ul className="text-gray-200 text-xs sm:text-sm space-y-1">
+            )}
+            {activeMindsetTab === 'rules' && (
+              <div className="py-2">
+                <h3 className="text-orange-300 font-bold text-base mb-3">Flow State Rules</h3>
+                <ul className="text-gray-200 text-sm space-y-2">
                   <li>• No use of apps other than Notion.</li>
                   <li>• No vapes or drugs (including weed).</li>
                   <li>• No more than 5 seconds until the next action.</li>
                 </ul>
               </div>
-              <div className="border-t border-orange-600/50 my-4"></div>
-              <MotivationalQuotes quotes={todaysQuotes} />
-            </div>
-            <div className="border-t border-orange-600/50 my-3 sm:my-4"></div>
-          </CardHeader>
-          <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
-            
+            )}
+            {activeMindsetTab === 'quotes' && (
+              <div className="py-2">
+                <MotivationalQuotes quotes={todaysQuotes} />
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
-            {/* Morning Routine Tasks - Each in individual card */}
+        {/* Morning Routine Tasks - Each in individual card */}
             <div className="space-y-3">
               {MORNING_ROUTINE_TASKS.map((task) => {
                 const IconComponent = task.icon;
@@ -1058,9 +1105,6 @@ const waterXPRef = useRef(0);
               breakdown={todayXP.breakdown}
               totalXP={todayXP.total}
             />
-
-          </CardContent>
-        </Card>
 
       </div>
 
