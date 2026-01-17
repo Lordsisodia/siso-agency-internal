@@ -430,6 +430,6 @@ function cleanAIResponse(response: string): string {
 
 // Vercel serverless function configuration
 export const config = {
-  runtime: 'nodejs18',
+  runtime: 'nodejs',
   maxDuration: 30,
 };
