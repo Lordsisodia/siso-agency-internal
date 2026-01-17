@@ -19,7 +19,6 @@ interface WakeUpTimeTrackerProps {
   onOpenPicker: () => void;
   onUseNow: () => void;
   selectedDate?: Date;
-  completed?: boolean;
 }
 
 interface WakeUpHistoryData {
@@ -66,8 +65,7 @@ export const WakeUpTimeTracker: React.FC<WakeUpTimeTrackerProps> = ({
   time,
   onOpenPicker,
   onUseNow,
-  selectedDate = new Date(),
-  completed = false
+  selectedDate = new Date()
 }) => {
   const [showPresets, setShowPresets] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
@@ -329,37 +327,6 @@ export const WakeUpTimeTracker: React.FC<WakeUpTimeTrackerProps> = ({
           </>
         )}
       </div>
-
-      {/* Completion Status Bar */}
-      {completed && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mt-3 pt-3 border-t border-orange-700/30"
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", stiffness: 200, damping: 10 }}
-              >
-                <Flame className="h-4 w-4 text-green-400" />
-              </motion.div>
-              <span className="text-xs text-green-400 font-semibold">Complete</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-orange-300/70">Wake-up logged</span>
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.1, type: "spring", stiffness: 200, damping: 10 }}
-                className="h-2 w-2 rounded-full bg-green-400"
-              />
-            </div>
-          </div>
-        </motion.div>
-      )}
     </div>
   );
 };

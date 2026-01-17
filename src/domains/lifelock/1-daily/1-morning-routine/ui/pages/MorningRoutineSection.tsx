@@ -987,7 +987,6 @@ const waterXPRef = useRef(0);
                             onUseNow={setCurrentTimeAsWakeUp}
                             getCurrentTime={getCurrentTime}
                             onClear={() => setWakeUpTime('')}
-                            completed={taskComplete}
                           />
                         )}
 
@@ -1060,6 +1059,42 @@ const waterXPRef = useRef(0);
                         onMarkComplete={() => setIsPlanDayComplete(true)}
                         onOpenThoughtDump={() => setShowThoughtDumpChat(true)}
                       />
+                    )}
+
+                    {/* Completion Status Bar at bottom of card */}
+                    {taskComplete && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-4 pt-3 border-t border-orange-700/30"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <motion.div
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              transition={{ type: "spring", stiffness: 200, damping: 10 }}
+                            >
+                              <CheckCircle2 className="h-4 w-4 text-green-400" />
+                            </motion.div>
+                            <span className="text-xs text-green-400 font-semibold">Complete</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-orange-300/70">
+                              {task.key === 'wakeUp' ? 'Wake-up logged' :
+                               task.key === 'meditation' ? 'Meditation complete' :
+                               task.key === 'planDay' ? 'Day planned' :
+                               'Task completed'}
+                            </span>
+                            <motion.div
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              transition={{ delay: 0.1, type: "spring", stiffness: 200, damping: 10 }}
+                              className="h-2 w-2 rounded-full bg-green-400"
+                            />
+                          </div>
+                        </div>
+                      </motion.div>
                     )}
                   </Card>
                 );
