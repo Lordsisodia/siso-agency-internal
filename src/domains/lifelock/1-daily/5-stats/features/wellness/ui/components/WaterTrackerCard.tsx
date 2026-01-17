@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { waterService } from '@/services/database/waterService';
-import type { WaterTrackerSnapshot } from '@/domains/lifelock/1-daily/5-wellness/domain/types';
+import type { WaterTrackerSnapshot } from '@/domains/lifelock/1-daily/5-stats/features/wellness/domain/types';
 
 interface WaterTrackerCardProps {
   selectedDate: Date;
@@ -171,7 +171,7 @@ export const WaterTrackerCard: React.FC<WaterTrackerCardProps> = ({ selectedDate
 
   const lastDrinkLabel = displaySnapshot.lastLogAt
     ? formatDistanceToNow(new Date(displaySnapshot.lastLogAt), { addSuffix: true })
-        .replace('about ', '')
+      .replace('about ', '')
     : null;
 
   return (

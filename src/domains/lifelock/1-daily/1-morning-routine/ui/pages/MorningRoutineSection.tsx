@@ -59,8 +59,8 @@ import {
   calculatePrioritiesXP,
   calculateTotalMorningXP
 } from '../../domain/xpCalculations';
-import { calculateWaterXP } from '@/domains/lifelock/1-daily/5-wellness/domain/xpCalculations';
-import type { WaterTrackerSnapshot } from '@/domains/lifelock/1-daily/5-wellness/domain/types';
+import { calculateWaterXP } from '@/domains/lifelock/1-daily/5-stats/features/wellness/domain/xpCalculations';
+import type { WaterTrackerSnapshot } from '@/domains/lifelock/1-daily/5-stats/features/wellness/domain/types';
 import { XPPill } from '../components/XPPill';
 import { XPFooterSummary } from '../components/XPFooterSummary';
 
@@ -260,9 +260,9 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   // Plan Day completion state
   const [isPlanDayComplete, setIsPlanDayComplete] = useState<boolean>(false);
 
-// Water tracking state (Supabase-backed via waterService)
-const [waterSnapshot, setWaterSnapshot] = useState<WaterTrackerSnapshot | null>(null);
-const waterXPRef = useRef(0);
+  // Water tracking state (Supabase-backed via waterService)
+  const [waterSnapshot, setWaterSnapshot] = useState<WaterTrackerSnapshot | null>(null);
+  const waterXPRef = useRef(0);
 
   // Push-ups tracking state
   const [pushupReps, setPushupReps] = useState<number>(0);
@@ -559,8 +559,8 @@ const waterXPRef = useRef(0);
   }, [isPlanDayComplete, xpState.steps.planDay, awardHabitCompletion]);
 
   // Water tracking handled inside WaterTracker via Supabase snapshot
-  const incrementWater = () => {};
-  const decrementWater = () => {};
+  const incrementWater = () => { };
+  const decrementWater = () => { };
 
   // Push-up tracking functions
   const updatePushupReps = (reps: number) => {
@@ -879,8 +879,8 @@ const waterXPRef = useRef(0);
               key={task.key}
               className={cn(
                 "mx-6 sm:mx-8 md:mx-12 transition-all duration-300 overflow-hidden bg-yellow-900/10 border-yellow-700/30"
-                )}
-              >
+              )}
+            >
               {/* Clean Header */}
               <div
                 className="flex items-center justify-between p-4 cursor-pointer hover:bg-yellow-900/15 transition-colors"
@@ -917,93 +917,93 @@ const waterXPRef = useRef(0);
                   >
                     <div className="px-4 pb-4">
 
-                {/* Progress Bar - Subtle */}
-                {task.subtasks.length > 0 && (
-                  <div className="mb-4">
-                    <div className="w-full bg-yellow-900/20 rounded-full h-1">
-                      <motion.div
-                        className="h-1 rounded-full transition-all duration-500 bg-yellow-500/60"
-                        initial={{ width: 0 }}
-                        animate={{ width: `${progressPercent}%` }}
-                      />
-                    </div>
-                    <p className="text-xs text-yellow-400/60 mt-2">{completedSubtasks}/{task.subtasks.length} completed</p>
-                  </div>
-                )}
-
-                {/* Time tracking interface - for wake-up */}
-                {task.hasTimeTracking && task.key === 'wakeUp' && (
-                  <WakeUpTimeTracker
-                    time={wakeUpTime}
-                    onTimeChange={setWakeUpTime}
-                    onOpenPicker={() => setShowTimeScrollPicker(true)}
-                    onUseNow={setCurrentTimeAsWakeUp}
-                    getCurrentTime={getCurrentTime}
-                    onClear={() => setWakeUpTime('')}
-                    selectedDate={selectedDate}
-                  />
-                )}
-
-                {/* Meditation time tracking with buttons */}
-                {task.hasTimeTracking && task.key === 'meditation' && (
-                  <MeditationTracker
-                    duration={meditationDuration}
-                    onChange={setMeditationDuration}
-                    selectedDate={selectedDate}
-                  />
-                )}
-
-              {/* Sub-tasks */}
-              {task.subtasks.length > 0 && (
-                  <div className="space-y-2">
-                    {task.subtasks.map((subtask) => (
-                      <div key={subtask.key}>
-                        {/* Full row clickable - makes it easier to tap on mobile */}
-                        <div
-                          className="group flex items-center gap-3 rounded-lg transition-all duration-200 cursor-pointer touch-manipulation min-h-[44px] p-3 hover:bg-yellow-900/20"
-                          onClick={() => handleHabitToggle(subtask.key, !isHabitCompleted(subtask.key))}
-                        >
-                          {/* Checkbox - visual indicator only, click handled by parent */}
-                          <div className="flex items-center justify-center">
-                            <Checkbox
-                              checked={isHabitCompleted(subtask.key)}
-                              className="h-5 w-5 border-2 border-yellow-400/60 data-[state=checked]:bg-yellow-500 data-[state=checked]:border-yellow-500 transition-all duration-200 group-hover:border-yellow-400 pointer-events-none"
+                      {/* Progress Bar - Subtle */}
+                      {task.subtasks.length > 0 && (
+                        <div className="mb-4">
+                          <div className="w-full bg-yellow-900/20 rounded-full h-1">
+                            <motion.div
+                              className="h-1 rounded-full transition-all duration-500 bg-yellow-500/60"
+                              initial={{ width: 0 }}
+                              animate={{ width: `${progressPercent}%` }}
                             />
                           </div>
-                          <span className={cn(
-                            "text-sm font-medium transition-all duration-200 flex-1",
-                            isHabitCompleted(subtask.key)
-                              ? "text-gray-500 line-through"
-                              : "text-yellow-100/90 group-hover:text-yellow-50"
-                          )}>
-                            {subtask.title}
-                          </span>
-                          {isHabitCompleted(subtask.key) && (
-                            <CheckCircle2 className="h-4 w-4 text-yellow-400" />
-                          )}
+                          <p className="text-xs text-yellow-400/60 mt-2">{completedSubtasks}/{task.subtasks.length} completed</p>
                         </div>
+                      )}
 
-                        {/* Push-ups Tracking UI - Special case for pushups subtask */}
-                        {subtask.key === 'pushups' && (
-                          <PushUpTracker
-                            reps={pushupReps}
-                            personalBest={pushupPB}
-                            onUpdateReps={updatePushupReps}
-                          />
-                        )}
+                      {/* Time tracking interface - for wake-up */}
+                      {task.hasTimeTracking && task.key === 'wakeUp' && (
+                        <WakeUpTimeTracker
+                          time={wakeUpTime}
+                          onTimeChange={setWakeUpTime}
+                          onOpenPicker={() => setShowTimeScrollPicker(true)}
+                          onUseNow={setCurrentTimeAsWakeUp}
+                          getCurrentTime={getCurrentTime}
+                          onClear={() => setWakeUpTime('')}
+                          selectedDate={selectedDate}
+                        />
+                      )}
 
-                        {/* Water Tracking UI - Special case for water subtask */}
-                        {subtask.key === 'water' && (
-                          <WaterTracker
-                            selectedDate={selectedDate}
-                            userId={internalUserId}
-                            onSnapshotChange={setWaterSnapshot}
-                          />
-                        )}
-                      </div>
-                    ))}
-                  </div>
-              )}
+                      {/* Meditation time tracking with buttons */}
+                      {task.hasTimeTracking && task.key === 'meditation' && (
+                        <MeditationTracker
+                          duration={meditationDuration}
+                          onChange={setMeditationDuration}
+                          selectedDate={selectedDate}
+                        />
+                      )}
+
+                      {/* Sub-tasks */}
+                      {task.subtasks.length > 0 && (
+                        <div className="space-y-2">
+                          {task.subtasks.map((subtask) => (
+                            <div key={subtask.key}>
+                              {/* Full row clickable - makes it easier to tap on mobile */}
+                              <div
+                                className="group flex items-center gap-3 rounded-lg transition-all duration-200 cursor-pointer touch-manipulation min-h-[44px] p-3 hover:bg-yellow-900/20"
+                                onClick={() => handleHabitToggle(subtask.key, !isHabitCompleted(subtask.key))}
+                              >
+                                {/* Checkbox - visual indicator only, click handled by parent */}
+                                <div className="flex items-center justify-center">
+                                  <Checkbox
+                                    checked={isHabitCompleted(subtask.key)}
+                                    className="h-5 w-5 border-2 border-yellow-400/60 data-[state=checked]:bg-yellow-500 data-[state=checked]:border-yellow-500 transition-all duration-200 group-hover:border-yellow-400 pointer-events-none"
+                                  />
+                                </div>
+                                <span className={cn(
+                                  "text-sm font-medium transition-all duration-200 flex-1",
+                                  isHabitCompleted(subtask.key)
+                                    ? "text-gray-500 line-through"
+                                    : "text-yellow-100/90 group-hover:text-yellow-50"
+                                )}>
+                                  {subtask.title}
+                                </span>
+                                {isHabitCompleted(subtask.key) && (
+                                  <CheckCircle2 className="h-4 w-4 text-yellow-400" />
+                                )}
+                              </div>
+
+                              {/* Push-ups Tracking UI - Special case for pushups subtask */}
+                              {subtask.key === 'pushups' && (
+                                <PushUpTracker
+                                  reps={pushupReps}
+                                  personalBest={pushupPB}
+                                  onUpdateReps={updatePushupReps}
+                                />
+                              )}
+
+                              {/* Water Tracking UI - Special case for water subtask */}
+                              {subtask.key === 'water' && (
+                                <WaterTracker
+                                  selectedDate={selectedDate}
+                                  userId={internalUserId}
+                                  onSnapshotChange={setWaterSnapshot}
+                                />
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </motion.div>
                 )}

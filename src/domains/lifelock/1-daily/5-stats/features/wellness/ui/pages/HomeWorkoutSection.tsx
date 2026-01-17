@@ -40,7 +40,7 @@ import {
   type ExerciseConfig,
 } from '../../domain/homeWorkout.types';
 import { XPPill } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/XPPill';
-import { calculateTotalWorkoutXP } from '@/domains/lifelock/1-daily/5-wellness/domain/xpCalculations';
+import { calculateTotalWorkoutXP } from '@/domains/lifelock/1-daily/5-stats/features/wellness/domain/xpCalculations';
 import { GamificationService } from '@/domains/lifelock/_shared/services/gamificationService';
 import { WaterTrackerCard } from '../components/WaterTrackerCard';
 import { WorkoutStatistics } from '../components/WorkoutStatistics';

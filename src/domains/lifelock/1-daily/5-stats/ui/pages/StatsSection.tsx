@@ -18,8 +18,8 @@ import { Droplets, CigaretteOff, Dumbbell, Apple } from 'lucide-react';
 import { XPPill } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/XPPill';
 import { WaterTrackerCard } from '../components/WaterTrackerCard';
 import { SmokingTracker } from '../components/SmokingTracker';
-import { HomeWorkoutSection } from '@/domains/lifelock/1-daily/5-wellness/ui/pages/HomeWorkoutSection';
-import { DietSection } from '@/domains/lifelock/1-daily/8-diet/ui/pages/DietSection';
+import { HomeWorkoutSection } from '@/domains/lifelock/1-daily/5-stats/features/wellness/ui/pages/HomeWorkoutSection';
+import { DietSection } from '@/domains/lifelock/1-daily/5-stats/features/diet/ui/pages/DietSection';
 import { useClerkUser } from '@/lib/hooks/useClerkUser';
 import { useSupabaseUserId } from '@/lib/supabase-clerk';
 import { cn } from '@/lib/utils';
@@ -60,7 +60,7 @@ const STATS_TABS: TabConfig[] = [
     activeColor: 'bg-purple-500/20 text-purple-400',
     xpCategory: 'smoking',
     xp: 50,
-    accentColor: 'bg-gradient-to-b from-purple-500/60 via-pink-500/60 to-purple-600/60 shadow-purple-500/20',
+    accentColor: 'bg-gradient-to-b from-purple-500/40 via-pink-500/40 to-purple-600/40 shadow-purple-500/10',
   },
   {
     id: 'water',
@@ -74,7 +74,7 @@ const STATS_TABS: TabConfig[] = [
     activeColor: 'bg-cyan-500/20 text-cyan-400',
     xpCategory: 'water',
     xp: 50,
-    accentColor: 'bg-gradient-to-b from-cyan-500/60 via-blue-500/60 to-cyan-600/60 shadow-cyan-500/20',
+    accentColor: 'bg-gradient-to-b from-cyan-500/40 via-blue-500/40 to-cyan-600/40 shadow-cyan-500/10',
   },
   {
     id: 'fitness',
@@ -88,7 +88,7 @@ const STATS_TABS: TabConfig[] = [
     activeColor: 'bg-rose-500/20 text-rose-400',
     xpCategory: 'fitness',
     xp: 30,
-    accentColor: 'bg-gradient-to-b from-rose-500/60 via-orange-500/60 to-rose-600/60 shadow-rose-500/20',
+    accentColor: 'bg-gradient-to-b from-rose-500/40 via-orange-500/40 to-rose-600/40 shadow-rose-500/10',
   },
   {
     id: 'nutrition',
@@ -102,7 +102,7 @@ const STATS_TABS: TabConfig[] = [
     activeColor: 'bg-green-500/20 text-green-400',
     xpCategory: 'diet',
     xp: 65,
-    accentColor: 'bg-gradient-to-b from-green-500/60 via-emerald-500/60 to-green-600/60 shadow-green-500/20',
+    accentColor: 'bg-gradient-to-b from-green-500/40 via-emerald-500/40 to-green-600/40 shadow-green-500/10',
   },
 ];
 

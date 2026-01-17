@@ -6,7 +6,7 @@ import { Minus, Plus } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { waterService } from '@/services/database/waterService';
-import type { WaterTrackerSnapshot } from '@/domains/lifelock/1-daily/5-wellness/domain/types';
+import type { WaterTrackerSnapshot } from '@/domains/lifelock/1-daily/5-stats/features/wellness/domain/types';
 
 interface WaterTrackerProps {
   selectedDate: Date;

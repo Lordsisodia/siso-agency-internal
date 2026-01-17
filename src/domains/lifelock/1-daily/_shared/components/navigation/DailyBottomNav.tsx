@@ -100,7 +100,7 @@ export const DailyBottomNav: React.FC<DailyBottomNavProps> = ({
                   {/* Label */}
                   <span
                     className={cn(
-                      'block text-[9px] font-medium text-center relative z-10',
+                      'block text-[10px] font-medium text-center relative z-10',
                       isActive ? 'text-white' : 'text-gray-400'
                     )}
                   >

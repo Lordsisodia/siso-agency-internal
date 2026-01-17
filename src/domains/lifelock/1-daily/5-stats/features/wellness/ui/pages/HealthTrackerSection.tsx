@@ -14,7 +14,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Dumbbell, Apple } from 'lucide-react';
 import { XPPill } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/XPPill';
 import { HomeWorkoutSection } from './HomeWorkoutSection';
-import { DietSection } from '@/domains/lifelock/1-daily/8-diet/ui/pages/DietSection';
+import { DietSection } from '@/domains/lifelock/1-daily/5-stats/features/diet/ui/pages/DietSection';
 import { useClerkUser } from '@/lib/hooks/useClerkUser';
 import { useSupabaseUserId } from '@/lib/supabase-clerk';
 import { cn } from '@/lib/utils';

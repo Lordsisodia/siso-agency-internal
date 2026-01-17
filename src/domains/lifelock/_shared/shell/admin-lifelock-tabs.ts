@@ -35,11 +35,11 @@ import { LucideIcon, Apple } from 'lucide-react';
 import { MorningRoutineSection } from '../../1-daily/1-morning-routine/ui/pages/MorningRoutineSection';
 import { DeepFocusWorkSection } from '../../1-daily/4-deep-work/ui/pages/DeepFocusWorkSection';
 import { LightFocusWorkSection } from '../../1-daily/3-light-work/ui/pages/LightFocusWorkSection';
-import { HealthTrackerSection } from '../../1-daily/5-wellness/ui/pages/HealthTrackerSection';
-import { HomeWorkoutSection } from '../../1-daily/5-wellness/ui/pages/HomeWorkoutSection';
-import { SmokingTracker } from '../../1-daily/5-wellness/ui/components/SmokingTracker';
-import { DietSection } from '../../1-daily/8-diet/ui/pages/DietSection';
-import { StatsSection } from '../../1-daily/6-stats/ui/pages/StatsSection';
+import { HealthTrackerSection } from '../../1-daily/5-stats/features/wellness/ui/pages/HealthTrackerSection';
+import { HomeWorkoutSection } from '../../1-daily/5-stats/features/wellness/ui/pages/HomeWorkoutSection';
+import { SmokingTracker } from '../../1-daily/5-stats/features/wellness/ui/components/SmokingTracker';
+import { DietSection } from '../../1-daily/5-stats/features/diet/ui/pages/DietSection';
+import { StatsSection } from '../../1-daily/5-stats/ui/pages/StatsSection';
 import { TimeboxSection } from '../../1-daily/6-timebox/ui/pages/TimeboxSection';
 import { NightlyCheckoutSection } from '../../1-daily/7-checkout/ui/pages/NightlyCheckoutSection';
 import { TasksSection } from '../../1-daily/2-tasks/ui/pages/TasksSection';
@@ -56,16 +56,16 @@ export interface EnhancedTabConfig {
   icon: LucideIcon;
   color: string;
   description: string;
-  
+
   // Layout configuration
   layoutType: 'standard' | 'chat' | 'full-screen';
   backgroundClass: string;
   showDateNav: boolean;
-  
+
   // Component configuration
   components: React.ComponentType<any>[];
   additionalContent?: React.ComponentType<any>;
-  
+
   // Props to pass to components
   componentProps?: Record<string, any>;
 }

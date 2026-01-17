@@ -8,7 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { waterService } from '@/services/database/waterService';
-import type { WaterTrackerSnapshot } from '@/domains/lifelock/1-daily/5-wellness/domain/types';
+import type { WaterTrackerSnapshot } from '@/domains/lifelock/1-daily/5-stats/features/wellness/domain/types';
 
 interface WaterTrackerProps {
   selectedDate: Date;
@@ -98,24 +98,24 @@ export const WaterTracker: React.FC<WaterTrackerProps> = ({ selectedDate, userId
 
     // Local-only mode fallback
     if (!userId) {
-        const timestamp = new Date().toISOString();
-        const nextSnapshot: WaterTrackerSnapshot = {
-          goalMl: current.goalMl ?? 2000,
-          dailyTotalMl: targetTotal,
-          percentage: Math.min(100, Math.round((targetTotal / (current.goalMl ?? 2000)) * 100)),
-          lastLogAt: timestamp,
-          streakCount: current.streakCount ?? 0,
-          entries: [
-            ...(current.entries ?? []),
-            {
-              id: `local-${timestamp}`,
-              date: dateKey,
-              amountMl: delta,
-              timestamp,
-            }
-          ],
-          historyTotals: current.historyTotals ?? {}
-        };
+      const timestamp = new Date().toISOString();
+      const nextSnapshot: WaterTrackerSnapshot = {
+        goalMl: current.goalMl ?? 2000,
+        dailyTotalMl: targetTotal,
+        percentage: Math.min(100, Math.round((targetTotal / (current.goalMl ?? 2000)) * 100)),
+        lastLogAt: timestamp,
+        streakCount: current.streakCount ?? 0,
+        entries: [
+          ...(current.entries ?? []),
+          {
+            id: `local-${timestamp}`,
+            date: dateKey,
+            amountMl: delta,
+            timestamp,
+          }
+        ],
+        historyTotals: current.historyTotals ?? {}
+      };
 
       setLocalSnapshot(nextSnapshot);
       localStorage.setItem(localStorageKey, JSON.stringify(nextSnapshot));
@@ -168,7 +168,7 @@ export const WaterTracker: React.FC<WaterTrackerProps> = ({ selectedDate, userId
 
   const lastDrinkLabel = displaySnapshot.lastLogAt
     ? formatDistanceToNow(new Date(displaySnapshot.lastLogAt), { addSuffix: true })
-        .replace('about ', '')
+      .replace('about ', '')
     : 'No drinks logged';
 
   const lastDrinkDisplay = displaySnapshot.lastLogAt

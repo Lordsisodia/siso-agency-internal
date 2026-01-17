@@ -105,13 +105,13 @@ export const UserProfileDropdown: React.FC<UserProfileDropdownProps> = ({
       <motion.button
         onClick={() => onOpenChange(!isOpen)}
         className="relative flex-shrink-0"
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
       >
         <img
           src={user?.imageUrl || 'https://via.placeholder.com/36'}
           alt={user?.fullName || 'Profile'}
-          className="w-9 h-9 rounded-lg object-cover ring-2 ring-white/10 hover:ring-white/20 transition-all"
+          className="w-9 h-9 rounded-lg object-cover"
         />
 
         {/* Red dot indicator for new XP */}
@@ -121,19 +121,10 @@ export const UserProfileDropdown: React.FC<UserProfileDropdownProps> = ({
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0 }}
-              className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-gray-900"
+              className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-red-500 rounded-full border-2 border-gray-900"
             />
           )}
         </AnimatePresence>
-
-        {/* Dropdown arrow indicator */}
-        <motion.div
-          animate={{ rotate: isOpen ? 180 : 0 }}
-          transition={{ duration: 0.2 }}
-          className="absolute -bottom-1 -right-1 w-4 h-4 bg-gray-800 rounded-full flex items-center justify-center border border-white/20"
-        >
-          <ChevronDown className="w-2.5 h-2.5 text-gray-400" />
-        </motion.div>
       </motion.button>
 
       {/* Dropdown Menu */}

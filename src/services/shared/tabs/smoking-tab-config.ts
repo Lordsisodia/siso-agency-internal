@@ -6,7 +6,7 @@
  */
 
 import { Heart } from 'lucide-react';
-import { SmokingTracker } from '@/domains/lifelock/1-daily/5-wellness/ui/components/SmokingTracker';
+import { SmokingTracker } from '@/domains/lifelock/1-daily/5-stats/ui/components/SmokingTracker';
 
 const smokingTabConfig = {
   id: 'smoking',
