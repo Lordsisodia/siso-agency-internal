@@ -115,6 +115,45 @@ services:
       - vibe-network
 
   # =========================================================================
+  # VIBE KANBAN MONITOR (.blackbox Integration)
+  # =========================================================================
+  vibe-monitor:
+    build:
+      context: .
+      dockerfile: .blackbox/4-scripts/integrations/vibe-kanban/Dockerfile
+    container_name: vibe-monitor
+    restart: unless-stopped
+
+    volumes:
+      # Mount .blackbox for tracking
+      - ~/SISO-INTERNAL/.blackbox:/app/.blackbox:rw
+
+      # Mount Vibe Kanban data for monitoring (read-only)
+      - vibe-kanban-data:/app/vibe-data:ro
+
+    working_dir: /app/.blackbox/4-scripts/integrations/vibe-kanban
+
+    command: python3 vibe-monitor.py
+
+    environment:
+      - PYTHONUNBUFFERED=1
+      - VIBE_DB_PATH=/app/vibe-data/vibe-kanban.db
+
+    # Resource limits (256MB max)
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+
+    depends_on:
+      - vibe-kanban
+
+    networks:
+      - vibe-network
+
+  # =========================================================================
   # POSTGRESQL DATABASE (Optional - for production use)
   # =========================================================================
   postgres:
