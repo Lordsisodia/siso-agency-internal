@@ -57,7 +57,7 @@ import {
   calculatePrioritiesXP,
   calculateTotalMorningXP
 } from '../../domain/xpCalculations';
-import { calculateWaterXP } from '@/domains/lifelock/1-daily/5-wellness/domain/xpCalculations';
+import { calculateWaterXP } from '@/domains/lifelock/1-daily/5-stats/features/wellness/domain/xpCalculations';
 import { XPPill } from '../components/XPPill';
 import { XPFooterSummary } from '../components/XPFooterSummary';
 
@@ -135,7 +135,6 @@ const MORNING_ROUTINE_TASKS = [
     key: 'wakeUp' as const,
     title: 'Wake Up',
     description: 'Start the day before midday to maximize productivity. Track your wake-up time.',
-    timeEstimate: '5 min',
     icon: Sun,
     hasTimeTracking: true,
     subtasks: []
@@ -144,7 +143,6 @@ const MORNING_ROUTINE_TASKS = [
     key: 'freshenUp' as const,
     title: 'Freshen Up',
     description: 'Cold shower to wake up - Personal hygiene and cleanliness.',
-    timeEstimate: '25 min',
     icon: Droplets,
     hasTimeTracking: false,
     subtasks: [
@@ -157,7 +155,6 @@ const MORNING_ROUTINE_TASKS = [
     key: 'getBloodFlowing' as const,
     title: 'Get Blood Flowing',
     description: 'Max rep push-ups (Target PB: 30) - Physical activation to wake up the body.',
-    timeEstimate: '5 min',
     icon: Dumbbell,
     hasTimeTracking: false,
     subtasks: [
@@ -168,7 +165,6 @@ const MORNING_ROUTINE_TASKS = [
     key: 'powerUpBrain' as const,
     title: 'Power Up Brain',
     description: 'Hydrate and fuel the body and mind.',
-    timeEstimate: '5 min',
     icon: Brain,
     hasTimeTracking: false,
     subtasks: [
@@ -180,7 +176,6 @@ const MORNING_ROUTINE_TASKS = [
     key: 'planDay' as const,
     title: 'Plan Day',
     description: 'Use AI Thought Dump to organize tasks and set timebox.',
-    timeEstimate: '15 min',
     icon: CalendarIcon,
     hasTimeTracking: false,
     subtasks: []
@@ -189,7 +184,6 @@ const MORNING_ROUTINE_TASKS = [
     key: 'meditation' as const,
     title: 'Meditation',
     description: 'Meditate to set an innovative mindset for creating business value.',
-    timeEstimate: '2 min',
     icon: Heart,
     hasTimeTracking: true,
     subtasks: []
@@ -747,52 +741,52 @@ const waterXPRef = useRef(0);
     return (
       <div className="min-h-screen w-full relative overflow-x-hidden">
         <div className="w-full max-w-none p-2 sm:p-3 md:p-4 lg:p-6 space-y-6">
-          <Card className="w-full bg-yellow-900/20 border-yellow-700/50">
+          <Card className="w-full bg-orange-900/20 border-orange-700/50">
             <CardHeader className="p-3 sm:p-4 md:p-6 space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <Skeleton className="h-6 w-6 rounded-full bg-yellow-400/30" />
-                  <Skeleton className="h-5 w-36 bg-yellow-400/20" />
+                  <Skeleton className="h-6 w-6 rounded-full bg-orange-400/30" />
+                  <Skeleton className="h-5 w-36 bg-orange-400/20" />
                 </div>
-                <Skeleton className="h-4 w-16 bg-yellow-400/20" />
+                <Skeleton className="h-4 w-16 bg-orange-400/20" />
               </div>
-              <Skeleton className="h-2 w-full bg-yellow-400/20 rounded-full" />
+              <Skeleton className="h-2 w-full bg-orange-400/20 rounded-full" />
             </CardHeader>
             <CardContent className="space-y-4 pb-16">
               {Array.from({ length: MORNING_ROUTINE_TASKS.length }).map((_, index) => (
                 <div
                   key={`morning-skeleton-${index}`}
-                  className="bg-yellow-900/20 border border-yellow-700/50 rounded-xl p-4 space-y-4"
+                  className="bg-orange-900/20 border border-orange-700/50 rounded-xl p-4 space-y-4"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-start gap-3 w-full">
-                      <Skeleton className="h-5 w-5 rounded-md bg-yellow-400/20" />
+                      <Skeleton className="h-5 w-5 rounded-md bg-orange-400/20" />
                       <div className="flex-1 space-y-2">
-                        <Skeleton className="h-4 w-2/3 bg-yellow-400/20" />
-                        <Skeleton className="h-3 w-full bg-yellow-400/10" />
+                        <Skeleton className="h-4 w-2/3 bg-orange-400/20" />
+                        <Skeleton className="h-3 w-full bg-orange-400/10" />
                       </div>
                     </div>
-                    <Skeleton className="h-6 w-16 rounded-lg bg-yellow-400/20" />
+                    <Skeleton className="h-6 w-16 rounded-lg bg-orange-400/20" />
                   </div>
-                  <Skeleton className="h-2 w-full bg-yellow-400/10 rounded-full" />
+                  <Skeleton className="h-2 w-full bg-orange-400/10 rounded-full" />
                 </div>
               ))}
             </CardContent>
           </Card>
 
-          <Card className="bg-yellow-900/10 border-yellow-700/30">
+          <Card className="bg-orange-900/10 border-orange-700/30">
             <CardHeader className="space-y-3">
               <div className="flex items-center gap-3">
-                <Skeleton className="h-5 w-5 rounded-full bg-yellow-400/30" />
-                <Skeleton className="h-5 w-32 bg-yellow-400/20" />
+                <Skeleton className="h-5 w-5 rounded-full bg-orange-400/30" />
+                <Skeleton className="h-5 w-32 bg-orange-400/20" />
               </div>
-              <Skeleton className="h-3 w-3/4 bg-yellow-400/10" />
+              <Skeleton className="h-3 w-3/4 bg-orange-400/10" />
             </CardHeader>
             <CardContent className="space-y-3">
               {Array.from({ length: 3 }).map((_, index) => (
                 <Skeleton
                   key={`quote-skeleton-${index}`}
-                  className="h-6 w-full bg-yellow-400/10 rounded-lg"
+                  className="h-6 w-full bg-orange-400/10 rounded-lg"
                 />
               ))}
             </CardContent>
@@ -815,57 +809,57 @@ const waterXPRef = useRef(0);
       <div className="w-full max-w-none p-2 sm:p-3 md:p-4 lg:p-6 space-y-6">
 
         {/* Morning Routine Card */}
-        <Card className="w-full bg-yellow-900/20 border-yellow-700/50">
+        <Card className="w-full bg-orange-900/20 border-orange-700/50">
           <CardHeader className="p-3 sm:p-4 md:p-6">
-            <CardTitle className="flex items-center justify-between text-yellow-400 text-base sm:text-lg">
+            <CardTitle className="flex items-center justify-between text-orange-400 text-base sm:text-lg">
               <div className="flex items-center">
                 <Sun className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                 🌅 Morning Routine
               </div>
-              <div className="flex items-center gap-3 text-sm font-medium text-yellow-300/80">
-                <span className="uppercase tracking-[0.2em] text-yellow-200/70">Progress</span>
+              <div className="flex items-center gap-3 text-sm font-medium text-orange-300/80">
+                <span className="uppercase tracking-[0.2em] text-purple-200/70">Progress</span>
                 <span>{Math.round(morningRoutineProgress)}%</span>
               </div>
             </CardTitle>
-            
+
             {/* Progress Bar */}
-            <div className="w-full bg-yellow-900/20 rounded-full h-2 mt-4">
+            <div className="w-full bg-orange-900/20 rounded-full h-2 mt-4">
               <motion.div
-                className="bg-gradient-to-r from-yellow-400 to-yellow-600 h-2 rounded-full transition-all duration-500"
+                className="bg-gradient-to-r from-orange-400 to-orange-600 h-2 rounded-full transition-all duration-500"
                 initial={{ width: 0 }}
                 animate={{ width: `${morningRoutineProgress}%` }}
               />
             </div>
 
-            <div className="border-t border-yellow-600/50 my-4"></div>
+            <div className="border-t border-orange-600/50 my-4"></div>
             <div className="space-y-4">
               <div>
-                <h3 className="font-bold text-yellow-300 mb-2 text-sm sm:text-base">Coding My Brain</h3>
+                <h3 className="font-bold text-orange-300 mb-2 text-sm sm:text-base">Coding My Brain</h3>
                 <p className="text-gray-200 text-xs sm:text-sm leading-relaxed">
-                  I am Shaan Sisodia. I have been given divine purpose, and on this mission, temptation awaits on either side of the path. 
-                  When I give in to temptation, I shall know I am astray. I will bring my family to a new age of freedom. 
+                  I am Shaan Sisodia. I have been given divine purpose, and on this mission, temptation awaits on either side of the path.
+                  When I give in to temptation, I shall know I am astray. I will bring my family to a new age of freedom.
                   I will not be distracted from the path.
                 </p>
               </div>
-              <div className="border-t border-yellow-600/50 my-4"></div>
+              <div className="border-t border-orange-600/50 my-4"></div>
               <div>
-                <h3 className="font-bold text-yellow-300 mb-2 text-sm sm:text-base">Flow State Rules</h3>
+                <h3 className="font-bold text-orange-300 mb-2 text-sm sm:text-base">Flow State Rules</h3>
                 <ul className="text-gray-200 text-xs sm:text-sm space-y-1">
                   <li>• No use of apps other than Notion.</li>
                   <li>• No vapes or drugs (including weed).</li>
                   <li>• No more than 5 seconds until the next action.</li>
                 </ul>
               </div>
-              <div className="border-t border-yellow-600/50 my-4"></div>
+              <div className="border-t border-orange-600/50 my-4"></div>
               <MotivationalQuotes quotes={todaysQuotes} />
             </div>
-            <div className="border-t border-yellow-600/50 my-3 sm:my-4"></div>
+            <div className="border-t border-orange-600/50 my-3 sm:my-4"></div>
           </CardHeader>
           <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
             
 
-            {/* Morning Routine Tasks */}
-            <div className="space-y-2 sm:space-y-3">
+            {/* Morning Routine Tasks - Each in individual card */}
+            <div className="space-y-3">
               {MORNING_ROUTINE_TASKS.map((task) => {
                 const IconComponent = task.icon;
                 const completedSubtasks = task.subtasks.filter(subtask => isHabitCompleted(subtask.key)).length;
@@ -877,31 +871,26 @@ const waterXPRef = useRef(0);
                   : (taskComplete ? 100 : 0);
 
                 return (
-                  <div key={task.key} className="group py-3 transition-all duration-300">
-                    {/* Main Task Header - NO CHECKBOX */}
-                    <div className="p-2 sm:p-3">
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-2 flex-1 min-w-0">
-                            <IconComponent className="h-5 w-5 text-yellow-400 flex-shrink-0" />
-                            <h4 className="text-yellow-100 font-semibold text-sm sm:text-base truncate">{task.title}</h4>
-                            <div className="bg-yellow-500/20 border border-yellow-400/40 rounded-full px-2.5 py-0.5 flex-shrink-0">
-                              <span className="text-xs text-yellow-300 font-medium whitespace-nowrap">{task.timeEstimate}</span>
-                            </div>
-                          </div>
-                          {/* XP Pill */}
-                          <XPPill
-                            xp={todayXP.breakdown[task.key] || 0}
-                            earned={taskComplete}
-                            showGlow={taskComplete}
-                          />
+                  <Card key={task.key} className="bg-orange-900/20 border-orange-700/40 overflow-hidden">
+                    <div className="p-4">
+                      <div className="flex items-center justify-between gap-2 mb-3">
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <IconComponent className="h-5 w-5 text-orange-400 flex-shrink-0" />
+                          <h4 className="text-orange-100 font-semibold text-base truncate">{task.title}</h4>
                         </div>
+                        {/* XP Pill */}
+                        <XPPill
+                          xp={todayXP.breakdown[task.key] || 0}
+                          earned={taskComplete}
+                          showGlow={taskComplete}
+                        />
+                      </div>
 
                         {/* Universal Progress Bar - ALL TASKS */}
                         <div className="mt-2 mb-1">
-                          <div className="w-full bg-yellow-900/30 border border-yellow-600/20 rounded-full h-1.5">
+                          <div className="w-full bg-orange-900/30 border border-orange-600/20 rounded-full h-1.5">
                             <motion.div
-                              className="bg-gradient-to-r from-yellow-400 to-yellow-600 h-1.5 rounded-full transition-all duration-500"
+                              className="bg-gradient-to-r from-orange-400 to-orange-600 h-1.5 rounded-full transition-all duration-500"
                               initial={{ width: 0 }}
                               animate={{ width: `${progressPercent}%` }}
                             />
@@ -909,14 +898,14 @@ const waterXPRef = useRef(0);
                           <div className="flex justify-between items-center mt-1">
                             {task.subtasks.length > 0 ? (
                               <>
-                                <span className="text-xs text-yellow-400/70 font-medium">{completedSubtasks}/{task.subtasks.length} completed</span>
+                                <span className="text-xs text-orange-400/70 font-medium">{completedSubtasks}/{task.subtasks.length} completed</span>
                                 {taskComplete && (
                                   <span className="text-xs text-green-400 font-semibold">✓ Complete</span>
                                 )}
                               </>
                             ) : (
                               <>
-                                <span className="text-xs text-yellow-400/70 font-medium">
+                                <span className="text-xs text-orange-400/70 font-medium">
                                   {taskComplete ? 'Completed' : 'Not started'}
                                 </span>
                                 {taskComplete && (
@@ -952,8 +941,7 @@ const waterXPRef = useRef(0);
                           />
                         )}
                       </div>
-                    </div>
-                    
+
                     {/* Sub-tasks - Enhanced with better visual hierarchy and mobile touch targets */}
                     {task.subtasks.length > 0 && (
                       <div className="mt-4 ml-4 space-y-3">
@@ -961,21 +949,21 @@ const waterXPRef = useRef(0);
                           <div key={subtask.key}>
                             {/* Full row clickable - makes it easier to tap on mobile */}
                             <div
-                              className="group flex items-center gap-3 rounded-lg transition-all duration-200 cursor-pointer touch-manipulation min-h-[44px] p-2 -m-2 hover:bg-yellow-900/20 active:bg-yellow-900/30"
+                              className="group flex items-center gap-3 rounded-lg transition-all duration-200 cursor-pointer touch-manipulation min-h-[44px] p-2 -m-2 hover:bg-orange-900/20 active:bg-orange-900/30"
                               onClick={() => handleHabitToggle(subtask.key, !isHabitCompleted(subtask.key))}
                             >
                               {/* Checkbox - visual indicator only, click handled by parent */}
                               <div className="flex items-center justify-center">
                                 <Checkbox
                                   checked={isHabitCompleted(subtask.key)}
-                                  className="h-6 w-6 border-2 border-yellow-400/70 data-[state=checked]:bg-yellow-500 data-[state=checked]:border-yellow-500 transition-all duration-200 group-hover:border-yellow-400 pointer-events-none"
+                                  className="h-6 w-6 border-2 border-orange-400/70 data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500 transition-all duration-200 group-hover:border-orange-400 pointer-events-none"
                                 />
                               </div>
                               <span className={cn(
                                 "text-sm font-medium transition-all duration-200 flex-1",
                                 isHabitCompleted(subtask.key)
                                   ? "text-gray-500 line-through"
-                                  : "text-yellow-100/90 group-hover:text-yellow-50"
+                                  : "text-purple-200/90 group-hover:text-purple-50"
                               )}>
                                 {subtask.title}
                               </span>
@@ -1014,7 +1002,7 @@ const waterXPRef = useRef(0);
                         onOpenThoughtDump={() => setShowThoughtDumpChat(true)}
                       />
                     )}
-                  </div>
+                  </Card>
                 );
               })}
             </div>
@@ -1026,22 +1014,22 @@ const waterXPRef = useRef(0);
               transition={{ delay: 0.4 }}
               className="mt-8"
             >
-              <Card className="bg-gradient-to-r from-yellow-900/30 to-amber-900/30 border-yellow-700/40">
+              <Card className="bg-gradient-to-r from-orange-900/30 to-orange-900/30 border-orange-700/40">
                 <CardHeader className="p-4">
-                  <CardTitle className="flex items-center text-yellow-300 text-base">
+                  <CardTitle className="flex items-center text-orange-300 text-base">
                     <Target className="h-5 w-5 mr-2" />
                     🎯 Top 3 Things I Want to Complete Today
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-4 pt-0">
-                  <p className="text-xs text-yellow-400 mb-4">
+                  <p className="text-xs text-orange-400 mb-4">
                     Not everything - just the 3 that matter most. Be specific.
                   </p>
                   <div className="space-y-3">
                     {dailyPriorities.map((priority, idx) => (
                       <div key={idx} className="flex items-start space-x-2">
-                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-yellow-600/30 border-2 border-yellow-500/50 flex items-center justify-center mt-1">
-                          <span className="text-yellow-300 font-bold text-sm">#{idx + 1}</span>
+                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-orange-600/30 border-2 border-orange-500/50 flex items-center justify-center mt-1">
+                          <span className="text-orange-300 font-bold text-sm">#{idx + 1}</span>
                         </div>
                         <TextareaAutosize
                           value={priority}
@@ -1053,12 +1041,12 @@ const waterXPRef = useRef(0);
                           placeholder={`Priority ${idx + 1}...`}
                           minRows={1}
                           maxRows={4}
-                          className="flex-1 bg-yellow-900/20 border border-yellow-700/30 text-white text-sm placeholder:text-yellow-300/40 focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400/20 rounded-lg px-3 py-2 resize-none overflow-hidden"
+                          className="flex-1 bg-orange-900/20 border border-orange-700/30 text-white text-sm placeholder:text-orange-300/40 focus:border-orange-400 focus:ring-1 focus:ring-orange-400/20 rounded-lg px-3 py-2 resize-none overflow-hidden"
                         />
                       </div>
                     ))}
                   </div>
-                  <p className="text-xs text-yellow-400/70 mt-3 italic">
+                  <p className="text-xs text-orange-400/70 mt-3 italic">
                     💡 Tip: Make them specific and actionable!
                   </p>
                 </CardContent>
