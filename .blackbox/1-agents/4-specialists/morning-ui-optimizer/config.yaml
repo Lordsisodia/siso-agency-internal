@@ -1,0 +1,143 @@
+agent:
+  name: "morning-ui-optimizer"
+  type: "iterative-improvement"
+  version: "1.0.0"
+  created: "2026-01-18 04:16:00"
+  author: "Blackbox4"
+  description: "Autonomous UI/UX improvement agent for morning routine flow"
+
+loop:
+  steps: 10
+  max_iterations: 10  # Run 10 complete loops
+  auto_continue: true
+  stagnation_threshold: 3  # Stop if 3 iterations with <10% improvement
+
+scope:
+  domains:
+    - "src/domains/lifelock/1-daily/1-morning-routine"
+    - "src/domains/lifelock/1-daily/_shared"
+    - "src/domains/lifelock/_shared/core"
+  file_patterns:
+    - "**/*.tsx"
+    - "**/*.ts"
+    - "**/*.css"
+  exclude_patterns:
+    - "**/*.backup"
+    - "**/*.bak"
+    - "**/node_modules/**"
+
+tools:
+  mcp:
+    sequential_thinking:
+      enabled: true
+      max_thoughts: 50
+      timeout: 300
+    supabase:
+      enabled: true
+      queries:
+        - "user_engagement"
+        - "feature_usage"
+        - "time_in_section"
+    chrome_devtools:
+      enabled: true
+      actions:
+        - "screenshot"
+        - "snapshot"
+        - "navigate"
+    filesystem:
+      enabled: true
+      operations:
+        - "read"
+        - "write"
+        - "edit"
+    fetch:
+      enabled: true
+      timeout: 30
+
+principles:
+  first_principles: true
+  data_driven: true
+  visually_tested: true
+  documented: true
+
+circuit_breaker:
+  max_loops_no_progress: 10
+  stagnation_threshold: 3
+  cooldown_period_seconds: 300
+  enabled: true
+
+quality_gates:
+  - "All changes documented"
+  - "Visual validation passed"
+  - "No regressions introduced"
+  - "First-principles applied"
+  - "5 options generated"
+  - "Hybrid solution evaluated"
+
+session:
+  auto_create: true
+  template: "default"
+  output_dir: ".blackbox/1-agents/4-specialists/morning-ui-optimizer/work"
+
+logging:
+  level: "INFO"
+  file: ".blackbox/1-agents/4-specialists/morning-ui-optimizer/logs/activity.log"
+  decisions: ".blackbox/1-agents/4-specialists/morning-ui-optimizer/logs/decisions.log"
+
+first_principles:
+  decomposition: true
+  grounding: true
+  reconstruction: true
+  testability: true
+
+options:
+  conservative:
+    risk: "low"
+    description: "Minimal changes, safe improvements"
+  incremental:
+    risk: "low-medium"
+    description: "Small but meaningful enhancements"
+  moderate:
+    risk: "medium"
+    description: "Balanced approach with clear benefits"
+  novel:
+    risk: "medium-high"
+    description: "Creative solutions with calculated risks"
+  radical:
+    risk: "high"
+    description: "Complete redesign with breakthrough potential"
+
+validation:
+  visual:
+    enabled: true
+    before_screenshot: true
+    after_screenshot: true
+    comparison: true
+  functional:
+    enabled: true
+    test_scenarios: true
+    regression_tests: true
+  data:
+    enabled: true
+    supabase_queries: true
+    usage_validation: true
+
+output:
+  summary:
+    required: true
+    template: "summary.md"
+  analysis:
+    required: true
+    template: "analysis.md"
+  options:
+    required: true
+    template: "options.md"
+  implementation:
+    required: true
+    template: "implementation.md"
+  validation:
+    required: true
+    template: "validation.md"
+  next_steps:
+    required: true
+    template: "next-steps.md"
