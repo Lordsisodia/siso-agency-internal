@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import TextareaAutosize from 'react-textarea-autosize';
@@ -812,34 +813,29 @@ const waterXPRef = useRef(0);
       <div className="w-full max-w-none p-4 sm:p-6 space-y-4">
 
         {/* Morning Routine Header */}
-        <Card className="w-full bg-orange-900/20 border-orange-700/50">
-          <div className="flex items-center space-x-2 p-3">
-            <div className="flex-1 text-center">
-              <div className="text-orange-100 font-bold text-lg">{Math.round(morningRoutineProgress)}%</div>
-              <div className="text-[10px] text-orange-400/60">Daily progress</div>
+        <Card className="bg-slate-950/40 border border-slate-700/30 shadow-lg overflow-hidden">
+          <CardHeader className="relative pb-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 rounded-lg border border-orange-400/30">
+                  <Sun className="h-4 w-4 text-orange-300" />
+                </div>
+                <CardTitle className="text-base font-semibold text-orange-100">Morning Routine</CardTitle>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge className={cn(
+                  "border",
+                  morningRoutineProgress >= 100
+                    ? "bg-green-500/20 text-green-300 border-green-500/30"
+                    : morningRoutineProgress >= 50
+                    ? "bg-amber-500/20 text-amber-300 border-amber-500/30"
+                    : "bg-slate-500/20 text-slate-400 border-slate-500/30"
+                )}>
+                  {morningRoutineProgress >= 100 ? 'Complete' : `${Math.round(morningRoutineProgress)}%`}
+                </Badge>
+              </div>
             </div>
-            <div className="flex-1 text-center">
-              <div className="text-orange-100 font-semibold text-base">Morning Routine</div>
-              <div className="text-[10px] text-orange-400/60">{format(selectedDate, 'MMM d, yyyy')}</div>
-            </div>
-            <div className="flex-1 text-center">
-              <div className="text-orange-100 font-bold text-lg">{todayXP.total}</div>
-              <div className="text-[10px] text-orange-400/60">Total XP</div>
-            </div>
-          </div>
-          {/* Progress Bar */}
-          <div className="px-3 pb-3">
-            <div className="w-full bg-orange-900/30 rounded-full h-2">
-              <motion.div
-                className={cn(
-                  "bg-gradient-to-r from-orange-400 to-orange-600 h-2 rounded-full transition-all duration-500",
-                  morningRoutineProgress >= 100 && "progress-complete"
-                )}
-                initial={{ width: 0 }}
-                animate={{ width: `${morningRoutineProgress}%` }}
-              />
-            </div>
-          </div>
+          </CardHeader>
         </Card>
 
         {/* Mindset Card - Combined with tabs */}
