@@ -20,16 +20,16 @@ export const XPPill: React.FC<XPPillProps> = ({ xp, earned, emoji, showGlow = fa
   const getTierStyles = (amount: number) => {
     if (amount >= 200) {
       return {
-        bg: 'bg-yellow-500/20',
-        text: 'text-yellow-300',
-        border: 'border-yellow-500/40',
+        bg: 'bg-orange-500/20',
+        text: 'text-orange-300',
+        border: 'border-orange-500/40',
         emoji: '💎'
       };
     } else if (amount >= 100) {
       return {
-        bg: 'bg-purple-500/20',
-        text: 'text-purple-300',
-        border: 'border-purple-500/40',
+        bg: 'bg-orange-500/20',
+        text: 'text-orange-300',
+        border: 'border-orange-500/40',
         emoji: '⭐'
       };
     } else if (amount >= 50) {

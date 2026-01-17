@@ -82,22 +82,22 @@ export const TimeScrollPicker: React.FC<TimeScrollPickerProps> = ({
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={onClose}>
       <div
-        className="bg-gray-900 border border-yellow-600/50 rounded-lg p-4 w-80"
+        className="bg-gray-900 border border-orange-600/50 rounded-lg p-4 w-80"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="text-yellow-400 font-semibold mb-4 text-center">Select Wake-up Time</h3>
+        <h3 className="text-orange-400 font-semibold mb-4 text-center">Select Wake-up Time</h3>
 
         <div className="flex gap-2 mb-4">
           {/* Hours */}
           <div className="flex-1">
-            <div className="text-xs text-yellow-400/60 text-center mb-1">Hour</div>
+            <div className="text-xs text-orange-400/60 text-center mb-1">Hour</div>
             <div className="relative h-[120px] overflow-hidden">
               {/* Gradient overlays */}
               <div className="absolute top-0 left-0 right-0 h-10 bg-gradient-to-b from-gray-900 to-transparent pointer-events-none z-10" />
               <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-gray-900 to-transparent pointer-events-none z-10" />
 
               {/* Selection highlight */}
-              <div className="absolute top-1/2 left-0 right-0 h-10 -translate-y-1/2 bg-yellow-500/10 border-y border-yellow-600/30 pointer-events-none" />
+              <div className="absolute top-1/2 left-0 right-0 h-10 -translate-y-1/2 bg-orange-500/10 border-y border-orange-600/30 pointer-events-none" />
 
               {/* Scrollable container */}
               <div
@@ -111,7 +111,7 @@ export const TimeScrollPicker: React.FC<TimeScrollPickerProps> = ({
                     key={hour}
                     className={cn(
                       "h-10 flex items-center justify-center snap-center text-lg transition-all",
-                      hour === selectedHour ? "text-yellow-400 font-bold" : "text-gray-500"
+                      hour === selectedHour ? "text-orange-400 font-bold" : "text-gray-500"
                     )}
                   >
                     {hour}
@@ -123,11 +123,11 @@ export const TimeScrollPicker: React.FC<TimeScrollPickerProps> = ({
 
           {/* Minutes */}
           <div className="flex-1">
-            <div className="text-xs text-yellow-400/60 text-center mb-1">Min</div>
+            <div className="text-xs text-orange-400/60 text-center mb-1">Min</div>
             <div className="relative h-[120px] overflow-hidden">
               <div className="absolute top-0 left-0 right-0 h-10 bg-gradient-to-b from-gray-900 to-transparent pointer-events-none z-10" />
               <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-gray-900 to-transparent pointer-events-none z-10" />
-              <div className="absolute top-1/2 left-0 right-0 h-10 -translate-y-1/2 bg-yellow-500/10 border-y border-yellow-600/30 pointer-events-none" />
+              <div className="absolute top-1/2 left-0 right-0 h-10 -translate-y-1/2 bg-orange-500/10 border-y border-orange-600/30 pointer-events-none" />
 
               <div
                 ref={minuteRef}
@@ -140,7 +140,7 @@ export const TimeScrollPicker: React.FC<TimeScrollPickerProps> = ({
                     key={minute}
                     className={cn(
                       "h-10 flex items-center justify-center snap-center text-lg transition-all",
-                      minute === selectedMinute ? "text-yellow-400 font-bold" : "text-gray-500"
+                      minute === selectedMinute ? "text-orange-400 font-bold" : "text-gray-500"
                     )}
                   >
                     {minute.toString().padStart(2, '0')}
@@ -152,11 +152,11 @@ export const TimeScrollPicker: React.FC<TimeScrollPickerProps> = ({
 
           {/* AM/PM */}
           <div className="flex-1">
-            <div className="text-xs text-yellow-400/60 text-center mb-1">Period</div>
+            <div className="text-xs text-orange-400/60 text-center mb-1">Period</div>
             <div className="relative h-[120px] overflow-hidden">
               <div className="absolute top-0 left-0 right-0 h-10 bg-gradient-to-b from-gray-900 to-transparent pointer-events-none z-10" />
               <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-gray-900 to-transparent pointer-events-none z-10" />
-              <div className="absolute top-1/2 left-0 right-0 h-10 -translate-y-1/2 bg-yellow-500/10 border-y border-yellow-600/30 pointer-events-none" />
+              <div className="absolute top-1/2 left-0 right-0 h-10 -translate-y-1/2 bg-orange-500/10 border-y border-orange-600/30 pointer-events-none" />
 
               <div
                 ref={periodRef}
@@ -169,7 +169,7 @@ export const TimeScrollPicker: React.FC<TimeScrollPickerProps> = ({
                     key={period}
                     className={cn(
                       "h-10 flex items-center justify-center snap-center text-lg transition-all",
-                      period === selectedPeriod ? "text-yellow-400 font-bold" : "text-gray-500"
+                      period === selectedPeriod ? "text-orange-400 font-bold" : "text-gray-500"
                     )}
                   >
                     {period}
@@ -189,7 +189,7 @@ export const TimeScrollPicker: React.FC<TimeScrollPickerProps> = ({
           </button>
           <button
             onClick={handleConfirm}
-            className="flex-1 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-all font-semibold"
+            className="flex-1 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-all font-semibold"
           >
             Confirm
           </button>

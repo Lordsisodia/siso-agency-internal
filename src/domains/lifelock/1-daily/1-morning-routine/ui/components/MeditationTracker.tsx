@@ -112,26 +112,26 @@ export const MeditationTracker: React.FC<MeditationTrackerProps> = ({
 
             {/* Custom duration display and controls */}
             {!DURATION_PRESETS.some(p => p.minutes === currentMins) && currentMins > 0 && (
-              <div className="flex items-center space-x-2 p-2 bg-yellow-900/20 border border-yellow-600/30 rounded-lg">
+              <div className="flex items-center space-x-2 p-2 bg-orange-900/20 border border-orange-600/30 rounded-lg">
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={handleDecrement}
-                  className="border-yellow-600 text-yellow-400 hover:bg-yellow-900/30 h-7 px-2 flex-shrink-0 text-xs active:scale-95 transition-transform"
+                  className="border-orange-600 text-orange-400 hover:bg-orange-900/30 h-7 px-2 flex-shrink-0 text-xs active:scale-95 transition-transform"
                 >
                   -1
                 </Button>
                 <div className="flex-1 text-center">
-                  <div className="text-yellow-100 font-bold text-base">
+                  <div className="text-orange-100 font-bold text-base">
                     {currentMins} min
                   </div>
-                  <div className="text-[10px] text-yellow-400/60">Custom</div>
+                  <div className="text-[10px] text-orange-400/60">Custom</div>
                 </div>
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={handleIncrement}
-                  className="border-yellow-600 text-yellow-400 hover:bg-yellow-900/30 h-7 px-2 flex-shrink-0 text-xs active:scale-95 transition-transform"
+                  className="border-orange-600 text-orange-400 hover:bg-orange-900/30 h-7 px-2 flex-shrink-0 text-xs active:scale-95 transition-transform"
                 >
                   +1
                 </Button>
@@ -139,7 +139,7 @@ export const MeditationTracker: React.FC<MeditationTrackerProps> = ({
                   size="sm"
                   variant="outline"
                   onClick={handleIncrementFive}
-                  className="border-yellow-600 text-yellow-400 hover:bg-yellow-900/30 h-7 px-2 flex-shrink-0 text-xs active:scale-95 transition-transform"
+                  className="border-orange-600 text-orange-400 hover:bg-orange-900/30 h-7 px-2 flex-shrink-0 text-xs active:scale-95 transition-transform"
                 >
                   +5
                 </Button>
@@ -183,7 +183,7 @@ export const MeditationTracker: React.FC<MeditationTrackerProps> = ({
           </div>
 
           {/* Actionable tip */}
-          <p className="text-[10px] text-yellow-400/70 mt-2 text-center italic">
+          <p className="text-[10px] text-orange-400/70 mt-2 text-center italic">
             {getTip()}
           </p>
         </div>

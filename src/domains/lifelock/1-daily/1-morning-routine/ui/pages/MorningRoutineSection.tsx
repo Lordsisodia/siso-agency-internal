@@ -963,7 +963,7 @@ const waterXPRef = useRef(0);
                                 "text-sm font-medium transition-all duration-200 flex-1",
                                 isHabitCompleted(subtask.key)
                                   ? "text-gray-500 line-through"
-                                  : "text-purple-200/90 group-hover:text-purple-50"
+                                  : "text-orange-200/90 group-hover:text-orange-50"
                               )}>
                                 {subtask.title}
                               </span>

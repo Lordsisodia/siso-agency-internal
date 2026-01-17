@@ -59,7 +59,7 @@ export const MotivationalQuotes: React.FC<MotivationalQuotesProps> = ({
   return (
     <div>
       <div className="relative">
-        <div className="bg-gradient-to-br from-yellow-900/10 to-orange-900/10 border border-yellow-600/30 rounded-lg overflow-hidden">
+        <div className="bg-gradient-to-br from-orange-900/10 to-orange-900/10 border border-orange-600/30 rounded-lg overflow-hidden">
           <AnimatePresence mode="wait" custom={swipeDirection}>
             {hasQuotes && activeQuote ? (
               <motion.div
@@ -77,17 +77,17 @@ export const MotivationalQuotes: React.FC<MotivationalQuotesProps> = ({
                 <div className="flex items-start gap-3">
                   <div className="text-2xl">💡</div>
                   <div className="flex-1">
-                    <p className="text-yellow-100/90 text-sm leading-relaxed font-medium">
+                    <p className="text-orange-100/90 text-sm leading-relaxed font-medium">
                       "{activeQuote.text}"
                     </p>
-                    <p className="text-yellow-400/60 text-xs mt-2 font-semibold">
+                    <p className="text-orange-400/60 text-xs mt-2 font-semibold">
                       — {activeQuote.author}
                     </p>
                   </div>
                 </div>
               </motion.div>
             ) : (
-              <div className="p-4 text-yellow-200/70 text-sm">
+              <div className="p-4 text-orange-200/70 text-sm">
                 No motivational quotes available right now.
               </div>
             )}
@@ -95,12 +95,12 @@ export const MotivationalQuotes: React.FC<MotivationalQuotesProps> = ({
         </div>
 
         {hasQuotes && quotes.length > 1 && (
-          <div className="mt-3 flex items-center justify-between text-xs text-yellow-300/70">
+          <div className="mt-3 flex items-center justify-between text-xs text-orange-300/70">
             <button
               type="button"
               onClick={showPreviousQuote}
               aria-label="Show previous motivational quote"
-              className="px-2 py-1 rounded border border-yellow-600/40 hover:border-yellow-500/70 transition-colors"
+              className="px-2 py-1 rounded border border-orange-600/40 hover:border-orange-500/70 transition-colors"
             >
               Swipe ←
             </button>
@@ -111,7 +111,7 @@ export const MotivationalQuotes: React.FC<MotivationalQuotesProps> = ({
               type="button"
               onClick={showNextQuote}
               aria-label="Show next motivational quote"
-              className="px-2 py-1 rounded border border-yellow-600/40 hover:border-yellow-500/70 transition-colors"
+              className="px-2 py-1 rounded border border-orange-600/40 hover:border-orange-500/70 transition-colors"
             >
               Swipe →
             </button>
@@ -119,7 +119,7 @@ export const MotivationalQuotes: React.FC<MotivationalQuotesProps> = ({
         )}
 
         {hasQuotes && quotes.length > 1 && (
-          <p className="mt-2 text-[11px] text-yellow-300/60 text-center">
+          <p className="mt-2 text-[11px] text-orange-300/60 text-center">
             Swipe left or right to reveal a fresh quote.
           </p>
         )}

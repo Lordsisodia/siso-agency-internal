@@ -23,14 +23,14 @@ export const PlanDayActions: React.FC<PlanDayActionsProps> = ({
     <div className="mt-3 space-y-2">
       {/* AI Thought Dump Button */}
       <div
-        className="p-3 bg-gradient-to-r from-yellow-900/20 to-orange-900/20 border border-yellow-600/40 rounded-lg hover:border-yellow-500/60 transition-all cursor-pointer"
+        className="p-3 bg-gradient-to-r from-orange-900/20 to-orange-900/20 border border-orange-600/40 rounded-lg hover:border-orange-500/60 transition-all cursor-pointer"
         onClick={onOpenThoughtDump}
       >
         <div className="flex items-center gap-3">
           <div className="text-2xl">🎤</div>
           <div className="flex-1">
-            <div className="text-yellow-300 font-medium text-sm">🧠 AI Thought Dump</div>
-            <p className="text-xs text-yellow-400/60">Talk → Auto-organize → Timebox</p>
+            <div className="text-orange-300 font-medium text-sm">🧠 AI Thought Dump</div>
+            <p className="text-xs text-orange-400/60">Talk → Auto-organize → Timebox</p>
           </div>
         </div>
       </div>
@@ -39,7 +39,7 @@ export const PlanDayActions: React.FC<PlanDayActionsProps> = ({
       {!isComplete && (
         <Button
           onClick={onMarkComplete}
-          className="w-full bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-600/40 text-yellow-300 text-sm"
+          className="w-full bg-orange-600/20 hover:bg-orange-600/30 border border-orange-600/40 text-orange-300 text-sm"
         >
           ✓ Mark Plan Day Complete
         </Button>

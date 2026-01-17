@@ -189,6 +189,8 @@ export default defineConfig(({ mode }) => ({
     cssMinify: false,
     cssCodeSplit: false, // Prevent CSS splitting issues
     sourcemap: mode === 'development',
+    // Reduce memory usage for Vercel builds
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       external: mode === 'development' ? ['child_process', 'fs', 'path', 'os', '@tauri-apps/api/core'] : [],
       output: mode === 'production' ? {

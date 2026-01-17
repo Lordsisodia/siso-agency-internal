@@ -56,27 +56,27 @@ export const MorningMindsetCard: React.FC<MorningMindsetCardProps> = ({
   };
 
   return (
-    <Card className="w-full bg-gradient-to-br from-yellow-900/25 to-amber-900/15 border-yellow-700/40 overflow-hidden">
+    <Card className="w-full bg-gradient-to-br from-orange-900/25 to-orange-900/15 border-orange-700/40 overflow-hidden">
       {/* Header - Always Visible */}
       <div
-        className="p-4 cursor-pointer hover:bg-yellow-900/10 transition-colors"
+        className="p-4 cursor-pointer hover:bg-orange-900/10 transition-colors"
         onClick={toggleExpanded}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-500/20 to-amber-500/20 border-2 border-yellow-500/30 flex items-center justify-center">
-              <Brain className="h-5 w-5 text-yellow-400" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500/20 to-orange-500/20 border-2 border-orange-500/30 flex items-center justify-center">
+              <Brain className="h-5 w-5 text-orange-400" />
             </div>
             <div>
-              <h2 className="text-yellow-300 font-bold text-base">Morning Mindset</h2>
-              <p className="text-yellow-400/60 text-xs">Set your intention for the day</p>
+              <h2 className="text-orange-300 font-bold text-base">Morning Mindset</h2>
+              <p className="text-orange-400/60 text-xs">Set your intention for the day</p>
             </div>
           </div>
           <motion.div
             animate={{ rotate: isExpanded ? 180 : 0 }}
             transition={{ duration: 0.2 }}
           >
-            <ChevronDown className="h-5 w-5 text-yellow-400" />
+            <ChevronDown className="h-5 w-5 text-orange-400" />
           </motion.div>
         </div>
       </div>
@@ -155,8 +155,8 @@ const SectionTab: React.FC<SectionTabProps> = ({ label, icon, active, onClick })
     className={cn(
       'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200',
       active
-        ? 'bg-yellow-500/20 border border-yellow-400/40 text-yellow-200'
-        : 'bg-yellow-900/10 border border-yellow-700/30 text-yellow-400/60 hover:border-yellow-600/50 hover:text-yellow-400/80'
+        ? 'bg-orange-500/20 border border-orange-400/40 text-orange-200'
+        : 'bg-orange-900/10 border border-orange-700/30 text-orange-400/60 hover:border-orange-600/50 hover:text-orange-400/80'
     )}
   >
     <span>{icon}</span>
@@ -174,7 +174,7 @@ const SectionContent: React.FC<SectionContentProps> = ({ children }) => (
     animate={{ opacity: 1, y: 0 }}
     exit={{ opacity: 0, y: -10 }}
     transition={{ duration: 0.2 }}
-    className="bg-gradient-to-br from-yellow-900/15 to-amber-900/10 border border-yellow-700/30 rounded-lg p-4"
+    className="bg-gradient-to-br from-orange-900/15 to-orange-900/10 border border-orange-700/30 rounded-lg p-4"
   >
     {children}
   </motion.div>
@@ -187,7 +187,7 @@ const InspirationSection: React.FC<{ quotes: Quote[] }> = ({ quotes }) => {
   if (quotes.length === 0) {
     return (
       <div className="text-center py-4">
-        <p className="text-yellow-200/70 text-sm">No quotes available</p>
+        <p className="text-orange-200/70 text-sm">No quotes available</p>
       </div>
     );
   }
@@ -197,10 +197,10 @@ const InspirationSection: React.FC<{ quotes: Quote[] }> = ({ quotes }) => {
   return (
     <div className="space-y-3">
       <div>
-        <p className="text-yellow-100/90 text-sm leading-relaxed">
+        <p className="text-orange-100/90 text-sm leading-relaxed">
           "{quote.text}"
         </p>
-        <p className="text-yellow-400/60 text-xs mt-2 font-medium">
+        <p className="text-orange-400/60 text-xs mt-2 font-medium">
           — {quote.author}
         </p>
       </div>
@@ -209,22 +209,22 @@ const InspirationSection: React.FC<{ quotes: Quote[] }> = ({ quotes }) => {
         <div className="flex items-center justify-between">
           <button
             onClick={() => setCurrentIndex(prev => prev - 1)}
-            className="p-1.5 rounded-lg bg-yellow-900/20 hover:bg-yellow-900/30 border border-yellow-700/30 transition-colors"
+            className="p-1.5 rounded-lg bg-orange-900/20 hover:bg-orange-900/30 border border-orange-700/30 transition-colors"
             aria-label="Previous quote"
           >
-            <ChevronRight className="h-4 w-4 text-yellow-400 rotate-180" />
+            <ChevronRight className="h-4 w-4 text-orange-400 rotate-180" />
           </button>
 
-          <span className="text-yellow-400/60 text-xs font-medium">
+          <span className="text-orange-400/60 text-xs font-medium">
             {currentIndex + 1} / {quotes.length}
           </span>
 
           <button
             onClick={() => setCurrentIndex(prev => prev + 1)}
-            className="p-1.5 rounded-lg bg-yellow-900/20 hover:bg-yellow-900/30 border border-yellow-700/30 transition-colors"
+            className="p-1.5 rounded-lg bg-orange-900/20 hover:bg-orange-900/30 border border-orange-700/30 transition-colors"
             aria-label="Next quote"
           >
-            <ChevronRight className="h-4 w-4 text-yellow-400" />
+            <ChevronRight className="h-4 w-4 text-orange-400" />
           </button>
         </div>
       )}
@@ -236,10 +236,10 @@ const InspirationSection: React.FC<{ quotes: Quote[] }> = ({ quotes }) => {
 const PurposeSection: React.FC<{ statement: string }> = ({ statement }) => (
   <div className="space-y-3">
     <div className="flex items-center gap-2">
-      <Target className="h-4 w-4 text-yellow-400" />
-      <h3 className="text-yellow-300 font-semibold text-sm">My Purpose</h3>
+      <Target className="h-4 w-4 text-orange-400" />
+      <h3 className="text-orange-300 font-semibold text-sm">My Purpose</h3>
     </div>
-    <p className="text-yellow-100/90 text-sm leading-relaxed">
+    <p className="text-orange-100/90 text-sm leading-relaxed">
       {statement}
     </p>
   </div>
@@ -249,14 +249,14 @@ const PurposeSection: React.FC<{ statement: string }> = ({ statement }) => (
 const RulesSection: React.FC<{ rules: Array<{ id: string; text: string }> }> = ({ rules }) => (
   <div className="space-y-3">
     <div className="flex items-center gap-2">
-      <Target className="h-4 w-4 text-yellow-400" />
-      <h3 className="text-yellow-300 font-semibold text-sm">Flow State Rules</h3>
+      <Target className="h-4 w-4 text-orange-400" />
+      <h3 className="text-orange-300 font-semibold text-sm">Flow State Rules</h3>
     </div>
     <ul className="space-y-2">
       {rules.map(rule => (
         <li key={rule.id} className="flex items-start gap-2">
-          <span className="text-yellow-400 mt-0.5 text-sm">•</span>
-          <span className="text-yellow-100/90 text-sm">{rule.text}</span>
+          <span className="text-orange-400 mt-0.5 text-sm">•</span>
+          <span className="text-orange-100/90 text-sm">{rule.text}</span>
         </li>
       ))}
     </ul>

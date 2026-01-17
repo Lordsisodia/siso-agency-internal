@@ -1,5 +1,5 @@
 {
-  "buildCommand": "rm -rf dist node_modules/.vite && npm ci && npm run build",
+  "buildCommand": "rm -rf dist node_modules/.vite && npm ci && NODE_OPTIONS='--max-old-space-size=4096' npm run build",
   "outputDirectory": "dist",
   "rewrites": [
     {

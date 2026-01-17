@@ -133,32 +133,50 @@ export const DailyMetricsSection: React.FC<DailyMetricsSectionProps> = ({
 
   return (
     <div className="w-full">
-      <Card className="mx-6 sm:mx-8 md:mx-12 bg-purple-900/10 border-purple-700/30 overflow-hidden">
-        {/* Solid Purple Header Bar */}
-        <div className="bg-purple-800/80 border-b border-purple-700/50 px-4 py-3">
-          <div className="flex items-center gap-2">
-            <Zap className="h-5 w-5 text-white" />
-            <span className="font-semibold text-white">Daily Metrics</span>
+      {/* Today's XP Breakdown Card */}
+      <Card className="mx-0 sm:mx-2 md:mx-4 bg-purple-900/10 border-purple-700/30 overflow-hidden">
+        {/* Header Section */}
+        <div className="bg-gradient-to-r from-purple-800/60 to-indigo-800/60 border-b border-purple-700/50 px-5 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-400/30 flex items-center justify-center">
+                <Zap className="h-5 w-5 text-purple-300" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-white text-lg">Today's XP Breakdown</h3>
+                <p className="text-xs text-purple-300/70">Track your daily metrics and earn rewards</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-2xl font-bold text-yellow-400">+150</div>
+              <div className="text-xs text-yellow-300/70">XP available</div>
+            </div>
           </div>
         </div>
 
-        <div className="p-4 space-y-4">
+        {/* Metrics Grid */}
+        <div className="p-4 space-y-3">
           {metrics.map((metric) => (
-            <div key={metric.key} className="border border-purple-700/30 rounded-lg overflow-hidden">
+            <div key={metric.key} className="border border-purple-700/30 rounded-lg overflow-hidden bg-purple-900/5 hover:bg-purple-900/10 transition-colors">
               <div
-                className="bg-purple-900/20 px-4 py-3 cursor-pointer hover:bg-purple-900/30 transition-colors"
+                className="px-4 py-3.5 cursor-pointer"
                 onClick={() => toggleSection(metric.key)}
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    {metric.icon}
-                    <h4 className="font-semibold text-purple-300 text-sm">{metric.title}</h4>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
+                      {metric.icon}
+                    </div>
+                    <h4 className="font-semibold text-purple-200">{metric.title}</h4>
                   </div>
-                  {expandedSections[metric.key] ? (
-                    <ChevronUp className="h-4 w-4 text-purple-400" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4 text-purple-400" />
-                  )}
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-purple-400/70">+25 XP</span>
+                    {expandedSections[metric.key] ? (
+                      <ChevronUp className="h-4 w-4 text-purple-400" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4 text-purple-400" />
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -171,7 +189,7 @@ export const DailyMetricsSection: React.FC<DailyMetricsSectionProps> = ({
                     transition={{ duration: 0.2 }}
                     className="overflow-hidden"
                   >
-                    <div className="p-4 bg-purple-900/10">
+                    <div className="px-4 pb-4 bg-purple-950/30">
                       {metric.component}
                     </div>
                   </motion.div>
