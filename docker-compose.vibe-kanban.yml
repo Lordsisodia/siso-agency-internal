@@ -1,0 +1,145 @@
+version: '3.8'
+
+# =============================================================================
+# VIBE KANBAN DOCKER SETUP
+# Runs Vibe Kanban on Mac Mini with all services
+# Accessible remotely via SSH/Tunnel/Cloudflare
+# =============================================================================
+
+services:
+  # =========================================================================
+  # VIBE KANBAN SERVER
+  # =========================================================================
+  vibe-kanban:
+    image: bloopai/vibe-kanban:latest
+    container_name: vibe-kanban
+    restart: unless-stopped
+
+    ports:
+      - "3000:3000"
+
+    volumes:
+      # Persist Vibe Kanban data
+      - vibe-kanban-data:/app/data
+
+      # Mount your codebase (read-write)
+      - ~/SISO-INTERNAL:/workspace/SISO-INTERNAL:rw
+
+      # SSH socket for git operations
+      - /tmp/ssh-auth.sock:/tmp/ssh-auth.sock
+
+    environment:
+      # Server configuration
+      - PORT=3000
+      - HOST=0.0.0.0
+
+      # Database (will use SQLite by default)
+      - DATABASE_URL=sqlite:///app/data/vibe-kanban.db
+
+      # Logging
+      - RUST_LOG=info
+
+      # MCP configuration
+      - MCP_HOST=127.0.0.1
+      - MCP_PORT=3001
+
+    # Resource limits (1GB max)
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+
+    # Health check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+    networks:
+      - vibe-network
+
+    # Dependencies
+    depends_on:
+      - postgres
+
+  # =========================================================================
+  # POSTGRESQL DATABASE (Optional - for production use)
+  # =========================================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: vibe-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: vibeuser
+      POSTGRES_PASSWORD: vibe_secure_password_change_me
+      POSTGRES_DB: vibe_kanban
+      POSTGRES_INITDB_ARGS: "-E UTF8"
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - vibe-postgres-data:/var/lib/postgresql/data
+
+    # Resource limits (512MB max)
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+    # Health check
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vibeuser -d vibe_kanban"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    networks:
+      - vibe-network
+
+  # =========================================================================
+  # CLOUDFLARED TUNNEL (Optional - for external access)
+  # =========================================================================
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: vibe-cloudflared
+    restart: unless-stopped
+
+    command: tunnel run
+
+    volumes:
+      - ~/cloudflared:/home/cloudflared/.cloudflared
+
+    environment:
+      - TUNNEL_METRICS=0.0.0.0:2000
+
+    networks:
+      - vibe-network
+
+    # Uncomment below if you want to use Cloudflare tunnel
+    # profiles:
+    #   - external
+
+volumes:
+  # Persist Vibe Kanban data
+  vibe-kanban-data:
+    name: vibe-kanban-data
+    driver: local
+
+  # Persist PostgreSQL data
+  vibe-postgres-data:
+    name: vibe-postgres-data
+    driver: local
+
+networks:
+  # Shared network for all services
+  vibe-network:
+    driver: bridge
+    name: vibe-network
