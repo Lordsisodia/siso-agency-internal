@@ -812,31 +812,31 @@ const waterXPRef = useRef(0);
       <div className="w-full max-w-none p-4 sm:p-6 space-y-4">
 
         {/* Morning Routine Header */}
-        <Card className="w-full bg-orange-900/20 border-orange-700/50">
-          <CardHeader className="p-4">
-            <CardTitle className="flex items-center justify-between text-orange-400 text-lg">
-              <div className="flex items-center">
-                <Sun className="h-5 w-5 mr-2" />
-                🌅 Morning Routine
+        <Card className="w-full bg-orange-900/20 border-orange-700/50 overflow-hidden">
+          <div className="p-4">
+            <div className="flex items-center justify-between gap-2 mb-3">
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                <Sun className="h-5 w-5 text-orange-400 flex-shrink-0" />
+                <h4 className="text-orange-100 font-semibold text-base">Morning Routine</h4>
               </div>
-              <div className="flex items-center gap-3 text-sm font-medium text-orange-300/80">
-                <span className="uppercase tracking-[0.2em] text-orange-200/70">Progress</span>
-                <span>{Math.round(morningRoutineProgress)}%</span>
+              <div className="flex items-center gap-2 text-sm font-semibold">
+                <span className="text-orange-400/70">PROGRESS</span>
+                <span className="text-orange-200">{Math.round(morningRoutineProgress)}%</span>
               </div>
-            </CardTitle>
+            </div>
 
             {/* Progress Bar */}
-            <div className="w-full bg-orange-900/20 rounded-full h-2 mt-4">
+            <div className="w-full bg-orange-900/30 border border-orange-600/20 rounded-full h-1.5">
               <motion.div
                 className={cn(
-                  "bg-gradient-to-r from-orange-400 to-orange-600 h-2 rounded-full transition-all duration-500",
+                  "bg-gradient-to-r from-orange-400 to-orange-600 h-1.5 rounded-full transition-all duration-500",
                   morningRoutineProgress >= 100 && "progress-complete"
                 )}
                 initial={{ width: 0 }}
                 animate={{ width: `${morningRoutineProgress}%` }}
               />
             </div>
-          </CardHeader>
+          </div>
         </Card>
 
         {/* Mindset Card - Combined with tabs */}
