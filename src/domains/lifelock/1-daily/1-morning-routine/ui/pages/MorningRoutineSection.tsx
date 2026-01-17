@@ -812,24 +812,27 @@ const waterXPRef = useRef(0);
       <div className="w-full max-w-none p-4 sm:p-6 space-y-4">
 
         {/* Morning Routine Header */}
-        <Card className="w-full bg-orange-900/20 border-orange-700/50 overflow-hidden">
-          <div className="p-4">
-            <div className="flex items-center justify-between gap-2 mb-3">
-              <div className="flex items-center gap-2 flex-1 min-w-0">
-                <Sun className="h-5 w-5 text-orange-400 flex-shrink-0" />
-                <h4 className="text-orange-100 font-semibold text-base">Morning Routine</h4>
-              </div>
-              <div className="flex items-center gap-2 text-sm font-semibold">
-                <span className="text-orange-400/70">PROGRESS</span>
-                <span className="text-orange-200">{Math.round(morningRoutineProgress)}%</span>
-              </div>
+        <Card className="w-full bg-orange-900/20 border-orange-700/50">
+          <div className="flex items-center space-x-2 p-3">
+            <div className="flex-1 text-center">
+              <div className="text-orange-100 font-bold text-lg">{Math.round(morningRoutineProgress)}%</div>
+              <div className="text-[10px] text-orange-400/60">Daily progress</div>
             </div>
-
-            {/* Progress Bar */}
-            <div className="w-full bg-orange-900/30 border border-orange-600/20 rounded-full h-1.5">
+            <div className="flex-1 text-center">
+              <div className="text-orange-100 font-semibold text-base">Morning Routine</div>
+              <div className="text-[10px] text-orange-400/60">{format(selectedDate, 'MMM d, yyyy')}</div>
+            </div>
+            <div className="flex-1 text-center">
+              <div className="text-orange-100 font-bold text-lg">{todayXP.total}</div>
+              <div className="text-[10px] text-orange-400/60">Total XP</div>
+            </div>
+          </div>
+          {/* Progress Bar */}
+          <div className="px-3 pb-3">
+            <div className="w-full bg-orange-900/30 rounded-full h-2">
               <motion.div
                 className={cn(
-                  "bg-gradient-to-r from-orange-400 to-orange-600 h-1.5 rounded-full transition-all duration-500",
+                  "bg-gradient-to-r from-orange-400 to-orange-600 h-2 rounded-full transition-all duration-500",
                   morningRoutineProgress >= 100 && "progress-complete"
                 )}
                 initial={{ width: 0 }}
