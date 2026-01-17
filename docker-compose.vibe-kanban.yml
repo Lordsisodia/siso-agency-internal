@@ -153,6 +153,61 @@ services:
       - vibe-network
 
   # =========================================================================
+  # MCP SERVER: Filesystem
+  # =========================================================================
+  mcp-filesystem:
+    image: node:20-alpine
+    container_name: mcp-filesystem-server
+    restart: unless-stopped
+
+    working_dir: /app
+
+    command: sh -c "npm install -g @modelcontextprotocol/server-filesystem && npx @modelcontextprotocol/server-filesystem /workspace/SISO-INTERNAL"
+
+    volumes:
+      - ~/SISO-INTERNAL:/workspace/SISO-INTERNAL:rw
+
+    environment:
+      - NODE_ENV=production
+
+    # Resource limits (128MB max - lightweight)
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
+
+    networks:
+      - vibe-network
+
+  # =========================================================================
+  # MCP SERVER: Fetch (Web requests)
+  # =========================================================================
+  mcp-fetch:
+    image: node:20-alpine
+    container_name: mcp-fetch-server
+    restart: unless-stopped
+
+    working_dir: /app
+
+    command: sh -c "npm install -g @modelcontextprotocol/server-fetch && npx @modelcontextprotocol/server-fetch"
+
+    environment:
+      - NODE_ENV=production
+
+    # Resource limits (128MB max - lightweight)
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
+
+    networks:
+      - vibe-network
+
+  # =========================================================================
   # CLOUDFLARED TUNNEL (Optional - for external access)
   # =========================================================================
   cloudflared:
