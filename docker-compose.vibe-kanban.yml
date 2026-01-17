@@ -65,6 +65,54 @@ services:
     # Dependencies
     depends_on:
       - postgres
+      - webhook-server
+
+    environment:
+      # Add webhook URL for .blackbox integration
+      - WEBHOOK_URL=http://webhook-server:5001/webhook/vibe-kanban
+      - BLACKBOX_INTEGRATION_ENABLED=true
+
+  # =========================================================================
+  # WEBHOOK SERVER (.blackbox Integration)
+  # =========================================================================
+  webhook-server:
+    build:
+      context: .
+      dockerfile: .blackbox/4-scripts/integrations/vibe-kanban/Dockerfile
+    container_name: vibe-webhook-server
+    restart: unless-stopped
+
+    ports:
+      - "5001:5001"
+
+    volumes:
+      # Mount .blackbox for tracking
+      - ~/SISO-INTERNAL/.blackbox:/app/.blackbox:rw
+
+      # Mount codebase for git operations
+      - ~/SISO-INTERNAL:/workspace/SISO-INTERNAL:rw
+
+    environment:
+      - PYTHONUNBUFFERED=1
+
+    # Resource limits (256MB max - lightweight service)
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+
+    # Health check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+    networks:
+      - vibe-network
 
   # =========================================================================
   # POSTGRESQL DATABASE (Optional - for production use)
