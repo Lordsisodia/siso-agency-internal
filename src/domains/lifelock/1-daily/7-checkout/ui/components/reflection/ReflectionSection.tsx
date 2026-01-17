@@ -174,14 +174,9 @@ export const ReflectionSection: React.FC<ReflectionSectionProps> = ({
   const completedEvenBetterIf = evenBetterIfItems.filter(item => item.trim() !== '').length;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="space-y-6"
-    >
-      <Card className="bg-purple-900/10 border-purple-700/30 overflow-hidden">
-        <CardContent className="p-4 space-y-6">
+    <div className="w-full space-y-6">
+      <Card className="mx-6 sm:mx-8 md:mx-12 bg-purple-900/10 border-purple-700/30 overflow-hidden">
+          <CardContent className="p-4 space-y-6">
           {/* Header */}
           <div className="flex items-center gap-2">
             <Lightbulb className="h-5 w-5 text-purple-400" />
@@ -298,9 +293,9 @@ export const ReflectionSection: React.FC<ReflectionSectionProps> = ({
               </div>
             </motion.div>
           )}
-        </CardContent>
-      </Card>
-    </motion.div>
+          </CardContent>
+        </Card>
+    </div>
   );
 };
 

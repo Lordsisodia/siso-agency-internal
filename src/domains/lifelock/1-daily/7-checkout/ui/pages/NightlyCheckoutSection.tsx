@@ -13,16 +13,9 @@ import { calculateTotalCheckoutXP } from '../../domain/xpCalculations';
 import { GamificationService } from '@/domains/lifelock/_shared/services/gamificationService';
 
 // Import new components
-import {
-  MeditationCard,
-  WorkoutCard,
-  NutritionCard,
-  DeepWorkCard,
-  ResearchCard,
-  SleepCard
-} from '../components/metrics';
-import { StateSnapshot } from '../components/state';
-import { ReflectionSection } from '../components/reflection';
+import { DailyMetricsSection } from '../components/metrics';
+import { WentWellSection, EvenBetterIfSection } from '../components/reflection';
+import { TomorrowsPlanSection } from '../components/tomorrow';
 
 interface NightlyCheckoutSectionProps {
   selectedDate: Date;
@@ -319,243 +312,148 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
   return (
     <div className="min-h-screen w-full bg-[#121212] relative overflow-x-hidden">
       <div className="w-full px-2 sm:px-4 md:px-6 lg:px-8 space-y-6">
+
+        {/* Page Header - Title, Icon, Subtext */}
+        <div className="px-5 py-5 border-b border-white/10">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500/20 to-indigo-500/20 border-2 border-purple-500/30 flex items-center justify-center flex-shrink-0">
+                <Moon className="h-7 w-7 text-purple-400" />
+              </div>
+              <div className="min-w-0">
+                <h1 className="text-2xl font-bold text-white tracking-tight">Nightly Checkout</h1>
+                <p className="text-sm text-white/60 mt-0.5">Reflect on your day</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="text-right">
+                <div className="text-2xl font-bold text-purple-400">{checkoutXP.total} XP</div>
+                <div className="text-xs text-purple-400/70">{Math.round(checkoutProgress)}% complete</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Streak Counter + XP Display Card */}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <div className="w-full">
+            <Card className="mx-0 sm:mx-2 md:mx-4 bg-gradient-to-r from-purple-900/40 to-pink-900/40 border-purple-700/30">
+              <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="text-center">
+                    <div className="flex items-center space-x-2 mb-1">
+                      <span className="text-3xl">🔥</span>
+                      <span className="text-3xl font-bold text-purple-200">{currentStreak}</span>
+                    </div>
+                    <p className="text-xs text-purple-400">Day Streak</p>
+                  </div>
+                  <div className="h-12 w-px bg-purple-700/50"></div>
+                  <div className="text-center">
+                    <div className="flex items-center space-x-2 mb-1">
+                      <Zap className="h-6 w-6 text-yellow-400" />
+                      <span className="text-3xl font-bold text-yellow-400">+{checkoutXP.total}</span>
+                    </div>
+                    <p className="text-xs text-yellow-300">XP Tonight</p>
+                  </div>
+                </div>
+                <Award className="h-8 w-8 text-purple-400 opacity-50" />
+              </div>
+            </CardContent>
+          </Card>
+          </div>
+        </motion.div>
+
+        {/* Accountability Card (if yesterday's focus exists) */}
+        {yesterdayReflection?.tomorrowFocus && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+          >
+            <div className="w-full">
+              <Card className="mx-0 sm:mx-2 md:mx-4 bg-yellow-900/20 border-l-4 border-yellow-500">
+              <CardContent className="p-4">
+                <div className="flex items-start space-x-3">
+                  <TrendingUp className="h-5 w-5 text-yellow-400 mt-1 flex-shrink-0" />
+                  <div className="flex-1">
+                    <h4 className="text-yellow-300 font-semibold mb-2 text-sm">
+                      Yesterday you said you'd focus on:
+                    </h4>
+                    <p className="text-yellow-100 font-medium italic">
+                      "{yesterdayReflection.tomorrowFocus}"
+                    </p>
+                    <p className="text-yellow-400 text-xs mt-2">
+                      Did you follow through? 🎯
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            </div>
+          </motion.div>
+        )}
+
+        {/* What Went Well - Standalone Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
+          transition={{ delay: 0.2 }}
         >
-          <Card className="mb-24 bg-purple-900/10 border-purple-700/30">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between text-purple-400">
-                <div className="flex items-center">
-                  <Moon className="h-5 w-5 mr-2" />
-                  Nightly Check-Out
-                </div>
-                <div className="flex items-center gap-3 text-sm font-medium">
-                  <span className="text-purple-300">{checkoutXP.total} XP</span>
-                  <span className="text-purple-500/70">|</span>
-                  <span>{Math.round(checkoutProgress)}%</span>
-                </div>
-              </CardTitle>
-
-              {/* Progress Bar */}
-              <div className="mt-4">
-                <div className="flex justify-between text-sm text-purple-300 mb-2">
-                  <span>Reflection Progress</span>
-                  {isSaving && <span className="text-xs text-purple-400">Saving...</span>}
-                </div>
-                <div className="w-full bg-purple-900/30 rounded-full h-2">
-                  <motion.div
-                    className="bg-gradient-to-r from-purple-400 to-purple-600 h-2 rounded-full"
-                    initial={{ width: 0 }}
-                    animate={{ width: `${checkoutProgress}%` }}
-                    transition={{ duration: 0.8, ease: 'easeOut' }}
-                  />
-                </div>
-              </div>
-            </CardHeader>
-
-            <CardContent className="pb-24 space-y-6">
-              {/* Streak Counter + XP Display */}
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mb-6"
-              >
-                <div className="flex items-center justify-between bg-gradient-to-r from-purple-900/40 to-pink-900/40 p-4 rounded-xl border border-purple-700/30">
-                  <div className="flex items-center space-x-4">
-                    <div className="text-center">
-                      <div className="flex items-center space-x-2 mb-1">
-                        <span className="text-3xl">🔥</span>
-                        <span className="text-3xl font-bold text-purple-200">{currentStreak}</span>
-                      </div>
-                      <p className="text-xs text-purple-400">Day Streak</p>
-                    </div>
-                    <div className="h-12 w-px bg-purple-700/50"></div>
-                    <div className="text-center">
-                      <div className="flex items-center space-x-2 mb-1">
-                        <Zap className="h-6 w-6 text-yellow-400" />
-                        <span className="text-3xl font-bold text-yellow-400">+{checkoutXP.total}</span>
-                      </div>
-                      <p className="text-xs text-yellow-300">XP Tonight</p>
-                    </div>
-                  </div>
-                  <Award className="h-8 w-8 text-purple-400 opacity-50" />
-                </div>
-              </motion.div>
-
-              {/* Accountability Card (if yesterday's focus exists) */}
-              {yesterdayReflection?.tomorrowFocus && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 }}
-                  className="mb-6"
-                >
-                  <Card className="bg-yellow-900/20 border-l-4 border-yellow-500">
-                    <CardContent className="p-4">
-                      <div className="flex items-start space-x-3">
-                        <TrendingUp className="h-5 w-5 text-yellow-400 mt-1 flex-shrink-0" />
-                        <div className="flex-1">
-                          <h4 className="text-yellow-300 font-semibold mb-2 text-sm">
-                            Yesterday you said you'd focus on:
-                          </h4>
-                          <p className="text-yellow-100 font-medium italic">
-                            "{yesterdayReflection.tomorrowFocus}"
-                          </p>
-                          <p className="text-yellow-400 text-xs mt-2">
-                            Did you follow through? 🎯
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              )}
-
-              {/* NEW: Metrics Grid (2 columns on tablet+, 1 on mobile) */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="mb-6"
-              >
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <MeditationCard
-                    value={checkoutData.meditation}
-                    onChange={(value) => updateCheckoutData({ meditation: value })}
-                    saving={isSaving}
-                  />
-                  <WorkoutCard
-                    value={checkoutData.workout}
-                    onChange={(value) => updateCheckoutData({ workout: value })}
-                    saving={isSaving}
-                  />
-                  <NutritionCard
-                    value={checkoutData.nutrition}
-                    onChange={(value) => updateCheckoutData({ nutrition: value })}
-                    saving={isSaving}
-                  />
-                  <DeepWorkCard
-                    value={checkoutData.deepWork}
-                    onChange={(value) => updateCheckoutData({ deepWork: value })}
-                    saving={isSaving}
-                  />
-                  <ResearchCard
-                    value={checkoutData.research}
-                    onChange={(value) => updateCheckoutData({ research: value })}
-                    saving={isSaving}
-                  />
-                  <SleepCard
-                    value={checkoutData.sleep}
-                    onChange={(value) => updateCheckoutData({ sleep: value })}
-                    saving={isSaving}
-                  />
-                </div>
-              </motion.div>
-
-              {/* NEW: StateSnapshot */}
-              <StateSnapshot
-                moodStart={checkoutData.moodStart}
-                moodEnd={checkoutData.moodEnd}
-                energyLevel={checkoutData.energyLevel}
-                stressLevel={checkoutData.stressLevel}
-                onChange={(updates) => updateCheckoutData(updates)}
-              />
-
-              {/* NEW: ReflectionSection */}
-              <ReflectionSection
-                wentWell={checkoutData.wentWell}
-                evenBetterIf={checkoutData.evenBetterIf}
-                onChange={(updates) => updateCheckoutData(updates)}
-              />
-
-              {/* NEW: TomorrowPlan (inline implementation for web) */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-                className="space-y-6"
-              >
-                <Card className="bg-purple-900/10 border-purple-700/30 overflow-hidden">
-                  <CardContent className="p-4 space-y-6">
-                    {/* Header */}
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-5 w-5 text-purple-400" />
-                      <h3 className="text-lg font-semibold text-purple-300">Tomorrow's Plan</h3>
-                    </div>
-
-                    {/* Non-Negotiables as bullet points */}
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <h4 className="font-semibold text-purple-300 text-sm">Non-Negotiables</h4>
-                      </div>
-                      <p className="text-xs text-purple-400 mb-2">
-                        The things you MUST do tomorrow, no matter what
-                      </p>
-                      <div className="space-y-2 pl-4 border-l-2 border-red-700/30">
-                        {checkoutData.nonNegotiables.map((item, index) => (
-                          <div key={index} className="flex items-start space-x-2">
-                            <span className="text-red-400 mt-2.5">•</span>
-                            <Input
-                              value={item}
-                              onChange={(e) => {
-                                const newNonNegotiables = [...checkoutData.nonNegotiables];
-                                newNonNegotiables[index] = e.target.value;
-                                updateCheckoutData({ nonNegotiables: newNonNegotiables });
-                              }}
-                              className="bg-transparent border-0 border-b border-purple-700/30 text-white placeholder:text-purple-300/40 focus:border-red-400 focus:ring-0 rounded-none px-2 py-1.5 flex-1"
-                              placeholder="A non-negotiable task..."
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Tomorrow's Focus */}
-                    <div className="space-y-2">
-                      <h4 className="font-semibold text-purple-300 text-sm">Main Focus</h4>
-                      <p className="text-xs text-purple-400 mb-2">
-                        This will show up tomorrow as an accountability reminder 🎯
-                      </p>
-                      <Input
-                        value={checkoutData.tomorrowFocus}
-                        onChange={(e) => updateCheckoutData({ tomorrowFocus: e.target.value })}
-                        className="bg-purple-900/10 border-purple-700/30 text-white text-lg font-medium placeholder:text-purple-300/40 focus:border-purple-400 focus:ring-purple-400/20 rounded-lg"
-                        placeholder="e.g., Finish the client presentation, Launch new feature..."
-                      />
-                    </div>
-
-                    {/* Top 3 Tasks */}
-                    <div className="space-y-2">
-                      <h4 className="font-semibold text-purple-300 text-sm">Top 3 Tasks</h4>
-                      <p className="text-xs text-purple-400 mb-2">
-                        Specific {'>'}  Vague. What are the 3 most important things?
-                      </p>
-                      <div className="space-y-2">
-                        {checkoutData.topTasks.map((task, idx) => (
-                          <div key={idx} className="flex items-center space-x-2">
-                            <span className="text-purple-400 font-bold text-lg">#{idx + 1}</span>
-                            <Input
-                              value={task}
-                              onChange={(e) => {
-                                const newTasks = [...checkoutData.topTasks] as [string, string, string];
-                                newTasks[idx] = e.target.value;
-                                updateCheckoutData({ topTasks: newTasks });
-                              }}
-                              placeholder={`Task ${idx + 1}...`}
-                              className="bg-purple-900/10 border-purple-700/30 text-white placeholder:text-purple-300/40 focus:border-purple-400 focus:ring-purple-400/20 rounded-lg"
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            </CardContent>
-          </Card>
+          <WentWellSection
+            items={checkoutData.wentWell}
+            onChange={(items) => updateCheckoutData({ wentWell: items })}
+          />
         </motion.div>
+
+        {/* Even Better If - Standalone Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.22 }}
+        >
+          <EvenBetterIfSection
+            items={checkoutData.evenBetterIf}
+            onChange={(items) => updateCheckoutData({ evenBetterIf: items })}
+          />
+        </motion.div>
+
+        {/* Tomorrow's Plan Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.24 }}
+        >
+          <TomorrowsPlanSection
+            nonNegotiables={checkoutData.nonNegotiables}
+            tomorrowFocus={checkoutData.tomorrowFocus}
+            topTasks={checkoutData.topTasks}
+            onChange={(updates) => updateCheckoutData(updates)}
+          />
+        </motion.div>
+
+        {/* Daily Metrics Card - Main Wrapper for all metrics */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+        >
+          <DailyMetricsSection
+            meditation={checkoutData.meditation}
+            workout={checkoutData.workout}
+            nutrition={checkoutData.nutrition}
+            deepWork={checkoutData.deepWork}
+            research={checkoutData.research}
+            sleep={checkoutData.sleep}
+            saving={isSaving}
+            onChange={(updates) => updateCheckoutData(updates)}
+          />
+        </motion.div>
+
+
       </div>
     </div>
   );

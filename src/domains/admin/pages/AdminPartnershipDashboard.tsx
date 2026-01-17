@@ -1,10 +1,10 @@
 import { AdminLayout } from '@/domains/admin/layout/AdminLayout';
 import { AdminPageTitle } from '@/domains/admin/layout/AdminPageTitle';
 import { Card } from '@/components/ui/card';
-import StatsCard from '@/internal/dashboard/StatsCard';
-import { RecentActivityCard } from '@/internal/dashboard/cards/RecentActivityCard';
-import { EnhancedProgressCard } from '@/internal/dashboard/EnhancedProgressCard';
-import { LeaderboardPreviewCard } from '@/internal/dashboard/LeaderboardPreviewCard';
+import StatsCard from '@/domains/admin/dashboard/components/StatsCard';
+import { RecentActivityCard } from '@/domains/admin/dashboard/components/RecentActivityCard';
+import { EnhancedProgressCard } from '@/domains/admin/dashboard/components/EnhancedProgressCard';
+import { LeaderboardPreviewCard } from '@/domains/admin/dashboard/components/LeaderboardPreviewCard';
 import { DollarSign, Users, TrendingUp, Award, Target, Activity, BookOpen, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Sun,
   CheckCircle2,
@@ -15,7 +15,9 @@ import {
   Activity,
   Heart,
   Plus,
-  Minus
+  Minus,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -37,7 +39,7 @@ import { PushUpTracker } from '../components/PushUpTracker';
 import { MeditationTracker } from '../components/MeditationTracker';
 import { WakeUpTimeTracker } from '../components/WakeUpTimeTracker';
 import { PlanDayActions } from '../components/PlanDayActions';
-import { MotivationalQuotes } from '../components/MotivationalQuotes';
+import { MorningMindsetCard } from '../components/MorningMindsetCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAutoTimeblocks } from '@/lib/hooks/useAutoTimeblocks';
 import { GamificationService } from '@/domains/lifelock/_shared/services/gamificationService';
@@ -142,17 +144,13 @@ const MORNING_ROUTINE_TASKS = [
     subtasks: []
   },
   {
-    key: 'freshenUp' as const,
-    title: 'Freshen Up',
-    description: 'Cold shower to wake up - Personal hygiene and cleanliness.',
-    timeEstimate: '25 min',
-    icon: Droplets,
-    hasTimeTracking: false,
-    subtasks: [
-      { key: 'bathroom', title: 'Bathroom break' },
-      { key: 'brushTeeth', title: 'Brush teeth' },
-      { key: 'coldShower', title: 'Cold shower' }
-    ]
+    key: 'meditation' as const,
+    title: 'Meditation',
+    description: 'Meditate to set an innovative mindset for creating business value.',
+    timeEstimate: '2 min',
+    icon: Heart,
+    hasTimeTracking: true,
+    subtasks: []
   },
   {
     key: 'getBloodFlowing' as const,
@@ -178,22 +176,17 @@ const MORNING_ROUTINE_TASKS = [
     ]
   },
   {
-    key: 'planDay' as const,
-    title: 'Plan Day',
-    description: 'Use AI Thought Dump to organize tasks and set timebox.',
-    timeEstimate: '15 min',
-    icon: CalendarIcon,
+    key: 'freshenUp' as const,
+    title: 'Freshen Up',
+    description: 'Cold shower to wake up - Personal hygiene and cleanliness.',
+    timeEstimate: '25 min',
+    icon: Droplets,
     hasTimeTracking: false,
-    subtasks: []
-  },
-  {
-    key: 'meditation' as const,
-    title: 'Meditation',
-    description: 'Meditate to set an innovative mindset for creating business value.',
-    timeEstimate: '2 min',
-    icon: Heart,
-    hasTimeTracking: true,
-    subtasks: []
+    subtasks: [
+      { key: 'bathroom', title: 'Bathroom break' },
+      { key: 'brushTeeth', title: 'Brush teeth' },
+      { key: 'coldShower', title: 'Cold shower' }
+    ]
   }
 ];
 
@@ -205,6 +198,24 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   const [morningRoutine, setMorningRoutine] = useState<MorningRoutineData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Collapsible sections state
+  const [expandedSections, setExpandedSections] = useState({
+    wakeUp: false,
+    meditation: false,
+    getBloodFlowing: false,
+    powerUpBrain: false,
+    freshenUp: false,
+    priorities: false,
+    planDay: false
+  });
+
+  const toggleSection = (section: keyof typeof expandedSections) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
 
   // Thought Dump AI state (persist across HMR refreshes)
   const [showThoughtDumpChat, setShowThoughtDumpChat] = useState(() => {
@@ -733,7 +744,7 @@ const waterXPRef = useRef(0);
       <div className="min-h-screen w-full relative overflow-x-hidden">
         <div className="w-full px-2 sm:px-4 md:px-6 lg:px-8 space-y-6">
           {/* Quotes Skeleton */}
-          <Card className="w-full bg-yellow-900/20 border-yellow-700/50">
+          <Card className="mx-6 sm:mx-8 md:mx-12 w-full bg-yellow-900/20 border-yellow-700/50">
             <CardHeader className="p-3 sm:p-4 md:p-6">
               <div className="flex items-center gap-3 mb-3">
                 <Skeleton className="h-5 w-5 rounded-full bg-yellow-400/30" />
@@ -747,7 +758,7 @@ const waterXPRef = useRef(0);
           </Card>
 
           {/* Coding My Brain Skeleton */}
-          <Card className="w-full bg-yellow-900/20 border-yellow-700/50">
+          <Card className="mx-6 sm:mx-8 md:mx-12 w-full bg-yellow-900/20 border-yellow-700/50">
             <CardHeader className="p-3 sm:p-4 md:p-6">
               <div className="flex items-center gap-3 mb-3">
                 <Skeleton className="h-5 w-5 rounded-full bg-yellow-400/30" />
@@ -762,7 +773,7 @@ const waterXPRef = useRef(0);
           </Card>
 
           {/* Flow State Rules Skeleton */}
-          <Card className="w-full bg-yellow-900/20 border-yellow-700/50">
+          <Card className="mx-6 sm:mx-8 md:mx-12 w-full bg-yellow-900/20 border-yellow-700/50">
             <CardHeader className="p-3 sm:p-4 md:p-6">
               <div className="flex items-center gap-3 mb-3">
                 <Skeleton className="h-5 w-5 rounded-full bg-yellow-400/30" />
@@ -777,7 +788,7 @@ const waterXPRef = useRef(0);
           </Card>
 
           {/* Morning Routine Progress Skeleton */}
-          <Card className="w-full bg-yellow-900/20 border-yellow-700/50">
+          <Card className="mx-6 sm:mx-8 md:mx-12 w-full bg-yellow-900/20 border-yellow-700/50">
             <CardHeader className="p-3 sm:p-4 md:p-6 space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -794,7 +805,7 @@ const waterXPRef = useRef(0);
           {Array.from({ length: MORNING_ROUTINE_TASKS.length }).map((_, index) => (
             <Card
               key={`morning-skeleton-${index}`}
-              className="w-full bg-yellow-900/20 border-yellow-700/50"
+              className="mx-6 sm:mx-8 md:mx-12 w-full bg-yellow-900/20 border-yellow-700/50"
             >
               <CardHeader className="p-3 sm:p-4 md:p-6 space-y-4">
                 <div className="flex items-start justify-between gap-4">
@@ -836,7 +847,7 @@ const waterXPRef = useRef(0);
                 <Sun className="h-7 w-7 text-orange-400" />
               </div>
               <div className="min-w-0">
-                <h1 className="text-2xl font-bold text-white tracking-tight">Morning Routine</h1>
+                <h1 className="text-2xl font-bold text-white tracking-tight">Morning Flow</h1>
                 <p className="text-sm text-white/60 mt-0.5">Track your morning</p>
               </div>
             </div>
@@ -844,61 +855,16 @@ const waterXPRef = useRef(0);
           </div>
         </div>
 
-        {/* Motivational Quotes - Standalone Section */}
-        <Card className="w-full bg-gradient-to-br from-yellow-900/30 to-amber-900/20 border-yellow-700/50">
-          <CardHeader className="p-3 sm:p-4 md:p-6">
-            <div className="flex items-center gap-2 mb-3">
-              <Sun className="h-5 w-5 text-yellow-400" />
-              <h2 className="text-yellow-300 font-bold text-base sm:text-lg">✨ Daily Inspiration</h2>
-            </div>
-            <MotivationalQuotes quotes={todaysQuotes} />
-          </CardHeader>
-        </Card>
-
-        {/* Coding My Brain - Purpose Statement */}
-        <Card className="w-full bg-gradient-to-br from-yellow-900/25 to-amber-900/15 border-yellow-700/40">
-          <CardHeader className="p-3 sm:p-4 md:p-6">
-            <div className="flex items-center gap-2 mb-3">
-              <Brain className="h-5 w-5 text-yellow-400" />
-              <h2 className="text-yellow-300 font-bold text-base sm:text-lg">Coding My Brain</h2>
-            </div>
-            <p className="text-gray-200 text-sm sm:text-base leading-relaxed">
-              I am Shaan Sisodia. I have been given divine purpose, and on this mission, temptation awaits on either side of the path.
-              When I give in to temptation, I shall know I am astray. I will bring my family to a new age of freedom.
-              I will not be distracted from the path.
-            </p>
-          </CardHeader>
-        </Card>
-
-        {/* Flow State Rules */}
-        <Card className="w-full bg-gradient-to-br from-yellow-900/20 to-amber-900/10 border-yellow-700/30">
-          <CardHeader className="p-3 sm:p-4 md:p-6">
-            <div className="flex items-center gap-2 mb-3">
-              <Target className="h-5 w-5 text-yellow-400" />
-              <h2 className="text-yellow-300 font-bold text-base sm:text-lg">Flow State Rules</h2>
-            </div>
-            <ul className="text-gray-200 text-sm sm:text-base space-y-2">
-              <li className="flex items-start gap-2">
-                <span className="text-yellow-400 mt-1">•</span>
-                <span>No use of apps other than Notion.</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-yellow-400 mt-1">•</span>
-                <span>No vapes or drugs (including weed).</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-yellow-400 mt-1">•</span>
-                <span>No more than 5 seconds until the next action.</span>
-              </li>
-            </ul>
-          </CardHeader>
-        </Card>
+        {/* Unified Morning Mindset Card - Combines Inspiration, Purpose, and Rules */}
+        <div className="mx-6 sm:mx-8 md:mx-12">
+          <MorningMindsetCard quotes={todaysQuotes} />
+        </div>
 
         {/* Separator Line */}
         <div className="w-full h-px bg-gradient-to-r from-transparent via-yellow-500/30 to-transparent" />
 
         {/* Morning Routine Tasks - Each in separate card */}
-        {MORNING_ROUTINE_TASKS.map((task) => {
+        {MORNING_ROUTINE_TASKS.map((task, index) => {
           const IconComponent = task.icon;
           const completedSubtasks = task.subtasks.filter(subtask => isHabitCompleted(subtask.key)).length;
           const taskComplete = isTaskComplete(task.key, task.subtasks);
@@ -908,84 +874,62 @@ const waterXPRef = useRef(0);
             ? (completedSubtasks / task.subtasks.length) * 100
             : (taskComplete ? 100 : 0);
 
-          return (
+          const taskCard = (
             <Card
               key={task.key}
               className={cn(
-                "w-full transition-all duration-300",
-                taskComplete
-                  ? "bg-green-900/15 border-green-700/40"
-                  : "bg-yellow-900/15 border-yellow-700/40"
-              )}
-            >
-              <CardHeader className="p-3 sm:p-4 md:p-6">
-                {/* Task Header */}
-                <div className="flex items-center justify-between gap-2 mb-3">
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <IconComponent className={cn(
-                      "h-5 w-5 flex-shrink-0",
-                      taskComplete ? "text-green-400" : "text-yellow-400"
-                    )} />
-                    <h4 className={cn(
-                      "font-semibold text-sm sm:text-base truncate",
-                      taskComplete ? "text-green-100" : "text-yellow-100"
-                    )}>{task.title}</h4>
-                    <div className={cn(
-                      "rounded-full px-2.5 py-0.5 flex-shrink-0 border",
-                      taskComplete
-                        ? "bg-green-500/20 border-green-400/40"
-                        : "bg-yellow-500/20 border-yellow-400/40"
-                    )}>
-                      <span className="text-xs font-medium whitespace-nowrap">{task.timeEstimate}</span>
-                    </div>
-                  </div>
-                  {/* XP Pill */}
-                  <XPPill
-                    xp={todayXP.breakdown[task.key] || 0}
-                    earned={taskComplete}
-                    showGlow={taskComplete}
-                  />
-                </div>
-
-                {/* Task Description */}
-                {task.description && (
-                  <p className="text-gray-300 text-xs sm:text-sm mb-3 leading-relaxed">{task.description}</p>
+                "mx-6 sm:mx-8 md:mx-12 transition-all duration-300 overflow-hidden bg-yellow-900/10 border-yellow-700/30"
                 )}
-
-                {/* Progress Bar */}
-                <div className="mb-3">
-                  <div className="w-full bg-yellow-900/30 border border-yellow-600/20 rounded-full h-1.5">
-                    <motion.div
-                      className={cn(
-                        "h-1.5 rounded-full transition-all duration-500",
-                        taskComplete
-                          ? "bg-gradient-to-r from-green-400 to-green-600"
-                          : "bg-gradient-to-r from-yellow-400 to-yellow-600"
-                      )}
-                      initial={{ width: 0 }}
-                      animate={{ width: `${progressPercent}%` }}
-                    />
+              >
+              {/* Clean Header */}
+              <div
+                className="flex items-center justify-between p-4 cursor-pointer hover:bg-yellow-900/15 transition-colors"
+                onClick={() => toggleSection(task.key as keyof typeof expandedSections)}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-yellow-600/20 flex items-center justify-center flex-shrink-0">
+                    <IconComponent className="h-5 w-5 text-yellow-400" />
                   </div>
-                  <div className="flex justify-between items-center mt-1">
-                    {task.subtasks.length > 0 ? (
-                      <>
-                        <span className="text-xs text-yellow-400/70 font-medium">{completedSubtasks}/{task.subtasks.length} completed</span>
-                        {taskComplete && (
-                          <span className="text-xs text-green-400 font-semibold">✓ Complete</span>
-                        )}
-                      </>
-                    ) : (
-                      <>
-                        <span className="text-xs text-yellow-400/70 font-medium">
-                          {taskComplete ? 'Completed' : 'Not started'}
-                        </span>
-                        {taskComplete && (
-                          <span className="text-xs text-green-400 font-semibold">✓ Complete</span>
-                        )}
-                      </>
-                    )}
+                  <div>
+                    <h4 className="text-white font-semibold text-sm">{task.title}</h4>
+                    <p className="text-yellow-400/60 text-xs">{task.description}</p>
                   </div>
                 </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-yellow-400 font-medium">+{todayXP.breakdown[task.key] || 0} XP</span>
+                  {expandedSections[task.key as keyof typeof expandedSections] ? (
+                    <ChevronUp className="text-yellow-400 h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="text-yellow-400 h-4 w-4" />
+                  )}
+                </div>
+              </div>
+
+              {/* Collapsible Content */}
+              <AnimatePresence>
+                {expandedSections[task.key as keyof typeof expandedSections] && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="px-4 pb-4">
+
+                {/* Progress Bar - Subtle */}
+                {task.subtasks.length > 0 && (
+                  <div className="mb-4">
+                    <div className="w-full bg-yellow-900/20 rounded-full h-1">
+                      <motion.div
+                        className="h-1 rounded-full transition-all duration-500 bg-yellow-500/60"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${progressPercent}%` }}
+                      />
+                    </div>
+                    <p className="text-xs text-yellow-400/60 mt-2">{completedSubtasks}/{task.subtasks.length} completed</p>
+                  </div>
+                )}
 
                 {/* Time tracking interface - for wake-up */}
                 {task.hasTimeTracking && task.key === 'wakeUp' && (
@@ -996,6 +940,7 @@ const waterXPRef = useRef(0);
                     onUseNow={setCurrentTimeAsWakeUp}
                     getCurrentTime={getCurrentTime}
                     onClear={() => setWakeUpTime('')}
+                    selectedDate={selectedDate}
                   />
                 )}
 
@@ -1007,24 +952,22 @@ const waterXPRef = useRef(0);
                     selectedDate={selectedDate}
                   />
                 )}
-              </CardHeader>
 
               {/* Sub-tasks */}
               {task.subtasks.length > 0 && (
-                <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {task.subtasks.map((subtask) => (
                       <div key={subtask.key}>
                         {/* Full row clickable - makes it easier to tap on mobile */}
                         <div
-                          className="group flex items-center gap-3 rounded-lg transition-all duration-200 cursor-pointer touch-manipulation min-h-[44px] p-2 -m-2 hover:bg-yellow-900/20 active:bg-yellow-900/30"
+                          className="group flex items-center gap-3 rounded-lg transition-all duration-200 cursor-pointer touch-manipulation min-h-[44px] p-3 hover:bg-yellow-900/20"
                           onClick={() => handleHabitToggle(subtask.key, !isHabitCompleted(subtask.key))}
                         >
                           {/* Checkbox - visual indicator only, click handled by parent */}
                           <div className="flex items-center justify-center">
                             <Checkbox
                               checked={isHabitCompleted(subtask.key)}
-                              className="h-6 w-6 border-2 border-yellow-400/70 data-[state=checked]:bg-yellow-500 data-[state=checked]:border-yellow-500 transition-all duration-200 group-hover:border-yellow-400 pointer-events-none"
+                              className="h-5 w-5 border-2 border-yellow-400/60 data-[state=checked]:bg-yellow-500 data-[state=checked]:border-yellow-500 transition-all duration-200 group-hover:border-yellow-400 pointer-events-none"
                             />
                           </div>
                           <span className={cn(
@@ -1036,7 +979,7 @@ const waterXPRef = useRef(0);
                             {subtask.title}
                           </span>
                           {isHabitCompleted(subtask.key) && (
-                            <CheckCircle2 className="h-3.5 w-3.5 text-green-400 animate-in zoom-in-50 duration-200" />
+                            <CheckCircle2 className="h-4 w-4 text-yellow-400" />
                           )}
                         </div>
 
@@ -1060,67 +1003,125 @@ const waterXPRef = useRef(0);
                       </div>
                     ))}
                   </div>
-                </CardContent>
               )}
-
-              {/* Plan Day Actions */}
-              {task.key === 'planDay' && (
-                <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
-                  <PlanDayActions
-                    isComplete={isPlanDayComplete}
-                    onMarkComplete={() => setIsPlanDayComplete(true)}
-                    onOpenThoughtDump={() => setShowThoughtDumpChat(true)}
-                  />
-                </CardContent>
-              )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </Card>
           );
-        })}
 
-        {/* Top 3 Daily Priorities - After Meditation */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-        >
-          <Card className="bg-gradient-to-r from-yellow-900/30 to-amber-900/30 border-yellow-700/40">
-            <CardHeader className="p-4">
-              <CardTitle className="flex items-center text-yellow-300 text-base">
-                <Target className="h-5 w-5 mr-2" />
-                🎯 Top 3 Things I Want to Complete Today
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-4 pt-0">
-              <p className="text-xs text-yellow-400 mb-4">
-                Not everything - just the 3 that matter most. Be specific.
-              </p>
-              <div className="space-y-3">
-                {dailyPriorities.map((priority, idx) => (
-                  <div key={idx} className="flex items-start space-x-2">
-                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-yellow-600/30 border-2 border-yellow-500/50 flex items-center justify-center mt-1">
-                      <span className="text-yellow-300 font-bold text-sm">#{idx + 1}</span>
+          // Insert Top 3 Priorities after Meditation (index 1)
+          if (task.key === 'meditation') {
+            return (
+              <React.Fragment key={task.key}>
+                {taskCard}
+                {/* Top 3 Daily Priorities - After Meditation */}
+                <Card className="mx-6 sm:mx-8 md:mx-12 bg-gradient-to-r from-yellow-900/30 to-amber-900/30 border-yellow-700/40 overflow-hidden">
+                  {/* Solid Yellow Header Bar */}
+                  <div
+                    className="bg-yellow-800/80 border-b border-yellow-700/50 px-4 py-3 cursor-pointer hover:bg-yellow-800/90 transition-colors"
+                    onClick={() => toggleSection('priorities')}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Target className="h-5 w-5 text-white" />
+                        <span className="font-semibold text-white">Today's Top 3 Goals</span>
+                      </div>
+                      {expandedSections.priorities ? (
+                        <ChevronUp className="h-4 w-4 text-white" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4 text-white" />
+                      )}
                     </div>
-                    <TextareaAutosize
-                      value={priority}
-                      onChange={(e) => {
-                        const newPriorities = [...dailyPriorities];
-                        newPriorities[idx] = e.target.value;
-                        setDailyPriorities(newPriorities);
-                      }}
-                      placeholder={`Priority ${idx + 1}...`}
-                      minRows={1}
-                      maxRows={4}
-                      className="flex-1 bg-yellow-900/20 border border-yellow-700/30 text-white text-sm placeholder:text-yellow-300/40 focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400/20 rounded-lg px-3 py-2 resize-none overflow-hidden"
-                    />
                   </div>
-                ))}
-              </div>
-              <p className="text-xs text-yellow-400/70 mt-3 italic">
-                💡 Tip: Make them specific and actionable!
-              </p>
-            </CardContent>
-          </Card>
-        </motion.div>
+
+                  {/* Collapsible Content */}
+                  <AnimatePresence>
+                    {expandedSections.priorities && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="p-4 space-y-2">
+                          {dailyPriorities.map((priority, idx) => (
+                            <div key={idx} className="flex items-start gap-2">
+                              <span className="text-yellow-400 font-medium mt-1 flex-shrink-0">
+                                {idx + 1}.
+                              </span>
+                              <TextareaAutosize
+                                value={priority}
+                                onChange={(e) => {
+                                  const newPriorities = [...dailyPriorities];
+                                  newPriorities[idx] = e.target.value;
+                                  setDailyPriorities(newPriorities);
+                                }}
+                                placeholder={`Goal ${idx + 1}`}
+                                minRows={1}
+                                maxRows={4}
+                                className="flex-1 bg-transparent border-0 border-b border-yellow-700/30 text-white text-sm placeholder:text-yellow-300/40 focus:border-yellow-400 focus:ring-0 px-2 py-1 resize-none overflow-hidden"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </Card>
+
+                {/* Plan Day Card - After Priorities */}
+                <Card className="mx-6 sm:mx-8 md:mx-12 bg-gradient-to-r from-yellow-900/30 to-amber-900/30 border-yellow-700/40 overflow-hidden">
+                  {/* Solid Yellow Header Bar */}
+                  <div
+                    className="bg-yellow-800/80 border-b border-yellow-700/50 px-4 py-3 cursor-pointer hover:bg-yellow-800/90 transition-colors"
+                    onClick={() => toggleSection('planDay')}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <CalendarIcon className="h-5 w-5 text-white" />
+                        <span className="font-semibold text-white">Plan Day</span>
+                      </div>
+                      {expandedSections.planDay ? (
+                        <ChevronUp className="h-4 w-4 text-white" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4 text-white" />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Collapsible Content */}
+                  <AnimatePresence>
+                    {expandedSections.planDay && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="p-4">
+                          <p className="text-xs text-yellow-400 mb-4">
+                            🤖 Plan your day with AI assistance
+                          </p>
+                          <PlanDayActions
+                            isComplete={isPlanDayComplete}
+                            onMarkComplete={() => setIsPlanDayComplete(true)}
+                            onOpenThoughtDump={() => setShowThoughtDumpChat(true)}
+                          />
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </Card>
+              </React.Fragment>
+            );
+          }
+
+          return taskCard;
+        })}
 
         {/* XP Footer Summary */}
         <Card className="bg-gradient-to-br from-yellow-900/25 to-amber-900/15 border-yellow-700/30">

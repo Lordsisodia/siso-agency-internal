@@ -7,7 +7,7 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, RefreshCw, Sparkles, TrendingUp, Award, Flame, Clock, Target, Zap } from 'lucide-react';
-import { useUser } from '@clerk/clerk-react';
+import { useAuthSession } from '@/lib/hooks/useAuthSession';
 import { xpAnalyticsService } from '../../services/xpAnalyticsService';
 import type { XPAnalyticsData } from '../../types/xpAnalytics.types';
 
@@ -35,7 +35,7 @@ const XP_HUB_TABS = [
 type XPHubTab = typeof XP_HUB_TABS[number]['id'];
 
 export function XPAnalyticsPage() {
-  const { user, isLoaded: userLoaded } = useUser();
+  const { user, isLoaded: userLoaded } = useAuthSession();
   const [analytics, setAnalytics] = useState<XPAnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

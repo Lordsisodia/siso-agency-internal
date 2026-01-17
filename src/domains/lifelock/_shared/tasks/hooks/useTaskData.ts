@@ -13,7 +13,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval } from 'date-fns';
-import { useClerkUser } from '@/lib/hooks/useClerkUser';
+import { useAuthSession } from '@/lib/hooks/useAuthSession';
 import { personalTaskService } from '@/services/workTypeApiClient';
 
 export interface TaskCard {
@@ -53,7 +53,7 @@ export interface UseTaskDataReturn {
  * Pure data loading and caching logic
  */
 export const useTaskData = (selectedDate: Date): UseTaskDataReturn => {
-  const { user } = useClerkUser();
+  const { user } = useAuthSession();
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   
   // Data state

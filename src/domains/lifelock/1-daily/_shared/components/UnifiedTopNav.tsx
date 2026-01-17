@@ -4,8 +4,8 @@ import { ChevronDown } from 'lucide-react';
 import { format, isToday, isTomorrow, isYesterday } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useClerkUser } from '@/lib/hooks/useClerkUser';
-import { DayProgressPill } from './DayProgressPill';
-import { XPPill } from './XPPill';
+import { DayProgressBar } from './DayProgressBar';
+import { UserProfileDropdown } from './UserProfileDropdown';
 import { MonthlyDatePickerModalV2 as MonthlyDatePickerModal } from './MonthlyDatePickerModalV2';
 
 interface UnifiedTopNavProps {
@@ -19,6 +19,7 @@ interface UnifiedTopNavProps {
   dateXPMap?: Record<string, number>;
   dateScreenTimeMap?: Record<string, number>;
   onPickerOpenChange?: (isOpen: boolean) => void;
+  userId?: string | null;
 }
 
 export const UnifiedTopNav: React.FC<UnifiedTopNavProps> = ({
@@ -31,9 +32,11 @@ export const UnifiedTopNav: React.FC<UnifiedTopNavProps> = ({
   dateCompletionMap = {},
   dateXPMap = {},
   dateScreenTimeMap = {},
-  onPickerOpenChange
+  onPickerOpenChange,
+  userId
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const { user } = useClerkUser();
 
   // Notify parent when picker state changes
@@ -76,51 +79,42 @@ export const UnifiedTopNav: React.FC<UnifiedTopNavProps> = ({
   return (
     <div className={cn('relative', className)}>
       {/* Main Header Bar */}
-      <div className="bg-[#121212]">
+      <div className="bg-white/5 border-b border-white/10">
+        {/* Top Row: Date, XP, Profile */}
         <div className="px-4 py-3">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-3">
             {/* Left: Date + Dropdown */}
             <motion.button
               onClick={handleOpenPicker}
-              className="flex items-center gap-1 hover:bg-white/5 rounded-lg px-3 py-2 transition-all"
+              className="flex items-center gap-1 rounded-lg px-2 py-1.5 transition-all flex-shrink-0"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              <span className="text-white font-semibold text-xl">
+              <span className="text-white font-semibold text-lg">
                 {formatDateDisplay}
               </span>
-              <ChevronDown className="h-5 w-5 text-gray-400" />
+              <ChevronDown className="h-4 w-4 text-gray-400" />
             </motion.button>
 
-            {/* Right: Profile Avatar */}
-            <img
-              src={user?.imageUrl || ''}
-              alt={user?.fullName || 'Profile'}
-              className="w-10 h-10 rounded-lg object-cover"
+            {/* Right: Profile Avatar with Dropdown */}
+            <UserProfileDropdown
+              user={user}
+              totalXP={totalXP}
+              completionPercentage={completionPercentage}
+              selectedDate={selectedDate}
+              userId={userId}
+              isOpen={isProfileDropdownOpen}
+              onOpenChange={setIsProfileDropdownOpen}
             />
           </div>
         </div>
 
-        {/* Day Completion Progress Bar and XP */}
+        {/* Bottom: Full-width Day Progress Bar */}
         <div className="px-4 pb-3">
-          <div className="flex items-center justify-between gap-3">
-            {/* Day Progress Pill - 60% width */}
-            <div className="w-[60%]">
-              <DayProgressPill
-                percentage={completionPercentage}
-                activeTab={activeTab}
-                showIcon={true}
-              />
-            </div>
-
-            {/* XP Pill - 40% width */}
-            <div className="w-[40%]">
-              <XPPill
-                xp={totalXP}
-                activeTab={activeTab}
-              />
-            </div>
-          </div>
+          <DayProgressBar
+            percentage={completionPercentage}
+            activeTab={activeTab}
+          />
         </div>
       </div>
 

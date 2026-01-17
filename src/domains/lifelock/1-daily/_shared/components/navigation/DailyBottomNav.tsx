@@ -4,12 +4,15 @@
  * Shared bottom navigation with glassmorphism effect for LifeLock daily views.
  * Provides consistent styling and behavior across all daily sections.
  *
- * Design: 4-pill navigation + 9-dot FAB button (matching XPBottomNav design)
+ * PHASE 5 COMPLETE: AI Legacy button replaces Timeline circle button
+ * PHASE 4: 3-pill navigation + More button (9-dot) as 4th pill
+ * Previous: 4-pill navigation + 9-dot FAB button
  */
 
 import React from 'react';
 import { motion } from 'framer-motion';
 import { NineDotsIcon } from '@/components/ui/expandable-tabs';
+import { AIOrbButton } from '@/components/ui/AIOrbButton';
 import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -26,6 +29,7 @@ export interface DailyBottomNavProps {
   activeColor?: string;
   activeBgColor?: string;
   onChange: (index: number | null) => void;
+  onAILegacyClick?: () => void;
   className?: string;
   hidden?: boolean;
 }
@@ -34,18 +38,18 @@ export const DailyBottomNav: React.FC<DailyBottomNavProps> = ({
   tabs,
   activeIndex,
   onChange,
+  onAILegacyClick,
   className = '',
   hidden = false
 }) => {
-  // Extract first 4 tabs for main navigation
-  const navTabs = tabs.slice(0, 4);
+  // Extract all tabs (should be 3 now + More button)
+  const navTabs = tabs.slice(0, 3);
 
-  // Color gradients for each tab (matching XPBottomNav style)
+  // Color gradients for each tab (PHASE 4: Updated for 3 tabs + More)
   const tabColors = [
     'from-purple-500 to-violet-500',  // Plan
     'from-amber-500 to-orange-500',    // Tasks
-    'from-blue-500 to-cyan-500',       // Health
-    'from-green-500 to-emerald-500',   // Diet
+    'from-cyan-500 to-blue-500',       // Stats
   ];
 
   if (hidden) return null;
@@ -53,9 +57,10 @@ export const DailyBottomNav: React.FC<DailyBottomNavProps> = ({
   return (
     <div className="fixed inset-x-0 bottom-6 z-50 flex justify-center px-4 pointer-events-none">
       <div className="pointer-events-auto flex items-center gap-3 w-full max-w-lg">
-        {/* Main Navigation Pill - 4-pill design */}
-        <div className="flex-1 h-14 bg-white/10 backdrop-blur-2xl border border-white/20 rounded-full shadow-2xl overflow-hidden">
+        {/* Main Navigation Pill - 3 tabs + More button integrated */}
+        <div className="flex-1 h-14 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-full shadow-2xl overflow-hidden">
           <div className="flex items-center h-full">
+            {/* Regular navigation tabs */}
             {navTabs.map((tab, index) => {
               const Icon = tab.icon;
               const isActive = activeIndex === index;
@@ -116,26 +121,45 @@ export const DailyBottomNav: React.FC<DailyBottomNavProps> = ({
                 </motion.button>
               );
             })}
+
+            {/* Divider */}
+            <div className="w-px h-8 bg-white/10 mx-1" />
+
+            {/* More Button - Integrated as 4th pill */}
+            <motion.button
+              className="flex-1 relative min-w-[4rem] h-full px-2"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => onChange(null)} // Pass null to indicate more button was clicked
+              aria-label="More options"
+            >
+              {/* Icon */}
+              <NineDotsIcon
+                className={cn(
+                  'mx-auto mb-0.5 transition-colors relative z-10',
+                  'text-gray-400'
+                )}
+              />
+
+              {/* Label */}
+              <span
+                className={cn(
+                  'block text-[9px] font-medium text-center relative z-10',
+                  'text-gray-400'
+                )}
+              >
+                More
+              </span>
+            </motion.button>
           </div>
         </div>
 
-        {/* More Button - 9-dot FAB */}
-        <motion.button
-          className="w-14 h-14 rounded-full bg-gradient-to-br from-white/20 to-white/10 backdrop-blur-2xl border-2 border-white/30 shadow-xl flex items-center justify-center relative overflow-hidden flex-shrink-0"
-          whileHover={{ scale: 1.08 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => onChange(null)} // Pass null to indicate more button was clicked
-          aria-label="More options"
-        >
-          {/* Animated gradient background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 via-blue-500/20 to-cyan-500/20 animate-pulse" />
-
-          {/* Shine effect */}
-          <div className="absolute inset-0 bg-gradient-to-br from-white/30 via-transparent to-transparent rounded-full" />
-
-          {/* Icon */}
-          <NineDotsIcon className="w-6 h-6 text-white relative z-10" />
-        </motion.button>
+        {/* AI Legacy Button - PHASE 5: Replaces Timeline circle button */}
+        <AIOrbButton
+          onClick={onAILegacyClick}
+          size="md"
+          className="flex-shrink-0"
+        />
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Dumbbell, CheckCircle2 } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -57,39 +57,29 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-    >
-      <Card className="bg-purple-900/10 border-purple-700/30 overflow-hidden">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center justify-between text-purple-300 text-base">
-            <div className="flex items-center gap-2">
-              <Dumbbell className="h-5 w-5 text-purple-400" />
-              Workout
-            </div>
-            <div className="flex items-center gap-2">
-              {saving && (
-                <span className="text-xs text-purple-400">Saving...</span>
-              )}
-              {localValue.completed && (
-                <CheckCircle2 className="h-5 w-5 text-green-400" />
-              )}
-            </div>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Completed Checkbox */}
-          <Button
-            onClick={handleToggleCompleted}
-            className={cn(
-              "w-full h-12 text-base font-semibold transition-all",
-              localValue.completed
-                ? "bg-green-600 hover:bg-green-700 text-white"
-                : "bg-purple-900/30 hover:bg-purple-900/50 text-purple-300 border border-purple-700/50"
-            )}
-          >
+    <div className="space-y-4">
+      {/* Saving Indicator & Completed Status */}
+      <div className="flex items-center justify-end">
+        <div className="flex items-center gap-2">
+          {saving && (
+            <span className="text-xs text-purple-400">Saving...</span>
+          )}
+          {localValue.completed && (
+            <CheckCircle2 className="h-5 w-5 text-green-400" />
+          )}
+        </div>
+      </div>
+
+      {/* Completed Checkbox */}
+      <Button
+        onClick={handleToggleCompleted}
+        className={cn(
+          "w-full h-12 text-base font-semibold transition-all",
+          localValue.completed
+            ? "bg-green-600 hover:bg-green-700 text-white"
+            : "bg-purple-900/30 hover:bg-purple-900/50 text-purple-300 border border-purple-700/50"
+        )}
+      >
             {localValue.completed ? "✓ Workout Complete" : "Did you work out?"}
           </Button>
 
@@ -177,8 +167,6 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({
               </motion.div>
             )}
           </AnimatePresence>
-        </CardContent>
-      </Card>
-    </motion.div>
+    </div>
   );
 };

@@ -344,7 +344,7 @@ export const Meals: React.FC<MealsProps> = ({ selectedDate }) => {
                       </div>
                     )}
 
-                    {/* Quick Add Templates */}
+                    {/* Quick Add Templates - Pill-style buttons */}
                     <div className="mt-4">
                       <div className="flex items-center justify-between mb-3">
                         <span className="text-xs font-medium text-green-300/80">Quick Add:</span>
@@ -364,20 +364,26 @@ export const Meals: React.FC<MealsProps> = ({ selectedDate }) => {
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: 'auto' }}
                             exit={{ opacity: 0, height: 0 }}
-                            className="grid grid-cols-2 gap-2"
+                            className="space-y-2"
                           >
                             {MEAL_TEMPLATES[mealKey].map((template, idx) => (
                               <motion.button
                                 key={idx}
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: idx * 0.05 }}
                                 onClick={() => addTemplate(mealKey, template)}
-                                className={`text-left p-3 rounded-lg border transition-all ${mealConfig.bgLight} ${mealConfig.textColor}
-                                  border-green-600/30 hover:border-green-500/60 hover:shadow-lg`}
+                                className={`w-full text-left p-3 rounded-xl border-2 transition-all ${mealConfig.bgLight} ${mealConfig.textColor}
+                                  border-green-600/30 hover:border-green-500/60 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]
+                                  flex items-center justify-between group`}
                               >
-                                <div className="text-xs font-semibold mb-1">{template.name}</div>
-                                <div className="text-xs opacity-70">~{template.calories} cal • {template.protein}g protein</div>
+                                <div className="flex items-center gap-2">
+                                  <div className={`p-1.5 rounded-lg bg-gradient-to-br ${mealConfig.color} opacity-70 group-hover:opacity-100 transition-opacity`}>
+                                    <Plus className="h-3 w-3 text-white" />
+                                  </div>
+                                  <span className="text-xs font-semibold">{template.name}</span>
+                                </div>
+                                <div className="text-xs opacity-70 font-medium">~{template.calories} cal</div>
                               </motion.button>
                             ))}
                           </motion.div>

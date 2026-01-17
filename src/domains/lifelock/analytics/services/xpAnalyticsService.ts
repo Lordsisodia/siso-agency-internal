@@ -141,17 +141,9 @@ export class XPAnalyticsService {
     const categoryBreakdown = todayStats?.category_breakdown || {};
     const categories = this.buildCategoryBreakdown(categoryBreakdown, total);
 
-    // Get session count and peak hour
-    const { data: hourlyStats } = await supabase
-      .from('hourly_xp_stats')
-      .select('hour, xp_earned, sessions')
-      .eq('user_id', userId)
-      .eq('date', today)
-      .order('xp_earned', { ascending: false })
-      .limit(1);
-
-    const peakHour = hourlyStats?.[0]?.hour || 9;
-    const sessions = todayStats?.session_count || 0;
+    // Skip hourly_xp_stats query (table doesn't exist) - use defaults
+    const peakHour = 9; // Default morning
+    const sessions = todayStats?.activities_completed || 0; // Use activities_completed as fallback
 
     // Calculate trend
     const difference = total - yesterdayTotal;
@@ -554,58 +546,8 @@ export class XPAnalyticsService {
    * Get peak productivity hours
    */
   static async getPeakProductivity(userId: string, date: Date = new Date()): Promise<PeakProductivityData> {
-    // Get last 30 days of hourly stats
-    const startDate = subDays(date, 30);
-
-    const { data: hourlyStats, error } = await supabase
-      .from('hourly_xp_stats')
-      .select('hour, xp_earned, sessions')
-      .eq('user_id', userId)
-      .gte('date', format(startDate, 'yyyy-MM-dd'))
-      .lte('date', format(date, 'yyyy-MM-dd'));
-
-    if (error || !hourlyStats?.length) {
-      return this.getEmptyPeakProductivity();
-    }
-
-    // Aggregate by hour
-    const hourlyMap = new Map<number, { xp: number; sessions: number }>();
-
-    hourlyStats.forEach(stat => {
-      const existing = hourlyMap.get(stat.hour) || { xp: 0, sessions: 0 };
-      hourlyMap.set(stat.hour, {
-        xp: existing.xp + stat.xp_earned,
-        sessions: existing.sessions + stat.sessions,
-      });
-    });
-
-    // Build hourly productivity array
-    const totalXP = Array.from(hourlyMap.values()).reduce((sum, h) => sum + h.xp, 0);
-    const totalSessions = Array.from(hourlyMap.values()).reduce((sum, h) => sum + h.sessions, 0);
-
-    const hourly: HourlyProductivity[] = Array.from(hourlyMap.entries()).map(([hour, data]) => ({
-      hour,
-      xp: data.xp,
-      sessions: data.sessions,
-      label: this.getHourLabel(hour),
-      percentOfTotal: totalXP > 0 ? (data.xp / totalXP) * 100 : 0,
-      isPeak: false,
-    })).sort((a, b) => b.xp - a.xp);
-
-    // Mark peak hours (top 3)
-    hourly.slice(0, 3).forEach(h => h.isPeak = true);
-    hourly.sort((a, b) => a.hour - b.hour);
-
-    // Find best period (3 consecutive hours with most XP)
-    const bestPeriod = this.findBestProductivityPeriod(hourlyMap);
-
-    return {
-      hourly,
-      bestPeriod,
-      totalXP,
-      totalSessions,
-      averageXPPerSession: totalSessions > 0 ? Math.round(totalXP / totalSessions) : 0,
-    };
+    // Skip hourly_xp_stats query (table doesn't exist) - return empty/default data
+    return this.getEmptyPeakProductivity();
   }
 
   // ============================================================================

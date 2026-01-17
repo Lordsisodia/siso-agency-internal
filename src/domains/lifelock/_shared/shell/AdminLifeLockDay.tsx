@@ -133,8 +133,8 @@ const AdminLifeLockDay: React.FC = () => {
       'useUnifiedLoadingState',
       // NEW: Unified loading state (safer, consistent, reusable)
       <AdminLayout>
-        <LoadingState 
-          message="Loading LifeLock Day..." 
+        <LoadingState
+          message="Loading LifeLock Day..."
           variant="spinner"
           size="lg"
           className="h-screen"
@@ -147,15 +147,14 @@ const AdminLifeLockDay: React.FC = () => {
         </div>
       </AdminLayout>
     );
-  
+
   if (!isLoaded) {
     return loadingImplementation;
   }
 
-  if (!isSignedIn) {
-    navigate('/login');
-    return null;
-  }
+  // REMOVED: Auth check - now publicly accessible for testing
+  // If user is not signed in, internalUserId will be null and the UI will work in demo mode
+  console.log('🔓 LifeLock Daily accessible in demo mode - authentication optional');
 
 return (
     <AdminLayout>

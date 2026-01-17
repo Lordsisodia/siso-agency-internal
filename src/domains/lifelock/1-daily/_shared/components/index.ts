@@ -20,8 +20,10 @@ export type { DailyBottomNavTab, DailyBottomNavProps } from './navigation/DailyB
 export { CleanDateNav } from './CleanDateNav';
 export { BevelDateHeader } from './BevelDateHeader';
 export { UnifiedTopNav } from './UnifiedTopNav';
+export { UserProfileDropdown } from './UserProfileDropdown';
 export { DayProgressPill } from './DayProgressPill';
 export { XPPill } from './XPPill';
+export { XPToastNotification, useXPToasts } from './XPToastNotification';
 export { SwipeableSubTabContent } from './SwipeableSubTabContent';
 export { MonthlyDatePickerModal } from './MonthlyDatePickerModal';
 export { MonthlyDatePickerModalV2 } from './MonthlyDatePickerModalV2';

@@ -175,7 +175,7 @@ export const WaterTrackerCard: React.FC<WaterTrackerCardProps> = ({ selectedDate
     : null;
 
   return (
-    <Card className="bg-slate-900/60 border border-slate-700/50 backdrop-blur-xl overflow-hidden">
+    <Card className="bg-transparent border-0 shadow-none">
       <CardContent className="p-6 space-y-8">
         {/* Header with streak */}
         <div className="flex items-start justify-between">

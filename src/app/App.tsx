@@ -31,6 +31,7 @@ const YearlyView = lazy(() => import('@/domains/lifelock/4-yearly/YearlyView'));
 const AdminIndustriesViewLazy = lazy(() => import('@/domains/industries').then(m => ({ default: m.AdminIndustriesView })));
 const AdminSettings = lazy(() => import('@/domains/admin/pages/AdminSettings'));
 const AdminClients = lazy(() => import('@/domains/admin/pages/AdminClients'));
+const AdminPartnershipDashboard = lazy(() => import('@/domains/admin/pages/AdminPartnershipDashboard'));
 const TeamMemberTasksPage = lazy(() => import('@/domains/tasks/pages/TeamMemberTasksPage'));
 const AIAssistantPage = lazy(() => import('@/domains/ai-assistant').then(m => ({ default: m.AIAssistantPage })));
 
@@ -95,12 +96,13 @@ function App() {
             <Route path="/admin/dashboard" element={<ClerkAuthGuard><AdminDashboard /></ClerkAuthGuard>} />
             <Route path="/admin/industries" element={<ClerkAuthGuard><AdminIndustriesPage /></ClerkAuthGuard>} />
             <Route path="/admin/clients" element={<ClerkAuthGuard><AdminClients /></ClerkAuthGuard>} />
+            <Route path="/admin/partners" element={<ClerkAuthGuard><AdminPartnershipDashboard /></ClerkAuthGuard>} />
 
             {/* LifeLock */}
             <Route path="/admin/life-lock-overview" element={<ClerkAuthGuard><AdminLifeLockOverview /></ClerkAuthGuard>} />
             <Route path="/admin/lifelock" element={<ClerkAuthGuard><AdminLifeLock /></ClerkAuthGuard>} />
             <Route path="/admin/life-lock" element={<ClerkAuthGuard><AdminLifeLock /></ClerkAuthGuard>} />
-            <Route path="/admin/lifelock/daily" element={<ClerkAuthGuard><AdminLifeLockDay /></ClerkAuthGuard>} />
+            <Route path="/admin/lifelock/daily" element={<AdminLifeLockDay />} />
             <Route path="/admin/lifelock/weekly" element={<ClerkAuthGuard><WeeklyView /></ClerkAuthGuard>} />
             <Route path="/admin/lifelock/monthly" element={<ClerkAuthGuard><MonthlyView /></ClerkAuthGuard>} />
             <Route path="/admin/lifelock/yearly" element={<ClerkAuthGuard><YearlyView /></ClerkAuthGuard>} />

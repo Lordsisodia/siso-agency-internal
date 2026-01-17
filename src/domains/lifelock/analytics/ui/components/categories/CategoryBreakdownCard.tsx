@@ -80,19 +80,7 @@ export function CategoryBreakdownCard({ categories, totalXP }: CategoryBreakdown
                   initial={{ width: 0 }}
                   animate={{ width: `${barWidth}%` }}
                   transition={{ duration: 0.8, delay: 0.5 + index * 0.05, ease: 'easeOut' }}
-                >
-                  {/* Shimmer effect */}
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
-                    animate={{ x: ['-200%', '200%'] }}
-                    transition={{
-                      duration: 2,
-                      ease: 'linear',
-                      repeat: Infinity,
-                      repeatDelay: 0.5,
-                    }}
-                  />
-                </motion.div>
+                />
               </div>
             </motion.div>
           );

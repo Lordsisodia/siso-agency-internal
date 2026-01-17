@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Moon, CheckCircle2 } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
@@ -41,30 +41,20 @@ export const SleepCard: React.FC<SleepCardProps> = ({
   const targetMet = isInOptimalRange;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-    >
-      <Card className="bg-purple-900/10 border-purple-700/30 overflow-hidden">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center justify-between text-purple-300 text-base">
-            <div className="flex items-center gap-2">
-              <Moon className="h-5 w-5 text-purple-400" />
-              Sleep
-            </div>
-            <div className="flex items-center gap-2">
-              {saving && (
-                <span className="text-xs text-purple-400">Saving...</span>
-              )}
-              {!saving && targetMet && (
-                <CheckCircle2 className="h-5 w-5 text-green-400" />
-              )}
-            </div>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Progress Bar */}
+    <div className="space-y-4">
+      {/* Saving Indicator & Status */}
+      <div className="flex items-center justify-end">
+        <div className="flex items-center gap-2">
+          {saving && (
+            <span className="text-xs text-purple-400">Saving...</span>
+          )}
+          {!saving && targetMet && (
+            <CheckCircle2 className="h-5 w-5 text-green-400" />
+          )}
+        </div>
+      </div>
+
+      {/* Progress Bar */}
           <div className="space-y-2">
             <div className="flex justify-between items-center text-sm">
               <span className="text-purple-400">
@@ -197,9 +187,7 @@ export const SleepCard: React.FC<SleepCardProps> = ({
               )}
             </div>
           )}
-        </CardContent>
-      </Card>
-    </motion.div>
+    </div>
   );
 };
 

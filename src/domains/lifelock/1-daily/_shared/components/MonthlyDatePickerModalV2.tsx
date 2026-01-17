@@ -183,7 +183,7 @@ export const MonthlyDatePickerModalV2: React.FC<MonthlyDatePickerModalV2Props> =
               {/* Animated header with gradient glow */}
               <div className="relative">
                 {/* Top gradient accent */}
-                <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-50" />
+                <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-orange-500 to-transparent opacity-50" />
 
                 <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
                   <motion.button
@@ -235,14 +235,14 @@ export const MonthlyDatePickerModalV2: React.FC<MonthlyDatePickerModalV2Props> =
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.1 }}
-                    className="relative col-span-2 bg-gradient-to-br from-blue-500/20 via-purple-500/10 to-pink-500/20 rounded-3xl p-4 border border-white/10 shadow-xl overflow-hidden"
+                    className="relative col-span-2 bg-gradient-to-br from-orange-500/20 via-amber-500/10 to-yellow-500/20 rounded-3xl p-4 border border-white/10 shadow-xl overflow-hidden"
                   >
                     {/* Animated background glow */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 animate-pulse" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-orange-500/10 via-amber-500/10 to-yellow-500/10 animate-pulse" />
 
                     <div className="relative flex items-center justify-between">
                       <div>
-                        <p className="text-xs font-medium text-blue-300/80 mb-1 flex items-center gap-1">
+                        <p className="text-xs font-medium text-orange-300/80 mb-1 flex items-center gap-1">
                           <Zap className="h-3 w-3" />
                           Total XP
                         </p>
@@ -434,7 +434,7 @@ export const MonthlyDatePickerModalV2: React.FC<MonthlyDatePickerModalV2Props> =
                 <div className="flex items-center justify-between">
                   <motion.button
                     onClick={handleToday}
-                    className="flex items-center gap-2 text-blue-400 font-semibold hover:text-blue-300 transition-colors px-4 py-2 rounded-xl hover:bg-blue-500/10"
+                    className="flex items-center gap-2 text-orange-400 font-semibold hover:text-orange-300 transition-colors px-4 py-2 rounded-xl hover:bg-orange-500/10"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
@@ -444,8 +444,8 @@ export const MonthlyDatePickerModalV2: React.FC<MonthlyDatePickerModalV2Props> =
 
                   <motion.button
                     onClick={onClose}
-                    className="px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 rounded-2xl text-white font-bold transition-all shadow-lg shadow-blue-500/25"
-                    whileHover={{ scale: 1.02, boxShadow: '0 10px 40px -10px rgba(59, 130, 246, 0.5)' }}
+                    className="px-8 py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 rounded-2xl text-white font-bold transition-all shadow-lg shadow-orange-500/25"
+                    whileHover={{ scale: 1.02, boxShadow: '0 10px 40px -10px rgba(251, 146, 60, 0.5)' }}
                     whileTap={{ scale: 0.98 }}
                   >
                     Done

@@ -180,40 +180,43 @@ export const Macros: React.FC<MacrosProps> = ({ selectedDate }) => {
                     </div>
                   </div>
 
-                  {/* Controls */}
-                  <div className="flex items-center gap-1.5">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleMacroChange(macroKey, current - config.steps[0])}
-                      disabled={current === 0}
-                      className="border-green-600/60 text-green-400 hover:bg-green-900/30 hover:border-green-500 flex-shrink-0 h-7 w-7 p-0"
-                    >
-                      <Minus className="h-3 w-3" />
-                    </Button>
-
-                    <div className="flex-1 grid grid-cols-3 gap-1">
+                  {/* Controls - Pill-style buttons like water tracker */}
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-3 gap-2">
                       {config.steps.map((step) => (
                         <Button
                           key={step}
                           size="sm"
-                          variant="ghost"
                           onClick={() => handleMacroChange(macroKey, current + step)}
-                          className={`text-[10px] font-medium ${config.bgLight} ${config.textColor} hover:opacity-80 border-0 rounded-md transition-all h-7 px-1`}
+                          className={`h-12 rounded-xl bg-gradient-to-br ${config.color} text-white font-semibold text-sm transition-all hover:scale-105 active:scale-95 shadow-lg`}
                         >
-                          +{step}
+                          <Plus className="h-4 w-4" />
+                          <span className="ml-1.5">{step}</span>
                         </Button>
                       ))}
                     </div>
-
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleMacroChange(macroKey, current + config.steps[0])}
-                      className="border-green-600/60 text-green-400 hover:bg-green-900/30 hover:border-green-500 flex-shrink-0 h-7 w-7 p-0"
-                    >
-                      <Plus className="h-3 w-3" />
-                    </Button>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleMacroChange(macroKey, current - config.steps[0])}
+                        disabled={current === 0}
+                        className="h-10 rounded-xl border-green-600/60 text-green-400 hover:bg-green-900/30 hover:border-green-500 font-medium transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100"
+                      >
+                        <Minus className="h-4 w-4" />
+                        <span className="ml-1.5">-{config.steps[0]}</span>
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleMacroChange(macroKey, Math.max(0, current - config.steps[2]))}
+                        disabled={current === 0}
+                        className="h-10 rounded-xl border-green-600/60 text-green-400 hover:bg-green-900/30 hover:border-green-500 font-medium transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100"
+                      >
+                        <Minus className="h-4 w-4" />
+                        <span className="ml-1.5">-{config.steps[2]}</span>
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

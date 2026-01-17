@@ -4,4 +4,4 @@
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
 export * from '@/domains/dashboard/cards/RecentActivityCard';
-export { default } from '@/domains/dashboard/cards/RecentActivityCard';
+export { RecentActivityCard as default } from '@/domains/dashboard/cards/RecentActivityCard';

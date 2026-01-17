@@ -1,12 +1,17 @@
 /**
  * NAVIGATION CONFIGURATION - Consolidated Bottom Navigation
  *
- * Defines the 5-button navigation structure for Daily View
+ * Defines the 3-button navigation structure for Daily View + More button
  * 1. Plan (Timebox, Morning, Checkout)
  * 2. Tasks (Today, Light Work, Deep Work)
- * 3. Health (wellness features)
- * 4. Diet (nutrition tracking)
- * 5. Timeline (contextual: Weekly/Monthly/Yearly/Life)
+ * 3. Stats (Smoking, Water, Fitness, Nutrition) - PHASE 4: Health merged into Stats
+ * 4. More (9-dot menu) - PHASE 4: More button moved to 4th pill position
+ * 5. AI Legacy (animated orb button) - PHASE 5: Replaces Timeline button
+ *
+ * PHASE 2 COMPLETE: Diet section moved to Health/Nutrition sub-tab
+ * PHASE 3 COMPLETE: Stats section created with Smoking and Water tracking
+ * PHASE 4 COMPLETE: More button moved to 4th pill, Health merged into Stats
+ * PHASE 5 COMPLETE: AI Legacy button replaces Timeline circle button
  */
 
 import { LucideIcon } from 'lucide-react';
@@ -32,7 +37,10 @@ import {
   Infinity as InfinityIcon,
   Calendar as CalendarIcon,
   Apple,
-  Timeline
+  Timeline,
+  BarChart3,
+  CigaretteOff,
+  Droplets
 } from 'lucide-react';
 
 // Types
@@ -69,7 +77,8 @@ export interface GridMenuItem {
   color?: string; // Optional color scheme
 }
 
-// Main Navigation Sections (Bottom Nav Buttons 1-4)
+// Main Navigation Sections (Bottom Nav Buttons 1-3 + More button)
+// PHASE 4: Reduced to 3 main sections, Health merged into Stats
 export const NAV_SECTIONS: NavSection[] = [
   {
     id: 'plan',
@@ -98,24 +107,18 @@ export const NAV_SECTIONS: NavSection[] = [
     ]
   },
   {
-    id: 'health',
-    name: 'Health',
-    icon: Heart,
-    color: 'text-blue-400',
-    bgActive: 'bg-blue-400/20',
+    id: 'stats',
+    name: 'Stats',
+    icon: BarChart3,
+    color: 'text-cyan-400',
+    bgActive: 'bg-cyan-400/20',
     hasSubNav: true,
     subSections: [
-      { id: 'water', name: 'Water', icon: Heart },
+      { id: 'smoking', name: 'Smoking', icon: CigaretteOff },
+      { id: 'water', name: 'Water', icon: Droplets },
       { id: 'fitness', name: 'Fitness', icon: Heart },
-      { id: 'smoking', name: 'Smoking', icon: Heart }
+      { id: 'nutrition', name: 'Nutrition', icon: Apple }
     ]
-  },
-  {
-    id: 'diet',
-    name: 'Diet',
-    icon: Apple,
-    color: 'text-green-400',
-    bgActive: 'bg-green-400/20'
   }
 ];
 
@@ -169,7 +172,7 @@ export const GRID_MENU_ITEMS: GridMenuItem[] = [
 
   // Middle Row
   { id: 'partners', label: 'Partners', path: '/admin/partners', icon: Handshake, position: 3, color: 'text-cyan-400' },
-  { id: 'ai-legacy', label: 'AI Legacy', path: '/ai-assistant', icon: Sparkles, position: 4, isSpecial: true, color: 'text-purple-400' },
+  { id: 'ai-legacy', label: 'AI Legacy', path: '/admin/ai-assistant', icon: Sparkles, position: 4, isSpecial: true, color: 'text-purple-400' },
   { id: 'weekly-view', label: 'Weekly', path: '/admin/lifelock/weekly', icon: CalendarDays, position: 5, color: 'text-green-400' },
 
   // Bottom Row
@@ -179,12 +182,18 @@ export const GRID_MENU_ITEMS: GridMenuItem[] = [
 ];
 
 // Map old tabs to new structure for backward compatibility
+// PHASE 4: Health tabs now map to Stats section
 export const LEGACY_TAB_MAPPING: Record<string, { section: string; subtab?: string }> = {
   'morning': { section: 'plan', subtab: 'morning' },
   'light-work': { section: 'tasks', subtab: 'light-work' },
   'work': { section: 'tasks', subtab: 'deep-work' }, // Legacy 'work' tab maps to 'deep-work' subtab
   'deep-work': { section: 'tasks', subtab: 'deep-work' }, // Direct mapping
-  'wellness': { section: 'health' },
+  'wellness': { section: 'stats', subtab: 'fitness' }, // Wellness/Health now maps to Stats/Fitness
+  'health': { section: 'stats', subtab: 'fitness' }, // Health maps to Stats/Fitness
+  'water': { section: 'stats', subtab: 'water' },
+  'smoking': { section: 'stats', subtab: 'smoking' },
+  'fitness': { section: 'stats', subtab: 'fitness' }, // PHASE 4: Fitness moved to Stats
+  'nutrition': { section: 'stats', subtab: 'nutrition' }, // PHASE 4: Nutrition moved to Stats
   'tasks': { section: 'tasks', subtab: 'tasks' },
   'timebox': { section: 'plan', subtab: 'timebox' },
   'checkout': { section: 'plan', subtab: 'checkout' }

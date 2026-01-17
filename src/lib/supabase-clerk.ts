@@ -1,6 +1,6 @@
 /**
  * 🔗 Clerk-Supabase Integration
- * 
+ *
  * Connects Clerk authentication with Supabase Row Level Security
  * Provides authenticated Supabase client using Clerk JWT tokens
  */
@@ -13,8 +13,12 @@ import { getSupabaseBrowserClient } from '@/lib/supabaseBrowserClient';
 // Shared browser client instance
 export const supabaseAnon = getSupabaseBrowserClient();
 
+// Public user ID for demo/testing access
+export const PUBLIC_USER_ID = '00000000-0000-0000-0000-000000000000';
+
 /**
  * Hook to get the internal database user ID from Clerk user ID
+ * Falls back to PUBLIC_USER_ID when no user is authenticated (for demo mode)
  */
 export function useSupabaseUserId(clerkUserId: string | null): string | null {
   const [internalUserId, setInternalUserId] = useState<string | null>(null);
@@ -22,8 +26,10 @@ export function useSupabaseUserId(clerkUserId: string | null): string | null {
 
   useEffect(() => {
     const fetchInternalUserId = async () => {
+      // If no Clerk user, use public user ID for demo mode
       if (!clerkUserId) {
-        setInternalUserId(null);
+        console.log('🔓 Using PUBLIC_USER_ID for demo mode:', PUBLIC_USER_ID);
+        setInternalUserId(PUBLIC_USER_ID);
         setIsLoaded(true);
         return;
       }

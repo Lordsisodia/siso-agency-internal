@@ -54,13 +54,9 @@ export const StateSnapshot: React.FC<StateSnapshotProps> = ({
   const deltaSign = moodDelta > 0 ? '+' : '';
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-    >
-      <Card className="bg-purple-900/10 border-purple-700/30 overflow-hidden">
-        <CardContent className="p-4">
+    <div className="w-full">
+      <Card className="mx-6 sm:mx-8 md:mx-12 bg-purple-900/10 border-purple-700/30 overflow-hidden">
+          <CardContent className="p-4">
           {/* Header */}
           <div className="flex items-center gap-2 mb-4">
             <Star className="h-5 w-5 text-purple-400" />
@@ -283,9 +279,9 @@ export const StateSnapshot: React.FC<StateSnapshotProps> = ({
               </motion.div>
             )}
           </AnimatePresence>
-        </CardContent>
-      </Card>
-    </motion.div>
+          </CardContent>
+        </Card>
+    </div>
   );
 };
 

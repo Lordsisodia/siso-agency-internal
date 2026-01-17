@@ -13,7 +13,7 @@ import { NAV_SECTIONS, LEGACY_TAB_MAPPING } from '@/services/shared/navigation-c
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ConsolidatedBottomNav } from '@/domains/lifelock/1-daily/_shared/components/navigation/ConsolidatedBottomNav';
-import { BevelDateHeader, UnifiedTopNav, SwipeableSubTabContent } from '@/domains/lifelock/1-daily/_shared/components';
+import { BevelDateHeader, UnifiedTopNav, SwipeableSubTabContent, XPToastNotification, useXPToasts } from '@/domains/lifelock/1-daily/_shared/components';
 import { useDateCompletionMap } from '@/domains/lifelock/1-daily/_shared/hooks/useDateCompletionMap';
 import { useDateXPMap } from '@/domains/lifelock/1-daily/_shared/hooks/useDateXPMap';
 import { useDateScreenTimeMap } from '@/domains/lifelock/1-daily/_shared/hooks/useDateScreenTimeMap';
@@ -64,6 +64,9 @@ const ACCENT_LINE_COLORS: Record<string, { from: string; via: string; to: string
   'tasks': { from: 'from-amber-500/60', via: 'via-yellow-500/60', to: 'to-amber-600/60', shadow: 'shadow-amber-500/20' },
   'plan': { from: 'from-purple-500/60', via: 'via-purple-600/60', to: 'to-purple-700/60', shadow: 'shadow-purple-500/20' },
   'diet': { from: 'from-green-500/60', via: 'via-emerald-500/60', to: 'to-green-600/60', shadow: 'shadow-green-500/20' },
+  'photo': { from: 'from-green-500/60', via: 'via-emerald-500/60', to: 'to-green-600/60', shadow: 'shadow-green-500/20' },
+  'meals': { from: 'from-green-500/60', via: 'via-emerald-500/60', to: 'to-green-600/60', shadow: 'shadow-green-500/20' },
+  'macros': { from: 'from-green-500/60', via: 'via-emerald-500/60', to: 'to-green-600/60', shadow: 'shadow-green-500/20' },
   'timebox': { from: 'from-purple-500/60', via: 'via-purple-600/60', to: 'to-purple-700/60', shadow: 'shadow-purple-500/20' },
   'checkout': { from: 'from-purple-500/60', via: 'via-purple-600/60', to: 'to-purple-700/60', shadow: 'shadow-purple-500/20' }
 };
@@ -105,6 +108,9 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
 
   // Subtab completion management
   const { completedSubtabs, toggleCompleted, setCompleted } = useSubtabCompletion(selectedDate, userId);
+
+  // XP Toast management
+  const { toasts, addToast, removeToast } = useXPToasts();
 
   // Completion percentages for subtabs
   const [completionPercentages, setCompletionPercentages] = useState<Record<string, number>>({});
@@ -194,6 +200,9 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
       } else if (sectionParam === 'health') {
         // For health section, default to water tab
         setActiveSubTab('water');
+      } else if (sectionParam === 'diet') {
+        // For diet section, default to photo tab
+        setActiveSubTab('photo');
       } else if (sectionParam === 'tasks') {
         // For tasks section, default to tasks tab
         setActiveSubTab('tasks');
@@ -416,7 +425,7 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
   const accentColors = ACCENT_LINE_COLORS[colorKey] || ACCENT_LINE_COLORS[activeSection] || ACCENT_LINE_COLORS['plan'];
 
   return (
-    <div className="flex flex-col h-screen w-full overflow-hidden relative" style={{ backgroundColor: '#121212' }}>
+    <div className="flex flex-col h-screen w-full overflow-hidden relative bg-white/5">
       {/* Page accent line on left side - fixed to true viewport edge, dynamic color based on section */}
       <div className={`fixed top-0 left-0 w-1 h-screen bg-gradient-to-b ${accentColors.from} ${accentColors.via} ${accentColors.to} shadow-lg ${accentColors.shadow} pointer-events-none z-50`} />
       {/* SCROLLABLE CONTENT AREA - Contains header, pills, and content */}
@@ -450,6 +459,7 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
               dateXPMap={xpMap}
               dateScreenTimeMap={screenTimeMap}
               onPickerOpenChange={setIsDatePickerOpen}
+              userId={userId}
             />
 
             {/* NEW: Sub-navigation for sections that have it */}
@@ -494,6 +504,12 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
           }}
         />
       )}
+
+      {/* XP Toast Notifications */}
+      <XPToastNotification
+        toasts={toasts}
+        onRemove={removeToast}
+      />
 
     </div>
   );

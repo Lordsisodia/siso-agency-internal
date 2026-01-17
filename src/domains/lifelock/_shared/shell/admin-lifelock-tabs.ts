@@ -1,15 +1,31 @@
 /**
  * Enhanced Tab Configuration for AdminLifeLock Refactoring
- * 
+ *
  * Extracted from AdminLifeLock.tsx switch statement (220 lines → external config)
  * This eliminates the massive switch statement by using configuration-driven rendering.
- * 
+ *
  * Benefits:
  * - Zero code duplication: Single layout pattern for all tabs
  * - Easy to add new tabs: Just add configuration, no switch case needed
  * - Better maintainability: Tab logic centralized in one file
  * - Type safety: Comprehensive interfaces for all tab properties
  * - A/B testing: Easy to swap different tab configurations
+ *
+ * PHASE 2 COMPLETE: Diet section moved to Health/Nutrition sub-tab
+ * - Diet section removed from bottom navigation
+ * - Nutrition added as 4th Health sub-tab
+ * - Old diet routes now redirect to health/nutrition for backward compatibility
+ *
+ * PHASE 3 COMPLETE: Stats section created with Smoking and Water tracking
+ * - Stats section added as 3rd main navigation pill
+ * - Smoking and Water moved from Health to Stats
+ * - Health now only contains Fitness and Nutrition
+ *
+ * PHASE 4 COMPLETE: Health merged into Stats, More button moved to 4th pill
+ * - Stats now has 4 tabs: Smoking, Water, Fitness, Nutrition
+ * - Health section removed from main navigation
+ * - More button (9 dots) now integrated as 4th pill
+ * - Old health routes now redirect to stats/fitness for backward compatibility
  */
 
 import React from 'react';
@@ -23,6 +39,7 @@ import { HealthTrackerSection } from '../../1-daily/5-wellness/ui/pages/HealthTr
 import { HomeWorkoutSection } from '../../1-daily/5-wellness/ui/pages/HomeWorkoutSection';
 import { SmokingTracker } from '../../1-daily/5-wellness/ui/components/SmokingTracker';
 import { DietSection } from '../../1-daily/8-diet/ui/pages/DietSection';
+import { StatsSection } from '../../1-daily/6-stats/ui/pages/StatsSection';
 import { TimeboxSection } from '../../1-daily/6-timebox/ui/pages/TimeboxSection';
 import { NightlyCheckoutSection } from '../../1-daily/7-checkout/ui/pages/NightlyCheckoutSection';
 import { TasksSection } from '../../1-daily/2-tasks/ui/pages/TasksSection';
@@ -85,7 +102,7 @@ export const ENHANCED_TAB_CONFIG: Record<TabId, EnhancedTabConfig> = {
   'morning': {
     ...TAB_CONFIG['morning'],
     layoutType: 'standard',
-    backgroundClass: 'min-h-screen bg-[#121212] p-4 pb-24',
+    backgroundClass: '',
     showDateNav: true,
     components: [MorningRoutineSection],
   },
@@ -93,7 +110,7 @@ export const ENHANCED_TAB_CONFIG: Record<TabId, EnhancedTabConfig> = {
   'light-work': {
     ...TAB_CONFIG['light-work'],
     layoutType: 'standard',
-    backgroundClass: 'min-h-screen bg-[#121212] p-4 pb-24',
+    backgroundClass: '',
     showDateNav: true,
     components: [LightFocusWorkSection],
   },
@@ -101,7 +118,7 @@ export const ENHANCED_TAB_CONFIG: Record<TabId, EnhancedTabConfig> = {
   'work': {
     ...TAB_CONFIG['work'],
     layoutType: 'standard',
-    backgroundClass: 'min-h-screen bg-[#121212] p-4 pb-24',
+    backgroundClass: '',
     showDateNav: true,
     components: [DeepFocusWorkSection],
   },
@@ -109,7 +126,7 @@ export const ENHANCED_TAB_CONFIG: Record<TabId, EnhancedTabConfig> = {
   'deep-work': {
     ...TAB_CONFIG['deep-work'],
     layoutType: 'standard',
-    backgroundClass: 'min-h-screen bg-[#121212] p-4 pb-24',
+    backgroundClass: '',
     showDateNav: true,
     components: [DeepFocusWorkSection],
   },
@@ -117,41 +134,43 @@ export const ENHANCED_TAB_CONFIG: Record<TabId, EnhancedTabConfig> = {
   'wellness': {
     ...TAB_CONFIG['wellness'],
     layoutType: 'standard',
-    backgroundClass: 'min-h-screen bg-[#121212] p-4 pb-24',
+    backgroundClass: '',
     showDateNav: true,
     components: [HomeWorkoutSection],
   },
 
   // Health is an alias for wellness (renamed in navigation)
+  // PHASE 4: Now redirects to Stats/Fitness
   'health': {
     ...TAB_CONFIG['wellness'],
     id: 'health' as TabId,
     name: 'Health',
     layoutType: 'standard',
-    backgroundClass: 'min-h-screen bg-[#121212] p-4 pb-24',
+    backgroundClass: '',
     showDateNav: true,
-    components: [HealthTrackerSection],
+    components: [StatsSection],
+    componentProps: { activeSubTab: 'fitness' },
   },
 
-  // Health subtabs
+  // Stats section (PHASE 3: New section, PHASE 4: Enhanced with Fitness & Nutrition)
+  'stats': {
+    ...TAB_CONFIG['stats'],
+    layoutType: 'standard',
+    backgroundClass: '',
+    showDateNav: true,
+    components: [StatsSection],
+  },
+
+  // Stats subtabs (PHASE 3: Moved from Health, PHASE 4: Added Fitness & Nutrition)
   'water': {
     ...TAB_CONFIG['wellness'],
     id: 'water' as TabId,
     name: 'Water',
     layoutType: 'standard',
-    backgroundClass: 'min-h-screen bg-[#121212] p-4 pb-24',
+    backgroundClass: '',
     showDateNav: true,
-    components: [HealthTrackerSection],
-  },
-
-  'fitness': {
-    ...TAB_CONFIG['wellness'],
-    id: 'fitness' as TabId,
-    name: 'Fitness',
-    layoutType: 'standard',
-    backgroundClass: 'min-h-screen bg-[#121212] p-4 pb-24',
-    showDateNav: true,
-    components: [HealthTrackerSection],
+    components: [StatsSection],
+    componentProps: { activeSubTab: 'water' },
   },
 
   'smoking': {
@@ -159,11 +178,38 @@ export const ENHANCED_TAB_CONFIG: Record<TabId, EnhancedTabConfig> = {
     id: 'smoking' as TabId,
     name: 'Smoking',
     layoutType: 'standard',
-    backgroundClass: 'min-h-screen bg-[#121212] p-4 pb-24',
+    backgroundClass: '',
     showDateNav: true,
-    components: [HealthTrackerSection],
+    components: [StatsSection],
+    componentProps: { activeSubTab: 'smoking' },
   },
 
+  // PHASE 4: Fitness moved from Health to Stats
+  'fitness': {
+    ...TAB_CONFIG['wellness'],
+    id: 'fitness' as TabId,
+    name: 'Fitness',
+    layoutType: 'standard',
+    backgroundClass: '',
+    showDateNav: true,
+    components: [StatsSection],
+    componentProps: { activeSubTab: 'fitness' },
+  },
+
+  // PHASE 4: Nutrition moved from Health to Stats
+  'nutrition': {
+    ...TAB_CONFIG['wellness'],
+    id: 'nutrition' as TabId,
+    name: 'Nutrition',
+    layoutType: 'standard',
+    backgroundClass: '',
+    showDateNav: true,
+    components: [StatsSection],
+    componentProps: { activeSubTab: 'nutrition' },
+  },
+
+  // Diet section - PHASE 2: Now redirects to Health/Nutrition, PHASE 4: redirects to Stats/Nutrition
+  // Kept for backward compatibility with old routes
   'diet': {
     id: 'diet' as TabId,
     name: 'Diet',
@@ -171,30 +217,84 @@ export const ENHANCED_TAB_CONFIG: Record<TabId, EnhancedTabConfig> = {
     color: 'text-green-400',
     description: 'AI-powered nutrition tracking',
     layoutType: 'standard',
-    backgroundClass: 'min-h-screen bg-[#121212] p-4 pb-24',
+    backgroundClass: '',
     showDateNav: true,
-    components: [DietSection],
+    components: [StatsSection],
+    componentProps: { activeSubTab: 'nutrition' },
   },
-  
+
+  // Diet subtabs - PHASE 2: Now redirect to Health/Nutrition, PHASE 4: redirect to Stats/Nutrition
+  // Kept for backward compatibility with old routes
+  'photo': {
+    ...TAB_CONFIG['diet'] || {
+      id: 'diet' as TabId,
+      name: 'Diet',
+      icon: Apple,
+      color: 'text-green-400',
+      description: 'AI-powered nutrition tracking',
+    },
+    id: 'photo' as TabId,
+    name: 'Photo',
+    layoutType: 'standard',
+    backgroundClass: '',
+    showDateNav: true,
+    components: [StatsSection],
+    componentProps: { activeSubTab: 'nutrition' },
+  },
+
+  'meals': {
+    ...TAB_CONFIG['diet'] || {
+      id: 'diet' as TabId,
+      name: 'Diet',
+      icon: Apple,
+      color: 'text-green-400',
+      description: 'AI-powered nutrition tracking',
+    },
+    id: 'meals' as TabId,
+    name: 'Meals',
+    layoutType: 'standard',
+    backgroundClass: '',
+    showDateNav: true,
+    components: [StatsSection],
+    componentProps: { activeSubTab: 'nutrition' },
+  },
+
+  'macros': {
+    ...TAB_CONFIG['diet'] || {
+      id: 'diet' as TabId,
+      name: 'Diet',
+      icon: Apple,
+      color: 'text-green-400',
+      description: 'AI-powered nutrition tracking',
+    },
+    id: 'macros' as TabId,
+    name: 'Macros',
+    layoutType: 'standard',
+    backgroundClass: '',
+    showDateNav: true,
+    components: [StatsSection],
+    componentProps: { activeSubTab: 'nutrition' },
+  },
+
   'timebox': {
     ...TAB_CONFIG['timebox'],
     layoutType: 'standard',
-    backgroundClass: 'min-h-screen bg-[#121212] p-4 pb-24',
+    backgroundClass: '',
     showDateNav: true,
     components: [TimeboxSection],
   },
   'tasks': {
     ...TAB_CONFIG['tasks'],
     layoutType: 'standard',
-    backgroundClass: 'min-h-screen bg-[#121212] p-4 pb-24',
+    backgroundClass: '',
     showDateNav: true,
     components: [TasksSection],
   },
-  
+
   'checkout': {
     ...TAB_CONFIG['checkout'],
     layoutType: 'standard',
-    backgroundClass: 'min-h-screen bg-[#121212] p-4 pb-24',
+    backgroundClass: '',
     showDateNav: true,
     components: [NightlyCheckoutSection],
   },

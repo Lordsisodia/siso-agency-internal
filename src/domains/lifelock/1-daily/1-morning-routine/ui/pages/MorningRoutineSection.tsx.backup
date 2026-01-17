@@ -1,0 +1,1158 @@
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  Sun,
+  CheckCircle2,
+  Circle,
+  Calendar,
+  Clock,
+  Droplets,
+  Dumbbell,
+  Brain,
+  Newspaper,
+  Target,
+  Calendar as CalendarIcon,
+  Activity,
+  Heart,
+  Plus,
+  Minus,
+  ChevronDown,
+  ChevronUp
+} from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import TextareaAutosize from 'react-textarea-autosize';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
+import { useClerkUser } from '@/lib/hooks/useClerkUser';
+import { useSupabaseUserId } from '@/lib/supabase-clerk';
+import { MorningRoutineMetadata, useMorningRoutineSupabase } from '@/lib/hooks/useMorningRoutineSupabase';
+import { SimpleThoughtDumpPage, ThoughtDumpResults, lifeLockVoiceTaskProcessor } from '@/domains/lifelock/1-daily/1-morning-routine/features/ai-thought-dump';
+import type { ThoughtDumpResult } from '@/domains/lifelock/1-daily/1-morning-routine/features/ai-thought-dump';
+import { getRotatingQuotes } from '@/lib/data/motivational-quotes';
+import { debounce } from '@/lib/utils/debounce';
+import { TimeScrollPicker } from '../components/TimeScrollPicker';
+import { WaterTracker } from '../components/WaterTracker';
+import { PushUpTracker } from '../components/PushUpTracker';
+import { MeditationTracker } from '../components/MeditationTracker';
+import { WakeUpTimeTracker } from '../components/WakeUpTimeTracker';
+import { PlanDayActions } from '../components/PlanDayActions';
+import { MorningMindsetCard } from '../components/MorningMindsetCard';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useAutoTimeblocks } from '@/lib/hooks/useAutoTimeblocks';
+import { GamificationService } from '@/domains/lifelock/_shared/services/gamificationService';
+import {
+  calculateMinutesSinceWake,
+  calculateStepXpMultiplier,
+  calculateWakeUpXpMultiplier,
+  getWakeUpTimestamp
+} from '../../domain/morningRoutineXpUtils';
+import {
+  calculateWakeUpXP,
+  calculateFreshenUpXP,
+  calculateGetBloodFlowingXP,
+  calculatePowerUpBrainXP,
+  calculatePlanDayXP,
+  calculateMeditationXP,
+  calculatePrioritiesXP,
+  calculateTotalMorningXP
+} from '../../domain/xpCalculations';
+import { calculateWaterXP } from '@/domains/lifelock/1-daily/5-wellness/domain/xpCalculations';
+import type { WaterTrackerSnapshot } from '@/domains/lifelock/1-daily/5-wellness/domain/types';
+import { XPPill } from '../components/XPPill';
+import { XPFooterSummary } from '../components/XPFooterSummary';
+
+interface MorningRoutineHabit {
+  name: string;
+  completed: boolean;
+}
+
+interface MorningRoutineData {
+  id: string;
+  userId: string;
+  date: string;
+  items: MorningRoutineHabit[];
+  completedCount: number;
+  totalCount: number;
+  completionPercentage: number;
+}
+
+interface MorningRoutineSectionProps {
+  selectedDate: Date;
+}
+
+interface MorningRoutineXPState {
+  wakeAwarded: boolean;
+  steps: Record<string, boolean>;
+  lastCompletionTimestamp: number | null;
+}
+
+const createDefaultXpState = (): MorningRoutineXPState => ({
+  wakeAwarded: false,
+  steps: {},
+  lastCompletionTimestamp: null
+});
+
+const loadXpStateFromStorage = (storageKey: string): MorningRoutineXPState => {
+  if (typeof window === 'undefined') {
+    return createDefaultXpState();
+  }
+
+  try {
+    const stored = window.localStorage.getItem(storageKey);
+    if (!stored) {
+      return createDefaultXpState();
+    }
+
+    const parsed = JSON.parse(stored);
+    return {
+      wakeAwarded: Boolean(parsed?.wakeAwarded),
+      steps: typeof parsed?.steps === 'object' && parsed.steps !== null ? { ...parsed.steps } : {},
+      lastCompletionTimestamp:
+        typeof parsed?.lastCompletionTimestamp === 'number'
+          ? parsed.lastCompletionTimestamp
+          : null
+    };
+  } catch (error) {
+    console.error('Failed to read morning routine XP state:', error);
+    return createDefaultXpState();
+  }
+};
+
+const persistXpStateToStorage = (storageKey: string, state: MorningRoutineXPState) => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(storageKey, JSON.stringify(state));
+  } catch (error) {
+    console.error('Failed to persist morning routine XP state:', error);
+  }
+};
+
+const MORNING_ROUTINE_TASKS = [
+  {
+    key: 'wakeUp' as const,
+    title: 'Wake Up',
+    description: 'Start the day before midday to maximize productivity. Track your wake-up time.',
+    timeEstimate: '5 min',
+    icon: Sun,
+    hasTimeTracking: true,
+    subtasks: []
+  },
+  {
+    key: 'meditation' as const,
+    title: 'Meditation',
+    description: 'Meditate to set an innovative mindset for creating business value.',
+    timeEstimate: '2 min',
+    icon: Heart,
+    hasTimeTracking: true,
+    subtasks: []
+  },
+  {
+    key: 'getBloodFlowing' as const,
+    title: 'Get Blood Flowing',
+    description: 'Max rep push-ups (Target PB: 30) - Physical activation to wake up the body.',
+    timeEstimate: '5 min',
+    icon: Dumbbell,
+    hasTimeTracking: false,
+    subtasks: [
+      { key: 'pushups', title: 'Push-ups (PB 30)' }
+    ]
+  },
+  {
+    key: 'powerUpBrain' as const,
+    title: 'Power Up Brain',
+    description: 'Hydrate and fuel the body and mind.',
+    timeEstimate: '5 min',
+    icon: Brain,
+    hasTimeTracking: false,
+    subtasks: [
+      { key: 'supplements', title: 'Supplements' },
+      { key: 'water', title: 'Water (500ml)' }
+    ]
+  },
+  {
+    key: 'planDay' as const,
+    title: 'Plan Day',
+    description: 'Use AI Thought Dump to organize tasks and set timebox.',
+    timeEstimate: '15 min',
+    icon: CalendarIcon,
+    hasTimeTracking: false,
+    subtasks: []
+  },
+  {
+    key: 'freshenUp' as const,
+    title: 'Freshen Up',
+    description: 'Cold shower to wake up - Personal hygiene and cleanliness.',
+    timeEstimate: '25 min',
+    icon: Droplets,
+    hasTimeTracking: false,
+    subtasks: [
+      { key: 'bathroom', title: 'Bathroom break' },
+      { key: 'brushTeeth', title: 'Brush teeth' },
+      { key: 'coldShower', title: 'Cold shower' }
+    ]
+  }
+];
+
+export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React.memo(({
+  selectedDate
+}) => {
+  const { user } = useClerkUser();
+  const internalUserId = useSupabaseUserId(user?.id || null);
+  const [morningRoutine, setMorningRoutine] = useState<MorningRoutineData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Collapsible sections state
+  const [expandedSections, setExpandedSections] = useState({
+    wakeUp: false,
+    meditation: false,
+    getBloodFlowing: false,
+    powerUpBrain: false,
+    planDay: false,
+    freshenUp: false,
+    priorities: false
+  });
+
+  const toggleSection = (section: keyof typeof expandedSections) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
+  // Thought Dump AI state (persist across HMR refreshes)
+  const [showThoughtDumpChat, setShowThoughtDumpChat] = useState(() => {
+    // Check sessionStorage to preserve state during HMR
+    return sessionStorage.getItem('thoughtDumpOpen') === 'true';
+  });
+  const [thoughtDumpResult, setThoughtDumpResult] = useState<ThoughtDumpResult | null>(null);
+  const [isProcessingVoice, setIsProcessingVoice] = useState(false);
+
+  // Persist thought dump open state
+  useEffect(() => {
+    sessionStorage.setItem('thoughtDumpOpen', showThoughtDumpChat ? 'true' : 'false');
+  }, [showThoughtDumpChat]);
+
+  const routineDate = useMemo(() => {
+    if (selectedDate && !Number.isNaN(selectedDate.getTime())) {
+      return selectedDate;
+    }
+    return new Date();
+  }, [selectedDate]);
+
+  const routineDateKey = useMemo(() => format(routineDate, 'yyyy-MM-dd'), [routineDate]);
+
+  const {
+    routine: morningRoutineState,
+    loading: routineLoading,
+    error: routineError,
+    toggleHabit: toggleMorningHabit,
+    updateMetadata: persistMorningMetadata,
+  } = useMorningRoutineSupabase(selectedDate);
+
+  const [wakeUpTime, setWakeUpTime] = useState<string>('');
+
+  const [isEditingWakeTime, setIsEditingWakeTime] = useState(false);
+  const [showTimeScrollPicker, setShowTimeScrollPicker] = useState(false);
+
+  const [meditationDuration, setMeditationDuration] = useState<string>('');
+
+  const [isEditingMeditationTime, setIsEditingMeditationTime] = useState(false);
+  const [localProgressTrigger, setLocalProgressTrigger] = useState(0);
+
+  // Plan Day completion state
+  const [isPlanDayComplete, setIsPlanDayComplete] = useState<boolean>(false);
+
+// Water tracking state (Supabase-backed via waterService)
+const [waterSnapshot, setWaterSnapshot] = useState<WaterTrackerSnapshot | null>(null);
+const waterXPRef = useRef(0);
+
+  // Push-ups tracking state
+  const [pushupReps, setPushupReps] = useState<number>(0);
+
+  const [pushupPB, setPushupPB] = useState<number>(() => {
+    // PB is global, not per day
+    const saved = localStorage.getItem('lifelock-pushupPB');
+    return saved ? parseInt(saved) : 30; // Default PB is 30
+  });
+
+  // Top 3 Daily Priorities (after meditation)
+  const [dailyPriorities, setDailyPriorities] = useState<string[]>(['', '', '']);
+
+  // 🤖 Auto-create timeboxes based on wake-up time
+  useAutoTimeblocks({
+    wakeUpTime,
+    userId: internalUserId,
+    selectedDate,
+    enabled: !!wakeUpTime && !!internalUserId // Only create if wake-up time is set
+  });
+
+  // 🎮 XP System State
+  const xpStorageKey = useMemo(() => {
+    const userSuffix = internalUserId ?? 'anonymous';
+    return `lifelock-${userSuffix}-${routineDateKey}-morningXpState`;
+  }, [internalUserId, routineDateKey]);
+
+  const waterXPStorageKey = useMemo(() => {
+    const userSuffix = internalUserId ?? 'anonymous';
+    return `lifelock-${userSuffix}-${routineDateKey}-waterXP`;
+  }, [internalUserId, routineDateKey]);
+
+  // Local fallback for pushups/water when not signed in or sync fails
+  useEffect(() => {
+    const localPushups = localStorage.getItem(`lifelock-pushups-${routineDateKey}`);
+    if (localPushups && !internalUserId) {
+      setPushupReps(Number(localPushups));
+    }
+
+    const localWater = localStorage.getItem(`lifelock-water-amount-${routineDateKey}`);
+    if (localWater && !internalUserId) {
+      setWaterAmount(Number(localWater));
+    }
+  }, [routineDateKey, internalUserId]);
+
+  useEffect(() => {
+    localStorage.setItem(`lifelock-pushups-${routineDateKey}`, String(pushupReps));
+  }, [pushupReps, routineDateKey]);
+
+  const [xpState, setXpState] = useState<MorningRoutineXPState>(() => loadXpStateFromStorage(xpStorageKey));
+
+  useEffect(() => {
+    setXpState(loadXpStateFromStorage(xpStorageKey));
+  }, [xpStorageKey]);
+
+  useEffect(() => {
+    persistXpStateToStorage(xpStorageKey, xpState);
+  }, [xpState, xpStorageKey]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    const stored = window.localStorage.getItem(waterXPStorageKey);
+    waterXPRef.current = stored ? Number(stored) || 0 : 0;
+  }, [waterXPStorageKey]);
+
+  const meditationPreviousValue = useRef<string>(meditationDuration);
+  const planDayPreviousValue = useRef<boolean>(isPlanDayComplete);
+
+  useEffect(() => {
+    if (routineError) {
+      setError(routineError);
+    }
+  }, [routineError]);
+
+  useEffect(() => {
+    if (!morningRoutineState) return;
+
+    setMorningRoutine({
+      id: morningRoutineState.id,
+      userId: morningRoutineState.userId,
+      date: morningRoutineState.date,
+      items: morningRoutineState.items,
+      completedCount: morningRoutineState.completedCount,
+      totalCount: morningRoutineState.totalCount,
+      completionPercentage: morningRoutineState.completionPercentage,
+    });
+
+    setWakeUpTime(morningRoutineState.metadata.wakeUpTime ?? '');
+    setWaterSnapshot(null); // will be populated by WaterTracker fetch
+    setMeditationDuration(morningRoutineState.metadata.meditationDuration ?? '');
+    setPushupReps(morningRoutineState.metadata.pushupReps ?? 0);
+    setDailyPriorities(morningRoutineState.metadata.dailyPriorities ?? ['', '', '']);
+    setIsPlanDayComplete(morningRoutineState.metadata.isPlanDayComplete ?? false);
+  }, [morningRoutineState]);
+
+  // Load morning routine data
+  useEffect(() => {
+    setLoading(routineLoading);
+  }, [routineLoading]);
+
+  // Save wake-up time to Supabase + localStorage (debounced)
+  const debouncedMetadataUpdate = useMemo(() => {
+    if (!morningRoutineState) {
+      return null;
+    }
+
+    const update = debounce((payload: Partial<MorningRoutineMetadata>) => {
+      void persistMorningMetadata(payload);
+    }, 500);
+
+    return update;
+  }, [morningRoutineState, persistMorningMetadata]);
+
+  useEffect(() => {
+    return () => {
+      debouncedMetadataUpdate?.cancel();
+    };
+  }, [debouncedMetadataUpdate]);
+
+  useEffect(() => {
+    if (!selectedDate || isNaN(selectedDate.getTime())) return;
+
+    debouncedMetadataUpdate?.({ wakeUpTime });
+  }, [wakeUpTime, selectedDate, debouncedMetadataUpdate, routineDateKey]);
+
+  // Save meditation duration to Supabase + localStorage (debounced)
+  useEffect(() => {
+    if (!selectedDate || isNaN(selectedDate.getTime())) return;
+
+    debouncedMetadataUpdate?.({ meditationDuration });
+  }, [meditationDuration, selectedDate, debouncedMetadataUpdate, routineDateKey]);
+
+  // Save push-up reps to Supabase + localStorage (debounced)
+  useEffect(() => {
+    if (!selectedDate || isNaN(selectedDate.getTime())) return;
+
+    debouncedMetadataUpdate?.({ pushupReps });
+  }, [pushupReps, selectedDate, debouncedMetadataUpdate, routineDateKey]);
+
+  // Save push-up PB to localStorage (global, not per day)
+  useEffect(() => {
+    localStorage.setItem('lifelock-pushupPB', pushupPB.toString());
+  }, [pushupPB]);
+
+  // Save daily priorities to Supabase + localStorage (debounced)
+  useEffect(() => {
+    if (!selectedDate || isNaN(selectedDate.getTime()) || !internalUserId) return;
+
+    debouncedMetadataUpdate?.({ dailyPriorities });
+  }, [dailyPriorities, selectedDate, internalUserId, debouncedMetadataUpdate, routineDateKey]);
+
+  // Save Plan Day completion to Supabase + localStorage (debounced)
+  useEffect(() => {
+    if (!selectedDate || isNaN(selectedDate.getTime()) || !internalUserId) return;
+
+    debouncedMetadataUpdate?.({ isPlanDayComplete });
+  }, [isPlanDayComplete, selectedDate, internalUserId, debouncedMetadataUpdate, routineDateKey]);
+
+  const awardWakeUpXp = useCallback((time: string) => {
+    if (!time) {
+      return;
+    }
+
+    let shouldAward = false;
+    const wakeTimestamp = getWakeUpTimestamp(routineDate, time);
+
+    setXpState(prev => {
+      if (prev.wakeAwarded) {
+        return prev;
+      }
+
+      shouldAward = true;
+      return {
+        wakeAwarded: true,
+        steps: { ...prev.steps },
+        lastCompletionTimestamp: wakeTimestamp ?? prev.lastCompletionTimestamp
+      };
+    });
+
+    if (!shouldAward) {
+      return;
+    }
+
+    try {
+      const multiplier = calculateWakeUpXpMultiplier(time);
+      GamificationService.awardXP('wake_up_tracked', multiplier);
+    } catch (error) {
+      console.error('Failed to award XP for wake-up time:', error);
+    }
+  }, [routineDate]);
+
+  useEffect(() => {
+    if (wakeUpTime) {
+      awardWakeUpXp(wakeUpTime);
+    }
+  }, [wakeUpTime, awardWakeUpXp]);
+
+  useEffect(() => {
+    if (!wakeUpTime) {
+      return;
+    }
+
+    const wakeTimestamp = getWakeUpTimestamp(routineDate, wakeUpTime);
+    if (wakeTimestamp === null) {
+      return;
+    }
+
+    setXpState(prev => {
+      if (!prev.wakeAwarded) {
+        return prev;
+      }
+
+      if (Object.keys(prev.steps).length > 0 || prev.lastCompletionTimestamp === wakeTimestamp) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        lastCompletionTimestamp: wakeTimestamp
+      };
+    });
+  }, [wakeUpTime, routineDate]);
+
+  const awardHabitCompletion = useCallback((habitKey: string) => {
+    let shouldAward = false;
+    let previousTimestamp: number | null = null;
+    let completionTimestamp = Date.now();
+
+    setXpState(prev => {
+      if (prev.steps[habitKey]) {
+        return prev;
+      }
+
+      shouldAward = true;
+      previousTimestamp = prev.lastCompletionTimestamp ?? null;
+      completionTimestamp = Date.now();
+
+      return {
+        wakeAwarded: prev.wakeAwarded,
+        steps: { ...prev.steps, [habitKey]: true },
+        lastCompletionTimestamp: completionTimestamp
+      };
+    });
+
+    if (!shouldAward) {
+      return;
+    }
+
+    const minutesSinceWake = wakeUpTime
+      ? calculateMinutesSinceWake(wakeUpTime, routineDate, completionTimestamp)
+      : null;
+
+    const minutesSincePrevious =
+      previousTimestamp !== null
+        ? (completionTimestamp - previousTimestamp) / 60000
+        : null;
+
+    const wakeMultiplier = wakeUpTime ? calculateWakeUpXpMultiplier(wakeUpTime) : 1;
+
+    try {
+      const multiplier = calculateStepXpMultiplier({
+        minutesSinceWake,
+        minutesSincePrevious,
+        wakeUpMultiplier: wakeMultiplier
+      });
+      GamificationService.awardXP('morning_routine_step', multiplier);
+    } catch (error) {
+      console.error('Failed to award XP for morning routine habit:', error);
+    }
+  }, [wakeUpTime, routineDate]);
+
+  useEffect(() => {
+    if (
+      meditationDuration &&
+      meditationDuration !== meditationPreviousValue.current &&
+      !xpState.steps.meditation
+    ) {
+      awardHabitCompletion('meditation');
+    }
+    meditationPreviousValue.current = meditationDuration;
+  }, [meditationDuration, xpState.steps.meditation, awardHabitCompletion]);
+
+  useEffect(() => {
+    if (
+      isPlanDayComplete &&
+      planDayPreviousValue.current !== isPlanDayComplete &&
+      !xpState.steps.planDay
+    ) {
+      awardHabitCompletion('planDay');
+    }
+    planDayPreviousValue.current = isPlanDayComplete;
+  }, [isPlanDayComplete, xpState.steps.planDay, awardHabitCompletion]);
+
+  // Water tracking handled inside WaterTracker via Supabase snapshot
+  const incrementWater = () => {};
+  const decrementWater = () => {};
+
+  // Push-up tracking functions
+  const updatePushupReps = (reps: number) => {
+    setPushupReps(reps);
+    // Update PB if new record!
+    if (reps > pushupPB) {
+      setPushupPB(reps);
+    }
+  };
+
+  // Handle habit toggle
+  const handleHabitToggle = async (habitKey: string, completed: boolean) => {
+    if (!selectedDate) return;
+
+    try {
+      await toggleMorningHabit(habitKey, completed);
+
+      if (completed) {
+        awardHabitCompletion(habitKey);
+      }
+
+      setLocalProgressTrigger(prev => prev + 1);
+    } catch (error) {
+      console.error('Error updating habit:', error);
+      setError('Failed to update habit completion');
+    }
+  };
+
+  // Get current time in 12-hour format
+  const getCurrentTime = () => {
+    const now = new Date();
+    return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  // Handle setting current time as wake-up time
+  const setCurrentTimeAsWakeUp = () => {
+    setWakeUpTime(getCurrentTime());
+    setIsEditingWakeTime(false);
+  };
+
+  // Helper function to check if a habit is completed
+  const isHabitCompleted = useCallback((habitKey: string): boolean => {
+    if (!morningRoutine || !morningRoutine.items) {
+      return false;
+    }
+
+    const habit = morningRoutine.items.find(item => item.name === habitKey);
+    return habit?.completed ?? false;
+  }, [morningRoutine]);
+
+  // Smart completion check based on data, not checkboxes
+  const isTaskComplete = useCallback((taskKey: string, subtasks: any[]): boolean => {
+    switch (taskKey) {
+      case 'wakeUp':
+        return wakeUpTime !== ''; // Complete when time is set
+      case 'freshenUp':
+      case 'getBloodFlowing':
+      case 'powerUpBrain':
+        // Complete when all subtasks are checked
+        return subtasks.length > 0 && subtasks.every(subtask => isHabitCompleted(subtask.key));
+      case 'planDay':
+        return isPlanDayComplete; // Complete when manually marked or AI marks it
+      case 'meditation':
+        return meditationDuration !== ''; // Complete when duration is entered
+      default:
+        return false;
+    }
+  }, [wakeUpTime, meditationDuration, isPlanDayComplete, isHabitCompleted]);
+
+  // Calculate progress based on smart completion logic
+  const getRoutineProgress = useCallback(() => {
+    const totalTasks = MORNING_ROUTINE_TASKS.length;
+    const completedTasks = MORNING_ROUTINE_TASKS.filter(task =>
+      isTaskComplete(task.key, task.subtasks)
+    ).length;
+
+    return totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+  }, [isTaskComplete]);
+
+  const morningRoutineProgress = useMemo(() => {
+    return getRoutineProgress();
+  }, [getRoutineProgress]);
+
+  // Get today's rotating motivational quotes
+  const todaysQuotes = useMemo(() => {
+    return getRotatingQuotes(selectedDate);
+  }, [selectedDate]);
+
+  // 🎮 Calculate total XP for today
+  const todayXP = useMemo(() => {
+    const result = calculateTotalMorningXP({
+      wakeUpTime,
+      date: selectedDate,
+      freshenUp: {
+        bathroom: isHabitCompleted('bathroom'),
+        brushTeeth: isHabitCompleted('brushTeeth'),
+        coldShower: isHabitCompleted('coldShower')
+      },
+      pushupReps,
+      pushupPB,
+      waterAmount: waterSnapshot?.dailyTotalMl ?? 0,
+      supplementsCompleted: isHabitCompleted('supplements'),
+      planDayComplete: isPlanDayComplete,
+      meditationDuration,
+      priorities: dailyPriorities
+    });
+    return result;
+  }, [wakeUpTime, selectedDate, isHabitCompleted, pushupReps, pushupPB, waterSnapshot, isPlanDayComplete, meditationDuration, dailyPriorities]);
+
+  const waterXP = useMemo(() => {
+    const result = calculateWaterXP(waterSnapshot?.dailyTotalMl ?? 0, waterSnapshot?.goalMl ?? 2000, 0);
+    return result.total;
+  }, [waterSnapshot]);
+
+  useEffect(() => {
+    if (!selectedDate || Number.isNaN(selectedDate.getTime())) {
+      return;
+    }
+
+    const isViewingToday = format(selectedDate, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
+
+    if (!isViewingToday) {
+      return;
+    }
+
+    if (todayXP.total <= 0) {
+      return;
+    }
+
+    const breakdown = GamificationService.getDailyXPBreakdown(selectedDate);
+    const recordedRoutineXP = breakdown?.categories?.routine ?? 0;
+    const diff = todayXP.total - recordedRoutineXP;
+
+    if (diff > 0) {
+      const multiplier = diff / 100;
+      GamificationService.awardXP('morning_routine_complete', multiplier);
+    }
+  }, [selectedDate, todayXP.total]);
+
+  useEffect(() => {
+    if (!selectedDate || Number.isNaN(selectedDate.getTime())) {
+      return;
+    }
+
+    const isViewingToday = format(selectedDate, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
+    if (!isViewingToday) {
+      return;
+    }
+
+    if (waterXP > waterXPRef.current) {
+      const diff = waterXP - waterXPRef.current;
+      const multiplier = diff / 30;
+      GamificationService.awardXP('water_goal_met', multiplier);
+      waterXPRef.current = waterXP;
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(waterXPStorageKey, waterXP.toString());
+      }
+    } else if (waterXP < waterXPRef.current) {
+      waterXPRef.current = waterXP;
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(waterXPStorageKey, waterXP.toString());
+      }
+    }
+  }, [selectedDate, waterXP, waterXPStorageKey]);
+
+  // Thought dump handler
+  const handleThoughtDumpSubmit = async (input: string) => {
+    setIsProcessingVoice(true);
+    try {
+      const result = await lifeLockVoiceTaskProcessor.processThoughtDump(input);
+      setThoughtDumpResult(result);
+    } catch (error) {
+      console.error('Thought dump processing failed:', error);
+    } finally {
+      setIsProcessingVoice(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen w-full relative overflow-x-hidden">
+        <div className="w-full px-2 sm:px-4 md:px-6 lg:px-8 space-y-6">
+          {/* Quotes Skeleton */}
+          <Card className="mx-6 sm:mx-8 md:mx-12 w-full bg-yellow-900/20 border-yellow-700/50">
+            <CardHeader className="p-3 sm:p-4 md:p-6">
+              <div className="flex items-center gap-3 mb-3">
+                <Skeleton className="h-5 w-5 rounded-full bg-yellow-400/30" />
+                <Skeleton className="h-5 w-40 bg-yellow-400/20" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-full bg-yellow-400/10" />
+                <Skeleton className="h-4 w-3/4 bg-yellow-400/10" />
+              </div>
+            </CardHeader>
+          </Card>
+
+          {/* Coding My Brain Skeleton */}
+          <Card className="mx-6 sm:mx-8 md:mx-12 w-full bg-yellow-900/20 border-yellow-700/50">
+            <CardHeader className="p-3 sm:p-4 md:p-6">
+              <div className="flex items-center gap-3 mb-3">
+                <Skeleton className="h-5 w-5 rounded-full bg-yellow-400/30" />
+                <Skeleton className="h-5 w-40 bg-yellow-400/20" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-full bg-yellow-400/10" />
+                <Skeleton className="h-4 w-5/6 bg-yellow-400/10" />
+                <Skeleton className="h-4 w-4/5 bg-yellow-400/10" />
+              </div>
+            </CardHeader>
+          </Card>
+
+          {/* Flow State Rules Skeleton */}
+          <Card className="mx-6 sm:mx-8 md:mx-12 w-full bg-yellow-900/20 border-yellow-700/50">
+            <CardHeader className="p-3 sm:p-4 md:p-6">
+              <div className="flex items-center gap-3 mb-3">
+                <Skeleton className="h-5 w-5 rounded-full bg-yellow-400/30" />
+                <Skeleton className="h-5 w-40 bg-yellow-400/20" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-full bg-yellow-400/10" />
+                <Skeleton className="h-4 w-5/6 bg-yellow-400/10" />
+                <Skeleton className="h-4 w-4/5 bg-yellow-400/10" />
+              </div>
+            </CardHeader>
+          </Card>
+
+          {/* Morning Routine Progress Skeleton */}
+          <Card className="mx-6 sm:mx-8 md:mx-12 w-full bg-yellow-900/20 border-yellow-700/50">
+            <CardHeader className="p-3 sm:p-4 md:p-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Skeleton className="h-5 w-5 rounded-full bg-yellow-400/30" />
+                  <Skeleton className="h-5 w-36 bg-yellow-400/20" />
+                </div>
+                <Skeleton className="h-4 w-16 bg-yellow-400/20" />
+              </div>
+              <Skeleton className="h-2 w-full bg-yellow-400/20 rounded-full" />
+            </CardHeader>
+          </Card>
+
+          {/* Task Skeletons - Each in separate card */}
+          {Array.from({ length: MORNING_ROUTINE_TASKS.length }).map((_, index) => (
+            <Card
+              key={`morning-skeleton-${index}`}
+              className="mx-6 sm:mx-8 md:mx-12 w-full bg-yellow-900/20 border-yellow-700/50"
+            >
+              <CardHeader className="p-3 sm:p-4 md:p-6 space-y-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-start gap-3 w-full">
+                    <Skeleton className="h-5 w-5 rounded-md bg-yellow-400/20" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-4 w-2/3 bg-yellow-400/20" />
+                      <Skeleton className="h-3 w-full bg-yellow-400/10" />
+                    </div>
+                  </div>
+                  <Skeleton className="h-6 w-16 rounded-lg bg-yellow-400/20" />
+                </div>
+                <Skeleton className="h-2 w-full bg-yellow-400/10 rounded-full" />
+              </CardHeader>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="h-full w-full bg-gray-900 flex items-center justify-center">
+        <div className="text-red-400">Error loading morning routine: {error}</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen w-full relative overflow-x-hidden">
+      <div className="w-full px-2 sm:px-4 md:px-6 lg:px-8 space-y-6">
+
+        {/* Page Header - Title, Icon, Subtext */}
+        <div className="px-5 py-5 border-b border-white/10">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500/20 to-amber-500/20 border-2 border-orange-500/30 flex items-center justify-center flex-shrink-0">
+                <Sun className="h-7 w-7 text-orange-400" />
+              </div>
+              <div className="min-w-0">
+                <h1 className="text-2xl font-bold text-white tracking-tight">Morning Flow</h1>
+                <p className="text-sm text-white/60 mt-0.5">Track your morning</p>
+              </div>
+            </div>
+            <XPPill xp={todayXP.total} activeTab="morning" />
+          </div>
+        </div>
+
+        {/* Unified Morning Mindset Card - Combines Inspiration, Purpose, and Rules */}
+        <div className="mx-6 sm:mx-8 md:mx-12">
+          <MorningMindsetCard quotes={todaysQuotes} />
+        </div>
+
+        {/* Separator Line */}
+        <div className="w-full h-px bg-gradient-to-r from-transparent via-yellow-500/30 to-transparent" />
+
+        {/* Morning Routine Tasks - Each in separate card */}
+        {MORNING_ROUTINE_TASKS.map((task, index) => {
+          const IconComponent = task.icon;
+          const completedSubtasks = task.subtasks.filter(subtask => isHabitCompleted(subtask.key)).length;
+          const taskComplete = isTaskComplete(task.key, task.subtasks);
+
+          // Calculate progress percentage
+          const progressPercent = task.subtasks.length > 0
+            ? (completedSubtasks / task.subtasks.length) * 100
+            : (taskComplete ? 100 : 0);
+
+          const taskCard = (
+            <Card
+              key={task.key}
+              className={cn(
+                "mx-0 sm:mx-2 md:mx-4 transition-all duration-300",
+                taskComplete
+                  ? "bg-green-900/15 border-green-700/40"
+                  : "bg-yellow-900/15 border-yellow-700/40"
+                )}
+              >
+                <CardHeader className="p-3 sm:p-4 md:p-6">
+                {/* Task Header */}
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <IconComponent className={cn(
+                      "h-5 w-5 flex-shrink-0",
+                      taskComplete ? "text-green-400" : "text-yellow-400"
+                    )} />
+                    <h4 className={cn(
+                      "font-semibold text-sm sm:text-base truncate",
+                      taskComplete ? "text-green-100" : "text-yellow-100"
+                    )}>{task.title}</h4>
+                    <div className={cn(
+                      "rounded-full px-3 py-1 flex-shrink-0 border my-1",
+                      taskComplete
+                        ? "bg-green-500/20 border-green-400/40"
+                        : "bg-yellow-500/20 border-yellow-400/40"
+                    )}>
+                      <span className="text-xs font-medium whitespace-nowrap">{task.timeEstimate}</span>
+                    </div>
+                  </div>
+                  {/* XP Pill */}
+                  <XPPill
+                    xp={todayXP.breakdown[task.key] || 0}
+                    earned={taskComplete}
+                    showGlow={taskComplete}
+                  />
+                </div>
+
+                {/* Task Description */}
+                {task.description && (
+                  <p className="text-gray-300 text-xs sm:text-sm mb-3 leading-relaxed">{task.description}</p>
+                )}
+
+                {/* Progress Bar */}
+                <div className="mb-3">
+                  <div className="w-full bg-yellow-900/30 border border-yellow-600/20 rounded-full h-1.5">
+                    <motion.div
+                      className={cn(
+                        "h-1.5 rounded-full transition-all duration-500",
+                        taskComplete
+                          ? "bg-gradient-to-r from-green-400 to-green-600"
+                          : "bg-gradient-to-r from-yellow-400 to-yellow-600"
+                      )}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${progressPercent}%` }}
+                    />
+                  </div>
+                  <div className="flex justify-between items-center mt-1">
+                    {task.subtasks.length > 0 ? (
+                      <>
+                        <span className="text-xs text-yellow-400/70 font-medium">{completedSubtasks}/{task.subtasks.length} completed</span>
+                        {taskComplete && (
+                          <span className="text-xs text-green-400 font-semibold">✓ Complete</span>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-xs text-yellow-400/70 font-medium">
+                          {taskComplete ? 'Completed' : 'Not started'}
+                        </span>
+                        {taskComplete && (
+                          <span className="text-xs text-green-400 font-semibold">✓ Complete</span>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Time tracking interface - for wake-up */}
+                {task.hasTimeTracking && task.key === 'wakeUp' && (
+                  <WakeUpTimeTracker
+                    time={wakeUpTime}
+                    onTimeChange={setWakeUpTime}
+                    onOpenPicker={() => setShowTimeScrollPicker(true)}
+                    onUseNow={setCurrentTimeAsWakeUp}
+                    getCurrentTime={getCurrentTime}
+                    onClear={() => setWakeUpTime('')}
+                  />
+                )}
+
+                {/* Meditation time tracking with buttons */}
+                {task.hasTimeTracking && task.key === 'meditation' && (
+                  <MeditationTracker
+                    duration={meditationDuration}
+                    onChange={setMeditationDuration}
+                    selectedDate={selectedDate}
+                  />
+                )}
+              </CardHeader>
+
+              {/* Sub-tasks */}
+              {task.subtasks.length > 0 && (
+                <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
+                  <div className="space-y-4">
+                    {task.subtasks.map((subtask) => (
+                      <div key={subtask.key}>
+                        {/* Full row clickable - makes it easier to tap on mobile */}
+                        <div
+                          className="group flex items-center gap-3 rounded-lg transition-all duration-200 cursor-pointer touch-manipulation min-h-[48px] p-3 -m-1 hover:bg-yellow-900/20 active:bg-yellow-900/30"
+                          onClick={() => handleHabitToggle(subtask.key, !isHabitCompleted(subtask.key))}
+                        >
+                          {/* Checkbox - visual indicator only, click handled by parent */}
+                          <div className="flex items-center justify-center">
+                            <Checkbox
+                              checked={isHabitCompleted(subtask.key)}
+                              className="h-6 w-6 border-2 border-yellow-400/70 data-[state=checked]:bg-yellow-500 data-[state=checked]:border-yellow-500 transition-all duration-200 group-hover:border-yellow-400 pointer-events-none"
+                            />
+                          </div>
+                          <span className={cn(
+                            "text-sm font-medium transition-all duration-200 flex-1",
+                            isHabitCompleted(subtask.key)
+                              ? "text-gray-500 line-through"
+                              : "text-yellow-100/90 group-hover:text-yellow-50"
+                          )}>
+                            {subtask.title}
+                          </span>
+                          {isHabitCompleted(subtask.key) && (
+                            <CheckCircle2 className="h-3.5 w-3.5 text-green-400 animate-in zoom-in-50 duration-200" />
+                          )}
+                        </div>
+
+                        {/* Push-ups Tracking UI - Special case for pushups subtask */}
+                        {subtask.key === 'pushups' && (
+                          <PushUpTracker
+                            reps={pushupReps}
+                            personalBest={pushupPB}
+                            onUpdateReps={updatePushupReps}
+                          />
+                        )}
+
+                        {/* Water Tracking UI - Special case for water subtask */}
+                        {subtask.key === 'water' && (
+                          <WaterTracker
+                            selectedDate={selectedDate}
+                            userId={internalUserId}
+                            onSnapshotChange={setWaterSnapshot}
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              )}
+
+              {/* Plan Day Actions */}
+              {task.key === 'planDay' && (
+                <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
+                  <PlanDayActions
+                    isComplete={isPlanDayComplete}
+                    onMarkComplete={() => setIsPlanDayComplete(true)}
+                    onOpenThoughtDump={() => setShowThoughtDumpChat(true)}
+                  />
+                </CardContent>
+              )}
+            </Card>
+          );
+
+          // Insert Top 3 Priorities after Meditation (index 1)
+          if (task.key === 'meditation') {
+            return (
+              <React.Fragment key={task.key}>
+                {taskCard}
+                {/* Top 3 Daily Priorities - After Meditation */}
+                <motion.div
+                  key={`${task.key}-priorities`}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                  className="w-full"
+                >
+                  <Card className="mx-0 sm:mx-2 md:mx-4 bg-gradient-to-r from-yellow-900/30 to-amber-900/30 border-yellow-700/40">
+                    <CardHeader className="p-4">
+                      <CardTitle className="flex items-center text-yellow-300 text-base">
+                        <Target className="h-5 w-5 mr-2" />
+                        🎯 Top 3 Things I Want to Complete Today
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-4 pt-0">
+                      <p className="text-xs text-yellow-400 mb-4">
+                        Not everything - just the 3 that matter most. Be specific.
+                      </p>
+                      <div className="space-y-3">
+                        {dailyPriorities.map((priority, idx) => (
+                          <div key={idx} className="flex items-start space-x-2">
+                            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-yellow-600/30 border-2 border-yellow-500/50 flex items-center justify-center mt-1">
+                              <span className="text-yellow-300 font-bold text-sm">#{idx + 1}</span>
+                            </div>
+                            <TextareaAutosize
+                              value={priority}
+                              onChange={(e) => {
+                                const newPriorities = [...dailyPriorities];
+                                newPriorities[idx] = e.target.value;
+                                setDailyPriorities(newPriorities);
+                              }}
+                              placeholder={`Priority ${idx + 1}...`}
+                              minRows={1}
+                              maxRows={4}
+                              className="flex-1 bg-yellow-900/20 border border-yellow-700/30 text-white text-sm placeholder:text-yellow-300/40 focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400/20 rounded-lg px-3 py-2 resize-none overflow-hidden"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                      <p className="text-xs text-yellow-400/70 mt-3 italic">
+                        💡 Tip: Make them specific and actionable!
+                      </p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              </React.Fragment>
+            );
+          }
+
+          return taskCard;
+        })}
+
+        {/* XP Footer Summary */}
+        <Card className="bg-gradient-to-br from-yellow-900/25 to-amber-900/15 border-yellow-700/30">
+          <CardContent className="p-4">
+            <XPFooterSummary
+              breakdown={todayXP.breakdown}
+              totalXP={todayXP.total}
+            />
+          </CardContent>
+        </Card>
+
+      </div>
+
+      {/* Simple AI Thought Dump Page */}
+      {showThoughtDumpChat && (
+        <SimpleThoughtDumpPage
+          selectedDate={selectedDate}
+          onBack={() => setShowThoughtDumpChat(false)}
+          onComplete={(tasks) => {
+            setThoughtDumpResult(tasks);
+            setShowThoughtDumpChat(false);
+          }}
+        />
+      )}
+
+      {/* Thought Dump Results Modal */}
+      {thoughtDumpResult && (
+        <ThoughtDumpResults
+          result={thoughtDumpResult}
+          onClose={() => setThoughtDumpResult(null)}
+          onAddToSchedule={() => setThoughtDumpResult(null)}
+        />
+      )}
+
+      {/* Time Scroll Picker Modal */}
+      {showTimeScrollPicker && (
+        <TimeScrollPicker
+          value={wakeUpTime}
+          onChange={(time) => {
+            setWakeUpTime(time);
+            setIsEditingWakeTime(false);
+          }}
+          onClose={() => setShowTimeScrollPicker(false)}
+        />
+      )}
+    </div>
+  );
+});

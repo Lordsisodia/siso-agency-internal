@@ -1,11 +1,12 @@
 /**
  * Consolidated Bottom Navigation Component
  *
- * 4-button navigation layout + 9-dot more menu button:
+ * PHASE 5 COMPLETE: AI Legacy button replaces Timeline circle button
+ * PHASE 4: 3-button navigation layout + More button as 4th pill:
  * - Button 1-2: Plan, Tasks (with sub-nav support)
- * - Button 3: Health
- * - Button 4: Diet
- * - Circle button: Opens GridMoreMenu with Timeline and other views
+ * - Button 3: Stats (Smoking, Water, Fitness, Nutrition)
+ * - Button 4: More (9-dot menu)
+ * - AI Legacy button: Opens AI Assistant interface
  */
 
 import React, { useState } from 'react';
@@ -37,7 +38,8 @@ export const ConsolidatedBottomNav: React.FC<ConsolidatedBottomNavProps> = ({
   // Get smart view navigator for current view
   const viewNavigator = getViewNavigator(location.pathname);
 
-  // Build 4-button tabs array (only the main sections, no Timeline)
+  // Build 3-button tabs array + More button (only the main sections, no Timeline)
+  // PHASE 4: NAV_SECTIONS now has 3 items, not 4
   const buildTabs = (): DailyBottomNavTab[] => {
     return NAV_SECTIONS.map(section => ({
       title: section.name,
@@ -57,7 +59,7 @@ export const ConsolidatedBottomNav: React.FC<ConsolidatedBottomNavProps> = ({
       return;
     }
 
-    // Regular section navigation (indices 0-3)
+    // Regular section navigation (indices 0-2 for Plan, Tasks, Stats)
     const section = NAV_SECTIONS[index];
     if (section?.hasSubNav && section.subSections) {
       onSectionChange(section.id, section.subSections[0].id);
@@ -66,12 +68,18 @@ export const ConsolidatedBottomNav: React.FC<ConsolidatedBottomNavProps> = ({
     }
   };
 
+  const handleAILegacyClick = () => {
+    // Navigate to AI Assistant interface
+    navigate('/admin/ai-assistant');
+  };
+
   return (
     <>
       <DailyBottomNav
         tabs={tabs}
         activeIndex={activeIndex}
         onChange={handleTabChange}
+        onAILegacyClick={handleAILegacyClick}
         className={className}
         hidden={hidden}
       />

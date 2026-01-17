@@ -7,7 +7,7 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, RefreshCw, Sparkles, TrendingUp, Award, Flame, Clock, Target, Zap } from 'lucide-react';
-import { useUser } from '@clerk/clerk-react';
+import { useAuthSession } from '@/lib/hooks/useAuthSession';
 import { xpAnalyticsService } from '@/domains/lifelock/analytics/services/xpAnalyticsService';
 import type { XPAnalyticsData } from '@/domains/lifelock/analytics/types/xpAnalytics.types';
 
@@ -40,7 +40,7 @@ interface XPAnalyticsProps {
 }
 
 export const XPAnalytics: React.FC<XPAnalyticsProps> = ({ onNavigateToStore, onNavigateBack }) => {
-  const { user } = useUser();
+  const { user } = useAuthSession();
   const [analytics, setAnalytics] = useState<XPAnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

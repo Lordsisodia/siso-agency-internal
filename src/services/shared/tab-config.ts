@@ -1,11 +1,21 @@
 /**
  * TAB CONFIGURATION - SIMPLE COMPATIBILITY LAYER
- * 
+ *
  * This file provides a simple, backward-compatible interface to the new tab system.
  * It avoids complex initialization and circular import issues by keeping things simple.
- * 
+ *
  * MIGRATION STRATEGY:
  * This can be renamed to tab-config.ts to replace the original file seamlessly.
+ *
+ * PHASE 2 COMPLETE: Diet section moved to Health/Nutrition sub-tab
+ * - 'nutrition' added to TabId type
+ * - Nutrition tab configuration added
+ * - Old 'diet' tab kept for backward compatibility
+ *
+ * PHASE 4 COMPLETE: Health merged into Stats section
+ * - Stats now has 4 tabs: Smoking, Water, Fitness, Nutrition
+ * - 'health' tab now maps to Stats/Fitness
+ * - More button moved to 4th pill position
  */
 
 import {
@@ -34,16 +44,19 @@ export {
 export type * from '../types/tab-types';
 
 // EXACT LEGACY COMPATIBILITY - maintains original interface
+// PHASE 4: Health tabs now map to Stats section
 export type TabId =
   | 'morning'
   | 'light-work'
   | 'work'
   | 'deep-work'  // New ID for deep work tab
-  | 'wellness'
-  | 'health'  // Alias for wellness (renamed in navigation)
-  | 'water'  // Health subtab
-  | 'fitness'  // Health subtab
-  | 'smoking'  // Health subtab
+  | 'wellness'  // Maps to Stats/Fitness (PHASE 4)
+  | 'health'  // Maps to Stats/Fitness (PHASE 4)
+  | 'water'  // Stats subtab (PHASE 3: moved from Health to Stats)
+  | 'fitness'  // Stats subtab (PHASE 4: moved from Health to Stats)
+  | 'smoking'  // Stats subtab (PHASE 3: moved from Health to Stats)
+  | 'nutrition'  // Stats subtab (PHASE 4: moved from Health to Stats)
+  | 'stats'  // New Stats section (PHASE 3)
   | 'tasks'
   | 'timebox'
   | 'checkout'
@@ -143,7 +156,25 @@ export const TAB_CONFIG: Record<TabId, TabConfig> = {
     timeRelevance: [6, 7, 8, 12, 18, 19],
     color: 'from-purple-500 to-pink-500',
     description: 'Smoking cessation tracking',
-    componentPath: 'SmokingTracker'
+    componentPath: 'SmokingTracker (Stats subtab)'
+  },
+  'stats': {
+    id: 'stats',
+    name: 'Stats',
+    icon: Heart,
+    timeRelevance: [6, 7, 8, 12, 18, 19],
+    color: 'from-cyan-500 to-blue-500',
+    description: 'Stats tracking (Smoking, Water)',
+    componentPath: 'StatsSection'
+  },
+  'nutrition': {
+    id: 'nutrition',
+    name: 'Nutrition',
+    icon: Apple,
+    timeRelevance: [7, 8, 12, 13, 18, 19],
+    color: 'from-green-500 to-emerald-500',
+    description: 'AI-powered nutrition tracking with photo analysis, meal logging, and macro tracking',
+    componentPath: 'DietSection (as Health subtab)'
   },
   'timebox': {
     id: 'timebox',

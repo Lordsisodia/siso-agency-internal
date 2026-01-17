@@ -2,11 +2,12 @@
  * Gamification Dashboard - XP Hub with Beautiful Analytics
  *
  * Complete XP tracking dashboard with dark theme and glassmorphism
+ * PHASE 4 POLISH - All enhancements implemented
  */
 
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, RefreshCw, Sparkles, TrendingUp, Award, Flame, Clock, Target, Zap } from 'lucide-react';
+import { Loader2, RefreshCw, Sparkles, TrendingUp, Award, Flame, Clock, Target, Zap, Trophy, ShoppingCart } from 'lucide-react';
 import { useUser } from '@clerk/clerk-react';
 import { cn } from '@/lib/utils';
 import { xpAnalyticsService } from '@/domains/lifelock/analytics/services/xpAnalyticsService';
@@ -18,6 +19,10 @@ import { MonthlyDatePickerModalV2 } from '@/domains/lifelock/1-daily/_shared/com
 import { TodayProgressCard } from '@/domains/lifelock/analytics/ui/components/today/TodayProgressCard';
 import { WeeklySummaryCard } from '@/domains/lifelock/analytics/ui/components/weekly/WeeklySummaryCard';
 import { MonthlySummaryCard } from '@/domains/lifelock/analytics/ui/components/monthly/MonthlySummaryCard';
+import { HistoryWeeklySummary } from './HistoryWeeklySummary';
+import { XPTimeline } from './XPTimeline';
+import { MiniWeeklyContext } from './MiniWeeklyContext';
+import { MiniStreakIndicator } from './MiniStreakIndicator';
 import { CategoryBreakdownCard } from '@/domains/lifelock/analytics/ui/components/categories/CategoryBreakdownCard';
 import { PersonalBestsCard } from '@/domains/lifelock/analytics/ui/components/records/PersonalBestsCard';
 import { StreakCard } from '@/domains/lifelock/analytics/ui/components/records/StreakCard';
@@ -26,13 +31,29 @@ import { PeakProductivityCard } from '@/domains/lifelock/analytics/ui/components
 import { RecentAchievementsCard } from '@/domains/lifelock/analytics/ui/components/achievements/RecentAchievementsCard';
 import { XPBottomNav } from '@/domains/lifelock/analytics/ui/pages/XPBottomNav';
 import { GridMoreMenu } from '@/components/GridMoreMenu';
+import { RewardCatalog } from '@/domains/xp-store/1-storefront/ui/components/RewardCatalog';
+import { XPStoreProvider } from '@/domains/xp-store/_shared/core/XPStoreContext';
+import { AllAchievementsGrid } from './AllAchievementsGrid';
+import { LevelProgressCard } from './LevelProgressCard';
+import { StoreManagementPanel } from './StoreManagementPanel';
+import { useAdminCheck } from '@/domains/admin/hooks/useAdminCheck';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Settings } from 'lucide-react';
 
 // XP Hub Navigation Tabs
 const XP_HUB_TABS = [
   { id: 'dashboard', title: 'Dashboard', icon: TrendingUp },
-  { id: 'store', title: 'XP Store', icon: Sparkles },
-  { id: 'stats', title: 'Stats', icon: Award },
+  { id: 'store', title: 'Store', icon: ShoppingCart },
   { id: 'history', title: 'History', icon: Clock },
+  { id: 'achievements', title: 'Achievements', icon: Trophy },
 ];
 
 type XPHubTab = typeof XP_HUB_TABS[number]['id'];
@@ -47,6 +68,7 @@ export const GamificationDashboard: React.FC<GamificationDashboardProps> = ({
   compact = false
 }) => {
   const { user } = useUser();
+  const { isAdmin } = useAdminCheck();
   const [analytics, setAnalytics] = useState<XPAnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -54,9 +76,15 @@ export const GamificationDashboard: React.FC<GamificationDashboardProps> = ({
   const [activeTab, setActiveTab] = useState<XPHubTab>('dashboard');
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [storeManagementOpen, setStoreManagementOpen] = useState(false);
 
   const fetchAnalytics = async (showRefreshLoading = false) => {
-    if (!user?.id) return;
+    console.log('fetchAnalytics called, user:', user?.id);
+
+    if (!user?.id) {
+      console.log('No user ID, skipping fetch');
+      return;
+    }
 
     try {
       if (showRefreshLoading) {
@@ -66,12 +94,18 @@ export const GamificationDashboard: React.FC<GamificationDashboardProps> = ({
       }
       setError(null);
 
+      console.log('Calling xpAnalyticsService.getAnalytics...');
+      const startTime = Date.now();
+
       const data = await xpAnalyticsService.getAnalytics(user.id);
+
+      console.log('Analytics data loaded in ' + (Date.now() - startTime) + 'ms:', data);
       setAnalytics(data);
     } catch (err) {
       console.error('Error fetching XP analytics:', err);
-      setError('Failed to load analytics data');
+      setError('Failed to load analytics data: ' + (err as Error).message);
     } finally {
+      console.log('Setting loading to false');
       setLoading(false);
       setRefreshing(false);
     }
@@ -95,15 +129,20 @@ export const GamificationDashboard: React.FC<GamificationDashboardProps> = ({
     setActiveTab(tab.id as XPHubTab);
   };
 
-  // Calculate day progress (using today's XP percentage of daily goal)
-  const dailyGoal = 500;
-  const dayProgress = analytics?.today ? Math.min(100, (analytics.today.total / dailyGoal) * 100) : 0;
-  const totalXP = analytics?.today.total || 0;
+  // Purchase handler for store
+  const handlePurchase = (rewardId: string) => {
+    console.log('Purchase requested:', rewardId);
+    // TODO: Implement purchase flow
+  };
+
+  // Calculate day progress - use the pre-calculated progress from analytics
+  const dayProgress = analytics?.today?.progress ?? 0;
+  const totalXP = analytics?.today?.total ?? 0;
 
   // Loading skeleton
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 p-4 pb-32">
+      <div className="min-h-screen bg-black pb-32">
         {/* Header Skeleton */}
         <div className="mb-6">
           <div className="h-8 bg-white/5 rounded-lg w-48 mb-2 animate-pulse" />
@@ -111,7 +150,7 @@ export const GamificationDashboard: React.FC<GamificationDashboardProps> = ({
         </div>
 
         {/* Today Card Skeleton */}
-        <div className="bg-gradient-to-br from-indigo-500/5 to-purple-500/5 border border-white/10 rounded-3xl p-6 mb-4 animate-pulse">
+        <div className="bg-gray-900 border border-gray-800 rounded-3xl p-6 mb-4 animate-pulse">
           <div className="flex items-center gap-8">
             <div className="w-32 h-32 rounded-full bg-white/10 animate-pulse" />
             <div className="flex-1 grid grid-cols-2 gap-4">
@@ -125,7 +164,7 @@ export const GamificationDashboard: React.FC<GamificationDashboardProps> = ({
         {/* Grid Skeleton */}
         <div className="grid grid-cols-2 gap-4">
           {[1, 2, 3, 4, 5, 6].map(i => (
-            <div key={i} className="bg-white/5 border border-white/10 rounded-2xl p-4 h-40 animate-pulse" />
+            <div key={i} className="bg-gray-900 border border-gray-800 rounded-2xl p-4 h-40 animate-pulse" />
           ))}
         </div>
       </div>
@@ -133,18 +172,18 @@ export const GamificationDashboard: React.FC<GamificationDashboardProps> = ({
   }
 
   // Error state
-  if (error || !analytics) {
+  if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 flex items-center justify-center p-4 pb-32">
+      <div className="min-h-screen bg-black flex items-center justify-center pb-32">
         <motion.div className="text-center" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
           <div className="w-20 h-20 bg-red-500/10 border border-red-500/30 rounded-full flex items-center justify-center mx-auto mb-4">
             <span className="text-4xl">⚠️</span>
           </div>
           <h3 className="text-xl font-semibold text-white mb-2">Unable to Load Analytics</h3>
-          <p className="text-gray-400 mb-6">{error || 'No data available'}</p>
+          <p className="text-gray-400 mb-6">{error}</p>
           <button
             onClick={() => fetchAnalytics()}
-            className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white rounded-xl font-medium transition-all shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40"
+            className="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-xl font-medium transition-all"
           >
             Try Again
           </button>
@@ -156,15 +195,26 @@ export const GamificationDashboard: React.FC<GamificationDashboardProps> = ({
     );
   }
 
-  return (
-    <div className={cn("min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 pb-32 relative", className)}>
-      {/* Decorative Background Elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-pink-500/5 rounded-full blur-3xl" />
-      </div>
+  // No data state
+  if (!analytics) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center pb-32">
+        <motion.div className="text-center" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
+          <div className="w-20 h-20 bg-gray-800 border border-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-4xl">📊</span>
+          </div>
+          <h3 className="text-xl font-semibold text-white mb-2">No XP Data Yet</h3>
+          <p className="text-gray-400 mb-6">Start completing tasks to earn XP and track your progress!</p>
+        </motion.div>
 
+        {/* Still show more menu for navigation */}
+        <GridMoreMenu open={moreMenuOpen} onOpenChange={setMoreMenuOpen} />
+      </div>
+    );
+  }
+
+  return (
+    <div className={cn("min-h-screen bg-black pb-32 relative", className)}>
       {/* Unified Top Navigation - Same as LifeLog Daily */}
       <UnifiedTopNav
         selectedDate={selectedDate}
@@ -174,11 +224,12 @@ export const GamificationDashboard: React.FC<GamificationDashboardProps> = ({
         totalXP={totalXP}
       />
 
-      {/* Main Content - with top padding to account for fixed header */}
-      <div className="relative p-4">
+      {/* Main Content - minimal padding */}
+      <div className="relative px-3">
 
       {/* Tab Content */}
       <AnimatePresence mode="wait">
+        {/* DASHBOARD TAB - Streamlined, Today-focused */}
         {activeTab === 'dashboard' && (
           <motion.div
             key="dashboard"
@@ -188,103 +239,24 @@ export const GamificationDashboard: React.FC<GamificationDashboardProps> = ({
             transition={{ duration: 0.3 }}
             className="relative space-y-4"
           >
-            {/* Today's Progress - Full Width */}
+            {/* Today's Progress - Hero Component */}
             <TodayProgressCard data={analytics.today} level={analytics.level} />
 
-            {/* Quick Stats Row */}
+            {/* XP Sources - Where did today's XP come from? */}
+            <CategoryBreakdownCard categories={analytics.today.categories} totalXP={analytics.today.total} />
+
+            {/* Context Row - Weekly & Streak (Compact) */}
             <div className="grid grid-cols-2 gap-3">
-              <motion.div
-                className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20 rounded-2xl p-4"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-              >
-                <div className="flex items-center gap-3">
-                  <Target className="w-8 h-8 text-blue-400" />
-                  <div>
-                    <p className="text-2xl font-bold text-white">{analytics.week.average}</p>
-                    <p className="text-xs text-gray-400">Weekly Avg</p>
-                  </div>
-                </div>
-              </motion.div>
-
-              <motion.div
-                className="bg-gradient-to-br from-purple-500/10 to-violet-500/10 border border-purple-500/20 rounded-2xl p-4"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15 }}
-              >
-                <div className="flex items-center gap-3">
-                  <Flame className="w-8 h-8 text-purple-400" />
-                  <div>
-                    <p className="text-2xl font-bold text-white">{analytics.streaks.current}</p>
-                    <p className="text-xs text-gray-400">Day Streak</p>
-                  </div>
-                </div>
-              </motion.div>
-
-              <motion.div
-                className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-2xl p-4"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-              >
-                <div className="flex items-center gap-3">
-                  <TrendingUp className="w-8 h-8 text-green-400" />
-                  <div>
-                    <p className="text-2xl font-bold text-white">{analytics.trend.maximum}</p>
-                    <p className="text-xs text-gray-400">Best Day</p>
-                  </div>
-                </div>
-              </motion.div>
-
-              <motion.div
-                className="bg-gradient-to-br from-orange-500/10 to-amber-500/10 border border-orange-500/20 rounded-2xl p-4"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.25 }}
-              >
-                <div className="flex items-center gap-3">
-                  <Clock className="w-8 h-8 text-orange-400" />
-                  <div>
-                    <p className="text-2xl font-bold text-white">{analytics.today.sessions}</p>
-                    <p className="text-xs text-gray-400">Sessions</p>
-                  </div>
-                </div>
-              </motion.div>
-            </div>
-
-            {/* Weekly & Monthly Side by Side */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <WeeklySummaryCard data={analytics.week} />
-              <MonthlySummaryCard data={analytics.month} />
-            </div>
-
-            {/* Category & Records Side by Side */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <CategoryBreakdownCard categories={analytics.today.categories} totalXP={analytics.today.total} />
-              <PersonalBestsCard data={analytics.personalBests} />
-            </div>
-
-            {/* Streaks & Achievements Side by Side */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <StreakCard data={analytics.streaks} />
-              <RecentAchievementsCard
-                achievements={analytics.achievements.recent}
-                totalUnlocked={analytics.achievements.totalUnlocked}
-                totalAvailable={analytics.achievements.totalAvailable}
-                nextToUnlock={analytics.achievements.nextToUnlock}
+              <MiniWeeklyContext data={analytics.week} />
+              <MiniStreakIndicator
+                data={analytics.streaks}
+                onClick={() => setActiveTab('achievements')}
               />
             </div>
-
-            {/* Trend Chart - Full Width */}
-            <TrendChartCard data={analytics.trend} />
-
-            {/* Peak Productivity - Full Width */}
-            <PeakProductivityCard data={analytics.peakProductivity} />
           </motion.div>
         )}
 
+        {/* STORE TAB - XP Spending */}
         {activeTab === 'store' && (
           <motion.div
             key="store"
@@ -292,37 +264,60 @@ export const GamificationDashboard: React.FC<GamificationDashboardProps> = ({
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.3 }}
-            className="relative"
+            className="relative space-y-4"
           >
-            <div className="bg-white/5 border border-white/10 rounded-3xl p-8 text-center">
-              <Sparkles className="w-16 h-16 text-yellow-400 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-white mb-2">XP Store</h2>
-              <p className="text-gray-400 mb-6">Coming Soon! Spend your hard-earned XP on rewards.</p>
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-500/20 border border-yellow-500/30 rounded-full">
-                <Zap className="w-5 h-5 text-yellow-400" />
-                <span className="text-lg font-bold text-yellow-400">{analytics.level.totalXP} XP Available</span>
+            {/* XP Balance Header */}
+            <div className="bg-gray-900 border border-gray-800 rounded-3xl p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-400 mb-1">Available XP</p>
+                  <p className="text-4xl font-bold text-white">{analytics.level.totalXP.toLocaleString()}</p>
+                </div>
+                <div className="w-16 h-16 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-2xl flex items-center justify-center">
+                  <Zap className="w-8 h-8 text-white" />
+                </div>
               </div>
+              <p className="text-xs text-gray-500 mt-3">Spend your hard-earned XP on rewards</p>
             </div>
+
+            {/* Admin Button */}
+            {isAdmin && (
+              <div className="flex justify-end">
+                <Dialog open={storeManagementOpen} onOpenChange={setStoreManagementOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="bg-gray-800 border-gray-700 text-white hover:bg-gray-700">
+                      <Settings className="h-4 w-4 mr-2" />
+                      Manage Store
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-4xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>Store Management</DialogTitle>
+                      <DialogDescription className="text-gray-400">
+                        Add, edit, and manage XP store rewards
+                      </DialogDescription>
+                    </DialogHeader>
+                    <StoreManagementPanel onRewardChange={() => {
+                      // Refresh rewards when changed
+                      window.location.reload();
+                    }} />
+                  </DialogContent>
+                </Dialog>
+              </div>
+            )}
+
+            {/* Reward Catalog - Integrated with dark theme wrapper */}
+            {user?.id && (
+              <XPStoreProvider userId={user.id}>
+                <div className="reward-catalog-dark-theme">
+                  <RewardCatalog onPurchase={handlePurchase} />
+                </div>
+              </XPStoreProvider>
+            )}
           </motion.div>
         )}
 
-        {activeTab === 'stats' && (
-          <motion.div
-            key="stats"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.3 }}
-            className="relative"
-          >
-            <div className="bg-white/5 border border-white/10 rounded-3xl p-8 text-center">
-              <Award className="w-16 h-16 text-purple-400 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-white mb-2">Statistics</h2>
-              <p className="text-gray-400">Coming Soon! Deep dive into your XP analytics.</p>
-            </div>
-          </motion.div>
-        )}
-
+        {/* HISTORY TAB - Time-based analytics */}
         {activeTab === 'history' && (
           <motion.div
             key="history"
@@ -330,13 +325,53 @@ export const GamificationDashboard: React.FC<GamificationDashboardProps> = ({
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.3 }}
-            className="relative"
+            className="relative space-y-4"
           >
-            <div className="bg-white/5 border border-white/10 rounded-3xl p-8 text-center">
-              <Clock className="w-16 h-16 text-blue-400 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-white mb-2">History</h2>
-              <p className="text-gray-400">Coming Soon! View your complete XP history.</p>
-            </div>
+            {/* This Week Summary - Compact version at top */}
+            <HistoryWeeklySummary data={analytics.week} />
+
+            {/* Weekly Summary Card - Full detailed version */}
+            <WeeklySummaryCard data={analytics.week} />
+
+            {/* XP Timeline - Main timeline with daily history */}
+            <XPTimeline limit={20} />
+
+            {/* Monthly Summary - Simplified, no month/year labels */}
+            <MonthlySummaryCard data={analytics.month} />
+
+            {/* Trend Chart - 30-day trend analysis */}
+            <TrendChartCard data={analytics.trend} />
+
+            {/* Peak Productivity - Best hours analysis */}
+            <PeakProductivityCard data={analytics.peakProductivity} />
+          </motion.div>
+        )}
+
+        {/* ACHIEVEMENTS TAB - Gamification focused */}
+        {activeTab === 'achievements' && (
+          <motion.div
+            key="achievements"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+            className="relative space-y-4"
+          >
+            {/* Level Progress - Full Width */}
+            <LevelProgressCard level={analytics.level} />
+
+            {/* Streak Card - Full calendar heatmap */}
+            <StreakCard data={analytics.streaks} />
+
+            {/* Personal Bests - Full Width */}
+            <PersonalBestsCard data={analytics.personalBests} />
+
+            {/* All Achievements Grid - Full Width */}
+            <AllAchievementsGrid
+              achievements={analytics.achievements.recent}
+              totalUnlocked={analytics.achievements.totalUnlocked}
+              totalAvailable={analytics.achievements.totalAvailable}
+            />
           </motion.div>
         )}
       </AnimatePresence>

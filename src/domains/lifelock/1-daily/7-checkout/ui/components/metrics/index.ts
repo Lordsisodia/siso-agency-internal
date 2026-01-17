@@ -4,3 +4,4 @@ export { NutritionCard } from './NutritionCard';
 export { DeepWorkCard } from './DeepWorkCard';
 export { ResearchCard } from './ResearchCard';
 export { SleepCard } from './SleepCard';
+export { DailyMetricsSection } from './DailyMetricsSection';

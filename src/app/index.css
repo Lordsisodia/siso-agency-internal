@@ -237,13 +237,13 @@
 
   html {
     @apply scroll-smooth;
-    background-color: #121212 !important;
+    background-color: transparent !important;
     overflow-x: hidden;
   }
 
   body {
     @apply font-['Inter'] antialiased text-gray-100;
-    background-color: #121212 !important;
+    background-color: transparent !important;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -263,7 +263,7 @@
 
   #root {
     @apply min-h-screen;
-    background-color: #121212 !important;
+    background-color: transparent !important;
     overflow-x: hidden;
   }
 
@@ -1105,4 +1105,44 @@ th:hover .header-column-menu {
 /* Prevent pull-to-refresh in PWA */
 body.pwa-mode {
   overscroll-behavior: none;
+}
+
+/* ========================================
+   XP Store Dark Theme Overrides
+   For RewardCatalog in GamificationDashboard
+   ======================================== */
+
+.reward-catalog-dark-theme .bg-siso-bg {
+  background-color: rgb(17, 24, 39) !important; /* gray-900 */
+}
+
+.reward-catalog-dark-theme .bg-siso-bg-alt {
+  background-color: rgb(31, 41, 55) !important; /* gray-800 */
+}
+
+.reward-catalog-dark-theme .border-siso-border {
+  border-color: rgb(31, 41, 55) !important; /* gray-800 */
+}
+
+.reward-catalog-dark-theme .text-siso-text {
+  color: rgb(255, 255, 255) !important; /* white */
+}
+
+.reward-catalog-dark-theme .text-siso-text-bold {
+  color: rgb(255, 255, 255) !important; /* white */
+  font-weight: 700;
+}
+
+.reward-catalog-dark-theme .text-siso-text-muted {
+  color: rgb(156, 163, 175) !important; /* gray-400 */
+}
+
+.reward-catalog-dark-theme .text-siso-orange {
+  color: rgb(249, 115, 22) !important; /* orange-500 */
+}
+
+/* Card overrides for better contrast */
+.reward-catalog-dark-theme .card,
+.reward-catalog-dark-theme [class*="border-"] {
+  border-color: rgb(31, 41, 55) !important;
 }

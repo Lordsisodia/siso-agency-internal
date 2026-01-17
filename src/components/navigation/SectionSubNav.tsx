@@ -77,6 +77,21 @@ const SUBTAB_COLORS: Record<string, { color: string; bg: string; gradient: strin
     color: 'text-purple-400',
     bg: 'bg-purple-400/20',
     gradient: 'from-purple-500 to-pink-400'
+  },
+  'photo': {
+    color: 'text-green-400',
+    bg: 'bg-green-400/20',
+    gradient: 'from-green-500 to-emerald-400'
+  },
+  'meals': {
+    color: 'text-green-400',
+    bg: 'bg-green-400/20',
+    gradient: 'from-green-500 to-emerald-400'
+  },
+  'macros': {
+    color: 'text-green-400',
+    bg: 'bg-green-400/20',
+    gradient: 'from-green-500 to-emerald-400'
   }
 };
 

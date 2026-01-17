@@ -5,7 +5,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { useUser } from '@clerk/clerk-react';
+import { useAuthSession } from '@/lib/hooks/useAuthSession';
 import { xpAnalyticsService } from '../services/xpAnalyticsService';
 import type {
   XPAnalyticsData,
@@ -43,7 +43,7 @@ interface UseXPAnalyticsReturn {
 
 export function useXPAnalytics(options: UseXPAnalyticsOptions = {}): UseXPAnalyticsReturn {
   const { enabled = true, refetchInterval } = options;
-  const { user, isLoaded: userLoaded } = useUser();
+  const { user, isLoaded: userLoaded } = useAuthSession();
 
   const [data, setData] = useState<XPAnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -159,7 +159,7 @@ export function useStreaks() {
 }
 
 export function useTrendData(days: number = 30) {
-  const { user } = useUser();
+  const { user } = useAuthSession();
   const [data, setData] = useState<TrendData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

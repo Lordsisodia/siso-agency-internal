@@ -1,0 +1,324 @@
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import useSWR from 'swr';
+import { format, formatDistanceToNow, isToday } from 'date-fns';
+import { Flame, Minus, Plus, Award } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { waterService } from '@/services/database/waterService';
+import type { WaterTrackerSnapshot } from '../../domain/types';
+
+interface WaterTrackerCardProps {
+  selectedDate: Date;
+  userId?: string;
+}
+
+
+const fetchSnapshot = (userId: string, dateKey: string) =>
+  waterService.getTrackerSnapshot(userId, dateKey);
+
+export const WaterTrackerCard: React.FC<WaterTrackerCardProps> = ({ selectedDate, userId }) => {
+  const dateKey = useMemo(() => format(selectedDate, 'yyyy-MM-dd'), [selectedDate]);
+  const isSelectedDateToday = isToday(selectedDate);
+
+  const localStorageKey = useMemo(() => `lifelock-water-${dateKey}`, [dateKey]);
+
+  const defaultSnapshot: WaterTrackerSnapshot = {
+    goalMl: 2000,
+    dailyTotalMl: 0,
+    percentage: 0,
+    lastLogAt: null,
+    streakCount: 0,
+    entries: [],
+    historyTotals: {},
+  };
+
+  const { data, error, isLoading, mutate, isValidating } = useSWR<WaterTrackerSnapshot>(
+    userId ? ['water-tracker', userId, dateKey] : null,
+    () => fetchSnapshot(userId!, dateKey),
+    {
+      revalidateOnFocus: true,
+      keepPreviousData: true,
+    }
+  );
+
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const lastRefreshKey = useRef(dateKey);
+  const [localSnapshot, setLocalSnapshot] = useState<WaterTrackerSnapshot | null>(null);
+
+  useEffect(() => {
+    if (userId) return;
+    try {
+      const stored = localStorage.getItem(localStorageKey);
+      if (stored) {
+        setLocalSnapshot(JSON.parse(stored));
+      }
+    } catch (storageError) {
+      console.warn('[WaterTrackerCard] Unable to read local snapshot', storageError);
+    }
+  }, [localStorageKey, userId]);
+
+  useEffect(() => {
+    lastRefreshKey.current = dateKey;
+  }, [dateKey]);
+
+  useEffect(() => {
+    if (!isSelectedDateToday) {
+      return;
+    }
+
+    const interval = setInterval(() => {
+      const next = new Date();
+      const nextKey = format(next, 'yyyy-MM-dd');
+
+      if (nextKey !== lastRefreshKey.current) {
+        lastRefreshKey.current = nextKey;
+        mutate();
+      }
+    }, 60_000);
+
+    return () => clearInterval(interval);
+  }, [isSelectedDateToday, mutate]);
+
+  const handleAmountChange = async (amount: number) => {
+    if (isSubmitting) return;
+
+    const current = (userId ? data : localSnapshot) ?? defaultSnapshot;
+    const currentTotal = current.dailyTotalMl ?? 0;
+    const targetTotal = Math.max(0, currentTotal + amount);
+    const delta = targetTotal - currentTotal;
+
+    if (delta === 0) {
+      return;
+    }
+
+    // Check if goal will be reached
+    const willReachGoal = currentTotal < (current.goalMl ?? 2000) && targetTotal >= (current.goalMl ?? 2000);
+
+    // Local-only mode fallback
+    if (!userId) {
+      const timestamp = new Date().toISOString();
+      const newPercentage = Math.min(100, Math.round((targetTotal / (current.goalMl ?? 2000)) * 100));
+      const nextSnapshot: WaterTrackerSnapshot = {
+        goalMl: current.goalMl ?? 2000,
+        dailyTotalMl: targetTotal,
+        percentage: newPercentage,
+        lastLogAt: timestamp,
+        streakCount: current.streakCount ?? 0,
+        entries: [
+          ...(current.entries ?? []),
+          {
+            id: `local-${timestamp}`,
+            date: dateKey,
+            amountMl: delta,
+            timestamp,
+          }
+        ],
+        historyTotals: current.historyTotals ?? {}
+      };
+
+      setLocalSnapshot(nextSnapshot);
+      localStorage.setItem(localStorageKey, JSON.stringify(nextSnapshot));
+      return;
+    }
+
+    try {
+      setActionError(null);
+      setIsSubmitting(true);
+      const timestamp = new Date().toISOString();
+      const newPercentage = Math.min(100, Math.round((targetTotal / (current.goalMl ?? 2000)) * 100));
+      const optimisticSnapshot: WaterTrackerSnapshot = {
+        ...current,
+        dailyTotalMl: targetTotal,
+        percentage: newPercentage,
+        lastLogAt: timestamp,
+        entries: [
+          ...(current.entries ?? []),
+          {
+            id: `optimistic-${timestamp}`,
+            date: dateKey,
+            amountMl: delta,
+            timestamp,
+          }
+        ],
+      };
+
+      await mutate(
+        async () => {
+          await waterService.logWaterIntake(userId!, delta, dateKey);
+          return await fetchSnapshot(userId!, dateKey);
+        },
+        {
+          optimisticData: optimisticSnapshot,
+          rollbackOnError: true,
+          populateCache: true,
+          revalidate: true,
+        }
+      );
+    } catch (mutationError) {
+      console.error('[WaterTrackerCard] Failed to log water intake', mutationError);
+      setActionError('Unable to update water intake. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const displaySnapshot = (userId ? data : localSnapshot) ?? defaultSnapshot;
+
+  const progressPercentage = displaySnapshot.percentage;
+
+  const lastDrinkLabel = displaySnapshot.lastLogAt
+    ? formatDistanceToNow(new Date(displaySnapshot.lastLogAt), { addSuffix: true })
+        .replace('about ', '')
+    : null;
+
+  return (
+    <Card className="bg-transparent border-0 shadow-none">
+      <CardContent className="p-6 space-y-8">
+        {/* Header with streak */}
+        <div className="flex items-start justify-between">
+          <div className="space-y-1">
+            <h3 className="text-2xl font-bold text-white">Today's Hydration</h3>
+            {lastDrinkLabel && (
+              <p className="text-sm text-slate-400">Last drink {lastDrinkLabel}</p>
+            )}
+          </div>
+          {displaySnapshot.streakCount > 0 && (
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/30"
+            >
+              <Flame className="h-4 w-4 text-orange-400" />
+              <span className="text-sm font-semibold text-orange-300">{displaySnapshot.streakCount}</span>
+            </motion.div>
+          )}
+        </div>
+
+        {/* Main progress display */}
+        {isLoading ? (
+          <Skeleton className="h-32 w-full bg-slate-800/50 rounded-2xl" />
+        ) : (
+          <div className="relative">
+            {/* Circular progress */}
+            <div className="flex items-center justify-center">
+              <div className="relative">
+                <svg className="w-48 h-48 transform -rotate-90" viewBox="0 0 200 200">
+                  <circle
+                    cx="100"
+                    cy="100"
+                    r="90"
+                    fill="none"
+                    stroke="rgba(148, 163, 184, 0.1)"
+                    strokeWidth="12"
+                  />
+                  <motion.circle
+                    cx="100"
+                    cy="100"
+                    r="90"
+                    fill="none"
+                    stroke={progressPercentage >= 100 ? "#10b981" : "#3b82f6"}
+                    strokeWidth="12"
+                    strokeLinecap="round"
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: progressPercentage / 100 }}
+                    transition={{ duration: 0.6, ease: "easeOut" }}
+                    style={{
+                      strokeDasharray: "565.48",
+                      strokeDashoffset: 565.48 * (1 - progressPercentage / 100)
+                    }}
+                  />
+                </svg>
+
+                {/* Center content */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-5xl font-bold text-white tracking-tight">{displaySnapshot.dailyTotalMl}</span>
+                  <span className="text-lg text-slate-400 mt-1">of {displaySnapshot.goalMl}ml</span>
+                  <span className="text-2xl font-semibold text-blue-400 mt-2">{progressPercentage}%</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Award overlay on completion */}
+            <AnimatePresence>
+              {progressPercentage >= 100 && (
+                <motion.div
+                  initial={{ scale: 0, rotate: -180 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  exit={{ scale: 0, rotate: 180 }}
+                  className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                >
+                  <div className="flex items-center justify-center w-20 h-20 rounded-full bg-green-500/20 backdrop-blur-sm border-2 border-green-500/50">
+                    <Award className="h-10 w-10 text-green-400" />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
+
+        {/* Quick add buttons */}
+        <div className="space-y-3">
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Quick Add</p>
+          <div className="grid grid-cols-2 gap-3">
+            {[250, 100].map((amount) => (
+              <Button
+                key={amount}
+                type="button"
+                disabled={isSubmitting}
+                onClick={() => handleAmountChange(amount)}
+                className="h-14 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-semibold text-lg transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100"
+              >
+                <Plus className="h-5 w-5" />
+                <span className="ml-2">{amount}ml</span>
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        {/* Adjust buttons */}
+        <div className="space-y-3">
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Adjust</p>
+          <div className="grid grid-cols-2 gap-3">
+            {[-100, -250].map((amount) => (
+              <Button
+                key={amount}
+                type="button"
+                variant="outline"
+                disabled={isSubmitting}
+                onClick={() => handleAmountChange(amount)}
+                className="h-12 rounded-xl border-slate-600 text-slate-300 hover:bg-slate-800 hover:text-white font-medium transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100"
+              >
+                <Minus className="h-4 w-4" />
+                <span className="ml-2">{amount}ml</span>
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        {/* Error Messages */}
+        {actionError && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-lg border border-orange-400/40 bg-orange-500/10 px-4 py-3 text-sm text-orange-200"
+          >
+            {actionError}
+          </motion.div>
+        )}
+
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+          >
+            Unable to load water tracker. Pull to refresh or try again later.
+          </motion.div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};

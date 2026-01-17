@@ -21,15 +21,24 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /**
  * Map Clerk user ID to Supabase UUID
+ * The incoming userId may be:
+ * 1. A Clerk ID (user_...) - needs to be mapped via clerk_id column
+ * 2. A Supabase UUID - can be used directly
  */
 async function mapClerkToSupabaseId(clerkUserId: string): Promise<string | null> {
   if (!clerkUserId) return null;
 
+  // If it's already a Supabase UUID (doesn't start with "user_"), use as-is
+  if (!clerkUserId.startsWith('user_')) {
+    return clerkUserId;
+  }
+
   try {
+    // Map Clerk ID to Supabase UUID via clerk_id column
     const { data, error } = await supabase
       .from('users')
       .select('id')
-      .eq('supabase_id', clerkUserId)
+      .eq('clerk_id', clerkUserId)
       .maybeSingle();
 
     if (error) {

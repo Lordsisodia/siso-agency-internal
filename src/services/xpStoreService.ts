@@ -241,9 +241,83 @@ export class XPStoreService {
 
   /**
    * Get available rewards with dynamic pricing
+   * Now fetches from the xp_store_rewards table
    */
   static async getAvailableRewards(userId: string): Promise<RewardItem[]> {
-    const defaultRewards: RewardItem[] = [
+    try {
+      const { data, error } = await supabaseAnon
+        .from('xp_store_rewards')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching rewards from database:', error);
+        // Fall back to default rewards on error
+        return this.getDefaultRewards();
+      }
+
+      if (!data || data.length === 0) {
+        console.warn('No rewards found in database, using defaults');
+        return this.getDefaultRewards();
+      }
+
+      // Transform database rewards to RewardItem format
+      return data.map((reward: any) => ({
+        id: reward.id,
+        category: reward.category,
+        name: reward.name,
+        description: reward.description || '',
+        basePrice: reward.base_price,
+        currentPrice: reward.current_price,
+        iconEmoji: reward.icon_emoji,
+        unlockAt: reward.unlock_at,
+        maxDailyUse: reward.max_daily_use,
+        availabilityWindow: reward.availability_window,
+      }));
+    } catch (error) {
+      console.error('Unexpected error fetching rewards:', error);
+      // Fall back to default rewards on error
+      return this.getDefaultRewards();
+    }
+  }
+
+  /**
+   * Get default rewards (fallback)
+   */
+  private static getDefaultRewards(): RewardItem[] {
+    return [
+      {
+        id: 'reward-smoke-session',
+        category: 'INDULGENCE',
+        name: 'Smoke-Up Session',
+        description: 'A premium smoke session once per week—reward yourself for an exceptional week of progress.',
+        basePrice: 10000,
+        currentPrice: 10000,
+        iconEmoji: '🌿',
+        unlockAt: 10000,
+        maxDailyUse: 1,
+        availabilityWindow: 'weekly',
+      },
+      {
+        id: 'reward-massage',
+        category: 'RECOVERY',
+        name: 'Massage',
+        description: 'Book a professional massage to reset your body and mind.',
+        basePrice: 2000,
+        currentPrice: 2000,
+        iconEmoji: '💆‍♂️',
+        unlockAt: 2000,
+      },
+      {
+        id: 'reward-cigarette',
+        category: 'INDULGENCE',
+        name: 'Cigarette',
+        description: 'A single cigarette—small indulgence for when you need it.',
+        basePrice: 100,
+        currentPrice: 100,
+        iconEmoji: '🚬',
+      },
       {
         id: 'reward-risk-night',
         category: 'SOCIAL',
@@ -293,16 +367,6 @@ export class XPStoreService {
         iconEmoji: '🚶‍♂️',
       },
       {
-        id: 'reward-spa-session',
-        category: 'RECOVERY',
-        name: 'Massage or Spa Reset',
-        description: 'Book a massage, sauna, or spa day to reset your nervous system.',
-        basePrice: 10000,
-        currentPrice: 10000,
-        iconEmoji: '💆‍♂️',
-        unlockAt: 10000,
-      },
-      {
         id: 'reward-day-off',
         category: 'REST',
         name: 'Quarter Day Off',
@@ -321,8 +385,6 @@ export class XPStoreService {
         iconEmoji: '🧠',
       },
     ];
-
-    return defaultRewards;
   }
 
   /**
