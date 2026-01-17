@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   Sun,
   CheckCircle2,
@@ -15,9 +15,7 @@ import {
   Activity,
   Heart,
   Plus,
-  Minus,
-  ChevronDown,
-  ChevronUp
+  Minus
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -39,7 +37,7 @@ import { PushUpTracker } from '../components/PushUpTracker';
 import { MeditationTracker } from '../components/MeditationTracker';
 import { WakeUpTimeTracker } from '../components/WakeUpTimeTracker';
 import { PlanDayActions } from '../components/PlanDayActions';
-import { MorningMindsetCard } from '../components/MorningMindsetCard';
+import { MotivationalQuotes } from '../components/MotivationalQuotes';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAutoTimeblocks } from '@/lib/hooks/useAutoTimeblocks';
 import { GamificationService } from '@/domains/lifelock/_shared/services/gamificationService';
@@ -59,8 +57,7 @@ import {
   calculatePrioritiesXP,
   calculateTotalMorningXP
 } from '../../domain/xpCalculations';
-import { calculateWaterXP } from '@/domains/lifelock/1-daily/5-stats/features/wellness/domain/xpCalculations';
-import type { WaterTrackerSnapshot } from '@/domains/lifelock/1-daily/5-stats/features/wellness/domain/types';
+import { calculateWaterXP } from '@/domains/lifelock/1-daily/5-wellness/domain/xpCalculations';
 import { XPPill } from '../components/XPPill';
 import { XPFooterSummary } from '../components/XPFooterSummary';
 
@@ -144,13 +141,17 @@ const MORNING_ROUTINE_TASKS = [
     subtasks: []
   },
   {
-    key: 'meditation' as const,
-    title: 'Meditation',
-    description: 'Meditate to set an innovative mindset for creating business value.',
-    timeEstimate: '2 min',
-    icon: Heart,
-    hasTimeTracking: true,
-    subtasks: []
+    key: 'freshenUp' as const,
+    title: 'Freshen Up',
+    description: 'Cold shower to wake up - Personal hygiene and cleanliness.',
+    timeEstimate: '25 min',
+    icon: Droplets,
+    hasTimeTracking: false,
+    subtasks: [
+      { key: 'bathroom', title: 'Bathroom break' },
+      { key: 'brushTeeth', title: 'Brush teeth' },
+      { key: 'coldShower', title: 'Cold shower' }
+    ]
   },
   {
     key: 'getBloodFlowing' as const,
@@ -176,17 +177,22 @@ const MORNING_ROUTINE_TASKS = [
     ]
   },
   {
-    key: 'freshenUp' as const,
-    title: 'Freshen Up',
-    description: 'Cold shower to wake up - Personal hygiene and cleanliness.',
-    timeEstimate: '25 min',
-    icon: Droplets,
+    key: 'planDay' as const,
+    title: 'Plan Day',
+    description: 'Use AI Thought Dump to organize tasks and set timebox.',
+    timeEstimate: '15 min',
+    icon: CalendarIcon,
     hasTimeTracking: false,
-    subtasks: [
-      { key: 'bathroom', title: 'Bathroom break' },
-      { key: 'brushTeeth', title: 'Brush teeth' },
-      { key: 'coldShower', title: 'Cold shower' }
-    ]
+    subtasks: []
+  },
+  {
+    key: 'meditation' as const,
+    title: 'Meditation',
+    description: 'Meditate to set an innovative mindset for creating business value.',
+    timeEstimate: '2 min',
+    icon: Heart,
+    hasTimeTracking: true,
+    subtasks: []
   }
 ];
 
@@ -198,24 +204,6 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   const [morningRoutine, setMorningRoutine] = useState<MorningRoutineData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Collapsible sections state
-  const [expandedSections, setExpandedSections] = useState({
-    wakeUp: false,
-    meditation: false,
-    getBloodFlowing: false,
-    powerUpBrain: false,
-    freshenUp: false,
-    priorities: false,
-    planDay: false
-  });
-
-  const toggleSection = (section: keyof typeof expandedSections) => {
-    setExpandedSections(prev => ({
-      ...prev,
-      [section]: !prev[section]
-    }));
-  };
 
   // Thought Dump AI state (persist across HMR refreshes)
   const [showThoughtDumpChat, setShowThoughtDumpChat] = useState(() => {
@@ -260,9 +248,9 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   // Plan Day completion state
   const [isPlanDayComplete, setIsPlanDayComplete] = useState<boolean>(false);
 
-  // Water tracking state (Supabase-backed via waterService)
-  const [waterSnapshot, setWaterSnapshot] = useState<WaterTrackerSnapshot | null>(null);
-  const waterXPRef = useRef(0);
+// Water tracking state
+const [waterAmount, setWaterAmount] = useState<number>(0);
+const waterXPRef = useRef(0);
 
   // Push-ups tracking state
   const [pushupReps, setPushupReps] = useState<number>(0);
@@ -312,6 +300,10 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
     localStorage.setItem(`lifelock-pushups-${routineDateKey}`, String(pushupReps));
   }, [pushupReps, routineDateKey]);
 
+  useEffect(() => {
+    localStorage.setItem(`lifelock-water-amount-${routineDateKey}`, String(waterAmount));
+  }, [waterAmount, routineDateKey]);
+
   const [xpState, setXpState] = useState<MorningRoutineXPState>(() => loadXpStateFromStorage(xpStorageKey));
 
   useEffect(() => {
@@ -353,7 +345,7 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
     });
 
     setWakeUpTime(morningRoutineState.metadata.wakeUpTime ?? '');
-    setWaterSnapshot(null); // will be populated by WaterTracker fetch
+    setWaterAmount(morningRoutineState.metadata.waterAmount ?? 0);
     setMeditationDuration(morningRoutineState.metadata.meditationDuration ?? '');
     setPushupReps(morningRoutineState.metadata.pushupReps ?? 0);
     setDailyPriorities(morningRoutineState.metadata.dailyPriorities ?? ['', '', '']);
@@ -389,6 +381,13 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
 
     debouncedMetadataUpdate?.({ wakeUpTime });
   }, [wakeUpTime, selectedDate, debouncedMetadataUpdate, routineDateKey]);
+
+  // Save water amount to Supabase + localStorage (debounced)
+  useEffect(() => {
+    if (!selectedDate || isNaN(selectedDate.getTime())) return;
+
+    debouncedMetadataUpdate?.({ waterAmount });
+  }, [waterAmount, selectedDate, debouncedMetadataUpdate, routineDateKey]);
 
   // Save meditation duration to Supabase + localStorage (debounced)
   useEffect(() => {
@@ -558,9 +557,14 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
     planDayPreviousValue.current = isPlanDayComplete;
   }, [isPlanDayComplete, xpState.steps.planDay, awardHabitCompletion]);
 
-  // Water tracking handled inside WaterTracker via Supabase snapshot
-  const incrementWater = () => { };
-  const decrementWater = () => { };
+  // Water tracking functions
+  const incrementWater = () => {
+    setWaterAmount(prev => prev + 100);
+  };
+
+  const decrementWater = () => {
+    setWaterAmount(prev => Math.max(0, prev - 100)); // Don't go below 0
+  };
 
   // Push-up tracking functions
   const updatePushupReps = (reps: number) => {
@@ -661,19 +665,19 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
       },
       pushupReps,
       pushupPB,
-      waterAmount: waterSnapshot?.dailyTotalMl ?? 0,
+      waterAmount,
       supplementsCompleted: isHabitCompleted('supplements'),
       planDayComplete: isPlanDayComplete,
       meditationDuration,
       priorities: dailyPriorities
     });
     return result;
-  }, [wakeUpTime, selectedDate, isHabitCompleted, pushupReps, pushupPB, waterSnapshot, isPlanDayComplete, meditationDuration, dailyPriorities]);
+  }, [wakeUpTime, selectedDate, isHabitCompleted, pushupReps, pushupPB, waterAmount, isPlanDayComplete, meditationDuration, dailyPriorities]);
 
   const waterXP = useMemo(() => {
-    const result = calculateWaterXP(waterSnapshot?.dailyTotalMl ?? 0, waterSnapshot?.goalMl ?? 2000, 0);
+    const result = calculateWaterXP(waterAmount, 2000, 0);
     return result.total;
-  }, [waterSnapshot]);
+  }, [waterAmount]);
 
   useEffect(() => {
     if (!selectedDate || Number.isNaN(selectedDate.getTime())) {
@@ -742,86 +746,57 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
   if (loading) {
     return (
       <div className="min-h-screen w-full relative overflow-x-hidden">
-        <div className="w-full px-2 sm:px-4 md:px-6 lg:px-8 space-y-6">
-          {/* Quotes Skeleton */}
-          <Card className="mx-6 sm:mx-8 md:mx-12 w-full bg-yellow-900/20 border-yellow-700/50">
-            <CardHeader className="p-3 sm:p-4 md:p-6">
-              <div className="flex items-center gap-3 mb-3">
-                <Skeleton className="h-5 w-5 rounded-full bg-yellow-400/30" />
-                <Skeleton className="h-5 w-40 bg-yellow-400/20" />
-              </div>
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-full bg-yellow-400/10" />
-                <Skeleton className="h-4 w-3/4 bg-yellow-400/10" />
-              </div>
-            </CardHeader>
-          </Card>
-
-          {/* Coding My Brain Skeleton */}
-          <Card className="mx-6 sm:mx-8 md:mx-12 w-full bg-yellow-900/20 border-yellow-700/50">
-            <CardHeader className="p-3 sm:p-4 md:p-6">
-              <div className="flex items-center gap-3 mb-3">
-                <Skeleton className="h-5 w-5 rounded-full bg-yellow-400/30" />
-                <Skeleton className="h-5 w-40 bg-yellow-400/20" />
-              </div>
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-full bg-yellow-400/10" />
-                <Skeleton className="h-4 w-5/6 bg-yellow-400/10" />
-                <Skeleton className="h-4 w-4/5 bg-yellow-400/10" />
-              </div>
-            </CardHeader>
-          </Card>
-
-          {/* Flow State Rules Skeleton */}
-          <Card className="mx-6 sm:mx-8 md:mx-12 w-full bg-yellow-900/20 border-yellow-700/50">
-            <CardHeader className="p-3 sm:p-4 md:p-6">
-              <div className="flex items-center gap-3 mb-3">
-                <Skeleton className="h-5 w-5 rounded-full bg-yellow-400/30" />
-                <Skeleton className="h-5 w-40 bg-yellow-400/20" />
-              </div>
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-full bg-yellow-400/10" />
-                <Skeleton className="h-4 w-5/6 bg-yellow-400/10" />
-                <Skeleton className="h-4 w-4/5 bg-yellow-400/10" />
-              </div>
-            </CardHeader>
-          </Card>
-
-          {/* Morning Routine Progress Skeleton */}
-          <Card className="mx-6 sm:mx-8 md:mx-12 w-full bg-yellow-900/20 border-yellow-700/50">
+        <div className="w-full max-w-none p-2 sm:p-3 md:p-4 lg:p-6 space-y-6">
+          <Card className="w-full bg-yellow-900/20 border-yellow-700/50">
             <CardHeader className="p-3 sm:p-4 md:p-6 space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <Skeleton className="h-5 w-5 rounded-full bg-yellow-400/30" />
+                  <Skeleton className="h-6 w-6 rounded-full bg-yellow-400/30" />
                   <Skeleton className="h-5 w-36 bg-yellow-400/20" />
                 </div>
                 <Skeleton className="h-4 w-16 bg-yellow-400/20" />
               </div>
               <Skeleton className="h-2 w-full bg-yellow-400/20 rounded-full" />
             </CardHeader>
+            <CardContent className="space-y-4 pb-16">
+              {Array.from({ length: MORNING_ROUTINE_TASKS.length }).map((_, index) => (
+                <div
+                  key={`morning-skeleton-${index}`}
+                  className="bg-yellow-900/20 border border-yellow-700/50 rounded-xl p-4 space-y-4"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start gap-3 w-full">
+                      <Skeleton className="h-5 w-5 rounded-md bg-yellow-400/20" />
+                      <div className="flex-1 space-y-2">
+                        <Skeleton className="h-4 w-2/3 bg-yellow-400/20" />
+                        <Skeleton className="h-3 w-full bg-yellow-400/10" />
+                      </div>
+                    </div>
+                    <Skeleton className="h-6 w-16 rounded-lg bg-yellow-400/20" />
+                  </div>
+                  <Skeleton className="h-2 w-full bg-yellow-400/10 rounded-full" />
+                </div>
+              ))}
+            </CardContent>
           </Card>
 
-          {/* Task Skeletons - Each in separate card */}
-          {Array.from({ length: MORNING_ROUTINE_TASKS.length }).map((_, index) => (
-            <Card
-              key={`morning-skeleton-${index}`}
-              className="mx-6 sm:mx-8 md:mx-12 w-full bg-yellow-900/20 border-yellow-700/50"
-            >
-              <CardHeader className="p-3 sm:p-4 md:p-6 space-y-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-start gap-3 w-full">
-                    <Skeleton className="h-5 w-5 rounded-md bg-yellow-400/20" />
-                    <div className="flex-1 space-y-2">
-                      <Skeleton className="h-4 w-2/3 bg-yellow-400/20" />
-                      <Skeleton className="h-3 w-full bg-yellow-400/10" />
-                    </div>
-                  </div>
-                  <Skeleton className="h-6 w-16 rounded-lg bg-yellow-400/20" />
-                </div>
-                <Skeleton className="h-2 w-full bg-yellow-400/10 rounded-full" />
-              </CardHeader>
-            </Card>
-          ))}
+          <Card className="bg-yellow-900/10 border-yellow-700/30">
+            <CardHeader className="space-y-3">
+              <div className="flex items-center gap-3">
+                <Skeleton className="h-5 w-5 rounded-full bg-yellow-400/30" />
+                <Skeleton className="h-5 w-32 bg-yellow-400/20" />
+              </div>
+              <Skeleton className="h-3 w-3/4 bg-yellow-400/10" />
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <Skeleton
+                  key={`quote-skeleton-${index}`}
+                  className="h-6 w-full bg-yellow-400/10 rounded-lg"
+                />
+              ))}
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
@@ -837,299 +812,265 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
 
   return (
     <div className="min-h-screen w-full relative overflow-x-hidden">
-      <div className="w-full px-2 sm:px-4 md:px-6 lg:px-8 space-y-6">
+      <div className="w-full max-w-none p-2 sm:p-3 md:p-4 lg:p-6 space-y-6">
 
-        {/* Page Header - Title, Icon, Subtext */}
-        <div className="px-5 py-5 border-b border-white/10">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500/20 to-amber-500/20 border-2 border-orange-500/30 flex items-center justify-center flex-shrink-0">
-                <Sun className="h-7 w-7 text-orange-400" />
+        {/* Morning Routine Card */}
+        <Card className="w-full bg-yellow-900/20 border-yellow-700/50">
+          <CardHeader className="p-3 sm:p-4 md:p-6">
+            <CardTitle className="flex items-center justify-between text-yellow-400 text-base sm:text-lg">
+              <div className="flex items-center">
+                <Sun className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                🌅 Morning Routine
               </div>
-              <div className="min-w-0">
-                <h1 className="text-2xl font-bold text-white tracking-tight">Morning Flow</h1>
-                <p className="text-sm text-white/60 mt-0.5">Track your morning</p>
+              <div className="flex items-center gap-3 text-sm font-medium text-yellow-300/80">
+                <span className="uppercase tracking-[0.2em] text-yellow-200/70">Progress</span>
+                <span>{Math.round(morningRoutineProgress)}%</span>
               </div>
+            </CardTitle>
+            
+            {/* Progress Bar */}
+            <div className="w-full bg-yellow-900/20 rounded-full h-2 mt-4">
+              <motion.div
+                className="bg-gradient-to-r from-yellow-400 to-yellow-600 h-2 rounded-full transition-all duration-500"
+                initial={{ width: 0 }}
+                animate={{ width: `${morningRoutineProgress}%` }}
+              />
             </div>
-            <XPPill xp={todayXP.total} activeTab="morning" />
-          </div>
-        </div>
 
-        {/* Unified Morning Mindset Card - Combines Inspiration, Purpose, and Rules */}
-        <div className="mx-6 sm:mx-8 md:mx-12">
-          <MorningMindsetCard quotes={todaysQuotes} />
-        </div>
-
-        {/* Separator Line */}
-        <div className="w-full h-px bg-gradient-to-r from-transparent via-yellow-500/30 to-transparent" />
-
-        {/* Morning Routine Tasks - Each in separate card */}
-        {MORNING_ROUTINE_TASKS.map((task, index) => {
-          const IconComponent = task.icon;
-          const completedSubtasks = task.subtasks.filter(subtask => isHabitCompleted(subtask.key)).length;
-          const taskComplete = isTaskComplete(task.key, task.subtasks);
-
-          // Calculate progress percentage
-          const progressPercent = task.subtasks.length > 0
-            ? (completedSubtasks / task.subtasks.length) * 100
-            : (taskComplete ? 100 : 0);
-
-          const taskCard = (
-            <Card
-              key={task.key}
-              className={cn(
-                "mx-6 sm:mx-8 md:mx-12 transition-all duration-300 overflow-hidden bg-yellow-900/10 border-yellow-700/30"
-              )}
-            >
-              {/* Clean Header */}
-              <div
-                className="flex items-center justify-between p-4 cursor-pointer hover:bg-yellow-900/15 transition-colors"
-                onClick={() => toggleSection(task.key as keyof typeof expandedSections)}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-yellow-600/20 flex items-center justify-center flex-shrink-0">
-                    <IconComponent className="h-5 w-5 text-yellow-400" />
-                  </div>
-                  <div>
-                    <h4 className="text-white font-semibold text-sm">{task.title}</h4>
-                    <p className="text-yellow-400/60 text-xs">{task.description}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-yellow-400 font-medium">+{todayXP.breakdown[task.key] || 0} XP</span>
-                  {expandedSections[task.key as keyof typeof expandedSections] ? (
-                    <ChevronUp className="text-yellow-400 h-4 w-4" />
-                  ) : (
-                    <ChevronDown className="text-yellow-400 h-4 w-4" />
-                  )}
-                </div>
+            <div className="border-t border-yellow-600/50 my-4"></div>
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-bold text-yellow-300 mb-2 text-sm sm:text-base">Coding My Brain</h3>
+                <p className="text-gray-200 text-xs sm:text-sm leading-relaxed">
+                  I am Shaan Sisodia. I have been given divine purpose, and on this mission, temptation awaits on either side of the path. 
+                  When I give in to temptation, I shall know I am astray. I will bring my family to a new age of freedom. 
+                  I will not be distracted from the path.
+                </p>
               </div>
+              <div className="border-t border-yellow-600/50 my-4"></div>
+              <div>
+                <h3 className="font-bold text-yellow-300 mb-2 text-sm sm:text-base">Flow State Rules</h3>
+                <ul className="text-gray-200 text-xs sm:text-sm space-y-1">
+                  <li>• No use of apps other than Notion.</li>
+                  <li>• No vapes or drugs (including weed).</li>
+                  <li>• No more than 5 seconds until the next action.</li>
+                </ul>
+              </div>
+              <div className="border-t border-yellow-600/50 my-4"></div>
+              <MotivationalQuotes quotes={todaysQuotes} />
+            </div>
+            <div className="border-t border-yellow-600/50 my-3 sm:my-4"></div>
+          </CardHeader>
+          <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
+            
 
-              {/* Collapsible Content */}
-              <AnimatePresence>
-                {expandedSections[task.key as keyof typeof expandedSections] && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="px-4 pb-4">
+            {/* Morning Routine Tasks */}
+            <div className="space-y-2 sm:space-y-3">
+              {MORNING_ROUTINE_TASKS.map((task) => {
+                const IconComponent = task.icon;
+                const completedSubtasks = task.subtasks.filter(subtask => isHabitCompleted(subtask.key)).length;
+                const taskComplete = isTaskComplete(task.key, task.subtasks);
 
-                      {/* Progress Bar - Subtle */}
-                      {task.subtasks.length > 0 && (
-                        <div className="mb-4">
-                          <div className="w-full bg-yellow-900/20 rounded-full h-1">
+                // Calculate progress percentage
+                const progressPercent = task.subtasks.length > 0
+                  ? (completedSubtasks / task.subtasks.length) * 100
+                  : (taskComplete ? 100 : 0);
+
+                return (
+                  <div key={task.key} className="group py-3 transition-all duration-300">
+                    {/* Main Task Header - NO CHECKBOX */}
+                    <div className="p-2 sm:p-3">
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 flex-1 min-w-0">
+                            <IconComponent className="h-5 w-5 text-yellow-400 flex-shrink-0" />
+                            <h4 className="text-yellow-100 font-semibold text-sm sm:text-base truncate">{task.title}</h4>
+                            <div className="bg-yellow-500/20 border border-yellow-400/40 rounded-full px-2.5 py-0.5 flex-shrink-0">
+                              <span className="text-xs text-yellow-300 font-medium whitespace-nowrap">{task.timeEstimate}</span>
+                            </div>
+                          </div>
+                          {/* XP Pill */}
+                          <XPPill
+                            xp={todayXP.breakdown[task.key] || 0}
+                            earned={taskComplete}
+                            showGlow={taskComplete}
+                          />
+                        </div>
+
+                        {/* Universal Progress Bar - ALL TASKS */}
+                        <div className="mt-2 mb-1">
+                          <div className="w-full bg-yellow-900/30 border border-yellow-600/20 rounded-full h-1.5">
                             <motion.div
-                              className="h-1 rounded-full transition-all duration-500 bg-yellow-500/60"
+                              className="bg-gradient-to-r from-yellow-400 to-yellow-600 h-1.5 rounded-full transition-all duration-500"
                               initial={{ width: 0 }}
                               animate={{ width: `${progressPercent}%` }}
                             />
                           </div>
-                          <p className="text-xs text-yellow-400/60 mt-2">{completedSubtasks}/{task.subtasks.length} completed</p>
-                        </div>
-                      )}
-
-                      {/* Time tracking interface - for wake-up */}
-                      {task.hasTimeTracking && task.key === 'wakeUp' && (
-                        <WakeUpTimeTracker
-                          time={wakeUpTime}
-                          onTimeChange={setWakeUpTime}
-                          onOpenPicker={() => setShowTimeScrollPicker(true)}
-                          onUseNow={setCurrentTimeAsWakeUp}
-                          getCurrentTime={getCurrentTime}
-                          onClear={() => setWakeUpTime('')}
-                          selectedDate={selectedDate}
-                        />
-                      )}
-
-                      {/* Meditation time tracking with buttons */}
-                      {task.hasTimeTracking && task.key === 'meditation' && (
-                        <MeditationTracker
-                          duration={meditationDuration}
-                          onChange={setMeditationDuration}
-                          selectedDate={selectedDate}
-                        />
-                      )}
-
-                      {/* Sub-tasks */}
-                      {task.subtasks.length > 0 && (
-                        <div className="space-y-2">
-                          {task.subtasks.map((subtask) => (
-                            <div key={subtask.key}>
-                              {/* Full row clickable - makes it easier to tap on mobile */}
-                              <div
-                                className="group flex items-center gap-3 rounded-lg transition-all duration-200 cursor-pointer touch-manipulation min-h-[44px] p-3 hover:bg-yellow-900/20"
-                                onClick={() => handleHabitToggle(subtask.key, !isHabitCompleted(subtask.key))}
-                              >
-                                {/* Checkbox - visual indicator only, click handled by parent */}
-                                <div className="flex items-center justify-center">
-                                  <Checkbox
-                                    checked={isHabitCompleted(subtask.key)}
-                                    className="h-5 w-5 border-2 border-yellow-400/60 data-[state=checked]:bg-yellow-500 data-[state=checked]:border-yellow-500 transition-all duration-200 group-hover:border-yellow-400 pointer-events-none"
-                                  />
-                                </div>
-                                <span className={cn(
-                                  "text-sm font-medium transition-all duration-200 flex-1",
-                                  isHabitCompleted(subtask.key)
-                                    ? "text-gray-500 line-through"
-                                    : "text-yellow-100/90 group-hover:text-yellow-50"
-                                )}>
-                                  {subtask.title}
-                                </span>
-                                {isHabitCompleted(subtask.key) && (
-                                  <CheckCircle2 className="h-4 w-4 text-yellow-400" />
+                          <div className="flex justify-between items-center mt-1">
+                            {task.subtasks.length > 0 ? (
+                              <>
+                                <span className="text-xs text-yellow-400/70 font-medium">{completedSubtasks}/{task.subtasks.length} completed</span>
+                                {taskComplete && (
+                                  <span className="text-xs text-green-400 font-semibold">✓ Complete</span>
                                 )}
-                              </div>
-
-                              {/* Push-ups Tracking UI - Special case for pushups subtask */}
-                              {subtask.key === 'pushups' && (
-                                <PushUpTracker
-                                  reps={pushupReps}
-                                  personalBest={pushupPB}
-                                  onUpdateReps={updatePushupReps}
-                                />
-                              )}
-
-                              {/* Water Tracking UI - Special case for water subtask */}
-                              {subtask.key === 'water' && (
-                                <WaterTracker
-                                  selectedDate={selectedDate}
-                                  userId={internalUserId}
-                                  onSnapshotChange={setWaterSnapshot}
-                                />
-                              )}
-                            </div>
-                          ))}
+                              </>
+                            ) : (
+                              <>
+                                <span className="text-xs text-yellow-400/70 font-medium">
+                                  {taskComplete ? 'Completed' : 'Not started'}
+                                </span>
+                                {taskComplete && (
+                                  <span className="text-xs text-green-400 font-semibold">✓ Complete</span>
+                                )}
+                              </>
+                            )}
+                          </div>
                         </div>
-                      )}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </Card>
-          );
 
-          // Insert Top 3 Priorities after Meditation (index 1)
-          if (task.key === 'meditation') {
-            return (
-              <React.Fragment key={task.key}>
-                {taskCard}
-                {/* Top 3 Daily Priorities - After Meditation */}
-                <Card className="mx-6 sm:mx-8 md:mx-12 bg-gradient-to-r from-yellow-900/30 to-amber-900/30 border-yellow-700/40 overflow-hidden">
-                  {/* Solid Yellow Header Bar */}
-                  <div
-                    className="bg-yellow-800/80 border-b border-yellow-700/50 px-4 py-3 cursor-pointer hover:bg-yellow-800/90 transition-colors"
-                    onClick={() => toggleSection('priorities')}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Target className="h-5 w-5 text-white" />
-                        <span className="font-semibold text-white">Today's Top 3 Goals</span>
-                      </div>
-                      {expandedSections.priorities ? (
-                        <ChevronUp className="h-4 w-4 text-white" />
-                      ) : (
-                        <ChevronDown className="h-4 w-4 text-white" />
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Collapsible Content */}
-                  <AnimatePresence>
-                    {expandedSections.priorities && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className="overflow-hidden"
-                      >
-                        <div className="p-4 space-y-2">
-                          {dailyPriorities.map((priority, idx) => (
-                            <div key={idx} className="flex items-start gap-2">
-                              <span className="text-yellow-400 font-medium mt-1 flex-shrink-0">
-                                {idx + 1}.
-                              </span>
-                              <TextareaAutosize
-                                value={priority}
-                                onChange={(e) => {
-                                  const newPriorities = [...dailyPriorities];
-                                  newPriorities[idx] = e.target.value;
-                                  setDailyPriorities(newPriorities);
-                                }}
-                                placeholder={`Goal ${idx + 1}`}
-                                minRows={1}
-                                maxRows={4}
-                                className="flex-1 bg-transparent border-0 border-b border-yellow-700/30 text-white text-sm placeholder:text-yellow-300/40 focus:border-yellow-400 focus:ring-0 px-2 py-1 resize-none overflow-hidden"
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </Card>
-
-                {/* Plan Day Card - After Priorities */}
-                <Card className="mx-6 sm:mx-8 md:mx-12 bg-gradient-to-r from-yellow-900/30 to-amber-900/30 border-yellow-700/40 overflow-hidden">
-                  {/* Solid Yellow Header Bar */}
-                  <div
-                    className="bg-yellow-800/80 border-b border-yellow-700/50 px-4 py-3 cursor-pointer hover:bg-yellow-800/90 transition-colors"
-                    onClick={() => toggleSection('planDay')}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <CalendarIcon className="h-5 w-5 text-white" />
-                        <span className="font-semibold text-white">Plan Day</span>
-                      </div>
-                      {expandedSections.planDay ? (
-                        <ChevronUp className="h-4 w-4 text-white" />
-                      ) : (
-                        <ChevronDown className="h-4 w-4 text-white" />
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Collapsible Content */}
-                  <AnimatePresence>
-                    {expandedSections.planDay && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className="overflow-hidden"
-                      >
-                        <div className="p-4">
-                          <p className="text-xs text-yellow-400 mb-4">
-                            🤖 Plan your day with AI assistance
-                          </p>
-                          <PlanDayActions
-                            isComplete={isPlanDayComplete}
-                            onMarkComplete={() => setIsPlanDayComplete(true)}
-                            onOpenThoughtDump={() => setShowThoughtDumpChat(true)}
+                        {task.description && (
+                          <p className="text-gray-300 text-xs sm:text-sm mt-1 leading-relaxed">{task.description}</p>
+                        )}
+                        
+                        {/* Time tracking interface - for wake-up */}
+                        {task.hasTimeTracking && task.key === 'wakeUp' && (
+                          <WakeUpTimeTracker
+                            time={wakeUpTime}
+                            onTimeChange={setWakeUpTime}
+                            onOpenPicker={() => setShowTimeScrollPicker(true)}
+                            onUseNow={setCurrentTimeAsWakeUp}
+                            getCurrentTime={getCurrentTime}
+                            onClear={() => setWakeUpTime('')}
                           />
-                        </div>
-                      </motion.div>
+                        )}
+
+                        {/* Meditation time tracking with buttons */}
+                        {task.hasTimeTracking && task.key === 'meditation' && (
+                          <MeditationTracker
+                            duration={meditationDuration}
+                            onChange={setMeditationDuration}
+                            selectedDate={selectedDate}
+                          />
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Sub-tasks - Enhanced with better visual hierarchy and mobile touch targets */}
+                    {task.subtasks.length > 0 && (
+                      <div className="mt-4 ml-4 space-y-3">
+                        {task.subtasks.map((subtask) => (
+                          <div key={subtask.key}>
+                            {/* Full row clickable - makes it easier to tap on mobile */}
+                            <div
+                              className="group flex items-center gap-3 rounded-lg transition-all duration-200 cursor-pointer touch-manipulation min-h-[44px] p-2 -m-2 hover:bg-yellow-900/20 active:bg-yellow-900/30"
+                              onClick={() => handleHabitToggle(subtask.key, !isHabitCompleted(subtask.key))}
+                            >
+                              {/* Checkbox - visual indicator only, click handled by parent */}
+                              <div className="flex items-center justify-center">
+                                <Checkbox
+                                  checked={isHabitCompleted(subtask.key)}
+                                  className="h-6 w-6 border-2 border-yellow-400/70 data-[state=checked]:bg-yellow-500 data-[state=checked]:border-yellow-500 transition-all duration-200 group-hover:border-yellow-400 pointer-events-none"
+                                />
+                              </div>
+                              <span className={cn(
+                                "text-sm font-medium transition-all duration-200 flex-1",
+                                isHabitCompleted(subtask.key)
+                                  ? "text-gray-500 line-through"
+                                  : "text-yellow-100/90 group-hover:text-yellow-50"
+                              )}>
+                                {subtask.title}
+                              </span>
+                              {isHabitCompleted(subtask.key) && (
+                                <CheckCircle2 className="h-3.5 w-3.5 text-green-400 animate-in zoom-in-50 duration-200" />
+                              )}
+                            </div>
+
+                            {/* Push-ups Tracking UI - Special case for pushups subtask */}
+                            {subtask.key === 'pushups' && (
+                              <PushUpTracker
+                                reps={pushupReps}
+                                personalBest={pushupPB}
+                                onUpdateReps={updatePushupReps}
+                              />
+                            )}
+
+                            {/* Water Tracking UI - Special case for water subtask */}
+                            {subtask.key === 'water' && (
+                              <WaterTracker
+                                value={waterAmount}
+                                onIncrement={incrementWater}
+                                onDecrement={decrementWater}
+                              />
+                            )}
+                          </div>
+                        ))}
+                      </div>
                     )}
-                  </AnimatePresence>
-                </Card>
-              </React.Fragment>
-            );
-          }
 
-          return taskCard;
-        })}
+                    {/* Plan Day Actions */}
+                    {task.key === 'planDay' && (
+                      <PlanDayActions
+                        isComplete={isPlanDayComplete}
+                        onMarkComplete={() => setIsPlanDayComplete(true)}
+                        onOpenThoughtDump={() => setShowThoughtDumpChat(true)}
+                      />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
 
-        {/* XP Footer Summary */}
-        <Card className="bg-gradient-to-br from-yellow-900/25 to-amber-900/15 border-yellow-700/30">
-          <CardContent className="p-4">
+            {/* Top 3 Daily Priorities - After Meditation */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="mt-8"
+            >
+              <Card className="bg-gradient-to-r from-yellow-900/30 to-amber-900/30 border-yellow-700/40">
+                <CardHeader className="p-4">
+                  <CardTitle className="flex items-center text-yellow-300 text-base">
+                    <Target className="h-5 w-5 mr-2" />
+                    🎯 Top 3 Things I Want to Complete Today
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 pt-0">
+                  <p className="text-xs text-yellow-400 mb-4">
+                    Not everything - just the 3 that matter most. Be specific.
+                  </p>
+                  <div className="space-y-3">
+                    {dailyPriorities.map((priority, idx) => (
+                      <div key={idx} className="flex items-start space-x-2">
+                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-yellow-600/30 border-2 border-yellow-500/50 flex items-center justify-center mt-1">
+                          <span className="text-yellow-300 font-bold text-sm">#{idx + 1}</span>
+                        </div>
+                        <TextareaAutosize
+                          value={priority}
+                          onChange={(e) => {
+                            const newPriorities = [...dailyPriorities];
+                            newPriorities[idx] = e.target.value;
+                            setDailyPriorities(newPriorities);
+                          }}
+                          placeholder={`Priority ${idx + 1}...`}
+                          minRows={1}
+                          maxRows={4}
+                          className="flex-1 bg-yellow-900/20 border border-yellow-700/30 text-white text-sm placeholder:text-yellow-300/40 focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400/20 rounded-lg px-3 py-2 resize-none overflow-hidden"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-yellow-400/70 mt-3 italic">
+                    💡 Tip: Make them specific and actionable!
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* XP Footer Summary */}
             <XPFooterSummary
               breakdown={todayXP.breakdown}
               totalXP={todayXP.total}
             />
+
           </CardContent>
         </Card>
 
