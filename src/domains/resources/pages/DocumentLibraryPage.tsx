@@ -1,6 +1,6 @@
 
 import { AppLayout } from "@/components/layout/AppLayout";
-import { DocumentTable } from "../../docs/DocumentTable";
+import { DocumentTable } from "../../docs/DocumentTable.tsx";
 
 const demoDocuments = [
   {
