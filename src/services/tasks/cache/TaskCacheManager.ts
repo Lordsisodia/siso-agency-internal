@@ -498,8 +498,9 @@ export class TaskCacheManager {
         expiredCount++;
       }
     }
-    
+
     if (expiredCount > 0) {
+      console.log(`🧹 Cleaned ${expiredCount} expired entries from task cache`);
     }
   }
 

@@ -18,6 +18,7 @@ import { useDateCompletionMap } from '@/domains/lifelock/1-daily/_shared/hooks/u
 import { useDateXPMap } from '@/domains/lifelock/1-daily/_shared/hooks/useDateXPMap';
 import { useDateScreenTimeMap } from '@/domains/lifelock/1-daily/_shared/hooks/useDateScreenTimeMap';
 import { SectionSubNav } from '@/components/navigation/SectionSubNav';
+import { celebrateSides } from '@/lib/utils/confetti';
 import { cn } from '@/lib/utils';
 import { calculateDayCompletionPercentage } from '@/lib/utils/dayProgress';
 import { checkMorningRoutineCompletion, getDefaultTimeboxSubtab } from '@/domains/lifelock/_shared/utils/timeboxNavigation';
@@ -159,7 +160,6 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
       });
       // Trigger confetti for bulk complete
       if (typeof window !== 'undefined') {
-        const { celebrateSides } = require('@/lib/utils/confetti');
         celebrateSides();
       }
     } else {

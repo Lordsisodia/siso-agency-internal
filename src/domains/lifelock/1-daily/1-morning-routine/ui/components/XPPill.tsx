@@ -63,6 +63,7 @@ export const XPPill: React.FC<XPPillProps> = ({ xp, earned, emoji, showGlow = fa
     <motion.div
       className={cn(
         "px-2 py-0.5 rounded-full text-[10px] font-bold whitespace-nowrap border flex items-center gap-1",
+        earned && showGlow && "xp-earned",
         earned ? [styles.bg, styles.text, styles.border] : "bg-gray-800/30 text-gray-500 border-gray-700/40"
       )}
       initial={false}

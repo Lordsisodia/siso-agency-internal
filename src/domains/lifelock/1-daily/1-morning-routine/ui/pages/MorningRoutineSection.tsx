@@ -828,7 +828,10 @@ const waterXPRef = useRef(0);
             {/* Progress Bar */}
             <div className="w-full bg-orange-900/20 rounded-full h-2 mt-4">
               <motion.div
-                className="bg-gradient-to-r from-orange-400 to-orange-600 h-2 rounded-full transition-all duration-500"
+                className={cn(
+                  "bg-gradient-to-r from-orange-400 to-orange-600 h-2 rounded-full transition-all duration-500",
+                  morningRoutineProgress >= 100 && "progress-complete"
+                )}
                 initial={{ width: 0 }}
                 animate={{ width: `${morningRoutineProgress}%` }}
               />
@@ -837,7 +840,7 @@ const waterXPRef = useRef(0);
         </Card>
 
         {/* Mindset Card - Combined with tabs */}
-        <Card className="bg-orange-900/20 border-orange-700/40">
+        <Card className="morning-card bg-orange-900/20 border-orange-700/40">
           <CardHeader className="p-4 pb-2">
             {/* Tab Pills */}
             <div className="flex gap-2">
@@ -877,31 +880,39 @@ const waterXPRef = useRef(0);
             </div>
           </CardHeader>
           <CardContent className="p-4 pt-0">
-            {activeMindsetTab === 'coding' && (
-              <div className="py-2">
-                <h3 className="text-orange-300 font-bold text-base mb-3">Coding My Brain</h3>
-                <p className="text-gray-200 text-sm leading-relaxed">
-                  I am Shaan Sisodia. I have been given divine purpose, and on this mission, temptation awaits on either side of the path.
-                  When I give in to temptation, I shall know I am astray. I will bring my family to a new age of freedom.
-                  I will not be distracted from the path.
-                </p>
-              </div>
-            )}
-            {activeMindsetTab === 'rules' && (
-              <div className="py-2">
-                <h3 className="text-orange-300 font-bold text-base mb-3">Flow State Rules</h3>
-                <ul className="text-gray-200 text-sm space-y-2">
-                  <li>• No use of apps other than Notion.</li>
-                  <li>• No vapes or drugs (including weed).</li>
-                  <li>• No more than 5 seconds until the next action.</li>
-                </ul>
-              </div>
-            )}
-            {activeMindsetTab === 'quotes' && (
-              <div className="py-2">
-                <MotivationalQuotes quotes={todaysQuotes} />
-              </div>
-            )}
+            <motion.div
+              key={activeMindsetTab}
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.2 }}
+              className="py-2"
+            >
+              {activeMindsetTab === 'coding' && (
+                <div>
+                  <h3 className="text-orange-300 font-bold text-base mb-3">Coding My Brain</h3>
+                  <p className="text-gray-200 text-sm leading-relaxed">
+                    I am Shaan Sisodia. I have been given divine purpose, and on this mission, temptation awaits on either side of the path.
+                    When I give in to temptation, I shall know I am astray. I will bring my family to a new age of freedom.
+                    I will not be distracted from the path.
+                  </p>
+                </div>
+              )}
+              {activeMindsetTab === 'rules' && (
+                <div>
+                  <h3 className="text-orange-300 font-bold text-base mb-3">Flow State Rules</h3>
+                  <ul className="text-gray-200 text-sm space-y-2">
+                    <li>• No use of apps other than Notion.</li>
+                    <li>• No vapes or drugs (including weed).</li>
+                    <li>• No more than 5 seconds until the next action.</li>
+                  </ul>
+                </div>
+              )}
+              {activeMindsetTab === 'quotes' && (
+                <div>
+                  <MotivationalQuotes quotes={todaysQuotes} />
+                </div>
+              )}
+            </motion.div>
           </CardContent>
         </Card>
 
@@ -918,7 +929,7 @@ const waterXPRef = useRef(0);
                   : (taskComplete ? 100 : 0);
 
                 return (
-                  <Card key={task.key} className="bg-orange-900/20 border-orange-700/40 overflow-hidden">
+                  <Card key={task.key} className="morning-card bg-orange-900/20 border-orange-700/40 overflow-hidden">
                     <div className="p-4">
                       <div className="flex items-center justify-between gap-2 mb-3">
                         <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -976,6 +987,7 @@ const waterXPRef = useRef(0);
                             onUseNow={setCurrentTimeAsWakeUp}
                             getCurrentTime={getCurrentTime}
                             onClear={() => setWakeUpTime('')}
+                            completed={taskComplete}
                           />
                         )}
 
@@ -1061,7 +1073,7 @@ const waterXPRef = useRef(0);
               transition={{ delay: 0.4 }}
               className="mt-8"
             >
-              <Card className="bg-gradient-to-r from-orange-900/30 to-orange-900/30 border-orange-700/40">
+              <Card className="morning-card bg-gradient-to-r from-orange-900/30 to-orange-900/30 border-orange-700/40">
                 <CardHeader className="p-4">
                   <CardTitle className="flex items-center text-orange-300 text-base">
                     <Target className="h-5 w-5 mr-2" />
