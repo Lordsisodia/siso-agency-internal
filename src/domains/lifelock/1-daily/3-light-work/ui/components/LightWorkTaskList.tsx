@@ -24,7 +24,7 @@ import { sortSubtasksHybrid } from "@/domains/lifelock/1-daily/_shared/utils/sub
 import { GamificationService } from "@/domains/lifelock/_shared/services/gamificationService";
 import { getLightWorkPriorityMultiplier } from "@/domains/lifelock/1-daily/_shared/utils/taskXpCalculations";
 import { useGamificationInit } from "@/lib/hooks/useGamificationInit";
-import { useDeepWorkTimers, formatMsAsClock } from "@/hooks/useDeepWorkTimers";
+import { useDeepWorkTimers, formatMsAsClock } from "@/domains/lifelock/1-daily/4-deep-work/hooks/useDeepWorkTimers";
 import { format } from 'date-fns';
 import { UnifiedTaskCard, LIGHT_THEME, UnifiedTask } from "@/domains/lifelock/1-daily/_shared/components/UnifiedTaskCard";
 import { logger } from '@/lib/utils/logger';

@@ -49,7 +49,7 @@ import { getDeepWorkPriorityMultiplier } from "@/domains/lifelock/1-daily/_share
 import { useClientsList } from "@/domains/client/hooks/useClientsList";
 import { Building2 } from "lucide-react";
 import { useGamificationInit } from "@/lib/hooks/useGamificationInit";
-import { useDeepWorkTimers, formatMsAsClock } from "@/hooks/useDeepWorkTimers";
+import { useDeepWorkTimers, formatMsAsClock } from "../../hooks/useDeepWorkTimers";
 
 // Type definitions - exact same as original
 interface Subtask {

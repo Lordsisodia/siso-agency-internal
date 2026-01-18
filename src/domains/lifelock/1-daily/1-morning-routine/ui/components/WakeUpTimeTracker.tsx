@@ -251,7 +251,7 @@ export const WakeUpTimeTracker: React.FC<WakeUpTimeTrackerProps> = ({
                       className={cn(
                         "flex flex-col items-center justify-center p-2 rounded-lg border transition-all duration-200 hover:scale-105",
                         presetMultiplier.bgColor,
-                        `border-${presetMultiplier.color}-500/30`
+                        "border-orange-500/30"
                       )}
                     >
                       <div className="text-xs font-bold text-white">{preset.label}</div>
