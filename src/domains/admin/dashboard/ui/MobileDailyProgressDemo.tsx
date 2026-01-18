@@ -3,5 +3,5 @@
 // Canonical: src/domains/tasks/ui/MobileDailyProgressDemo.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/tasks/ui/MobileDailyProgressDemo';
-export { default } from '@/domains/tasks/ui/MobileDailyProgressDemo';
+export * from '@/domains/task-ui/ui/MobileDailyProgressDemo';
+export { default } from '@/domains/task-ui/ui/MobileDailyProgressDemo';

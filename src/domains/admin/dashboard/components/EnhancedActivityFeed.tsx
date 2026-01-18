@@ -3,5 +3,5 @@
 // Canonical: src/domains/dashboard/EnhancedActivityFeed.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/dashboard/EnhancedActivityFeed';
-export { default } from '@/domains/dashboard/EnhancedActivityFeed';
+export * from '@/components/ui/dashboard/EnhancedActivityFeed';
+export { default } from '@/components/ui/dashboard/EnhancedActivityFeed';

@@ -3,5 +3,5 @@
 // Canonical: src/domains/dashboard/PreviewSectionsDashboard.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/dashboard/PreviewSectionsDashboard';
-export { default } from '@/domains/dashboard/PreviewSectionsDashboard';
+export * from '@/components/ui/dashboard/PreviewSectionsDashboard';
+export { default } from '@/components/ui/dashboard/PreviewSectionsDashboard';

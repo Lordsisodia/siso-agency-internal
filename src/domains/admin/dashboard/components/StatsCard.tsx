@@ -3,5 +3,5 @@
 // Canonical: src/domains/dashboard/StatsCard.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/dashboard/StatsCard';
-export { default } from '@/domains/dashboard/StatsCard';
+export * from '@/components/ui/dashboard/StatsCard';
+export { default } from '@/components/ui/dashboard/StatsCard';

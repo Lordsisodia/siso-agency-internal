@@ -5,7 +5,7 @@ import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { useTimeBlocks } from '@/domains/lifelock/1-daily/2-tasks/domain/useTimeBlocks';
 import { format } from 'date-fns';
 import type { TimeBlock } from '@/services/api/timeblocksApi.offline';
-import { VoiceService } from '@/services/voice/voice.service';
+import { VoiceService } from '@/domains/lifelock/services/voice.service';
 
 interface Message {
   id: string;

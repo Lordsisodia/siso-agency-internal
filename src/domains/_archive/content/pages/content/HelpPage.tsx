@@ -1,6 +1,6 @@
 
 import { MainLayout } from '@/components/layout/MainLayout';
-import { DashboardHelpCenter } from '@/domains/dashboard/DashboardHelpCenter';
+import { DashboardHelpCenter } from '@/components/ui/dashboard/DashboardHelpCenter';
 
 export default function HelpPage() {
   return (

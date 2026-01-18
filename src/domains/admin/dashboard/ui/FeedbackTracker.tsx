@@ -3,5 +3,5 @@
 // Canonical: src/domains/tasks/ui/FeedbackTracker.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/tasks/ui/FeedbackTracker';
-export { default } from '@/domains/tasks/ui/FeedbackTracker';
+export * from '@/domains/task-ui/ui/FeedbackTracker';
+export { default } from '@/domains/task-ui/ui/FeedbackTracker';

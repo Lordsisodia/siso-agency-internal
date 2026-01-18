@@ -3,5 +3,5 @@
 // Canonical: src/domains/tasks/components/TodayProgressSection.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/tasks/components/TodayProgressSection';
-export { default } from '@/domains/tasks/components/TodayProgressSection';
+export * from '@/domains/task-ui/components/TodayProgressSection';
+export { default } from '@/domains/task-ui/components/TodayProgressSection';

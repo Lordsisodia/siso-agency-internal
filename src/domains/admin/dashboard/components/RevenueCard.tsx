@@ -3,5 +3,5 @@
 // Canonical: src/domains/dashboard/cards/RevenueCard.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/dashboard/cards/RevenueCard';
-export { default } from '@/domains/dashboard/cards/RevenueCard';
+export * from '@/components/ui/dashboard/cards/RevenueCard';
+export { default } from '@/components/ui/dashboard/cards/RevenueCard';

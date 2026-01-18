@@ -1,5 +1,5 @@
 import { Helmet } from 'react-helmet';
-import { DashboardLayout } from '@/domains/home/components/Placeholders';
+import { DashboardLayout } from '@/components/ui/home/Placeholders';
 import { TimelineSection } from '@/domains/projects/details/TimelineSection';
 import { TimelineHeader } from '@/domains/projects/details/timeline/TimelineHeader';
 

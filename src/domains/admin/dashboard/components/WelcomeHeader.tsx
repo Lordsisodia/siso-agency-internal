@@ -3,5 +3,5 @@
 // Canonical: src/domains/dashboard/WelcomeHeader.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/dashboard/WelcomeHeader';
-export { default } from '@/domains/dashboard/WelcomeHeader';
+export * from '@/components/ui/dashboard/WelcomeHeader';
+export { default } from '@/components/ui/dashboard/WelcomeHeader';

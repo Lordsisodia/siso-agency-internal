@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card } from '@/components/ui/card';
-import { TaskList } from '@/domains/tasks/components/TaskList';
+import { TaskList } from '@/domains/task-ui/components/TaskList';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';

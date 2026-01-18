@@ -8,12 +8,12 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { useSupabaseClient, useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
-import { isBrowserOnline } from '@/domains/tasks/utils/network';
-import type { DeepWorkTask } from '@/domains/tasks/hooks/useDeepWorkTasksSupabase';
+import { isBrowserOnline } from '@/domains/task-ui/utils/network';
+import type { DeepWorkTask } from '@/domains/task-ui/hooks/useDeepWorkTasksSupabase';
 import {
   mapSupabaseDeepWorkTask,
   type DeepWorkTaskRow
-} from '@/domains/tasks/hooks/deepWork/deepWorkTaskCache';
+} from '@/domains/task-ui/hooks/deepWork/deepWorkTaskCache';
 
 export interface UseClientDeepWorkTasksProps {
   clientId: string;

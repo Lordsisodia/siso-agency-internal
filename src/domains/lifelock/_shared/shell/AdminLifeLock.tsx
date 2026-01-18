@@ -21,7 +21,7 @@ import { useTabConfiguration } from '@/domains/admin/hooks/useTabConfiguration';
 import { tabRegistry } from '@/services/shared/TabRegistry';
 
 // TaskProvider for service integration
-import { TasksProvider } from '@/domains/tasks/stores/taskStore';
+import { TasksProvider } from '@/domains/task-ui/stores/taskStore';
 
 // Day progress utilities
 import { calculateDayCompletionPercentage } from '@/lib/utils/api/dayProgress';

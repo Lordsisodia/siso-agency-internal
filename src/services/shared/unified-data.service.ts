@@ -12,8 +12,8 @@
 import { offlineDb, SyncableTable, OfflineSyncAction } from '@/services/offline/offlineDb';
 import { supabaseAnon } from '@/lib/services/supabase/clerk-integration';
 import { offlineManager } from '@/services/shared/offlineManager';
-import type { DeepWorkTask } from '@/domains/tasks/hooks/useDeepWorkTasksSupabase';
-import type { LightWorkTask } from '@/domains/tasks/hooks/useLightWorkTasksSupabase';
+import type { DeepWorkTask } from '@/domains/task-ui/hooks/useDeepWorkTasksSupabase';
+import type { LightWorkTask } from '@/domains/task-ui/hooks/useLightWorkTasksSupabase';
 import type { Database } from '@/types/supabase';
 
 const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL || '').trim();

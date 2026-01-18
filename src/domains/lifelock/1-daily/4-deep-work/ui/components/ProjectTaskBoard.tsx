@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar as CalendarComponent } from '@/domains/calendar/ui/calendar';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Calendar, AlertCircle, CheckCircle, Code, DollarSign, Calendar as CalendarIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';

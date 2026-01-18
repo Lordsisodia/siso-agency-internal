@@ -3,5 +3,5 @@
 // Canonical: src/domains/dashboard/NotificationBell.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/dashboard/NotificationBell';
-export { default } from '@/domains/dashboard/NotificationBell';
+export * from '@/components/ui/dashboard/NotificationBell';
+export { default } from '@/components/ui/dashboard/NotificationBell';

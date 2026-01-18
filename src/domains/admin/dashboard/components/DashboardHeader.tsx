@@ -3,5 +3,5 @@
 // Canonical: src/domains/dashboard/DashboardHeader.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/dashboard/DashboardHeader';
-export { default } from '@/domains/dashboard/DashboardHeader';
+export * from '@/components/ui/dashboard/DashboardHeader';
+export { default } from '@/components/ui/dashboard/DashboardHeader';

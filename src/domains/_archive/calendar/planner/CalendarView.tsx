@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Calendar } from "@/domains/calendar/ui/calendar";
+import { Calendar } from '@/components/ui/calendar';
 import { supabase } from '@/services/integrations/supabase/client';
-import { useTasks } from '@/domains/tasks/hooks/useTasks';
+import { useTasks } from '@/domains/task-ui/hooks/useTasks';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
@@ -12,9 +12,9 @@ import { useToast } from '@/components/ui/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { format } from 'date-fns';
 import DeepWorkTaskList from '@/domains/lifelock/views/daily/4-deep-work/components/DeepWorkTaskList';
-import { useDeepWorkTasksSupabase } from '@/domains/tasks/hooks/useDeepWorkTasksSupabase';
+import { useDeepWorkTasksSupabase } from '@/domains/task-ui/hooks/useDeepWorkTasksSupabase';
 import { Separator } from '@/components/ui/separator';
-import { useClientsList } from '@/domains/client/hooks/useClientsList';
+import { useClientsList } from '@/domains/clients/hooks/useClientsList';
 
 export function CalendarView() {
   const [date, setDate] = useState<Date | undefined>(new Date());

@@ -1,6 +1,6 @@
 import React from 'react';
 import { AdminLayout } from '@/domains/admin/layout/AdminLayout';
-import { TasksPage } from '@/domains/tasks/pages/TasksPage';
+import { TasksPage } from '@/domains/task-ui/pages/TasksPage';
 
 export default function AdminTasks() {
   return (

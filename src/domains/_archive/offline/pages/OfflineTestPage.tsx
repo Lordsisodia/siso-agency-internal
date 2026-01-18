@@ -12,8 +12,8 @@ import { offlineDb } from '@/services/offline/offlineDb';
 import { offlineManager } from '@/services/shared/offlineManager';
 // import { useMorningRoutineSupabase } from '@/domains/lifelock/1-daily/1-morning-routine/hooks/useMorningRoutineSupabase'; // TODO: Hook needs to be created
 // import { useHomeWorkoutSupabase } from '@/domains/lifelock/1-daily/5-stats/domain/useHomeWorkoutSupabase'; // TODO: Hook needs to be created
-import { useLightWorkTasksSupabase } from '@/domains/tasks/hooks/useLightWorkTasksSupabase';
-import { useDeepWorkTasksSupabase } from '@/domains/tasks/hooks/useDeepWorkTasksSupabase';
+import { useLightWorkTasksSupabase } from '@/domains/task-ui/hooks/useLightWorkTasksSupabase';
+import { useDeepWorkTasksSupabase } from '@/domains/task-ui/hooks/useDeepWorkTasksSupabase';
 
 export default function OfflineTestPage() {
   const [selectedDate] = useState(new Date());

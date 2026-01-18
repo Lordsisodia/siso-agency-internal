@@ -1,6 +1,6 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
-import { DashboardLayout } from '@/domains/home/components/Placeholders';
+import { DashboardLayout } from '@/components/ui/home/Placeholders';
 import { AppPlanGenerator } from '@/domains/app-plan/components/AppPlanGenerator';
 import { motion } from 'framer-motion';
 

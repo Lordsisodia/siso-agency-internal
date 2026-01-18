@@ -4,7 +4,7 @@ import { MessageSquare, X, ArrowLeft, Sparkles, Mic } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { SisoIcon } from '@/components/ui/icons/SisoIcon';
-import { EnhancedAIAssistantTab } from '@/domains/tasks/components/EnhancedAIAssistantTab';
+import { EnhancedAIAssistantTab } from '@/domains/task-ui/components/EnhancedAIAssistantTab';
 import { AIAssistantFeatureFlags, getDefaultFeatureFlags } from '@/lib/utils/feature-flags';
 
 interface FloatingAIAssistantProps {

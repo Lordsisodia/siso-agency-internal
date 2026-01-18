@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
-import { useLightWorkTasksSupabase } from '@/domains/tasks/hooks/useLightWorkTasksSupabase';
-import { useDeepWorkTasksSupabase } from '@/domains/tasks/hooks/useDeepWorkTasksSupabase';
+import { useLightWorkTasksSupabase } from '@/domains/task-ui/hooks/useLightWorkTasksSupabase';
+import { useDeepWorkTasksSupabase } from '@/domains/task-ui/hooks/useDeepWorkTasksSupabase';
 import { useMorningRoutineSupabase } from '@/domains/lifelock/1-daily/1-morning-routine/hooks/useMorningRoutineSupabase';
 import { useHomeWorkoutSupabase } from '@/domains/lifelock/1-daily/5-stats/domain/useHomeWorkoutSupabase';
 import { format, parseISO, isWithinInterval, startOfDay, endOfDay } from 'date-fns';

@@ -46,7 +46,7 @@ import { format } from 'date-fns';
 import { logger } from '@/lib/utils/logger';
 import { GamificationService } from "@/domains/lifelock/_shared/services/gamificationService";
 import { getDeepWorkPriorityMultiplier } from "@/domains/lifelock/1-daily/_shared/utils/taskXpCalculations";
-import { useClientsList } from "@/domains/client/hooks/useClientsList";
+import { useClientsList } from '@/domains/clients/hooks/useClientsList';
 import { Building2 } from "lucide-react";
 import { useGamificationInit } from '@/domains/lifelock/_shared/hooks/useGamificationInit';
 import { useDeepWorkTimers, formatMsAsClock } from "../../hooks/useDeepWorkTimers";

@@ -3,5 +3,5 @@
 // Canonical: src/domains/dashboard/ProjectProgressCards.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/dashboard/ProjectProgressCards';
-export { default } from '@/domains/dashboard/ProjectProgressCards';
+export * from '@/components/ui/dashboard/ProjectProgressCards';
+export { default } from '@/components/ui/dashboard/ProjectProgressCards';

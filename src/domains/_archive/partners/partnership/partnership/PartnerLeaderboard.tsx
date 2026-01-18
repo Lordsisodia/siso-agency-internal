@@ -9,4 +9,4 @@
 // This redirect maintains backward compatibility while eliminating duplication.
 // Phase 2 of consolidation - converting exact binary duplicates to redirects.
 
-export { PartnerLeaderboard, type LeaderboardEntry, type TimeFilter } from '@/domains/dashboard/PartnerLeaderboard';
+export { PartnerLeaderboard, type LeaderboardEntry, type TimeFilter } from '@/components/ui/dashboard/PartnerLeaderboard';

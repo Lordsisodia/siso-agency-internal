@@ -3,5 +3,5 @@
 // Canonical: src/domains/tasks/components/TeamMembersGrid.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/tasks/components/TeamMembersGrid';
-export { default } from '@/domains/tasks/components/TeamMembersGrid';
+export * from '@/domains/task-ui/components/TeamMembersGrid';
+export { default } from '@/domains/task-ui/components/TeamMembersGrid';

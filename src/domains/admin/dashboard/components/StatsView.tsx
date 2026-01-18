@@ -3,5 +3,5 @@
 // Canonical: src/domains/tasks/components/StatsView.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/tasks/components/StatsView';
-export { default } from '@/domains/tasks/components/StatsView';
+export * from '@/domains/task-ui/components/StatsView';
+export { default } from '@/domains/task-ui/components/StatsView';

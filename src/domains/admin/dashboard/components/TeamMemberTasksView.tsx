@@ -3,5 +3,5 @@
 // Canonical: src/domains/tasks/components/TeamMemberTasksView.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/tasks/components/TeamMemberTasksView';
-export { default } from '@/domains/tasks/components/TeamMemberTasksView';
+export * from '@/domains/task-ui/components/TeamMemberTasksView';
+export { default } from '@/domains/task-ui/components/TeamMemberTasksView';

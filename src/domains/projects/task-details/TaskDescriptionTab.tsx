@@ -3,5 +3,5 @@
 // Canonical: src/domains/tasks/components/TaskDescriptionTab.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/tasks/components/TaskDescriptionTab';
-export { default } from '@/domains/tasks/components/TaskDescriptionTab';
+export * from '@/domains/task-ui/components/TaskDescriptionTab';
+export { default } from '@/domains/task-ui/components/TaskDescriptionTab';

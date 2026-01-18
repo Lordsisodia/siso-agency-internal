@@ -3,5 +3,5 @@
 // Canonical: src/domains/tasks/ui/FlowStatsDashboard.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/tasks/ui/FlowStatsDashboard';
-export { default } from '@/domains/tasks/ui/FlowStatsDashboard';
+export * from '@/domains/task-ui/ui/FlowStatsDashboard';
+export { default } from '@/domains/task-ui/ui/FlowStatsDashboard';

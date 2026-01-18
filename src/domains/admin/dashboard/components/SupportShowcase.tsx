@@ -3,5 +3,5 @@
 // Canonical: src/domains/dashboard/SupportShowcase.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/dashboard/SupportShowcase';
-export { default } from '@/domains/dashboard/SupportShowcase';
+export * from '@/components/ui/dashboard/SupportShowcase';
+export { default } from '@/components/ui/dashboard/SupportShowcase';

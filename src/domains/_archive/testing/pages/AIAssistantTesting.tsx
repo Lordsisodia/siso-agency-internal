@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertCircle, TestTube, Play, Settings } from 'lucide-react';
 
 // Import our enhanced components and utilities
-import { EnhancedAIAssistantTab } from '@/domains/tasks/components/EnhancedAIAssistantTab';
+import { EnhancedAIAssistantTab } from '@/domains/task-ui/components/EnhancedAIAssistantTab';
 import { FeatureFlagTester } from '@/test/utilities/FeatureFlagTester';
 import { APITester } from '@/test/utilities/APITester';
 import { MorningRoutineTimer } from '@/components/timers/MorningRoutineTimer';

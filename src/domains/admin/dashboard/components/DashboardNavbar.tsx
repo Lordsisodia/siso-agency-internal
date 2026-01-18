@@ -3,5 +3,5 @@
 // Canonical: src/domains/dashboard/layout/DashboardNavbar.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/dashboard/layout/DashboardNavbar';
-export { default } from '@/domains/dashboard/layout/DashboardNavbar';
+export * from '@/components/ui/dashboard/layout/DashboardNavbar';
+export { default } from '@/components/ui/dashboard/layout/DashboardNavbar';

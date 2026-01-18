@@ -3,7 +3,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/domains/calendar/ui/calendar";
+import { Calendar } from '@/components/ui/calendar';
 import {
   Form,
   FormControl,

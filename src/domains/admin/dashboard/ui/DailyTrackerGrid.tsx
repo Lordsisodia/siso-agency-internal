@@ -3,5 +3,5 @@
 // Canonical: src/domains/tasks/ui/DailyTrackerGrid.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/tasks/ui/DailyTrackerGrid';
-export { default } from '@/domains/tasks/ui/DailyTrackerGrid';
+export * from '@/domains/task-ui/ui/DailyTrackerGrid';
+export { default } from '@/domains/task-ui/ui/DailyTrackerGrid';

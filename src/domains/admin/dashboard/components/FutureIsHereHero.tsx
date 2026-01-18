@@ -3,5 +3,5 @@
 // Canonical: src/domains/dashboard/FutureIsHereHero.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/dashboard/FutureIsHereHero';
-export { default } from '@/domains/dashboard/FutureIsHereHero';
+export * from '@/components/ui/dashboard/FutureIsHereHero';
+export { default } from '@/components/ui/dashboard/FutureIsHereHero';

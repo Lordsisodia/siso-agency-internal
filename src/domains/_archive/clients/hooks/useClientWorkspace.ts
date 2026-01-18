@@ -5,7 +5,7 @@ import { supabase } from '@/services/integrations/supabase/client';
 import { useClientDetails } from '@/domains/client/hooks/useClientDetails';
 import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
-import type { DeepWorkTask } from '@/domains/tasks/hooks/useDeepWorkTasksSupabase';
+import type { DeepWorkTask } from '@/domains/task-ui/hooks/useDeepWorkTasksSupabase';
 
 interface TimelineEvent {
   id: string;

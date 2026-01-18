@@ -3,5 +3,5 @@
 // Canonical: src/domains/dashboard/NotificationsCard.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/dashboard/NotificationsCard';
-export { default } from '@/domains/dashboard/NotificationsCard';
+export * from '@/components/ui/dashboard/NotificationsCard';
+export { default } from '@/components/ui/dashboard/NotificationsCard';

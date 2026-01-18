@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar } from "@/domains/calendar/ui/calendar";
+import { Calendar } from '@/components/ui/calendar';
 import { useState } from "react";
 
 function Component() {

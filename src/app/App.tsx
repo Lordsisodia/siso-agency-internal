@@ -7,14 +7,14 @@ import { AuthGuard } from '@/domains/auth/AuthGuard';
 import { PageLoader } from '@/components/ui/PageLoader';
 
 // Critical pages loaded immediately (landing, auth, home)
-import Index from '@/domains/home/pages/Index';
+import Index from '@/pages/home/Index';
 import Auth from '@/domains/auth/pages/Auth';
 import { AdminAutoLogin } from '@/domains/admin/auth/AdminAutoLogin';
 import { AdminLayout } from '@/domains/admin/layout/AdminLayout';
 
 // Lazy load all other pages for super-fast initial load
 const XPStorePage = lazy(() => import('@/domains/xp-store/1-storefront/ui/pages/XPStorePage'));
-const XPDashboardPage = lazy(() => import('@/domains/dashboard/pages/XPDashboardPage'));
+const XPDashboardPage = lazy(() => import('@/components/ui/dashboard/pages/XPDashboardPage'));
 
 // Admin pages - heavy bundle, lazy load all
 const AdminDashboard = lazy(() => import('@/domains/admin/pages/AdminDashboard'));

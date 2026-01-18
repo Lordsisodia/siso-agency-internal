@@ -31,7 +31,7 @@ import {
   Settings,
   Plus
 } from 'lucide-react';
-import { Task } from '@/domains/tasks/types/task.types';
+import { Task } from '@/domains/task-ui/types/task.types';
 
 interface LightWorkTaskCardProps {
   task: Task;

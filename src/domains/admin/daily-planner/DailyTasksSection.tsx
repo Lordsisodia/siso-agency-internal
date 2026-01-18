@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { CheckCircle, Circle, Clock } from 'lucide-react';
-import { Task } from '@/domains/tasks/hooks/useTasks';
+import { Task } from '@/domains/task-ui/hooks/useTasks';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 

@@ -1,2 +1,2 @@
 // 🔄 DUPLICATE REDIRECT
-export { BottomNavigation } from '@/domains/tasks/ui/BottomNavigation';
+export { BottomNavigation } from '@/domains/task-ui/ui/BottomNavigation';

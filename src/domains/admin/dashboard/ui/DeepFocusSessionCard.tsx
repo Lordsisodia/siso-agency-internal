@@ -3,5 +3,5 @@
 // Canonical: src/domains/tasks/ui/DeepFocusSessionCard.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/tasks/ui/DeepFocusSessionCard';
-export { default } from '@/domains/tasks/ui/DeepFocusSessionCard';
+export * from '@/domains/task-ui/ui/DeepFocusSessionCard';
+export { default } from '@/domains/task-ui/ui/DeepFocusSessionCard';

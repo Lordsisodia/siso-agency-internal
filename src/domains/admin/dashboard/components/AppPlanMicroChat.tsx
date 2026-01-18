@@ -3,5 +3,5 @@
 // Canonical: src/domains/dashboard/AppPlanMicroChat.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/dashboard/AppPlanMicroChat';
-export { default } from '@/domains/dashboard/AppPlanMicroChat';
+export * from '@/components/ui/dashboard/AppPlanMicroChat';
+export { default } from '@/components/ui/dashboard/AppPlanMicroChat';

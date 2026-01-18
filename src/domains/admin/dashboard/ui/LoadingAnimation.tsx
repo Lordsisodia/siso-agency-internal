@@ -3,5 +3,5 @@
 // Canonical: src/domains/tasks/ui/LoadingAnimation.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/tasks/ui/LoadingAnimation';
-export { default } from '@/domains/tasks/ui/LoadingAnimation';
+export * from '@/domains/task-ui/ui/LoadingAnimation';
+export { default } from '@/domains/task-ui/ui/LoadingAnimation';

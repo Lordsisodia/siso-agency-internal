@@ -3,5 +3,5 @@
 // Canonical: src/domains/tasks/ui/SystemTestingDashboard.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/tasks/ui/SystemTestingDashboard';
-export { default } from '@/domains/tasks/ui/SystemTestingDashboard';
+export * from '@/domains/task-ui/ui/SystemTestingDashboard';
+export { default } from '@/domains/task-ui/ui/SystemTestingDashboard';

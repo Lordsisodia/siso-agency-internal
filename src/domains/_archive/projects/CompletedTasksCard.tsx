@@ -1,6 +1,6 @@
 import React from 'react';
 import { CheckSquare, Calendar, Clock } from 'lucide-react';
-import { DailyTrackerCard } from '@/domains/tasks/ui/DailyTrackerCard';
+import { DailyTrackerCard } from '@/domains/task-ui/ui/DailyTrackerCard';
 import { format } from 'date-fns';
 
 export interface CompletedTask {

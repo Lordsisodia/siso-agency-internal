@@ -9,4 +9,4 @@
 // This redirect maintains backward compatibility while eliminating duplication.
 // Phase 2 of consolidation - converting exact binary duplicates to redirects.
 
-export { TaskView } from '@/domains/tasks/components/TaskView';
+export { TaskView } from '@/domains/task-ui/components/TaskView';
