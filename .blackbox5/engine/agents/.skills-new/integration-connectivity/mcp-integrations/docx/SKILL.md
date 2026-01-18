@@ -1,370 +1,241 @@
 ---
 name: docx
-category: mcp
+category: integration-connectivity/mcp-integrations
 version: 1.0.0
 description: Create, edit, and analyze Word documents with tracked changes and comments support
-author: anthropics/skills
+author: blackbox5/mcp
 verified: true
-tags: [docx, word, documents, office]
+tags: [mcp, docx, word, documents, office]
 ---
 
 # DOCX Processing
 
-## Overview
+<context>
 Create, edit, and analyze Microsoft Word documents (.docx) with support for tracked changes, comments, formatting, and content extraction.
 
-## When to Use This Skill
-✅ Automating document generation
-✅ Processing feedback and comments
-✅ Extracting structured data from docs
-✅ Creating reports programmatically
-✅ Managing document templates
-
-## Create Documents
-
-### Basic Document Creation
-```python
-from docx import Document
-
-def create_simple_document():
-    """Create a simple Word document."""
-    doc = Document()
-
-    # Add heading
-    doc.add_heading('Document Title', level=1)
-
-    # Add paragraph
-    doc.add_paragraph('This is a paragraph of text.')
-
-    # Add another paragraph with formatting
-    para = doc.add_paragraph()
-    run = para.add_run('Bold and italic text')
-    run.bold = True
-    run.italic = True
-
-    # Save document
-    doc.save('output.docx')
-
-# Usage
-create_simple_document()
-```
-
-### Document with Structure
-```python
-def create_structured_document():
-    """Create a document with hierarchical structure."""
-    doc = Document()
-
-    # Title
-    doc.add_heading('Project Report', level=0)
-
-    # Sections
-    doc.add_heading('Executive Summary', level=1)
-    doc.add_paragraph('Brief summary of the project.')
-
-    doc.add_heading('Introduction', level=1)
-    doc.add_heading('Background', level=2)
-    doc.add_paragraph('Context and background information.')
-
-    doc.add_heading('Methodology', level=2)
-    doc.add_paragraph('Approach and methods used.')
-
-    # Lists
-    doc.add_heading('Key Findings', level=1)
-    doc.add_paragraph('Main findings:', style='List Bullet')
-    doc.add_paragraph('Finding 1', style='List Bullet')
-    doc.add_paragraph('Finding 2', style='List Bullet')
-
-    doc.save('structured_document.docx')
-```
-
-## Extract Content
-
-### Extract All Text
-```python
-def extract_text_from_docx(docx_path):
-    """Extract all text from a Word document."""
-    doc = Document(docx_path)
-    text = []
-
-    for paragraph in doc.paragraphs:
-        text.append(paragraph.text)
-
-    return '\n'.join(text)
-
-# Usage
-text = extract_text_from_docx("document.docx")
-print(text)
-```
-
-### Extract by Structure
-```python
-def extract_document_structure(docx_path):
-    """Extract document with hierarchical structure."""
-    doc = Document(docx_path)
-    structure = {
-        'title': '',
-        'headings': [],
-        'paragraphs': [],
-        'tables': []
-    }
-
-    for element in doc.element.body:
-        # Process paragraphs
-        for para in doc.paragraphs:
-            if para.style.name.startswith('Heading'):
-                level = int(para.style.name[-1])
-                structure['headings'].append({
-                    'level': level,
-                    'text': para.text
-                })
-            else:
-                structure['paragraphs'].append(para.text)
-
-        # Process tables
-        for table in doc.tables:
-            table_data = []
-            for row in table.rows:
-                row_data = [cell.text for cell in row.cells]
-                table_data.append(row_data)
-            structure['tables'].append(table_data)
-
-    return structure
-```
-
-### Extract Tables
-```python
-def extract_tables(docx_path):
-    """Extract all tables from document."""
-    doc = Document(docx_path)
-    tables = []
-
-    for table in doc.tables:
-        table_data = []
-        for row in table.rows:
-            row_data = [cell.text.strip() for cell in row.cells]
-            table_data.append(row_data)
-        tables.append(table_data)
-
-    return tables
-
-# Usage
-tables = extract_tables("report.docx")
-for i, table in enumerate(tables):
-    print(f"Table {i + 1}:")
-    for row in table:
-        print(row)
-```
-
-## Working with Templates
-
-### Use Document Template
-```python
-def fill_template(template_path, output_path, data):
-    """Fill a Word template with data."""
-    doc = Document(template_path)
-
-    # Replace placeholders
-    for paragraph in doc.paragraphs:
-        for key, value in data.items():
-            if key in paragraph.text:
-                paragraph.text = paragraph.text.replace(key, str(value))
-
-    # Replace in tables
-    for table in doc.tables:
-        for row in table.rows:
-            for cell in row.cells:
-                for key, value in data.items():
-                    if key in cell.text:
-                        cell.text = cell.text.replace(key, str(value))
-
-    doc.save(output_path)
-
-# Usage
-data = {
-    '{{NAME}}': 'John Doe',
-    '{{DATE}}': '2024-01-15',
-    '{{AMOUNT}}': '$1,000'
-}
-fill_template('template.docx', 'output.docx', data)
-```
-
-## Track Changes
-
-### Enable Tracked Changes
-```python
-from docx.oxml.ns import qn
-
-def track_changes(doc):
-    """Enable track changes in document."""
-    settings = doc.settings
-    settings.trackRevisions = True
-
-    # This requires Word to be opened with track changes enabled
-    # Programmatic track changes is limited in python-docx
-    doc.save('document_with_track_changes.docx')
-```
-
-### Review Comments
-```python
-def extract_comments(docx_path):
-    """Extract all comments from document."""
-    doc = Document(docx_path)
-    comments = []
-
-    # Comments are stored in XML
-    # This is simplified - actual implementation requires XML parsing
-    for element in doc.element.body:
-        if element.tag.endswith('comment'):
-            comments.append({
-                'author': element.get('author'),
-                'date': element.get('date'),
-                'text': element.text
-            })
-
-    return comments
-```
-
-## Formatting
-
-### Apply Styles
-```python
-def apply_formatting(doc):
-    """Apply various formatting to document."""
-    # Bold text
-    para = doc.add_paragraph()
-    run = para.add_run('Bold text')
-    run.bold = True
-
-    # Italic text
-    run = para.add_run(' italic text')
-    run.italic = True
-
-    # Underlined text
-    run = para.add_run(' underlined text')
-    run.underline = True
-
-    # Colored text
-    run = para.add_run(' red text')
-    run.font.color.rgb = RGBColor(255, 0, 0)
-
-    # Font size
-    run = para.add_run(' large text')
-    run.font.size = Pt(18)
-
-    # Font family
-    run = para.add_run(' Arial text')
-    run.font.name = 'Arial'
-
-    return doc
-```
-
-### Add Tables
-```python
-def create_table(doc, data, headers=None):
-    """Create formatted table in document."""
-    table = doc.add_table(rows=len(data) + (1 if headers else 0),
-                         cols=len(data[0]))
-    table.style = 'Light Grid Accent 1'
-
-    if headers:
-        header_cells = table.rows[0].cells
-        for i, header in enumerate(headers):
-            header_cells[i].text = header
-            # Bold headers
-            for paragraph in header_cells[i].paragraphs:
-                for run in paragraph.runs:
-                    run.bold = True
-
-    # Add data
-    start_row = 1 if headers else 0
-    for i, row_data in enumerate(data):
-        row = table.rows[i + start_row]
-        for j, cell_data in enumerate(row_data):
-            row.cells[j].text = str(cell_data)
-
-    return doc
-
-# Usage
-doc = Document()
-data = [
-    ['Alice', 25, 'Engineer'],
-    ['Bob', 30, 'Designer'],
-    ['Charlie', 35, 'Manager']
-]
-create_table(doc, data, headers=['Name', 'Age', 'Role'])
-doc.save('table_document.docx')
-```
-
-## Advanced Operations
-
-### Find and Replace
-```python
-def find_replace(doc, find_text, replace_text):
-    """Find and replace text in document."""
-    for paragraph in doc.paragraphs:
-        if find_text in paragraph.text:
-            paragraph.text = paragraph.text.replace(find_text, replace_text)
-
-    # Check tables
-    for table in doc.tables:
-        for row in table.rows:
-            for cell in row.cells:
-                if find_text in cell.text:
-                    cell.text = cell.text.replace(find_text, replace_text)
-
-    return doc
-```
-
-### Merge Documents
-```python
-def merge_documents(doc_paths, output_path):
-    """Merge multiple Word documents."""
-    merged_doc = Document()
-
-    for doc_path in doc_paths:
-        doc = Document(doc_path)
-
-        # Copy all elements
-        for element in doc.element.body:
-            merged_doc.element.body.append(element)
-
-    merged_doc.save(output_path)
-
-# Usage
-merge_documents(
-    ['section1.docx', 'section2.docx', 'section3.docx'],
-    'merged.docx'
-)
-```
-
-### Add Page Numbers
-```python
-def add_page_numbers(doc):
-    """Add page numbers to document (simplified)."""
-    # Page numbers require more complex XML manipulation
-    # This is a simplified version
-    section = doc.sections[0]
-    footer = section.footer
-    paragraph = footer.paragraphs[0]
-    paragraph.text = "Page "
-    run = paragraph.add_run()
-    # Add field code for page number
-    # Implementation requires more complex XML handling
-    return doc
-```
-
-## Integration with Claude
-When working with DOCX files, say:
-- "Create a Word document with [structure]"
-- "Extract all text from this document"
-- "Fill in this template with [data]"
-- "Pull all tables from the report"
-- "Merge these documents into one"
-
-Claude will:
-- Structure documents correctly
-- Apply proper formatting
-- Extract content accurately
-- Handle templates reliably
-- Manage complex layouts
+**When to Use:**
+- Automating document generation
+- Processing feedback and comments
+- Extracting structured data from docs
+- Creating reports programmatically
+- Managing document templates
+</context>
+
+<instructions>
+When working with DOCX files, use the python-docx library for document manipulation. For advanced features like track changes, additional XML parsing may be required.
+
+Always backup original documents before making changes.
+</instructions>
+
+<workflow>
+  <phase name="Document Creation">
+    <goal>Create new Word documents programmatically</goal>
+    <steps>
+      <step>Initialize Document object</step>
+      <step>Add headings and paragraphs</step>
+      <step>Apply formatting (bold, italic, colors)</step>
+      <step>Save document to file</step>
+    </steps>
+  </phase>
+
+  <phase name="Content Extraction">
+    <goal>Extract text and data from existing documents</goal>
+    <steps>
+      <step>Load document with Document()</step>
+      <step>Iterate through paragraphs</step>
+      <step>Extract text with structure</step>
+      <step>Parse tables if present</step>
+    </steps>
+  </phase>
+
+  <phase name="Template Processing">
+    <goal>Fill templates with dynamic data</goal>
+    <steps>
+      <step>Load template document</step>
+      <step>Identify placeholder markers</step>
+      <step>Replace with actual data</step>
+      <step>Save as new document</step>
+    </steps>
+  </phase>
+
+  <phase name="Document Modification">
+    <goal>Edit existing documents</goal>
+    <steps>
+      <step>Load target document</step>
+      <step>Find content to modify</step>
+      <step>Apply changes</step>
+      <step>Preserve formatting where possible</step>
+    </steps>
+  </phase>
+</workflow>
+
+<available_skills>
+  <skill_group name="Document Creation">
+    <skill name="create_simple_document">
+      <purpose>Create a basic Word document</purpose>
+      <usage>Create a document with title and paragraphs</usage>
+    </skill>
+    <skill name="create_structured_document">
+      <purpose>Create document with hierarchical structure</purpose>
+      <usage>Create a report with headings and sections</usage>
+    </skill>
+    <skill name="add_formatting">
+      <purpose>Apply text formatting (bold, italic, colors, fonts)</purpose>
+      <usage>Make the heading bold and blue</usage>
+    </skill>
+  </skill_group>
+
+  <skill_group name="Content Extraction">
+    <skill name="extract_text">
+      <purpose>Extract all text from document</purpose>
+      <usage>Get all text content from report.docx</usage>
+    </skill>
+    <skill name="extract_structure">
+      <purpose>Extract document with headings hierarchy</purpose>
+      <usage>Get document structure with heading levels</usage>
+    </skill>
+    <skill name="extract_tables">
+      <purpose>Extract all tables from document</purpose>
+      <usage>Pull all tables from the report</usage>
+    </skill>
+  </skill_group>
+
+  <skill_group name="Template Operations">
+    <skill name="fill_template">
+      <purpose>Replace placeholders in template</purpose>
+      <usage>Fill template with data dictionary</usage>
+    </skill>
+    <skill name="find_replace">
+      <purpose>Find and replace text throughout document</purpose>
+      <usage>Replace all instances of 'old' with 'new'</usage>
+    </skill>
+  </skill_group>
+
+  <skill_group name="Table Operations">
+    <skill name="create_table">
+      <purpose>Add formatted table to document</purpose>
+      <usage>Create table with headers and data</usage>
+    </skill>
+    <skill name="add_table_data">
+      <purpose>Populate table with data</purpose>
+      <usage>Fill table with CSV data</usage>
+    </skill>
+  </skill_group>
+
+  <skill_group name="Advanced Operations">
+    <skill name="merge_documents">
+      <purpose>Combine multiple documents</purpose>
+      <usage>Merge section1.docx, section2.docx, section3.docx</usage>
+    </skill>
+    <skill name="add_page_numbers">
+      <purpose>Add page numbers to document</purpose>
+      <usage>Add page numbers to footer</usage>
+    </skill>
+    <skill name="extract_comments">
+      <purpose>Extract review comments from document</purpose>
+      <usage>Get all comments and their authors</usage>
+    </skill>
+  </skill_group>
+</available_skills>
+
+<best_practices>
+  <do>
+    <item>Backup documents before modification</item>
+    <item>Use with statements for file operations</item>
+    <item>Validate extracted data structure</item>
+    <item>Handle encoding issues properly</item>
+    <item>Test template replacements</item>
+    <item>Preserve original formatting when editing</item>
+  </do>
+  <dont>
+    <item>Modify documents without backup</item>
+    <item>Assume consistent formatting</item>
+    <item>Ignore encoding errors</item>
+    <item>Hardcode document paths</item>
+    <item>Forget to save changes</item>
+  </dont>
+</best_practices>
+
+<rules>
+  <rule priority="high">Always backup before modifying documents</rule>
+  <rule priority="high">Use proper error handling for file operations</rule>
+  <rule priority="medium">Validate document structure before processing</rule>
+  <rule priority="medium">Handle encoding issues for international text</rule>
+  <rule priority="low">Clean up temporary files after processing</rule>
+</rules>
+
+<error_handling>
+  <error>
+    <condition>Document not found</condition>
+    <solution>
+      <step>Verify file path is correct</step>
+      <step>Check file extension is .docx</step>
+      <step>Ensure file exists and is accessible</step>
+    </solution>
+  </error>
+  <error>
+    <condition>Corrupted document</condition>
+    <solution>
+      <step>Try opening in Word to verify</step>
+      <step>Check if file is valid .docx format</step>
+      <step>Use backup if available</step>
+    </solution>
+  </error>
+  <error>
+    <condition>Placeholder not found</condition>
+    <solution>
+      <step>Verify placeholder spelling</step>
+      <step>Check document content manually</step>
+      <step>Use case-insensitive search</step>
+    </solution>
+  </error>
+  <error>
+    <condition>Encoding issues</condition>
+    <solution>
+      <step>Specify encoding explicitly</step>
+      <step>Use utf-8 for international text</step>
+      <step>Handle special characters properly</step>
+    </solution>
+  </error>
+</error_handling>
+
+<integration_notes>
+  <feature>Tracked Changes</feature>
+  <note>Programmatic track changes requires XML manipulation</note>
+  <feature>Comments</feature>
+  <note>Extract comments via XML parsing</note>
+  <feature>Templates</feature>
+  <note>Use {{PLACEHOLDER}} format for template variables</note>
+</integration_notes>
+
+<examples>
+  <example>
+    <scenario>Create Document</scenario>
+    <description>Create a new document with structure</description>
+    <operations>
+      <op>Add title heading</op>
+      <op>Add executive summary section</op>
+      <op>Create bulleted list of findings</op>
+      <op>Save as report.docx</op>
+    </operations>
+  </example>
+  <example>
+    <scenario>Extract Data</scenario>
+    <description>Pull data from existing document</description>
+    <operations>
+      <op>Extract all text content</op>
+      <op>Parse document structure</op>
+      <p>Extract all tables to CSV</op>
+    </operations>
+  </example>
+  <example>
+    <scenario>Fill Template</scenario>
+    <description>Replace placeholders with data</description>
+    <operations>
+      <op>Load template.docx</op>
+      <op>Replace {{NAME}} with 'John Doe'</op>
+      <op>Replace {{DATE}} with current date</op>
+      <op>Save as output.docx</op>
+    </operations>
+  </example>
+</examples>

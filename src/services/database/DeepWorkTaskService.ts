@@ -22,7 +22,7 @@
  */
 
 import { Task } from '@/domains/lifelock/1-daily/2-tasks/components-from-root/TaskCard';
-import { DeepWorkOrchestrator } from '@/domains/tasks/services/orchestrators/DeepWorkOrchestrator';
+import { DeepWorkOrchestrator } from '@/lib/services/tasks/orchestrators/DeepWorkOrchestrator';
 
 /**
  * Deep Work Task Service - Modernized with micro-decomposed architecture.

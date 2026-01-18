@@ -14,7 +14,7 @@ import { addWeeks, subWeeks, startOfWeek, differenceInDays, addDays, format } fr
 import { BarChart3, Target, Briefcase, Heart, Clock, CheckCircle, ChevronLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { AdminLayout } from '@/domains/admin/layout/AdminLayout';
+import { AdminLayout } from '@/components/ui/admin/AdminLayout';
 import { WeeklyTopNav } from './_shared/WeeklyTopNav';
 import { WeeklyBottomNav } from './_shared/WeeklyBottomNav';
 import { WeeklyOverviewSection } from './overview/WeeklyOverviewSection';

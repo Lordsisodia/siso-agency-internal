@@ -1,10 +1,12 @@
 /**
  * Resources Domain
  *
- * Document library, resources, and shared components
+ * Knowledge base, document library, and learning resources
  */
 
-// Components
-export { default as DocumentTable } from './components/DocumentTable';
-export { ParticlesBackground } from './components-from-shared/ParticlesBackground';
-export { default as ProfileContent } from './components-from-shared/ProfileContent';
+// 1-browse: Discover and browse resources
+export { DocumentLibraryPage } from './1-browse/ui/pages/DocumentLibraryPage';
+export { DocumentTable } from './1-browse/ui/components/DocumentTable';
+
+// Types
+export type { Resource, Document, Bookmark, ResourceType } from './_shared/domain/types';

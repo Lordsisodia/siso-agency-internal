@@ -4,18 +4,54 @@ This workspace groups product logic by **domains** (features/verticals). Each do
 
 ## Domain Structure
 
-Each domain follows a consistent structure:
+Domains follow one of two organizational patterns:
+
+### Numbered Flow Pattern
+Used for domains with clear sequential workflows:
 
 ```
 <domain>/
-├── pages/           # Route components (page-level)
-├── components/      # Domain-specific reusable components
-├── hooks/           # Custom React hooks
-├── services/        # Business logic and API calls
-├── types/           # TypeScript definitions
-├── utils/           # Helper functions
-├── index.ts         # Barrel exports
-└── README.md        # Domain documentation
+├── 1-first-step/     # First step in flow
+│   └── ui/
+│       ├── pages/    # Page components
+│       └── components/ # UI components
+├── 2-second-step/    # Second step in flow
+│   └── ui/
+│       ├── pages/    # Page components
+│       └── components/ # UI components
+├── ...
+├── _shared/          # Cross-cutting pieces
+│   ├── ui/
+│   │   └── components/ # Shared UI components
+│   ├── domain/       # Domain logic and types
+│   └── hooks/        # Custom hooks
+├── index.ts          # Barrel exports
+└── README.md         # Domain documentation
+```
+
+### Feature-Based Pattern
+Used for domains with distinct features:
+
+```
+<domain>/
+├── features/
+│   ├── feature-a/    # Feature A
+│   │   ├── ui/
+│   │   │   ├── pages/    # Page components
+│   │   │   └── components/ # UI components
+│   │   ├── domain/       # Business logic
+│   │   └── hooks/        # Custom hooks
+│   ├── feature-b/    # Feature B
+│   │   └── ...
+│   └── ...
+├── _shared/          # Cross-cutting pieces
+│   ├── ui/
+│   │   └── components/ # Shared UI components
+│   ├── domain/       # Shared domain logic
+│   ├── hooks/        # Shared hooks
+│   └── stores/       # State management
+├── index.ts          # Barrel exports
+└── README.md         # Domain documentation
 ```
 
 ## Available Domains
@@ -28,34 +64,39 @@ Each domain follows a consistent structure:
 - Time boxing and daily checkout
 - XP-based gamification system
 
-#### **admin/** - Administrative Dashboard
-- Client management and relationships
-- Partner and industry tracking
-- Financial dashboard and planning
-- AI assistant integration
+#### **admin/** - Administrative Dashboard (Numbered Flow)
+1. Overview - Dashboard and analytics
+2. Clients - Client relationship management
+3. Partners - Partner tracking and management
+4. Financials - Revenue and expenses
+5. Settings - System configuration
 
-#### **tasks/** - Task Management
-- Unified task interface across all work types
-- Task CRUD operations
-- Light work and deep work task management
-- Task filtering, sorting, and validation
+#### **tasks/** - Task Management (Feature-Based)
+- task-management: Core task CRUD and management
+- deep-work: Focused, high-intensity task sessions
+- light-work: Quick, low-intensity task management
+- ai-assistant: AI-powered task planning and optimization
+- calendar: Calendar-based task viewing
+- analytics: Task statistics and insights
 
-#### **projects/** - Project Management
-- Project cards and details
-- Wireframes and user flows
-- Feature request tracking
-- Project analytics
+#### **projects/** - Project Management (Numbered Flow)
+1. Discover - Browse and discover projects
+2. Plan - Create app plans and roadmaps
+3. Build - Execute development and wireframes
+4. Review - Review progress and gather feedback
+5. Archive - Archive completed projects
 
-#### **xp-store/** - Gamification
-- XP tracking and display
-- Storefront and dashboard
-- Achievement system
-- Leaderboards
+#### **xp-store/** - Gamification (Numbered Flow)
+1. Storefront - XP rewards and redemptions
+2. Track - XP tracking and display
+3. Achievements - Achievement system
+4. Leaderboards - Competitive rankings
 
-#### **resources/** - Knowledge Base
-- Document library
-- Learning resources
-- Reference materials
+#### **resources/** - Knowledge Base (Numbered Flow)
+1. Browse - Discover and search resources
+2. Read - Consume and study content
+3. Save - Bookmark and organize resources
+4. Share - Distribute resources to others
 
 #### **home/** - Landing/Home
 - Main landing page
@@ -64,28 +105,39 @@ Each domain follows a consistent structure:
 ## Patterns
 
 ### File Organization
-- **Pages** live in `src/domains/<domain>/pages/` (route components)
-- **Components** are domain-specific and stay in `src/domains/<domain>/components/`
+- **Numbered flow domains**: Use `1-step-name/`, `2-step-name/`, etc. for sequential workflows
+- **Feature-based domains**: Use `features/feature-name/` for distinct features
+- **Shared pieces**: Always in `_shared/` for cross-cutting concerns
+- **UI layers**: Organized under `ui/` subdirectories
+- **Domain logic**: Kept in `domain/` for business logic
 - **Shared UI** lives in `src/components/ui`
 - **Shared services** live in `src/services`
 - **Shared utilities** live in `src/lib`
 
 ### Import Conventions
 ```tsx
-// Import from same domain
-import { MyComponent } from '@/domains/<domain>/components/MyComponent';
+// Import from numbered flow domain
+import { ProjectCard } from '@/domains/projects/1-discover/ui/components/ProjectCard';
+
+// Import from feature-based domain
+import { TaskManager } from '@/domains/tasks/features/task-management/ui/components/TaskManager';
+import { DeepWorkTab } from '@/domains/tasks/features/deep-work/ui/components/DeepWorkTab';
+
+// Import shared pieces from domain
+import { TaskDetailsSheet } from '@/domains/tasks/_shared/ui/components/TaskDetailsSheet';
 
 // Import from different domain
-import { TaskCard } from '@/domains/tasks/components/TaskCard';
+import { ClientCard } from '@/domains/admin/2-clients/ui/components/ClientCard';
 
 // Import shared UI
 import { Button } from '@/components/ui/button';
 ```
 
 ### When Adding a New Page
-1. Create it in `src/domains/<domain>/pages/<Name>.tsx`
-2. Import via alias `@/domains/<domain>/pages/<Name>`
-3. Keep route wrappers thin; heavy logic belongs in domain components/services
+1. For numbered flows: Create in `src/domains/<domain>/N-step-name/ui/pages/<Name>.tsx`
+2. For feature-based: Create in `src/domains/<domain>/features/feature-name/ui/pages/<Name>.tsx`
+3. Import via appropriate path alias
+4. Keep route wrappers thin; heavy logic belongs in domain components/services
 
 ### Testing
 - Tests can be co-located in `src/domains/<domain>/**/__tests__/`

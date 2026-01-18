@@ -1,5 +1,5 @@
 import React, { useMemo, useEffect, useState } from 'react';
-import { AdminLayout } from '@/domains/admin/layout/AdminLayout';
+import { AdminLayout } from '@/components/ui/admin/AdminLayout';
 import { format, addWeeks, subWeeks, getYear, parse, isValid } from 'date-fns';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';

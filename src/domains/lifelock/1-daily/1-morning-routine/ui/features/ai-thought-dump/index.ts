@@ -1,12 +1,12 @@
 /**
  * AI Thought Dump Feature - Public API
- * 
+ *
  * All external code should import from this file only.
  * Internal implementation details are kept private.
  */
 
 // Components
-export { SimpleThoughtDumpPage } from './components/SimpleThoughtDumpPage';
+export { SimpleThoughtDumpPage } from '../../pages/SimpleThoughtDumpPage';
 export { ThoughtDumpResults } from './components/ThoughtDumpResults';
 
 // Services (only expose what's needed externally)

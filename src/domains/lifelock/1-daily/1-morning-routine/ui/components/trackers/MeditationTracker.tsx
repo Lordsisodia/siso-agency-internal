@@ -10,7 +10,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Timer, X, Flame } from 'lucide-react';
-import { MeditationTimer } from './MeditationTimer';
+import { MeditationTimer } from '../MeditationTimer';
 import { cn } from '@/lib/utils';
 
 interface MeditationTrackerProps {

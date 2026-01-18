@@ -1,149 +1,169 @@
-# Skill: GitHub CLI auth + GraphQL usage
+---
+name: github-cli
+category: core-infrastructure/development-tools
+version: 1.0.0
+description: GitHub CLI authentication and GraphQL API usage for safe GitHub operations
+author: obra/superpowers
+verified: true
+tags: [github, cli, authentication, graphql, api, security]
+---
 
-## Trigger (when to use)
-- You need to connect this repo’s automation/agents to GitHub safely (without pasting tokens into docs or chat).
+# Skill: GitHub CLI Auth + GraphQL Usage
+
+<context>
+<trigger>
+Use this skill when:
+- You need to connect this repo's automation/agents to GitHub safely (without pasting tokens into docs or chat)
 - You want reliable GitHub API access (higher rate limits than anonymous), especially for:
-  - searching OSS repos
-  - fetching repo metadata
-  - running GraphQL queries for richer/faster lookups
-- You want a repeatable setup teammates can follow.
+  - Searching OSS repos
+  - Fetching repo metadata
+  - Running GraphQL queries for richer/faster lookups
+- You want a repeatable setup teammates can follow
+</trigger>
 
-## Goal
-Get GitHub CLI (`gh`) authenticated and verified, then use it to call GitHub’s APIs (REST + GraphQL) safely.
+<goal>
+Get GitHub CLI (`gh`) authenticated and verified, then use it to call GitHub's APIs (REST + GraphQL) safely.
+</goal>
 
-## Key idea (security + ergonomics)
+<key_idea>
 Prefer `gh auth login` over manually managing PATs:
-- `gh` stores credentials in your OS keychain (or `gh`’s credential store) instead of committing anything.
-- scripts can call `gh api ...` without exporting tokens to shell history.
+- `gh` stores credentials in your OS keychain (or `gh`'s credential store) instead of committing anything
+- Scripts can call `gh api ...` without exporting tokens to shell history
+</key_idea>
 
-## Recommended auth method (in order)
-1) **GitHub CLI (`gh auth login`)** for local agentic runs (best default).
-2) **GitHub App** (best for team/server automation): short‑lived tokens, fine‑grained permissions, easy rotation.
-3) **Fine‑grained PAT** if you *must* use a PAT (prefer over “classic”).
-4) **Classic PAT** only as a last resort (broad scopes; easier to over‑grant).
+<recommended_auth_method>
+In order of preference:
+1. **GitHub CLI (`gh auth login`)** for local agentic runs (best default)
+2. **GitHub App** (best for team/server automation): short-lived tokens, fine-grained permissions, easy rotation
+3. **Fine-grained PAT** if you *must* use a PAT (prefer over "classic")
+4. **Classic PAT** only as a last resort (broad scopes; easier to over-grant)
+</recommended_auth_method>
 
-## Inputs to collect
-- Host:
-  - GitHub.com (default), or GitHub Enterprise Server (GHES) host (e.g. `github.company.com`)
-- Access needs:
+<inputs_to_collect>
+- **Host:** GitHub.com (default), or GitHub Enterprise Server (GHES) host (e.g. `github.company.com`)
+- **Access needs:**
   - Public repos only, or private repos too?
   - Do you need org data (teams/repos in an org)?
-- Environment:
+- **Environment:**
   - macOS (Homebrew), Linux (apt/yum), Windows (winget/choco)
+</inputs_to_collect>
 
-## Artifacts (what you should produce)
-- A verified `gh` authentication state (`gh auth status` output shows “Logged in”).
-- Optional: a small “smoke test” GraphQL query that returns your `viewer.login`.
+<artifacts>
+- A verified `gh` authentication state (`gh auth status` output shows "Logged in")
+- Optional: a small "smoke test" GraphQL query that returns your `viewer.login`
+</artifacts>
+</context>
 
-## Step-by-step setup
+<instructions>
+<workflow>
+<phase name="Installation">
+<step>Install GitHub CLI (`gh`)</step>
 
-### 1) Install GitHub CLI (`gh`)
-
-#### macOS (Homebrew)
-```bash
+<commands>
+# macOS (Homebrew)
 brew install gh
 gh --version
-```
 
-#### Linux (common)
-If you already have `gh` installed:
-```bash
+# Linux (common)
+# If you already have gh installed:
 gh --version
-```
 
-If not, install using your distro’s package manager or follow GitHub CLI install instructions for your distro.
+# If not, install using your distro's package manager
+# or follow GitHub CLI install instructions for your distro
 
-#### Windows
-Use one of:
-- winget
-- Chocolatey
+# Windows
+# Use winget or Chocolatey, then confirm:
+gh --version
+</commands>
+</phase>
 
-(Then confirm with `gh --version`.)
+<phase name="Authentication">
+<step>Authenticate with GitHub</step>
 
-### 2) Authenticate with GitHub
-
-#### GitHub.com (most common)
-Run:
-```bash
+<variant name="GitHub.com (most common)">
+<commands>
 gh auth login
-```
-
-Recommended answers:
+</commands>
+<recommended_answers>
 - **What account do you want to log into?** GitHub.com
-- **What is your preferred protocol for Git operations?** HTTPS (recommended for most users) or SSH (if you already use SSH keys)
+- **What is your preferred protocol for Git operations?** HTTPS (recommended) or SSH (if you already use SSH keys)
 - **Authenticate Git with your GitHub credentials?** Yes
-- **How would you like to authenticate?** “Login with a web browser” (device flow) is easiest + safest
+- **How would you like to authenticate?** "Login with a web browser" (device flow) is easiest + safest
+</recommended_answers>
+</variant>
 
-#### GitHub Enterprise Server (GHES)
-```bash
+<variant name="GitHub Enterprise Server (GHES)">
+<commands>
 gh auth login --hostname github.company.com
-```
+</commands>
+</variant>
 
-#### If you already have a PAT (classic or fine‑grained)
-Prefer `gh auth login` (web/device flow). If you must use a token, you can attach it to `gh` without ever committing it into the repo.
-
-Safe-ish patterns that avoid putting a token directly in your command history:
-
-- macOS (token copied to clipboard):
-```bash
+<variant name="Existing PAT">
+<commands>
+# macOS (token copied to clipboard)
 pbpaste | gh auth login --with-token
-```
 
-- Linux (varies by distro/desktop; example with xclip):
-```bash
+# Linux (example with xclip)
 xclip -selection clipboard -o | gh auth login --with-token
-```
+</commands>
+<notes>
+- `gh auth login --with-token` reads the token from stdin
+- For OSS discovery + GraphQL reads, you usually don't need extra scopes beyond defaults unless you hit a specific "resource not accessible" error
+</notes>
+</variant>
+</phase>
 
-Notes:
-- `gh auth login --with-token` reads the token from stdin.
-- For our use case (OSS discovery + GraphQL reads), you usually don’t need extra scopes beyond defaults unless you hit a specific “resource not accessible” error.
-
-### 3) Verify you’re authenticated
-```bash
+<phase name="Verification">
+<step>Verify you're authenticated</step>
+<commands>
 gh auth status
-```
+</commands>
+<expected_output>
+- You are logged in
+- The hostname (github.com or your GHES host)
+</expected_output>
+</phase>
 
-You should see:
-- you are logged in
-- the hostname (github.com or your GHES host)
-
-### 4) (Optional) Ensure `gh` has the right scopes
-
-Important: **GraphQL doesn’t require a special “GraphQL scope”.**  
+<phase name="Scopes (Optional)">
+<step>Ensure `gh` has the right scopes</step>
+<important>
+**GraphQL doesn't require a special "GraphQL scope".**
 GraphQL uses the *same token permissions* as REST. If your token can read a resource via REST, it can usually read it via GraphQL too.
+</important>
 
-Typical needs:
+<typical_needs>
 - Public-only discovery: usually fine by default
 - Org metadata: may require `read:org`
 - Private repos: may require `repo`
+</typical_needs>
 
-For our OSS discovery loops (public GitHub), the “happy path” is:
-- authenticate with `gh auth login`
-- avoid adding scopes unless you hit a concrete “resource not accessible” error
-
-To refresh auth / request additional scopes:
-```bash
+<commands>
+# Refresh auth / request additional scopes
 gh auth refresh --scopes "read:org"
-```
+</commands>
+<notes>
+Adjust scopes based on your needs. Keep them minimal.
+</notes>
+</phase>
+</workflow>
 
-(Adjust scopes based on your needs. Keep them minimal.)
-
-## Using `gh` for GraphQL (what you need to know)
-
-### 1) Quick smoke test: “Who am I?”
-```bash
+<graphql_usage>
+<phase name="Smoke Test">
+<step>Quick test: "Who am I?"</step>
+<commands>
 gh api graphql -f query='query { viewer { login } }'
-```
-
-Expected output includes your GitHub username:
+</commands>
+<expected_output>
 ```json
 { "data": { "viewer": { "login": "your-handle" } } }
 ```
+</expected_output>
+</phase>
 
-### 2) Query variables (recommended pattern)
-GraphQL is easiest when you pass variables explicitly.
-
-Example: fetch basic repo metadata:
+<phase name="Query Variables">
+<step>Use variables (recommended pattern)</step>
+<example>
+Fetch basic repo metadata:
 ```bash
 gh api graphql \
   -f query='
@@ -159,10 +179,14 @@ gh api graphql \
   -f owner='illacloud' \
   -f name='illa-builder'
 ```
+</example>
+</phase>
 
-### 3) Put queries in a file (best for larger queries)
-Create `query.graphql`:
-```graphql
+<phase name="Query Files">
+<step>Put queries in a file (best for larger queries)</step>
+<commands>
+# Create query.graphql
+cat > query.graphql <<'EOF'
 query($login:String!) {
   user(login: $login) {
     repositories(first: 5, orderBy: {field: UPDATED_AT, direction: DESC}) {
@@ -174,22 +198,26 @@ query($login:String!) {
     }
   }
 }
-```
+EOF
 
-Then run:
-```bash
+# Run it
 gh api graphql -f query=@query.graphql -f login='your-handle'
-```
+</commands>
+</phase>
 
-### 4) Rate limits (why GraphQL helps)
+<phase name="Rate Limits">
+<step>Understanding rate limits</step>
+<notes>
 GraphQL can be more efficient than REST because you can fetch multiple fields in one request.
-Even with `gh` auth, rate limits still exist — but you’ll generally get much higher limits than anonymous calls.
+Even with `gh` auth, rate limits still exist — but you'll generally get much higher limits than anonymous calls.
+</notes>
+</phase>
 
-### 5) Repository search via GraphQL (high-signal OSS discovery)
-GitHub’s GraphQL API supports repo search via the `search` field (same query syntax as GitHub’s UI search bar).
-
-Example `repo-search.graphql`:
-```graphql
+<phase name="Repository Search">
+<step>High-signal OSS discovery via search</step>
+<commands>
+# Create repo-search.graphql
+cat > repo-search.graphql <<'EOF'
 query($q: String!, $first: Int!, $endCursor: String) {
   search(type: REPOSITORY, query: $q, first: $first, after: $endCursor) {
     repositoryCount
@@ -208,102 +236,110 @@ query($q: String!, $first: Int!, $endCursor: String) {
     }
   }
 }
-```
+EOF
 
-Run a single page (50 results):
-```bash
+# Run a single page (50 results)
 gh api graphql \
   -f query=@repo-search.graphql \
   -f q='topic:shopify-hydrogen stars:>50 archived:false' \
   -F first=50
-```
 
-Paginate (pass the previous `endCursor` as `$endCursor`):
-```bash
+# Paginate (pass the previous endCursor)
 gh api graphql \
   -f query=@repo-search.graphql \
   -f q='topic:headless-commerce stars:>100 archived:false' \
   -F first=50 \
   -f endCursor='CURSOR_FROM_PREVIOUS_RESPONSE'
-```
+</commands>
+</phase>
 
-### 6) Pagination with `gh api graphql --paginate` (no manual cursor copy/paste)
-If you want a single command that walks the cursor for you, use `--paginate`.
-
-Key requirement: your query must accept `$endCursor` and return `pageInfo { hasNextPage endCursor }` from the collection you’re paging.
-
-Example: paginate a repo search (returns multiple JSON pages; use `--slurp` if you want one outer array):
-```bash
+<phase name="Auto-pagination">
+<step>Use `--paginate` for automatic cursor handling</step>
+<commands>
 gh api graphql --paginate --slurp \
   -f query=@repo-search.graphql \
   -f q='topic:ecommerce stars:>200 archived:false' \
   -F first=50 \
   -F endCursor=null
-```
+</commands>
+<requirements>
+Your query must accept `$endCursor` and return `pageInfo { hasNextPage endCursor }` from the collection you're paging.
+</requirements>
+</phase>
+</graphql_usage>
 
-## How this connects to our OSS discovery workflow
-
+<integration_notes>
+<oss_discovery_workflow>
 Preferred local auth path:
 - Login once: `gh auth login`
 - Run discovery: `./.blackbox/scripts/start-oss-discovery-cycle.sh`
 
 Token fallback path (use only if needed):
-- set `GITHUB_TOKEN` in your shell (from `gh`, without printing it)
-
-Safe pattern (does **not** print the token):
-```bash
+<commands>
+# Set GITHUB_TOKEN in your shell (from gh, without printing it)
 export GITHUB_TOKEN="$(gh auth token)"
-```
 
-Then run your scripts (example):
-```bash
+# Run your scripts
 ./.blackbox/scripts/start-oss-discovery-and-curate.sh --owner "Shaan" --top 25 -- --min-stars 100
-```
 
-Optional cleanup:
-```bash
+# Optional cleanup
 unset GITHUB_TOKEN
-```
+</commands>
+</oss_discovery_workflow>
+</integration_notes>
 
-Important:
-- Never paste tokens into chat or commit them into files.
-- Prefer `gh` for local “agentic” runs because it keeps auth out of the repo.
+<rules>
+<security_rules>
+- Never paste tokens into chat or commit them into files
+- Prefer `gh` for local "agentic" runs because it keeps auth out of the repo
+- Don't run `gh auth token` in shared terminals/screenshares
+- Don't paste token strings into docs/chat
+</security_rules>
 
+<incident_response>
 If you accidentally pasted a token somewhere public:
-- **Revoke it immediately** in GitHub Settings → Developer settings → Personal access tokens.
-- Assume it is compromised once exposed.
+1. **Revoke it immediately** in GitHub Settings → Developer settings → Personal access tokens
+2. Assume it is compromised once exposed
+</incident_response>
+</rules>
 
-## Troubleshooting
-
-### “Not logged in”
+<troubleshooting>
+<issue condition="Not logged in">
+<solution>
 ```bash
 gh auth status
 gh auth login
 ```
+</solution>
+</issue>
 
-### “Insufficient scopes / resource not accessible”
-- Add scopes (minimally) and retry:
+<issue condition="Insufficient scopes / resource not accessible">
+<solution>
+Add scopes (minimally) and retry:
 ```bash
 gh auth refresh --scopes "read:org"
 ```
+</solution>
+</issue>
 
-### Multiple accounts / hosts confusion
+<issue condition="Multiple accounts / hosts confusion">
+<solution>
 List auth contexts:
 ```bash
 gh auth status
 ```
-
 Switch host:
 ```bash
 gh auth login --hostname github.company.com
 ```
+</solution>
+</issue>
+</troubleshooting>
 
-### Avoid leaking secrets
-- Don’t run `gh auth token` in shared terminals/screenshares.
-- Don’t paste token strings into docs/chat.
-
-## Done checklist
+<done_checklist>
 - [ ] `gh --version` works
-- [ ] `gh auth status` shows “Logged in”
+- [ ] `gh auth status` shows "Logged in"
 - [ ] `gh api graphql -f query='query { viewer { login } }'` returns your login
 - [ ] You can run the OSS discovery scripts without hitting immediate rate limits
+</done_checklist>
+</instructions>

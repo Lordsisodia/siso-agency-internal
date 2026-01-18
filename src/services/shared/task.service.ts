@@ -319,4 +319,4 @@ export const hybridTaskService = new HybridTaskService();
 export const enhancedTimeBlockService = new EnhancedTimeBlockService();
 
 // Re-export from workTypeApiClient for compatibility
-export { personalTaskService } from '@/domains/tasks/services/workTypeApiClient';
+export { personalTaskService } from '@/lib/services/tasks/workTypeApiClient';

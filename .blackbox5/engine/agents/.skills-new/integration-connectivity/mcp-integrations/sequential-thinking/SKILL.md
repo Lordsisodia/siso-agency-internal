@@ -1,618 +1,335 @@
+---
+name: sequential-thinking
+category: integration-connectivity/mcp-integrations
+version: 1.0.0
+description: Complete guide to using Sequential Thinking MCP server with Claude Code
+author: blackbox5/mcp
+verified: true
+tags: [mcp, sequential-thinking, reasoning, problem-solving]
+---
+
 # Sequential Thinking MCP Server Skills
 
-Complete guide to using Sequential Thinking MCP server with Claude Code.
-
-## Overview
-
-The Sequential Thinking MCP server enhances Claude's reasoning capabilities by breaking down complex problems into step-by-step logical processes.
+<context>
+Complete guide to using Sequential Thinking MCP server with Claude Code. The Sequential Thinking MCP server enhances Claude's reasoning capabilities by breaking down complex problems into step-by-step logical processes.
 
 **Package:** `@modelcontextprotocol/server-sequential-thinking`
 **Purpose:** Enhanced reasoning and problem decomposition
 
----
-
-## What is Sequential Thinking?
-
-Sequential Thinking is a reasoning framework that:
-
-- **Breaks down complex problems** into manageable steps
-- **Makes reasoning explicit** and traceable
-- **Reduces errors** through systematic analysis
-- **Improves decision-making** through structured thought
-- **Enhances problem-solving** with methodical approaches
-
----
-
-## Available Skills
-
-### Problem Decomposition
-
-#### `sequential_thinking_break_down`
-Break a complex problem into smaller steps.
-
-**Usage:**
-```
-Break down the authentication flow
-Decompose the payment processing problem
-```
-
-**Parameters:**
-- `problem`: Complex problem to solve
-- `context`: Relevant context and constraints
-
-**Returns:**
-- Step-by-step breakdown
-- Dependencies between steps
-- Estimated complexity
-- Potential risks
-
----
-
-### Logical Reasoning
-
-#### `sequential_thinking_reason`
-Apply logical reasoning to reach conclusions.
-
-**Usage:**
-```
-Reason through this bug
-Analyze why the test is failing
-Determine the root cause
-```
-
-**Parameters:**
-- `premise`: Starting facts or observations
-- `question`: What to reason about
-- `constraints`: Known constraints
-
-**Returns:**
-- Logical steps
-- Intermediate conclusions
-- Final conclusion
-- Confidence level
-
----
-
-### Chain of Thought
-
-#### `sequential_thinking_chain`
-Create a chain of thought for a problem.
-
-**Usage:**
-```
-Think through this feature request
-Analyze the user flow step by step
-```
-
-**Parameters:**
-- `input`: Initial problem or question
-- `depth`: How deep to explore (default: thorough)
-
-**Returns:**
-- Step-by-step reasoning
-- Alternatives considered
-- Trade-offs analyzed
-- Recommended approach
-
----
-
-### Decision Making
-
-#### `sequential_thinking_decide`
-Make a decision by analyzing options.
-
-**Usage:**
-```
-Decide between React and Vue
-Choose the best approach for this feature
-Select the right database schema
-```
-
-**Parameters:**
-- `options`: Array of options to consider
-- `criteria`: Evaluation criteria
-- `weights`: Importance of each criteria (optional)
-
-**Returns:**
-- Ranked options
-- Pros and cons of each
-- Recommendation with reasoning
-- Risk assessment
-
----
-
-### Cause Analysis
-
-#### `sequential_thinking_analyze_cause`
-Analyze root causes of a problem.
-
-**Usage:**
-```
-Find root cause of this bug
-Analyze why performance is slow
-Determine why tests are failing
-```
-
-**Parameters:**
-- `problem`: Description of the problem
-- `symptoms`: Observable symptoms
-- `context`: System context
-
-**Returns:**
-- Possible causes
-- Most likely root cause
-- Investigation steps
-- Verification method
-
----
-
-### Solution Design
-
-#### `sequential_thinking_design_solution`
-Design a solution step by step.
-
-**Usage:**
-```
-Design a solution for user authentication
-Plan the refactoring approach
-```
-
-**Parameters:**
-- `requirements`: What the solution must achieve
-- `constraints`: Technical or business constraints
-- `considerations`: Additional factors to consider
-
-**Returns:**
-- Solution architecture
-- Implementation steps
-- Risks and mitigations
-- Testing strategy
-
----
-
-### Algorithm Design
-
-#### `sequential_thinking_design_algorithm`
-Design or analyze an algorithm.
-
-**Usage:**
-```
-Design a sorting algorithm
-Analyze the complexity of this algorithm
-Optimize the search function
-```
-
-**Parameters:**
-- `problem`: Algorithmic problem to solve
-- `requirements`: Performance or functional requirements
-- `constraints`: Space or time constraints
-
-**Returns:**
-- Algorithm steps
-- Time complexity
-- Space complexity
-- Optimization opportunities
-
----
-
-### Code Review
-
-#### `sequential_thinking_review_code`
-Review code with systematic analysis.
-
-**Usage:**
-```
-Review this function for bugs
-Analyze this component for issues
-```
-
-**Parameters:**
-- `code`: Code to review
-- `focus`: Specific focus area (security, performance, bugs)
-
-**Returns:**
-- Issues found
-- Severity levels
-- Fix suggestions
-- Best practice violations
-
----
-
-### Debugging
-
-#### `sequential_thinking_debug`
-Debug issues systematically.
-
-**Usage:**
-```
-Debug this error step by step
-Find the bug in this function
-```
-
-**Parameters:**
-- `error`: Error message or unexpected behavior
-- `code`: Relevant code
-- `context`: Runtime context
-
-**Returns:**
-- Possible causes
-- Investigation steps
-- Likely fix
-- Prevention strategies
-
----
-
-### Risk Assessment
-
-#### `sequential_thinking_assess_risk`
-Assess risks in a plan or approach.
-
-**Usage:**
-```
-Assess risks in this deployment
-Analyze security risks
-```
-
-**Parameters:**
-- `plan`: Plan or approach to assess
-- `context`: System or business context
-
-**Returns:**
-- Identified risks
-- Likelihood and impact
-- Mitigation strategies
-- Acceptance criteria
-
----
-
-## Common Workflows
-
-### 1. Problem Solving
-```
-Identify the problem
-Break it down
-Analyze each component
-Design solution
-Implement and test
-```
-
-### 2. Code Debugging
-```
-Observe symptoms
-Gather evidence
-Form hypotheses
-Test hypotheses
-Find root cause
-Fix and verify
-```
-
-### 3. Architecture Design
-```
-Understand requirements
-Identify constraints
-Explore options
-Evaluate trade-offs
-Design solution
-Review and refine
-```
-
-### 4. Algorithm Development
-```
-Define problem
-Consider approaches
-Select algorithm
-Analyze complexity
-Optimize
-Test thoroughly
-```
-
----
-
-## Integration with Lumelle
-
-### Feature Development
-```
-Break down partner feature
-Design component structure
-Plan state management
-Design API integration
-```
-
-### Bug Fixing
-```
-Analyze bug symptoms
-Trace through code flow
-Identify root cause
-Design fix
-Verify solution
-```
-
-### Code Review
-```
-Review pull request systematically
-Check for bugs
-Assess performance
-Evaluate security
-Suggest improvements
-```
-
----
-
-## Tips
-
-1. **Be explicit** - State assumptions clearly
-2. **Show work** - Make reasoning visible
-3. **Consider alternatives** - Don't settle on first solution
-4. **Validate** - Test your reasoning
-5. **Iterate** - Refine your thinking
-
----
-
-## Best Practices
-
-✅ **DO:**
-- Break complex problems into steps
-- Make reasoning explicit
-- Consider multiple approaches
-- Validate assumptions
-- Document thought process
-- Learn from mistakes
-
-❌ **DON'T:**
-- Jump to conclusions
-- Skip steps
-- Ignore alternatives
-- Overlook edge cases
-- Forget to verify
-- Make unwarranted assumptions
-
----
-
-## Reasoning Patterns
-
-### Deductive Reasoning
-```
-Start with general rules
-Apply to specific case
-Reach conclusion
-```
-
-### Inductive Reasoning
-```
-Observe specific cases
-Identify patterns
-Form general rule
-```
-
-### Abductive Reasoning
-```
-Observe outcome
-Generate hypotheses
-Select most likely explanation
-```
-
-### Design Thinking
-```
-Empathize with user
-Define problem
-Ideate solutions
-Prototype
-Test
-Iterate
-```
-
----
-
-## Troubleshooting
-
-**Reasoning seems off:**
-- State assumptions clearly
-- Verify each step
-- Check for logical fallacies
-- Consider alternative perspectives
-
-**Stuck on problem:**
-- Break it down further
-- Try different approach
-- Gather more information
-- Take a step back
-
-**Too many options:**
-- Define evaluation criteria
-- Rank by importance
-- Eliminate clearly bad options
-- Compare remaining options
-
----
-
-## Example Usage
-
-### Debugging with Sequential Thinking
-```
-User: Why is my auth not working?
-
-Claude: [Uses sequential_thinking_analyze_cause]
-Let me think through this systematically:
-
-Step 1: Analyze symptoms
-- Auth tokens not being accepted
-- 401 errors on API calls
-- Tokens appear valid
-
-Step 2: Consider possible causes
-- Token expired? No, tokens are fresh
-- Wrong secret? Possible, verify keys
-- Token format? Check structure
-- API endpoint? Verify URL
-
-Step 3: Test hypotheses
-- Check token decoding: ✓ Valid
-- Verify secret key: ✗ Mismatch found
-- Test with correct key: ✓ Works
-
-Conclusion: Secret key mismatch in environment config
-Fix: Update SUPABASE_ANON_KEY in .env
-```
-
-### Algorithm Design
-```
-User: Design a function to find duplicates
-
-Claude: [Uses sequential_thinking_design_algorithm]
-Let me design this step by step:
-
-Step 1: Understand requirements
-- Input: Array of items
-- Output: Array of duplicates
-- Constraints: O(n) time preferred
-
-Step 2: Consider approaches
-- Nested loops: O(n²) time
-- Sorting: O(n log n) time
-- Hash set: O(n) time, O(n) space
-- Bit manipulation: O(n) time, O(1) space
-
-Step 3: Select best approach
-- Use hash set for O(n) time
-- Trade memory for speed
-- Most straightforward
-
-Step 4: Design algorithm
-function findDuplicates(nums) {
-  const seen = new Set()
-  const duplicates = new Set()
-
-  for (const num of nums) {
-    if (seen.has(num)) {
-      duplicates.add(num)
-    } else {
-      seen.add(num)
-    }
-  }
-
-  return Array.from(duplicates)
-}
-
-Step 5: Analyze complexity
-- Time: O(n) single pass
-- Space: O(n) for sets
-- Optimal for unsorted input
-```
-
-### Decision Making
-```
-User: Should we use TypeScript or JavaScript?
-
-Claude: [Uses sequential_thinking_decide]
-Let me evaluate this decision:
-
-Criteria (weights: importance):
-- Type safety: 9 (critical)
-- Team experience: 7 (important)
-- Development speed: 6 (nice to have)
-- Ecosystem support: 8 (very important)
-
-Options:
-1. TypeScript
-   - Type safety: ✓ Excellent
-   - Team experience: ⚠️ Moderate (learning curve)
-   - Development speed: ✗ Slower initially
-   - Ecosystem: ✓ Excellent
-   Score: 8.5/10
-
-2. JavaScript
-   - Type safety: ✗ Requires extra tools
-   - Team experience: ✓ Excellent
-   - Development speed: ✓ Faster initially
-   - Ecosystem: ✓ Excellent
-   Score: 6.5/10
-
-Recommendation: TypeScript
-Reasoning:
-- Type safety is critical for large codebase
-- Learning curve is temporary benefit
-- Better long-term maintainability
-- Strong industry trend
-
-Risks:
-- Team adaptation period
-- Initial slower development
-- Need for strict mode enforcement
-
-Mitigation:
-- Provide TypeScript training
-- Use JSDoc migration path
-- Start with non-strict mode
-```
-
----
-
-## Advanced Features
-
-### Multi-Step Reasoning
-```
-Chain multiple reasoning steps
-Build on previous conclusions
-Refine thinking iteratively
-```
-
-### Probabilistic Reasoning
-```
-Assess likelihood of outcomes
-Calculate probabilities
-Make decisions under uncertainty
-```
-
-### Constraint Satisfaction
-```
-Identify all constraints
-Find solutions that satisfy all
-Optimize within constraints
-```
-
----
-
-## When to Use Sequential Thinking
-
-**Use Sequential Thinking for:**
-- Complex problem solving
-- Architecture decisions
-- Algorithm design
-- Root cause analysis
-- Code review
-- Debugging complex issues
-- Risk assessment
-- Trade-off analysis
-
-**Quick tasks may not need it:**
-- Simple file operations
-- Straightforward code changes
-- Information lookup
-- Basic questions
-
----
-
-## Comparison: With vs Without Sequential Thinking
-
-### Without Sequential Thinking
-```
-User: Fix the login bug
-Claude: I'll update the auth function. [Makes changes]
-Result: May miss edge cases, incomplete fix
-```
-
-### With Sequential Thinking
-```
-User: Fix the login bug
-Claude: Let me analyze this systematically:
-1. Identify symptoms
-2. Trace through code flow
-3. Find root cause
-4. Design comprehensive fix
-5. Verify all edge cases
-Result: Thorough, reliable fix
-```
-
----
-
-**Need Help?** Just ask Claude: "Think through this problem step by step..."
+Sequential Thinking is a reasoning framework that breaks down complex problems into manageable steps, makes reasoning explicit and traceable, reduces errors through systematic analysis, improves decision-making through structured thought, and enhances problem-solving with methodical approaches.
+</context>
+
+<instructions>
+When facing complex problems, architecture decisions, algorithm design, or debugging challenges, use Sequential Thinking to break down the problem systematically.
+
+For simple tasks (file operations, basic lookups), Sequential Thinking is not needed. Use it for complex problem solving, root cause analysis, code review, and trade-off analysis.
+</instructions>
+
+<workflow>
+  <phase name="Problem Understanding">
+    <goal>Clearly define the problem to solve</goal>
+    <steps>
+      <step>State the problem clearly and explicitly</step>
+      <step>Identify constraints and requirements</step>
+      <step>Gather relevant context and information</step>
+      <step>State any assumptions</step>
+    </steps>
+  </phase>
+
+  <phase name="Problem Decomposition">
+    <goal>Break down complex problem into manageable parts</goal>
+    <steps>
+      <step>Use `sequential_thinking_break_down` to decompose problem</step>
+      <step>Identify dependencies between steps</step>
+      <step>Estimate complexity of each component</step>
+      <step>Identify potential risks</step>
+    </steps>
+  </phase>
+
+  <phase name="Analysis & Reasoning">
+    <goal>Apply logical reasoning to reach conclusions</goal>
+    <steps>
+      <step>Use `sequential_thinking_reason` for logical analysis</step>
+      <step>Use `sequential_thinking_chain` for step-by-step thinking</step>
+      <step>Consider multiple approaches</step>
+      <step>Evaluate trade-offs</step>
+    </steps>
+  </phase>
+
+  <phase name="Solution Design">
+    <goal>Design and validate solution approach</goal>
+    <steps>
+      <step>Use `sequential_thinking_design_solution` to plan approach</step>
+      <step>Use `sequential_thinking_decide` to evaluate options</step>
+      <step>Use `sequential_thinking_assess_risk` to identify risks</step>
+      <step>Validate reasoning and assumptions</step>
+    </steps>
+  </phase>
+
+  <phase name="Verification">
+    <goal>Verify solution is correct and complete</goal>
+    <steps>
+      <step>Test reasoning with edge cases</step>
+      <step>Review for logical fallacies</step>
+      <step>Consider alternative perspectives</step>
+      <step>Document conclusion and rationale</step>
+    </steps>
+  </phase>
+</workflow>
+
+<available_skills>
+  <skill_group name="Problem Decomposition">
+    <skill name="sequential_thinking_break_down">
+      <purpose>Break a complex problem into smaller steps</purpose>
+      <usage>Break down the authentication flow</usage>
+      <parameters>
+        <param name="problem">Complex problem to solve</param>
+        <param name="context">Relevant context and constraints</param>
+      </parameters>
+      <returns>Step-by-step breakdown, dependencies between steps, estimated complexity, potential risks</returns>
+    </skill>
+  </skill_group>
+
+  <skill_group name="Logical Reasoning">
+    <skill name="sequential_thinking_reason">
+      <purpose>Apply logical reasoning to reach conclusions</purpose>
+      <usage>Reason through this bug</usage>
+      <parameters>
+        <param name="premise">Starting facts or observations</param>
+        <param name="question">What to reason about</param>
+        <param name="constraints">Known constraints</param>
+      </parameters>
+      <returns>Logical steps, intermediate conclusions, final conclusion, confidence level</returns>
+    </skill>
+    <skill name="sequential_thinking_chain">
+      <purpose>Create a chain of thought for a problem</purpose>
+      <usage>Think through this feature request</usage>
+      <parameters>
+        <param name="input">Initial problem or question</param>
+        <param name="depth">How deep to explore (default: thorough)</param>
+      </parameters>
+      <returns>Step-by-step reasoning, alternatives considered, trade-offs analyzed, recommended approach</returns>
+    </skill>
+  </skill_group>
+
+  <skill_group name="Decision Making">
+    <skill name="sequential_thinking_decide">
+      <purpose>Make a decision by analyzing options</purpose>
+      <usage>Decide between React and Vue</usage>
+      <parameters>
+        <param name="options">Array of options to consider</param>
+        <param name="criteria">Evaluation criteria</param>
+        <param name="weights">Importance of each criteria (optional)</param>
+      </parameters>
+      <returns>Ranked options, pros and cons of each, recommendation with reasoning, risk assessment</returns>
+    </skill>
+  </skill_group>
+
+  <skill_group name="Analysis">
+    <skill name="sequential_thinking_analyze_cause">
+      <purpose>Analyze root causes of a problem</purpose>
+      <usage>Find root cause of this bug</usage>
+      <parameters>
+        <param name="problem">Description of the problem</param>
+        <param name="symptoms">Observable symptoms</param>
+        <param name="context">System context</param>
+      </parameters>
+      <returns>Possible causes, most likely root cause, investigation steps, verification method</returns>
+    </skill>
+    <skill name="sequential_thinking_assess_risk">
+      <purpose>Assess risks in a plan or approach</purpose>
+      <usage>Assess risks in this deployment</usage>
+      <parameters>
+        <param name="plan">Plan or approach to assess</param>
+        <param name="context">System or business context</param>
+      </parameters>
+      <returns>Identified risks, likelihood and impact, mitigation strategies, acceptance criteria</returns>
+    </skill>
+  </skill_group>
+
+  <skill_group name="Solution Design">
+    <skill name="sequential_thinking_design_solution">
+      <purpose>Design a solution step by step</purpose>
+      <usage>Design a solution for user authentication</usage>
+      <parameters>
+        <param name="requirements">What the solution must achieve</param>
+        <param name="constraints">Technical or business constraints</param>
+        <param name="considerations">Additional factors to consider</param>
+      </parameters>
+      <returns>Solution architecture, implementation steps, risks and mitigations, testing strategy</returns>
+    </skill>
+    <skill name="sequential_thinking_design_algorithm">
+      <purpose>Design or analyze an algorithm</purpose>
+      <usage>Design a sorting algorithm</usage>
+      <parameters>
+        <param name="problem">Algorithmic problem to solve</param>
+        <param name="requirements">Performance or functional requirements</param>
+        <param name="constraints">Space or time constraints</param>
+      </parameters>
+      <returns>Algorithm steps, time complexity, space complexity, optimization opportunities</returns>
+    </skill>
+  </skill_group>
+
+  <skill_group name="Code Analysis">
+    <skill name="sequential_thinking_review_code">
+      <purpose>Review code with systematic analysis</purpose>
+      <usage>Review this function for bugs</usage>
+      <parameters>
+        <param name="code">Code to review</param>
+        <param name="focus">Specific focus area (security, performance, bugs)</param>
+      </parameters>
+      <returns>Issues found, severity levels, fix suggestions, best practice violations</returns>
+    </skill>
+    <skill name="sequential_thinking_debug">
+      <purpose>Debug issues systematically</purpose>
+      <usage>Debug this error step by step</usage>
+      <parameters>
+        <param name="error">Error message or unexpected behavior</param>
+        <param name="code">Relevant code</param>
+        <param name="context">Runtime context</param>
+      </parameters>
+      <returns>Possible causes, investigation steps, likely fix, prevention strategies</returns>
+    </skill>
+  </skill_group>
+</available_skills>
+
+<rules>
+  <rule>
+    <condition>When using Sequential Thinking</condition>
+    <action>Be explicit about assumptions and show reasoning steps</action>
+  </rule>
+  <rule>
+    <condition>For complex problems</condition>
+    <action>Break down into smaller, manageable components</action>
+  </rule>
+  <rule>
+    <condition>When making decisions</condition>
+    <action>Consider multiple alternatives and evaluate trade-offs</action>
+  </rule>
+  <rule>
+    <condition>After reaching conclusion</condition>
+    <action>Validate reasoning and check for logical fallacies</action>
+  </rule>
+</rules>
+
+<best_practices>
+  <practice category="Reasoning">
+    <do>Break complex problems into steps</do>
+    <do>Make reasoning explicit</do>
+    <do>Consider multiple approaches</do>
+    <do>Validate assumptions</do>
+    <do>Document thought process</do>
+    <do>Learn from mistakes</do>
+    <dont>Jump to conclusions</dont>
+    <dont>Skip steps</dont>
+    <dont>Ignore alternatives</dont>
+    <dont>Overlook edge cases</dont>
+    <dont>Forget to verify</dont>
+    <dont>Make unwarranted assumptions</dont>
+  </practice>
+  <practice category="Usage">
+    <do>Use for complex problem solving</do>
+    <do>Use for architecture decisions</do>
+    <do>Use for algorithm design</do>
+    <do>Use for root cause analysis</do>
+    <do>Use for code review</do>
+    <dont>Use for simple file operations</dont>
+    <dont>Use for straightforward code changes</dont>
+    <dont>Use for information lookup</dont>
+    <dont>Use for basic questions</dont>
+  </practice>
+</best_practices>
+
+<examples>
+  <example scenario="Debugging">
+    <input>Why is authentication failing?</input>
+    <workflow>
+      <step>Analyze symptoms: 401 errors, tokens appear valid</step>
+      <step>Consider possible causes: Token expired? Wrong secret? Format issue?</step>
+      <step>Test hypotheses: Check token decoding (valid), verify secret key (mismatch)</step>
+      <step>Conclusion: Secret key mismatch in environment config</step>
+      <step>Fix: Update SUPABASE_ANON_KEY in .env</step>
+    </workflow>
+  </example>
+
+  <example scenario="Algorithm Design">
+    <input>Design function to find duplicates</input>
+    <workflow>
+      <step>Understand requirements: Input array, output duplicates, O(n) preferred</step>
+      <step>Consider approaches: Nested loops O(n²), Sorting O(n log n), Hash set O(n)</step>
+      <step>Select approach: Use hash set for O(n) time</step>
+      <step>Design algorithm with seen and duplicates sets</step>
+      <step>Analyze complexity: O(n) time, O(n) space</step>
+    </workflow>
+  </example>
+
+  <example scenario="Decision Making">
+    <input>Should we use TypeScript or JavaScript?</input>
+    <workflow>
+      <step>Define criteria: Type safety (9), Team experience (7), Speed (6), Ecosystem (8)</step>
+      <step>Evaluate TypeScript: Excellent type safety, moderate experience, slower initially, excellent ecosystem</step>
+      <step>Evaluate JavaScript: Requires extra tools for types, excellent experience, faster initially, excellent ecosystem</step>
+      <step>Compare scores: TypeScript 8.5/10, JavaScript 6.5/10</step>
+      <step>Recommend TypeScript for type safety and maintainability</step>
+      <step>Mitigate risks: Provide training, use JSDoc migration path</step>
+    </workflow>
+  </example>
+</examples>
+
+<error_handling>
+  <error>
+    <condition>Reasoning seems off</condition>
+    <solution>
+      <step>State assumptions clearly</step>
+      <step>Verify each step</step>
+      <step>Check for logical fallacies</step>
+      <step>Consider alternative perspectives</step>
+    </solution>
+  </error>
+  <error>
+    <condition>Stuck on problem</condition>
+    <solution>
+      <step>Break it down further</step>
+      <step>Try different approach</step>
+      <step>Gather more information</step>
+      <step>Take a step back</step>
+    </solution>
+  </error>
+  <error>
+    <condition>Too many options</condition>
+    <solution>
+      <step>Define evaluation criteria</step>
+      <step>Rank by importance</step>
+      <step>Eliminate clearly bad options</step>
+      <step>Compare remaining options</step>
+    </solution>
+  </error>
+</error_handling>
+
+<output_format>
+  <format>
+    <type>Problem Breakdown</type>
+    <structure>Hierarchical list of steps with dependencies and complexity estimates</structure>
+  </format>
+  <format>
+    <type>Logical Reasoning</type>
+    <structure>Chain of reasoning steps from premise to conclusion with confidence level</structure>
+  </format>
+  <format>
+    <type>Decision Analysis</type>
+    <structure>Ranked options with pros/cons, scores, and recommendation</structure>
+  </format>
+  <format>
+    <type>Solution Design</type>
+    <structure>Architecture overview with implementation steps and risk assessment</structure>
+  </format>
+</output_format>
+
+<integration_notes>
+  <note category="When to Use">
+    <content>Use Sequential Thinking for: Complex problem solving, architecture decisions, algorithm design, root cause analysis, code review, debugging complex issues, risk assessment, trade-off analysis. Quick tasks may not need it: Simple file operations, straightforward code changes, information lookup, basic questions.</content>
+  </note>
+  <note category="Reasoning Patterns">
+    <content>Deductive: General rules → Specific case → Conclusion. Inductive: Specific cases → Patterns → General rule. Abductive: Outcome → Hypotheses → Most likely explanation. Design Thinking: Empathize → Define → Ideate → Prototype → Test.</content>
+  </note>
+</integration_notes>

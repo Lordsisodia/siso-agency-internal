@@ -1,9 +1,16 @@
+---
+name: siso-internal
+category: integration-connectivity/mcp-integrations
+version: 1.0.0
+description: Complete guide to SISO Internal task management and operations system with Claude Code
+author: blackbox5/mcp
+verified: true
+tags: [mcp, siso, task-management, projects, crm]
+---
+
 # SISO Internal Task Management System Skills
 
-Complete guide to integrating and communicating with SISO Internal via Supabase.
-
-## Overview
-
+<context>
 **SISO Internal** is your internal task management, project tracking, and operations system built on Supabase.
 
 **Database:** SISO Internal Supabase
@@ -11,761 +18,443 @@ Complete guide to integrating and communicating with SISO Internal via Supabase.
 - **URL:** `https://avdgyrepwrvsvwgxrccr.supabase.co`
 - **Access:** Available globally in all Claude instances
 
----
-
-## Understanding SISO Internal Structure
-
-### Core Tables
-
-Based on the SISO ecosystem, SISO Internal likely manages:
-
-#### `projects`
-- Project tracking and management
-- Project metadata
-- Status, priority, assignments
-- Timeline and milestones
-
-#### `tasks`
-- Individual task items
-- Task status (todo, in_progress, done, cancelled)
-- Assignments and due dates
-- Task dependencies
-- Time tracking
-
-#### `clients`
-- Client information
-- Project associations
-- Contact details
-- Status (active, inactive, prospect)
-
-#### `partnerships`
-- Partner relationships
-- Partnership terms
-- Integration status
-- Revenue tracking
-
-#### `issues`
-- Bugs and issues tracking
-- Severity levels
-- Assignments and status
-- Resolution tracking
-
-#### `team`
-- Team member information
-- Roles and permissions
-- Availability and assignments
-
-#### `communications`
-- Internal notes and updates
-- Client communications
-- Meeting notes
-- Decisions and outcomes
-
----
-
-## Available Skills for SISO Internal
-
-### Project Management
-
-#### Query Projects
-```
-Show all active projects
-Get projects assigned to me
-List projects by priority
-Find projects for client XYZ
-```
-
-**SQL Example:**
-```sql
-SELECT * FROM projects
-WHERE status = 'active'
-ORDER BY priority DESC, due_date ASC;
-```
-
----
-
-#### Create Project
-```
-Create a new project for client Acme
-Add project: website redesign with priority high
-```
-
-**Parameters:**
-- `client_id`: Client reference
-- `name`: Project name
-- `description`: Project details
-- `status`: Initial status
-- `priority`: Priority level
-- `assigned_to`: Team member assignment
-- `start_date`: Project start date
-- `due_date`: Project deadline
-
----
-
-#### Update Project Status
-```
-Update project status to 'in_progress'
-Mark project Acme-website as complete
-```
-
----
-
-### Task Management
-
-#### Query Tasks
-```
-Show all my tasks for today
-Get tasks by priority
-List tasks for project 123
-Find overdue tasks
-```
-
-**SQL Example:**
-```sql
-SELECT t.*, p.name as project_name
-FROM tasks t
-JOIN projects p ON t.project_id = p.id
-WHERE t.assigned_to = 'shaansisodia'
-  AND t.status != 'done'
-  AND t.due_date >= CURRENT_DATE
-ORDER BY t.priority DESC, t.due_date ASC;
-```
-
----
-
-#### Create Task
-```
-Create task for project Acme-website
-Add task: implement homepage with priority high
-```
-
-**Parameters:**
-- `project_id`: Associated project
-- `title`: Task title
-- `description`: Task details
-- `assigned_to`: Assignee
-- `status`: Initial status
-- `priority`: Task priority
-- `due_date`: Task deadline
-- `estimated_hours`: Time estimate
-- `tags`: Task tags/labels
-
----
-
-#### Update Task Status
-```
-Mark task 456 as complete
-Update task status to in_progress
-```
-
----
-
-#### Time Tracking
-```
-Log 2 hours for task 123
-Update time spent on task
-```
-
----
-
-### Client Management
-
-#### Query Clients
-```
-Show all active clients
-Get client details for Acme
-List clients by status
-Find prospects in NYC area
-```
-
-**SQL Example:**
-```sql
-SELECT * FROM clients
-WHERE status = 'active'
-ORDER BY company_name ASC;
-```
-
----
-
-#### Create Client
-```
-Add new client Acme Corp
-Create client with email contact@example.com
-```
-
-**Parameters:**
-- `company_name`: Client company name
-- `contact_name`: Primary contact
-- `email`: Contact email
-- `phone`: Contact phone
-- `status`: Client status
-- `industry`: Client industry
-- `notes`: Additional notes
-
----
-
-### Partnership Management
-
-#### Query Partnerships
-```
-Show all active partnerships
-Get partnership details
-List partners by revenue
-```
-
-**SQL Example:**
-```sql
-SELECT p.*, c.company_name
-FROM partnerships p
-JOIN clients c ON p.client_id = c.id
-WHERE p.status = 'active';
-```
-
----
-
-#### Create Partnership
-```
-Create partnership with Acme Corp
-Add partnership terms: revenue share 20%
-```
-
----
-
-### Issue Tracking
-
-#### Query Issues
-```
-Show all open bugs
-Get critical issues
-List issues by project
-Find my assigned issues
-```
-
-**SQL Example:**
-```sql
-SELECT i.*, p.name as project_name
-FROM issues i
-JOIN projects p ON i.project_id = p.id
-WHERE i.status = 'open'
-  AND i.severity IN ('high', 'critical')
-ORDER BY i.severity DESC, i.created_at ASC;
-```
-
----
-
-#### Create Issue
-```
-Report bug: login not working
-Create issue for project 123
-```
-
-**Parameters:**
-- `project_id`: Related project
-- `title`: Issue title
-- `description`: Issue details
-- `severity`: Severity level
-- `assigned_to`: Assignee
-- `status`: Initial status
-
----
-
-### Team Coordination
-
-#### Query Team
-```
-Show all team members
-Get team availability
-List team by role
-```
-
-**SQL Example:**
-```sql
-SELECT * FROM team
-WHERE is_active = true
-ORDER BY name ASC;
-```
-
----
-
-#### Update Assignment
-```
-Assign task 123 to john
-Reassign project 456 to sarah
-```
-
----
-
-### Communications
-
-#### Log Communication
-```
-Log note: discussed requirements with client
-Record decision: use React for frontend
-```
-
-**Parameters:**
-- `project_id`: Related project
-- `type`: Communication type
-- `notes`: Communication content
-- `participants`: People involved
-- `logged_by`: Who logged it
-
----
-
-#### Query Communications
-```
-Show recent communications for project 123
-Get meeting notes for Acme
-```
-
----
-
-## Integration with Lumelle
-
-### Cross-Referencing Projects
-
-```
--- Lumelle Project in SISO
-Query projects where name contains 'Lumelle'
-Get tasks for Lumelle partnership project
-```
-
-### Sync Status
-```
-Check if Lumelle project is up-to-date in SISO
-Update partnership status in SISO
-```
-
-### Client Handoff
-```
-When Lumelle becomes active client:
-1. Create client record in SISO
-2. Move project to active status
-3. Create onboarding tasks
-4. Assign team members
-```
-
----
-
-## Communication Workflows
-
-### Daily Standup
-```
-1. Query my tasks for today
-2. Check project deadlines this week
-3. Review new messages/notes
-4. Update task statuses
-5. Log blockers or issues
-```
-
-### Project Update
-```
-1. Get project details
-2. Review project tasks
-3. Check task completion
-4. Update project status
-5. Log progress note
-6. Notify team if needed
-```
-
-### Client Meeting
-```
-1. Review client details
-2. Check project status
-3. Review recent communications
-4. Prepare agenda
-5. Log meeting notes
-6. Create follow-up tasks
-```
-
-### Issue Resolution
-```
-1. Get issue details
-2. Check related project
-3. Review assigned tasks
-4. Implement fix
-5. Update issue status
-6. Close issue
-7. Log resolution
-```
-
----
-
-## Best Practices
-
-### Query SISO Before Starting Work
-
-```
-"Check SISO for any high-priority tasks"
-"What's on my plate for today?"
-"Show tasks for Lumelle project"
-```
-
-### Update SISO After Completing Work
-
-```
-"Mark task 123 as complete"
-"Log time: spent 3 hours on task"
-"Update project status to 'in_progress'"
-```
-
-### Cross-Reference When Context Switching
-
-```
-"Get project context for Acme"
-"Review recent communications"
-"Check related issues"
-```
-
----
-
-## Common Workflows
-
-### Start New Project
-```
-1. Check if client exists in SISO
-2. Create client record if new
-3. Create partnership if needed
-4. Create project in SISO
-5. Create initial tasks
-6. Assign team members
-7. Set timeline and milestones
-8. Log setup notes
-```
-
-### Daily Work Session
-```
-1. Query my tasks for today
-2. Prioritize by importance
-3. Pick top task
-4. Execute work
-5. Mark as complete or update status
-6. Log time spent
-7. Move to next task
-```
-
-### Handle Issue
-```
-1. Create issue in SISO
-2. Assign severity and priority
-3. Assign to team member
-4. Track progress
-5. Test fix
-6. Close issue
-7. Log resolution details
-```
-
-### Client Interaction
-```
-1. Review client details
-2. Check project status
-3. Review history
-4. Log meeting notes
-5. Create follow-up tasks
-6. Update project as needed
-```
-
----
-
-## SISO vs Lumelle Database
-
-### When to Use SISO Internal Supabase
-
-**Use for:**
-- Task management
-- Project tracking
-- Client information
-- Team coordination
-- Issue tracking
-- Time logging
-- Internal communications
-- Partnership management
-
-**Example:**
-```
-Query SISO: "Show my tasks for today"
-Query SISO: "Get client Acme details"
-Query SISO: "Create task for project 123"
-```
-
-### When to Use Lumelle Supabase
-
-**Use for:**
-- Application data (products, orders, users)
-- Partner platform data
-- Customer-facing features
-- Lumelle-specific functionality
-
-**Example:**
-```
-Query Lumelle: "Get all products"
-Query Lumelle: "Show recent orders"
-Query Lumelle: "Create new user account"
-```
-
----
-
-## Tips
-
-1. **Always check SISO first** - Before starting work, check your tasks
-2. **Update frequently** - Keep SISO in sync with actual progress
-3. **Use for context** - Get project and client context from SISO
-4. **Log decisions** - Record important decisions and communications
-5. **Cross-reference** - Link SISO tasks with Lumelle features
-
----
-
-## Best Practices
-
-✅ **DO:**
-- Check SISO before starting work
-- Update task status daily
-- Log important communications
-- Use SISO as single source of truth
-- Cross-reference projects
-- Track time accurately
-- Review tasks before meetings
-- Assign tasks clearly
-
-❌ **DON'T:**
-- Skip updating task status
-- Work without checking assignments
-- Forget to log decisions
-- Ignore priority levels
-- Miss deadlines
-- Duplicate work
-- Work on wrong tasks
-- Lose track of time
-
----
-
-## Queries for Common Situations
-
-### Morning Startup
-```sql
--- Get my tasks for today
-SELECT t.*, p.name as project_name, c.company_name
-FROM tasks t
-JOIN projects p ON t.project_id = p.id
-LEFT JOIN clients c ON p.client_id = c.id
-WHERE t.assigned_to = 'shaansisodia'
-  AND t.status IN ('todo', 'in_progress')
-  AND (t.due_date >= CURRENT_DATE OR t.due_date IS NULL)
-ORDER BY t.priority DESC, t.due_date ASC;
-```
-
-### Weekly Review
-```sql
--- Get all projects and their status
-SELECT p.*, c.company_name,
-  COUNT(t.id) as total_tasks,
-  SUM(CASE WHEN t.status = 'done' THEN 1 ELSE 0 END) as completed_tasks
-FROM projects p
-LEFT JOIN clients c ON p.client_id = c.id
-LEFT JOIN tasks t ON t.project_id = p.id
-WHERE p.status = 'active'
-GROUP BY p.id
-ORDER BY p.due_date ASC;
-```
-
-### Client Meeting Prep
-```sql
--- Get client info and project status
-SELECT c.*, p.name as project_name, p.status as project_status
-FROM clients c
-JOIN projects p ON c.id = p.client_id
-WHERE c.company_name = 'Acme Corp';
-
--- Get recent communications
-SELECT * FROM communications
-WHERE project_id = (SELECT id FROM projects WHERE name = 'Acme Website')
-ORDER BY created_at DESC
-LIMIT 10;
-```
-
-### Deadline Check
-```sql
--- Get tasks due this week
-SELECT t.*, p.name as project_name
-FROM tasks t
-JOIN projects p ON t.project_id = p.id
-WHERE t.due_date >= CURRENT_DATE
-  AND t.due_date <= CURRENT_DATE + INTERVAL '7 days'
-  AND t.status != 'done'
-ORDER BY t.due_date ASC;
-```
-
----
-
-## Integration Examples
-
-### Working on Lumelle Feature
-
-```
-1. Claude: "Check SISO for Lumelle tasks"
-   → Returns: Task 456 "Implement user authentication"
-
-2. Claude: "Get context from SISO"
-   → Returns: Project details, client info, related tasks
-
-3. Claude: "Work on authentication feature"
-   → Implement in Lumelle codebase
-
-4. Claude: "Update SISO task status"
-   → Mark task as in_progress
-
-5. Claude: "Complete task and log time"
-   → Mark as done, log 3 hours
-```
-
-### Starting New Client Project
-
-```
-1. Check if client exists in SISO
-2. If not, create client record
-3. Create partnership
-4. Create project
-5. Create breakdown tasks
-6. Assign team
-7. Set milestones
-8. Begin work
-```
-
-### Handling Issues
-
-```
-1. Client reports bug via email
-2. Create issue in SISO
-3. Assign severity
-4. Assign to developer
-5. Developer fixes in codebase
-6. Update issue status
-7. Test fix
-8. Close issue
-9. Log resolution
-10. Notify client
-```
-
----
-
-## Quick Reference Commands
-
-### Personal Productivity
-```
-"What are my tasks today?"
-"What's my highest priority task?"
-"Show my deadlines this week"
-```
-
-### Project Management
-```
-"Show status of all active projects"
-"Get tasks for Lumelle project"
-"What's the timeline for Acme website?"
-```
-
-### Team Coordination
-```
-"Show team workload"
-"Who's available for new tasks?"
-"What's john working on?"
-```
-
-### Client Management
-```
-"Get details for Acme Corp"
-"Show recent communications with client"
-"What projects do we have for Acme?"
-```
-
----
-
-## Advanced Features
-
-### Reporting
-```
-Generate project status report
-Create client summary
-Show team velocity
-Calculate project profitability
-```
-
-### Analytics
-```
-Get task completion trends
-Show revenue by partnership
-Analyze team performance
-Track issue resolution time
-```
-
-### Forecasting
-```
-Predict project completion date
-Estimate resource needs
-Forecast revenue
-Plan team capacity
-```
-
----
-
-## Troubleshooting
-
-**Can't find project:**
-- Check project name spelling
-- Verify project exists in SISO
-- Use partial match with LIKE
-
-**Tasks not showing:**
-- Check assigned_to field
-- Verify task status filter
-- Check due_date range
-
-**Client missing:**
-- Search for variations of name
-- Check if client is archived
-- Verify client status
-
-**Permission denied:**
-- Verify SISO credentials
-- Check table permissions
-- Ensure RLS policies allow access
-
----
-
-## Data Integrity
-
-### Preventing Duplicates
-
-```sql
--- Check for duplicate clients
-SELECT company_name, COUNT(*)
-FROM clients
-GROUP BY company_name
-HAVING COUNT(*) > 1;
-```
-
-### Maintaining Relationships
-
-```sql
--- Check orphaned tasks
-SELECT * FROM tasks
-WHERE project_id NOT IN (SELECT id FROM projects);
-```
-
-### Data Cleanup
-
-```sql
--- Archive old completed projects
-UPDATE projects
-SET status = 'archived'
-WHERE status = 'completed'
-  AND completed_date < CURRENT_DATE - INTERVAL '90 days';
-```
-
----
-
-**Last Updated:** January 11, 2026
-
----
-
-**Need Help?** Just ask Claude: "Check SISO for..." or "Update SISO with..."
+**Core Tables:**
+- `projects` - Project tracking and management
+- `tasks` - Individual task items with status tracking
+- `clients` - Client information and relationships
+- `partnerships` - Partner relationships and revenue tracking
+- `issues` - Bugs and issues tracking
+- `team` - Team member information and availability
+- `communications` - Internal notes, client comms, meeting notes
+
+This is your single source of truth for all project work, task assignments, and client management.
+</context>
+
+<instructions>
+When working with SISO Internal, always check the system before starting work and update it after completing work. Use SISO to get context on projects, tasks, and clients.
+
+Query SISO first to understand what's on your plate, then update it as you make progress. Cross-reference SISO tasks with actual codebase work.
+</instructions>
+
+<workflow>
+  <phase name="Daily Startup">
+    <goal>Understand priorities and plan work</goal>
+    <steps>
+      <step>Query SISO for today's tasks</step>
+      <step>Check project deadlines this week</step>
+      <step>Review new messages/notes</step>
+      <step>Update task statuses</step>
+      <step>Log any blockers or issues</step>
+    </steps>
+  </phase>
+
+  <phase name="Project Work">
+    <goal>Execute on assigned tasks</goal>
+    <steps>
+      <step>Get project context from SISO</step>
+      <step>Review task details and requirements</step>
+      <step>Execute work in codebase</step>
+      <step>Update task status in SISO</step>
+      <step>Log time spent</step>
+    </steps>
+  </phase>
+
+  <phase name="Client Work">
+    <goal>Manage client relationships</goal>
+    <steps>
+      <step>Review client details and history</step>
+      <step>Check project status</step>
+      <step>Log meeting notes</step>
+      <step>Create follow-up tasks</step>
+      <step>Update project as needed</step>
+    </steps>
+  </phase>
+
+  <phase name="Issue Resolution">
+    <goal>Track and resolve bugs/issues</goal>
+    <steps>
+      <step>Create issue in SISO</step>
+      <step>Assign severity and priority</step>
+      <step>Implement fix in codebase</step>
+      <step>Update issue status</step>
+      <step>Log resolution details</step>
+    </steps>
+  </phase>
+</workflow>
+
+<available_skills>
+  <skill_group name="Project Management">
+    <skill name="query_projects">
+      <purpose>Query projects from SISO</purpose>
+      <usage>Show all active projects assigned to me</usage>
+      <parameters>
+        <param name="status">Filter by status (active, completed, archived)</param>
+        <param name="assigned_to">Filter by assignee</param>
+        <param name="client_id">Filter by client</param>
+        <param name="priority">Filter by priority level</param>
+      </parameters>
+    </skill>
+    <skill name="create_project">
+      <purpose>Create a new project in SISO</purpose>
+      <usage>Create a new project for client Acme with priority high</usage>
+      <parameters>
+        <param name="client_id">Client reference</param>
+        <param name="name">Project name</param>
+        <param name="description">Project details</param>
+        <param name="status">Initial status</param>
+        <param name="priority">Priority level</param>
+        <param name="assigned_to">Team member assignment</param>
+        <param name="start_date">Project start date</param>
+        <param name="due_date">Project deadline</param>
+      </parameters>
+    </skill>
+    <skill name="update_project_status">
+      <purpose>Update project status and details</purpose>
+      <usage>Update project status to 'in_progress'</usage>
+    </skill>
+  </skill_group>
+
+  <skill_group name="Task Management">
+    <skill name="query_tasks">
+      <purpose>Query tasks from SISO</purpose>
+      <usage>Show all my tasks for today</usage>
+      <parameters>
+        <param name="assigned_to">Filter by assignee</param>
+        <param name="status">Filter by status</param>
+        <param name="project_id">Filter by project</param>
+        <param name="priority">Filter by priority</param>
+        <param name="due_date">Filter by due date</param>
+      </parameters>
+    </skill>
+    <skill name="create_task">
+      <purpose>Create a new task in SISO</purpose>
+      <usage>Create task: implement homepage with priority high</usage>
+      <parameters>
+        <param name="project_id">Associated project</param>
+        <param name="title">Task title</param>
+        <param name="description">Task details</param>
+        <param name="assigned_to">Assignee</param>
+        <param name="status">Initial status</param>
+        <param name="priority">Task priority</param>
+        <param name="due_date">Task deadline</param>
+        <param name="estimated_hours">Time estimate</param>
+        <param name="tags">Task tags/labels</param>
+      </parameters>
+    </skill>
+    <skill name="update_task_status">
+      <purpose>Update task status and progress</purpose>
+      <usage>Mark task 456 as complete</usage>
+    </skill>
+    <skill name="log_time">
+      <purpose>Log time spent on a task</purpose>
+      <usage>Log 2 hours for task 123</usage>
+    </skill>
+  </skill_group>
+
+  <skill_group name="Client Management">
+    <skill name="query_clients">
+      <purpose>Query clients from SISO</purpose>
+      <usage>Show all active clients</usage>
+      <parameters>
+        <param name="status">Filter by status (active, inactive, prospect)</param>
+        <param name="industry">Filter by industry</param>
+        <param name="location">Filter by location</param>
+      </parameters>
+    </skill>
+    <skill name="create_client">
+      <purpose>Create a new client in SISO</purpose>
+      <usage>Add new client Acme Corp with email contact@example.com</usage>
+      <parameters>
+        <param name="company_name">Client company name</param>
+        <param name="contact_name">Primary contact</param>
+        <param name="email">Contact email</param>
+        <param name="phone">Contact phone</param>
+        <param name="status">Client status</param>
+        <param name="industry">Client industry</param>
+        <param name="notes">Additional notes</param>
+      </parameters>
+    </skill>
+  </skill_group>
+
+  <skill_group name="Partnership Management">
+    <skill name="query_partnerships">
+      <purpose>Query partnerships from SISO</purpose>
+      <usage>Show all active partnerships by revenue</usage>
+    </skill>
+    <skill name="create_partnership">
+      <purpose>Create a new partnership</purpose>
+      <usage>Create partnership with Acme Corp with revenue share 20%</usage>
+    </skill>
+  </skill_group>
+
+  <skill_group name="Issue Tracking">
+    <skill name="query_issues">
+      <purpose>Query issues from SISO</purpose>
+      <usage>Show all open critical issues</usage>
+      <parameters>
+        <param name="status">Filter by status (open, in_progress, resolved)</param>
+        <param name="severity">Filter by severity</param>
+        <param name="project_id">Filter by project</param>
+        <param name="assigned_to">Filter by assignee</param>
+      </parameters>
+    </skill>
+    <skill name="create_issue">
+      <purpose>Create a new issue in SISO</purpose>
+      <usage>Report bug: login not working</usage>
+      <parameters>
+        <param name="project_id">Related project</param>
+        <param name="title">Issue title</param>
+        <param name="description">Issue details</param>
+        <param name="severity">Severity level</param>
+        <param name="assigned_to">Assignee</param>
+        <param name="status">Initial status</param>
+      </parameters>
+    </skill>
+  </skill_group>
+
+  <skill_group name="Team Coordination">
+    <skill name="query_team">
+      <purpose>Query team members</purpose>
+      <usage>Show all team members by role</usage>
+    </skill>
+    <skill name="update_assignment">
+      <purpose>Reassign tasks or projects</purpose>
+      <usage>Assign task 123 to john</usage>
+    </skill>
+  </skill_group>
+
+  <skill_group name="Communications">
+    <skill name="log_communication">
+      <purpose>Log a communication note</purpose>
+      <usage>Record decision: use React for frontend</usage>
+      <parameters>
+        <param name="project_id">Related project</param>
+        <param name="type">Communication type</param>
+        <param name="notes">Communication content</param>
+        <param name="participants">People involved</param>
+        <param name="logged_by">Who logged it</param>
+      </parameters>
+    </skill>
+    <skill name="query_communications">
+      <purpose>Query communications log</purpose>
+      <usage>Show recent communications for project 123</usage>
+    </skill>
+  </skill_group>
+</available_skills>
+
+<best_practices>
+  <do>
+    <item>Check SISO before starting work</item>
+    <item>Update task status daily</item>
+    <item>Log important communications</item>
+    <item>Use SISO as single source of truth</item>
+    <item>Cross-reference projects</item>
+    <item>Track time accurately</item>
+    <item>Review tasks before meetings</item>
+    <item>Assign tasks clearly</item>
+    <item>Update SISO after completing work</item>
+    <item>Get project context from SISO</item>
+  </do>
+  <dont>
+    <item>Skip updating task status</item>
+    <item>Work without checking assignments</item>
+    <item>Forget to log decisions</item>
+    <item>Ignore priority levels</item>
+    <item>Miss deadlines</item>
+    <item>Duplicate work</item>
+    <item>Work on wrong tasks</item>
+    <item>Lose track of time</item>
+  </dont>
+</best_practices>
+
+<rules>
+  <rule priority="high">Always check SISO before starting work</rule>
+  <rule priority="high">Update SISO after completing work</rule>
+  <rule priority="medium">Log all important decisions and communications</rule>
+  <rule priority="medium">Use SISO for project context before coding</rule>
+  <rule priority="low">Keep task time tracking accurate</rule>
+</rules>
+
+<error_handling>
+  <error>
+    <condition>Can't find project</condition>
+    <solution>
+      <step>Check project name spelling</step>
+      <step>Verify project exists in SISO</step>
+      <step>Use partial match with LIKE</step>
+    </solution>
+  </error>
+  <error>
+    <condition>Tasks not showing</condition>
+    <solution>
+      <step>Check assigned_to field</step>
+      <step>Verify task status filter</step>
+      <step>Check due_date range</step>
+    </solution>
+  </error>
+  <error>
+    <condition>Client missing</condition>
+    <solution>
+      <step>Search for variations of name</step>
+      <step>Check if client is archived</step>
+      <step>Verify client status</step>
+    </solution>
+  </error>
+  <error>
+    <condition>Permission denied</condition>
+    <solution>
+      <step>Verify SISO credentials</step>
+      <step>Check table permissions</step>
+      <step>Ensure RLS policies allow access</step>
+    </solution>
+  </error>
+</error_handling>
+
+<integration_notes>
+  <comparison>
+    <system>
+      <name>SISO Internal Supabase</name>
+      <uses>Task management, project tracking, client information</uses>
+      <examples>
+        <example>"Show my tasks for today"</example>
+        <example>"Get client Acme details"</example>
+        <example>"Create task for project 123"</example>
+      </examples>
+    </system>
+    <system>
+      <name>Lumelle Supabase</name>
+      <uses>Application data, partner platform, customer features</uses>
+      <examples>
+        <example>"Get all products"</example>
+        <example>"Show recent orders"</example>
+        <example>"Create new user account"</example>
+      </examples>
+    </system>
+    <note>Use SISO for internal operations, Lumelle for application data</note>
+  </comparison>
+  <integration>
+    <platform>Lumelle</platform>
+    <workflows>
+      <workflow>Cross-Reference Projects</workflow>
+      <workflow>Sync Status Updates</workflow>
+      <workflow>Client Handoff (when Lumelle becomes active client)</workflow>
+    </workflows>
+  </integration>
+</integration_notes>
+
+<examples>
+  <example>
+    <scenario>Morning Startup</scenario>
+    <sql>
+      SELECT t.*, p.name as project_name, c.company_name
+      FROM tasks t
+      JOIN projects p ON t.project_id = p.id
+      LEFT JOIN clients c ON p.client_id = c.id
+      WHERE t.assigned_to = 'shaansisodia'
+        AND t.status IN ('todo', 'in_progress')
+        AND (t.due_date >= CURRENT_DATE OR t.due_date IS NULL)
+      ORDER BY t.priority DESC, t.due_date ASC;
+    </sql>
+  </example>
+  <example>
+    <scenario>Weekly Review</scenario>
+    <sql>
+      SELECT p.*, c.company_name,
+        COUNT(t.id) as total_tasks,
+        SUM(CASE WHEN t.status = 'done' THEN 1 ELSE 0 END) as completed_tasks
+      FROM projects p
+      LEFT JOIN clients c ON p.client_id = c.id
+      LEFT JOIN tasks t ON t.project_id = p.id
+      WHERE p.status = 'active'
+      GROUP BY p.id
+      ORDER BY p.due_date ASC;
+    </sql>
+  </example>
+  <example>
+    <scenario>Client Meeting Prep</scenario>
+    <sql>
+      -- Get client info and project status
+      SELECT c.*, p.name as project_name, p.status as project_status
+      FROM clients c
+      JOIN projects p ON c.id = p.client_id
+      WHERE c.company_name = 'Acme Corp';
+
+      -- Get recent communications
+      SELECT * FROM communications
+      WHERE project_id = (SELECT id FROM projects WHERE name = 'Acme Website')
+      ORDER BY created_at DESC
+      LIMIT 10;
+    </sql>
+  </example>
+  <example>
+    <scenario>Deadline Check</scenario>
+    <sql>
+      SELECT t.*, p.name as project_name
+      FROM tasks t
+      JOIN projects p ON t.project_id = p.id
+      WHERE t.due_date >= CURRENT_DATE
+        AND t.due_date <= CURRENT_DATE + INTERVAL '7 days'
+        AND t.status != 'done'
+      ORDER BY t.due_date ASC;
+    </sql>
+  </example>
+</examples>
+
+<quick_reference>
+  <category name="Personal Productivity">
+    <command>"What are my tasks today?"</command>
+    <command>"What's my highest priority task?"</command>
+    <command>"Show my deadlines this week"</command>
+  </category>
+  <category name="Project Management">
+    <command>"Show status of all active projects"</command>
+    <command>"Get tasks for Lumelle project"</command>
+    <command>"What's the timeline for Acme website?"</command>
+  </category>
+  <category name="Team Coordination">
+    <command>"Show team workload"</command>
+    <command>"Who's available for new tasks?"</command>
+    <command>"What's john working on?"</command>
+  </category>
+  <category name="Client Management">
+    <command>"Get details for Acme Corp"</command>
+    <command>"Show recent communications with client"</command>
+    <command>"What projects do we have for Acme?"</command>
+  </category>
+</quick_reference>
+
+<data_integrity>
+  <section name="Preventing Duplicates">
+    <sql>SELECT company_name, COUNT(*) FROM clients GROUP BY company_name HAVING COUNT(*) > 1;</sql>
+  </section>
+  <section name="Maintaining Relationships">
+    <sql>SELECT * FROM tasks WHERE project_id NOT IN (SELECT id FROM projects);</sql>
+  </section>
+  <section name="Data Cleanup">
+    <sql>UPDATE projects SET status = 'archived' WHERE status = 'completed' AND completed_date < CURRENT_DATE - INTERVAL '90 days';</sql>
+  </section>
+</data_integrity>
+
+<advanced_features>
+  <feature>Reporting</feature>
+  <capabilities>
+    <capability>Generate project status report</capability>
+    <capability>Create client summary</capability>
+    <capability>Show team velocity</capability>
+    <capability>Calculate project profitability</capability>
+  </capabilities>
+  <feature>Analytics</feature>
+  <capabilities>
+    <capability>Get task completion trends</capability>
+    <capability>Show revenue by partnership</capability>
+    <capability>Analyze team performance</capability>
+    <capability>Track issue resolution time</capability>
+  </capabilities>
+  <feature>Forecasting</feature>
+  <capabilities>
+    <capability>Predict project completion date</capability>
+    <capability>Estimate resource needs</capability>
+    <capability>Forecast revenue</capability>
+    <capability>Plan team capacity</capability>
+  </capabilities>
+</advanced_features>

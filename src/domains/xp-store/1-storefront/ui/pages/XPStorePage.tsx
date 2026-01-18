@@ -4,8 +4,8 @@
  * Main storefront for XP rewards and purchases
  */
 
-import { RewardCatalog } from '@/domains/xp-store/1-storefront/ui/components/RewardCatalog';
-import { XPStoreProvider } from '@/domains/xp-store/_shared/core/XPStoreContext';
+import { RewardCatalog } from '@/domains/lifelock/habits/gamification/2-spend/features/storefront/RewardCatalog';
+import { XPStoreProvider } from '@/domains/lifelock/habits/gamification/1-earn/hooks/XPStoreContext';
 
 export const XPStorePage = () => {
   return (

@@ -1,184 +1,211 @@
 ---
 name: artifacts-builder
-category: mcp
+category: integration-connectivity/mcp-integrations
 version: 1.0.0
 description: Build complex Claude.ai HTML artifacts using React, Tailwind CSS, and shadcn/ui
-author: anthropics/skills
+author: blackbox5/mcp
 verified: true
-tags: [artifacts, react, ui, frontend]
+tags: [mcp, artifacts, react, ui, frontend]
 ---
 
 # Artifacts Builder
 
-## Overview
+<context>
 Create interactive Claude.ai HTML artifacts with modern React patterns, Tailwind CSS styling, and shadcn/ui components.
 
-## When to Use This Skill
-✅ Building interactive demos and prototypes
-✅ Creating data visualizations
-✅ Developing UI mockups
-✅ Making reusable tool interfaces
+This skill helps you build rich, interactive HTML artifacts that can be rendered directly in Claude.ai conversations.
 
-## Artifact Structure
+**When to Use:**
+- Building interactive demos and prototypes
+- Creating data visualizations
+- Developing UI mockups
+- Making reusable tool interfaces
+</context>
 
-### Basic Template
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Artifact</title>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-</head>
-<body class="bg-gray-50">
-  <div id="root"></div>
-  <script type="text/babel">
-    const { useState, useEffect } = React;
+<instructions>
+When building artifacts, Claude will structure the HTML correctly with React 18, Tailwind CSS, and Babel for in-browser JSX transformation.
 
-    function App() {
-      const [data, setData] = useState([]);
+Always use `className` instead of `class`, follow React hooks patterns, and handle edge cases gracefully.
+</instructions>
 
-      return (
-        <div className="max-w-4xl mx-auto p-6">
-          <h1 className="text-3xl font-bold mb-4">My Artifact</h1>
-          {/* Your content here */}
-        </div>
-      );
-    }
+<workflow>
+  <phase name="Artifact Structure">
+    <goal>Set up proper HTML artifact foundation</goal>
+    <steps>
+      <step>Create HTML5 boilerplate with proper meta tags</step>
+      <step>Include React 18, ReactDOM, and Babel CDNs</step>
+      <step>Add Tailwind CSS CDN</step>
+      <step>Create root div and script with type="text/babel"</step>
+    </steps>
+  </phase>
 
-    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
-  </script>
-</body>
-</html>
-```
+  <phase name="Component Development">
+    <goal>Build interactive React components</goal>
+    <steps>
+      <step>Define component with function syntax</step>
+      <step>Use React hooks (useState, useEffect) for state</step>
+      <step>Implement proper event handlers</step>
+      <step>Add Tailwind classes for styling</step>
+    </steps>
+  </phase>
 
-## Common Patterns
+  <phase name="Styling & Layout">
+    <goal>Apply modern styling with Tailwind CSS</goal>
+    <steps>
+      <step>Use utility classes for layout</step>
+      <step>Apply responsive variants (md:, lg:)</step>
+      <step>Add state variants (hover:, focus:)</step>
+      <step>Consider dark mode (dark:)</step>
+    </steps>
+  </phase>
 
-### Interactive Data Table
-```jsx
-function DataTable({ data }) {
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  <phase name="Integration">
+    <goal>Render and test the artifact</goal>
+    <steps>
+      <step>Mount component with ReactDOM.createRoot</step>
+      <step>Verify interactivity works</step>
+      <step>Test responsive behavior</step>
+      <step>Validate data flow</step>
+    </steps>
+  </phase>
+</workflow>
 
-  const sortedData = React.useMemo(() => {
-    if (!sortConfig.key) return data;
-    return [...data].sort((a, b) => {
-      if (a[sortConfig.key] < b[sortConfig.key]) {
-        return sortConfig.direction === 'asc' ? -1 : 1;
-      }
-      if (a[sortConfig.key] > b[sortConfig.key]) {
-        return sortConfig.direction === 'asc' ? 1 : -1;
-      }
-      return 0;
-    });
-  }, [data, sortConfig]);
+<available_skills>
+  <skill_group name="Basic Patterns">
+    <skill name="create_basic_artifact">
+      <purpose>Create a basic HTML artifact template</purpose>
+      <usage>Create an artifact that shows hello world</usage>
+    </skill>
+    <skill name="use_react_hooks">
+      <purpose>Use useState and useEffect for interactivity</purpose>
+      <usage>Add state management to the component</usage>
+    </skill>
+    <skill name="apply_tailwind_styling">
+      <purpose>Apply Tailwind CSS utility classes</purpose>
+      <usage>Style the component with modern design</usage>
+    </skill>
+  </skill_group>
 
-  return (
-    <table className="min-w-full divide-y divide-gray-200">
-      <thead className="bg-gray-50">
-        <tr>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-            Name
-          </th>
-        </tr>
-      </thead>
-      <tbody className="bg-white divide-y divide-gray-200">
-        {sortedData.map((row, i) => (
-          <tr key={i}>
-            <td className="px-6 py-4 whitespace-nowrap">{row.name}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-}
-```
+  <skill_group name="Interactive Components">
+    <skill name="data_table">
+      <purpose>Create sortable data table with filtering</purpose>
+      <usage>Make a table showing user data with sorting</usage>
+    </skill>
+    <skill name="chart_visualization">
+      <purpose>Create bar charts and visualizations</purpose>
+      <usage>Build a bar chart for sales data</usage>
+    </skill>
+    <skill name="validated_form">
+      <purpose>Create form with validation and error handling</purpose>
+      <usage>Make a contact form with validation</usage>
+    </skill>
+  </skill_group>
 
-### Chart Visualization
-```jsx
-function BarChart({ data }) {
-  const max = Math.max(...data.map(d => d.value));
+  <skill_group name="Advanced Features">
+    <skill name="data_fetching">
+      <purpose>Fetch and display data from APIs</purpose>
+      <usage>Show data from an external API</usage>
+    </skill>
+    <skill name="animation">
+      <purpose>Add CSS transitions and animations</purpose>
+      <usage>Animate the list items when they appear</usage>
+    </skill>
+    <skill name="state_management">
+      <purpose>Manage complex component state</purpose>
+      <usage>Add useReducer for complex state logic</usage>
+    </skill>
+  </skill_group>
+</available_skills>
 
-  return (
-    <div className="space-y-2">
-      {data.map((item, i) => (
-        <div key={i} className="flex items-center">
-          <div className="w-32 text-sm text-gray-600">{item.label}</div>
-          <div className="flex-1 bg-gray-100 rounded-full h-6 overflow-hidden">
-            <div
-              className="bg-blue-500 h-full transition-all duration-300"
-              style={{ width: `${(item.value / max) * 100}%` }}
-            />
-          </div>
-          <div className="w-16 text-right text-sm text-gray-600">
-            {item.value}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-```
+<best_practices>
+  <do>
+    <item>Use className instead of class</item>
+    <item>Follow React hooks rules</item>
+    <item>Handle loading and error states</item>
+    <item>Use responsive Tailwind classes</item>
+    <item>Add proper accessibility attributes</item>
+    <item>Test with sample data</item>
+    <item>Include error boundaries</item>
+  </do>
+  <dont>
+    <item>Use class instead of className</item>
+    <item>Forget to close JSX tags</item>
+    <item>Hardcode large datasets</item>
+    <item>Ignore edge cases</item>
+    <item>Skip validation</item>
+  </dont>
+</best_practices>
 
-### Form with Validation
-```jsx
-function ValidatedForm() {
-  const [values, setValues] = useState({ email: '', name: '' });
-  const [errors, setErrors] = useState({});
+<rules>
+  <rule priority="high">Always use className not class for React</rule>
+  <rule priority="high">Include proper React 18 CDN links</rule>
+  <rule priority="medium">Use Tailwind utility classes for styling</rule>
+  <rule priority="medium">Handle errors gracefully</rule>
+  <rule priority="low">Add dark mode support when appropriate</rule>
+</rules>
 
-  const validate = () => {
-    const newErrors = {};
-    if (!values.email.includes('@')) newErrors.email = 'Invalid email';
-    if (!values.name) newErrors.name = 'Name required';
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+<error_handling>
+  <error>
+    <condition>Component not rendering</condition>
+    <solution>
+      <step>Verify ReactDOM.createRoot is called</step>
+      <step>Check script type is "text/babel"</step>
+      <step>Ensure all CDNs are loaded</step>
+    </solution>
+  </error>
+  <error>
+    <condition>Styles not applying</condition>
+    <solution>
+      <step>Check using className not class</step>
+      <step>Verify Tailwind CDN is included</step>
+      <step>Check for typos in class names</step>
+    </solution>
+  </error>
+  <error>
+    <condition>Interactivity not working</condition>
+    <solution>
+      <step>Verify event handlers are properly defined</step>
+      <step>Check state updates with useState</step>
+      <step>Ensure component re-renders on state change</step>
+    </solution>
+  </error>
+</error_handling>
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (validate()) {
-      // Submit logic
-    }
-  };
+<integration_notes>
+  <tailwind_tips>
+    <tip>Use responsive: md:text-lg lg:text-xl</tip>
+    <tip>Use states: hover:bg-blue-600 focus:ring-2</tip>
+    <tip>Use dark mode: dark:bg-gray-800 dark:text-white</tip>
+  </tailwind_tips>
+</integration_notes>
 
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Email</label>
-        <input
-          type="email"
-          value={values.email}
-          onChange={(e) => setValues({ ...values, email: e.target.value })}
-          className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 ${errors.email ? 'border-red-500' : ''}`}
-        />
-        {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
-      </div>
-      <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
-        Submit
-      </button>
-    </form>
-  );
-}
-```
-
-## Tailwind CSS Tips
-- Use `className` not `class`
-- Responsive: `md:text-lg lg:text-xl`
-- States: `hover:bg-blue-600 focus:ring-2`
-- Dark mode: `dark:bg-gray-800 dark:text-white`
-
-## Integration with Claude
-When building artifacts, say:
-- "Create an artifact that shows [data] in a table"
-- "Build an interactive form for [purpose]"
-- "Make a visualization of [data type]"
-
-Claude will:
-- Structure the HTML correctly
-- Add React hooks for interactivity
-- Style with Tailwind CSS
-- Include proper state management
-- Handle edge cases gracefully
+<examples>
+  <example>
+    <scenario>Interactive Data Table</scenario>
+    <description>Create sortable data table with filtering</description>
+    <features>
+      <feature>Sort by clicking column headers</feature>
+      <feature>Filter data by search input</feature>
+      <feature>Paginate large datasets</feature>
+    </features>
+  </example>
+  <example>
+    <scenario>Chart Visualization</scenario>
+    <description>Bar chart showing data</description>
+    <features>
+      <feature>Animated bars</feature>
+      <feature>Dynamic data rendering</feature>
+      <feature>Responsive layout</feature>
+    </features>
+  </example>
+  <example>
+    <scenario>Form with Validation</scenario>
+    <description>Contact form with real-time validation</description>
+    <features>
+      <feature>Email validation</feature>
+      <feature>Required field checks</feature>
+      <feature>Error message display</feature>
+      <feature>Success feedback</feature>
+    </features>
+  </example>
+</examples>
