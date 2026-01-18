@@ -390,6 +390,5 @@ export const WakeUpTimeTracker: React.FC<WakeUpTimeTrackerProps> = ({
         </>
       )}
       </div>
-    </div>
   );
 };
