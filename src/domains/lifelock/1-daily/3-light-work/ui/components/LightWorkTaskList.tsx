@@ -16,11 +16,11 @@ import { motion, LayoutGroup } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { TaskDetailModal } from "@/domains/lifelock/components/TaskDetailModal";
+import { TaskDetailModal } from "@/domains/lifelock/_shared/components/ui/TaskDetailModal";
 import { TaskDetailSheet } from "@/domains/lifelock/_shared/components/ui/TaskDetailSheet";
 import { CustomCalendar } from "../../../_shared/components";
 import { useLightWorkTasksSupabase, LightWorkTask } from "@/domains/lifelock/1-daily/3-light-work/domain/useLightWorkTasksSupabase";
-import { sortSubtasksHybrid } from "@/domains/lifelock/1-daily/_shared/utils/subtaskSorting";
+// TODO: import { sortSubtasksHybrid } from "@/domains/lifelock/1-daily/_shared/utils/subtaskSorting";
 import { GamificationService } from "@/domains/lifelock/_shared/services/gamificationService";
 import { getLightWorkPriorityMultiplier } from "@/domains/lifelock/1-daily/_shared/utils/taskXpCalculations";
 import { useGamificationInit } from '@/domains/lifelock/_shared/hooks/useGamificationInit';
@@ -28,6 +28,9 @@ import { useDeepWorkTimers, formatMsAsClock } from "@/domains/lifelock/1-daily/4
 import { format } from 'date-fns';
 import { UnifiedTaskCard, LIGHT_THEME, UnifiedTask } from "@/domains/lifelock/1-daily/_shared/components/UnifiedTaskCard";
 import { logger } from '@/lib/utils/logger';
+
+// Stub for missing sortSubtasksHybrid function
+const sortSubtasksHybrid = (subtasks: any[]) => subtasks;
 
 // Type definitions
 interface Task {

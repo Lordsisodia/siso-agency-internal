@@ -1,43 +1,99 @@
 ---
 name: requesting-code-review
-category: workflow
+category: collaboration-communication/collaboration
 version: 1.0.0
 description: Pre-review preparation with formatted diffs and clear PR descriptions
 author: obra/superpowers
 verified: true
-tags: [code-review, collaboration, git, workflow]
+tags: [code-review, collaboration, git, workflow, pull-requests]
 ---
 
 # Requesting Code Review
 
-## Overview
+<context>
 Prepare pull requests for effective code reviews with clear descriptions, formatted diffs, and proper context for reviewers.
 
-## When to Use This Skill
-✅ Before submitting PRs for review
-✅ Preparing complex changes for team review
-✅ Ensuring review feedback is actionable
-✅ Making reviews faster and more effective
+This skill ensures reviews are faster, more effective, and provide actionable feedback by setting up PRs for success from the start.
+</context>
 
-## Pre-Review Checklist
+<instructions>
+Use systematic pre-review preparation to ensure pull requests are review-ready.
 
-### Before Opening PR
-- [ ] Code follows project style guidelines
-- [ ] All tests pass locally
-- [ ] Added/updated tests for new behavior
-- [ ] Documentation updated (docs, comments, README)
-- [ ] Commits are clean and logical
-- [ ] PR description is clear and complete
-- [ ] Self-review completed
+Complete pre-review checklist, create clear PR descriptions, format diffs for easy review, and identify specific focus areas for reviewers.
 
-### Self-Review Process
-1. **Review your own diff first**: What will confuse reviewers?
-2. **Check for obvious issues**: typos, console.logs, TODO comments
-3. **Verify tests cover edge cases**: what did you miss?
-4. **Update PR description**: add context based on your review
+Handle feedback constructively and iterate on improvements.
+</instructions>
 
+<workflow>
+## Pre-PR Phase
+1. Verify code follows project style guidelines
+2. Ensure all tests pass locally
+3. Add/update tests for new behavior
+4. Update documentation (docs, comments, README)
+5. Clean up commits to be logical and clear
+6. Complete self-review process
+
+## PR Creation Phase
+1. Write clear PR description using template
+2. Highlight key changes with locations
+3. Add visual diff annotations for complex changes
+4. Identify specific review focus areas
+5. Include testing notes and scenarios
+
+## Post-Submission Phase
+1. Monitor feedback respectfully
+2. Implement requested changes
+3. Track feedback resolution
+4. Address clarification questions
+5. Iterate based on review
+</workflow>
+
+<rules>
+## Before Opening PR
+- Code follows project style guidelines
+- All tests pass locally
+- Added/updated tests for new behavior
+- Documentation updated (docs, comments, README)
+- Commits are clean and logical
+- PR description is clear and complete
+- Self-review completed
+
+## Self-Review Process
+1. Review your own diff first: What will confuse reviewers?
+2. Check for obvious issues: typos, console.logs, TODO comments
+3. Verify tests cover edge cases: what did you miss?
+4. Update PR description: add context based on your review
+</rules>
+
+<best_practices>
+## PR Description Best Practices
+- Start with clear, concise summary
+- Use bullet points for changes (high-level)
+- Explain context and alternatives considered
+- Document testing approach
+- Add screenshots for UI changes
+- Include completion checklist
+- Identify specific review focus areas
+
+## Diff Formatting Best Practices
+- Group related changes together
+- Use file:line references for locations
+- Explain "why" not just "what"
+- Highlight breaking changes clearly
+- Add migration guides when needed
+- Use diff annotations for complex logic
+
+## Review Focus Areas
+- Performance implications
+- Security considerations
+- Alternative approaches
+- Edge cases and error handling
+- Testing coverage
+- Documentation completeness
+</best_practices>
+
+<examples>
 ## PR Description Template
-
 ```markdown
 ## Summary
 Brief description of what this PR does and why.
@@ -70,9 +126,7 @@ Specific things to look at:
 - Alternative approach for Z
 ```
 
-## Formatting Diffs for Reviewers
-
-### Highlight Key Changes
+## Key Changes Format
 ```markdown
 ## Key Changes to Review
 
@@ -92,10 +146,7 @@ Specific things to look at:
 - Migration guide in docs/api-migration.md
 ```
 
-### Visual Diff Annotations
-```markdown
 ## Diff Annotations
-
 ```diff
  // Before
 -function authenticate(token) {
@@ -109,6 +160,25 @@ Specific things to look at:
  }
 ```
 
+## Feedback Resolution
+```markdown
+## Feedback Resolution
+
+✅ Implemented
+- @reviewer: Added validation as suggested
+
+✅ Implemented with modification
+- @reviewer: Added logging but only in dev mode
+
+💭 Discussion needed
+- @reviewer: Concerned about performance impact, thoughts?
+
+❌ Not applicable
+- @reviewer: This is handled by existing validation in X
+```
+</examples>
+
+<integration_notes>
 ## Common Review Focus Areas
 
 ### Performance Considerations
@@ -144,32 +214,31 @@ Specific things to look at:
 - Push back respectfully if you disagree
 
 ### Implementing Changes
-```markdown
-## Feedback Resolution
+- Track all feedback items
+- Mark status (implemented/discussed/not applicable)
+- Explain reasoning for modifications
+- Follow up on outstanding discussions
+</integration_notes>
 
-✅ Implemented
-- @reviewer: Added validation as suggested
+<output_format>
+1. **Pull Request Description** with:
+   - Summary paragraph
+   - Bulleted changes
+   - Context and rationale
+   - Testing approach
+   - Screenshots (if applicable)
+   - Completion checklist
+   - Specific review focus areas
 
-✅ Implemented with modification
-- @reviewer: Added logging but only in dev mode
+2. **Key Changes Section** with:
+   - File:line references
+   - Change category (Critical/Performance/Breaking)
+   - Brief explanation
+   - Impact notes
 
-💭 Discussion needed
-- @reviewer: Concerned about performance impact, thoughts?
-
-❌ Not applicable
-- @reviewer: This is handled by existing validation in X
-```
-
-## Integration with Claude
-When preparing PRs, say:
-- "Help me write a PR description for [changes]"
-- "Review my PR description and suggest improvements"
-- "Format this diff for easier review"
-- "What should I highlight for reviewers?"
-
-Claude will:
-- Structure clear PR descriptions
-- Highlight key changes effectively
-- Identify areas needing focus
-- Suggest improvements to organization
-- Create readable diff summaries
+3. **Feedback Resolution Tracker** with:
+   - Reviewer attribution
+   - Status indicators
+   - Implementation notes
+   - Discussion items
+</output_format>

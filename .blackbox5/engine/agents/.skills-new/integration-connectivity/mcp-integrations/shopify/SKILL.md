@@ -1,443 +1,341 @@
+---
+name: shopify
+category: integration-connectivity/mcp-integrations
+version: 1.0.0
+description: Complete guide to using Shopify Dev MCP server with Claude Code
+author: blackbox5/mcp
+verified: true
+tags: [mcp, shopify, ecommerce, api]
+---
+
 # Shopify Dev MCP Server Skills
 
-Complete guide to using Shopify MCP server with Claude Code.
-
-## Overview
-
-The Shopify Dev MCP server (`@shopify/dev-mcp@1.5.1`) provides tools for interacting with Shopify's API and managing your Shopify store.
+<context>
+Complete guide to using Shopify Dev MCP server (`@shopify/dev-mcp@1.5.1`) with Claude Code. This server provides tools for interacting with Shopify's API and managing your Shopify store.
 
 **Configuration:** HTTP proxy at `http://localhost:3000/mcp/shopify`
 
----
-
-## Prerequisites
-
-Before using Shopify MCP, ensure you have:
-
-1. **Shopify Store** - A working Shopify store
-2. **Shopify API Credentials** - API key and password
-3. **Store URL** - Your Shopify store URL (e.g., `https://your-store.myshopify.com`)
-
-**Note:** You'll need to configure your Shopify API credentials in the MCP proxy server environment variables.
-
----
-
-## Available Skills
-
-### Store Management
-
-#### `shopify_get_store_info`
-Get basic information about your Shopify store.
-
-**Usage:**
-```
-Get my store information
-```
-
-**Returns:**
-- Store name
-- Domain
-- Email
-- Currency
-- Timezone
-
----
-
-#### `shopify_get_products`
-List products from your store.
-
-**Usage:**
-```
-Get all products
-Get products created in the last 7 days
-```
-
-**Parameters:**
-- `limit`: Number of products to return (default: 50)
-- `since_id`: Retrieve products after this ID
-- `created_at_min`: Filter by creation date
-
----
-
-#### `shopify_get_product`
-Get details of a specific product.
-
-**Usage:**
-```
-Get product with ID 123456789
-Show details for product 'my-product-handle'
-```
-
-**Parameters:**
-- `product_id`: Product ID or handle
-
----
-
-#### `shopify_create_product`
-Create a new product.
-
-**Usage:**
-```
-Create a new product with title 'New T-Shirt' and price $29.99
-```
-
-**Parameters:**
-- `title`: Product title
-- `description`: Product description (HTML)
-- `vendor`: Vendor name
-- `product_type`: Product type
-- `variants`: Array of product variants
-
-**Example:**
-```json
-{
-  "title": "New T-Shirt",
-  "body_html": "<p>Awesome t-shirt</p>",
-  "vendor": "YourBrand",
-  "product_type": "Apparel",
-  "variants": [{
-    "price": "29.99",
-    "sku": "TSHIRT-001",
-    "inventory_quantity": 100
-  }]
-}
-```
-
----
-
-#### `shopify_update_product`
-Update an existing product.
-
-**Usage:**
-```
-Update product 123456789 to set price to $39.99
-```
-
-**Parameters:**
-- `product_id`: Product ID
-- `updates`: Object containing fields to update
-
----
-
-#### `shopify_delete_product`
-Delete a product.
-
-**Usage:**
-```
-Delete product 123456789
-```
-
-**Warning:** This action cannot be undone!
-
----
-
-### Order Management
-
-#### `shopify_get_orders`
-Get orders from your store.
-
-**Usage:**
-```
-Get all orders
-Get orders from the last week
-Get unpaid orders
-```
-
-**Parameters:**
-- `status`: Order status (open, closed, cancelled, etc.)
-- `created_at_min`: Filter by date
-- `limit`: Number of orders (default: 50)
-
----
-
-#### `shopify_get_order`
-Get details of a specific order.
-
-**Usage:**
-```
-Get order with ID 987654321
-Show order details for order #1001
-```
-
-**Returns:**
-- Customer information
-- Line items
-- Shipping address
-- Payment status
-- Fulfillment status
-
----
-
-#### `shopify_create_order`
-Create a new order manually.
-
-**Usage:**
-```
-Create a new order for customer@example.com with these items: ...
-```
-
-**Parameters:**
-- `email`: Customer email
-- `line_items`: Array of product variants
-- `shipping_address`: Shipping details
-- `financial_status`: Payment status
-
----
-
-#### `shopify_update_order`
-Update an existing order.
-
-**Usage:**
-```
-Update order 987654321 to mark as paid
-```
-
-**Parameters:**
-- `order_id`: Order ID
-- `updates`: Fields to update
-
----
-
-#### `shopify_cancel_order`
-Cancel an order.
-
-**Usage:**
-```
-Cancel order 987654321 with reason 'customer'
-```
-
-**Parameters:**
-- `reason`: Cancellation reason (customer, inventory, fraud, etc.)
-
----
-
-### Customer Management
-
-#### `shopify_get_customers`
-Get customers from your store.
-
-**Usage:**
-```
-Get all customers
-Get customers who purchased in the last month
-```
-
----
-
-#### `shopify_get_customer`
-Get details of a specific customer.
-
-**Usage:**
-```
-Get customer with ID 555555555
-Show details for customer@example.com
-```
-
----
-
-#### `shopify_create_customer`
-Create a new customer.
-
-**Usage:**
-```
-Create a new customer with email john@example.com and name John Doe
-```
-
-**Parameters:**
-- `email`: Customer email (required)
-- `first_name`: First name
-- `last_name`: Last name
-- `phone`: Phone number
-
----
-
-#### `shopify_update_customer`
-Update a customer.
-
-**Usage:**
-```
-Update customer 555555555 to set phone to 555-1234
-```
-
----
-
-### Inventory Management
-
-#### `shopify_get_inventory`
-Get inventory levels.
-
-**Usage:**
-```
-Get inventory for all products
-Check inventory for product 123456789
-```
-
----
-
-#### `shopify_update_inventory`
-Update inventory levels.
-
-**Usage:**
-```
-Set inventory for SKU TSHIRT-001 to 50
-```
-
-**Parameters:**
-- `inventory_item_id`: Inventory item ID
-- `available`: New quantity
-- `location_id`: Location ID
-
----
-
-### Collection Management
-
-#### `shopify_get_collections`
-Get product collections.
-
-**Usage:**
-```
-Get all collections
-Get smart collections
-```
-
----
-
-#### `shopify_create_collection`
-Create a new collection.
-
-**Usage:**
-```
-Create a collection called 'Summer Sale' with these products: ...
-```
-
-**Parameters:**
-- `title`: Collection title
-- `collects`: Array of product IDs
-- `rules`: Smart collection rules (for smart collections)
-
----
-
-## Common Workflows
-
-### 1. Product Setup
-```
-Create a new product
-Add variants to product 123456789
-Set inventory levels
-```
-
-### 2. Order Processing
-```
-Get new orders
-Fulfill order 987654321
-Create a shipping label
-```
-
-### 3. Customer Management
-```
-Find customer by email
-Update customer information
-View customer order history
-```
-
-### 4. Analytics
-```
-Get sales for the last month
-Count orders by status
-Get revenue by product
-```
-
----
-
-## Integration with Lumelle
-
-Since Lumelle is a partnership platform, you can use Shopify MCP to:
-
-### Partner Products
-```
-Get all partner products from Shopify
-Create a new partner product
-Update partner pricing
-```
-
-### Order Management
-```
-Get orders for partner products
-Fulfill partner orders
-Track partner shipments
-```
-
-### Inventory Sync
-```
-Check inventory levels
-Update Shopify inventory from Lumelle
-Sync product data between systems
-```
-
----
-
-## Tips
-
-1. **Start with exploration** - Use `get_store_info` to verify connection
-2. **Use filters** - Limit results to avoid overwhelming data
-3. **Check errors** - Claude will explain any API errors
-4. **Test in dev store** - Use a development store for testing
-5. **Batch operations** - Claude can help with bulk updates
-
----
-
-## Best Practices
-
-✅ **DO:**
-- Use product handles for easier identification
-- Keep inventory updated regularly
-- Use collections to organize products
-- Test operations in development first
-- Monitor API rate limits
-
-❌ **DON'T:**
-- Delete products without backup
-- Create duplicate products
-- Ignore API errors
-- Exceed rate limits
-- Hardcode IDs in workflows
-
----
-
-## Troubleshooting
-
-**Connection error:**
-- Verify MCP proxy is running: `curl http://localhost:3000/health`
-- Check Shopify API credentials
-- Ensure store URL is correct
-
-**Authentication failed:**
-- Verify API key and password
-- Check API permissions in Shopify admin
-- Ensure credentials have required scopes
-
-**Rate limit exceeded:**
-- Slow down requests
-- Use pagination for large datasets
-- Cache frequently accessed data
-
-**Product not found:**
-- Verify product ID or handle
-- Check if product is deleted
-- Ensure you're querying the right store
-
----
-
-## Rate Limits
-
-Shopify API has rate limits:
-
-- **Standard plans:** 40 requests per minute
-- **Plus plans:** 80 requests per minute
-- **Advanced plans:** 1000 requests per minute
-
-Claude will automatically handle rate limiting and retry requests.
-
----
-
-**Need Help?** Just ask Claude: "Show me how to use Shopify MCP to..."
+**Prerequisites:**
+1. A working Shopify store
+2. Shopify API credentials (API key and password)
+3. Store URL (e.g., `https://your-store.myshopify.com`)
+
+Configure your Shopify API credentials in the MCP proxy server environment variables.
+</context>
+
+<instructions>
+When working with Shopify through Claude Code, use natural language commands. Claude will convert your requests into appropriate Shopify API calls.
+
+Always start with exploration (get store info, list products) before making changes. Use filters to limit results and avoid overwhelming data.
+</instructions>
+
+<workflow>
+  <phase name="Store Exploration">
+    <goal>Verify connection and understand store structure</goal>
+    <steps>
+      <step>Use `shopify_get_store_info` to verify API connection</step>
+      <step>Use `shopify_get_products` to see product catalog</step>
+      <step>Review store configuration and settings</step>
+    </steps>
+  </phase>
+
+  <phase name="Product Management">
+    <goal>Manage store products and inventory</goal>
+    <steps>
+      <step>Use `shopify_get_products` to browse existing products</step>
+      <step>Use `shopify_create_product` to add new products</step>
+      <step>Use `shopify_update_product` to modify product details</step>
+      <step>Use `shopify_update_inventory` to adjust stock levels</step>
+    </steps>
+  </phase>
+
+  <phase name="Order Processing">
+    <goal>Handle customer orders</goal>
+    <steps>
+      <step>Use `shopify_get_orders` to retrieve orders</step>
+      <step>Use `shopify_get_order` to view order details</step>
+      <step>Use `shopify_update_order` to modify order status</step>
+      <step>Use `shopify_cancel_order` when needed (requires reason)</step>
+    </steps>
+  </phase>
+
+  <phase name="Customer Management">
+    <goal>Manage customer information</goal>
+    <steps>
+      <step>Use `shopify_get_customers` to browse customers</step>
+      <step>Use `shopify_create_customer` to add new customers</step>
+      <step>Use `shopify_update_customer` to modify customer details</step>
+    </steps>
+  </phase>
+</workflow>
+
+<available_skills>
+  <skill_group name="Store Management">
+    <skill name="shopify_get_store_info">
+      <purpose>Get basic information about your Shopify store</purpose>
+      <usage>Get my store information</usage>
+      <returns>Store name, domain, email, currency, timezone</returns>
+    </skill>
+    <skill name="shopify_get_products">
+      <purpose>List products from your store</purpose>
+      <usage>Get all products created in the last 7 days</usage>
+      <parameters>
+        <param name="limit">Number of products to return (default: 50)</param>
+        <param name="since_id">Retrieve products after this ID</param>
+        <param name="created_at_min">Filter by creation date</param>
+      </parameters>
+    </skill>
+    <skill name="shopify_get_product">
+      <purpose>Get details of a specific product</purpose>
+      <usage>Get product with ID 123456789</usage>
+      <parameters>
+        <param name="product_id">Product ID or handle</param>
+      </parameters>
+    </skill>
+    <skill name="shopify_create_product">
+      <purpose>Create a new product</purpose>
+      <usage>Create a new product with title 'New T-Shirt' and price $29.99</usage>
+      <parameters>
+        <param name="title">Product title</param>
+        <param name="description">Product description (HTML)</param>
+        <param name="vendor">Vendor name</param>
+        <param name="product_type">Product type</param>
+        <param name="variants">Array of product variants</param>
+      </parameters>
+    </skill>
+    <skill name="shopify_update_product">
+      <purpose>Update an existing product</purpose>
+      <usage>Update product 123456789 to set price to $39.99</usage>
+      <parameters>
+        <param name="product_id">Product ID</param>
+        <param name="updates">Object containing fields to update</param>
+      </parameters>
+    </skill>
+    <skill name="shopify_delete_product">
+      <purpose>Delete a product (cannot be undone)</purpose>
+      <usage>Delete product 123456789</usage>
+      <warning>This action cannot be undone</warning>
+    </skill>
+  </skill_group>
+
+  <skill_group name="Order Management">
+    <skill name="shopify_get_orders">
+      <purpose>Get orders from your store</purpose>
+      <usage>Get unpaid orders from the last week</usage>
+      <parameters>
+        <param name="status">Order status (open, closed, cancelled, etc.)</param>
+        <param name="created_at_min">Filter by date</param>
+        <param name="limit">Number of orders (default: 50)</param>
+      </parameters>
+    </skill>
+    <skill name="shopify_get_order">
+      <purpose>Get details of a specific order</purpose>
+      <usage>Get order with ID 987654321</usage>
+      <returns>Customer information, line items, shipping address, payment status, fulfillment status</returns>
+    </skill>
+    <skill name="shopify_create_order">
+      <purpose>Create a new order manually</purpose>
+      <usage>Create a new order for customer@example.com</usage>
+      <parameters>
+        <param name="email">Customer email</param>
+        <param name="line_items">Array of product variants</param>
+        <param name="shipping_address">Shipping details</param>
+        <param name="financial_status">Payment status</param>
+      </parameters>
+    </skill>
+    <skill name="shopify_update_order">
+      <purpose>Update an existing order</purpose>
+      <usage>Update order 987654321 to mark as paid</usage>
+      <parameters>
+        <param name="order_id">Order ID</param>
+        <param name="updates">Fields to update</param>
+      </parameters>
+    </skill>
+    <skill name="shopify_cancel_order">
+      <purpose>Cancel an order</purpose>
+      <usage>Cancel order 987654321 with reason 'customer'</usage>
+      <parameters>
+        <param name="reason">Cancellation reason (customer, inventory, fraud, etc.)</param>
+      </parameters>
+    </skill>
+  </skill_group>
+
+  <skill_group name="Customer Management">
+    <skill name="shopify_get_customers">
+      <purpose>Get customers from your store</purpose>
+      <usage>Get customers who purchased in the last month</usage>
+    </skill>
+    <skill name="shopify_get_customer">
+      <purpose>Get details of a specific customer</purpose>
+      <usage>Get customer with ID 555555555</usage>
+    </skill>
+    <skill name="shopify_create_customer">
+      <purpose>Create a new customer</purpose>
+      <usage>Create a new customer with email john@example.com</usage>
+      <parameters>
+        <param name="email">Customer email (required)</param>
+        <param name="first_name">First name</param>
+        <param name="last_name">Last name</param>
+        <param name="phone">Phone number</param>
+      </parameters>
+    </skill>
+    <skill name="shopify_update_customer">
+      <purpose>Update a customer</purpose>
+      <usage>Update customer 555555555 to set phone to 555-1234</usage>
+    </skill>
+  </skill_group>
+
+  <skill_group name="Inventory Management">
+    <skill name="shopify_get_inventory">
+      <purpose>Get inventory levels</purpose>
+      <usage>Check inventory for product 123456789</usage>
+    </skill>
+    <skill name="shopify_update_inventory">
+      <purpose>Update inventory levels</purpose>
+      <usage>Set inventory for SKU TSHIRT-001 to 50</usage>
+      <parameters>
+        <param name="inventory_item_id">Inventory item ID</param>
+        <param name="available">New quantity</param>
+        <param name="location_id">Location ID</param>
+      </parameters>
+    </skill>
+  </skill_group>
+
+  <skill_group name="Collection Management">
+    <skill name="shopify_get_collections">
+      <purpose>Get product collections</purpose>
+      <usage>Get smart collections</usage>
+    </skill>
+    <skill name="shopify_create_collection">
+      <purpose>Create a new collection</purpose>
+      <usage>Create a collection called 'Summer Sale'</usage>
+      <parameters>
+        <param name="title">Collection title</param>
+        <param name="collects">Array of product IDs</param>
+        <param name="rules">Smart collection rules (for smart collections)</param>
+      </parameters>
+    </skill>
+  </skill_group>
+</available_skills>
+
+<best_practices>
+  <do>
+    <item>Use product handles for easier identification</item>
+    <item>Keep inventory updated regularly</item>
+    <item>Use collections to organize products</item>
+    <item>Test operations in development first</item>
+    <item>Monitor API rate limits</item>
+    <item>Start with exploration using get_store_info</item>
+    <item>Use filters to limit results</item>
+    <item>Check errors and understand API responses</item>
+  </do>
+  <dont>
+    <item>Delete products without backup</item>
+    <item>Create duplicate products</item>
+    <item>Ignore API errors</item>
+    <item>Exceed rate limits</item>
+    <item>Hardcode IDs in workflows</item>
+  </dont>
+</best_practices>
+
+<rules>
+  <rule priority="high">Always verify connection with get_store_info before operations</rule>
+  <rule priority="high">Never delete products without confirmation</rule>
+  <rule priority="medium">Use pagination for large datasets</rule>
+  <rule priority="medium">Cache frequently accessed data</rule>
+  <rule priority="low">Test in dev store before production</rule>
+</rules>
+
+<error_handling>
+  <error>
+    <condition>Connection error</condition>
+    <solution>
+      <step>Verify MCP proxy is running: curl http://localhost:3000/health</step>
+      <step>Check Shopify API credentials</step>
+      <step>Ensure store URL is correct</step>
+    </solution>
+  </error>
+  <error>
+    <condition>Authentication failed</condition>
+    <solution>
+      <step>Verify API key and password</step>
+      <step>Check API permissions in Shopify admin</step>
+      <step>Ensure credentials have required scopes</step>
+    </solution>
+  </error>
+  <error>
+    <condition>Rate limit exceeded</condition>
+    <solution>
+      <step>Slow down requests</step>
+      <step>Use pagination for large datasets</step>
+      <step>Cache frequently accessed data</step>
+    </solution>
+  </error>
+  <error>
+    <condition>Product not found</condition>
+    <solution>
+      <step>Verify product ID or handle</step>
+      <step>Check if product is deleted</step>
+      <step>Ensure you're querying the right store</step>
+    </solution>
+  </error>
+</error_handling>
+
+<integration_notes>
+  <integration>
+    <platform>Lumelle Partnership Platform</platform>
+    <capabilities>
+      <capability>Get all partner products from Shopify</capability>
+      <capability>Create a new partner product</capability>
+      <capability>Update partner pricing</capability>
+      <capability>Get orders for partner products</capability>
+      <capability>Fulfill partner orders</capability>
+      <capability>Track partner shipments</capability>
+      <capability>Check inventory levels</capability>
+      <capability>Update Shopify inventory from Lumelle</capability>
+      <capability>Sync product data between systems</capability>
+    </capabilities>
+  </integration>
+</integration_notes>
+
+<examples>
+  <example>
+    <scenario>Product Setup</scenario>
+    <commands>
+      <command>Create a new product</command>
+      <command>Add variants to product 123456789</command>
+      <command>Set inventory levels</command>
+    </commands>
+  </example>
+  <example>
+    <scenario>Order Processing</scenario>
+    <commands>
+      <command>Get new orders</command>
+      <command>Fulfill order 987654321</command>
+      <command>Create a shipping label</command>
+    </commands>
+  </example>
+  <example>
+    <scenario>Customer Management</scenario>
+    <commands>
+      <command>Find customer by email</command>
+      <command>Update customer information</command>
+      <command>View customer order history</command>
+    </commands>
+  </example>
+  <example>
+    <scenario>Analytics</scenario>
+    <commands>
+      <command>Get sales for the last month</command>
+      <command>Count orders by status</command>
+      <command>Get revenue by product</command>
+    </commands>
+  </example>
+</examples>
+
+<rate_limits>
+  <plan tier="Standard">40 requests per minute</plan>
+  <plan tier="Plus">80 requests per minute</plan>
+  <plan tier="Advanced">1000 requests per minute</plan>
+  <note>Claude will automatically handle rate limiting and retry requests</note>
+</rate_limits>

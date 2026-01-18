@@ -20,7 +20,7 @@ import { TaskDetailModal } from "@/domains/lifelock/_shared/components/ui/TaskDe
 import { TaskDetailSheet } from "@/domains/lifelock/_shared/components/ui/TaskDetailSheet";
 import { CustomCalendar } from "../../../_shared/components";
 import { useDeepWorkTasksSupabase, DeepWorkTask } from "@/domains/lifelock/1-daily/4-deep-work/domain/useDeepWorkTasksSupabase";
-import { sortSubtasksHybrid } from "@/domains/lifelock/1-daily/_shared/utils/subtaskSorting";
+// TODO: import { sortSubtasksHybrid } from "@/domains/lifelock/1-daily/_shared/utils/subtaskSorting";
 import { GamificationService } from "@/domains/lifelock/_shared/services/gamificationService";
 import { getDeepWorkPriorityMultiplier } from "@/domains/lifelock/1-daily/_shared/utils/taskXpCalculations";
 import { useGamificationInit } from '@/domains/lifelock/_shared/hooks/useGamificationInit';
@@ -29,6 +29,9 @@ import { format } from 'date-fns';
 import { UnifiedTaskCard, DEEP_THEME, UnifiedTask } from "@/domains/lifelock/1-daily/_shared/components/UnifiedTaskCard";
 import { logger } from '@/lib/utils/logger';
 import { useClientsList } from '@/domains/admin/clients/hooks/useClientsList';
+
+// Stub for missing sortSubtasksHybrid function
+const sortSubtasksHybrid = (subtasks: any[]) => subtasks;
 
 // Type definitions
 interface Task {

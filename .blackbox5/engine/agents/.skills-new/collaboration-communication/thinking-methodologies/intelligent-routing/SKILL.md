@@ -1,488 +1,226 @@
-# Intelligent Routing Skill
-
-**Purpose:** Enable AI to make intelligent decisions about where to place new things and how to find existing things in Blackbox4.
-
-**Last Updated:** 2026-01-15
-
+---
+name: intelligent-routing
+category: collaboration-communication/thinking-methodologies
+version: 1.0.0
+description: Enable AI to make intelligent decisions about where to place new things and how to find existing things
+author: blackbox5/core
+verified: true
+tags: [routing, organization, file-placement, discovery]
 ---
 
-## Trigger
+# Intelligent Routing
 
-**Use this skill when:**
-- Creating a new agent, skill, library, or other component
-- Need to determine where something should go
-- Trying to find something in Blackbox4
-- Unclear about correct location for a file/directory
+<context>
+Enable AI to make intelligent decisions about where to place new things and how to find existing things in Blackbox5.
 
----
+This skill ensures consistent organization, making everything discoverable and maintainable.
+</context>
 
-## Outputs
+<instructions>
+When placing or finding items in Blackbox5, always follow the four-phase framework: Identify, Route, Validate, Complete.
 
-**Artifacts Created:**
+Use the Type Routing Table from SEMANTIC-INDEX.md, apply Specific Rules from PLACEMENT-RULES.md, and validate against Core Principles.
+</instructions>
+
+<workflow>
+  <phase name="Identify">
+    <goal>Determine what type of thing this is</goal>
+    <steps>
+      <step>Determine the type using identification questions</step>
+      <step>Resolve ambiguous types with clarifying questions</step>
+      <step>Document the type: "This is a [TYPE]"</step>
+    </steps>
+    <type_identification>
+      <question>Is it an Agent? (AI entity with its own prompt/behavior)</question>
+      <question>Is it a Skill? (Reusable workflow/framework)</question>
+      <question>Is it a Plan? (Project with tasks/checklist)</question>
+      <question>Is it a Library? (Reusable code)</question>
+      <question>Is it a Script? (Executable code)</question>
+      <question>Is it a Template? (Reusable pattern)</question>
+      <question>Is it a Document? (Documentation/explanation)</question>
+      <question>Is it a Test? (Test code)</question>
+      <question>Is it a Config? (Configuration/settings)</question>
+      <question>Is it a Memory? (Working knowledge)</question>
+      <question>Is it a Runtime? (Execution state)</question>
+      <question>Is it a Module? (Functional unit with agents)</question>
+      <question>Is it a Framework? (Framework pattern)</question>
+      <question>Is it a Tool? (Maintenance/utility)</question>
+      <question>Is it a Workspace? (Active work area)</question>
+      <question>Is it an Example? (Demonstration)</question>
+    </type_identification>
+  </phase>
+
+  <phase name="Route">
+    <goal>Determine where it goes based on type</goal>
+    <steps>
+      <step>Apply Type Routing Table from SEMANTIC-INDEX.md</step>
+      <step>Apply Specific Rules from PLACEMENT-RULES.md</step>
+      <step>Determine exact path: [primary-location]/[specific-path]/[filename]</step>
+    </steps>
+    <type_routing_table>
+      <route type="Agent" location="1-agents/"></route>
+      <route type="Skill" location="1-agents/.skills/"></route>
+      <route type="Plan" location=".plans/"></route>
+      <route type="Library" location="4-scripts/lib/"></route>
+      <route type="Script" location="4-scripts/"></route>
+      <route type="Template" location="5-templates/"></route>
+      <route type="Document" location=".docs/"></route>
+      <route type="Test" location="8-testing/"></route>
+      <route type="Config" location=".config/"></route>
+      <route type="Memory" location=".memory/"></route>
+      <route type="Runtime" location=".runtime/"></route>
+      <route type="Module" location="3-modules/"></route>
+      <route type="Framework" location="2-frameworks/"></route>
+      <route type="Tool" location="6-tools/"></route>
+      <route type="Workspace" location="7-workspace/"></route>
+      <route type="Example" location="1-agents/*-examples/"></route>
+    </type_routing_table>
+  </phase>
+
+  <phase name="Validate">
+    <goal>Ensure the location is correct using core principles</goal>
+    <steps>
+      <step>Apply Principle 1: Type Consistency</step>
+      <step>Apply Principle 2: Co-location</step>
+      <step>Apply Principle 3: Number Alignment</step>
+      <step>Apply Principle 4: Hidden vs Visible</step>
+      <step>Apply Principle 5: Single Source of Truth</step>
+      <step>Resolve conflicts if multiple locations seem valid</step>
+    </steps>
+    <validation_principles>
+      <principle number="1" name="Type Consistency">
+        Does this match where other things of this type go?
+      </principle>
+      <principle number="2" name="Co-location">
+        Is it near related things?
+      </principle>
+      <principle number="3" name="Number Alignment">
+        Does the number prefix match the layer? (1-*=agents, 4-*=scripts, 8-*=testing)
+      </principle>
+      <principle number="4" name="Hidden vs Visible">
+        Should this be hidden (system) or visible (user-facing)?
+      </principle>
+      <principle number="5" name="Single Source of Truth">
+        Does this already exist elsewhere?
+      </principle>
+    </validation_principles>
+    <conflict_resolution>
+      <resolution>Primary Purpose - What is the MAIN purpose?</resolution>
+      <resolution>Primary User - Who primarily uses it?</resolution>
+      <resolution>Primary Usage - Where is it primarily used?</resolution>
+      <resolution>Most Specific - Use most specific category</resolution>
+    </conflict_resolution>
+  </phase>
+
+  <phase name="Complete">
+    <goal>Finalize placement and document</goal>
+    <steps>
+      <step>Write down: "Place at: [FULL-PATH]"</step>
+      <step>Create structure if needed (add .purpose.md for new directories)</step>
+      <step>Document related items (tests, docs, examples)</step>
+      <step>Update references (DISCOVERY-INDEX.md, READMEs, cross-references)</step>
+      <step>Provide rationale explaining WHY this location</step>
+    </steps>
+  </phase>
+</workflow>
+
+<rules>
+  <rule>Never guess type - use identification questions</rule>
+  <rule>Always use Type Routing Table from SEMANTIC-INDEX.md</rule>
+  <rule>Always validate against Core Principles</rule>
+  <rule>Never skip conflict resolution</rule>
+  <rule>Always document related items (tests, docs, examples)</rule>
+  <rule>Never place randomly - use the framework</rule>
+</rules>
+
+<anti_patterns>
+  <pattern>Don't guess type - use identification questions</pattern>
+  <pattern>Don't skip validation - always check principles</pattern>
+  <pattern>Don't ignore conflicts - resolve them explicitly</pattern>
+  <pattern>Don't forget related items - tests, docs, examples</pattern>
+  <pattern>Don't place randomly - use framework</pattern>
+</anti_patterns>
+
+<examples>
+  <example>
+    <scenario>New Specialist Agent for data analysis</scenario>
+    <process>
+      <step>Type: Agent</step>
+      <step>Agent type: Specialist</step>
+      <step>Location: 1-agents/4-specialists/</step>
+      <step>Specific: 1-agents/4-specialists/data-analyst.md</step>
+      <step>Examples: 1-agents/4-specialists/data-analyst-examples/</step>
+    </process>
+    <output>
+      Place at: 1-agents/4-specialists/data-analyst.md
+      Create examples at: 1-agents/4-specialists/data-analyst-examples/
+    </output>
+  </example>
+
+  <example>
+    <scenario>New Phase 2 Library for task prioritization</scenario>
+    <process>
+      <step>Type: Library</step>
+      <step>Phase: Phase 2 (task-related)</step>
+      <step>Location: 4-scripts/lib/</step>
+      <step>Specific: 4-scripts/lib/task-prioritization/</step>
+      <step>Tests: 8-testing/unit/libraries/test-task-prioritization.py</step>
+    </process>
+    <output>
+      Place at: 4-scripts/lib/task-prioritization/
+      Create tests at: 8-testing/unit/libraries/test-task-prioritization.py
+      Update docs: .docs/phase2/
+    </output>
+  </example>
+
+  <example>
+    <scenario>Finding all BMAD agents</scenario>
+    <process>
+      <step>Type: Agent</step>
+      <step>Agent type: BMAD</step>
+      <step>Location: 1-agents/2-bmad/</step>
+      <step>Search: find 1-agents/2-bmad/ -name "*.md"</step>
+    </process>
+    <output>
+      Found at: 1-agents/2-bmad/
+      Search: find 1-agents/2-bmad/ -name "*.md"
+    </output>
+  </example>
+</examples>
+
+<output_format>
+For placement:
 - Placement recommendation (where to put new thing)
-- Discovery result (where to find existing thing)
 - Rationale explanation (why this location)
 - Related references (what else is related)
 
----
-
-## Key Requirements
-
-The skill must:
-1. Identify the type of thing being placed/found
-2. Apply the Type Routing Table from SEMANTIC-INDEX.md
-3. Use Specific Rules from PLACEMENT-RULES.md
-4. Validate against Core Principles
-5. Provide clear rationale
-6. Suggest related items
-
----
-
-## Step-by-Step Framework
-
-### Phase 1: Identify (What is it?)
-
-**[ ] Determine the type**
-
-Ask: "What is this thing?"
-
-**Type Identification Questions:**
-
-- Is it an **Agent**? (AI entity with its own prompt/behavior)
-- Is it a **Skill**? (Reusable workflow/framework)
-- Is it a **Plan**? (Project with tasks/checklist)
-- Is it a **Library**? (Reusable code)
-- Is it a **Script**? (Executable code)
-- Is it a **Template**? (Reusable pattern)
-- Is it a **Document**? (Documentation/explanation)
-- Is it a **Test**? (Test code)
-- Is it a **Config**? (Configuration/settings)
-- Is it a **Memory**? (Working knowledge)
-- Is it a **Runtime**? (Execution state)
-- Is it a **Module**? (Functional unit with agents)
-- Is it a **Framework**? (Framework pattern)
-- Is it a **Tool**? (Maintenance/utility)
-- Is it a **Workspace**? (Active work area)
-- Is it an **Example**? (Demonstration)
-
-**[ ] Resolve ambiguous types**
-
-If unclear, use these clarifying questions:
-
-- Agent vs Skill:
-  - Agent = Standalone AI entity
-  - Skill = Reusable workflow for agents
-
-- Library vs Module:
-  - Library = Reusable code
-  - Module = Functional unit with own agents
-
-- Script vs Tool:
-  - Script = Execution/workflow
-  - Tool = Maintenance/utility
-
-- Template vs Example:
-  - Template = Reusable pattern
-  - Example = Usage demonstration
-
-**[ ] Document the type**
-
-Write down: "This is a [TYPE]"
-
----
-
-### Phase 2: Route (Where does it go?)
-
-**[ ] Apply Type Routing Table**
-
-Use SEMANTIC-INDEX.md Type Routing Table:
-
-| Type | Primary Location |
-|------|-------------------|
-| Agent | `1-agents/` |
-| Skill | `1-agents/.skills/` |
-| Plan | `.plans/` |
-| Library | `4-scripts/lib/` |
-| Script | `4-scripts/` |
-| Template | `5-templates/` |
-| Document | `.docs/` |
-| Test | `8-testing/` |
-| Config | `.config/` |
-| Memory | `.memory/` |
-| Runtime | `.runtime/` |
-| Module | `3-modules/` |
-| Framework | `2-frameworks/` |
-| Tool | `6-tools/` |
-| Workspace | `7-workspace/` |
-| Example | `1-agents/*-examples/` |
-
-**[ ] Apply specific rules**
-
-Use PLACEMENT-RULES.md Specific Rules by Type:
-
-**For Agents:**
-- What type of agent?
-  - Core → `1-agents/1-core/`
-  - BMAD → `1-agents/2-bmad/`
-  - Research → `1-agents/3-research/`
-  - Specialist → `1-agents/4-specialists/`
-  - Enhanced → `1-agents/5-enhanced/`
-
-**For Skills:**
-- What type of skill?
-  - Core → `.skills/1-core/`
-  - MCP → `.skills/2-mcp/`
-  - Workflow → `.skills/3-workflow/`
-
-**For Libraries:**
-- Which phase?
-  - Phase 1 → `context-variables/`
-  - Phase 2 → `hierarchical-tasks/` or `task-breakdown/`
-  - Phase 3 → `spec-creation/`
-  - Phase 4 → `ralph-runtime/`, `circuit-breaker/`, `response-analyzer/`
-  - Other → `4-scripts/lib/[name]/`
-
-**For Documents:**
-- What type of doc?
-  - Tutorial → `.docs/1-getting-started/`
-  - Architecture → `.docs/2-architecture/`
-  - Component → `.docs/3-components/`
-  - Framework → `.docs/4-frameworks/`
-  - Workflow → `.docs/5-workflows/`
-  - Phase-specific → `.docs/phase[1-4]/`
-
-**[ ] Determine exact path**
-
-Format: `[primary-location]/[specific-path]/[filename]`
-
-Example: `1-agents/4-specialists/my-agent.md`
-
----
-
-### Phase 3: Validate (Is this correct?)
-
-**[ ] Apply Core Principles**
-
-**Principle 1: Type Consistency**
-- Does this match where other things of this type go?
-- ✅ Yes → Continue
-- ❌ No → Reconsider location
-
-**Principle 2: Co-location**
-- Is it near related things?
-- ✅ Yes → Continue
-- ❌ No → Consider moving near related items
-
-**Principle 3: Number Alignment**
-- Does the number prefix match the layer?
-  - 1-* = Intelligence/agents
-  - 4-* = Execution/scripts
-  - 8-* = Testing/validation
-- ✅ Yes → Continue
-- ❌ No → Reconsider
-
-**Principle 4: Hidden vs Visible**
-- Should this be hidden (system) or visible (user-facing)?
-- ✅ Correct → Continue
-- ❌ No → Move to hidden or visible
-
-**Principle 5: Single Source of Truth**
-- Does this already exist elsewhere?
-- ✅ No → Continue
-- ❌ Yes → Use existing, don't duplicate
-
-**[ ] Resolve conflicts**
-
-If multiple locations seem valid:
-
-1. **Primary Purpose** - What is the MAIN purpose?
-2. **Primary User** - Who primarily uses it?
-3. **Primary Usage** - Where is it primarily used?
-4. **Most Specific** - Use most specific category
-
----
-
-### Phase 4: Complete (Finish and document)
-
-**[ ] Finalize location**
-
-Write down: "Place at: [FULL-PATH]"
-
-**[ ] Create structure if needed**
-
-If creating new directory:
-- Add `.purpose.md` explaining directory purpose
-- Follow structure patterns from existing directories
-
-**[ ] Document related items**
-
-What else is related?
-- Tests in `8-testing/`
-- Documentation in `.docs/`
-- Examples in `*-examples/`
-
-**[ ] Update references**
-
-What needs to know about this?
-- Update `DISCOVERY-INDEX.md` if major new thing
-- Update category READMEs
-- Add cross-references
-
-**[ ] Provide rationale**
-
-Explain WHY this location:
-- Type-based routing
-- Specific rule application
-- Core principle validation
-- Co-location benefits
-
----
-
-## Discovery Mode (Finding Things)
-
-### When Finding, Not Placing
-
-**[ ] Identify what you're finding**
-
-What type of thing? (Use Phase 1 identification)
-
-**[ ] Use Discovery Protocol**
-
-1. Check DISCOVERY-INDEX.md Quick Answers
-2. Check SEMANTIC-INDEX.md for type location
-3. Use search patterns
-4. Check related locations
-
-**[ ] Search commands**
-
-By type:
-```bash
-# Agents
-find 1-agents/ -name "*.md"
-
-# Libraries
-find 4-scripts/lib/ -maxdepth 1 -type d
-
-# Scripts
-find 4-scripts/ -name "*.sh" -o -name "*.py"
-
-# Documentation
-find .docs/ -name "*.md"
-```
-
-**[ ] Fallback**
-
-If not found:
-- Check related locations
-- Check `.docs/` for documentation
-- Check `.memory/` for working knowledge
-- Use broader search patterns
-
----
-
-## Output Templates
-
-### Template 1: Placement Recommendation
-
-```markdown
-# Placement Recommendation
-
-**Item:** [description of item]
-**Type:** [agent/skill/library/etc]
-**Recommended Location:** `[full-path]`
-
-## Rationale
-
-1. **Type Identification:** This is a [TYPE] because [reasoning]
-2. **Type Routing:** [TYPE] items go in [primary-location]
-3. **Specific Rules:** [specific rule applied]
-4. **Validation:** Passes all core principles
-
-## Related Items
-
-- Tests: `[test-location]`
-- Documentation: `[doc-location]`
-- Examples: `[example-location]`
-
-## Next Steps
-
-1. Create at: `[full-path]`
-2. Add `.purpose.md` if new directory
-3. Create related items (tests, docs, examples)
-4. Update references in `DISCOVERY-INDEX.md`
-```
-
-### Template 2: Discovery Result
-
-```markdown
-# Discovery Result
-
-**Looking for:** [description]
-**Type:** [agent/skill/library/etc]
-**Found at:** `[full-path]`
-
-## Search Process
-
-1. **Type Identification:** Identified as [TYPE]
-2. **Primary Location:** Checked [primary-location]
-3. **Search Pattern:** Used `[search-pattern]`
-4. **Result:** Found at `[full-path]`
-
-## Related Items
-
-- Documentation: `[doc-location]`
-- Tests: `[test-location]`
-- Examples: `[example-location]`
-```
-
-### Template 3: Conflict Resolution
-
-```markdown
-# Placement Conflict Resolution
-
-**Item:** [description]
-**Ambiguity:** Multiple valid locations
-
-## Options
-
-**Option 1:** `[location-1]`
-- Rationale: [reasoning]
-- Pros: [advantages]
-- Cons: [disadvantages]
-
-**Option 2:** `[location-2]`
-- Rationale: [reasoning]
-- Pros: [advantages]
-- Cons: [disadvantages]
-
-## Resolution
-
-**Recommended:** `[best-location]`
-
-**Reasoning:**
-- Primary purpose: [purpose]
-- Primary user: [user]
-- Primary usage: [usage]
-- Most specific: [category]
-```
-
----
-
-## Examples
-
-### Example 1: New Specialist Agent
-
-**Input:** "I need to create a new specialist agent for data analysis"
-
-**Process:**
-1. Type: Agent
-2. Agent type: Specialist
-3. Location: `1-agents/4-specialists/`
-4. Specific: `1-agents/4-specialists/data-analyst.md`
-5. Examples: `1-agents/4-specialists/data-analyst-examples/`
-
-**Output:**
-```
-Place at: 1-agents/4-specialists/data-analyst.md
-Create examples at: 1-agents/4-specialists/data-analyst-examples/
-```
-
-### Example 2: New Phase 2 Library
-
-**Input:** "I need to create a library for task prioritization"
-
-**Process:**
-1. Type: Library
-2. Phase: Phase 2 (task-related)
-3. Location: `4-scripts/lib/`
-4. Specific: `4-scripts/lib/task-prioritization/`
-5. Tests: `8-testing/unit/libraries/test-task-prioritization.py`
-
-**Output:**
-```
-Place at: 4-scripts/lib/task-prioritization/
-Create tests at: 8-testing/unit/libraries/test-task-prioritization.py
-Update docs: .docs/phase2/
-```
-
-### Example 3: Finding All Agents
-
-**Input:** "Where are all the BMAD agents?"
-
-**Process:**
-1. Type: Agent
-2. Agent type: BMAD
-3. Location: `1-agents/2-bmad/`
-4. Search: `find 1-agents/2-bmad/ -name "*.md"`
-
-**Output:**
-```
-Found at: 1-agents/2-bmad/
-Search: find 1-agents/2-bmad/ -name "*.md"
-```
-
----
-
-## Quality Bar
-
-### Minimum Acceptable
-
-✅ Correct type identification
-✅ Valid location from Type Routing Table
-✅ Specific rules applied
-✅ Core principles validated
-✅ Clear rationale provided
-
-### Excellent Quality
-
-✅ All minimum criteria met
-✅ Considers edge cases
-✅ Identifies related items
-✅ Suggests documentation/tests
-✅ Provides search commands for discovery
-✅ Considers maintenance and evolution
-
-### Anti-Patterns
-
-❌ Don't guess type - use identification questions
-❌ Don't skip validation - always check principles
-❌ Don't ignore conflicts - resolve them explicitly
-❌ Don't forget related items - tests, docs, examples
-❌ Don't place randomly - use framework
-
----
-
-## Integration with Other Skills
-
+For discovery:
+- Discovery result (where to find existing thing)
+- Search process (how you found it)
+- Related items (what else is related)
+</output_format>
+
+<integration_notes>
 This skill integrates with:
+- docs-routing - For routing documentation
+- deep-research - For researching before placement
+- first-principles-thinking - For analyzing placement decisions
 
-- **docs-routing.md** - For routing documentation
-- **deep-research.md** - For researching before placement
-- **first-principles-thinking.md** - For analyzing placement decisions
+Usage phrases:
+- "Use intelligent-routing to determine where to place this new agent"
+- "Use intelligent-routing to find all libraries related to Phase 2"
+- "Apply intelligent-routing to determine where this documentation should go"
+</integration_notes>
 
-**Usage:**
-```
-"Use intelligent-routing to determine where to place this new agent"
-"Use intelligent-routing to find all libraries related to Phase 2"
-"Apply intelligent-routing to determine where this documentation should go"
-```
+<related_skills>
+  <skill>docs-routing</skill>
+  <skill>deep-research</skill>
+  <skill>first-principles-thinking</skill>
+</related_skills>
 
----
-
-## Reference Documentation
-
-This skill is based on:
-
-- **BRAIN-ARCHITECTURE.md** - Overall brain architecture
-- **SEMANTIC-INDEX.md** - Type system and categories
-- **PLACEMENT-RULES.md** - Detailed placement rules
-- **DISCOVERY-INDEX.md** - Quick reference for finding
-
-Always consult these documents when making routing decisions.
-
----
-
-**Status:** Complete
-**Version:** 1.0.0
-**Last Updated:** 2026-01-15
-**Maintainer:** Blackbox4 Core Team
+<see_also>
+  <resource>BRAIN-ARCHITECTURE.md - Overall brain architecture</resource>
+  <resource>SEMANTIC-INDEX.md - Type system and categories</resource>
+  <resource>PLACEMENT-RULES.md - Detailed placement rules</resource>
+  <resource>DISCOVERY-INDEX.md - Quick reference for finding</resource>
+</see_also>

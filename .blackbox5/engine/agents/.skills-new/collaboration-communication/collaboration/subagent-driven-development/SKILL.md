@@ -1,50 +1,77 @@
 ---
 name: subagent-driven-development
-category: workflow
+category: collaboration-communication/collaboration
 version: 1.0.0
 description: Quality-gated iteration with multi-agent workflows for complex tasks
 author: obra/superpowers
 verified: true
-tags: [workflow, multi-agent, quality, development]
+tags: [workflow, multi-agent, quality, development, parallel-execution]
 ---
 
 # Subagent-Driven Development
 
-## Overview
+<context>
 Use multiple specialized subagents in sequence to handle complex development tasks with quality gates between each phase.
 
-## When to Use This Skill
-✅ Large-scale refactoring across many files
-✅ Parallel development streams
-✅ Complex feature requiring multiple expertise areas
-✅ High-risk changes requiring thorough validation
-✅ Tasks needing separation of concerns
+This approach is ideal for large-scale refactoring, parallel development streams, complex features requiring multiple expertise areas, and high-risk changes requiring thorough validation.
+</context>
 
-## The Subagent Pattern
+<instructions>
+Implement multi-agent workflow with specialized agents, clear handoffs, and strict quality gates between phases.
 
-### Basic Flow
-```
-[Planning Agent]
-       ↓
-[Quality Gate: Plan Approved?]
-       ↓
-[Implementation Agent]
-       ↓
-[Quality Gate: Code Complete?]
-       ↓
-[Review Agent]
-       ↓
-[Quality Gate: Issues Resolved?]
-       ↓
-[Testing Agent]
-       ↓
-[Quality Gate: Tests Passing?]
-       ↓
-[Documentation Agent]
-       ↓
-[Final Output]
-```
+Each agent has specific responsibilities, produces artifacts for the next phase, and must pass quality gates before proceeding. Enable parallel execution where possible.
+</instructions>
 
+<workflow>
+## Basic Flow
+1. **Planning Agent**: Break down complex tasks into actionable steps
+2. **Quality Gate**: Plan approved? → If no, iterate
+3. **Implementation Agent**: Execute the plan with clean, tested code
+4. **Quality Gate**: Code complete? → If no, iterate
+5. **Review Agent**: Critical analysis of implementation
+6. **Quality Gate**: Issues resolved? → If no, iterate
+7. **Testing Agent**: Comprehensive testing validation
+8. **Quality Gate**: Tests passing? → If no, iterate
+9. **Documentation Agent**: Complete documentation updates
+10. **Final Output**: Approved deliverable
+
+## Parallel Development Pattern
+1. Identify independent work streams
+2. Create separate agent chains for each stream
+3. Execute streams in parallel
+4. Integration phase to merge streams
+5. End-to-end testing
+6. Final review and approval
+</workflow>
+
+<rules>
+## Quality Gates (Must Have - Blocking)
+- Plan is approved by stakeholders
+- All tests passing
+- No security vulnerabilities
+- No critical bugs
+- Performance benchmarks met
+
+## Quality Gates (Should Have - Warning)
+- Code coverage >80%
+- Documentation complete
+- No review comments unresolved
+- Performance optimized
+
+## Agent Boundaries
+- Each agent has specific responsibility
+- No overlap between agents
+- Clear handoff documentation
+- Artifacts passed between phases
+
+## Phase Execution
+- Don't proceed until quality gate passes
+- Each phase must be reversible
+- Document all handoffs
+- Track quality gate results
+</rules>
+
+<best_practices>
 ## Agent Specializations
 
 ### 1. Planning Agent
@@ -146,61 +173,16 @@ Use multiple specialized subagents in sequence to handle complex development tas
 - [ ] Migration guide clear
 - [ ] Changelog complete
 
-## Parallel Development Pattern
+## Best Practices
+1. **Clear Agent Boundaries**: Each agent has a specific responsibility and doesn't overlap with others
+2. **Handoff Documentation**: Each phase produces artifacts for the next phase
+3. **Quality Gates Are Strict**: Don't proceed to next phase until quality gate passes
+4. **Rollback Strategy**: Each phase should be reversible if issues are found
+5. **Parallel When Possible**: Independent streams can run simultaneously
+</best_practices>
 
-### Multiple Implementation Streams
-```markdown
-## Parallel Refactoring
-
-### Stream 1: Backend API
-- [ ] Planning: Design new API structure
-- [ ] Implementation: Build new endpoints
-- [ ] Testing: Verify API contracts
-- [ ] Review: Security and performance
-
-### Stream 2: Frontend Integration
-- [ ] Planning: Update component structure
-- [ ] Implementation: Connect to new API
-- [ ] Testing: Verify user flows
-- [ ] Review: UX and accessibility
-
-### Stream 3: Data Migration
-- [ ] Planning: Design migration script
-- [ ] Implementation: Build migration tool
-- [ ] Testing: Verify data integrity
-- [ ] Review: Rollback strategy
-
-### Integration Phase
-- [ ] Merge all streams
-- [ ] End-to-end testing
-- [ ] Final review
-- [ ] Deploy
-```
-
-## Quality Gate Criteria
-
-### Must Have (Blocking)
-- Plan is approved by stakeholders
-- All tests passing
-- No security vulnerabilities
-- No critical bugs
-- Performance benchmarks met
-
-### Should Have (Warning)
-- Code coverage >80%
-- Documentation complete
-- No review comments unresolved
-- Performance optimized
-
-### Nice to Have (Optional)
-- Additional test scenarios
-- Enhanced documentation
-- Performance improvements
-- Code simplifications
-
-## Example Workflow
-
-### Complex Refactoring Task
+<examples>
+## Complex Refactoring Task
 ```markdown
 ## Refactor User Authentication System
 
@@ -247,25 +229,45 @@ Use multiple specialized subagents in sequence to handle complex development tas
 **Quality Gate**: ✅ Approved for merge
 ```
 
-## Best Practices
+## Parallel Development Pattern
+```markdown
+## Parallel Refactoring
 
-### 1. Clear Agent Boundaries
-Each agent has a specific responsibility and doesn't overlap with others.
+### Stream 1: Backend API
+- [ ] Planning: Design new API structure
+- [ ] Implementation: Build new endpoints
+- [ ] Testing: Verify API contracts
+- [ ] Review: Security and performance
 
-### 2. Handoff Documentation
-Each phase produces artifacts for the next phase.
+### Stream 2: Frontend Integration
+- [ ] Planning: Update component structure
+- [ ] Implementation: Connect to new API
+- [ ] Testing: Verify user flows
+- [ ] Review: UX and accessibility
 
-### 3. Quality Gates Are Strict
-Don't proceed to next phase until quality gate passes.
+### Stream 3: Data Migration
+- [ ] Planning: Design migration script
+- [ ] Implementation: Build migration tool
+- [ ] Testing: Verify data integrity
+- [ ] Review: Rollback strategy
 
-### 4. Rollback Strategy
-Each phase should be reversible if issues are found.
+### Integration Phase
+- [ ] Merge all streams
+- [ ] End-to-end testing
+- [ ] Final review
+- [ ] Deploy
+```
+</examples>
 
-### 5. Parallel When Possible
-Independent streams can run simultaneously.
+<integration_notes>
+## When to Use This Skill
+✅ Large-scale refactoring across many files
+✅ Parallel development streams
+✅ Complex feature requiring multiple expertise areas
+✅ High-risk changes requiring thorough validation
+✅ Tasks needing separation of concerns
 
 ## Common Mistakes
-
 ❌ **Skipping quality gates**: "Let's just fix it later"
 ❌ **Blurry agent boundaries**: Multiple agents doing same work
 ❌ **Poor handoffs**: Next agent doesn't have context
@@ -286,3 +288,27 @@ Claude will:
 - Respect phase boundaries
 - Enable parallel execution where possible
 - Ensure thorough validation at each step
+</integration_notes>
+
+<output_format>
+Multi-phase execution with:
+
+1. **Phase Artifacts**:
+   - Planning: Implementation plan, risk assessment, success criteria
+   - Implementation: Code changes, unit tests, integration updates
+   - Review: Code review feedback, security/performance analysis
+   - Testing: Test results, coverage report, bug findings
+   - Documentation: Updated docs, API reference, migration guides
+
+2. **Quality Gate Results**:
+   - Pass/fail status for each gate
+   - Blocking issues identified
+   - Warnings and recommendations
+   - Approval decisions
+
+3. **Final Deliverable**:
+   - All phases completed
+   - All quality gates passed
+   - Documentation updated
+   - Ready for deployment
+</output_format>

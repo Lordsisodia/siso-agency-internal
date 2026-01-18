@@ -20,11 +20,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { SubtaskItem } from "@/domains/lifelock/1-daily/_shared/components/subtask/SubtaskItem";
 import { useLightWorkTasksSupabase, LightWorkTask } from "@/domains/lifelock/1-daily/3-light-work/domain/useLightWorkTasksSupabase";
 import { useDeepWorkTasksSupabase, DeepWorkTask } from "@/domains/lifelock/1-daily/4-deep-work/domain/useDeepWorkTasksSupabase";
-import { sortSubtasksHybrid } from "@/domains/lifelock/1-daily/_shared/utils/subtaskSorting";
+// TODO: import { sortSubtasksHybrid } from "@/domains/lifelock/1-daily/_shared/utils/subtaskSorting";
 import { useGamificationInit } from '@/domains/lifelock/_shared/hooks/useGamificationInit';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { UnifiedTaskCard, UnifiedTask, SLATE_THEME } from "@/domains/lifelock/1-daily/_shared/components/UnifiedTaskCard";
+
+// Stub for missing sortSubtasksHybrid function
+const sortSubtasksHybrid = (subtasks: any[]) => subtasks;
 
 // Type definitions - unified for both work types
 interface UnifiedSubtask {

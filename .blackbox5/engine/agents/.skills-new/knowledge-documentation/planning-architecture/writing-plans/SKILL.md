@@ -1,6 +1,6 @@
 ---
 name: writing-plans
-category: workflow
+category: knowledge-documentation/planning-architecture
 version: 1.0.0
 description: Create detailed implementation strategies and architecture documentation
 author: obra/superpowers
@@ -10,169 +10,162 @@ tags: [planning, architecture, documentation, strategy]
 
 # Writing Plans
 
-## Overview
+<context>
 Create detailed, actionable implementation plans that break down complex features into clear steps with proper architecture consideration.
 
-## When to Use This Skill
-✅ Complex features requiring multiple steps
-✅ System design and architecture decisions
-✅ Technical specifications and implementation docs
-✅ Multi-person coordination
+Good plans prevent miscommunication, identify risks early, and ensure everyone understands what they're building and why.
+</context>
 
-## Plan Structure
+<instructions>
+When creating implementation plans, include all essential sections: executive summary, technical approach, implementation steps, testing strategy, and risk assessment.
 
-### Executive Summary
-```markdown
-## Overview
-[2-3 sentences explaining what we're building and why]
+Make steps atomic (small and focused), include definition of done for each step, and plan for iteration rather than attempting everything at once.
+</instructions>
 
-## Goals
-- [ ] Primary goal: what success looks like
-- [ ] Secondary goals: additional benefits
-- [ ] Non-goals: explicitly out of scope
+<workflow>
+  <phase name="Executive Summary">
+    <goal>Provide clear overview of what and why</goal>
+    <steps>
+      <step>Write 2-3 sentence overview explaining what we're building and why</step>
+      <step>Define primary goal (what success looks like)</step>
+      <step>List secondary goals (additional benefits)</step>
+      <step>Explicitly state non-goals (what's out of scope)</step>
+      <step>Define success metrics (performance, quality, timeline)</step>
+    </steps>
+  </phase>
 
-## Success Metrics
-- Performance: [specific metrics]
-- Quality: [test coverage, etc.]
-- Timeline: [when it's needed]
-```
+  <phase name="Technical Approach">
+    <goal>Define architecture and design decisions</goal>
+    <steps>
+      <step>Describe high-level architecture</step>
+      <step>List components and their responsibilities</step>
+      <step>Map data flow through the system</step>
+      <step>Document alternatives considered with pros/cons</step>
+      <step>State chosen approach with rationale</step>
+    </steps>
+  </phase>
 
-### Technical Approach
-```markdown
-## Architecture
-[High-level architecture description]
+  <phase name="Implementation Steps">
+    <goal>Break down into atomic, executable phases</goal>
+    <steps>
+      <step>Phase 1: Foundation - Core infrastructure and setup</step>
+      <step>Phase 2: Core Features - Main functionality</step>
+      <step>Phase 3: Integration & Polish - Complete and refine</step>
+      <step>For each phase: list specific tasks with [ ] checkboxes</step>
+      <step>Include dependencies and deliverables for each phase</step>
+    </steps>
+    <step_format>
+      <bad_example>Build the payment system</bad_example>
+      <good_example>Create Stripe checkout form</good_example>
+    </step_format>
+  </phase>
 
-## Components
-1. **Component A**: [purpose and responsibility]
-2. **Component B**: [purpose and responsibility]
-3. **Component C**: [purpose and responsibility]
+  <phase name="Testing Strategy">
+    <goal>Plan comprehensive testing approach</goal>
+    <steps>
+      <step>Define unit test coverage (core business logic, edge cases)</step>
+      <step>Define integration tests (APIs, databases, external services)</step>
+      <step>Define manual testing scenarios (user flows, performance)</step>
+      <step>Set test coverage goal (recommend >80%)</step>
+    </steps>
+  </phase>
 
-## Data Flow
-[How data moves through the system]
+  <phase name="Risk Assessment">
+    <goal>Identify and mitigate potential issues</goal>
+    <steps>
+      <step>Identify technical risks with impact and probability</step>
+      <step>Define mitigation strategies for each risk</step>
+      <step>List dependencies (external approvals, resources)</step>
+      <step>Create rollback plan for if things go wrong</step>
+    </steps>
+  </phase>
 
-## Alternatives Considered
-| Approach | Pros | Cons | Decision |
-|----------|------|------|----------|
-| Option A | Fast | Complex | ❌ Not worth complexity |
-| Option B | Simple | Slower | ✅ **Chosen** |
-| Option C | Modern | Risky | ❌ Too experimental |
-```
+  <phase name="Iteration Planning">
+    <goal>Plan incremental delivery</goal>
+    <steps>
+      <step>Define MVP scope (core functionality, happy path only)</step>
+      <step>Define Iteration 2 (enhanced error handling, edge cases)</step>
+      <step>Define Iteration 3 (advanced features, polish)</step>
+    </steps>
+  </phase>
+</workflow>
 
-### Implementation Steps
-```markdown
-## Phase 1: Foundation (Days 1-2)
-- [ ] Step 1.1: [specific task]
-- [ ] Step 1.2: [specific task]
-- [ ] Step 1.3: [specific task]
+<rules>
+  <rule>Make steps atomic - small, focused, and completable</rule>
+  <rule>Include definition of done for each step</rule>
+  <rule>Always consider edge cases upfront</rule>
+  <rule>Plan for iteration, not one big release</rule>
+  <rule>Include rollback plan for major changes</rule>
+  <rule>Document alternatives considered with rationale</rule>
+</rules>
 
-**Dependencies**: None
-**Deliverable**: [what's complete]
+<best_practices>
+  <practice>Break down complex tasks until each step takes hours, not days</practice>
+  <practice>Include specific acceptance criteria for each step</practice>
+  <practice>Think about error cases, not just happy path</practice>
+  <practice>Consider performance, security, and maintainability</practice>
+  <practice>Buffer time for unknown unknowns</practice>
+  <practice>Plan tests alongside implementation, not after</practice>
+</best_practices>
 
-## Phase 2: Core Features (Days 3-5)
-- [ ] Step 2.1: [specific task]
-- [ ] Step 2.2: [specific task]
-- [ ] Step 2.3: [specific task]
+<anti_patterns>
+  <pattern>Skip the "why" - context matters</pattern>
+  <pattern>No alternative analysis - first idea isn't always best</pattern>
+  <pattern>Unrealistic timelines - buffer time for the unknown</pattern>
+  <pattern>Ignore risks - what could go wrong?</pattern>
+  <pattern>Testing as afterthought - plan tests upfront</pattern>
+  <pattern>No rollback plan - assume you'll need it</pattern>
+</anti_patterns>
 
-**Dependencies**: Phase 1 complete
-**Deliverable**: [what's complete]
+<examples>
+  <example>
+    <scenario>Building a payment feature</scenario>
+    <plan_structure>
+      <section>Executive Summary</section>
+      <content>
+        - Overview: Add Stripe checkout for one-time payments
+        - Goals: Enable users to purchase premium features
+        - Non-goals: Recurring subscriptions, refunds
+        - Metrics: 95% successful checkout rate
+      </content>
 
-## Phase 3: Integration & Polish (Days 6-7)
-- [ ] Step 3.1: [specific task]
-- [ ] Step 3.2: [specific task]
-- [ ] Step 3.3: [specific task]
+      <section>Technical Approach</section>
+      <content>
+        - Architecture: Frontend Stripe Elements + Backend webhook handler
+        - Components: Checkout form, payment service, webhook handler
+        - Data Flow: User → Stripe → Webhook → App → Database
+        - Alternatives: PayPal (higher fees), Stripe Checkout (less customizable)
+        - Decision: Stripe Elements for maximum control
+      </content>
 
-**Dependencies**: Phase 2 complete
-**Deliverable**: [production-ready feature]
-```
+      <section>Implementation Steps</section>
+      <content>
+        Phase 1: Foundation (Days 1-2)
+        - [ ] Set up Stripe account and test keys
+        - [ ] Create payment service base class
+        - [ ] Set up webhook endpoint
+        - Deliverable: Bare-bones payment infrastructure
 
-### Testing Strategy
-```markdown
-## Unit Tests
-- [ ] Core business logic
-- [ ] Edge cases and error handling
-- [ ] Data validation
+        Phase 2: Core Features (Days 3-5)
+        - [ ] Build checkout form with Stripe Elements
+        - [ ] Implement payment intent creation
+        - [ ] Handle webhook events (success, failure)
+        - [ ] Update database with payment status
+        - Deliverable: Working checkout flow
 
-## Integration Tests
-- [ ] API endpoints
-- [ ] Database operations
-- [ ] External service integrations
+        Phase 3: Integration & Polish (Days 6-7)
+        - [ ] Add error handling and user feedback
+        - [ ] Implement idempotency for webhooks
+        - [ ] Add logging and monitoring
+        - [ ] Security review and testing
+        - Deliverable: Production-ready payment feature
+      </content>
+    </plan_structure>
+  </example>
+</examples>
 
-## Manual Testing
-- [ ] User flows
-- [ ] Performance under load
-- [ ] Cross-browser/device testing
-
-## Test Coverage Goal: >80%
-```
-
-### Risk Assessment
-```markdown
-## Technical Risks
-| Risk | Impact | Probability | Mitigation |
-|------|--------|-------------|------------|
-| Performance bottleneck | High | Medium | Implement caching, add monitoring |
-| Third-party API changes | Medium | Low | Version pinning, fallback strategy |
-| Data migration complexity | High | High | Thorough testing, rollback plan |
-
-## Dependencies
-- [ ] External API approval
-- [ ] Database schema approval
-- [ ] Security review
-
-## Rollback Plan
-[How to revert if things go wrong]
-```
-
-## Planning Best Practices
-
-### Make Steps Atomic
-❌ Bad: "Build the payment system"
-✅ Good: "Create Stripe checkout form"
-
-### Include Definition of Done
-Each step should have clear completion criteria:
-- [ ] Code written and reviewed
-- [ ] Tests passing
-- [ ] Documentation updated
-- [ ] No regressions
-
-### Consider Edge Cases
-```markdown
-## Edge Cases to Handle
-- What happens if the API is down?
-- How do we handle malformed input?
-- What if the user has no internet connection?
-- Concurrent requests for the same resource?
-- Extremely large datasets?
-```
-
-### Plan for Iteration
-```markdown
-## Iteration 1 (MVP)
-- Core functionality
-- Basic error handling
-- Happy path only
-
-## Iteration 2
-- Enhanced error handling
-- Edge case coverage
-- Performance optimization
-
-## Iteration 3
-- Advanced features
-- Polish and UX improvements
-```
-
-## Common Planning Mistakes
-❌ Skipping the "why" - context matters
-❌ No alternative analysis - first idea isn't always best
-❌ Unrealistic timelines - buffer time for the unknown
-❌ Ignoring risks - what could go wrong?
-❌ Testing as afterthought - plan tests upfront
-❌ No rollback plan - assume you'll need it
-
-## Integration with Claude
-When planning, say:
+<integration_notes>
+When planning with Claude, use phrases like:
 - "Help me create a plan for [feature]"
 - "Break down this implementation into steps"
 - "What are the risks with this approach?"
@@ -185,3 +178,24 @@ Claude will:
 - Break down complex tasks
 - Ensure nothing is forgotten
 - Create clear, actionable steps
+</integration_notes>
+
+<output_format>
+Required sections:
+1. Executive Summary (overview, goals, metrics)
+2. Technical Approach (architecture, components, alternatives)
+3. Implementation Steps (phased, with checkboxes)
+4. Testing Strategy (unit, integration, manual)
+5. Risk Assessment (risks, mitigations, rollback)
+
+Optional sections:
+6. Iteration Planning (MVP, future iterations)
+7. Edge Cases to Handle
+8. Success Criteria Definition
+</output_format>
+
+<related_skills>
+  <skill>systematic-debugging</skill>
+  <skill>test-driven-development</skill>
+  <skill>deep-research</skill>
+</related_skills>

@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/PlanForm.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/admin/PlanForm';
-export { default } from '@/domains/admin/PlanForm';
+export * from '@/domains/admin/pages/plans/PlanForm';
+export { default } from '@/domains/admin/pages/plans/PlanForm';
