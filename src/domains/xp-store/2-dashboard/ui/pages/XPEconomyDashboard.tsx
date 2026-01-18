@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingCart, Lock, Sparkles, Flame, Crown, ChevronDown } from 'lucide-react';
 import { useXPStoreContext } from '@/domains/xp-store/_shared/core/XPStoreContext';
-import { xpStoreService, RewardItem } from '@/services/xpStoreService';
+import { xpStoreService, RewardItem } from '@/domains/xp-store/services/xpStoreService';
 import { PurchaseConfirmationModal } from '../components/PurchaseConfirmationModal';
 import { cn } from '@/lib/utils';
 

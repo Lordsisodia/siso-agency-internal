@@ -12,7 +12,7 @@ import {
   RewardItem, 
   PurchaseResult,
   XPStoreError
-} from '@/services/xpStoreService';
+} from '@/domains/xp-store/services/xpStoreService';
 import { XPPsychologyUtils } from '@/lib/utils/xpPsychologyUtils';
 import { supabaseAnon } from '@/lib/services/supabase/clerk-integration';
 

@@ -31,7 +31,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useXPStoreContext } from '@/domains/xp-store/_shared/core/XPStoreContext';
 import { Progress } from '@/components/ui/progress';
-import type { RewardItem } from '@/services/xpStoreService';
+import type { RewardItem } from '@/domains/xp-store/services/xpStoreService';
 
 interface RewardCatalogProps {
   onPurchase: (rewardId: string) => void;
