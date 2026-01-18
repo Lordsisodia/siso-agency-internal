@@ -98,7 +98,6 @@ export const WakeUpTimeTracker: React.FC<WakeUpTimeTrackerProps> = ({
 }) => {
   const [showPresets, setShowPresets] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
-  const [showXPRewards, setShowXPRewards] = useState(false);
   const [celebrating, setCelebrating] = useState(false);
 
   const multiplierInfo = getXPMultiplier(time);
@@ -204,97 +203,71 @@ export const WakeUpTimeTracker: React.FC<WakeUpTimeTrackerProps> = ({
         </motion.div>
       )}
 
-      {/* Quick Actions */}
-      <div className="space-y-2">
-        {time ? (
-          <>
-            {/* Edit Button */}
-            <Button
-              onClick={() => {
-                setShowPresets(!showPresets);
-                setShowHistory(false);
-                setShowXPRewards(false);
-              }}
-              variant="outline"
-              className="w-full bg-orange-900/10 border-orange-700/30 text-orange-400 hover:bg-orange-900/20 h-10 flex items-center justify-between"
-            >
-              <span>Change Time</span>
-              {showPresets ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-            </Button>
+      {/* Action Buttons Row */}
+      <div className="flex gap-2">
+        <Button
+          onClick={() => {
+            setShowPresets(!showPresets);
+            setShowHistory(false);
+          }}
+          variant="outline"
+          className="flex-1 bg-orange-600/20 border-orange-500/40 text-orange-300 hover:bg-orange-600/30 h-9 flex items-center justify-center gap-2 text-sm font-medium"
+        >
+          <Clock className="h-4 w-4" />
+          Change Time
+        </Button>
+        <Button
+          onClick={() => {
+            setShowHistory(!showHistory);
+            setShowPresets(false);
+          }}
+          variant="outline"
+          className="flex-1 bg-orange-600/20 border-orange-500/40 text-orange-300 hover:bg-orange-600/30 h-9 flex items-center justify-center gap-2 text-sm font-medium"
+        >
+          <Calendar className="h-4 w-4" />
+          Weekly Pattern
+        </Button>
+      </div>
 
-            {/* Quick Time Presets */}
-            <AnimatePresence>
-              {showPresets && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="overflow-hidden"
-                >
-                  <div className="grid grid-cols-4 gap-2 p-2 bg-orange-900/20 rounded-lg border border-orange-700/30">
-                    {timePresets.map((preset) => {
-                      const presetMultiplier = getXPMultiplier(preset.time);
-                      const PresetIcon = presetMultiplier.icon;
-                      return (
-                        <button
-                          key={preset.time}
-                          onClick={() => handlePresetClick(preset.time)}
-                          className={cn(
-                            "flex flex-col items-center justify-center p-2 rounded-lg border transition-all duration-200 hover:scale-105",
-                            presetMultiplier.bgColor,
-                            `border-${presetMultiplier.color}-500/30`
-                          )}
-                        >
-                          <div className="text-xs font-bold text-white">{preset.label}</div>
-                          <div className="flex items-center gap-1 mt-1">
-                            <PresetIcon className={cn("h-3 w-3", presetMultiplier.textColor)} />
-                            <span className={cn("text-[10px] font-bold", presetMultiplier.textColor)}>
-                              {presetMultiplier.multiplier}x
-                            </span>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+      {/* Quick Time Presets */}
+      <AnimatePresence>
+        {showPresets && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="grid grid-cols-4 gap-2 p-2 bg-orange-900/20 rounded-lg border border-orange-700/30">
+              {timePresets.map((preset) => {
+                const presetMultiplier = getXPMultiplier(preset.time);
+                const PresetIcon = presetMultiplier.icon;
+                return (
+                  <button
+                    key={preset.time}
+                    onClick={() => handlePresetClick(preset.time)}
+                    className={cn(
+                      "flex flex-col items-center justify-center p-2 rounded-lg border transition-all duration-200 hover:scale-105",
+                      presetMultiplier.bgColor,
+                      `border-${presetMultiplier.color}-500/30`
+                    )}
+                  >
+                    <div className="text-xs font-bold text-white">{preset.label}</div>
+                    <div className="flex items-center gap-1 mt-1">
+                      <PresetIcon className={cn("h-3 w-3", presetMultiplier.textColor)} />
+                      <span className={cn("text-[10px] font-bold", presetMultiplier.textColor)}>
+                        {presetMultiplier.multiplier}x
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-            {/* Weekly Pattern Toggle */}
-            <Button
-              onClick={() => {
-                setShowHistory(!showHistory);
-                setShowPresets(false);
-                setShowXPRewards(false);
-              }}
-              variant="outline"
-              className="w-full bg-orange-900/10 border-orange-700/30 text-orange-400 hover:bg-orange-900/20 h-10 flex items-center justify-between"
-            >
-              <span className="flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
-                This Week's Pattern
-              </span>
-              {showHistory ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-            </Button>
-
-            {/* XP Rewards Toggle */}
-            <Button
-              onClick={() => {
-                setShowXPRewards(!showXPRewards);
-                setShowPresets(false);
-                setShowHistory(false);
-              }}
-              variant="outline"
-              className="w-full bg-orange-900/10 border-orange-700/30 text-orange-400 hover:bg-orange-900/20 h-10 flex items-center justify-between"
-            >
-              <span className="flex items-center gap-2">
-                <Award className="h-4 w-4" />
-                XP Rewards by Time
-              </span>
-              {showXPRewards ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-            </Button>
-
-            {/* Weekly Chart */}
+            {/* Weekly Chart with Integrated XP Rewards */}
             <AnimatePresence>
               {showHistory && (
                 <motion.div
@@ -303,7 +276,7 @@ export const WakeUpTimeTracker: React.FC<WakeUpTimeTrackerProps> = ({
                   exit={{ opacity: 0, height: 0 }}
                   className="overflow-hidden"
                 >
-                  <div className="p-3 bg-orange-900/20 rounded-lg border border-orange-700/30 space-y-3">
+                  <div className="p-3 bg-orange-900/20 rounded-lg border border-orange-700/30 space-y-4">
                     {/* Enhanced Bar Chart with Times */}
                     <div className="space-y-2">
                       <div className="flex items-end justify-between gap-1 h-[60px] px-1">
@@ -345,6 +318,28 @@ export const WakeUpTimeTracker: React.FC<WakeUpTimeTrackerProps> = ({
                       </div>
                     </div>
 
+                    {/* Integrated XP Rewards Reference */}
+                    <div className="pt-3 border-t border-orange-700/30">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Award className="h-3.5 w-3.5 text-orange-400" />
+                        <span className="text-xs font-semibold text-orange-200">XP Rewards by Time</span>
+                      </div>
+                      <div className="grid grid-cols-4 gap-1.5">
+                        {XP_REWARD_TIERS.slice(0, 6).map((tier, index) => (
+                          <div key={index} className={cn(
+                            "text-center p-1.5 rounded border",
+                            tier.bgColor,
+                            "border-white/10"
+                          )}>
+                            <div className="text-[8px] text-orange-200/70 leading-tight">{tier.timeRange}</div>
+                            <div className={cn("text-xs font-bold mt-0.5", tier.color)}>
+                              {tier.multiplier}x
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
                     {/* Streak Info */}
                     <div className="flex items-center justify-between pt-2 border-t border-orange-700/30">
                       <div className="flex items-center gap-2">
@@ -357,66 +352,6 @@ export const WakeUpTimeTracker: React.FC<WakeUpTimeTrackerProps> = ({
                 </motion.div>
               )}
             </AnimatePresence>
-
-            {/* XP Rewards Graph */}
-            <AnimatePresence>
-              {showXPRewards && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="overflow-hidden"
-                >
-                  <div className="p-3 bg-orange-900/20 rounded-lg border border-orange-700/30 space-y-3">
-                    <div className="text-xs text-orange-300/80 text-center mb-2">
-                      XP rewards decrease as wake-up time gets later
-                    </div>
-
-                    {/* Visual Bar Graph */}
-                    <div className="space-y-2">
-                      {XP_REWARD_TIERS.map((tier, index) => {
-                        const widthPercent = (tier.maxXP / 150) * 100;
-                        return (
-                          <div key={index} className="space-y-1">
-                            <div className="flex items-center justify-between text-xs">
-                              <span className="text-orange-200/90 font-medium">{tier.timeRange}</span>
-                              <span className={cn("font-bold", tier.color)}>
-                                {tier.multiplier}x ({tier.maxXP} XP)
-                              </span>
-                            </div>
-                            <div className="relative h-3 bg-orange-900/40 rounded-full overflow-hidden">
-                              <motion.div
-                                initial={{ width: 0 }}
-                                animate={{ width: `${widthPercent}%` }}
-                                transition={{ duration: 0.5, delay: index * 0.05 }}
-                                className={cn(
-                                  "h-full rounded-full",
-                                  tier.bgColor.replace('/20', '/60'),
-                                  "border border-white/10"
-                                )}
-                              />
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                    {/* Current Time Indicator */}
-                    {time && (
-                      <div className="mt-3 pt-3 border-t border-orange-700/30">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-orange-300/70">Current Selection</span>
-                          <span className={cn("text-sm font-bold", multiplierInfo.textColor)}>
-                            {multiplierInfo.multiplier}x multiplier
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </>
         ) : (
           <>
             {/* Empty State */}

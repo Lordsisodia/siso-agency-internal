@@ -43,6 +43,21 @@ You are working on a task in the SISO-INTERNAL codebase. This codebase includes 
    - Update .blackbox/.plans/active/vibe-kanban-work/queue-status.md
    - Log any git commits you made
 
+4. **CRITICAL: PRE-COMMIT VALIDATION**
+   - **ALL code changes MUST pass pre-commit hooks before committing**
+   - Pre-commit hooks automatically run:
+     - TypeScript compiler (`npx tsc --noEmit`) - catches type errors, syntax errors, missing imports
+     - ESLint (`npx eslint . --ext .ts,.tsx`) - catches linting issues
+   - If you modify TypeScript/TSX files, ALWAYS test before committing:
+     ```bash
+     # Test pre-commit hooks manually
+     npx tsc --noEmit
+     npx eslint . --ext .ts,.tsx --max-warnings=0
+     ```
+   - **This is mandatory for ALL UI changes, TypeScript files, and any code modifications**
+   - The pre-commit hook will BLOCK any commit that fails these checks
+   - Fix all errors before attempting to commit again
+
 ### File Templates:
 
 **active-tasks.md entry:**
@@ -85,6 +100,38 @@ You are working on a task in the SISO-INTERNAL codebase. This codebase includes 
 ```
 
 IMPORTANT: Always update .blackbox files as you work. This is how we track everything!
+
+### 🚨 CRITICAL: PRE-COMMIT VALIDATION REQUIRED
+
+**ALL code changes MUST pass pre-commit hooks before committing:**
+
+1. **TypeScript Check** - Catches type errors, syntax errors, missing imports
+2. **ESLint Check** - Catches linting issues and code quality problems
+
+**Before committing ANY code changes:**
+```bash
+# Test pre-commit hooks manually
+npx tsc --noEmit
+npx eslint . --ext .ts,.tsx --max-warnings=0
+```
+
+**The pre-commit hook will BLOCK commits that fail these checks. Fix all errors before committing.**
+
+This is MANDATORY for:
+- All UI changes (TSX files)
+- All TypeScript files (TS)
+- Any code modifications
+
+Example error that would be caught:
+```typescript
+// ❌ This would be caught by pre-commit hooks
+const unused = 1; // ESLint: unused variable
+const bad: any = {}; // TypeScript: any type
+
+// ✅ This passes all checks
+const value: number = 1;
+const data: Record<string, unknown> = {};
+```
 ```
 
 ---
