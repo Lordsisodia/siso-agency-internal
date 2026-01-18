@@ -204,188 +204,191 @@ export const WakeUpTimeTracker: React.FC<WakeUpTimeTrackerProps> = ({
       )}
 
       {/* Action Buttons Row */}
-      <div className="flex gap-2">
-        <Button
-          onClick={() => {
-            setShowPresets(!showPresets);
-            setShowHistory(false);
-          }}
-          variant="outline"
-          className="flex-1 bg-orange-600/20 border-orange-500/40 text-orange-300 hover:bg-orange-600/30 h-9 flex items-center justify-center gap-2 text-sm font-medium"
-        >
-          <Clock className="h-4 w-4" />
-          Change Time
-        </Button>
-        <Button
-          onClick={() => {
-            setShowHistory(!showHistory);
-            setShowPresets(false);
-          }}
-          variant="outline"
-          className="flex-1 bg-orange-600/20 border-orange-500/40 text-orange-300 hover:bg-orange-600/30 h-9 flex items-center justify-center gap-2 text-sm font-medium"
-        >
-          <Calendar className="h-4 w-4" />
-          Weekly Pattern
-        </Button>
-      </div>
-
-      {/* Quick Time Presets */}
-      <AnimatePresence>
-        {showPresets && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="overflow-hidden"
+      {time ? (
+        <>
+        <div className="flex gap-2">
+          <Button
+            onClick={() => {
+              setShowPresets(!showPresets);
+              setShowHistory(false);
+            }}
+            variant="outline"
+            className="flex-1 bg-orange-600/20 border-orange-500/40 text-orange-300 hover:bg-orange-600/30 h-9 flex items-center justify-center gap-2 text-sm font-medium"
           >
-            <div className="grid grid-cols-4 gap-2 p-2 bg-orange-900/20 rounded-lg border border-orange-700/30">
-              {timePresets.map((preset) => {
-                const presetMultiplier = getXPMultiplier(preset.time);
-                const PresetIcon = presetMultiplier.icon;
-                return (
-                  <button
-                    key={preset.time}
-                    onClick={() => handlePresetClick(preset.time)}
-                    className={cn(
-                      "flex flex-col items-center justify-center p-2 rounded-lg border transition-all duration-200 hover:scale-105",
-                      presetMultiplier.bgColor,
-                      `border-${presetMultiplier.color}-500/30`
-                    )}
-                  >
-                    <div className="text-xs font-bold text-white">{preset.label}</div>
-                    <div className="flex items-center gap-1 mt-1">
-                      <PresetIcon className={cn("h-3 w-3", presetMultiplier.textColor)} />
-                      <span className={cn("text-[10px] font-bold", presetMultiplier.textColor)}>
-                        {presetMultiplier.multiplier}x
-                      </span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <Clock className="h-4 w-4" />
+            Change Time
+          </Button>
+          <Button
+            onClick={() => {
+              setShowHistory(!showHistory);
+              setShowPresets(false);
+            }}
+            variant="outline"
+            className="flex-1 bg-orange-600/20 border-orange-500/40 text-orange-300 hover:bg-orange-600/30 h-9 flex items-center justify-center gap-2 text-sm font-medium"
+          >
+            <Calendar className="h-4 w-4" />
+            Weekly Pattern
+          </Button>
+        </div>
 
-            {/* Weekly Chart with Integrated XP Rewards */}
-            <AnimatePresence>
-              {showHistory && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="overflow-hidden"
-                >
-                  <div className="p-3 bg-orange-900/20 rounded-lg border border-orange-700/30 space-y-4">
-                    {/* Enhanced Bar Chart with Times */}
-                    <div className="space-y-2">
-                      <div className="flex items-end justify-between gap-1 h-[60px] px-1">
-                        {weeklyData.map((day, index) => (
-                          <div key={index} className="flex-1 flex flex-col items-center justify-end h-full group relative">
-                            <motion.div
-                              initial={{ height: 0 }}
-                              animate={{ height: `${getBarHeight(day.multiplier)}%` }}
-                              transition={{ duration: 0.4, delay: index * 0.05 }}
-                              className={cn(
-                                "w-full max-w-[14px] rounded-t-sm transition-all duration-300",
-                                day.time ? getBarColor(day.multiplier) : "bg-white/5"
-                              )}
-                            />
-                            {/* Tooltip with exact time */}
-                            {day.time && (
-                              <div className="absolute bottom-full mb-1 opacity-0 group-hover:opacity-100 transition-opacity bg-black/90 text-[10px] text-white px-2 py-1 rounded pointer-events-none whitespace-nowrap z-10 shadow-lg">
-                                <div className="font-semibold">{day.time}</div>
-                                <div className="text-orange-300">{day.multiplier}x XP</div>
-                              </div>
-                            )}
-                            <div className="text-[10px] text-orange-300/70 mt-1">{formatDayLetter(day.date)}</div>
+        {/* Quick Time Presets */}
+        <AnimatePresence>
+          {showPresets && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="overflow-hidden"
+            >
+              <div className="grid grid-cols-4 gap-2 p-2 bg-orange-900/20 rounded-lg border border-orange-700/30">
+                {timePresets.map((preset) => {
+                  const presetMultiplier = getXPMultiplier(preset.time);
+                  const PresetIcon = presetMultiplier.icon;
+                  return (
+                    <button
+                      key={preset.time}
+                      onClick={() => handlePresetClick(preset.time)}
+                      className={cn(
+                        "flex flex-col items-center justify-center p-2 rounded-lg border transition-all duration-200 hover:scale-105",
+                        presetMultiplier.bgColor,
+                        `border-${presetMultiplier.color}-500/30`
+                      )}
+                    >
+                      <div className="text-xs font-bold text-white">{preset.label}</div>
+                      <div className="flex items-center gap-1 mt-1">
+                        <PresetIcon className={cn("h-3 w-3", presetMultiplier.textColor)} />
+                        <span className={cn("text-[10px] font-bold", presetMultiplier.textColor)}>
+                          {presetMultiplier.multiplier}x
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Weekly Chart with Integrated XP Rewards */}
+        <AnimatePresence>
+          {showHistory && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="overflow-hidden"
+            >
+              <div className="p-3 bg-orange-900/20 rounded-lg border border-orange-700/30 space-y-4">
+                {/* Enhanced Bar Chart with Times */}
+                <div className="space-y-2">
+                  <div className="flex items-end justify-between gap-1 h-[60px] px-1">
+                    {weeklyData.map((day, index) => (
+                      <div key={index} className="flex-1 flex flex-col items-center justify-end h-full group relative">
+                        <motion.div
+                          initial={{ height: 0 }}
+                          animate={{ height: `${getBarHeight(day.multiplier)}%` }}
+                          transition={{ duration: 0.4, delay: index * 0.05 }}
+                          className={cn(
+                            "w-full max-w-[14px] rounded-t-sm transition-all duration-300",
+                            day.time ? getBarColor(day.multiplier) : "bg-white/5"
+                          )}
+                        />
+                        {/* Tooltip with exact time */}
+                        {day.time && (
+                          <div className="absolute bottom-full mb-1 opacity-0 group-hover:opacity-100 transition-opacity bg-black/90 text-[10px] text-white px-2 py-1 rounded pointer-events-none whitespace-nowrap z-10 shadow-lg">
+                            <div className="font-semibold">{day.time}</div>
+                            <div className="text-orange-300">{day.multiplier}x XP</div>
                           </div>
-                        ))}
+                        )}
+                        <div className="text-[10px] text-orange-300/70 mt-1">{formatDayLetter(day.date)}</div>
                       </div>
-
-                      {/* Time List - Exact times below the chart */}
-                      <div className="grid grid-cols-7 gap-1 mt-2">
-                        {weeklyData.map((day, index) => (
-                          <div key={index} className="text-center">
-                            <div className={cn(
-                              "text-[9px] font-medium px-1 py-0.5 rounded",
-                              day.time ? "bg-orange-900/40 text-orange-200" : "text-orange-400/40"
-                            )}>
-                              {day.time || '--:--'}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Integrated XP Rewards Reference */}
-                    <div className="pt-3 border-t border-orange-700/30">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Award className="h-3.5 w-3.5 text-orange-400" />
-                        <span className="text-xs font-semibold text-orange-200">XP Rewards by Time</span>
-                      </div>
-                      <div className="grid grid-cols-4 gap-1.5">
-                        {XP_REWARD_TIERS.slice(0, 6).map((tier, index) => (
-                          <div key={index} className={cn(
-                            "text-center p-1.5 rounded border",
-                            tier.bgColor,
-                            "border-white/10"
-                          )}>
-                            <div className="text-[8px] text-orange-200/70 leading-tight">{tier.timeRange}</div>
-                            <div className={cn("text-xs font-bold mt-0.5", tier.color)}>
-                              {tier.multiplier}x
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Streak Info */}
-                    <div className="flex items-center justify-between pt-2 border-t border-orange-700/30">
-                      <div className="flex items-center gap-2">
-                        <Flame className="h-4 w-4 text-orange-400" />
-                        <span className="text-sm text-orange-200">Current Streak</span>
-                      </div>
-                      <span className="text-lg font-bold text-orange-400">{streak} days</span>
-                    </div>
+                    ))}
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-        ) : (
-          <>
-            {/* Empty State */}
-            <div className="text-center py-4">
-              <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.1 }}
-                className="mb-3"
-              >
-                <Clock className="h-8 w-8 text-orange-400 mx-auto mb-2" />
-              </motion.div>
-              <p className="text-orange-200 font-semibold mb-1">What time did you wake up today?</p>
-              <p className="text-xs text-orange-300/70">Early risers earn 3x XP! 🌅</p>
-            </div>
 
-            {/* Action Buttons */}
-            <div className="flex gap-2">
-              <Button
-                onClick={onOpenPicker}
-                className="flex-1 bg-orange-900/10 border border-orange-700/30 text-orange-400 hover:bg-orange-900/20 h-10"
-              >
-                <Clock className="h-4 w-4 mr-2" />
-                Set Time
-              </Button>
-              <Button
-                onClick={onUseNow}
-                className="bg-orange-600 hover:bg-orange-700 text-white h-10 px-4 font-semibold"
-              >
-                Now
-              </Button>
-            </div>
-          </>
-        )}
+                  {/* Time List - Exact times below the chart */}
+                  <div className="grid grid-cols-7 gap-1 mt-2">
+                    {weeklyData.map((day, index) => (
+                      <div key={index} className="text-center">
+                        <div className={cn(
+                          "text-[9px] font-medium px-1 py-0.5 rounded",
+                          day.time ? "bg-orange-900/40 text-orange-200" : "text-orange-400/40"
+                        )}>
+                          {day.time || '--:--'}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Integrated XP Rewards Reference */}
+                <div className="pt-3 border-t border-orange-700/30">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Award className="h-3.5 w-3.5 text-orange-400" />
+                    <span className="text-xs font-semibold text-orange-200">XP Rewards by Time</span>
+                  </div>
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {XP_REWARD_TIERS.slice(0, 6).map((tier, index) => (
+                      <div key={index} className={cn(
+                        "text-center p-1.5 rounded border",
+                        tier.bgColor,
+                        "border-white/10"
+                      )}>
+                        <div className="text-[8px] text-orange-200/70 leading-tight">{tier.timeRange}</div>
+                        <div className={cn("text-xs font-bold mt-0.5", tier.color)}>
+                          {tier.multiplier}x
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Streak Info */}
+                <div className="flex items-center justify-between pt-2 border-t border-orange-700/30">
+                  <div className="flex items-center gap-2">
+                    <Flame className="h-4 w-4 text-orange-400" />
+                    <span className="text-sm text-orange-200">Current Streak</span>
+                  </div>
+                  <span className="text-lg font-bold text-orange-400">{streak} days</span>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        </>
+      ) : (
+        <>
+        {/* Empty State */}
+        <div className="text-center py-4">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.1 }}
+            className="mb-3"
+          >
+            <Clock className="h-8 w-8 text-orange-400 mx-auto mb-2" />
+          </motion.div>
+          <p className="text-orange-200 font-semibold mb-1">What time did you wake up today?</p>
+          <p className="text-xs text-orange-300/70">Early risers earn 3x XP! 🌅</p>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-2">
+          <Button
+            onClick={onOpenPicker}
+            className="flex-1 bg-orange-900/10 border border-orange-700/30 text-orange-400 hover:bg-orange-900/20 h-10"
+          >
+            <Clock className="h-4 w-4 mr-2" />
+            Set Time
+          </Button>
+          <Button
+            onClick={onUseNow}
+            className="bg-orange-600 hover:bg-orange-700 text-white h-10 px-4 font-semibold"
+          >
+            Now
+          </Button>
+        </div>
+        </>
+      )}
       </div>
     </div>
   );
