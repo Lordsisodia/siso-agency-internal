@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/clients/EnhancedStatusBadge.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/clients/EnhancedStatusBadge';
-export { default } from '@/domains/clients/EnhancedStatusBadge';
+export * from '@/domains/admin/clients/EnhancedStatusBadge';
+export { default } from '@/domains/admin/clients/EnhancedStatusBadge';

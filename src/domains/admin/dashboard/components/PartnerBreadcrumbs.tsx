@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, Home } from 'lucide-react';
-import { usePartnerNavigation } from '@/domains/partners/partnership/hooks/usePartnerNavigation';
+import { usePartnerNavigation } from '@/domains/admin/partners/partnership/hooks/usePartnerNavigation';
 
 export function PartnerBreadcrumbs() {
   const { breadcrumbs } = usePartnerNavigation();

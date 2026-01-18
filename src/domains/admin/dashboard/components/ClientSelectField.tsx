@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/clients/ClientSelectField.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/clients/ClientSelectField';
-export { default } from '@/domains/clients/ClientSelectField';
+export * from '@/domains/admin/clients/ClientSelectField';
+export { default } from '@/domains/admin/clients/ClientSelectField';

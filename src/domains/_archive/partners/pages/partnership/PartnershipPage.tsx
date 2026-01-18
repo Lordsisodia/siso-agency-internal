@@ -5,14 +5,14 @@ import { supabase } from '@/services/integrations/supabase/client';
 import { Waves } from '@/components/ui/waves-background';
 import { AgencyPartnershipHeader } from '@/components/ui/agency-partnership-header';
 import { Stats } from '@/components/ui/stats-section-with-text';
-import { PartnershipNavigation } from '@/domains/partners/external/partnerships/components/PartnershipNavigation';
-import { PartnershipPortfolio } from '@/domains/partners/external/partnerships/components/PartnershipPortfolio';
-import { PartnershipBenefits } from '@/domains/partners/external/partnerships/components/PartnershipBenefits';
-import { PartnershipProcess } from '@/domains/partners/external/partnerships/components/PartnershipProcess';
-import { PartnershipAIChat } from '@/domains/partners/external/partnerships/components/PartnershipAIChat';
-import { PartnershipTraining } from '@/domains/partners/external/partnerships/components/PartnershipTraining';
+import { PartnershipNavigation } from '@/domains/admin/partners/external/partnerships/components/PartnershipNavigation';
+import { PartnershipPortfolio } from '@/domains/admin/partners/external/partnerships/components/PartnershipPortfolio';
+import { PartnershipBenefits } from '@/domains/admin/partners/external/partnerships/components/PartnershipBenefits';
+import { PartnershipProcess } from '@/domains/admin/partners/external/partnerships/components/PartnershipProcess';
+import { PartnershipAIChat } from '@/domains/admin/partners/external/partnerships/components/PartnershipAIChat';
+import { PartnershipTraining } from '@/domains/admin/partners/external/partnerships/components/PartnershipTraining';
 import Footer from '@/components/shared/Footer';
-import { PartnerRequirements } from '@/domains/partners/external/partnerships/ui/PartnerRequirements';
+import { PartnerRequirements } from '@/domains/admin/partners/external/partnerships/ui/PartnerRequirements';
 
 const PartnershipPage = memo(() => {
   const navigate = useNavigate();

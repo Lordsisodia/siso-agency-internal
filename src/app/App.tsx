@@ -13,7 +13,7 @@ import { AdminAutoLogin } from '@/domains/admin/auth/AdminAutoLogin';
 import { AdminLayout } from '@/domains/admin/layout/AdminLayout';
 
 // Lazy load all other pages for super-fast initial load
-const XPStorePage = lazy(() => import('@/domains/xp-store/1-storefront/ui/pages/XPStorePage'));
+const XPStorePage = lazy(() => import('@/domains/admin/xp-store/1-storefront/ui/pages/XPStorePage'));
 const XPDashboardPage = lazy(() => import('@/components/ui/dashboard/pages/XPDashboardPage'));
 
 // Admin pages - heavy bundle, lazy load all

@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/clients/ClientsEnhancedTable.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/clients/ClientsEnhancedTable';
-export { default } from '@/domains/clients/ClientsEnhancedTable';
+export * from '@/domains/admin/clients/ClientsEnhancedTable';
+export { default } from '@/domains/admin/clients/ClientsEnhancedTable';

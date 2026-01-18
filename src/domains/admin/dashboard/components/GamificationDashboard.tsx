@@ -31,8 +31,8 @@ import { PeakProductivityCard } from '@/domains/lifelock/analytics/ui/components
 import { RecentAchievementsCard } from '@/domains/lifelock/analytics/ui/components/achievements/RecentAchievementsCard';
 import { XPBottomNav } from '@/domains/lifelock/analytics/ui/pages/XPBottomNav';
 import { GridMoreMenu } from '@/components/GridMoreMenu';
-import { RewardCatalog } from '@/domains/xp-store/1-storefront/ui/components/RewardCatalog';
-import { XPStoreProvider } from '@/domains/xp-store/_shared/core/XPStoreContext';
+import { RewardCatalog } from '@/domains/admin/xp-store/1-storefront/ui/components/RewardCatalog';
+import { XPStoreProvider } from '@/domains/admin/xp-store/_shared/core/XPStoreContext';
 import { AllAchievementsGrid } from './AllAchievementsGrid';
 import { LevelProgressCard } from './LevelProgressCard';
 import { StoreManagementPanel } from './StoreManagementPanel';

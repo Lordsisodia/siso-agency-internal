@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/clients/DraggableColumnHeader.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/clients/DraggableColumnHeader';
-export { default } from '@/domains/clients/DraggableColumnHeader';
+export * from '@/domains/admin/clients/DraggableColumnHeader';
+export { default } from '@/domains/admin/clients/DraggableColumnHeader';

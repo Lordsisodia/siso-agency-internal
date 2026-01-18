@@ -2,7 +2,7 @@ import { AdminLayout } from '@/domains/admin/layout/AdminLayout';
 import { AdminPageTitle } from '@/domains/admin/layout/AdminPageTitle';
 import { EnhancedTable } from '@/components/ui/enhanced-table';
 import StatsCard from '@/internal/dashboard/StatsCard';
-import CommissionCalculator from '@/domains/partners/external/partnerships/components/CommissionCalculator';
+import CommissionCalculator from '@/domains/admin/partners/external/partnerships/components/CommissionCalculator';
 import { RecentActivityCard } from '@/internal/dashboard/cards/RecentActivityCard';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

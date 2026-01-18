@@ -1,7 +1,7 @@
 
 import { AdminLayout } from '@/domains/admin/layout/AdminLayout';
 import { Users } from 'lucide-react';
-import { AdminClientsView } from '@/domains/clients/AdminClientsView';
+import { AdminClientsView } from '@/domains/admin/clients/AdminClientsView';
 import { AdminPageTitle } from '@/domains/admin/layout/AdminPageTitle';
 
 export default function AdminClients() {

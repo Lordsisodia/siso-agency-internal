@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/clients/components/table-cells/StatusCell.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/clients/components/table-cells/StatusCell';
-export { default } from '@/domains/clients/components/table-cells/StatusCell';
+export * from '@/domains/admin/clients/components/table-cells/StatusCell';
+export { default } from '@/domains/admin/clients/components/table-cells/StatusCell';

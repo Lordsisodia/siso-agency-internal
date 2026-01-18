@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/clients/ClientsToolbar.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/clients/ClientsToolbar';
-export { default } from '@/domains/clients/ClientsToolbar';
+export * from '@/domains/admin/clients/ClientsToolbar';
+export { default } from '@/domains/admin/clients/ClientsToolbar';

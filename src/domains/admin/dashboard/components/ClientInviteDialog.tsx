@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/clients/ClientInviteDialog.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/clients/ClientInviteDialog';
-export { default } from '@/domains/clients/ClientInviteDialog';
+export * from '@/domains/admin/clients/ClientInviteDialog';
+export { default } from '@/domains/admin/clients/ClientInviteDialog';

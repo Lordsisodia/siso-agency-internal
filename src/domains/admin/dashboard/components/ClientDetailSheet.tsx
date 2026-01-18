@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/clients/ClientDetailSheet.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/clients/ClientDetailSheet';
-export { default } from '@/domains/clients/ClientDetailSheet';
+export * from '@/domains/admin/clients/ClientDetailSheet';
+export { default } from '@/domains/admin/clients/ClientDetailSheet';

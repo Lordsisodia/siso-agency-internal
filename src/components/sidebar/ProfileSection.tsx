@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { supabase } from '@/services/integrations/supabase/client';
 import { useToast } from '@/lib/hooks/ui/useToast';
-import { usePoints } from '@/domains/xp-store/_shared/core/usePoints';
+import { usePoints } from '@/domains/admin/xp-store/_shared/core/usePoints';
 import { useBasicUserData } from '@/domains/lifelock/_shared/hooks/useBasicUserData';
 
 interface ProfileSectionProps {

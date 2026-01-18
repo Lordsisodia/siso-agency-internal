@@ -1,5 +1,5 @@
 import { Trophy, Star } from 'lucide-react';
-import { usePoints } from '@/domains/xp-store/_shared/core/usePoints';
+import { usePoints } from '@/domains/admin/xp-store/_shared/core/usePoints';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface PointsDisplayProps {

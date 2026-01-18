@@ -14,7 +14,7 @@ import { format } from 'date-fns';
 import DeepWorkTaskList from '@/domains/lifelock/views/daily/4-deep-work/components/DeepWorkTaskList';
 import { useDeepWorkTasksSupabase } from '@/domains/task-ui/hooks/useDeepWorkTasksSupabase';
 import { Separator } from '@/components/ui/separator';
-import { useClientsList } from '@/domains/clients/hooks/useClientsList';
+import { useClientsList } from '@/domains/admin/clients/hooks/useClientsList';
 
 export function CalendarView() {
   const [date, setDate] = useState<Date | undefined>(new Date());

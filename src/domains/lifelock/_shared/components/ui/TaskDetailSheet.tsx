@@ -20,7 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { SubtaskItem } from "@/domains/lifelock/1-daily/_shared/components/subtask/SubtaskItem";
 import { CustomCalendar } from "@/domains/lifelock/1-daily/_shared/components";
 import { format } from 'date-fns';
-import { useClientsList } from '@/domains/clients/hooks/useClientsList';
+import { useClientsList } from '@/domains/admin/clients/hooks/useClientsList';
 
 interface Subtask {
   id: string;

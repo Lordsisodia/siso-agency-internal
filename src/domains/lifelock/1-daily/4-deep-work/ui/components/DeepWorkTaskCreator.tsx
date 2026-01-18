@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useClientsList } from '@/domains/clients/hooks/useClientsList';
+import { useClientsList } from '@/domains/admin/clients/hooks/useClientsList';
 import { Building2, Zap } from 'lucide-react';
 
 interface DeepWorkTaskCreatorProps {

@@ -18,9 +18,9 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { PartnershipLayout } from '@/domains/partners/external/partnerships/components/PartnershipLayout';
-import { PartnershipReferralsTable } from '@/domains/partners/external/partnerships/components/PartnershipReferralsTable';
-import { AirtablePartnersTable } from '@/domains/partners/external/partnerships/components/AirtablePartnersTable';
+import { PartnershipLayout } from '@/domains/admin/partners/external/partnerships/components/PartnershipLayout';
+import { PartnershipReferralsTable } from '@/domains/admin/partners/external/partnerships/components/PartnershipReferralsTable';
+import { AirtablePartnersTable } from '@/domains/admin/partners/external/partnerships/components/AirtablePartnersTable';
 import { DashboardGreetingCard } from '@/components/ui/dashboard-templates';
 
 export default function Clients() {
