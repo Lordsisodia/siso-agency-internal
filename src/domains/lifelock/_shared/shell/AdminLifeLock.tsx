@@ -5,9 +5,9 @@ import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { TabLayoutWrapper } from '@/domains/lifelock/_shared/core/TabLayoutWrapper';
 
 import { getTaskService } from '@/services/database/TaskServiceRegistry';
-import { useTaskCRUD } from '@/lib/hooks/useTaskCRUD';
-import { useTaskState } from '@/lib/hooks/useTaskState';
-import { useTaskValidation } from '@/lib/hooks/useTaskValidation';
+import { useTaskCRUD } from '@/lib/domains/lifelock/1-daily/2-tasks/domain/useTaskCRUD';
+import { useTaskState } from '@/lib/domains/lifelock/1-daily/2-tasks/domain/useTaskState';
+import { useTaskValidation } from '@/lib/domains/lifelock/1-daily/2-tasks/domain/useTaskValidation';
 
 
 

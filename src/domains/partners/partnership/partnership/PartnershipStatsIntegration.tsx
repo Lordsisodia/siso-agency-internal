@@ -2,7 +2,7 @@
 // Demonstrates how to integrate real backend data with existing UI
 
 import React from 'react';
-import { usePartnerStats } from '@/lib/hooks/usePartnerStats';
+import { usePartnerStats } from '@/lib/domains/partners/partnership/hooks/usePartnerStats';
 import { Loader2, Users, TrendingUp, Award, DollarSign } from 'lucide-react';
 
 interface StatCardProps {

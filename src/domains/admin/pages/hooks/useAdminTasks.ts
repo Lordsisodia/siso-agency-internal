@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuthSession } from '@/lib/hooks/auth/useAuthSession';
 import { useToast } from '@/components/ui/use-toast';
 import { useTasks } from '@/tasks';
-import { useTaskOperations } from '@/lib/hooks/useTaskOperations';
+import { useTaskOperations } from '@/lib/domains/lifelock/1-daily/2-tasks/domain/useTaskCRUD';
 
 interface Subtask {
   id: string;

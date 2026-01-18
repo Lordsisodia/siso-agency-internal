@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/services/integrations/supabase/client';
 import { useToast } from '@/lib/hooks/ui/useToast';
-import { useAuth } from '@/lib/hooks/useAuth';
+import { useAuth } from '@/lib/hooks/auth/useClerkUser';
 import {
   createPartnerReferral,
   updatePartnerReferral,

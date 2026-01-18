@@ -1,545 +1,590 @@
 /**
- * Modern Task State Management with Zustand
- * Provides centralized state management for the task system
+ * 🚀 Core Task Store - Zustand Implementation
+ * 
+ * Replaces React Context with high-performance Zustand store
+ * Features: Type-safe state, optimistic updates, persistence, dev tools
  */
 
 import { create } from 'zustand';
-import { devtools, persist } from 'zustand/middleware';
+import { devtools, persist, subscribeWithSelector } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import { subscribeWithSelector } from 'zustand/middleware';
-import { 
-  Task, 
-  TaskFilters, 
-  TaskViewState, 
-  TaskViewType, 
-  TaskViewConfig,
-  TaskStatus,
-  TaskPriority,
-  TaskCategory,
-  BulkTaskUpdate 
-} from '@/domains/tasks/types/task.types';
-import { DEFAULT_TASK_VALUES } from '@/domains/tasks/constants/taskConstants';
+import { Task, TaskStatus, TaskPriority, TaskCategory } from '../@/domains/tasks/types/task.types';
 
-// UI State interface
-interface TaskUIState {
-  sidebarOpen: boolean;
-  selectedTasks: Set<string>;
-  bulkActionsMode: boolean;
-  searchQuery: string;
-  isLoading: boolean;
-  error: string | null;
-  lastUpdated: string | null;
+// ===== INTERFACES =====
+
+export interface TaskFilters {
+  status?: TaskStatus[];
+  priority?: TaskPriority[];
+  category?: TaskCategory[];
+  assignedTo?: string[];
+  dueDateRange?: {
+    start?: string;
+    end?: string;
+  };
+  searchQuery?: string;
 }
 
-// Main Task Store interface
-interface TaskState {
-  // Data
+export interface TaskSortConfig {
+  field: keyof Task;
+  direction: 'asc' | 'desc';
+}
+
+export interface TaskViewState {
+  selectedTasks: Set<string>;
+  expandedTasks: Set<string>;
+  sortConfig: TaskSortConfig;
+  viewMode: 'list' | 'board' | 'calendar' | 'timeline';
+  groupBy?: keyof Task;
+}
+
+// ===== MAIN STORE INTERFACE =====
+
+interface TaskStore {
+  // ===== STATE =====
   tasks: Task[];
-  filteredTasks: Task[];
-  
-  // Filters
   filters: TaskFilters;
-  activeFilters: string[];
-  
-  // Views
-  views: TaskViewState;
-  
-  // UI State
-  ui: TaskUIState;
-  
-  // Selected task for editing
-  selectedTask: Task | null;
-  
-  // Actions - Data Management
-  setTasks: (tasks: Task[]) => void;
-  addTask: (task: Task) => void;
-  updateTask: (id: string, updates: Partial<Task>) => void;
-  deleteTask: (id: string) => void;
-  bulkUpdateTasks: (updates: BulkTaskUpdate[]) => void;
-  bulkDeleteTasks: (ids: string[]) => void;
-  
-  // Actions - Filtering
-  setFilters: (filters: Partial<TaskFilters>) => void;
-  resetFilters: () => void;
-  applyFilters: () => void;
-  addFilterPreset: (name: string, filters: TaskFilters) => void;
-  
-  // Actions - Views
-  setCurrentView: (view: TaskViewType) => void;
-  updateViewConfig: (view: TaskViewType, config: Partial<TaskViewConfig>) => void;
-  saveViewPreset: (name: string, config: TaskViewConfig) => void;
-  
-  // Actions - Task Selection
-  setSelectedTasks: (tasks: Set<string>) => void;
-  toggleTaskSelection: (id: string) => void;
-  selectAllTasks: () => void;
-  clearSelection: () => void;
-  selectTasksByFilter: (predicate: (task: Task) => boolean) => void;
-  
-  // Actions - UI State
-  setSidebarOpen: (open: boolean) => void;
-  setBulkActionsMode: (mode: boolean) => void;
-  setSearchQuery: (query: string) => void;
-  setLoading: (loading: boolean) => void;
-  setError: (error: string | null) => void;
-  setSelectedTask: (task: Task | null) => void;
-  
-  // Actions - Utilities
+  viewState: TaskViewState;
+  isLoading: boolean;
+  error: string | null;
+  lastSyncTime: number | null;
+  optimisticUpdates: Map<string, Task>; // For handling concurrent updates
+
+  // ===== COMPUTED SELECTORS =====
+  getFilteredTasks: () => Task[];
+  getSelectedTasks: () => Task[];
   getTaskById: (id: string) => Task | undefined;
-  getTasksByStatus: (status: TaskStatus) => Task[];
-  getTasksByPriority: (priority: TaskPriority) => Task[];
-  getTasksByCategory: (category: TaskCategory) => Task[];
-  getOverdueTasks: () => Task[];
-  getCompletedTasks: () => Task[];
-  getTasksCompletedToday: () => Task[];
-  
-  // Actions - Analytics
   getTaskStats: () => {
     total: number;
     completed: number;
-    overdue: number;
     inProgress: number;
-    completionRate: number;
-    avgCompletionTime: number;
+    pending: number;
+    byPriority: Record<TaskPriority, number>;
+    byCategory: Record<TaskCategory, number>;
   };
+
+  // ===== TASK CRUD ACTIONS =====
+  setTasks: (tasks: Task[]) => void;
+  addTask: (task: Omit<Task, 'id' | 'created_at'>) => string; // Returns generated ID
+  updateTask: (id: string, updates: Partial<Task>) => void;
+  deleteTask: (id: string) => void;
+  duplicateTask: (id: string) => string; // Returns new task ID
+
+  // ===== BULK OPERATIONS =====
+  addTasks: (tasks: Omit<Task, 'id' | 'created_at'>[]) => string[];
+  updateTasks: (updates: Array<{ id: string; updates: Partial<Task> }>) => void;
+  deleteTasks: (ids: string[]) => void;
+  completeSelectedTasks: () => void;
+  deleteSelectedTasks: () => void;
+
+  // ===== FILTER & SORT ACTIONS =====
+  setFilters: (filters: Partial<TaskFilters>) => void;
+  resetFilters: () => void;
+  setSortConfig: (sortConfig: TaskSortConfig) => void;
+  setSearchQuery: (query: string) => void;
+
+  // ===== VIEW STATE ACTIONS =====
+  setViewMode: (mode: TaskViewState['viewMode']) => void;
+  setGroupBy: (field: keyof Task | undefined) => void;
+  toggleTaskSelection: (id: string) => void;
+  selectAllTasks: () => void;
+  clearSelection: () => void;
+  selectTasksInRange: (startId: string, endId: string) => void;
+  toggleTaskExpansion: (id: string) => void;
+
+  // ===== UTILITY ACTIONS =====
+  setLoading: (loading: boolean) => void;
+  setError: (error: string | null) => void;
+  clearError: () => void;
+  syncTasks: () => Promise<void>;
+  resetStore: () => void;
 }
 
-// Default states
-const defaultFilters: TaskFilters = {
-  status: [],
-  priority: [],
-  category: [],
-  assigned_to: [],
-  project_id: [],
-  tags: [],
-  search: '',
-  is_overdue: undefined,
-  has_subtasks: undefined
-};
+// ===== INITIAL STATE =====
 
-const defaultViewState: TaskViewState = {
-  current: TaskViewType.LIST,
-  configs: {
-    [TaskViewType.LIST]: {
-      type: TaskViewType.LIST,
-      sortBy: 'created_at',
-      sortDirection: 'desc',
-      columns: ['title', 'status', 'priority', 'due_date', 'assigned_to']
-    },
-    [TaskViewType.KANBAN]: {
-      type: TaskViewType.KANBAN,
-      groupBy: 'status',
-      sortBy: 'priority',
-      sortDirection: 'desc'
-    },
-    [TaskViewType.CALENDAR]: {
-      type: TaskViewType.CALENDAR,
-      groupBy: 'due_date',
-      sortBy: 'due_date',
-      sortDirection: 'asc'
-    },
-    [TaskViewType.TIMELINE]: {
-      type: TaskViewType.TIMELINE,
-      sortBy: 'created_at',
-      sortDirection: 'asc'
-    },
-    [TaskViewType.GANTT]: {
-      type: TaskViewType.GANTT,
-      sortBy: 'due_date',
-      sortDirection: 'asc'
-    }
-  },
-  presets: {}
-};
-
-const defaultUIState: TaskUIState = {
-  sidebarOpen: true,
+const initialViewState: TaskViewState = {
   selectedTasks: new Set(),
-  bulkActionsMode: false,
-  searchQuery: '',
+  expandedTasks: new Set(),
+  sortConfig: { field: 'created_at', direction: 'desc' },
+  viewMode: 'list',
+  groupBy: undefined,
+};
+
+const initialState = {
+  tasks: [],
+  filters: {},
+  viewState: initialViewState,
   isLoading: false,
   error: null,
-  lastUpdated: null
+  lastSyncTime: null,
+  optimisticUpdates: new Map(),
 };
 
-// Utility functions
-const filterTasks = (tasks: Task[], filters: TaskFilters, searchQuery: string): Task[] => {
-  let filtered = [...tasks];
-  
-  // Search filter
-  if (searchQuery.trim()) {
-    const query = searchQuery.toLowerCase();
-    filtered = filtered.filter(task => 
-      task.title.toLowerCase().includes(query) ||
-      task.description?.toLowerCase().includes(query) ||
-      task.tags.some(tag => tag.toLowerCase().includes(query)) ||
-      task.assigned_to?.toLowerCase().includes(query)
-    );
-  }
-  
-  // Status filter
-  if (filters.status && filters.status.length > 0) {
-    filtered = filtered.filter(task => filters.status!.includes(task.status));
-  }
-  
-  // Priority filter
-  if (filters.priority && filters.priority.length > 0) {
-    filtered = filtered.filter(task => filters.priority!.includes(task.priority));
-  }
-  
-  // Category filter
-  if (filters.category && filters.category.length > 0) {
-    filtered = filtered.filter(task => filters.category!.includes(task.category));
-  }
-  
-  // Assigned to filter
-  if (filters.assigned_to && filters.assigned_to.length > 0) {
-    filtered = filtered.filter(task => 
-      task.assigned_to && filters.assigned_to!.includes(task.assigned_to)
-    );
-  }
-  
-  // Project filter
-  if (filters.project_id && filters.project_id.length > 0) {
-    filtered = filtered.filter(task => 
-      task.project_id && filters.project_id!.includes(task.project_id)
-    );
-  }
-  
-  // Tags filter
-  if (filters.tags && filters.tags.length > 0) {
-    filtered = filtered.filter(task => 
-      filters.tags!.some(tag => task.tags.includes(tag))
-    );
-  }
-  
-  // Due date range filter
-  if (filters.due_date_range) {
-    const { start, end } = filters.due_date_range;
-    filtered = filtered.filter(task => {
-      if (!task.due_date) return false;
+// ===== HELPER FUNCTIONS =====
+
+const generateId = (): string => {
+  return `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+};
+
+const applyFilters = (tasks: Task[], filters: TaskFilters): Task[] => {
+  return tasks.filter((task) => {
+    // Status filter
+    if (filters.status?.length && !filters.status.includes(task.status)) {
+      return false;
+    }
+
+    // Priority filter
+    if (filters.priority?.length && !filters.priority.includes(task.priority)) {
+      return false;
+    }
+
+    // Category filter
+    if (filters.category?.length && !filters.category.includes(task.category)) {
+      return false;
+    }
+
+    // Assigned to filter
+    if (filters.assignedTo?.length && task.assigned_to && !filters.assignedTo.includes(task.assigned_to)) {
+      return false;
+    }
+
+    // Due date range filter
+    if (filters.dueDateRange && task.due_date) {
       const dueDate = new Date(task.due_date);
-      return dueDate >= new Date(start) && dueDate <= new Date(end);
-    });
-  }
-  
-  // Overdue filter
-  if (filters.is_overdue !== undefined) {
-    filtered = filtered.filter(task => task.is_overdue === filters.is_overdue);
-  }
-  
-  // Has subtasks filter
-  if (filters.has_subtasks !== undefined) {
-    filtered = filtered.filter(task => 
-      (task.subtasks.length > 0) === filters.has_subtasks
-    );
-  }
-  
-  return filtered;
+      const { start, end } = filters.dueDateRange;
+      
+      if (start && dueDate < new Date(start)) return false;
+      if (end && dueDate > new Date(end)) return false;
+    }
+
+    // Search query filter
+    if (filters.searchQuery) {
+      const query = filters.searchQuery.toLowerCase();
+      const searchableText = [
+        task.title,
+        task.description,
+        task.labels?.join(' '),
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+      
+      if (!searchableText.includes(query)) return false;
+    }
+
+    return true;
+  });
 };
 
-const getActiveFilters = (filters: TaskFilters, searchQuery: string): string[] => {
-  const active: string[] = [];
-  
-  if (searchQuery.trim()) active.push('search');
-  if (filters.status && filters.status.length > 0) active.push('status');
-  if (filters.priority && filters.priority.length > 0) active.push('priority');
-  if (filters.category && filters.category.length > 0) active.push('category');
-  if (filters.assigned_to && filters.assigned_to.length > 0) active.push('assigned_to');
-  if (filters.project_id && filters.project_id.length > 0) active.push('project_id');
-  if (filters.tags && filters.tags.length > 0) active.push('tags');
-  if (filters.due_date_range) active.push('due_date_range');
-  if (filters.is_overdue !== undefined) active.push('is_overdue');
-  if (filters.has_subtasks !== undefined) active.push('has_subtasks');
-  
-  return active;
+const applySorting = (tasks: Task[], sortConfig: TaskSortConfig): Task[] => {
+  return [...tasks].sort((a, b) => {
+    const aValue = a[sortConfig.field];
+    const bValue = b[sortConfig.field];
+    
+    // Handle undefined values
+    if (aValue === undefined && bValue === undefined) return 0;
+    if (aValue === undefined) return 1;
+    if (bValue === undefined) return -1;
+    
+    // Compare values
+    let comparison = 0;
+    if (aValue < bValue) comparison = -1;
+    if (aValue > bValue) comparison = 1;
+    
+    // Apply direction
+    return sortConfig.direction === 'desc' ? -comparison : comparison;
+  });
 };
 
-// Create the store
-export const useTaskStore = create<TaskState>()(
+// ===== ZUSTAND STORE IMPLEMENTATION =====
+
+export const useTaskStore = create<TaskStore>()(
   devtools(
     persist(
       subscribeWithSelector(
         immer((set, get) => ({
-          // Initial state
-          tasks: [],
-          filteredTasks: [],
-          filters: defaultFilters,
-          activeFilters: [],
-          views: defaultViewState,
-          ui: defaultUIState,
-          selectedTask: null,
-          
-          // Data Management Actions
-          setTasks: (tasks) => set((state) => {
-            state.tasks = tasks;
-            state.ui.lastUpdated = new Date().toISOString();
-            // Re-apply filters when tasks change
-            const { filters, ui } = get();
-            state.filteredTasks = filterTasks(tasks, filters, ui.searchQuery);
-            state.activeFilters = getActiveFilters(filters, ui.searchQuery);
-          }),
-          
-          addTask: (task) => set((state) => {
-            state.tasks.push(task);
-            state.ui.lastUpdated = new Date().toISOString();
-            // Re-apply filters
-            const { filters, ui } = get();
-            state.filteredTasks = filterTasks(state.tasks, filters, ui.searchQuery);
-          }),
-          
-          updateTask: (id, updates) => set((state) => {
-            const taskIndex = state.tasks.findIndex(t => t.id === id);
-            if (taskIndex !== -1) {
-              Object.assign(state.tasks[taskIndex], updates, {
-                updated_at: new Date().toISOString()
-              });
-              state.ui.lastUpdated = new Date().toISOString();
-              
-              // Update selected task if it's the one being updated
-              if (state.selectedTask?.id === id) {
-                Object.assign(state.selectedTask, updates);
+          // ===== INITIAL STATE =====
+          ...initialState,
+
+          // ===== COMPUTED SELECTORS =====
+          getFilteredTasks: () => {
+            const { tasks, filters, viewState } = get();
+            const filtered = applyFilters(tasks, filters);
+            return applySorting(filtered, viewState.sortConfig);
+          },
+
+          getSelectedTasks: () => {
+            const { tasks, viewState } = get();
+            return tasks.filter(task => viewState.selectedTasks.has(task.id));
+          },
+
+          getTaskById: (id: string) => {
+            const { tasks, optimisticUpdates } = get();
+            // Check optimistic updates first
+            const optimisticTask = optimisticUpdates.get(id);
+            if (optimisticTask) return optimisticTask;
+            
+            return tasks.find(task => task.id === id);
+          },
+
+          getTaskStats: () => {
+            const { tasks } = get();
+            
+            const stats = {
+              total: tasks.length,
+              completed: 0,
+              inProgress: 0,
+              pending: 0,
+              byPriority: {} as Record<TaskPriority, number>,
+              byCategory: {} as Record<TaskCategory, number>,
+            };
+
+            // Initialize counters
+            const priorities: TaskPriority[] = ['low', 'medium', 'high', 'urgent'];
+            const categories: TaskCategory[] = ['main', 'weekly', 'daily', 'siso_app_dev', 'onboarding_app', 'instagram'];
+            
+            priorities.forEach(p => stats.byPriority[p] = 0);
+            categories.forEach(c => stats.byCategory[c] = 0);
+
+            // Count stats
+            tasks.forEach(task => {
+              // Status counts
+              if (task.status === 'completed') stats.completed++;
+              else if (task.status === 'in_progress') stats.inProgress++;
+              else stats.pending++;
+
+              // Priority counts
+              stats.byPriority[task.priority]++;
+
+              // Category counts
+              stats.byCategory[task.category]++;
+            });
+
+            return stats;
+          },
+
+          // ===== TASK CRUD ACTIONS =====
+          setTasks: (tasks) =>
+            set((state) => {
+              state.tasks = tasks;
+              state.lastSyncTime = Date.now();
+              state.error = null;
+            }),
+
+          addTask: (taskData) => {
+            const id = generateId();
+            const newTask: Task = {
+              ...taskData,
+              id,
+              created_at: new Date().toISOString(),
+            };
+
+            set((state) => {
+              state.tasks.push(newTask);
+            });
+
+            return id;
+          },
+
+          updateTask: (id, updates) =>
+            set((state) => {
+              const taskIndex = state.tasks.findIndex(task => task.id === id);
+              if (taskIndex !== -1) {
+                Object.assign(state.tasks[taskIndex], updates);
               }
               
-              // Re-apply filters
-              const { filters, ui } = get();
-              state.filteredTasks = filterTasks(state.tasks, filters, ui.searchQuery);
-            }
-          }),
-          
-          deleteTask: (id) => set((state) => {
-            state.tasks = state.tasks.filter(t => t.id !== id);
-            state.ui.selectedTasks.delete(id);
-            if (state.selectedTask?.id === id) {
-              state.selectedTask = null;
-            }
-            state.ui.lastUpdated = new Date().toISOString();
+              // Add to optimistic updates for real-time feel
+              const updatedTask = state.tasks[taskIndex];
+              if (updatedTask) {
+                state.optimisticUpdates.set(id, updatedTask);
+              }
+            }),
+
+          deleteTask: (id) =>
+            set((state) => {
+              state.tasks = state.tasks.filter(task => task.id !== id);
+              state.viewState.selectedTasks.delete(id);
+              state.viewState.expandedTasks.delete(id);
+              state.optimisticUpdates.delete(id);
+            }),
+
+          duplicateTask: (id) => {
+            const task = get().getTaskById(id);
+            if (!task) return '';
+
+            const newId = generateId();
+            const duplicatedTask: Task = {
+              ...task,
+              id: newId,
+              title: `${task.title} (Copy)`,
+              status: 'pending',
+              created_at: new Date().toISOString(),
+              parent_task_id: undefined, // Don't inherit parent relationship
+            };
+
+            set((state) => {
+              state.tasks.push(duplicatedTask);
+            });
+
+            return newId;
+          },
+
+          // ===== BULK OPERATIONS =====
+          addTasks: (tasksData) => {
+            const newIds: string[] = [];
             
-            // Re-apply filters
-            const { filters, ui } = get();
-            state.filteredTasks = filterTasks(state.tasks, filters, ui.searchQuery);
-          }),
-          
-          bulkUpdateTasks: (updates) => set((state) => {
-            updates.forEach(({ id, updates: taskUpdates }) => {
-              const taskIndex = state.tasks.findIndex(t => t.id === id);
-              if (taskIndex !== -1) {
-                Object.assign(state.tasks[taskIndex], taskUpdates, {
-                  updated_at: new Date().toISOString()
-                });
+            set((state) => {
+              tasksData.forEach(taskData => {
+                const id = generateId();
+                const newTask: Task = {
+                  ...taskData,
+                  id,
+                  created_at: new Date().toISOString(),
+                };
+                state.tasks.push(newTask);
+                newIds.push(id);
+              });
+            });
+
+            return newIds;
+          },
+
+          updateTasks: (updates) =>
+            set((state) => {
+              updates.forEach(({ id, updates: taskUpdates }) => {
+                const taskIndex = state.tasks.findIndex(task => task.id === id);
+                if (taskIndex !== -1) {
+                  Object.assign(state.tasks[taskIndex], taskUpdates);
+                }
+              });
+            }),
+
+          deleteTasks: (ids) =>
+            set((state) => {
+              state.tasks = state.tasks.filter(task => !ids.includes(task.id));
+              ids.forEach(id => {
+                state.viewState.selectedTasks.delete(id);
+                state.viewState.expandedTasks.delete(id);
+                state.optimisticUpdates.delete(id);
+              });
+            }),
+
+          completeSelectedTasks: () => {
+            const { viewState } = get();
+            get().updateTasks(
+              Array.from(viewState.selectedTasks).map(id => ({
+                id,
+                updates: { status: 'completed' as TaskStatus }
+              }))
+            );
+            get().clearSelection();
+          },
+
+          deleteSelectedTasks: () => {
+            const { viewState } = get();
+            get().deleteTasks(Array.from(viewState.selectedTasks));
+          },
+
+          // ===== FILTER & SORT ACTIONS =====
+          setFilters: (newFilters) =>
+            set((state) => {
+              state.filters = { ...state.filters, ...newFilters };
+            }),
+
+          resetFilters: () =>
+            set((state) => {
+              state.filters = {};
+            }),
+
+          setSortConfig: (sortConfig) =>
+            set((state) => {
+              state.viewState.sortConfig = sortConfig;
+            }),
+
+          setSearchQuery: (query) =>
+            set((state) => {
+              state.filters.searchQuery = query || undefined;
+            }),
+
+          // ===== VIEW STATE ACTIONS =====
+          setViewMode: (mode) =>
+            set((state) => {
+              state.viewState.viewMode = mode;
+            }),
+
+          setGroupBy: (field) =>
+            set((state) => {
+              state.viewState.groupBy = field;
+            }),
+
+          toggleTaskSelection: (id) =>
+            set((state) => {
+              if (state.viewState.selectedTasks.has(id)) {
+                state.viewState.selectedTasks.delete(id);
+              } else {
+                state.viewState.selectedTasks.add(id);
+              }
+            }),
+
+          selectAllTasks: () =>
+            set((state) => {
+              const filteredTasks = get().getFilteredTasks();
+              state.viewState.selectedTasks = new Set(filteredTasks.map(task => task.id));
+            }),
+
+          clearSelection: () =>
+            set((state) => {
+              state.viewState.selectedTasks.clear();
+            }),
+
+          selectTasksInRange: (startId, endId) => {
+            const filteredTasks = get().getFilteredTasks();
+            const startIndex = filteredTasks.findIndex(task => task.id === startId);
+            const endIndex = filteredTasks.findIndex(task => task.id === endId);
+            
+            if (startIndex === -1 || endIndex === -1) return;
+            
+            const [start, end] = [startIndex, endIndex].sort((a, b) => a - b);
+            
+            set((state) => {
+              for (let i = start; i <= end; i++) {
+                state.viewState.selectedTasks.add(filteredTasks[i].id);
               }
             });
-            state.ui.lastUpdated = new Date().toISOString();
-            
-            // Re-apply filters
-            const { filters, ui } = get();
-            state.filteredTasks = filterTasks(state.tasks, filters, ui.searchQuery);
-          }),
-          
-          bulkDeleteTasks: (ids) => set((state) => {
-            state.tasks = state.tasks.filter(t => !ids.includes(t.id));
-            ids.forEach(id => state.ui.selectedTasks.delete(id));
-            if (state.selectedTask && ids.includes(state.selectedTask.id)) {
-              state.selectedTask = null;
-            }
-            state.ui.lastUpdated = new Date().toISOString();
-            
-            // Re-apply filters
-            const { filters, ui } = get();
-            state.filteredTasks = filterTasks(state.tasks, filters, ui.searchQuery);
-          }),
-          
-          // Filter Actions
-          setFilters: (newFilters) => set((state) => {
-            Object.assign(state.filters, newFilters);
-            const { tasks, ui } = get();
-            state.filteredTasks = filterTasks(tasks, state.filters, ui.searchQuery);
-            state.activeFilters = getActiveFilters(state.filters, ui.searchQuery);
-          }),
-          
-          resetFilters: () => set((state) => {
-            state.filters = { ...defaultFilters };
-            const { tasks, ui } = get();
-            state.filteredTasks = filterTasks(tasks, state.filters, ui.searchQuery);
-            state.activeFilters = getActiveFilters(state.filters, ui.searchQuery);
-          }),
-          
-          applyFilters: () => set((state) => {
-            const { tasks, filters, ui } = get();
-            state.filteredTasks = filterTasks(tasks, filters, ui.searchQuery);
-            state.activeFilters = getActiveFilters(filters, ui.searchQuery);
-          }),
-          
-          addFilterPreset: (name, filters) => set((state) => {
-            // Could store filter presets in the future
-            console.log('Filter preset saved:', name, filters);
-          }),
-          
-          // View Actions
-          setCurrentView: (view) => set((state) => {
-            state.views.current = view;
-          }),
-          
-          updateViewConfig: (view, config) => set((state) => {
-            Object.assign(state.views.configs[view], config);
-          }),
-          
-          saveViewPreset: (name, config) => set((state) => {
-            state.views.presets[name] = config;
-          }),
-          
-          // Selection Actions
-          setSelectedTasks: (tasks) => set((state) => {
-            state.ui.selectedTasks = new Set(tasks);
-          }),
-          
-          toggleTaskSelection: (id) => set((state) => {
-            if (state.ui.selectedTasks.has(id)) {
-              state.ui.selectedTasks.delete(id);
-            } else {
-              state.ui.selectedTasks.add(id);
-            }
-          }),
-          
-          selectAllTasks: () => set((state) => {
-            state.ui.selectedTasks = new Set(state.filteredTasks.map(t => t.id));
-          }),
-          
-          clearSelection: () => set((state) => {
-            state.ui.selectedTasks.clear();
-            state.ui.bulkActionsMode = false;
-          }),
-          
-          selectTasksByFilter: (predicate) => set((state) => {
-            const matchingIds = state.filteredTasks
-              .filter(predicate)
-              .map(t => t.id);
-            state.ui.selectedTasks = new Set(matchingIds);
-          }),
-          
-          // UI Actions
-          setSidebarOpen: (open) => set((state) => {
-            state.ui.sidebarOpen = open;
-          }),
-          
-          setBulkActionsMode: (mode) => set((state) => {
-            state.ui.bulkActionsMode = mode;
-            if (!mode) {
-              state.ui.selectedTasks.clear();
-            }
-          }),
-          
-          setSearchQuery: (query) => set((state) => {
-            state.ui.searchQuery = query;
-            const { tasks, filters } = get();
-            state.filteredTasks = filterTasks(tasks, filters, query);
-            state.activeFilters = getActiveFilters(filters, query);
-          }),
-          
-          setLoading: (loading) => set((state) => {
-            state.ui.isLoading = loading;
-          }),
-          
-          setError: (error) => set((state) => {
-            state.ui.error = error;
-          }),
-          
-          setSelectedTask: (task) => set((state) => {
-            state.selectedTask = task;
-          }),
-          
-          // Utility Functions
-          getTaskById: (id) => {
-            return get().tasks.find(t => t.id === id);
           },
-          
-          getTasksByStatus: (status) => {
-            return get().tasks.filter(t => t.status === status);
+
+          toggleTaskExpansion: (id) =>
+            set((state) => {
+              if (state.viewState.expandedTasks.has(id)) {
+                state.viewState.expandedTasks.delete(id);
+              } else {
+                state.viewState.expandedTasks.add(id);
+              }
+            }),
+
+          // ===== UTILITY ACTIONS =====
+          setLoading: (loading) =>
+            set((state) => {
+              state.isLoading = loading;
+            }),
+
+          setError: (error) =>
+            set((state) => {
+              state.error = error;
+              state.isLoading = false;
+            }),
+
+          clearError: () =>
+            set((state) => {
+              state.error = null;
+            }),
+
+          syncTasks: async () => {
+            // Implementation for syncing with backend
+            // This would typically involve API calls
+            set((state) => {
+              state.lastSyncTime = Date.now();
+              state.optimisticUpdates.clear();
+            });
           },
-          
-          getTasksByPriority: (priority) => {
-            return get().tasks.filter(t => t.priority === priority);
-          },
-          
-          getTasksByCategory: (category) => {
-            return get().tasks.filter(t => t.category === category);
-          },
-          
-          getOverdueTasks: () => {
-            return get().tasks.filter(t => t.is_overdue);
-          },
-          
-          getCompletedTasks: () => {
-            return get().tasks.filter(t => t.status === TaskStatus.COMPLETED);
-          },
-          
-          getTasksCompletedToday: () => {
-            const today = new Date().toDateString();
-            return get().tasks.filter(t => 
-              t.status === TaskStatus.COMPLETED && 
-              new Date(t.updated_at).toDateString() === today
-            );
-          },
-          
-          // Analytics
-          getTaskStats: () => {
-            const tasks = get().tasks;
-            const total = tasks.length;
-            const completed = tasks.filter(t => t.status === TaskStatus.COMPLETED).length;
-            const overdue = tasks.filter(t => t.is_overdue).length;
-            const inProgress = tasks.filter(t => t.status === TaskStatus.IN_PROGRESS).length;
-            
-            return {
-              total,
-              completed,
-              overdue,
-              inProgress,
-              completionRate: total > 0 ? (completed / total) * 100 : 0,
-              avgCompletionTime: 0 // TODO: Calculate based on task history
-            };
-          }
+
+          resetStore: () =>
+            set(() => ({
+              ...initialState,
+              viewState: {
+                ...initialViewState,
+                selectedTasks: new Set(),
+                expandedTasks: new Set(),
+              },
+            })),
         }))
       ),
       {
-        name: 'task-store',
+        name: 'task-store', // localStorage key
         partialize: (state) => ({
+          // Only persist essential state, not loading/error states
           filters: state.filters,
-          views: state.views,
-          ui: {
-            sidebarOpen: state.ui.sidebarOpen,
-            searchQuery: state.ui.searchQuery
-          }
-        })
+          viewState: {
+            ...state.viewState,
+            selectedTasks: new Set(), // Don't persist selections
+            expandedTasks: new Set(), // Don't persist expansions
+          },
+        }),
       }
     ),
-    { name: 'TaskStore' }
+    {
+      name: 'TaskStore', // DevTools name
+    }
   )
 );
 
-// Selectors for better performance
-export const useTaskFilters = () => useTaskStore(state => state.filters);
-export const useFilteredTasks = () => useTaskStore(state => state.filteredTasks);
-export const useTaskSelection = () => useTaskStore(state => ({
-  selectedTasks: state.ui.selectedTasks,
-  bulkActionsMode: state.ui.bulkActionsMode,
-  toggleTaskSelection: state.toggleTaskSelection,
-  selectAllTasks: state.selectAllTasks,
-  clearSelection: state.clearSelection,
-  setBulkActionsMode: state.setBulkActionsMode
-}));
-export const useTaskViews = () => useTaskStore(state => ({
-  currentView: state.views.current,
-  viewConfigs: state.views.configs,
-  setCurrentView: state.setCurrentView,
-  updateViewConfig: state.updateViewConfig
-}));
-export const useTaskUI = () => useTaskStore(state => state.ui);
-export const useTaskStats = () => useTaskStore(state => state.getTaskStats());
+// ===== SPECIALIZED HOOKS =====
 
-// Subscribe to store changes for debugging
-if (process.env.NODE_ENV === 'development') {
-  useTaskStore.subscribe(
-    (state) => state.tasks.length,
-    (tasksLength) => console.log('Tasks count changed:', tasksLength)
-  );
-}
+// Hook for only task data (performance optimized) - Fixed infinite loop
+export const useTaskData = () => {
+  const tasks = useTaskStore((state) => state.tasks);
+  const filteredTasks = useTaskStore((state) => state.filteredTasks);
+  const isLoading = useTaskStore((state) => state.isLoading);
+  const error = useTaskStore((state) => state.error);
+  
+  return { tasks, filteredTasks, isLoading, error };
+};
+
+// Hook for only actions (won't cause re-renders)
+export const useTaskActions = () => {
+  const addTask = useTaskStore((state) => state.addTask);
+  const updateTask = useTaskStore((state) => state.updateTask);
+  const deleteTask = useTaskStore((state) => state.deleteTask);
+  const duplicateTask = useTaskStore((state) => state.duplicateTask);
+  const addTasks = useTaskStore((state) => state.addTasks);
+  const updateTasks = useTaskStore((state) => state.updateTasks);
+  const deleteTasks = useTaskStore((state) => state.deleteTasks);
+  const completeSelectedTasks = useTaskStore((state) => state.completeSelectedTasks);
+  const deleteSelectedTasks = useTaskStore((state) => state.deleteSelectedTasks);
+  
+  return { addTask, updateTask, deleteTask, duplicateTask, addTasks, updateTasks, deleteTasks, completeSelectedTasks, deleteSelectedTasks };
+};
+
+// Hook for only filters (minimal re-renders)
+export const useTaskFilters = () => {
+  const filters = useTaskStore((state) => state.filters);
+  const setFilters = useTaskStore((state) => state.setFilters);
+  const resetFilters = useTaskStore((state) => state.resetFilters);
+  const setSearchQuery = useTaskStore((state) => state.setSearchQuery);
+  
+  return { filters, setFilters, resetFilters, setSearchQuery };
+};
+
+// Hook for only view state
+export const useTaskViewState = () => {
+  const viewState = useTaskStore((state) => state.viewState);
+  const selectedTasks = useTaskStore((state) => state.viewState.selectedTasks);
+  const setViewMode = useTaskStore((state) => state.setViewMode);
+  const setGroupBy = useTaskStore((state) => state.setGroupBy);
+  const setSortConfig = useTaskStore((state) => state.setSortConfig);
+  const toggleTaskSelection = useTaskStore((state) => state.toggleTaskSelection);
+  const selectAllTasks = useTaskStore((state) => state.selectAllTasks);
+  const clearSelection = useTaskStore((state) => state.clearSelection);
+  const selectTasksInRange = useTaskStore((state) => state.selectTasksInRange);
+  const toggleTaskExpansion = useTaskStore((state) => state.toggleTaskExpansion);
+  
+  return { viewState, selectedTasks, setViewMode, setGroupBy, setSortConfig, toggleTaskSelection, selectAllTasks, clearSelection, selectTasksInRange, toggleTaskExpansion };
+};
+
+// Hook for only stats (computed values)
+export const useTaskStats = () => {
+  return useTaskStore((state) => state.getTaskStats());
+};
+
+// Hook for utilities and sync
+export const useTaskUtils = () => {
+  const getTaskById = useTaskStore((state) => state.getTaskById);
+  const syncTasks = useTaskStore((state) => state.syncTasks);
+  const resetStore = useTaskStore((state) => state.resetStore);
+  const setLoading = useTaskStore((state) => state.setLoading);
+  const setError = useTaskStore((state) => state.setError);
+  const clearError = useTaskStore((state) => state.clearError);
+  
+  return { getTaskById, syncTasks, resetStore, setLoading, setError, clearError };
+};
+
+export default useTaskStore;

@@ -2,7 +2,7 @@
 // Shows complete integration with backend API and validation
 
 import React, { useState } from 'react';
-import { usePartnerApplication } from '@/lib/hooks/usePartnerApplication';
+import { usePartnerApplication } from '@/lib/domains/partners/partnership/hooks/usePartnerApplication';
 import { Loader2, Check, AlertCircle, Mail, User, Building, Network } from 'lucide-react';
 import type { PartnerApplicationFormData } from '@/types/partnership';
 

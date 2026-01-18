@@ -1,5 +1,5 @@
 import React from 'react';
-import { usePartnerStats } from '@/lib/hooks/usePartnerStats';
+import { usePartnerStats } from '@/lib/domains/partners/partnership/hooks/usePartnerStats';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
 
