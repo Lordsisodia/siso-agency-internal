@@ -4,7 +4,7 @@
  * Main resources and documents hub
  */
 
-import { DocumentTable } from './components/DocumentTable';
+import { DocumentTable } from '@/domains/resources/components/DocumentTable';
 
 export const ResourcesPage = () => {
   return (

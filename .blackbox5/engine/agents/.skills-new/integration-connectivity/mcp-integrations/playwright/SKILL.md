@@ -1,884 +1,503 @@
+---
+name: playwright
+category: integration-connectivity/mcp-integrations
+version: 1.0.0
+description: Complete guide to using Playwright MCP server with Claude Code
+author: blackbox5/mcp
+verified: true
+tags: [mcp, playwright, testing, browser, automation]
+---
+
 # Playwright MCP Server Skills
 
-Complete guide to using Playwright MCP server with Claude Code.
-
-## Overview
-
-Playwright is a powerful end-to-end testing framework that enables cross-browser automation, testing, and web scraping.
+<context>
+Complete guide to using Playwright MCP server with Claude Code. Playwright is a powerful end-to-end testing framework that enables cross-browser automation, testing, and web scraping.
 
 **Type:** STDIO (local)
 **Browsers Supported:** Chrome, Firefox, Safari, Edge
 **Purpose:** E2E testing and browser automation
 
----
-
-## Prerequisites
-
-Before using Playwright MCP, ensure you have:
-
-1. **Playwright Installed** - Automatically installed via npx
-2. **Browser Binaries** - First run will download browser binaries
-3. **Test Files** - Organized test structure (optional)
-
-**Initial Setup:**
-```bash
-npx playwright install chromium
-```
-
----
-
-## Available Skills
-
-### Browser Launch & Control
-
-#### `playwright_launch`
-Launch a browser instance.
-
-**Usage:**
-```
-Launch Chrome browser
-Start Firefox in headless mode
-Open browser with viewport
-```
-
-**Parameters:**
-- `browser`: Browser type (chromium, firefox, webkit)
-- `headless`: Run headlessly (default: true)
-- `viewport`: Viewport size {width, height}
-
----
-
-#### `playwright_navigate`
-Navigate to a URL.
-
-**Usage:**
-```
-Navigate to https://example.com
-Go to localhost:3000
-Open https://google.com
-```
-
-**Parameters:**
-- `url`: Target URL
-- `wait_until`: Wait condition (load, domcontentloaded, networkidle)
-
----
-
-#### `playwright_close`
-Close the browser or page.
-
-**Usage:**
-```
-Close the browser
-Close current tab
-```
-
----
-
-### Page Interaction
-
-#### `playwright_click`
-Click an element on the page.
-
-**Usage:**
-```
-Click the login button
-Click element with text 'Submit'
-Click #submit-btn
-```
-
-**Parameters:**
-- `selector`: Element selector (CSS, XPath, text)
-- `wait_for`: Wait for navigation after click
-
----
-
-#### `playwright_fill`
-Fill form input fields.
-
-**Usage:**
-```
-Fill the email input
-Fill #password with 'secret'
-Fill name and email fields
-```
-
-**Parameters:**
-- `selector`: Input element selector
-- `value`: Value to enter
-
----
-
-#### `playwright_type`
-Type text character by character.
-
-**Usage:**
-```
-Type 'Hello World' in textarea
-Slow-type in search box
-```
-
-**Parameters:**
-- `selector`: Element selector
-- `text`: Text to type
-- `delay`: Delay between keystrokes (ms)
-
----
-
-#### `playwright_select`
-Select option from dropdown.
-
-**Usage:**
-```
-Select 'United States' from country dropdown
-Choose option 2
-```
-
-**Parameters:**
-- `selector`: Select element
-- `value`: Option value or label
-
----
-
-#### `playwright_check`
-Check a checkbox.
-
-**Usage:**
-```
-Check the 'agree' checkbox
-Check #terms-checkbox
-```
-
----
-
-#### `playwright_uncheck`
-Uncheck a checkbox.
-
-**Usage:**
-```
-Uncheck the newsletter checkbox
-Uncheck #subscribe
-```
-
----
-
-### Element Inspection
-
-#### `playwright_get_text`
-Get text content from element(s).
-
-**Usage:**
-```
-Get text from h1
-Extract all product names
-Get inner text of .container
-```
-
-**Parameters:**
-- `selector`: Element selector
-
----
-
-#### `playwright_get_html`
-Get HTML content of element or page.
-
-**Usage:**
-```
-Get HTML of the page
-Get HTML for .main-content
-```
-
----
-
-#### `playwright_get_attribute`
-Get attribute value from element.
-
-**Usage:**
-```
-Get href from all links
-Get data-id from element
-```
-
-**Parameters:**
-- `selector`: Element selector
-- `attribute`: Attribute name
-
----
-
-#### `playwright_get_element_count`
-Count elements matching selector.
-
-**Usage:**
-```
-Count number of .item elements
-How many buttons on page?
-```
-
-**Parameters:**
-- `selector`: Element selector
-
----
-
-#### `playwright_is_visible`
-Check if element is visible.
-
-**Usage:**
-```
-Is the modal visible?
-Check if button is displayed
-```
-
-**Parameters:**
-- `selector`: Element selector
-
----
-
-#### `playwright_is_enabled`
-Check if element is enabled.
-
-**Usage:**
-```
-Is the submit button enabled?
-Can I click this button?
-```
-
----
-
-### Waiting & Timing
-
-#### `playwright_wait_for_selector`
-Wait for element to appear.
-
-**Usage:**
-```
-Wait for .modal to appear
-Wait for #success-message
-```
-
-**Parameters:**
-- `selector`: Element selector
-- `timeout`: Maximum wait time (default: 30000ms)
-
----
-
-#### `playwright_wait_for_navigation`
-Wait for page navigation.
-
-**Usage:**
-```
-Wait for page to load after click
-Wait for navigation to complete
-```
-
----
-
-#### `playwright_wait_for_timeout`
-Wait for specific time.
-
-**Usage:**
-```
-Wait for 5 seconds
-Sleep for 1000ms
-```
-
-**Parameters:**
-- `timeout`: Time to wait (milliseconds)
-
----
-
-#### `playwright_wait_for_response`
-Wait for network response.
-
-**Usage:**
-```
-Wait for API response
-Wait for /api/data response
-```
-
-**Parameters:**
-- `url`: URL or URL pattern
-- `timeout`: Maximum wait time
-
----
-
-### Screenshot & PDF
-
-#### `playwright_screenshot`
-Take screenshot of page or element.
-
-**Usage:**
-```
-Take screenshot
-Screenshot the .header
-Capture full page
-```
-
-**Parameters:**
-- `selector`: Element to screenshot (optional)
-- `full_page`: Capture entire page (default: false)
-- `path`: Save path (optional)
-
----
-
-#### `playwright_pdf`
-Generate PDF of current page.
-
-**Usage:**
-```
-Save page as PDF
-Generate PDF of documentation
-```
-
-**Parameters:**
-- `path`: Save path (optional)
-- `format`: Paper format (A4, Letter)
-- `landscape**: Landscape orientation (default: false)
-
----
-
-### JavaScript Execution
-
-#### `playwright_evaluate`
-Execute JavaScript in page context.
-
-**Usage:**
-```
-Run document.title
-Execute localStorage.getItem('token')
-Evaluate window.scrollY
-```
-
-**Parameters:**
-- `code`: JavaScript code
-
----
-
-#### `playwright_evaluate_async`
-Execute async JavaScript.
-
-**Usage:**
-```
-Run await fetch('/api/data')
-Execute async function
-```
-
-**Parameters:**
-- `code`: Async JavaScript code
-
----
-
-### Form & Input
-
-#### `playwright_upload_file`
-Upload file through file input.
-
-**Usage:**
-```
-Upload file to input
-Upload /path/to/file.png
-```
-
-**Parameters:**
-- `selector`: File input element
-- `file_path`: Path to file
-
----
-
-#### `playwright_hover`
-Hover over element.
-
-**Usage:**
-```
-Hover over navigation menu
-Mouse over tooltip trigger
-```
-
-**Parameters:**
-- `selector`: Element selector
-
----
-
-#### `playwright_focus`
-Focus on element.
-
-**Usage:**
-```
-Focus on email input
-Set focus to textarea
-```
-
-**Parameters:**
-- `selector`: Element selector
-
----
-
-### Browser Context
-
-#### `playwright_set_viewport`
-Set browser viewport size.
-
-**Usage:**
-```
-Set viewport to mobile size
-Set viewport to 1920x1080
-```
-
-**Parameters:**
-- `width`: Viewport width
-- `height`: Viewport height
-
----
-
-#### `playwright_emulate_device`
-Emulate specific device.
-
-**Usage:**
-```
-Emulate iPhone 12
-Emulate iPad Pro
-Test on mobile device
-```
-
-**Parameters:**
-- `device`: Device name (iPhone, iPad, etc.)
-
----
-
-#### `playwright_set_geolocation`
-Set geolocation.
-
-**Usage:**
-```
-Set location to New York
-Set geolocation coordinates
-```
-
-**Parameters:**
-- `latitude`: Latitude
-- `longitude`: Longitude
-
----
-
-#### `playwright_set_offline`
-Set offline mode.
-
-**Usage:**
-```
-Go offline
-Test offline behavior
-```
-
----
-
-### Network & API
-
-#### `playwright_mock_response`
-Mock network responses.
-
-**Usage:**
-```
-Mock API response
-Mock /api/users to return test data
-```
-
-**Parameters:**
-- `url`: URL to mock
-- `response`: Mock response data
-
----
-
-#### `playwright_intercept_route`
-Intercept and modify network requests.
-
-**Usage:**
-```
-Intercept API calls
-Block specific requests
-Modify request headers
-```
-
----
-
-#### `playwright_wait_for_request`
-Wait for network request.
-
-**Usage:**
-```
-Wait for XHR request
-Wait for API call to complete
-```
-
----
-
-### Testing & Assertions
-
-#### `playwright_assert_text`
-Assert text exists on page.
-
-**Usage:**
-```
-Assert 'Welcome' is visible
-Verify 'Success' text exists
-```
-
-**Parameters:**
-- `text`: Expected text
-- `selector`: Element selector (optional)
-
----
-
-#### `playwright_assert_visible`
-Assert element is visible.
-
-**Usage:**
-```
-Assert button is visible
-Verify modal appears
-```
-
-**Parameters:**
-- `selector`: Element selector
-
----
-
-#### `playwright_assert_url`
-Assert current URL.
-
-**Usage:**
-```
-Assert URL is /dashboard
-Verify we're on homepage
-```
-
-**Parameters:**
-- `url`: Expected URL
-
----
-
-#### `playwright_assert_title`
-Assert page title.
-
-**Usage:**
-```
-Assert title is 'Home Page'
-Verify page title
-```
-
-**Parameters:**
-- `title`: Expected title
-
----
-
-## Common Workflows
-
-### 1. E2E Testing
-```
-Launch browser
-Navigate to app
-Fill login form
-Click submit
-Wait for dashboard
-Assert success message
-Take screenshot
-Close browser
-```
-
-### 2. Visual Testing
-```
-Navigate to page
-Take screenshot
-Compare with baseline
-Highlight differences
-```
-
-### 3. Form Testing
-```
-Go to form page
-Fill all fields
-Select options
-Upload file
-Submit form
-Verify success
-```
-
-### 4. Cross-Browser Testing
-```
-Test in Chrome
-Test in Firefox
-Test in Safari
-Compare results
-```
-
-### 5. Mobile Testing
-```
-Emulate iPhone
-Test responsive design
-Check touch interactions
-Verify mobile features
-```
-
----
-
-## Integration with Lumelle
-
-### Testing Lumelle App
-```
-Launch browser
-Navigate to localhost:5173
-Test navigation
-Fill contact form
-Submit and verify
-Check responsive design
-```
-
-### Visual Regression
-```
-Navigate to each page
-Take screenshots
-Save to baseline
-Compare with previous
-Report differences
-```
-
-### Form Testing
-```
-Test partner signup form
-Validate required fields
-Check form validation
-Test error handling
-Verify submission
-```
-
-### E2E Test Suite
-```
-Test user registration
-Test partner login
-Test product creation
-Test order flow
-Test dashboard
-```
-
----
-
-## Tips
-
-1. **Use specific selectors** - Prefer IDs, data-testid attributes
-2. **Wait properly** - Use explicit waits over fixed timeouts
-3. **Handle async** - Wait for elements, don't assume instant load
-4. **Clean up** - Close browsers after tests
-5. **Use headless for CI** - Faster in automated pipelines
-
----
-
-## Best Practices
-
-✅ **DO:**
-- Use data-testid attributes for selectors
-- Wait for elements explicitly
-- Test in multiple browsers
-- Use descriptive test names
-- Clean up after tests
-- Handle dynamic content
-- Use page object model
-- Run tests in parallel
-
-❌ **DON'T:**
-- Use brittle selectors (nth-child)
-- Hardcode sleep times
-- Test only in Chrome
-- Skip cleanup
-- Ignore async timing
-- Mix concerns in tests
-- Duplicate test code
-
----
-
-## Testing Patterns
-
-### Page Object Model
-```javascript
-// Define page objects
-class LoginPage {
-  async login(email, password) {
-    await this.fill('#email', email)
-    await this.fill('#password', password)
-    await this.click('#submit')
-  }
-}
-
-// Use in tests
-const login = new LoginPage()
-await login.login('user@example.com', 'pass')
-```
-
-### Test Fixtures
-```javascript
-// Setup fixtures
-beforeEach(async () => {
-  await navigateTo('/test-page')
-  await resetDatabase()
-})
-
-// Tests run with fresh state
-test('should display user data', async () => {
-  // Test code here
-})
-```
-
-### Data-Driven Tests
-```javascript
-// Test with multiple datasets
-const testCases = [
-  { email: 'valid@example.com', expected: 'success' },
-  { email: 'invalid', expected: 'error' }
-]
-
-for (const testCase of testCases) {
-  await runTest(testCase)
-}
-```
-
----
-
-## Troubleshooting
-
-**Browser launch fails:**
-- Install browser binaries: `npx playwright install`
-- Check system requirements
-- Verify sufficient disk space
-
-**Element not found:**
-- Verify selector is correct
-- Wait for element to load
-- Check if element is in iframe
-- Use browser DevTools to test selector
-
-**Test flaky:**
-- Add explicit waits
-- Use proper selectors
-- Handle dynamic content
-- Increase timeout if needed
-- Check for race conditions
-
-**Screenshot fails:**
-- Ensure element is visible
-- Check file path permissions
-- Verify directory exists
-- Wait for element to render
-
-**Performance issues:**
-- Use headless mode
-- Disable unnecessary features
-- Reuse browser context
-- Run tests in parallel
-- Optimize test code
-
----
-
-## Playwright vs Chrome DevTools
-
-| Feature | Playwright | Chrome DevTools |
-|---------|-----------|-----------------|
-| Multi-browser | ✅ Chrome, Firefox, Safari | ❌ Chrome only |
-| E2E Testing | ✅ Full testing framework | ❌ Manual testing |
-| Screenshot | ✅ Full page support | ✅ Screenshot |
-| PDF Generation | ✅ Native support | ❌ Not supported |
-| Network Mocking | ✅ Request/response mocking | ⚠️ Limited |
-| Mobile Emulation | ✅ Device emulation | ⚠️ Limited |
-| Headless Mode | ✅ Full support | ❌ Requires display |
-| Parallel Testing | ✅ Multiple browsers | ❌ Single browser |
-
-**Use Playwright for:** Automated testing, cross-browser testing, CI/CD
-**Use Chrome DevTools for:** Manual debugging, live inspection, development
-
----
-
-## Advanced Features
-
-### API Testing
-```
-Make API request
-Verify response status
-Validate response data
-Test error handling
-```
-
-### File Download
-```
-Trigger download
-Wait for download
-Verify file
-```
-
-### iFrames
-```
-Switch to iframe
-Interact with iframe content
-Switch back to main frame
-```
-
-### Multiple Tabs
-```
-Open new tab
-Switch between tabs
-Share context between tabs
-```
-
-### Browser Context
-```
-Create isolated context
-Set cookies
-Set localStorage
-Use context for tests
-```
-
-### Trace & Debug
-```
-Enable tracing
-Record test execution
-View trace file
-Debug with inspector
-```
-
----
-
-## Example Test Scenarios
-
-### User Registration Flow
-```
-1. Navigate to /register
-2. Fill registration form
-3. Accept terms checkbox
-4. Click submit button
-5. Wait for success message
-6. Verify redirect to dashboard
-7. Check user created in database
-8. Take screenshot
-```
-
-### Shopping Cart Test
-```
-1. Navigate to product page
-2. Click 'Add to Cart'
-3. Verify cart count updates
-4. Go to cart page
-5. Verify product in cart
-6. Update quantity
-7. Verify total price
-8. Proceed to checkout
-```
-
-### Responsive Design Test
-```
-1. Navigate to homepage
-2. Set viewport to mobile (375x667)
-3. Verify hamburger menu appears
-4. Test navigation
-5. Set viewport to desktop
-6. Verify full navigation
-7. Take screenshots for comparison
-```
-
----
-
-**Need Help?** Just ask Claude: "Use Playwright to test..."
+**Initial Setup:** Run `npx playwright install chromium` to download browser binaries on first use.
+</context>
+
+<instructions>
+When working with Playwright through Claude Code, use natural language commands. Claude will convert your requests into appropriate Playwright automation commands.
+
+For testing, always start by launching a browser and navigating to the target URL. Use explicit waits over fixed timeouts for more reliable tests.
+</instructions>
+
+<workflow>
+  <phase name="Test Setup">
+    <goal>Prepare browser environment for testing</goal>
+    <steps>
+      <step>Use `playwright_launch` to start browser (chromium/firefox/webkit)</step>
+      <step>Use `playwright_navigate` to go to target URL</step>
+      <step>Use `playwright_set_viewport` or `playwright_emulate_device` if testing responsive</step>
+    </steps>
+  </phase>
+
+  <phase name="Page Interaction">
+    <goal>Interact with page elements</goal>
+    <steps>
+      <step>Use `playwright_wait_for_selector` to ensure elements are ready</step>
+      <step>Use `playwright_click` to click buttons/links</step>
+      <step>Use `playwright_fill` or `playwright_type` to input text</step>
+      <step>Use `playwright_select` for dropdowns</step>
+      <step>Use `playwright_check`/`playwright_uncheck` for checkboxes</step>
+    </steps>
+  </phase>
+
+  <phase name="Assertion & Verification">
+    <goal>Verify expected behavior</goal>
+    <steps>
+      <step>Use `playwright_assert_visible` to check element visibility</step>
+      <step>Use `playwright_assert_text` to verify content</step>
+      <step>Use `playwright_assert_url` to verify navigation</step>
+      <step>Use `playwright_assert_title` to verify page title</step>
+      <step>Use `playwright_screenshot` to capture state</step>
+    </steps>
+  </phase>
+
+  <phase name="Cleanup">
+    <goal>Close browser and clean up resources</goal>
+    <steps>
+      <step>Take final screenshots if needed</step>
+      <step>Use `playwright_close` to close browser</step>
+    </steps>
+  </phase>
+</workflow>
+
+<available_skills>
+  <skill_group name="Browser Launch & Control">
+    <skill name="playwright_launch">
+      <purpose>Launch a browser instance</purpose>
+      <usage>Launch Chrome browser</usage>
+      <parameters>
+        <param name="browser">Browser type (chromium, firefox, webkit)</param>
+        <param name="headless">Run headlessly (default: true)</param>
+        <param name="viewport">Viewport size {width, height}</param>
+      </parameters>
+    </skill>
+    <skill name="playwright_navigate">
+      <purpose>Navigate to a URL</purpose>
+      <usage>Navigate to https://example.com</usage>
+      <parameters>
+        <param name="url">Target URL</param>
+        <param name="wait_until">Wait condition (load, domcontentloaded, networkidle)</param>
+      </parameters>
+    </skill>
+    <skill name="playwright_close">
+      <purpose>Close the browser or page</purpose>
+      <usage>Close the browser</usage>
+    </skill>
+  </skill_group>
+
+  <skill_group name="Page Interaction">
+    <skill name="playwright_click">
+      <purpose>Click an element on the page</purpose>
+      <usage>Click the login button</usage>
+      <parameters>
+        <param name="selector">Element selector (CSS, XPath, text)</param>
+        <param name="wait_for">Wait for navigation after click</param>
+      </parameters>
+    </skill>
+    <skill name="playwright_fill">
+      <purpose>Fill form input fields</purpose>
+      <usage>Fill the email input</usage>
+      <parameters>
+        <param name="selector">Input element selector</param>
+        <param name="value">Value to enter</param>
+      </parameters>
+    </skill>
+    <skill name="playwright_type">
+      <purpose>Type text character by character</purpose>
+      <usage>Type 'Hello World' in textarea</usage>
+      <parameters>
+        <param name="selector">Element selector</param>
+        <param name="text">Text to type</param>
+        <param name="delay">Delay between keystrokes (ms)</param>
+      </parameters>
+    </skill>
+    <skill name="playwright_select">
+      <purpose>Select option from dropdown</purpose>
+      <usage>Select 'United States' from country dropdown</usage>
+      <parameters>
+        <param name="selector">Select element</param>
+        <param name="value">Option value or label</param>
+      </parameters>
+    </skill>
+    <skill name="playwright_check">
+      <purpose>Check a checkbox</purpose>
+      <usage>Check the 'agree' checkbox</usage>
+      <parameters>
+        <param name="selector">Checkbox element selector</param>
+      </parameters>
+    </skill>
+    <skill name="playwright_uncheck">
+      <purpose>Uncheck a checkbox</purpose>
+      <usage>Uncheck the newsletter checkbox</usage>
+      <parameters>
+        <param name="selector">Checkbox element selector</param>
+      </parameters>
+    </skill>
+  </skill_group>
+
+  <skill_group name="Element Inspection">
+    <skill name="playwright_get_text">
+      <purpose>Get text content from element(s)</purpose>
+      <usage>Get text from h1</usage>
+      <parameters>
+        <param name="selector">Element selector</param>
+      </parameters>
+    </skill>
+    <skill name="playwright_get_html">
+      <purpose>Get HTML content of element or page</purpose>
+      <usage>Get HTML of the page</usage>
+      <parameters>
+        <param name="selector">Element selector (optional, for element HTML)</param>
+      </parameters>
+    </skill>
+    <skill name="playwright_get_attribute">
+      <purpose>Get attribute value from element</purpose>
+      <usage>Get href from all links</usage>
+      <parameters>
+        <param name="selector">Element selector</param>
+        <param name="attribute">Attribute name</param>
+      </parameters>
+    </skill>
+    <skill name="playwright_get_element_count">
+      <purpose>Count elements matching selector</purpose>
+      <usage>Count number of .item elements</usage>
+      <parameters>
+        <param name="selector">Element selector</param>
+      </parameters>
+    </skill>
+    <skill name="playwright_is_visible">
+      <purpose>Check if element is visible</purpose>
+      <usage>Is the modal visible?</usage>
+      <parameters>
+        <param name="selector">Element selector</param>
+      </parameters>
+    </skill>
+    <skill name="playwright_is_enabled">
+      <purpose>Check if element is enabled</purpose>
+      <usage>Is the submit button enabled?</usage>
+      <parameters>
+        <param name="selector">Element selector</param>
+      </parameters>
+    </skill>
+  </skill_group>
+
+  <skill_group name="Waiting & Timing">
+    <skill name="playwright_wait_for_selector">
+      <purpose>Wait for element to appear</purpose>
+      <usage>Wait for .modal to appear</usage>
+      <parameters>
+        <param name="selector">Element selector</param>
+        <param name="timeout">Maximum wait time (default: 30000ms)</param>
+      </parameters>
+    </skill>
+    <skill name="playwright_wait_for_navigation">
+      <purpose>Wait for page navigation</purpose>
+      <usage>Wait for page to load after click</usage>
+    </skill>
+    <skill name="playwright_wait_for_timeout">
+      <purpose>Wait for specific time</purpose>
+      <usage>Wait for 5 seconds</usage>
+      <parameters>
+        <param name="timeout">Time to wait (milliseconds)</param>
+      </parameters>
+    </skill>
+    <skill name="playwright_wait_for_response">
+      <purpose>Wait for network response</purpose>
+      <usage>Wait for API response</usage>
+      <parameters>
+        <param name="url">URL or URL pattern</param>
+        <param name="timeout">Maximum wait time</param>
+      </parameters>
+    </skill>
+  </skill_group>
+
+  <skill_group name="Screenshot & PDF">
+    <skill name="playwright_screenshot">
+      <purpose>Take screenshot of page or element</purpose>
+      <usage>Take screenshot</usage>
+      <parameters>
+        <param name="selector">Element to screenshot (optional)</param>
+        <param name="full_page">Capture entire page (default: false)</param>
+        <param name="path">Save path (optional)</param>
+      </parameters>
+    </skill>
+    <skill name="playwright_pdf">
+      <purpose>Generate PDF of current page</purpose>
+      <usage>Save page as PDF</usage>
+      <parameters>
+        <param name="path">Save path (optional)</param>
+        <param name="format">Paper format (A4, Letter)</param>
+        <param name="landscape">Landscape orientation (default: false)</param>
+      </parameters>
+    </skill>
+  </skill_group>
+
+  <skill_group name="JavaScript Execution">
+    <skill name="playwright_evaluate">
+      <purpose>Execute JavaScript in page context</purpose>
+      <usage>Run document.title</usage>
+      <parameters>
+        <param name="code">JavaScript code</param>
+      </parameters>
+    </skill>
+    <skill name="playwright_evaluate_async">
+      <purpose>Execute async JavaScript</purpose>
+      <usage>Run await fetch('/api/data')</usage>
+      <parameters>
+        <param name="code">Async JavaScript code</param>
+      </parameters>
+    </skill>
+  </skill_group>
+
+  <skill_group name="Form & Input">
+    <skill name="playwright_upload_file">
+      <purpose>Upload file through file input</purpose>
+      <usage>Upload file to input</usage>
+      <parameters>
+        <param name="selector">File input element</param>
+        <param name="file_path">Path to file</param>
+      </parameters>
+    </skill>
+    <skill name="playwright_hover">
+      <purpose>Hover over element</purpose>
+      <usage>Hover over navigation menu</usage>
+      <parameters>
+        <param name="selector">Element selector</param>
+      </parameters>
+    </skill>
+    <skill name="playwright_focus">
+      <purpose>Focus on element</purpose>
+      <usage>Focus on email input</usage>
+      <parameters>
+        <param name="selector">Element selector</param>
+      </parameters>
+    </skill>
+  </skill_group>
+
+  <skill_group name="Browser Context">
+    <skill name="playwright_set_viewport">
+      <purpose>Set browser viewport size</purpose>
+      <usage>Set viewport to mobile size</usage>
+      <parameters>
+        <param name="width">Viewport width</param>
+        <param name="height">Viewport height</param>
+      </parameters>
+    </skill>
+    <skill name="playwright_emulate_device">
+      <purpose>Emulate specific device</purpose>
+      <usage>Emulate iPhone 12</usage>
+      <parameters>
+        <param name="device">Device name (iPhone, iPad, etc.)</param>
+      </parameters>
+    </skill>
+    <skill name="playwright_set_geolocation">
+      <purpose>Set geolocation</purpose>
+      <usage>Set location to New York</usage>
+      <parameters>
+        <param name="latitude">Latitude</param>
+        <param name="longitude">Longitude</param>
+      </parameters>
+    </skill>
+    <skill name="playwright_set_offline">
+      <purpose>Set offline mode</purpose>
+      <usage>Go offline</usage>
+    </skill>
+  </skill_group>
+
+  <skill_group name="Testing & Assertions">
+    <skill name="playwright_assert_text">
+      <purpose>Assert text exists on page</purpose>
+      <usage>Assert 'Welcome' is visible</usage>
+      <parameters>
+        <param name="text">Expected text</param>
+        <param name="selector">Element selector (optional)</param>
+      </parameters>
+    </skill>
+    <skill name="playwright_assert_visible">
+      <purpose>Assert element is visible</purpose>
+      <usage>Assert button is visible</usage>
+      <parameters>
+        <param name="selector">Element selector</param>
+      </parameters>
+    </skill>
+    <skill name="playwright_assert_url">
+      <purpose>Assert current URL</purpose>
+      <usage>Assert URL is /dashboard</usage>
+      <parameters>
+        <param name="url">Expected URL</param>
+      </parameters>
+    </skill>
+    <skill name="playwright_assert_title">
+      <purpose>Assert page title</purpose>
+      <usage>Assert title is 'Home Page'</usage>
+      <parameters>
+        <param name="title">Expected title</param>
+      </parameters>
+    </skill>
+  </skill_group>
+</available_skills>
+
+<rules>
+  <rule>
+    <condition>When waiting for elements</condition>
+    <action>Use explicit waits (wait_for_selector) over fixed timeouts (wait_for_timeout)</action>
+  </rule>
+  <rule>
+    <condition>When selecting elements</condition>
+    <action>Prefer stable selectors like data-testid, IDs, or aria labels over CSS classes</action>
+  </rule>
+  <rule>
+    <condition>When testing</condition>
+    <action>Always close browser after test completes</action>
+  </rule>
+  <rule>
+    <condition>For cross-browser testing</condition>
+    <action>Test in chromium, firefox, and webkit to ensure compatibility</action>
+  </rule>
+</rules>
+
+<best_practices>
+  <practice category="Selectors">
+    <do>Use data-testid attributes for selectors</do>
+    <do>Use specific, stable selectors</do>
+    <dont>Use brittle selectors (nth-child)</dont>
+    <dont>Use CSS classes that change frequently</dont>
+  </practice>
+  <practice category="Timing">
+    <do>Wait for elements explicitly</do>
+    <do>Handle async properly</do>
+    <dont>Hardcode sleep times</dont>
+    <dont>Assume instant load</dont>
+  </practice>
+  <practice category="Testing">
+    <do>Test in multiple browsers</do>
+    <do>Use descriptive test names</do>
+    <do>Clean up after tests</do>
+    <do>Use page object model</do>
+    <do>Run tests in parallel</do>
+    <dont>Test only in Chrome</dont>
+    <dont>Skip cleanup</dont>
+    <dont>Mix concerns in tests</dont>
+    <dont>Duplicate test code</dont>
+  </practice>
+</best_practices>
+
+<examples>
+  <example scenario="E2E Testing">
+    <input>Test the login flow</input>
+    <workflow>
+      <step>Launch browser (chromium, headless: false)</step>
+      <step>Navigate to https://example.com/login</step>
+      <step>Wait for selector #email</step>
+      <step>Fill email input with user@example.com</step>
+      <step>Fill password input with secret123</step>
+      <step>Click #login-button</step>
+      <step>Wait for navigation to /dashboard</step>
+      <step>Assert text 'Welcome' is visible</step>
+      <step>Take screenshot</step>
+      <step>Close browser</step>
+    </workflow>
+  </example>
+
+  <example scenario="Form Testing">
+    <input>Test partner signup form validation</input>
+    <workflow>
+      <step>Navigate to /signup</step>
+      <step>Fill name, email, password fields</step>
+      <step>Click submit without accepting terms</step>
+      <step>Assert error message is visible</step>
+      <step>Check terms checkbox</step>
+      <step>Click submit</step>
+      <step>Wait for success message</step>
+      <step>Verify redirect to dashboard</step>
+    </workflow>
+  </example>
+
+  <example scenario="Responsive Testing">
+    <input>Test mobile layout</input>
+    <workflow>
+      <step>Launch browser</step>
+      <step>Set viewport to 375x667 (mobile)</step>
+      <step>Navigate to homepage</step>
+      <step>Assert hamburger menu is visible</step>
+      <step>Click menu button</step>
+      <step>Assert navigation appears</step>
+      <step>Set viewport to 1920x1080 (desktop)</step>
+      <step>Assert full navigation is visible</step>
+      <step>Take screenshots for comparison</step>
+    </workflow>
+  </example>
+</examples>
+
+<error_handling>
+  <error>
+    <condition>Browser launch fails</condition>
+    <solution>
+      <step>Install browser binaries: npx playwright install</step>
+      <step>Check system requirements</step>
+      <step>Verify sufficient disk space</step>
+    </solution>
+  </error>
+  <error>
+    <condition>Element not found</condition>
+    <solution>
+      <step>Verify selector is correct</step>
+      <step>Wait for element to load</step>
+      <step>Check if element is in iframe</step>
+      <step>Use browser DevTools to test selector</step>
+    </solution>
+  </error>
+  <error>
+    <condition>Test is flaky</condition>
+    <solution>
+      <step>Add explicit waits</step>
+      <step>Use proper selectors</step>
+      <step>Handle dynamic content</step>
+      <step>Increase timeout if needed</step>
+      <step>Check for race conditions</step>
+    </solution>
+  </error>
+  <error>
+    <condition>Screenshot fails</condition>
+    <solution>
+      <step>Ensure element is visible</step>
+      <step>Check file path permissions</step>
+      <step>Verify directory exists</step>
+      <step>Wait for element to render</step>
+    </solution>
+  </error>
+</error_handling>
+
+<output_format>
+  <format>
+    <type>Element Text</type>
+    <structure>String content of matched element(s)</structure>
+  </format>
+  <format>
+    <type>Screenshot</type>
+    <structure>Binary image data (PNG) or saved file path</structure>
+  </format>
+  <format>
+    <type>Assertion Result</type>
+    <structure>Boolean pass/fail with error message if failed</structure>
+  </format>
+</output_format>
+
+<integration_notes>
+  <note category="Setup">
+    <content>First run requires: npx playwright install chromium (or firefox/webkit)</content>
+  </note>
+  <note category="Comparison">
+    <content>Playwright vs Chrome DevTools: Playwright supports multi-browser testing, E2E framework, PDF generation, network mocking, and headless mode. Chrome DevTools is for manual debugging and live inspection.</content>
+  </note>
+  <note category="Best Practice">
+    <content>Use data-testid attributes for test selectors to avoid coupling tests to implementation details</content>
+  </note>
+</integration_notes>
