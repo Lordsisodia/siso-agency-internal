@@ -58,7 +58,7 @@ import {
   Sparkles,
   Loader2,
 } from 'lucide-react';
-import { xpStoreAdminService, type StoreReward, type CreateRewardData } from '@/xp-store/services/xpStoreService';
+import { xpStoreAdminService, type StoreReward, type CreateRewardData } from '@/domains/xp-store/services/xpStoreService';
 
 const REWARD_CATEGORIES = [
   { value: 'SOCIAL', label: 'Social', emoji: '🎲' },

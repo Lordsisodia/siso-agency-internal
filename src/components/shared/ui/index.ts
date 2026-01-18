@@ -10,8 +10,8 @@ export { ThoughtDumpResults } from './ThoughtDumpResults';
 
 // Task Management Components
 export { EisenhowerMatrixModal } from './EisenhowerMatrixModal';
-export { TasksOverviewCard } from './TasksOverviewCard';
-export { TaskHeaderList } from './TaskHeaderList';
+// export { TasksOverviewCard } from './TasksOverviewCard'; // TODO: Needs to be created
+// export { TaskHeaderList } from './TaskHeaderList'; // TODO: Needs to be created
 
 // Note: The following components were moved/removed:
 // - FlowStateTimer → moved to domains/lifelock/1-daily/4-deep-work/

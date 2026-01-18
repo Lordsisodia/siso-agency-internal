@@ -1,6 +1,6 @@
 
 import { AppLayout } from "@/components/layout/AppLayout";
-import { DocumentTable } from "@/domains/_archive/docs/DocumentTable";
+import { DocumentTable } from "@/domains/resources/components/DocumentTable";
 
 const demoDocuments = [
   {

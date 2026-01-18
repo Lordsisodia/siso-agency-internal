@@ -28,10 +28,10 @@ const AdminLifeLockOverview = lazy(() => import('@/domains/admin/dashboard/pages
 const WeeklyView = lazy(() => import('@/domains/lifelock/2-weekly/WeeklyView').then(m => ({ default: m.WeeklyView })));
 const MonthlyView = lazy(() => import('@/domains/lifelock/3-monthly/MonthlyView'));
 const YearlyView = lazy(() => import('@/domains/lifelock/4-yearly/YearlyView'));
-const AdminIndustriesViewLazy = lazy(() => import('@/domains/agency/industries/AdminIndustriesView').then(m => ({ default: m.AdminIndustriesView })));
+const AdminIndustriesViewLazy = lazy(() => import('@/domains/admin/industries/AdminIndustriesView').then(m => ({ default: m.AdminIndustriesView })));
 const AdminSettings = lazy(() => import('@/domains/admin/pages/AdminSettings'));
-const AdminClients = lazy(() => import('@/domains/agency/pages/AdminClients'));
-const AdminPartnershipDashboard = lazy(() => import('@/domains/agency/pages/AdminPartnershipDashboard'));
+const AdminClients = lazy(() => import('@/domains/admin/pages/AdminClients'));
+const AdminPartnershipDashboard = lazy(() => import('@/domains/admin/pages/AdminPartnershipDashboard'));
 const TeamMemberTasksPage = lazy(() => import('@/domains/task-ui/pages/TeamMemberTasksPage'));
 const AIAssistantPage = lazy(() => import('@/domains/admin/ai-assistant/ui/pages/AIAssistantPage').then(m => ({ default: m.AIAssistantPage })));
 
