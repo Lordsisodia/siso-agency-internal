@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, X, Send, Mic, MicOff, Sparkles, Clock, User, Database, Loader2, CheckCircle2 } from 'lucide-react';
-import { useClerkUser } from '@/lib/hooks/useClerkUser';
+import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { useTimeBlocks } from '@/lib/hooks/useTimeBlocks';
 import { format } from 'date-fns';
 import type { TimeBlock } from '@/services/api/timeblocksApi.offline';

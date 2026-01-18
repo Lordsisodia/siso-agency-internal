@@ -8,8 +8,8 @@ import {
 } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { usePoints } from '@/domains/xp-store/_shared/core/usePoints';
-import { useAuthSession } from '@/lib/hooks/useAuthSession';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useAuthSession } from '@/lib/hooks/auth/useAuthSession';
+import { useToast } from '@/lib/hooks/ui/useToast';
 import { supabase } from '@/services/integrations/supabase/client';
 import { ExternalLink } from 'lucide-react';
 

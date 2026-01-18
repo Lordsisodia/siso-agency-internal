@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { PartnershipSidebar } from './PartnershipSidebar';
-import { useIsMobile } from '@/lib/hooks/use-mobile';
+import { useIsMobile } from '@/lib/hooks/ui/useMobile';
 
 interface PartnershipLayoutProps {
   children: ReactNode;

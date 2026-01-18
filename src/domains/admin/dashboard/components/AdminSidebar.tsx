@@ -4,7 +4,7 @@ import AdminSidebarLogo from './AdminSidebarLogo';
 import { AdminSidebarNavigation } from './AdminSidebarNavigation';
 import { SidebarFooter } from '@/components/sidebar/SidebarFooter';
 import { Menu, X } from 'lucide-react';
-import { useIsMobile } from '@/lib/hooks/use-mobile';
+import { useIsMobile } from '@/lib/hooks/ui/useMobile';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 

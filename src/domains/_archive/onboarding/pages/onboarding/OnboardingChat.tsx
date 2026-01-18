@@ -4,15 +4,15 @@ import { Bot, User, X, ArrowLeft, Send, Mic, Phone, MessageSquare, MicOff, Check
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { MessageLoading } from '@/components/ui/message-loading';
-import { useOnboardingAuth } from '@/lib/hooks/useOnboardingAuth';
+import { useOnboardingAuth } from '@/lib/hooks/auth/useOnboardingAuth';
 import { supabase } from '@/services/integrations/supabase/client';
 import { SisoIcon } from '@/components/ui/icons/SisoIcon';
 import { BusinessDataInput } from '@/domains/app-plan/BusinessDataForm';
 import { appPlanAgent } from '@/services/core/ai.service';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
-import { useAuthSession } from '@/lib/hooks/useAuthSession';
+import { useAuthSession } from '@/lib/hooks/auth/useAuthSession';
 import { saveAppPlan, type AppPlanData, type SavedAppPlan } from '@/services/core/appPlanService';
 import { saveNewAppPlan, convertGeneratedAppPlanToSaveable, type NewAppPlanData } from '@/services/core/newAppPlanService';
 

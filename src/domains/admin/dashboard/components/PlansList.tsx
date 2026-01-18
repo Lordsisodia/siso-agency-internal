@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 import { Copy, EyeIcon, Pencil, Plus, Send, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { BulkPlanCreation } from './BulkPlanCreation';

@@ -4,69 +4,42 @@ Active automation scripts and utilities for SISO Internal development.
 
 ## Structure
 
-### Active Scripts (Root Level)
+All scripts are organized into categorized folders with individual READMEs.
 
-#### **ai-session-snapshot.sh**
-Creates snapshots of the current state before AI agent sessions.
-- Used by: `npm run ai:snapshot`, `npm run ai:protect`
-- Purpose: Protect working state before autonomous AI operations
+### `/ai`
+AI session management and protection scripts.
+- **README.md** - AI session documentation
+- **ai-session-snapshot.sh** - Create snapshots before AI sessions
 
-#### **generate-docs-index.cjs**
-Generates documentation index for AI consumption.
-- Used by: `npm run docs:index`, `npm run docs:validate`
-- Output: `.docs/index.json`
-- Purpose: Index all documentation for AI agent context
-
-#### **test-glm-connection.ts**
-Tests GLM MCP server connectivity.
-- Used by: `npm run test:glm:connection`
-- Purpose: Verify MCP server integration
-
-#### **validate-supabase-sync.ts**
-Validates Supabase sync configuration and data integrity.
-- Used by: `npm run validate:sync`
-- Purpose: Ensure offline sync system is correctly configured
+### `/docs`
+Documentation generation and indexing scripts.
+- **README.md** - Documentation generation guide
+- **generate-docs-index.cjs** - Generate .docs/index.json for AI consumption
 
 ### `/mcp`
 MCP (Model Context Protocol) server integration tools.
-- **check-codecs.mjs** - MCP codec validation (used by `npm run check:mcp`)
+- **README.md** - MCP integration documentation
+- **check-codecs.mjs** - MCP codec validation
 - **test-integration.js** - MCP integration testing
 - **test-integration.mjs** - MCP integration testing (ESM version)
 
 ### `/migrations`
-Database migration scripts.
-- **apply-nightly-checkout-migration.ts** - Nightly checkout feature migration
-- **create-public-user.sql** - Public user setup
-- **QUICK-REFERENCE.md** - Migration command reference
-- **MIGRATION-SUMMARY.md** - Migration documentation
-- **README-NIGHTLY-CHECKOUT-MIGRATION.md** - Nightly checkout migration guide
+Database migration scripts and documentation.
+- **README.md** - Migrations guide
+- **apply-nightly-checkout-migration.ts** - Nightly checkout migration
+- **setup-public-user.js** - Public user setup
+- **sql/** - SQL migration files
+- **docs/** - Migration documentation
 
-### Archive Location
-
-Historical scripts have been moved to **`.archive/`** at the project root (not in `scripts/`).
-
-The `.archive/` directory contains:
-- **analysis/** - Code analysis tools (duplicate detection, import checking)
-- **migration/** - One-time code migration scripts
-- **fixes/** - Import path fixes and transformations
-- **verification/** - Build and health check scripts
-- **maintenance/** - Bug fix scripts
-- **testing/** - Ad-hoc testing utilities
-- **database/** - Old database debugging scripts
-- **utilities/** - General utility scripts
-- **setup/** - Setup scripts
-- **utils/** - Duplicate of utilities folder
-- **test-tools/** - Testing tools
-- **deployment/** - Deployment triggers and markers
-- **obsolete-root/** - Obsolete root-level scripts
-
-**Note:** Archive contents are historical artifacts from codebase consolidation (Oct 2025) and should not be used in current development.
+### `/testing`
+Integration testing and validation scripts.
+- **README.md** - Testing documentation
+- **test-glm-connection.ts** - GLM MCP connectivity tests
+- **validate-supabase-sync.ts** - Sync configuration validation
 
 ## Usage
 
-### Active Scripts
-
-Use via npm scripts from `package.json`:
+### Via npm Scripts
 
 ```bash
 # AI Session Management
@@ -89,43 +62,33 @@ npm run check:mcp                # Check MCP codecs
 ### Direct Script Execution
 
 ```bash
-# Generate documentation index
-node scripts/generate-docs-index.cjs
+# AI Session Management
+bash scripts/ai/ai-session-snapshot.sh
 
-# Test GLM connection
-npx tsx scripts/test-glm-connection.ts
+# Documentation
+node scripts/docs/generate-docs-index.cjs
 
-# Validate sync configuration
-npx tsx scripts/validate-supabase-sync.ts
+# Testing
+npx tsx scripts/testing/test-glm-connection.ts
+npx tsx scripts/testing/validate-supabase-sync.ts
 
-# Create AI session snapshot
-bash scripts/ai-session-snapshot.sh
-
-# Check MCP codecs
+# MCP
 node scripts/mcp/check-codecs.mjs
-```
+node scripts/mcp/test-integration.js
 
-### Database Migrations
-
-```bash
-# Apply nightly checkout migration
+# Migrations
 npx tsx scripts/migrations/apply-nightly-checkout-migration.ts
+node scripts/migrations/setup-public-user.js
 ```
 
 ## Adding New Scripts
 
-1. Place active scripts in the root `scripts/` directory
-2. Create subdirectories for organized groups (e.g., `scripts/mcp/`)
-3. Add npm script references to `package.json` if they need to be run via npm
-4. Update this README with documentation
+1. Create a new folder in `scripts/` for the script category
+2. Add a README.md to document the scripts
+3. Place scripts in the appropriate folder
+4. Add npm script references to `package.json` if needed
+5. Update this main README with the new category
 
-## Archive Policy
+## Archive
 
-Scripts are moved to `/archive` when they:
-- Are one-time migration scripts that have been executed
-- Are analysis tools specific to a completed refactoring
-- Fix specific bugs that are no longer relevant
-- Have been superseded by newer implementations
-- Are ad-hoc utilities not part of regular development workflow
-
-Archive scripts are kept for historical reference but should not be used in current development.
+Historical scripts have been moved to **`.archive/`** at the project root. These are one-time scripts from codebase consolidation (Oct 2025) and should not be used in current development.

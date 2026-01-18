@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Gift, Loader2, Share2, Twitter } from 'lucide-react';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Confetti } from '@/components/ui/confetti';
 import { safeSupabase } from '@/services/shared/data.service';

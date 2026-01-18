@@ -2,7 +2,7 @@ import React, { ReactNode, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { UnifiedSidebar } from './UnifiedSidebar';
 import { getAffiliateSidebarConfig } from '@/lib/data/affiliateNavigation';
-import { useIsMobile } from '@/lib/hooks/use-mobile';
+import { useIsMobile } from '@/lib/hooks/ui/useMobile';
 
 interface AffiliateLayoutProps {
   children: ReactNode;

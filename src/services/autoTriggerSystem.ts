@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 import { AppPlanInput } from '@/types/appPlan.types';
 import { getBusinessOnboardingData } from '@/lib/utils/clientData';
 import { appPlanAgent } from '@/services/shared/ai.service';
-import { toast } from '@/lib/hooks/use-toast';
+import { toast } from '@/lib/hooks/ui/useToast';
 import { logger } from '@/lib/utils/logger';
 
 export interface AutoTriggerConfig {

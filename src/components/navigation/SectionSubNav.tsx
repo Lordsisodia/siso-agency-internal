@@ -16,7 +16,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, MoreVertical } from 'lucide-react';
 import { NavSubSection } from '@/services/shared/navigation-config';
 import { cn } from '@/lib/utils';
-import { useLongPress } from '@/lib/hooks/useLongPress';
+import { useLongPress } from '@/lib/hooks/ui/useLongPress';
 import { miniCelebrate } from '@/lib/utils/confetti';
 
 interface SectionSubNavProps {

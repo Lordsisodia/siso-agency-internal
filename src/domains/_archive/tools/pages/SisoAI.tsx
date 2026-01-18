@@ -4,7 +4,7 @@ import { supabase } from '@/services/integrations/supabase/client';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChatMessage } from '@/domains/chat/ChatMessage';
 import { ChatInput } from '@/domains/chat/ChatInput';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AppLayout } from '@/components/layout/AppLayout';
 import {

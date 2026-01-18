@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 import { Mail, MessageSquare, Phone, HelpCircle, ArrowRight } from 'lucide-react';
 import { ClientDashboardLayout } from "@/client/client/ClientDashboardLayout";
 

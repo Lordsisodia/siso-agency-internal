@@ -19,7 +19,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useIsMobile } from '@/lib/hooks/use-mobile';
+import { useIsMobile } from '@/lib/hooks/ui/useMobile';
 import { cn } from '@/lib/utils';
 
 export interface NavigationItem {

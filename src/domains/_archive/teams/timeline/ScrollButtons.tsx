@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronUp, ChevronDown } from 'lucide-react';
-import { useIsMobile } from '@/lib/hooks/use-mobile';
+import { useIsMobile } from '@/lib/hooks/ui/useMobile';
 
 interface ScrollButtonsProps {
   onScrollUp: () => void;

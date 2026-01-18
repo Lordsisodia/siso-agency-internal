@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/services/integrations/supabase/client';
 import { PortfolioItem, PortfolioCategory } from '@/types/portfolio';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 
 const defaultProjects: PortfolioItem[] = [
   {

@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/services/integrations/supabase/client';
-import { useUser } from '@/lib/hooks/useUser';
+import { useUser } from '@/lib/hooks/auth/useUser';
 
 /**
  * Hook to check if the current user is linked to a client

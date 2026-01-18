@@ -28,7 +28,7 @@ import { TaskHeader } from '@/components/tasks/TaskHeader';
 import { SubtaskItem } from '@/components/tasks/SubtaskItem';
 import { AddSubtaskInput } from '@/components/tasks/AddSubtaskInput';
 import { useTaskEditing } from '@/lib/hooks/useTaskEditing';
-import { useThoughtDump } from '@/lib/hooks/useThoughtDump';
+import { useThoughtDump } from '@/lib/domains/lifelock/1-daily/5-stats/domain/useThoughtDump';
 import { useTaskFiltering } from '@/lib/hooks/useTaskFiltering';
 import { WORK_THEMES } from '@/lib/config/work-themes';
 import { CustomCalendar } from '@/components/ui/CustomCalendar';

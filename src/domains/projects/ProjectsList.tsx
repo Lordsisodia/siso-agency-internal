@@ -5,8 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Search, Plus } from 'lucide-react';
 import { supabase } from '@/services/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
-import { useUser } from '@/lib/hooks/useUser';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useUser } from '@/lib/hooks/auth/useUser';
+import { useToast } from '@/lib/hooks/ui/useToast';
 import { useUserProjects } from '@/domains/projects/hooks/useUserProjects';
 import { Skeleton } from '@/components/ui/skeleton';
 

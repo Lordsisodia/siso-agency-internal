@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format, isToday, subDays, startOfWeek, endOfWeek } from 'date-fns';
-import { useClerkUser } from '@/lib/hooks/useClerkUser';
+import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 import { smokingService, SmokingSnapshot } from '@/services/database/smokingService';
 import { calculateSmokingXP } from '../../domain/xpCalculations';

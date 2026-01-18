@@ -9,12 +9,12 @@ import { TimeBlockFormModal } from '../components/TimeBlockFormModal';
 import QuickTaskScheduler from '../components/QuickTaskScheduler';
 import { useTimeBlocks } from '@/lib/hooks/useTimeBlocks';
 import { toast } from 'sonner';
-import { useClerkUser } from '@/lib/hooks/useClerkUser';
+import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 
 import { TimeboxSectionProps, TimeboxTask, DragPreviewState, GapFillerState, FocusSprintType } from '../../domain/types';
 import { mapUIToCategory } from '../../domain/utils';
-import { useAutoTimeblocks } from '@/lib/hooks/useAutoTimeblocks';
+import { useAutoTimeblocks } from '@/lib/domains/lifelock/1-daily/6-timebox/domain/useAutoTimeblocks';
 import { useTimeboxCalculations } from '../../domain/useTimeboxCalculations';
 import { useTimeboxHandlers } from '../../domain/useTimeboxHandlers';
 import { TimeboxStats } from '../components/TimeboxStats';

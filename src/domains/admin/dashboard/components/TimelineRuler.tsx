@@ -2,7 +2,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { useTaskDragDrop } from '@/lib/hooks/useTaskDragDrop';
-import { useIsMobile } from '@/lib/hooks/use-mobile';
+import { useIsMobile } from '@/lib/hooks/ui/useMobile';
 
 interface TimelineRulerProps {
   currentHour: number;

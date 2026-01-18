@@ -11,7 +11,7 @@ import { useForm } from 'react-hook-form';
 import { format } from 'date-fns';
 import { useTaskOperations } from '@/domains/tasks/hooks/useTaskOperations';
 import { TaskPriority, TaskCategory } from '@/types/task.types';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';

@@ -1,7 +1,7 @@
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
-import { useVoiceProcessing } from '@/lib/hooks/useVoiceProcessing';
+import { useVoiceProcessing } from '@/lib/hooks/performance/useVoiceProcessing';
 import type { ThoughtDumpResult } from '@/domains/lifelock/_shared/services/lifeLockVoiceTaskProcessor';
 
 const voiceMocks = vi.hoisted(() => ({

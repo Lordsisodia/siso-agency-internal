@@ -5,7 +5,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { useAuthSession } from '@/lib/hooks/useAuthSession';
+import { useAuthSession } from '@/lib/hooks/auth/useAuthSession';
 import { xpAnalyticsService } from '../services/xpAnalyticsService';
 import type {
   XPAnalyticsData,

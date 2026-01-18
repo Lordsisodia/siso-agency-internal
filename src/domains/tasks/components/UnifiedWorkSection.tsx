@@ -29,7 +29,7 @@ import { SubtaskItem } from '@/domains/tasks/management/SubtaskItem';
 import { AddSubtaskInput } from '@/domains/tasks/management/AddSubtaskInput';
 import { SimpleFeedbackButton } from '@/internal/feedback/SimpleFeedbackButton';
 import { useTaskEditing } from '@/domains/tasks/hooks/useTaskEditing';
-import { useThoughtDump } from '@/lib/hooks/useThoughtDump';
+import { useThoughtDump } from '@/lib/domains/lifelock/1-daily/5-stats/domain/useThoughtDump';
 import { useTaskFiltering } from '@/domains/tasks/hooks/useTaskFiltering';
 import { useTaskReordering } from '@/domains/tasks/hooks/useTaskReordering';
 import { WORK_THEMES } from '@/lib/config/work-themes';

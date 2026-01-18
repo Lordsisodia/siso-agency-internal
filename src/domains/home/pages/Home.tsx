@@ -1,5 +1,5 @@
 import { Helmet } from 'react-helmet';
-import { useAuthSession } from '@/lib/hooks/useAuthSession';
+import { useAuthSession } from '@/lib/hooks/auth/useAuthSession';
 import { DashboardLayout } from '@/domains/home/components/Placeholders';
 import { useAdminCheck } from '@/domains/admin/hooks/useAdminCheck';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';

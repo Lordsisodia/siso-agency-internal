@@ -18,7 +18,7 @@ import {
   AlertCircle,
   Type
 } from 'lucide-react';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 import { NotionEditor } from '@/components/notion-editor/NotionEditor';
 import { NotionRenderer } from '@/components/notion-editor/NotionRenderer';
 import { NotionBlock } from '@/types/notion';

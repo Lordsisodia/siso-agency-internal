@@ -6,7 +6,7 @@
  */
 
 import { useState, useCallback, useEffect } from 'react';
-import { useClerkUser } from '@/lib/hooks/useClerkUser';
+import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 
 export interface LightWorkTask {
   id: string;

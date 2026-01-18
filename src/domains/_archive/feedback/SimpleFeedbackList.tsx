@@ -5,8 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Plus, X, Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { useLocalStorage } from '@/lib/hooks/useLocalStorage';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useLocalStorage } from '@/lib/hooks/ui/useLocalStorage';
+import { useToast } from '@/lib/hooks/ui/useToast';
 
 interface FeedbackItem {
   id: string;

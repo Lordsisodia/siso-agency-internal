@@ -4,7 +4,7 @@ import { Sidebar } from '@/components/shared/Sidebar';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { PointsExchange } from '@/client/crypto/PointsExchange';
 import { NFTGallery } from '@/client/crypto/NFTGallery';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 import { Loader2 } from 'lucide-react';
 
 const Crypto = () => {

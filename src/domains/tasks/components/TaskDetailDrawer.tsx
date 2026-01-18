@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Task } from '@/types/task.types';
 import { Drawer, DrawerContent, DrawerFooter } from '@/components/ui/drawer';
 import { useTaskOperations } from '@/domains/tasks/hooks/useTaskOperations';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 import { TaskContent } from './TaskContent';
 import { TaskMetadata } from './TaskMetadata';
 import { TaskActions } from './TaskActions';

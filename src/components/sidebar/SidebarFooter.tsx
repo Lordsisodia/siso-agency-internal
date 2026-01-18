@@ -17,7 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useClientData } from '@/domains/projects/hooks/useClientData';
-import { useAuthSession } from '@/lib/hooks/useAuthSession';
+import { useAuthSession } from '@/lib/hooks/auth/useAuthSession';
 
 interface SidebarFooterProps {
   collapsed: boolean;

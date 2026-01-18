@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useEffect } from 'react';
 import { ArrowRight, CheckCircle } from 'lucide-react';
 import { supabase } from '@/services/integrations/supabase/client';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 
 export default function Congratulations() {
   const navigate = useNavigate();

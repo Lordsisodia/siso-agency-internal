@@ -5,7 +5,7 @@ import { SidebarProvider } from '@/components/ui/sidebar';
 import { Sidebar } from '@/components/shared/Sidebar';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, ChevronLeft } from 'lucide-react';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 import { safeSupabase } from '@/services/shared/data.service';
 
 const BlogPost = () => {

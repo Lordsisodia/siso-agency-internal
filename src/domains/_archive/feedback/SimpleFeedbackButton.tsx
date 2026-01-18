@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useClerkUser } from '@/lib/hooks/useClerkUser';
+import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 import { SimpleFeedbackList } from './SimpleFeedbackList';
 import { Button } from '@/components/ui/button';

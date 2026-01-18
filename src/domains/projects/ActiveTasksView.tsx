@@ -9,12 +9,12 @@ import {
 import { TaskCard } from '@/domains/tasks/components/TaskCard';
 import { TaskDetailsSheet } from './TaskDetailsSheet';
 import { MobileTasksView } from '@/domains/tasks/management/MobileTasksView';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 import { supabase } from '@/services/integrations/supabase/client';
-import { useAuthSession } from '@/lib/hooks/useAuthSession';
+import { useAuthSession } from '@/lib/hooks/auth/useAuthSession';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useIsMobile } from '@/lib/hooks/use-mobile';
+import { useIsMobile } from '@/lib/hooks/ui/useMobile';
 
 const taskStatuses = [
   { id: "1", name: "Awaiting Your Action", color: "#FF0000" },

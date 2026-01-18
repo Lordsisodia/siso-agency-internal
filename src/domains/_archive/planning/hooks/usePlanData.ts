@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/services/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 import { useParams } from 'react-router-dom';
 
 export interface PlanDataType {

@@ -10,7 +10,7 @@ import {
 import { ChatMessageList } from '@/components/ui/chat-message-list';
 import { ChatBubble, ChatBubbleAvatar, ChatBubbleMessage } from '@/components/ui/chat-bubble';
 import { ChatInput } from '@/components/ui/chat-input';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 
 // [Analysis] Define message interface for better type safety
 interface ChatMessage {

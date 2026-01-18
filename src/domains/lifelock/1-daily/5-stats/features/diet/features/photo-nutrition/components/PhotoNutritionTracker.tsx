@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Camera, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useClerkUser } from '@/lib/hooks/useClerkUser';
+import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 import { usePhotoNutrition } from '../hooks/usePhotoNutrition';
 import { PhotoCapture } from './PhotoCapture';

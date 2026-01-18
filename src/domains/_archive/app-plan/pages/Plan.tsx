@@ -20,7 +20,7 @@ import {
   Info,
   Target
 } from 'lucide-react';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 import { MessageLoading } from '@/components/ui/message-loading';
 import { CaseStudy } from '@/domains/app-plan/components/CaseStudy';
 import { WelcomeMessage } from '@/domains/app-plan/components/WelcomeMessage';

@@ -1,8 +1,8 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/services/integrations/supabase/client';
-import { useToast } from '@/lib/hooks/use-toast';
-import { useAuthSession } from '@/lib/hooks/useAuthSession';
+import { useToast } from '@/lib/hooks/ui/useToast';
+import { useAuthSession } from '@/lib/hooks/auth/useAuthSession';
 
 export interface Project {
   id: string;

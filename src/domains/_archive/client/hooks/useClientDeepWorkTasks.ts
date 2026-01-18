@@ -6,7 +6,7 @@
  */
 
 import { useState, useCallback, useEffect, useMemo } from 'react';
-import { useClerkUser } from '@/lib/hooks/useClerkUser';
+import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { useSupabaseClient, useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 import { isBrowserOnline } from '@/domains/tasks/utils/network';
 import type { DeepWorkTask } from '@/domains/tasks/hooks/useDeepWorkTasksSupabase';

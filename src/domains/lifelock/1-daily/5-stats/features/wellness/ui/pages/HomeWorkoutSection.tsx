@@ -27,7 +27,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 
-import { useClerkUser } from '@/lib/hooks/useClerkUser';
+import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 import { supabaseWorkoutService } from '@/domains/lifelock/_shared/services/supabaseWorkoutService';
 import type { WorkoutSessionSummary } from '@/domains/lifelock/_shared/services/supabaseWorkoutService';

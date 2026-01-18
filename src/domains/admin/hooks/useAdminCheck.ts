@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { checkIsAdmin } from '@/services/shared/data.service';
 import { supabase } from '@/services/integrations/supabase/client';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 import { useUser } from '@clerk/clerk-react';
 
 export const useAdminCheck = () => {

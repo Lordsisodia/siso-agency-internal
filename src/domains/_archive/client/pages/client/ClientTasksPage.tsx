@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { supabase } from '@/services/integrations/supabase/client';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TodoItem, ClientData } from '@/types/client.types';
 import { TodoList } from '@/domains/clients/TodoList';

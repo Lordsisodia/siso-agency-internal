@@ -2,7 +2,7 @@
 import React from 'react';
 import { format } from 'date-fns';
 import { Clock } from 'lucide-react';
-import { useIsMobile } from '@/lib/hooks/use-mobile';
+import { useIsMobile } from '@/lib/hooks/ui/useMobile';
 
 interface TimeIndicatorProps {
   currentTime: Date;

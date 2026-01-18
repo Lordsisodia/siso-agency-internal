@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, Wand2, FileText, FlaskConical, Search, BarChart3, MessageSquare, ExternalLink, Clock, DollarSign, CheckCircle } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 import { appPlanAgent } from '@/services/core/ai.service';
 import { GeneratedAppPlan } from '@/types/appPlan.types';
 import { Progress } from '@/components/ui/progress';

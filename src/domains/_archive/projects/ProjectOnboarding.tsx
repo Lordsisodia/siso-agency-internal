@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { toast } from '@/lib/hooks/use-toast';
+import { toast } from '@/lib/hooks/ui/useToast';
 import { Mic, ArrowRight, Sparkles } from 'lucide-react';
 
 // Extracted text constants to avoid parsing issues

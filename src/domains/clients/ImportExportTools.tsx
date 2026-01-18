@@ -12,7 +12,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Download, Upload } from 'lucide-react';
 import { ClientData } from '@/types/client.types';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 
 interface ImportExportToolsProps {
   clients: ClientData[];

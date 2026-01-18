@@ -44,7 +44,7 @@ import { supabase } from '@/services/integrations/supabase/client';
 import { toast } from 'sonner';
 import { PartnershipLayout } from '@/domains/partners/external/partnerships/components/PartnershipLayout';
 import { DashboardGreetingCard } from '@/components/ui/dashboard-templates';
-import { useUser } from '@/lib/hooks/useUser';
+import { useUser } from '@/lib/hooks/auth/useUser';
 import { AppPlanMicroChat } from '@/domains/admin/dashboard/components/AppPlanMicroChat';
 
 interface DashboardStats {

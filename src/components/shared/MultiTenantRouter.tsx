@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { useTenant } from '@/lib/hooks/useTenant';
+import { useTenant } from '@/lib/hooks/auth/useTenant';
 import { PageLoader } from '@/components/ui/PageLoader';
 
 // Import tenant-specific components

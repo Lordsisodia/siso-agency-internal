@@ -15,7 +15,7 @@ import { Dumbbell, Apple } from 'lucide-react';
 import { XPPill } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/XPPill';
 import { HomeWorkoutSection } from './HomeWorkoutSection';
 import { DietSection } from '@/domains/lifelock/1-daily/5-stats/features/diet/ui/pages/DietSection';
-import { useClerkUser } from '@/lib/hooks/useClerkUser';
+import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 import { cn } from '@/lib/utils';
 

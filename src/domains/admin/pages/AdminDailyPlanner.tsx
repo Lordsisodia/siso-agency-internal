@@ -2,7 +2,7 @@ import React from 'react';
 import { AdminLayout } from '@/domains/admin/layout/AdminLayout';
 import { DailyPlannerHeader } from '@/domains/admin/daily-planner/DailyPlannerHeader';
 import { DailyPlannerTabs } from '@/domains/admin/daily-planner/DailyPlannerTabs';
-import { useAuthSession } from '@/lib/hooks/useAuthSession';
+import { useAuthSession } from '@/lib/hooks/auth/useAuthSession';
 import { useToast } from '@/components/ui/use-toast';
 import { AdminPageTitle } from '@/domains/admin/layout/AdminPageTitle';
 import { CalendarClock } from 'lucide-react';

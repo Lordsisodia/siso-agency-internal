@@ -39,7 +39,7 @@ import {
   Settings
 } from 'lucide-react';
 import { supabase } from '@/services/integrations/supabase/client';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 import { motion } from 'framer-motion';
 
 interface ProjectPrompt {

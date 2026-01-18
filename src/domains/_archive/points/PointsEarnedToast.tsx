@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Coins } from 'lucide-react';
-import { toast } from '@/lib/hooks/use-toast';
+import { toast } from '@/lib/hooks/ui/useToast';
 
 interface PointsEarnedToastProps {
   points: number;

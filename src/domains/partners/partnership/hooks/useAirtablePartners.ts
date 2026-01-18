@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 import { supabase } from '@/lib/services/supabase/client';
 import { PartnerProject } from '../components/TableRow';
 

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Task } from '@/types/task.types';
 import { TaskCard } from './TaskCard';
 import { useTimeWindow } from '@/lib/hooks/useTimeWindow';
-import { useCheckInOut } from '@/lib/hooks/useCheckInOut';
+import { useCheckInOut } from '@/lib/domains/lifelock/1-daily/5-stats/domain/useCheckInOut';
 import { CheckInOutDialog } from './CheckInOutDialog';
 import { TimelineRuler } from './timeline/TimelineRuler';
 import { TimeIndicator } from './timeline/TimeIndicator';

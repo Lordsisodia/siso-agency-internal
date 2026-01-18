@@ -6,9 +6,9 @@ import { CheckCircle, ArrowRight, Clock, DollarSign, Phone } from 'lucide-react'
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { GradientHeading } from '@/components/ui/gradient-heading';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 import { supabase } from '@/services/integrations/supabase/client';
-import { useOnboardingAuth } from '@/lib/hooks/useOnboardingAuth';
+import { useOnboardingAuth } from '@/lib/hooks/auth/useOnboardingAuth';
 
 const ThankYouPlan = () => {
   const navigate = useNavigate();

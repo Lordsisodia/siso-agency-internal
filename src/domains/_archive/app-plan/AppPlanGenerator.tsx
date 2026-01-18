@@ -20,7 +20,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { appPlanAgent } from '@/services/shared/ai.service';
 import { GeneratedAppPlan } from '@/types/appPlan.types';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 import { cn } from '@/lib/utils';
 import { AppPlanFeaturesOutput } from './AppPlanFeaturesOutput';
 

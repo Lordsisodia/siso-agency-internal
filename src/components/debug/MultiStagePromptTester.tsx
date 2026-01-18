@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { toast } from '@/lib/hooks/use-toast';
+import { toast } from '@/lib/hooks/ui/useToast';
 import { Loader2, Search, FileText, Copy, Download, Play, Eye, TrendingUp, Brain } from 'lucide-react';
 import { 
   multiStagePromptSystem, 

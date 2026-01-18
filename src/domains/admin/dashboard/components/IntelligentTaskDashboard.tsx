@@ -19,7 +19,7 @@ import {
   Lightbulb
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
-import { useAuthSession } from '@/lib/hooks/useAuthSession';
+import { useAuthSession } from '@/lib/hooks/auth/useAuthSession';
 import TaskManagementAgent, { TaskRecommendation, DailyWorkflowSummary } from '@/services/TaskManagementAgent';
 import { motion } from 'framer-motion';
 

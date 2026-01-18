@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/compone
 import { Button } from '@/components/ui/button';
 import { X, Play, Pause, RotateCcw } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useClerkUser } from '@/lib/hooks/useClerkUser';
+import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { format } from 'date-fns';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 

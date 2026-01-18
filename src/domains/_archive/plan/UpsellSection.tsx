@@ -6,7 +6,7 @@ import { UpsellFeatureCard } from './UpsellFeatureCard';
 import { featureCategories } from '@/lib/data/plan/featureData';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { UPSELL_FEATURE_IDS } from '@/lib/hooks/useRecommendedPackage';
+import { UPSELL_FEATURE_IDS } from '@/lib/domains/admin/hooks/useRecommendedPackage';
 
 interface UpsellSectionProps {
   selectedFeatureIds: string[];

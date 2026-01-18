@@ -7,8 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, X, Send, Lightbulb, Bug, Heart, AlertTriangle, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { useLocalStorage } from '@/lib/hooks/useLocalStorage';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useLocalStorage } from '@/lib/hooks/ui/useLocalStorage';
+import { useToast } from '@/lib/hooks/ui/useToast';
 
 interface FeedbackItem {
   id: string;

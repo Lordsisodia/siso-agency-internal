@@ -23,7 +23,7 @@ import {
   Timer
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
-import { useAuthSession } from '@/lib/hooks/useAuthSession';
+import { useAuthSession } from '@/lib/hooks/auth/useAuthSession';
 import ProjectBasedTaskAgent, { 
   ProjectTaskSummary, 
   WorkTypeTaskSummary, 

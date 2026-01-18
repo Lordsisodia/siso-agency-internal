@@ -15,9 +15,9 @@
 import { useMemo } from 'react';
 import { useTaskData, TaskCard } from '@/domains/lifelock/_shared/tasks/hooks/useTaskData';
 import { useTaskActions } from '@/domains/lifelock/_shared/tasks/hooks/useTaskActions';
-import { useVoiceProcessing } from '@/lib/hooks/useVoiceProcessing';
+import { useVoiceProcessing } from '@/lib/hooks/performance/useVoiceProcessing';
 import { useTaskOrganization } from '@/domains/lifelock/_shared/tasks/hooks/useTaskOrganization';
-import { useServiceInitialization } from '@/lib/hooks/useServiceInitialization';
+import { useServiceInitialization } from '@/lib/domains/lifelock/_shared/hooks/useServiceInitialization';
 
 // Re-export types for compatibility
 export type { TaskCard };

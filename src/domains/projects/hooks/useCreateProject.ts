@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/services/integrations/supabase/client';
-import { useAuthSession } from '@/lib/hooks/useAuthSession';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useAuthSession } from '@/lib/hooks/auth/useAuthSession';
+import { useToast } from '@/lib/hooks/ui/useToast';
 
 export interface ProjectCreationData {
   name: string;

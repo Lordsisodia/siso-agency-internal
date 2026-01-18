@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/services/integrations/supabase/client';
 import { checkIsAdmin } from '@/services/shared/data.service';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 
 interface AuthGuardProps {
   children: React.ReactNode;

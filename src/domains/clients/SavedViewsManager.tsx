@@ -19,7 +19,7 @@ import {
   Trash2 
 } from 'lucide-react';
 import { ClientViewPreference, SavedView } from '@/types/client.types';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 
 interface SavedViewsManagerProps {
   currentPreference: ClientViewPreference;

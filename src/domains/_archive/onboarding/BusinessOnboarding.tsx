@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { MessageLoading } from '@/components/ui/message-loading';
-import { toast } from '@/lib/hooks/use-toast';
+import { toast } from '@/lib/hooks/ui/useToast';
 import { SisoIcon } from '@/components/ui/icons/SisoIcon';
 import { autoTriggerSystem } from '@/services/autoTriggerSystem';
 

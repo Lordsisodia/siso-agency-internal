@@ -8,8 +8,8 @@ import { ProjectDirectoryCard } from '@/domains/projects/ProjectDirectoryCard';
 // Modern Task System
 import { TasksProvider, ListView as ActiveTasksView } from '@/tasks';
 import { useProjects } from '@/domains/projects/hooks/useProjects';
-import { useAuthSession } from '@/lib/hooks/useAuthSession';
-import { useIsMobile } from '@/lib/hooks/use-mobile';
+import { useAuthSession } from '@/lib/hooks/auth/useAuthSession';
+import { useIsMobile } from '@/lib/hooks/ui/useMobile';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -18,7 +18,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 
 export default function ProjectsAndTasksPage() {
   const navigate = useNavigate();

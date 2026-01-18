@@ -1,7 +1,7 @@
 import React, { useState, useEffect, memo, useCallback } from 'react';
 
 
-import { useClerkUser } from '@/lib/hooks/useClerkUser';
+import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { TabLayoutWrapper } from '@/domains/lifelock/_shared/core/TabLayoutWrapper';
 
 import { getTaskService } from '@/services/database/TaskServiceRegistry';
@@ -17,7 +17,7 @@ import useDateNavigation from '@/domains/lifelock/_shared/hooks/useDateNavigatio
 import { useModalHandlers } from '@/domains/lifelock/_shared/hooks';
 
 // New TabRegistry integration
-import { useTabConfiguration } from '@/lib/hooks/useTabConfiguration';
+import { useTabConfiguration } from '@/lib/domains/admin/hooks/useTabConfiguration';
 import { tabRegistry } from '@/services/shared/TabRegistry';
 
 // TaskProvider for service integration

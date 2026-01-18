@@ -1,5 +1,5 @@
 
-import { useOnboardingAuth } from '@/lib/hooks/useOnboardingAuth';
+import { useOnboardingAuth } from '@/lib/hooks/auth/useOnboardingAuth';
 import { SocialLinksForm } from '@/domains/public/components/SocialLinksForm';
 import { Waves } from '@/components/ui/waves-background';
 import { Progress } from '@/components/ui/progress';

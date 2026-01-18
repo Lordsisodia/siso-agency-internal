@@ -3,7 +3,7 @@
  */
 
 import { useState, useCallback, useEffect } from 'react';
-import { useClerkUser } from '@/lib/hooks/useClerkUser';
+import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { useSupabaseClient, useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 import { isBrowserOnline } from '../../_shared/utils/network';
 import { syncService } from '@/services/offline/syncService';

@@ -15,9 +15,9 @@ import { TrendingUp, Coffee, Soup, UtensilsCrossed, Apple, Plus, Clock, Flame, C
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { useClerkUser } from '@/lib/hooks/useClerkUser';
+import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
-import { useNutritionSupabase } from '@/lib/hooks/useNutritionSupabase';
+import { useNutritionSupabase } from '@/lib/domains/lifelock/1-daily/5-stats/domain/useNutritionSupabase';
 import { format } from 'date-fns';
 
 interface MealsProps {

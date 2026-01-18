@@ -2,7 +2,7 @@
 import { useProfileData } from '@/domains/profile/hooks/useProfileData';
 import { ProfileInfo } from '@/internal/profile/ProfileInfo';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 import { supabase } from '@/services/integrations/supabase/client';
 import { useState } from 'react';
 import { User, Settings, Bell, Clock } from 'lucide-react';

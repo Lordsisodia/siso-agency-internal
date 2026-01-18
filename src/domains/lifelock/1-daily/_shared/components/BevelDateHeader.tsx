@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { format, isToday, isTomorrow, isYesterday, subDays, addDays } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { useClerkUser } from '@/lib/hooks/useClerkUser';
+import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { MonthlyDatePickerModal } from './MonthlyDatePickerModal';
 
 interface BevelDateHeaderProps {

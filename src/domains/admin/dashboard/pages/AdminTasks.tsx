@@ -15,7 +15,7 @@ import CalendarView from '@/components/admin/tasks/CalendarView';
 import { TaskFilterSidebar } from '@/components/admin/tasks/TaskFilterSidebar';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { supabase } from '@/services/integrations/supabase/client';
-import { useAuthSession } from '@/lib/hooks/useAuthSession';
+import { useAuthSession } from '@/lib/hooks/auth/useAuthSession';
 import { useToast } from '@/components/ui/use-toast';
 import { useTasks } from '@/domains/tasks/hooks/useTasks';
 import { useTaskOperations } from '@/domains/tasks/hooks/useTaskOperations';

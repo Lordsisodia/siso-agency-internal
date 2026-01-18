@@ -10,9 +10,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { supabase } from '@/services/integrations/supabase/client';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 import { usePoints } from '@/domains/xp-store/_shared/core/usePoints';
-import { useBasicUserData } from '@/lib/hooks/useBasicUserData';
+import { useBasicUserData } from '@/lib/domains/lifelock/_shared/hooks/useBasicUserData';
 
 interface ProfileSectionProps {
   collapsed: boolean;

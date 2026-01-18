@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useProjects } from './useProjects';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/services/integrations/supabase/client';
-import { useAuthSession } from '@/lib/hooks/useAuthSession';
+import { useAuthSession } from '@/lib/hooks/auth/useAuthSession';
 
 export interface Project {
   id: string;

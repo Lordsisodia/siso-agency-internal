@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTenant } from '@/lib/hooks/useTenant';
+import { useTenant } from '@/lib/hooks/auth/useTenant';
 
 /**
  * Partnership Portal - Main entry for partner-specific features

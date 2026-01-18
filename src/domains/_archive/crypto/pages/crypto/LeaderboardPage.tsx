@@ -4,7 +4,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { LeaderboardContent } from '@/domains/leaderboard/components/LeaderboardContent';
 import { LeaderboardStats } from '@/domains/leaderboard/LeaderboardStats';
 import { useLeaderboardData } from '@/domains/leaderboard/hooks/useLeaderboardData';
-import { useUser } from '@/lib/hooks/useUser';
+import { useUser } from '@/lib/hooks/auth/useUser';
 import { Spotlight } from '@/components/ui/spotlight';
 import { LeaderboardEntry } from '@/domains/leaderboard/types';
 

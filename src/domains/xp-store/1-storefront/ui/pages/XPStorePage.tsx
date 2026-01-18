@@ -6,7 +6,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAuthSession } from '@/lib/hooks/useAuthSession';
+import { useAuthSession } from '@/lib/hooks/auth/useAuthSession';
 import { XPEconomyDashboard } from '@/domains/xp-store/2-dashboard/ui/pages/XPEconomyDashboard';
 import { XPStoreBalance } from '@/domains/xp-store/2-dashboard/ui/components/XPStoreBalance';
 import { PurchaseHistory } from '@/domains/xp-store/2-dashboard/ui/components/PurchaseHistory';

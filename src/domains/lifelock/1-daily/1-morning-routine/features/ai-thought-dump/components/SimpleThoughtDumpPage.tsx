@@ -11,7 +11,7 @@ import { chatMemoryService } from '../services/ai/conversationManager.service';
 import { GREETING_MESSAGE, MORNING_ROUTINE_SYSTEM_PROMPT, ERROR_MESSAGE, DEFAULT_AI_CONFIG } from '../config/prompts';
 import { VOICE_CONFIG_DEFAULTS } from '../config/constants';
 import type { Message } from '../types';
-import { useClerkUser } from '@/lib/hooks/useClerkUser';
+import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 
 interface SimpleThoughtDumpPageProps {

@@ -10,7 +10,7 @@ import { Loader2, Users, Target } from 'lucide-react';
 import { useEffect, useState, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
-import { useUser } from '@/lib/hooks/useUser';
+import { useUser } from '@/lib/hooks/auth/useUser';
 import { AdminPageTitle } from '@/domains/admin/layout/AdminPageTitle';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 

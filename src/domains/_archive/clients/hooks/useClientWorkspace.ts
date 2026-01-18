@@ -3,7 +3,7 @@ import { ClientData, ClientTask } from '@/types/client.types';
 import { useMemo } from 'react';
 import { supabase } from '@/services/integrations/supabase/client';
 import { useClientDetails } from '@/domains/client/hooks/useClientDetails';
-import { useClerkUser } from '@/lib/hooks/useClerkUser';
+import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 import type { DeepWorkTask } from '@/domains/tasks/hooks/useDeepWorkTasksSupabase';
 

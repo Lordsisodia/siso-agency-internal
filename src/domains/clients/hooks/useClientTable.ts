@@ -2,7 +2,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { ClientData, ClientViewPreference } from '@/types/client.types';
 import { useClientsList } from '@/domains/client/hooks';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 import { supabase } from '@/services/integrations/supabase/client';
 
 const COLUMN_DB_FIELD_MAP: Record<string, string> = {

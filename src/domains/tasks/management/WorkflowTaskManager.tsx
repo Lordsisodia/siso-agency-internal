@@ -6,7 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Plus, X, ArrowRight, Rocket, CheckCircle, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { useLocalStorage } from '@/lib/hooks/useLocalStorage';
+import { useLocalStorage } from '@/lib/hooks/ui/useLocalStorage';
 import { useMainUserProject } from '@/domains/projects/hooks/useUserProjects';
 import { useNavigate } from 'react-router-dom';
 

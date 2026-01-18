@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useClerkUser } from '@/lib/hooks/useClerkUser';
+import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { useSupabaseClient, useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 
 export type DailyTaskStatus = 'pending' | 'completed';

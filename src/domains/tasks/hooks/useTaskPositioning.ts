@@ -1,6 +1,6 @@
 
 import { Task } from '@/types/task.types';
-import { useIsMobile } from '@/lib/hooks/use-mobile';
+import { useIsMobile } from '@/lib/hooks/ui/useMobile';
 
 interface TaskPosition {
   top: number;

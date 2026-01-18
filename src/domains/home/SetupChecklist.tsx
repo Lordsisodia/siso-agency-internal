@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Check, Settings, CreditCard, Users, FileCheck, ShoppingCart, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 
 interface ChecklistItem {
   id: string;

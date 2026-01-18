@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 import { supabase } from '@/services/integrations/supabase/client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ExchangeHeader } from './exchange/ExchangeHeader';

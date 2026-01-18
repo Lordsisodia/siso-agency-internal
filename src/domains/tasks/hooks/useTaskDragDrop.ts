@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useTasks } from '@/domains/tasks/hooks/useTasks';
 import { Task } from '@/types/task.types';
-import { useToast } from '@/lib/hooks/use-toast';
-import { useIsMobile } from '@/lib/hooks/use-mobile';
+import { useToast } from '@/lib/hooks/ui/useToast';
+import { useIsMobile } from '@/lib/hooks/ui/useMobile';
 
 export function useTaskDragDrop() {
   const { useUpdateTask } = useTasks();

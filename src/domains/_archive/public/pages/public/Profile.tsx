@@ -1,7 +1,7 @@
 
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/services/integrations/supabase/client';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 import { ProfileHeader } from '@/domains/profile/ProfileHeader';
 import { ProfileInfo } from '@/domains/profile/ProfileInfo';
 import { PointsHistory } from '@/domains/profile/PointsHistory';

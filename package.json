@@ -30,7 +30,7 @@
     "test:e2e:report": "playwright show-report",
     "test:mcp:supabase": "vitest run src/services/mcp/__tests__/supabase-mcp.test.ts",
     "test:mcp:glm": "vitest run src/services/mcp/__tests__/glm-mcp-integration.test.ts",
-    "test:glm:connection": "tsx scripts/test-glm-connection.ts",
+    "test:glm:connection": "tsx scripts/testing/test-glm-connection.ts",
     "example:glm": "tsx src/services/mcp/glm-example.ts",
     "test:components": "vitest --testNamePattern=\"should mount\"",
     "test:all": "npm run test:unit && npm run test:e2e:smoke && npm run test:e2e",
@@ -45,14 +45,14 @@
     "security:scan": "snyk test --org=27f2978d-30d9-46a5-b982-64e7055a8a61",
     "security:monitor": "snyk monitor --org=27f2978d-30d9-46a5-b982-64e7055a8a61",
     "security:fix": "snyk fix --org=27f2978d-30d9-46a5-b982-64e7055a8a61",
-    "validate:sync": "tsx scripts/validate-supabase-sync.ts",
+    "validate:sync": "tsx scripts/testing/validate-supabase-sync.ts",
     "validate": "npm run typecheck && npm run validate:sync",
     "test:sync": "vitest run src/services/offline/__tests__/syncService.validation.test.ts",
-    "ai:snapshot": "bash scripts/ai-session-snapshot.sh",
+    "ai:snapshot": "bash scripts/ai/ai-session-snapshot.sh",
     "ai:restore": "ls -lt .git/ai-snapshots/ && echo '\nRun: bash .git/ai-snapshots/restore_TIMESTAMP.sh'",
-    "ai:protect": "bash scripts/ai-session-snapshot.sh && echo '\n✅ Safe to start AI session'",
-    "docs:index": "node scripts/generate-docs-index.cjs",
-    "docs:validate": "node scripts/generate-docs-index.cjs && echo '\n✅ Documentation index validated'"
+    "ai:protect": "bash scripts/ai/ai-session-snapshot.sh && echo '\n✅ Safe to start AI session'",
+    "docs:index": "node scripts/docs/generate-docs-index.cjs",
+    "docs:validate": "node scripts/docs/generate-docs-index.cjs && echo '\n✅ Documentation index validated'"
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.89",

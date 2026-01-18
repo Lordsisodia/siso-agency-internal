@@ -2,7 +2,7 @@
 import { Button } from '@/components/ui/button';
 import { MessageCircle } from 'lucide-react';
 import { useState } from 'react';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 import { supabase } from '@/services/integrations/supabase/client';
 import { Input } from '@/components/ui/input';
 import { motion, AnimatePresence } from 'framer-motion';

@@ -6,7 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Plus, X, Clock, ArrowRight, User, FileText, CheckCircle, Smartphone, Target, Settings } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 import { useNavigate } from 'react-router-dom';
 import { useMainUserProject } from '@/domains/projects/hooks/useUserProjects';
 

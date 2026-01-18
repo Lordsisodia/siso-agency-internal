@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { supabase } from '@/services/integrations/supabase/client';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { FileText, Download, FileArchive, FilePlus, Image, File } from 'lucide-react';
 import { Button } from '@/components/ui/button';

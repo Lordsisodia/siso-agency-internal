@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Timeline } from '@/components/ui/timeline';
 import { supabase } from '@/services/integrations/supabase/client';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 import { Progress } from '@/components/ui/progress';
 import { ClientData } from '@/types/client.types';
 import { Skeleton } from '@/components/ui/skeleton';

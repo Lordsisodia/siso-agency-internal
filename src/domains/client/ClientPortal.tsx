@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useTenant } from '@/lib/hooks/useTenant';
+import { useTenant } from '@/lib/hooks/auth/useTenant';
 import { ClientBottomNav, ClientBottomNavTab } from './components/ClientBottomNav';
 import {
   LayoutDashboard,

@@ -4,7 +4,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { PointsExchange } from "@/domains/client/crypto/PointsExchange";
 import { NFTGallery } from "@/domains/client/crypto/NFTGallery";
 import { WelcomeNFTStatus } from "@/domains/client/crypto/WelcomeNFTStatus";
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 import { Sidebar } from '@/components/shared/Sidebar';
 import { FloatingOrbs } from '@/components/shared/FloatingOrbs';
 import { Button } from '@/components/ui/button';

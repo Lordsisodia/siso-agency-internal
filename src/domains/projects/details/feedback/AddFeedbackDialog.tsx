@@ -31,7 +31,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { Plus, Upload, Link as LinkIcon } from 'lucide-react';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 import { FeedbackEntry } from './sampleFeedbackData';
 
 // Form schema validation

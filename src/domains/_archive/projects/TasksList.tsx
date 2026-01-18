@@ -3,7 +3,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { RealTaskManager } from '@/domains/tasks/components/legacy/RealTaskManager';
-import { useUserPreferences } from '@/lib/hooks/useLocalStorage';
+import { useUserPreferences } from '@/lib/hooks/ui/useLocalStorage';
 
 interface TasksListProps {
   viewMode: "table" | "cards";

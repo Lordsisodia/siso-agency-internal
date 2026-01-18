@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
-import { useClerkUser } from '@/lib/hooks/useClerkUser';
+import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 import { useLightWorkTasksSupabase } from '@/domains/tasks/hooks/useLightWorkTasksSupabase';
 import { useDeepWorkTasksSupabase } from '@/domains/tasks/hooks/useDeepWorkTasksSupabase';
-import { useMorningRoutineSupabase } from '@/lib/hooks/useMorningRoutineSupabase';
-import { useHomeWorkoutSupabase } from '@/lib/hooks/useHomeWorkoutSupabase';
+import { useMorningRoutineSupabase } from '@/lib/domains/lifelock/1-daily/1-morning-routine/hooks/useMorningRoutineSupabase';
+import { useHomeWorkoutSupabase } from '@/lib/domains/lifelock/1-daily/5-stats/domain/useHomeWorkoutSupabase';
 import { format, parseISO, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 import { aiTaskService, AITaskAnalysis, AIScheduleOptimization } from '../services/aiTaskService';
-import { useOnlineStatus } from '@/lib/hooks/useOnlineStatus';
+import { useOnlineStatus } from '@/lib/hooks/ui/useOnlineStatus';
 import { offlineStorageService, MutationOperation } from '@/services/offline/OfflineStorageService';
 import { syncManager } from '@/services/offline/SyncManager';
 

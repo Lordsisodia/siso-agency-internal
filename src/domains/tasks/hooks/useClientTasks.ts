@@ -1,8 +1,8 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/services/integrations/supabase/client';
-import { useToast } from '@/lib/hooks/use-toast';
-import { useAuthSession } from '@/lib/hooks/useAuthSession';
+import { useToast } from '@/lib/hooks/ui/useToast';
+import { useAuthSession } from '@/lib/hooks/auth/useAuthSession';
 import { Task } from '@/types/task.types';
 
 // Define a UI-friendly task type that matches the TaskCard component's expected props

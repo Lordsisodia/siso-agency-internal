@@ -4,7 +4,7 @@ import PartnershipSidebarLogo from './PartnershipSidebarLogo';
 import { PartnershipSidebarNavigation } from './PartnershipSidebarNavigation';
 import { SidebarFooter } from '@/components/sidebar/SidebarFooter';
 import { Menu, X, DollarSign, ArrowUpRight } from 'lucide-react';
-import { useIsMobile } from '@/lib/hooks/use-mobile';
+import { useIsMobile } from '@/lib/hooks/ui/useMobile';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 

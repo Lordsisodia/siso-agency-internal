@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { AdminLayout } from '@/components/admin/layout/AdminLayout';
 import { useAdminCheck } from '@/domains/admin/hooks/useAdminCheck';
 import { Loader2, Users } from 'lucide-react';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 import { AdminClientsView } from '@/components/admin/clients/AdminClientsView';
 import { AdminPageTitle } from '@/components/admin/layout/AdminPageTitle';
 

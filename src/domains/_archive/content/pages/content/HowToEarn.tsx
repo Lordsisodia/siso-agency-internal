@@ -8,7 +8,7 @@ import { EarningChatAssistant } from '@/domains/client/earn/EarningChatAssistant
 import { EarnHeader } from '@/domains/client/earn/header/EarnHeader';
 import { SkillTreeContent } from '@/domains/client/earn/content/SkillTreeContent';
 import { SkillPath, Skill, UserSkillProgress } from '@/types/skills';
-import { useAuthSession } from '@/lib/hooks/useAuthSession';
+import { useAuthSession } from '@/lib/hooks/auth/useAuthSession';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { toast } from 'sonner';
 

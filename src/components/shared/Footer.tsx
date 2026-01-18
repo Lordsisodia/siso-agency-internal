@@ -2,7 +2,7 @@ import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Twitter, Linkedin, Instagram, Youtube, Mail, MapPin } from 'lucide-react';
-import { useIsMobile } from '@/lib/hooks/use-mobile';
+import { useIsMobile } from '@/lib/hooks/ui/useMobile';
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useToast } from '@/lib/hooks/use-toast';
+import { useToast } from '@/lib/hooks/ui/useToast';
 import { Waves } from '@/components/ui/waves-background';
 import { supabase } from '@/services/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
