@@ -10,8 +10,8 @@ import { FeatureTierBreakdown } from './features/FeatureTierBreakdown';
 import { FeatureInstructions } from './features/FeatureInstructions';
 import { QuickSummaryFeatures } from './features/QuickSummaryFeatures';
 import { CustomFeatureInput } from './features/CustomFeatureInput';
-import { useFeatureSelection } from '@/domains/features/hooks/useFeatureSelection';
-import { useFeatureDetail } from '@/domains/features/hooks/useFeatureDetail';
+import { useFeatureSelection } from '@/domains/projects/features/hooks/useFeatureSelection';
+import { useFeatureDetail } from '@/domains/projects/features/hooks/useFeatureDetail';
 
 interface UserFacingFeaturesProps {
   modelFacingCategories: FeatureCategory[];

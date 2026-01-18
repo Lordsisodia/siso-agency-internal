@@ -1,5 +1,5 @@
 import { Card } from '@/components/ui/card';
-import { useFeatures } from '@/domains/features/hooks/useFeatures';
+import { useFeatures } from '@/domains/projects/features/hooks/useFeatures';
 import { FeatureCard } from '../features/FeatureCard';
 import { FeatureDetailsModal } from '../features/FeatureDetailsModal';
 import { FeatureControls } from '../features/FeatureControls';

@@ -1,4 +1,4 @@
-import { FOCUS_LABELS, STATUS_LABELS } from '@/domains/industries/constants';
+import { FOCUS_LABELS, STATUS_LABELS } from '@/domains/admin/industries/constants';
 
 export const formatIndustryStatus = (status: keyof typeof STATUS_LABELS | string): string => {
   if (status in STATUS_LABELS) {

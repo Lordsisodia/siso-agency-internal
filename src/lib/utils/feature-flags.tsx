@@ -23,6 +23,9 @@ const FeatureFlags = {
   education: true,
   dailyNews: false,
 
+  // UI/UX features
+  useUnifiedThemeSystem: true,
+
   // Crypto & NFT features
   crypto: false,
   nft: false,
@@ -153,6 +156,21 @@ export function safePropertyExtract<T = any>(data: any, defaultValue: T): T {
  */
 export function asType<T>(data: any): T {
   return data as unknown as T;
+}
+
+/**
+ * Select between two implementations based on a feature flag
+ * @param feature - The feature flag to check
+ * @param enabledValue - Value to return if feature is enabled
+ * @param disabledValue - Value to return if feature is disabled
+ * @returns The selected value based on feature flag state
+ */
+export function selectImplementation<T>(
+  feature: FeatureFlag,
+  enabledValue: T,
+  disabledValue: T
+): T {
+  return FeatureFlags[feature] ? enabledValue : disabledValue;
 }
 
 export default FeatureFlags;

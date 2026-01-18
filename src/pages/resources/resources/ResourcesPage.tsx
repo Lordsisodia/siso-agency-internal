@@ -7,8 +7,8 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbS
 import { GettingStartedContent } from "@/components/help/content/GettingStartedContent";
 import { DocumentationContent } from "@/components/help/content/DocumentationContent";
 import { FAQContent } from "@/components/help/content/FAQContent";
-import { ProfileContent } from '@/domains/resources/components-from-shared/ProfileContent';
-import { ParticlesBackground } from '@/domains/resources/components-from-shared/ParticlesBackground';
+import { ProfileContent } from '@/pages/resources/components-from-shared/ProfileContent';
+import { ParticlesBackground } from '@/pages/resources/components-from-shared/ParticlesBackground';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";

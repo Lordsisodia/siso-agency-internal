@@ -20,19 +20,19 @@ const XPDashboardPage = lazy(() => import('@/components/ui/dashboard/pages/XPDas
 const AdminDashboard = lazy(() => import('@/domains/admin/pages/AdminDashboard'));
 const AdminTasks = lazy(() => import('@/domains/admin/pages/AdminTasks'));
 const AdminFeedback = lazy(() => import('@/domains/admin/pages/AdminFeedback'));
-const AdminLightWork = lazy(() => import('@/domains/tasks/components/shared-tabs/LightWorkTab.tsx').then(m => ({ default: m.LightWorkTab })));
-const AdminDeepWork = lazy(() => import('@/domains/tasks/components/shared-tabs/DeepWorkTab.tsx').then(m => ({ default: m.DeepWorkTab })));
+const AdminLightWork = lazy(() => import('@/domains/task-ui/components/shared-tabs/LightWorkTab.tsx').then(m => ({ default: m.LightWorkTab })));
+const AdminDeepWork = lazy(() => import('@/domains/task-ui/components/shared-tabs/DeepWorkTab.tsx').then(m => ({ default: m.DeepWorkTab })));
 const AdminLifeLock = lazy(() => import('@/domains/lifelock/_shared/shell/AdminLifeLock'));
 const AdminLifeLockDay = lazy(() => import('@/domains/lifelock/_shared/shell/AdminLifeLockDay'));
 const AdminLifeLockOverview = lazy(() => import('@/domains/admin/dashboard/pages/AdminLifeLockOverview'));
 const WeeklyView = lazy(() => import('@/domains/lifelock/2-weekly/WeeklyView').then(m => ({ default: m.WeeklyView })));
 const MonthlyView = lazy(() => import('@/domains/lifelock/3-monthly/MonthlyView'));
 const YearlyView = lazy(() => import('@/domains/lifelock/4-yearly/YearlyView'));
-const AdminIndustriesViewLazy = lazy(() => import('@/domains/industries').then(m => ({ default: m.AdminIndustriesView })));
+const AdminIndustriesViewLazy = lazy(() => import('@/domains/admin/industries/AdminIndustriesView').then(m => ({ default: m.AdminIndustriesView })));
 const AdminSettings = lazy(() => import('@/domains/admin/pages/AdminSettings'));
 const AdminClients = lazy(() => import('@/domains/admin/pages/AdminClients'));
 const AdminPartnershipDashboard = lazy(() => import('@/domains/admin/pages/AdminPartnershipDashboard'));
-const TeamMemberTasksPage = lazy(() => import('@/domains/tasks/pages/TeamMemberTasksPage'));
+const TeamMemberTasksPage = lazy(() => import('@/domains/task-ui/pages/TeamMemberTasksPage'));
 const AIAssistantPage = lazy(() => import('@/domains/ai-assistant').then(m => ({ default: m.AIAssistantPage })));
 
 // Resources pages

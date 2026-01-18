@@ -6,8 +6,8 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { formatIndustryFocus, formatIndustryStatus } from '@/domains/industries/utils/formatters';
-import { useIndustryDetail } from '@/domains/industries/hooks/useIndustryDetail';
+import { formatIndustryFocus, formatIndustryStatus } from '@/domains/admin/industries/utils/formatters';
+import { useIndustryDetail } from '@/domains/admin/industries/hooks/useIndustryDetail';
 
 interface IndustryDetailSheetProps {
   industryId: string | null;

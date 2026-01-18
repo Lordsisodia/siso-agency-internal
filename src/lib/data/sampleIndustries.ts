@@ -1,4 +1,4 @@
-import type { IndustryWithMeta } from '@/domains/industries/types/industry.types';
+import type { IndustryWithMeta } from '@/domains/admin/industries/types/industry.types';
 
 const now = () => new Date().toISOString();
 
