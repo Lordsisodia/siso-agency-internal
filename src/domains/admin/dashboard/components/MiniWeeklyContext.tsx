@@ -7,7 +7,7 @@
 import { motion } from 'framer-motion';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { WeeklyXPData } from '@/domains/lifelock/analytics/types/xpAnalytics.types';
+import type { WeeklyXPData } from '@/services/analytics/types/xpAnalytics.types';
 
 interface MiniWeeklyContextProps {
   className?: string;

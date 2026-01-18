@@ -15,7 +15,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Task } from '@/domains/lifelock/1-daily/2-tasks/components-from-root/TaskCard';
-import { supabaseTaskService } from '@/services/supabaseTaskService';
+import { supabaseTaskService } from '@/domains/tasks/services/taskService';
 import { toast } from 'sonner';
 
 /**

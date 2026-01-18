@@ -7,8 +7,8 @@
 
 import { motion } from 'framer-motion';
 import { TrendingUp, TrendingDown, Minus, Flame, Target } from 'lucide-react';
-import { TrendIndicator } from '@/domains/lifelock/analytics/ui/components/shared';
-import type { WeeklyXPData } from '@/domains/lifelock/analytics/types/xpAnalytics.types';
+import { TrendIndicator } from '@/services/analytics/ui/components/shared';
+import type { WeeklyXPData } from '@/services/analytics/types/xpAnalytics.types';
 import { cn } from '@/lib/utils';
 
 interface HistoryWeeklySummaryProps {

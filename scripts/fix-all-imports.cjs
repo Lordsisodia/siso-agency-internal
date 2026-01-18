@@ -247,6 +247,10 @@ const importMappings = {
   '@/domains/_archive/teams/TimelineTaskView': '@/domains/admin/dashboard/components/TimelineTaskView',
   '@/domains/teams/TimelineTaskView': '@/domains/admin/dashboard/components/TimelineTaskView',
 
+  // LifeLock components-from-root renamed to shared-components
+  '@/domains/lifelock/1-daily/2-tasks/components-from-root': '@/domains/lifelock/1-daily/2-tasks/shared-components',
+  '@/domains/lifelock/1-daily/6-timebox/components-from-root': '@/domains/lifelock/1-daily/6-timebox/shared-components',
+
   // ========================================================================
   // STORES - Domain migrations
   // ========================================================================

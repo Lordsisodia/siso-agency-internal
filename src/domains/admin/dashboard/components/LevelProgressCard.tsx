@@ -9,7 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Crown, TrendingUp, Calendar, Zap, Award } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { LevelProgress } from '@/domains/lifelock/analytics/types/xpAnalytics.types';
+import type { LevelProgress } from '@/services/analytics/types/xpAnalytics.types';
 
 interface LevelProgressCardProps {
   level: LevelProgress;

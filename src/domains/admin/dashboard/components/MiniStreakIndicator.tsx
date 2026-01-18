@@ -8,7 +8,7 @@
 import { motion } from 'framer-motion';
 import { Flame } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { StreakData } from '@/domains/lifelock/analytics/types/xpAnalytics.types';
+import type { StreakData } from '@/services/analytics/types/xpAnalytics.types';
 
 interface MiniStreakIndicatorProps {
   className?: string;

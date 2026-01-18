@@ -8,20 +8,20 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, RefreshCw, Sparkles, TrendingUp, Award, Flame, Clock, Target, Zap } from 'lucide-react';
 import { useAuthSession } from '@/lib/hooks/auth/useAuthSession';
-import { xpAnalyticsService } from '@/domains/lifelock/analytics/services/xpAnalyticsService';
-import type { XPAnalyticsData } from '@/domains/lifelock/analytics/types/xpAnalytics.types';
+import { xpAnalyticsService } from '@/services/analytics/services/xpAnalyticsService';
+import type { XPAnalyticsData } from '@/services/analytics/types/xpAnalytics.types';
 
 // Import our redesigned components
-import { TodayProgressCard } from '@/domains/lifelock/analytics/ui/components/today/TodayProgressCard';
-import { WeeklySummaryCard } from '@/domains/lifelock/analytics/ui/components/weekly/WeeklySummaryCard';
-import { MonthlySummaryCard } from '@/domains/lifelock/analytics/ui/components/monthly/MonthlySummaryCard';
-import { CategoryBreakdownCard } from '@/domains/lifelock/analytics/ui/components/categories/CategoryBreakdownCard';
-import { PersonalBestsCard } from '@/domains/lifelock/analytics/ui/components/records/PersonalBestsCard';
-import { StreakCard } from '@/domains/lifelock/analytics/ui/components/records/StreakCard';
-import { TrendChartCard } from '@/domains/lifelock/analytics/ui/components/trends/TrendChartCard';
-import { PeakProductivityCard } from '@/domains/lifelock/analytics/ui/components/productivity/PeakProductivityCard';
-import { RecentAchievementsCard } from '@/domains/lifelock/analytics/ui/components/achievements/RecentAchievementsCard';
-import { XPBottomNav } from '@/domains/lifelock/analytics/ui/pages/XPBottomNav';
+import { TodayProgressCard } from '@/services/analytics/ui/components/today/TodayProgressCard';
+import { WeeklySummaryCard } from '@/services/analytics/ui/components/weekly/WeeklySummaryCard';
+import { MonthlySummaryCard } from '@/services/analytics/ui/components/monthly/MonthlySummaryCard';
+import { CategoryBreakdownCard } from '@/services/analytics/ui/components/categories/CategoryBreakdownCard';
+import { PersonalBestsCard } from '@/services/analytics/ui/components/records/PersonalBestsCard';
+import { StreakCard } from '@/services/analytics/ui/components/records/StreakCard';
+import { TrendChartCard } from '@/services/analytics/ui/components/trends/TrendChartCard';
+import { PeakProductivityCard } from '@/services/analytics/ui/components/productivity/PeakProductivityCard';
+import { RecentAchievementsCard } from '@/services/analytics/ui/components/achievements/RecentAchievementsCard';
+import { XPBottomNav } from '@/services/analytics/ui/pages/XPBottomNav';
 import { cn } from '@/lib/utils';
 
 // XP Hub Navigation Tabs

@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/select';
 import { Lock, Unlock, Star, Trophy, Target, Zap, Sunrise, Brain, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { AchievementSummary } from '@/domains/lifelock/analytics/types/xpAnalytics.types';
+import type { AchievementSummary } from '@/services/analytics/types/xpAnalytics.types';
 
 interface AllAchievementsGridProps {
   achievements: AchievementSummary[];

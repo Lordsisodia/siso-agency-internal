@@ -315,7 +315,7 @@ export class UnifiedTaskService {
 /**
  * Export singleton instance that matches the original service export pattern.
  * This maintains exact compatibility with existing import statements:
- * import { supabaseTaskService } from '@/services/supabaseTaskService';
+ * import { supabaseTaskService } from '@/domains/tasks/services/taskService';
  */
 export const supabaseTaskService = new UnifiedTaskService();
 
