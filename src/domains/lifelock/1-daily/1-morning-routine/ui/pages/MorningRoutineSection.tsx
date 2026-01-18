@@ -820,7 +820,10 @@ const waterXPRef = useRef(0);
                 <div className="p-1.5 rounded-lg border border-orange-400/30">
                   <Sun className="h-4 w-4 text-orange-300" />
                 </div>
-                <CardTitle className="text-base font-semibold text-orange-100">Morning Routine</CardTitle>
+                <div className="space-y-0.5">
+                  <CardTitle className="text-base font-semibold text-orange-100">Morning Routine</CardTitle>
+                  <p className="text-xs text-slate-400">Start your day right</p>
+                </div>
               </div>
               <div className="flex items-center gap-2">
                 <Badge className={cn(

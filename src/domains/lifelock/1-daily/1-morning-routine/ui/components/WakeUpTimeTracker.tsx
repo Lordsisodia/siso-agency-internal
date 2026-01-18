@@ -10,7 +10,7 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Clock, Flame, Sparkles, Zap, ChevronDown, ChevronUp, TrendingUp, Calendar } from 'lucide-react';
+import { Clock, Flame, Sparkles, Zap, ChevronDown, ChevronUp, TrendingUp, Calendar, Award } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format, subDays } from 'date-fns';
 
@@ -19,6 +19,7 @@ interface WakeUpTimeTrackerProps {
   onOpenPicker: () => void;
   onUseNow: () => void;
   selectedDate?: Date;
+  onClear?: () => void;
 }
 
 interface WakeUpHistoryData {
@@ -26,6 +27,27 @@ interface WakeUpHistoryData {
   time: string;
   multiplier: number;
 }
+
+interface XPRewardTier {
+  timeRange: string;
+  multiplier: number;
+  baseXP: number;
+  maxXP: number;
+  color: string;
+  bgColor: string;
+}
+
+// XP reward tiers based on wake-up time
+const XP_REWARD_TIERS: XPRewardTier[] = [
+  { timeRange: 'Before 6:00 AM', multiplier: 1.5, baseXP: 100, maxXP: 150, color: 'text-emerald-400', bgColor: 'bg-emerald-500/20' },
+  { timeRange: '6:00 - 6:30 AM', multiplier: 1.45, baseXP: 100, maxXP: 145, color: 'text-green-400', bgColor: 'bg-green-500/20' },
+  { timeRange: '6:30 - 7:00 AM', multiplier: 1.35, baseXP: 100, maxXP: 135, color: 'text-lime-400', bgColor: 'bg-lime-500/20' },
+  { timeRange: '7:00 - 7:30 AM', multiplier: 1.25, baseXP: 100, maxXP: 125, color: 'text-yellow-400', bgColor: 'bg-yellow-500/20' },
+  { timeRange: '7:30 - 8:00 AM', multiplier: 1.15, baseXP: 100, maxXP: 115, color: 'text-amber-400', bgColor: 'bg-amber-500/20' },
+  { timeRange: '8:00 - 9:00 AM', multiplier: 1.0, baseXP: 100, maxXP: 100, color: 'text-orange-400', bgColor: 'bg-orange-500/20' },
+  { timeRange: '9:00 - 10:00 AM', multiplier: 0.85, baseXP: 100, maxXP: 85, color: 'text-orange-300', bgColor: 'bg-orange-500/20' },
+  { timeRange: 'After 10:00 AM', multiplier: 0.7, baseXP: 100, maxXP: 70, color: 'text-gray-400', bgColor: 'bg-gray-500/20' },
+];
 
 // Calculate XP multiplier based on wake-up time
 const getXPMultiplier = (timeStr: string) => {
@@ -46,16 +68,22 @@ const getXPMultiplier = (timeStr: string) => {
 
     const totalMinutes = hour * 60 + minute;
 
+    if (totalMinutes < 6 * 60) {
+      return { multiplier: 1.5, color: 'emerald', label: 'Early Bird', icon: Flame, hex: '#10b981', bgColor: 'bg-emerald-500/20', textColor: 'text-emerald-400' };
+    }
     if (totalMinutes < 7 * 60) {
-      return { multiplier: 3, color: 'green', label: 'Early Bird', icon: Flame, hex: '#22c55e', bgColor: 'bg-green-500/20', textColor: 'text-green-400' };
+      return { multiplier: 1.45, color: 'green', label: 'Early Riser', icon: Flame, hex: '#22c55e', bgColor: 'bg-green-500/20', textColor: 'text-green-400' };
+    }
+    if (totalMinutes < 8 * 60) {
+      return { multiplier: 1.25, color: 'lime', label: 'Good Start', icon: Zap, hex: '#a3e635', bgColor: 'bg-lime-500/20', textColor: 'text-lime-400' };
     }
     if (totalMinutes < 9 * 60) {
-      return { multiplier: 2, color: 'yellow', label: 'On Track', icon: Zap, hex: '#eab308', bgColor: 'bg-yellow-500/20', textColor: 'text-yellow-400' };
+      return { multiplier: 1.0, color: 'yellow', label: 'On Time', icon: Zap, hex: '#eab308', bgColor: 'bg-yellow-500/20', textColor: 'text-yellow-400' };
     }
-    if (totalMinutes < 11 * 60) {
-      return { multiplier: 1.5, color: 'orange', label: 'Late Start', icon: Sparkles, hex: '#f97316', bgColor: 'bg-orange-500/20', textColor: 'text-orange-400' };
+    if (totalMinutes < 10 * 60) {
+      return { multiplier: 0.85, color: 'amber', label: 'Late Start', icon: Sparkles, hex: '#f59e0b', bgColor: 'bg-amber-500/20', textColor: 'text-amber-400' };
     }
-    return { multiplier: 1, color: 'gray', label: 'Better Late', icon: Clock, hex: '#94a3b8', bgColor: 'bg-gray-500/20', textColor: 'text-gray-400' };
+    return { multiplier: 0.7, color: 'gray', label: 'Better Late', icon: Clock, hex: '#94a3b8', bgColor: 'bg-gray-500/20', textColor: 'text-gray-400' };
   } catch {
     return { multiplier: 1, color: 'gray', label: 'Not Set', icon: Clock, hex: '#6b7280', bgColor: 'bg-gray-500/20', textColor: 'text-gray-400' };
   }
@@ -65,10 +93,12 @@ export const WakeUpTimeTracker: React.FC<WakeUpTimeTrackerProps> = ({
   time,
   onOpenPicker,
   onUseNow,
-  selectedDate = new Date()
+  selectedDate = new Date(),
+  onClear
 }) => {
   const [showPresets, setShowPresets] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [showXPRewards, setShowXPRewards] = useState(false);
   const [celebrating, setCelebrating] = useState(false);
 
   const multiplierInfo = getXPMultiplier(time);
@@ -183,6 +213,7 @@ export const WakeUpTimeTracker: React.FC<WakeUpTimeTrackerProps> = ({
               onClick={() => {
                 setShowPresets(!showPresets);
                 setShowHistory(false);
+                setShowXPRewards(false);
               }}
               variant="outline"
               className="w-full bg-orange-900/10 border-orange-700/30 text-orange-400 hover:bg-orange-900/20 h-10 flex items-center justify-between"
@@ -234,6 +265,7 @@ export const WakeUpTimeTracker: React.FC<WakeUpTimeTrackerProps> = ({
               onClick={() => {
                 setShowHistory(!showHistory);
                 setShowPresets(false);
+                setShowXPRewards(false);
               }}
               variant="outline"
               className="w-full bg-orange-900/10 border-orange-700/30 text-orange-400 hover:bg-orange-900/20 h-10 flex items-center justify-between"
@@ -243,6 +275,23 @@ export const WakeUpTimeTracker: React.FC<WakeUpTimeTrackerProps> = ({
                 This Week's Pattern
               </span>
               {showHistory ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            </Button>
+
+            {/* XP Rewards Toggle */}
+            <Button
+              onClick={() => {
+                setShowXPRewards(!showXPRewards);
+                setShowPresets(false);
+                setShowHistory(false);
+              }}
+              variant="outline"
+              className="w-full bg-orange-900/10 border-orange-700/30 text-orange-400 hover:bg-orange-900/20 h-10 flex items-center justify-between"
+            >
+              <span className="flex items-center gap-2">
+                <Award className="h-4 w-4" />
+                XP Rewards by Time
+              </span>
+              {showXPRewards ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
             </Button>
 
             {/* Weekly Chart */}
@@ -255,28 +304,45 @@ export const WakeUpTimeTracker: React.FC<WakeUpTimeTrackerProps> = ({
                   className="overflow-hidden"
                 >
                   <div className="p-3 bg-orange-900/20 rounded-lg border border-orange-700/30 space-y-3">
-                    {/* Bar Chart */}
-                    <div className="flex items-end justify-between gap-1 h-[60px] px-1">
-                      {weeklyData.map((day, index) => (
-                        <div key={index} className="flex-1 flex flex-col items-center justify-end h-full group relative">
-                          <motion.div
-                            initial={{ height: 0 }}
-                            animate={{ height: `${getBarHeight(day.multiplier)}%` }}
-                            transition={{ duration: 0.4, delay: index * 0.05 }}
-                            className={cn(
-                              "w-full max-w-[14px] rounded-t-sm transition-all duration-300",
-                              day.time ? getBarColor(day.multiplier) : "bg-white/5"
+                    {/* Enhanced Bar Chart with Times */}
+                    <div className="space-y-2">
+                      <div className="flex items-end justify-between gap-1 h-[60px] px-1">
+                        {weeklyData.map((day, index) => (
+                          <div key={index} className="flex-1 flex flex-col items-center justify-end h-full group relative">
+                            <motion.div
+                              initial={{ height: 0 }}
+                              animate={{ height: `${getBarHeight(day.multiplier)}%` }}
+                              transition={{ duration: 0.4, delay: index * 0.05 }}
+                              className={cn(
+                                "w-full max-w-[14px] rounded-t-sm transition-all duration-300",
+                                day.time ? getBarColor(day.multiplier) : "bg-white/5"
+                              )}
+                            />
+                            {/* Tooltip with exact time */}
+                            {day.time && (
+                              <div className="absolute bottom-full mb-1 opacity-0 group-hover:opacity-100 transition-opacity bg-black/90 text-[10px] text-white px-2 py-1 rounded pointer-events-none whitespace-nowrap z-10 shadow-lg">
+                                <div className="font-semibold">{day.time}</div>
+                                <div className="text-orange-300">{day.multiplier}x XP</div>
+                              </div>
                             )}
-                          />
-                          {/* Tooltip */}
-                          {day.time && (
-                            <div className="absolute bottom-full mb-1 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 text-[10px] text-white px-1.5 py-0.5 rounded pointer-events-none whitespace-nowrap z-10">
-                              {day.time}
+                            <div className="text-[10px] text-orange-300/70 mt-1">{formatDayLetter(day.date)}</div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Time List - Exact times below the chart */}
+                      <div className="grid grid-cols-7 gap-1 mt-2">
+                        {weeklyData.map((day, index) => (
+                          <div key={index} className="text-center">
+                            <div className={cn(
+                              "text-[9px] font-medium px-1 py-0.5 rounded",
+                              day.time ? "bg-orange-900/40 text-orange-200" : "text-orange-400/40"
+                            )}>
+                              {day.time || '--:--'}
                             </div>
-                          )}
-                          <div className="text-[10px] text-orange-300/70 mt-1">{formatDayLetter(day.date)}</div>
-                        </div>
-                      ))}
+                          </div>
+                        ))}
+                      </div>
                     </div>
 
                     {/* Streak Info */}
@@ -287,6 +353,65 @@ export const WakeUpTimeTracker: React.FC<WakeUpTimeTrackerProps> = ({
                       </div>
                       <span className="text-lg font-bold text-orange-400">{streak} days</span>
                     </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* XP Rewards Graph */}
+            <AnimatePresence>
+              {showXPRewards && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="overflow-hidden"
+                >
+                  <div className="p-3 bg-orange-900/20 rounded-lg border border-orange-700/30 space-y-3">
+                    <div className="text-xs text-orange-300/80 text-center mb-2">
+                      XP rewards decrease as wake-up time gets later
+                    </div>
+
+                    {/* Visual Bar Graph */}
+                    <div className="space-y-2">
+                      {XP_REWARD_TIERS.map((tier, index) => {
+                        const widthPercent = (tier.maxXP / 150) * 100;
+                        return (
+                          <div key={index} className="space-y-1">
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-orange-200/90 font-medium">{tier.timeRange}</span>
+                              <span className={cn("font-bold", tier.color)}>
+                                {tier.multiplier}x ({tier.maxXP} XP)
+                              </span>
+                            </div>
+                            <div className="relative h-3 bg-orange-900/40 rounded-full overflow-hidden">
+                              <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: `${widthPercent}%` }}
+                                transition={{ duration: 0.5, delay: index * 0.05 }}
+                                className={cn(
+                                  "h-full rounded-full",
+                                  tier.bgColor.replace('/20', '/60'),
+                                  "border border-white/10"
+                                )}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Current Time Indicator */}
+                    {time && (
+                      <div className="mt-3 pt-3 border-t border-orange-700/30">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-orange-300/70">Current Selection</span>
+                          <span className={cn("text-sm font-bold", multiplierInfo.textColor)}>
+                            {multiplierInfo.multiplier}x multiplier
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               )}

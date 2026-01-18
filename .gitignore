@@ -58,3 +58,21 @@ archives/
 
 # Blackbox upstream clone (do not commit)
 .blackbox_upstream/
+
+# Archived dotfiles (personal/workspace configs)
+.archive/
+
+# AI agent caches and state
+.mcp-state/
+
+# Obsidian workspace (personal settings)
+.obsidian/
+
+# Serena AI agent cache
+.serena/
+
+# Playwright MCP test artifacts
+.playwright-mcp/
+
+# Old workflow tracking
+.todo/
