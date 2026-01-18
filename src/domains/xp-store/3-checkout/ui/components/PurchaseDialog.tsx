@@ -32,7 +32,7 @@ import {
   Target
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { XPPsychologyUtils } from '@/lib/utils/xpPsychologyUtils';
+import { XPPsychologyUtils } from '@/lib/utils/api/xpPsychologyUtils';
 
 interface PurchaseDialogProps {
   isOpen: boolean;

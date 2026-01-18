@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ClientDashboardLayout } from "@/client/client/ClientDashboardLayout";
+import { ClientDashboardLayout } from "@/domains/_archive/client/ClientDashboardLayout";
 
 export default function ClientTasksPage() {
   const [client, setClient] = useState<ClientData | null>(null);

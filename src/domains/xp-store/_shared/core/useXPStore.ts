@@ -13,7 +13,7 @@ import {
   PurchaseResult,
   XPStoreError
 } from '@/domains/xp-store/services/xpStoreService';
-import { XPPsychologyUtils } from '@/lib/utils/xpPsychologyUtils';
+import { XPPsychologyUtils } from '@/lib/utils/api/xpPsychologyUtils';
 import { supabaseAnon } from '@/lib/services/supabase/clerk-integration';
 
 const userIdCache = new Map<string, string | null>();

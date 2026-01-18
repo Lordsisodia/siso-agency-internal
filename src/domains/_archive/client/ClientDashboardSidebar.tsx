@@ -23,7 +23,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useSelectedProject } from "@/domains/projects/hooks/useSelectedProject";
 import { useClientData } from "@/domains/projects/hooks/useClientData";
-import { useAuthSession } from "@/lib/hooks/useAuthSession";
+import { useAuthSession } from "@/lib/hooks/auth/useAuthSession";
 
 export function ClientDashboardSidebar() {
   const navigate = useNavigate();

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, X, Send, Mic, MicOff, Sparkles, Clock, User, Database, Loader2, CheckCircle2 } from 'lucide-react';
 import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
-import { useTimeBlocks } from '@/lib/hooks/useTimeBlocks';
+import { useTimeBlocks } from '@/domains/lifelock/1-daily/2-tasks/domain/useTimeBlocks';
 import { format } from 'date-fns';
 import type { TimeBlock } from '@/services/api/timeblocksApi.offline';
 import { VoiceService } from '@/services/voice/voice.service';

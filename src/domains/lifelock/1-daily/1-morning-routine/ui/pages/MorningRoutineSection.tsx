@@ -31,7 +31,7 @@ import { MorningRoutineMetadata, useMorningRoutineSupabase } from '@/domains/lif
 import { SimpleThoughtDumpPage, ThoughtDumpResults, lifeLockVoiceTaskProcessor } from '@/domains/lifelock/1-daily/1-morning-routine/features/ai-thought-dump';
 import type { ThoughtDumpResult } from '@/domains/lifelock/1-daily/1-morning-routine/features/ai-thought-dump';
 import { getRotatingQuotes } from '@/lib/data/motivational-quotes';
-import { debounce } from '@/lib/utils/debounce';
+import { debounce } from '@/lib/utils';
 import { TimeScrollPicker } from '../components/TimeScrollPicker';
 import { WaterTracker } from '../components/WaterTracker';
 import { PushUpTracker } from '../components/PushUpTracker';

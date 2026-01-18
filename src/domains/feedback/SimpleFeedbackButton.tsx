@@ -4,8 +4,8 @@ import React, { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
-import { useClerkUser } from "@/lib/hooks/useClerkUser";
-import { useToast } from "@/lib/hooks/use-toast";
+import { useClerkUser } from "@/lib/hooks/auth/useClerkUser";
+import { useToast } from "@/lib/hooks/ui/useToast";
 import { useSupabaseUserId } from "@/lib/supabase-clerk";
 import { feedbackService } from "@/services/feedbackService";
 

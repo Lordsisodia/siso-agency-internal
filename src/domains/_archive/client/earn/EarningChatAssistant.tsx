@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Bot, Send, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/services/integrations/supabase/client';
-import { useToast } from "@/lib/hooks/use-toast";
+import { useToast } from "@/lib/hooks/ui/useToast";
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface Message {

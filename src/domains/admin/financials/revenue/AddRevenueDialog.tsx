@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { toast } from "@/lib/hooks/use-toast";
+import { toast } from "@/lib/hooks/ui/useToast";
 import { createTransaction } from "@/domains/financial";
 import { FinancialTransaction } from "@/domains/financial/types";
 

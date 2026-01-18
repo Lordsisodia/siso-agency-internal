@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { cn } from "@/lib/utils";
-import { useToast } from "@/lib/hooks/use-toast";
+import { useToast } from "@/lib/hooks/ui/useToast";
 import { supabase } from "@/services/integrations/supabase/client";
 
 // Types based on Supabase portfolio_items table

@@ -2,7 +2,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { CheckIcon, ChevronsUpDown, ChevronDown, ChevronUp, PencilIcon, SaveIcon } from "lucide-react";
-import { useToast } from "@/lib/hooks/use-toast";
+import { useToast } from "@/lib/hooks/ui/useToast";
 
 // Enhanced table components with Airtable-like functionality
 const EnhancedTable = React.forwardRef<

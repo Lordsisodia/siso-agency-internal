@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Search } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { supabase } from '@/services/integrations/supabase/client';
-import { useToast } from "@/lib/hooks/use-toast";
+import { useToast } from "@/lib/hooks/ui/useToast";
 
 interface SmartEarningSearchProps {
   onSearch: (query: string) => void;

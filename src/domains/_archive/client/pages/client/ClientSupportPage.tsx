@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/lib/hooks/ui/useToast';
 import { Mail, MessageSquare, Phone, HelpCircle, ArrowRight } from 'lucide-react';
-import { ClientDashboardLayout } from "@/client/client/ClientDashboardLayout";
+import { ClientDashboardLayout } from "@/domains/_archive/client/ClientDashboardLayout";
 
 export default function ClientSupportPage() {
   const [subject, setSubject] = useState('');

@@ -7,7 +7,7 @@ import { FileText, Download, FileArchive, FilePlus, Image, File } from 'lucide-r
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ClientDocument } from '@/types/client.types';
-import { ClientDashboardLayout } from "@/client/client/ClientDashboardLayout";
+import { ClientDashboardLayout } from "@/domains/_archive/client/ClientDashboardLayout";
 
 export default function ClientDocumentsPage() {
   const [documents, setDocuments] = useState<ClientDocument[]>([]);

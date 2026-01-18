@@ -8,7 +8,7 @@
  */
 
 import { useState, useCallback, useEffect, useMemo } from 'react';
-import { useClerkUser } from './useClerkUser';
+import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 import { unifiedDataService } from '@/services/shared/unified-data.service';
 

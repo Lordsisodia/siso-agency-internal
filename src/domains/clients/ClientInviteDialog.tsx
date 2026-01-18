@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import { useToast } from "@/lib/hooks/use-toast";
+import { useToast } from "@/lib/hooks/ui/useToast";
 import { inviteClientUser } from "@/lib/utils/inviteClientUser";
 
 interface ClientInviteDialogProps {

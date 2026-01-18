@@ -2,7 +2,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useSupabaseAuth } from "@/lib/hooks/useSupabaseAuth";
+import { useSupabaseAuth } from "@/lib/hooks/auth/useSupabaseAuth";
 import { cn } from "@/lib/utils";
 import { useIsClient } from "@/domains/client/hooks/useIsClient";
 import { Briefcase } from "lucide-react";

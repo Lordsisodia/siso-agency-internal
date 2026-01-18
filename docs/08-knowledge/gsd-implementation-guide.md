@@ -1295,6 +1295,587 @@ scan_antipatterns() {
 
 ---
 
+## 6. Additional GSD Innovations (Deep Exploration)
+
+After comprehensive exploration of the GSD codebase, here are **14 more innovations** that GSD does exceptionally well:
+
+### 6.1 Todo Management System
+
+**Problem:** Capturing good ideas mid-work without losing them, then systematically deciding what to work on next.
+
+**GSD's Solution:** Persistent todo capture with intelligent routing.
+
+**How It Works:**
+
+```bash
+# Capture idea mid-work
+/gsd:add-todo
+
+# Creates:
+---
+title: "Add auth token refresh"
+area: "api"
+created: 2025-01-18T10:30:00Z
+files: ["src/lib/auth.ts"]
+---
+### Problem
+Current auth token expires after 1 hour
+### Solution
+Add automatic token refresh logic
+
+# Later: Check todos
+/gsd:check-todos
+
+# Routes todos to:
+# - Existing roadmap phases (by area)
+# - New phases (if no match)
+# - Backlog (deferred ideas)
+```
+
+**Why It Matters:**
+- Prevents context switching interruptions while preserving valuable insights
+- Creates system for idea incubation vs. execution
+- Intelligent routing matches todos to roadmap phases
+
+### 6.2 Parallel Debugging Architecture
+
+**Problem:** Multiple issues found during UAT require investigation without sequential bottlenecks.
+
+**GSD's Solution:** Parallel root cause analysis with fresh context per agent.
+
+**How It Works:**
+
+```python
+# /gsd:verify-work finds 3 gaps during UAT
+gaps = ["Dashboard doesn't fetch data", "Auth redirects broken", "Form validation missing"]
+
+# Spawn parallel debug agents
+for gap in gaps:
+    Task(prompt=filled_debug_template, subagent_type="gsd-debugger")
+
+# All run in parallel, each with fresh 200k context
+# Results collected and UAT.md updated with root causes
+```
+
+**Why It Matters:**
+- Reduces debugging time from linear to parallel processing
+- Each gap gets full attention without cross-contamination
+- Fresh context per debugger maintains quality
+
+### 6.3 Agent Specialization Framework
+
+**Problem:** Different development phases require different expertise levels and tool access.
+
+**GSD's Solution:** Domain-specific agents with baked-in expertise.
+
+**Agent Specializations:**
+
+```markdown
+### gsd-debugger
+- Scientific method + hypothesis testing
+- Tools: Read, Write, Edit, Bash, Grep, Glob, WebSearch
+- Color: orange
+- Expertise: Root cause analysis
+
+### gsd-integration-checker
+- Cross-phase verification only
+- Tools: Read, Grep, Bash
+- Color: blue
+- Expertise: Integration testing
+
+### gsd-planner
+- Full planning methodology
+- Tools: All available
+- Color: purple
+- Expertise: Task decomposition
+
+### gsd-verifier
+- Artifact validation against codebase
+- Tools: Read, Grep, Bash
+- Color: green
+- Expertise: Goal-backward verification
+```
+
+**Why It Matters:**
+- Creates reusable expertise modules
+- Agents spawned independently with context-only prompts
+- Specialized tool access reduces context bloat
+
+### 6.4 Milestone Audit Framework
+
+**Problem:** Milestones can appear complete but have integration gaps or unmet requirements.
+
+**GSD's Solution:** Comprehensive milestone review with cross-phase verification.
+
+**How It Works:**
+
+```bash
+/gsd:audit-milestone
+
+# Aggregates all phase VERIFICATION.md files
+# Spawns gsd-integration-checker for cross-phase wiring
+# Creates v{version}-MILESTONE-AUDIT.md with scores
+
+---
+milestone: v1.0
+status: tech_debt
+scores:
+  requirements: 8/10
+  integration: 9/10
+  flows: 7/10
+tech_debt:
+  - phase: 03-dashboard
+    items:
+      - "TODO: add rate limiting"
+      - "FIXME: handle edge case"
+```
+
+**Gap Categories:**
+- **Requirements**: Features promised but not delivered
+- **Integration**: Cross-phase wiring issues
+- **Flows**: User journey gaps
+- **Tech Debt**: TODOs, FIXMEs, placeholders
+
+**Why It Matters:**
+- Ensures milestones deliver working systems, not just phase completion
+- Categorizes gaps for systematic closure
+- Creates audit trail for quality
+
+### 6.5 Automated Gap Closure Planning
+
+**Problem:** Manually planning fixes for audit gaps is error-prone and time-consuming.
+
+**GSD's Solution:** Audit-to-plan automation with gap-to-task mapping.
+
+**How It Works:**
+
+```bash
+/gsd:plan-milestone-gaps
+
+# Reads MILESTONE-AUDIT.md
+# Groups related gaps into logical phases
+# Creates ROADMAP.md entries for fix phases
+
+# Gap mapping example:
+gap:
+  id: DASH-01
+  reason: "Dashboard exists but doesn't fetch"
+  missing:
+    - "useEffect with fetch"
+    - "State for user data"
+
+becomes:
+
+tasks:
+  - name: "Add data fetching"
+    action: "Add useEffect that fetches /api/user/data"
+    files: "src/app/dashboard/page.tsx"
+    verify: "Dashboard displays user data on load"
+```
+
+**Why It Matters:**
+- Transforms audit findings directly into actionable plans
+- No manual interpretation needed
+- Maintains traceability from gap → task → fix
+
+### 6.6 TDD Integration Framework
+
+**Problem:** TDD requires discipline that's hard to maintain without tooling support.
+
+**GSD's Solution:** Test-driven development as first-class citizen.
+
+**How It Works:**
+
+```yaml
+---
+phase: 08-auth
+plan: 02
+type: tdd
+---
+
+<feature>
+  <name>Email validation</name>
+  <behavior>
+    Valid emails → true, Invalid → false
+  </behavior>
+  <edge_cases>
+    - Plus addressing: user+tag@example.com
+    - Subdomains: user@mail.example.com
+    - Case sensitivity: Test@Example.com
+  </edge_cases>
+</feature>
+
+# Produces 3 commits:
+# 1. test(08-02): add failing test for email validation
+# 2. feat(08-02): implement email validation
+# 3. refactor(08-02): extract validation to helper
+```
+
+**TDD Commit Pattern:**
+- RED: Test-only changes
+- GREEN: Implementation to pass tests
+- REFACTOR: Code cleanup (no behavior change)
+
+**Why It Matters:**
+- Makes TDD practical within GSD workflow
+- Proper tooling support with framework detection
+- Context budgeting (~40% vs ~50% for standard plans)
+
+### 6.7 Session Persistence Pattern
+
+**Problem:** Work sessions span multiple `/clear` commands but need to maintain state.
+
+**GSD's Solution:** Cross-context state continuation with frontmatter.
+
+**How It Works:**
+
+```markdown
+---
+status: testing  # OVERWRITE on update
+phase: 04-comments  # IMMUTABLE
+started: 2025-01-18T10:30:00Z  # IMMUTABLE
+updated: 2025-01-18T10:45:00Z  # OVERWRITE
+current_task: 3/8
+---
+
+## Position
+Building comment system with real-time updates.
+
+## Decisions Made
+| Decision | Rationale | Outcome |
+|----------|-----------|---------|
+| Use WebSockets, not polling | Real-time requirement | ✓ Good |
+
+## Blockers
+None currently.
+
+## Concerns
+- WebSocket reconnection on network loss
+```
+
+**Frontmatter Fields:**
+- **IMMUTABLE**: Never changes (phase, started)
+- **OVERWRITE**: Updated each session (status, updated, current_task)
+
+**Why It Matters:**
+- Enables long-running projects to survive context resets
+- Clear resume points after `/clear`
+- Session-aware todo management
+
+### 6.8 Automated Versioning & Archiving
+
+**Problem:** Milestones need proper versioning but manual versioning is error-prone.
+
+**GSD's Solution:** Semantic versioning integration with archive pattern.
+
+**How It Works:**
+
+```bash
+/gsd:complete-milestone
+
+# Version inferred from ROADMAP.md or explicit argument
+# Creates v{version}-MILESTONE-AUDIT.md
+# Archive pattern with metadata preservation
+
+# Archiving:
+mkdir .planning/archive/v1.0/
+cp -r .planning/phases/* .planning/archive/v1.0/
+cp .planning/v1.0-MILESTONE-AUDIT.md .planning/archive/v1.0/
+git tag v1.0
+
+# Roadmap updated:
+## Milestone v1.0 ✅
+Completed: 2025-01-18
+Phases: 04 (Foundation, Auth, Products, Checkout)
+```
+
+**Why It Matters:**
+- Creates proper release artifacts
+- Version history for project evolution
+- Git tags for easy rollback
+
+### 6.9 Error Recovery Framework
+
+**Problem:** When agents fail, the system should recover gracefully, not crash.
+
+**GSD's Solution:** Intelligent failure handling with partial progress preservation.
+
+**Recovery Patterns:**
+
+```python
+# Timeout detection
+if agent_return.timeout:
+    save_partial_progress()
+    retry_with_fresh_context()
+
+# Zombie agent cleanup
+if "accidentally re-added" in agent_description:
+    remove_zombie_agent()
+    continue_processing()
+
+# Graceful degradation
+if verification_fails:
+    root_cause = determine_failure_type()
+    if root_cause == "Manual review needed":
+        create_checkpoint()
+    else:
+        retry_with_different_approach()
+```
+
+**Why It Matters:**
+- Makes system robust enough for real-world use
+- Partial progress preserved on failure
+- Manual intervention points with clear escalation
+
+### 6.10 Multi-Platform Installation System
+
+**Problem:** Installation friction prevents adoption across different environments.
+
+**GSD's Solution:** Cross-platform zero-friction setup.
+
+**How It Works:**
+
+```bash
+# Single command install
+npx get-shit-done-cc
+
+# Platform detection:
+if [ "$OSTYPE" = "darwin"* ]; then
+  # macOS: Use shell hooks
+  install_hooks="$HOME/.claude/hooks"
+elif [ "$OSTYPE" = "linux-gnu"* ]; then
+  # Linux: Use shell hooks
+  install_hooks="$HOME/.claude/hooks"
+else
+  # Windows: Use Node.js hooks
+  install_hooks="$HOME/.claude/hooks"
+fi
+
+# Automatic hook installation
+# Config directory customization for multiple accounts
+# Clean install with orphaned file cleanup
+```
+
+**Why It Matters:**
+- Eliminates installation barriers across development environments
+- Works on macOS, Linux, Windows
+- Global or local installation
+
+### 6.11 Statusline Integration
+
+**Problem:** Developers lose track of context usage and current task.
+
+**GSD's Solution:** Real-time status display in Claude Code.
+
+**How It Works:**
+
+```javascript
+// hooks/statusline.js
+module.exports = {
+  format: async ({ modelName, currentTask, directory, contextInfo }) => {
+    const percentage = Math.round(contextInfo.usage * 100);
+    const bar = '█'.repeat(Math.floor(percentage / 10)) +
+                '░'.repeat(10 - Math.floor(percentage / 10));
+
+    return `${modelName} 03 | Implement auth login | ${directory} | ${bar} ${percentage}%`;
+  }
+};
+
+// Display: Claude 03 | Implement auth login | myapp | ████░░░░░░ 40%
+```
+
+**Status Shows:**
+- Model name
+- Current task (from todos)
+- Directory name
+- Context usage with color-coded progress bar
+
+**Why It Matters:**
+- Real-time context awareness
+- Prevents unexpected context overflow
+- Quick reference for current work
+
+### 6.12 Project State Management
+
+**Problem:** Projects need centralized state tracking across sessions.
+
+**GSD's Solution:** STATE.md as single source of truth.
+
+**Structure:**
+
+```markdown
+# Project State
+
+**Current Phase:** Phase 1 - Authentication
+**Current Plan:** 01-02 (Login endpoint)
+**Status:** In Progress
+
+## Position
+Building authentication system with JWT tokens.
+
+## Decisions Made
+| Decision | Rationale | Outcome |
+|----------|-----------|---------|
+| Use jose, not jsonwebtoken | CommonJS issues with Edge | ✓ Good |
+
+## Blockers
+None currently.
+
+## Concerns
+- bcrypt on Edge runtime might be slow
+
+## Alignment
+Core value: Users can share content
+Current focus: Authentication foundation
+```
+
+**Why It Matters:**
+- Cross-session continuity
+- Single source of truth
+- Decision audit trail
+
+### 6.13 Handoff/Resume Protocol
+
+**Problem:** Sessions need to pause and resume without losing context.
+
+**GSD's Solution:** Structured handoff with WIP commits.
+
+**How It Works:**
+
+```bash
+/gsd:pause-work
+
+# Creates:
+---
+status: paused
+phase: 04-comments
+current_task: 3/8
+last_action: "Added reply form"
+next_action: "Implement WebSocket for real-time"
+paused_at: 2025-01-18T15:30:00Z
+---
+
+git commit -m "wip: comments paused at task 3/8
+
+Current: Implementing reply form
+Next: WebSocket for real-time updates"
+
+# Later:
+/gsd:resume-work
+
+# Loads STATE.md
+# Presents position, blockers, next steps
+# Fresh context with all state restored
+```
+
+**Why It Matters:**
+- No lost context on session pause
+- Clear resume points
+- Works across `/clear`
+
+### 6.14 Research Integration
+
+**Problem:** Planning requires domain knowledge but manual research is time-consuming.
+
+**GSD's Solution:** Automated research with parallel dimension analysis.
+
+**How It Works:**
+
+```bash
+/gsd:new-project
+
+# Spawns 4 parallel research agents:
+Task(prompt="Analyze TECH STACK", subagent_type="gsd-project-researcher")
+Task(prompt="Analyze FEATURES", subagent_type="gsd-project-researcher")
+Task(prompt="Analyze ARCHITECTURE", subagent_type="gsd-project-researcher")
+Task(prompt="Analyze PITFALLS", subagent_type="gsd-project-researcher")
+
+# Each produces:
+- STACK.md: Recommended tech stack with rationale
+- FEATURES.md: Core features with MVP scoping
+- ARCHITECTURE.md: System design patterns
+- PITFALLS.md: Common mistakes to avoid
+
+# Synthesized into SUMMARY.md
+```
+
+**Why It Matters:**
+- Parallel research reduces planning time
+- Each dimension gets full attention
+- Comprehensive domain understanding before planning
+
+---
+
+## 7. Summary: All GSD Advantages Over Blackbox
+
+### Core Innovations (Previously Documented):
+
+1. **Context Management** - Explicit quality degradation curve
+2. **Git Integration** - Per-task atomic commits
+3. **Goal-Backward Verification** - Verify outcomes, not tasks
+4. **Automatic Deviation Handling** - 4-rule system
+5. **Solo Developer Workflow** - Opinionated, frictionless
+6. **Speed & Productivity** - Wave-based parallelization
+7. **Pre-Planning Context Extraction** - `/gsd:discuss-phase`
+8. **Checkpoint Protocol** - Fresh continuation agents
+9. **Enhanced Verification** - 3-level artifact checks
+10. **Deep Questioning** - Dream extraction
+11. **Anti-Pattern Detection** - Quality scanning
+
+### Additional Innovations (Just Discovered):
+
+12. **Todo Management System** - Persistent capture with intelligent routing
+13. **Parallel Debugging Architecture** - Parallel root cause analysis
+14. **Agent Specialization Framework** - Domain-specific expertise
+15. **Milestone Audit Framework** - Comprehensive milestone review
+16. **Automated Gap Closure Planning** - Audit-to-plan automation
+17. **TDD Integration Framework** - Test-driven development as first-class citizen
+18. **Session Persistence Pattern** - Cross-context state continuation
+19. **Automated Versioning & Archiving** - Semantic versioning integration
+20. **Error Recovery Framework** - Intelligent failure handling
+21. **Multi-Platform Installation System** - Cross-platform zero-friction setup
+22. **Statusline Integration** - Real-time context display
+23. **Project State Management** - STATE.md as single source of truth
+24. **Handoff/Resume Protocol** - Structured session pause/resume
+25. **Research Integration** - Automated parallel dimension analysis
+
+---
+
+## Complete Innovation Matrix
+
+| Category | Innovation | Impact | Complexity |
+|----------|-----------|--------|------------|
+| **Context** | Quality degradation curve | HIGH | Low |
+| **Context** | Thin orchestrator pattern | HIGH | Medium |
+| **Context** | Statusline integration | MEDIUM | Low |
+| **Git** | Per-task atomic commits | HIGH | Low |
+| **Git** | TDD commit pattern | MEDIUM | Low |
+| **Verification** | Goal-backward verification | HIGH | Medium |
+| **Verification** | 3-level artifact checks | HIGH | Medium |
+| **Verification** | Anti-pattern detection | MEDIUM | Low |
+| **Verification** | Milestone audit framework | HIGH | High |
+| **Planning** | Pre-planning context extraction | HIGH | Medium |
+| **Planning** | Research integration | MEDIUM | High |
+| **Planning** | Gap closure planning | HIGH | Medium |
+| **Execution** | Wave-based parallelization | HIGH | Medium |
+| **Execution** | Checkpoint protocol | HIGH | Medium |
+| **Execution** | Deviation handling (4-rule) | HIGH | Medium |
+| **Debugging** | Parallel debugging architecture | HIGH | Medium |
+| **State** | Session persistence | HIGH | Low |
+| **State** | Handoff/resume protocol | MEDIUM | Low |
+| **State** | STATE.md management | HIGH | Low |
+| **Agents** | Specialization framework | MEDIUM | Medium |
+| **Quality** | TDD integration | MEDIUM | Medium |
+| **Quality** | Error recovery framework | MEDIUM | High |
+| **UX** | Deep questioning | HIGH | Medium |
+| **UX** | Multi-platform installation | MEDIUM | Medium |
+| **UX** | Todo management | MEDIUM | Low |
+| **UX** | Automated versioning | LOW | Low |
+
+**Total: 25 documented innovations**
+
+---
+
 ## Conclusion
 
 **GSD's constraints ARE its strengths.** By saying "no" to enterprise complexity and focusing on solo dev + Claude Code, GSD achieves remarkable simplicity and effectiveness.

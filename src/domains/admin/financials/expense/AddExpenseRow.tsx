@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { createTransaction } from "@/domains/financial";
-import { toast } from "@/lib/hooks/use-toast";
+import { toast } from "@/lib/hooks/ui/useToast";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { Plus, Check, X } from "lucide-react";
 import { FinancialTransaction } from "@/domains/financial/types";

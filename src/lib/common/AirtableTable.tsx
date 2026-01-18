@@ -40,7 +40,7 @@ import {
 import { Pagination, PaginationContent, PaginationItem } from "@/components/ui/pagination";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
-import { useToast } from "@/lib/hooks/use-toast";
+import { useToast } from "@/lib/hooks/ui/useToast";
 import { flexRender, ColumnDef, SortingState, ColumnFiltersState, VisibilityState, PaginationState, Row, Table as ReactTableInstance } from "@tanstack/react-table";
 
 /** 

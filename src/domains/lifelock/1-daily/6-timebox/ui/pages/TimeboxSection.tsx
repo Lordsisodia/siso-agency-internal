@@ -7,7 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import { TimeBlockFormModal } from '../components/TimeBlockFormModal';
 import QuickTaskScheduler from '../components/QuickTaskScheduler';
-import { useTimeBlocks } from '@/lib/hooks/useTimeBlocks';
+import { useTimeBlocks } from '@/domains/lifelock/1-daily/2-tasks/domain/useTimeBlocks';
 import { toast } from 'sonner';
 import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';

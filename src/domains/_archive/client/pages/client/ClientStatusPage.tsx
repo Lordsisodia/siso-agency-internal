@@ -8,7 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { ClientData } from '@/types/client.types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ClipboardCheck, Clock } from 'lucide-react';
-import { ClientDashboardLayout } from "@/client/client/ClientDashboardLayout";
+import { ClientDashboardLayout } from "@/domains/_archive/client/ClientDashboardLayout";
 
 export default function ClientStatusPage() {
   const [client, setClient] = useState<ClientData | null>(null);

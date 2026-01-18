@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { useLocalStorage } from "@/lib/hooks/useLocalStorage";
-import { useToast } from "@/lib/hooks/use-toast";
+import { useLocalStorage } from "@/lib/hooks/ui/useLocalStorage";
+import { useToast } from "@/lib/hooks/ui/useToast";
 
 interface FeedbackItem {
   id: string;

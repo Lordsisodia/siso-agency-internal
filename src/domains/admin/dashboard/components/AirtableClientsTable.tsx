@@ -66,7 +66,7 @@ import { Pagination, PaginationContent, PaginationItem } from "@/components/ui/p
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { ClientData } from "@/domains/client/domain/types";
 import { cn } from "@/lib/utils";
-import { useToast } from "@/lib/hooks/use-toast";
+import { useToast } from "@/lib/hooks/ui/useToast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 import { ViewClientCard } from "./ViewClientCard";

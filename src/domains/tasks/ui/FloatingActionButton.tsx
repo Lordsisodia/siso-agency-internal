@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
-import { voiceService } from '@/services/voice';
+import { voiceService } from '@/domains/lifelock/services';
 
 interface FloatingActionButtonProps {
   onQuickAdd?: () => void;

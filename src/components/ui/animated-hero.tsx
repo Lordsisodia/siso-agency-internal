@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { MoveRight, TrendingUp, Users, Handshake, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { useIsMobile } from "@/lib/hooks/use-mobile";
+import { useIsMobile } from "@/lib/hooks/ui/useMobile";
 
 function Hero() {
   const [titleNumber, setTitleNumber] = useState(0);
