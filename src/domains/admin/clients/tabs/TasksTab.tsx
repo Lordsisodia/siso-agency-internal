@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { TaskCard } from '@/domains/task-ui/components/TaskCard';
+import { TaskCard } from '@/domains/tasks/components/TaskCard';
 import { useClientTasks } from '@/domains/client/hooks';
 
 interface TasksTabProps {

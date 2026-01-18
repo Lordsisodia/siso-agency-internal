@@ -316,8 +316,8 @@ export function generateRefinementPrompt(...args: any[]): any {
 // ===== MAIN AI SERVICE CLASS =====
 class ConsolidatedAIService {
   constructor() {
-    console.log('🚀 Consolidated AI Service initialized');
-    console.log('🧠 Consolidated from 8 services: legacyAIService.ts, groqLegacyAI.ts, dailyTrackerAI.ts, aiTaskAgent.ts, aiPromptStrategies.ts, intelligentAgentCore.ts, multiStagePromptSystem.ts, appPlanAgent.ts');
+    
+    
   }
 
   async generateContent(prompt: string, options?: any): Promise<string> {

@@ -54,7 +54,7 @@ export function useAIContext() {
   return {
     context,
     updateContext: (newContext: Partial<AIContext>) => {
-      console.log('[AI Context] Update:', newContext);
+      
       // TODO: Implement actual context updates
     },
   };

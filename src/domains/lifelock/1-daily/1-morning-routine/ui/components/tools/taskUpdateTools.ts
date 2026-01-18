@@ -19,7 +19,7 @@ export class TaskUpdateTools {
    * 1. Update task estimated duration
    */
   async updateTaskDuration(taskId: string, durationMinutes: number) {
-    console.log(`🔧 [UPDATE] Setting task ${taskId} duration to ${durationMinutes} min`);
+    
 
     // Try deep work first
     const { error: deepError } = await supabase
@@ -29,7 +29,7 @@ export class TaskUpdateTools {
       .eq('user_id', this.userId);
 
     if (!deepError) {
-      console.log(`✅ [UPDATE] Updated deep work task duration`);
+      
       return { success: true, taskId, durationMinutes };
     }
 
@@ -41,7 +41,7 @@ export class TaskUpdateTools {
       .eq('user_id', this.userId);
 
     if (!lightError) {
-      console.log(`✅ [UPDATE] Updated light work task duration`);
+      
       return { success: true, taskId, durationMinutes };
     }
 
@@ -53,7 +53,7 @@ export class TaskUpdateTools {
    * 2. Set task due date
    */
   async setTaskDueDate(taskId: string, dueDate: string) {
-    console.log(`🔧 [UPDATE] Setting task ${taskId} due date to ${dueDate}`);
+    
 
     // Try deep work
     const { error: deepError } = await supabase
@@ -63,7 +63,7 @@ export class TaskUpdateTools {
       .eq('user_id', this.userId);
 
     if (!deepError) {
-      console.log(`✅ [UPDATE] Updated deep work task due date`);
+      
       return { success: true, taskId, dueDate };
     }
 
@@ -75,7 +75,7 @@ export class TaskUpdateTools {
       .eq('user_id', this.userId);
 
     if (!lightError) {
-      console.log(`✅ [UPDATE] Updated light work task due date`);
+      
       return { success: true, taskId, dueDate };
     }
 
@@ -86,7 +86,7 @@ export class TaskUpdateTools {
    * 3. Update task priority
    */
   async updateTaskPriority(taskId: string, priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT') {
-    console.log(`🔧 [UPDATE] Setting task ${taskId} priority to ${priority}`);
+    
 
     const { error: deepError } = await supabase
       .from('deep_work_tasks')
@@ -95,7 +95,7 @@ export class TaskUpdateTools {
       .eq('user_id', this.userId);
 
     if (!deepError) {
-      console.log(`✅ [UPDATE] Updated task priority`);
+      
       return { success: true, taskId, priority };
     }
 
@@ -106,7 +106,7 @@ export class TaskUpdateTools {
       .eq('user_id', this.userId);
 
     if (!lightError) {
-      console.log(`✅ [UPDATE] Updated task priority`);
+      
       return { success: true, taskId, priority };
     }
 
@@ -117,7 +117,7 @@ export class TaskUpdateTools {
    * 4. Schedule task to timebox
    */
   async scheduleTaskToTimebox(taskId: string, startTime: string, durationMinutes: number) {
-    console.log(`🔧 [UPDATE] Scheduling task ${taskId} at ${startTime} for ${durationMinutes} min`);
+    
 
     // Get existing timebox schedule for the day
     const { data: existingSchedule } = await supabase
@@ -152,7 +152,7 @@ export class TaskUpdateTools {
         .eq('id', existingSchedule.id);
 
       if (!error) {
-        console.log(`✅ [UPDATE] Added task to existing timebox`);
+        
         return { success: true, taskId, startTime, durationMinutes };
       }
     } else {
@@ -166,7 +166,7 @@ export class TaskUpdateTools {
         });
 
       if (!error) {
-        console.log(`✅ [UPDATE] Created new timebox schedule`);
+        
         return { success: true, taskId, startTime, durationMinutes };
       }
     }
@@ -178,7 +178,7 @@ export class TaskUpdateTools {
    * 5. Bulk schedule multiple tasks
    */
   async bulkScheduleTasks(schedules: Array<{ taskId: string, startTime: string, duration: number }>) {
-    console.log(`🔧 [UPDATE] Bulk scheduling ${schedules.length} tasks`);
+    
 
     const results = await Promise.all(
       schedules.map(s => this.scheduleTaskToTimebox(s.taskId, s.startTime, s.duration))
@@ -186,7 +186,7 @@ export class TaskUpdateTools {
 
     const successCount = results.filter(r => r.success).length;
 
-    console.log(`✅ [UPDATE] Scheduled ${successCount}/${schedules.length} tasks`);
+    
 
     return {
       success: successCount === schedules.length,
@@ -200,7 +200,7 @@ export class TaskUpdateTools {
    * 6. Update subtask estimated time
    */
   async updateSubtaskTime(subtaskId: string, estimatedTime: string) {
-    console.log(`🔧 [UPDATE] Setting subtask ${subtaskId} time to ${estimatedTime}`);
+    
 
     const { error: deepError } = await supabase
       .from('deep_work_subtasks')
@@ -208,7 +208,7 @@ export class TaskUpdateTools {
       .eq('id', subtaskId);
 
     if (!deepError) {
-      console.log(`✅ [UPDATE] Updated deep work subtask time`);
+      
       return { success: true, subtaskId, estimatedTime };
     }
 
@@ -218,7 +218,7 @@ export class TaskUpdateTools {
       .eq('id', subtaskId);
 
     if (!lightError) {
-      console.log(`✅ [UPDATE] Updated light work subtask time`);
+      
       return { success: true, subtaskId, estimatedTime };
     }
 
@@ -229,7 +229,7 @@ export class TaskUpdateTools {
    * 7. Save user energy level
    */
   async saveEnergyLevel(energyLevel: number) {
-    console.log(`🔧 [UPDATE] Saving energy level: ${energyLevel}/10`);
+    
 
     // Validate input
     if (energyLevel < 1 || energyLevel > 10) {
@@ -254,7 +254,7 @@ export class TaskUpdateTools {
         return { success: false, error: error.message };
       }
 
-      console.log(`✅ [UPDATE] Saved energy level: ${energyLevel}/10`);
+      
 
       // Return with scheduling suggestions
       let suggestion = '';

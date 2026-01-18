@@ -68,7 +68,7 @@ export const useTaskOrganization = (onTaskChange?: () => void): UseTaskOrganizat
     setOrganizationError(null);
     
     try {
-      console.log('🧠 Organizing tasks using Eisenhower Matrix...');
+      
       
       const result = await instrumentLifeLockEvent(
         'eisenhower_matrix',
@@ -79,7 +79,7 @@ export const useTaskOrganization = (onTaskChange?: () => void): UseTaskOrganizat
       setEisenhowerResult(result);
       setShowEisenhowerModal(true);
       
-      console.log('✅ Task organization completed');
+      
     } catch (error) {
       console.error('❌ Task organization failed:', error);
       setOrganizationError(error instanceof Error ? error.message : 'Task organization failed');
@@ -90,7 +90,7 @@ export const useTaskOrganization = (onTaskChange?: () => void): UseTaskOrganizat
 
   // Handle applying organization results
   const handleApplyOrganization = useCallback(() => {
-    console.log('📋 Applying task organization...');
+    
     
     setShowEisenhowerModal(false);
     setEisenhowerResult(null);
@@ -98,12 +98,12 @@ export const useTaskOrganization = (onTaskChange?: () => void): UseTaskOrganizat
     // Trigger refresh in parent component to reflect changes
     onTaskChange?.();
     
-    console.log('✅ Task organization applied');
+    
   }, [onTaskChange]);
 
   // Handle reanalyzing tasks
   const handleReanalyze = useCallback(async (tasks: TaskCard['tasks']) => {
-    console.log('🔄 Reanalyzing tasks...');
+    
     
     setShowEisenhowerModal(false);
     setEisenhowerResult(null);

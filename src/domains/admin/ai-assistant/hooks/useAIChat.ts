@@ -75,7 +75,7 @@ export function useAIChat() {
 
         // If there are suggestions, could add them as follow-up quick actions
         if (response.suggestions && response.suggestions.length > 0) {
-          console.log('[AI Chat] Suggestions:', response.suggestions);
+          
         }
       } catch (error: any) {
         console.error('[AI Chat] Error:', error);

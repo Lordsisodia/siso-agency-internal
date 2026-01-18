@@ -16,7 +16,7 @@ import { motion, LayoutGroup } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { TaskDetailModal } from "@/domains/lifelock/components/TaskDetailModal";
+import { TaskDetailModal } from "@/domains/lifelock/_shared/components/ui/TaskDetailModal";
 import { TaskDetailSheet } from "@/domains/lifelock/_shared/components/ui/TaskDetailSheet";
 import { CustomCalendar } from "../../../_shared/components";
 import { useDeepWorkTasksSupabase, DeepWorkTask } from "@/domains/lifelock/1-daily/4-deep-work/domain/useDeepWorkTasksSupabase";

@@ -7,7 +7,7 @@ import {
   Star 
 } from 'lucide-react';
 import { useMainUserProject } from '@/domains/projects/hooks/useUserProjects';
-import { useRealTasks } from '@/domains/task-ui/hooks/useRealTasks';
+import { useRealTasks } from '@/domains/tasks/hooks/useRealTasks';
 
 export function StatsRow() {
   const { projectCount } = useMainUserProject();

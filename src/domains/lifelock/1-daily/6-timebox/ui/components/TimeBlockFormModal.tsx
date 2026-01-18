@@ -666,7 +666,7 @@ export const TimeBlockFormModal: React.FC<TimeBlockFormModalProps> = ({
                                 return;
                               }
                               const newEndTime = `${endHour.toString().padStart(2, '0')}:${endMin.toString().padStart(2, '0')}`;
-                              console.log('🕐 Quick duration change:', label, 'New end time:', newEndTime);
+                              
 
                               // Auto-save immediately for quick duration buttons
                               if (existingBlock && onUpdate) {

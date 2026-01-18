@@ -115,7 +115,7 @@ export const StatsSection: React.FC<StatsSectionProps> = ({
   const internalUserId = useSupabaseUserId(user?.id || null);
 
   // Debug logging
-  console.log('[StatsSection] Rendering with activeSubTab:', activeSubTab);
+  
 
   // Get active tab config based on prop
   const activeTabConfig = useMemo(
@@ -123,7 +123,7 @@ export const StatsSection: React.FC<StatsSectionProps> = ({
     [activeSubTab]
   );
 
-  console.log('[StatsSection] Active tab config:', activeTabConfig);
+  
 
   const ActiveIcon = activeTabConfig.icon;
 

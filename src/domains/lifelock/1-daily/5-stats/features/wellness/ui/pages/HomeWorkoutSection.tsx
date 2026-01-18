@@ -132,14 +132,14 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({ selected
     }
 
     try {
-      console.log('🏋️ [WORKOUT] Loading items for user:', internalUserId, 'date:', dateKey);
+      
       let items = await supabaseWorkoutService.getWorkoutItems(internalUserId, dateKey);
-      console.log('🏋️ [WORKOUT] Loaded items:', items);
+      
 
       if (items.length === 0) {
-        console.log('🏋️ [WORKOUT] No items found, creating defaults...');
+        
         items = await supabaseWorkoutService.createDefaultWorkoutItems(internalUserId, dateKey);
-        console.log('🏋️ [WORKOUT] Created default items:', items);
+        
       }
 
       setWorkoutItems(items.map(mapWorkoutRowToItem));
@@ -186,7 +186,7 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({ selected
   }, [internalUserId, selectedDate]);
 
   const updateItem = useCallback(async (id: string, updates: Partial<WorkoutItem>) => {
-    console.log('🏋️ [WORKOUT] Updating item:', id, 'updates:', updates);
+    
 
     if (!internalUserId) {
       console.warn('🏋️ [WORKOUT] No internalUserId - updating local state only');
@@ -199,18 +199,18 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({ selected
 
     // Don't save temp/local items to Supabase
     if (id.startsWith('temp-') || id.startsWith('local-')) {
-      console.log('🏋️ [WORKOUT] Skipping Supabase save for local item:', id);
+      
       return;
     }
 
     try {
-      console.log('🏋️ [WORKOUT] Saving to Supabase...');
+      
       const updated = await supabaseWorkoutService.updateWorkoutItem(id, {
         ...updates,
         user_id: internalUserId,
         workout_date: dateKey,
       });
-      console.log('🏋️ [WORKOUT] Successfully saved:', updated);
+      
       setWorkoutItems((prev) =>
         prev.map((item) => (item.id === id ? mapWorkoutRowToItem(updated) : item)),
       );

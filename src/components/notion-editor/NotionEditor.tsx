@@ -372,7 +372,7 @@ export const NotionEditor: React.FC<NotionEditorProps> = ({
 
   const handleTabIndentation = (reverse: boolean) => {
     // TODO: Implement list indentation logic for nested lists
-    console.log('Tab indentation:', reverse ? 'reverse' : 'forward');
+    
   };
 
   const handleBackspace = (e: React.KeyboardEvent) => {

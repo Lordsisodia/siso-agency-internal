@@ -6,7 +6,7 @@ export async function registerServiceWorker() {
       for (const registration of registrations) {
         await registration.unregister();
       }
-      console.log('Service Worker disabled for debugging');
+      
     } catch (error) {
       console.error('Service Worker cleanup failed:', error);
     }

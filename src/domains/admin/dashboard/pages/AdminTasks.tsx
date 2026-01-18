@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { PromptInputBox } from '@/components/ui/ai-prompt-box';
-import { AITaskChat } from '@/domains/task-ui/components/AITaskChat';
+import { AITaskChat } from '@/domains/tasks/components/AITaskChat';
 import { EnhancedTaskItem } from '@/domains/admin/dashboard/components/EnhancedTaskItem';
 import { AdminTaskDetailModal } from '@/domains/admin/dashboard/components/AdminTaskDetailModal';
 import { KanbanBoard } from '@/domains/admin/dashboard/components/KanbanBoard';
@@ -17,8 +17,8 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/componen
 import { supabase } from '@/services/integrations/supabase/client';
 import { useAuthSession } from '@/lib/hooks/auth/useAuthSession';
 import { useToast } from '@/components/ui/use-toast';
-import { useTasks } from '@/domains/task-ui/hooks/useTasks';
-import { useTaskOperations } from '@/domains/task-ui/hooks/useTaskOperations';
+import { useTasks } from '@/domains/tasks/hooks/useTasks';
+import { useTaskOperations } from '@/domains/tasks/hooks/useTaskOperations';
 import {
   Calendar,
   Clock,
@@ -121,7 +121,7 @@ const AdminTasks: React.FC = () => {
     localStorage.setItem('projectContexts', JSON.stringify(updatedContexts));
     
     // Send context to AI agent
-    console.log(`Updated ${projectKey} context:`, context);
+    
     // TODO: Integrate with AI service to update context
   };
 
@@ -247,16 +247,16 @@ const AdminTasks: React.FC = () => {
             return categoryMatch || titleMatch;
           });
           
-          console.log(`Project ${selectedFilter}: Found ${filteredTasks.length} tasks`);
+          
           if (filteredTasks.length === 0) {
-            console.log(`No tasks found for project: ${selectedFilter}`);
+            
           } else {
-            console.log(`Tasks for ${selectedFilter}:`, filteredTasks.map(t => t.title));
+            
           }
         } else {
           // Handle dynamic projects from database - no project_id exists, so return empty
           filteredTasks = [];
-          console.log(`Unknown project filter: ${selectedFilter}, returning empty array`);
+          
         }
       }
     }
@@ -423,7 +423,7 @@ const AdminTasks: React.FC = () => {
     // Determine new status based on current completed state
     const newStatus = task.completed ? 'pending' : 'completed';
     
-    console.log('Toggling task:', taskId, 'from completed:', task.completed, 'to status:', newStatus);
+    
     
     try {
       // Convert to database format for mutation
@@ -451,12 +451,12 @@ const AdminTasks: React.FC = () => {
 
   const toggleSubtask = (taskId: string, subtaskId: string) => {
     // TODO: Implement with React Query mutation
-    console.log('Toggle subtask:', taskId, subtaskId);
+    
   };
 
   const handleDateChange = (taskId: string, date: Date | undefined) => {
     // TODO: Implement with React Query mutation
-    console.log('Handle date change:', taskId, date);
+    
   };
 
   const handleToggleComplete = (taskId: string, e: React.MouseEvent) => {
@@ -531,7 +531,7 @@ const AdminTasks: React.FC = () => {
 
   const handleTaskModalSave = (updatedTask: Task) => {
     // TODO: Implement with React Query mutation
-    console.log('Handle task modal save:', updatedTask);
+    
     setIsTaskModalOpen(false);
     setSelectedTaskForModal(null);
   };
@@ -559,7 +559,7 @@ const AdminTasks: React.FC = () => {
         assigned_to: user?.id || null
       };
       
-      console.log('Creating task with data:', newTask);
+      
       await createTaskMutation.mutateAsync(newTask);
       toast({
         title: "Task created",

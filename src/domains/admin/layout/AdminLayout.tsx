@@ -15,9 +15,9 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   const location = useLocation();
 
   useEffect(() => {
-    console.log('[AdminLayout] rendering path:', location.pathname);
+    
     return () => {
-      console.log('[AdminLayout] unmounting path:', location.pathname);
+      
     };
   }, [location.pathname]);
 

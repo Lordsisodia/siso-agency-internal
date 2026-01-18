@@ -13,31 +13,31 @@ const Hero = () => {
   useEffect(() => {
     const idleCallback = window.requestIdleCallback || ((cb) => setTimeout(cb, 1));
     idleCallback(() => {
-      console.log('Hero component mounted');
+      
       setIsLoaded(true);
     });
 
     return () => {
-      console.log('Hero component unmounted');
+      
     };
   }, []);
 
   const handleResourceClick = (path: string) => {
-    console.log('Resource clicked:', path);
+    
     setOpen(true);
     navigate(path);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log('Search input changed:', e.target.value);
+    
   };
 
   const handleInputSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('Search submitted');
+    
     const message = e.currentTarget.querySelector('input')?.value;
     if (message?.trim()) {
-      console.log('Navigating to auth with query:', message);
+      
       navigate('/auth', { state: { initialQuery: message } });
     }
   };
@@ -50,7 +50,7 @@ const Hero = () => {
     "Latest AI trends for agencies",
   ];
 
-  console.log('Hero rendering, isLoaded:', isLoaded);
+  
 
   const resourceGuideItems = [
     {

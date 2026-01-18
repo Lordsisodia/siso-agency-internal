@@ -9,4 +9,4 @@
 // This redirect maintains backward compatibility while eliminating duplication.
 // Phase 2 of consolidation - converting exact binary duplicates to redirects.
 
-export { SubtaskItem } from '@/domains/task-ui/management/SubtaskItem';
+export { SubtaskItem } from '@/domains/tasks/management/SubtaskItem';

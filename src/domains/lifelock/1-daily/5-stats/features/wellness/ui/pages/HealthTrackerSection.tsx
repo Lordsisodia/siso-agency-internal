@@ -82,7 +82,7 @@ export const HealthTrackerSection: React.FC<HealthTrackerSectionProps> = ({
   const internalUserId = useSupabaseUserId(user?.id || null);
 
   // Debug logging
-  console.log('[HealthTrackerSection] Rendering with activeSubTab:', activeSubTab);
+  
 
   // Get active tab config based on prop
   const activeTabConfig = useMemo(
@@ -90,7 +90,7 @@ export const HealthTrackerSection: React.FC<HealthTrackerSectionProps> = ({
     [activeSubTab]
   );
 
-  console.log('[HealthTrackerSection] Active tab config:', activeTabConfig);
+  
 
   const ActiveIcon = activeTabConfig.icon;
 

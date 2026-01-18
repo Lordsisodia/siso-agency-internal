@@ -38,7 +38,7 @@ export class NeonClient {
       });
       
       await this.client.connect();
-      console.log('✅ [NEON CLIENT] Connected to database');
+      
       
     } catch (error) {
       console.error('❌ [NEON CLIENT] Connection failed:', error);
@@ -70,7 +70,7 @@ export class NeonClient {
     if (this.client) {
       await this.client.end();
       this.client = null;
-      console.log('🔌 [NEON CLIENT] Disconnected');
+      
     }
   }
   
@@ -99,7 +99,7 @@ export class NeonClient {
     }
     
     const branch = await response.json();
-    console.log(`🌿 [NEON CLIENT] Created branch: ${branchName}`);
+    
     return branch.id;
   }
   
@@ -109,7 +109,7 @@ export class NeonClient {
   async testConnection(): Promise<boolean> {
     try {
       const result = await this.query('SELECT NOW() as current_time, version() as postgres_version');
-      console.log('✅ [NEON CLIENT] Connection test successful:', result[0]);
+      
       return true;
     } catch (error) {
       console.error('❌ [NEON CLIENT] Connection test failed:', error);

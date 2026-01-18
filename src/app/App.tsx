@@ -13,18 +13,18 @@ import { AdminAutoLogin } from '@/domains/admin/auth/AdminAutoLogin';
 import { AdminLayout } from '@/domains/admin/layout/AdminLayout';
 
 // Lazy load all other pages for super-fast initial load
-// const XPStorePage = lazy(() => import('@/domains/xp-store/1-storefront/ui/pages/XPStorePage')); // TODO: Needs to be created
-// const XPDashboardPage = lazy(() => import('@/components/ui/dashboard/pages/XPDashboardPage')); // TODO: Needs to be created
+const XPStorePage = lazy(() => import('@/domains/xp-store/1-storefront/ui/pages/XPStorePage'));
+const XPDashboardPage = lazy(() => import('@/components/ui/dashboard/pages/XPDashboardPage'));
 
 // Admin pages - heavy bundle, lazy load all
 const AdminDashboard = lazy(() => import('@/domains/admin/pages/AdminDashboard'));
 const AdminTasks = lazy(() => import('@/domains/admin/pages/AdminTasks'));
 const AdminFeedback = lazy(() => import('@/domains/admin/pages/AdminFeedback'));
-// const AdminLightWork = lazy(() => import('@/domains/task-ui/components/shared-tabs/LightWorkTab.tsx').then(m => ({ default: m.LightWorkTab })));
-// const AdminDeepWork = lazy(() => import('@/domains/task-ui/components/shared-tabs/deepWorkTab.tsx').then(m => ({ default: m.DeepWorkTab })));
-// const AdminLifeLock = lazy(() => import('@/domains/lifelock/_shared/shell/AdminLifeLock'));
-// const AdminLifeLockDay = lazy(() => import('@/domains/lifelock/_shared/shell/AdminLifeLockDay'));
-// const AdminLifeLockOverview = lazy(() => import('@/domains/admin/dashboard/pages/AdminLifeLockOverview'));
+const AdminLightWork = lazy(() => import('@/domains/task-ui/components/LightWorkTab').then(m => ({ default: m.LightWorkTab })));
+const AdminDeepWork = lazy(() => import('@/domains/task-ui/components/DeepWorkTab').then(m => ({ default: m.DeepWorkTab })));
+const AdminLifeLock = lazy(() => import('@/domains/admin/dashboard/pages/AdminLifeLock'));
+const AdminLifeLockDay = lazy(() => import('@/domains/admin/dashboard/pages/AdminLifeLockDay'));
+const AdminLifeLockOverview = lazy(() => import('@/domains/admin/dashboard/pages/AdminLifeLockOverview'));
 const WeeklyView = lazy(() => import('@/domains/lifelock/2-weekly/WeeklyView').then(m => ({ default: m.WeeklyView })));
 const MonthlyView = lazy(() => import('@/domains/lifelock/3-monthly/MonthlyView'));
 const YearlyView = lazy(() => import('@/domains/lifelock/4-yearly/YearlyView'));
@@ -32,12 +32,12 @@ const AdminIndustriesViewLazy = lazy(() => import('@/domains/admin/industries/Ad
 const AdminSettings = lazy(() => import('@/domains/admin/pages/AdminSettings'));
 const AdminClients = lazy(() => import('@/domains/admin/pages/AdminClients'));
 const AdminPartnershipDashboard = lazy(() => import('@/domains/admin/pages/AdminPartnershipDashboard'));
-const TeamMemberTasksPage = lazy(() => import('@/domains/task-ui/components/TeamMemberTasksView').then(m => ({ default: m.TeamMemberTasksView })));
+const TeamMemberTasksPage = lazy(() => import('@/domains/tasks/components/TeamMemberTasksView').then(m => ({ default: m.TeamMemberTasksView })));
 const AIAssistantPage = lazy(() => import('@/domains/admin/ai-assistant/ui/pages/AIAssistantPage').then(m => ({ default: m.AIAssistantPage })));
 
-// Resources pages - TODO: Create these pages
-// const DocumentLibraryPage = lazy(() => import('@/domains/resources/DocumentLibraryPage'));
-// const ResourcesPage = lazy(() => import('@/domains/resources/ResourcesPage'));
+// Resources pages
+const DocumentLibraryPage = lazy(() => import('@/domains/resources/DocumentLibraryPage'));
+const ResourcesPage = lazy(() => import('@/domains/resources/ResourcesPage'));
 
 // Automation & Dev Tools removed for core app
 
@@ -129,9 +129,9 @@ function App() {
             <Route path="/xp-store/:section" element={<ClerkAuthGuard><XPStorePage /></ClerkAuthGuard>} />
             <Route path="/xp-dashboard" element={<ClerkAuthGuard><XPDashboardPage /></ClerkAuthGuard>} />
 
-            {/* Resources - TODO: Create these pages */}
-            {/* <Route path="/resources" element={<AuthGuard><ResourcesPage /></AuthGuard>} /> */}
-            {/* <Route path="/resources/documents" element={<AuthGuard><DocumentLibraryPage /></AuthGuard>} /> */}
+            {/* Resources */}
+            <Route path="/resources" element={<AuthGuard><ResourcesPage /></AuthGuard>} />
+            <Route path="/resources/documents" element={<AuthGuard><DocumentLibraryPage /></AuthGuard>} />
           </Routes>
         </Suspense>
       </ErrorBoundary>

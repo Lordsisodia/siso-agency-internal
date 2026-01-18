@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { TaskDetailsSheet } from '@/domains/projects/TaskDetailsSheet';
+import { TaskDetailsSheet } from '@/domains/projects/components/TaskDetailsSheet';
 import { useToast } from '@/lib/hooks/ui/useToast';
 import { supabase } from '@/services/integrations/supabase/client';
 import { useAuthSession } from '@/lib/hooks/auth/useAuthSession';
@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { UiTask } from '@/domains/projects/ActiveTasksView';
+import { UiTask } from '@/domains/projects/pages/ActiveTasksView';
 
 interface MobileTasksViewProps {
   tasks: UiTask[];

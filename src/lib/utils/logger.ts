@@ -14,7 +14,7 @@ class SmartLogger {
    */
   debug(message: string, ...args: any[]) {
     if (this.isDevelopment) {
-      console.log(`🔍 ${message}`, ...args);
+      
     }
   }
 
@@ -23,7 +23,7 @@ class SmartLogger {
    */
   info(message: string, ...args: any[]) {
     if (this.isDevelopment) {
-      console.log(`ℹ️ ${message}`, ...args);
+      
     }
   }
 
@@ -72,7 +72,7 @@ class SmartLogger {
    */
   success(message: string, ...args: any[]) {
     if (this.isDevelopment) {
-      console.log(`✅ ${message}`, ...args);
+      
     }
   }
 }

@@ -13,12 +13,7 @@ export default function AdminDailyPlanner() {
 
   React.useEffect(() => {
     if (!loading) {
-      console.log('Authentication Status:', {
-        isAuthenticated: !!user,
-        isAdmin: isAdmin,
-        userId: user?.id
-      });
-
+      
       if (!user) {
         toast({
           variant: "destructive",

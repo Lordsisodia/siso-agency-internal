@@ -33,7 +33,7 @@ export function usePhotoNutrition(userId: string, date: Date) {
       setLoading(true);
       setError(null);
 
-      console.log('📸 [PHOTO NUTRITION] Loading photos for:', { userId, dateKey });
+      
 
       const { data, error } = await supabase
         .from('nutrition_entries')
@@ -77,7 +77,7 @@ export function usePhotoNutrition(userId: string, date: Date) {
 
       setTotals(dailyTotals);
 
-      console.log('✅ [PHOTO NUTRITION] Loaded photos:', mappedPhotos.length);
+      
 
     } catch (err) {
       console.error('❌ [PHOTO NUTRITION] Error loading photos:', err);
@@ -95,7 +95,7 @@ export function usePhotoNutrition(userId: string, date: Date) {
       setUploading(true);
       setError(null);
 
-      console.log('📸 [PHOTO NUTRITION] Starting analysis:', file.name);
+      
 
       // Step 1: Convert photo to base64 for direct API call
       const base64 = await new Promise<string>((resolve, reject) => {
@@ -105,7 +105,7 @@ export function usePhotoNutrition(userId: string, date: Date) {
         reader.readAsDataURL(file);
       });
 
-      console.log('✅ [PHOTO NUTRITION] Photo converted to base64');
+      
 
       // Step 2: Analyze with AI Vision (no storage needed)
       const analysisResult = await visionApiService.analyzeFoodPhoto(base64);
@@ -115,7 +115,7 @@ export function usePhotoNutrition(userId: string, date: Date) {
       }
 
       const { calories, protein, carbs, fats, description } = analysisResult.macros;
-      console.log('✅ [PHOTO NUTRITION] AI analysis complete:', analysisResult.macros);
+      
 
       // Step 3: Save only the data to database (no photo URL)
       const { error: dbError } = await supabase
@@ -138,7 +138,7 @@ export function usePhotoNutrition(userId: string, date: Date) {
 
       if (dbError) throw dbError;
 
-      console.log('✅ [PHOTO NUTRITION] Saved to database');
+      
 
       // Reload to update UI
       await loadPhotos();
@@ -159,7 +159,7 @@ export function usePhotoNutrition(userId: string, date: Date) {
     try {
       setError(null);
 
-      console.log('🗑️ [PHOTO NUTRITION] Deleting meal entry:', photoId);
+      
 
       // Delete from database only (no photos stored)
       const { error: dbError } = await supabase
@@ -170,7 +170,7 @@ export function usePhotoNutrition(userId: string, date: Date) {
 
       if (dbError) throw dbError;
 
-      console.log('✅ [PHOTO NUTRITION] Meal deleted');
+      
 
       // Reload to update UI
       await loadPhotos();

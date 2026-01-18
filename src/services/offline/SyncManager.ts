@@ -18,7 +18,7 @@ export class SyncManager {
       const queue = await offlineStorageService.getSyncQueue();
       const userQueue = queue.filter(op => op.userId === userId);
       
-      console.log(`[SyncManager] Processing ${userQueue.length} operations for user ${userId}`);
+      
       
       for (const operation of userQueue) {
         try {
@@ -127,10 +127,10 @@ export class SyncManager {
     const remoteTime = new Date(remoteData.updated_at || remoteData.updatedAt).getTime();
     
     if (localTime > remoteTime) {
-      console.log('[SyncManager] Using local version due to more recent timestamp');
+      
       return localData;
     } else {
-      console.log('[SyncManager] Using remote version due to more recent timestamp');
+      
       return remoteData;
     }
   }
@@ -144,7 +144,7 @@ export class SyncManager {
       try {
         const registration = await navigator.serviceWorker.ready;
         await registration.sync.register('background-sync');
-        console.log('[SyncManager] Background sync scheduled');
+        
       } catch (error) {
         console.error('[SyncManager] Failed to schedule background sync:', error);
       }
@@ -153,14 +153,14 @@ export class SyncManager {
 
   async forceSyncNow(userId: string): Promise<boolean> {
     if (!this.detectOnlineStatus()) {
-      console.log('[SyncManager] Cannot sync: offline');
+      
       return false;
     }
 
     const result = await this.processQueue(userId);
     
     if (result.success) {
-      console.log('[SyncManager] Sync completed successfully');
+      
       return true;
     } else {
       console.error('[SyncManager] Sync failed:', result.errors);

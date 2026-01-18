@@ -67,7 +67,7 @@ export const SimpleThoughtDumpPage: React.FC<SimpleThoughtDumpPageProps> = ({
   // Cleanup: Stop listening and TTS when component unmounts
   useEffect(() => {
     return () => {
-      console.log('🧹 [CLEANUP] SimpleThoughtDumpPage unmounting - stopping voice services');
+      
       if (isListening) {
         voiceService.stopListening();
       }
@@ -83,7 +83,7 @@ export const SimpleThoughtDumpPage: React.FC<SimpleThoughtDumpPageProps> = ({
 
     // Stop any currently playing TTS before processing new message
     if (isSpeaking) {
-      console.log('🛑 [AI RESPONSE] Stopping previous TTS before new response');
+      
       voiceService.stopTTS();
       setIsSpeaking(false);
     }
@@ -125,12 +125,12 @@ Example: "It's Monday morning - perfect time for that complex task!"`;
         const recentConversations = await chatMemoryService.getRecentConversations(internalUserId, 7);
         if (recentConversations.length > 0) {
           historicalContext = `\n\nRecent conversation history (last 7 days):\n${recentConversations.map((conv, i) => `${i + 1}. ${conv}`).join('\n')}\n\nUse this context to personalize responses and remember user preferences.`;
-          console.log('🧠 [AI MEMORY] Loaded context from', recentConversations.length, 'past conversations');
+          
         }
       }
 
-      console.log('🌍 [CONTEXT] Time:', timeOfDay, '| Day:', dayNames[day], '| Peak focus:', peakFocusTime);
-      console.log('📊 [STATE] Conversation state:', conversationState);
+      
+      
 
       // ===== CONVERSATION STATE CONTEXT =====
       const stateContext = `\n\nCurrent conversation state: ${conversationState}
@@ -170,7 +170,7 @@ Progress to next state naturally based on conversation.`;
       const assistantMessage = response.choices[0]?.message;
 
       if (assistantMessage.tool_calls?.length > 0) {
-        console.log('🤖 [AI] Calling tools:', assistantMessage.tool_calls.map(tc => tc.function.name));
+        
 
         const toolResults = await Promise.all(
           assistantMessage.tool_calls.map(async (toolCall) => {
@@ -180,7 +180,7 @@ Progress to next state naturally based on conversation.`;
             // Track energy level when saved
             if (toolCall.function.name === 'save_energy_level' && result.success) {
               setUserEnergy(result.energyLevel);
-              console.log('⚡ [ENERGY] Saved:', result.energyLevel, '/10');
+              
             }
 
             return {
@@ -216,22 +216,22 @@ Progress to next state naturally based on conversation.`;
 
         if (conversationState === 'greeting' && messages.length >= 1) {
           setConversationState('energy_check');
-          console.log('📊 [STATE] Transition: greeting → energy_check');
+          
         } else if (conversationState === 'energy_check' && toolNames.includes('save_energy_level')) {
           setConversationState('deadline_check');
-          console.log('📊 [STATE] Transition: energy_check → deadline_check');
+          
         } else if (conversationState === 'deadline_check' && toolNames.includes('check_upcoming_deadlines')) {
           setConversationState('gathering');
-          console.log('📊 [STATE] Transition: deadline_check → gathering');
+          
         } else if (conversationState === 'gathering' && toolNames.includes('get_todays_tasks')) {
           setConversationState('prioritizing');
-          console.log('📊 [STATE] Transition: gathering → prioritizing');
+          
         } else if (conversationState === 'prioritizing' && messages.length >= 4) {
           setConversationState('scheduling');
-          console.log('📊 [STATE] Transition: prioritizing → scheduling');
+          
         } else if (conversationState === 'scheduling' && toolNames.includes('schedule_task_to_timebox')) {
           setConversationState('reviewing');
-          console.log('📊 [STATE] Transition: scheduling → reviewing');
+          
         }
 
         // Stop any previous TTS before starting new one (prevent simultaneous playback)
@@ -286,17 +286,17 @@ Progress to next state naturally based on conversation.`;
   };
 
   const handleMicToggle = async () => {
-    console.log('🎤 [UI] handleMicToggle called, current isListening:', isListening);
+    
 
     if (isListening) {
       // Stop continuous listening
-      console.log('🛑 [UI] User clicked stop - stopping listening');
+      
       voiceService.stopListening();
       setIsListening(false);
       setTranscript('');
     } else {
       // Start continuous real-time transcription
-      console.log('▶️ [UI] User clicked start - starting listening');
+      
       setTranscript('');
       setIsTranscribing(false);
 
@@ -307,11 +307,11 @@ Progress to next state naturally based on conversation.`;
         await voiceService.startListening(
           (text, isFinal) => {
             // Real-time: Show words as they appear (interim results)
-            console.log(`📝 [UI UPDATE] ${isFinal ? 'FINAL' : 'interim'} transcript:`, text);
+            
 
             // VOICE INTERRUPTION: If user starts speaking while AI is talking, stop AI!
             if (!isFinal && text.trim() && isSpeaking) {
-              console.log('🛑 [INTERRUPTION] User speaking - stopping AI voice');
+              
               voiceService.stopTTS();
               setIsSpeaking(false);
             }
@@ -328,7 +328,7 @@ Progress to next state naturally based on conversation.`;
 
             // When sentence is finalized, send to AI and keep listening
             if (isFinal && text.trim()) {
-              console.log('🎤 [CONVERSATION] Sentence finalized:', text);
+              
 
               // ===== BACKCHANNELING FILTER =====
               const FILLER_WORDS = ['um', 'uh', 'yeah', 'okay', 'hmm', 'uh-huh', 'mm-hmm', 'mhmm'];
@@ -336,7 +336,7 @@ Progress to next state naturally based on conversation.`;
 
               // Filter pure filler words
               if (FILLER_WORDS.includes(cleanText)) {
-                console.log('🗑️ [FILTER] Ignored filler word:', text);
+                
                 setTranscript('');
                 return;
               }

@@ -12,7 +12,7 @@
  */
 
 import { useState, useCallback } from 'react';
-import { personalTaskService } from '@/domains/task-ui/services/workTypeApiClient';
+import { personalTaskService } from '@/domains/tasks/services/workTypeApiClient';
 import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 
 export interface UseTaskActionsReturn {

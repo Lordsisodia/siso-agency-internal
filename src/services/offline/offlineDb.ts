@@ -751,7 +751,7 @@ class OfflineDatabase {
       await tx.done;
     }
 
-    console.log('🗑️ Offline database cleared');
+    
   }
 
   async getStats(): Promise<{

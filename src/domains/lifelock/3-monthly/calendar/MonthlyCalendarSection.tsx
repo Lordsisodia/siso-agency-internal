@@ -85,7 +85,7 @@ export const MonthlyCalendarSection: React.FC<MonthlyCalendarSectionProps> = ({ 
               <CalendarGrid
                 days={days}
                 onDayClick={(date) => {
-                  console.log('Navigate to day:', format(date, 'yyyy-MM-dd'));
+                  
                 }}
               />
             </CardContent>

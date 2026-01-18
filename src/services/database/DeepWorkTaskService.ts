@@ -22,7 +22,7 @@
  */
 
 import { Task } from '@/domains/lifelock/1-daily/2-tasks/components-from-root/TaskCard';
-import { DeepWorkOrchestrator } from '@/domains/task-ui/services/orchestrators/DeepWorkOrchestrator';
+import { DeepWorkOrchestrator } from '@/domains/tasks/services/orchestrators/DeepWorkOrchestrator';
 
 /**
  * Deep Work Task Service - Modernized with micro-decomposed architecture.
@@ -36,7 +36,7 @@ export class DeepWorkTaskService {
 
   constructor() {
     this.orchestrator = new DeepWorkOrchestrator();
-    console.log('✨ DeepWorkTaskService upgraded to micro-decomposed architecture');
+    
   }
 
   /**

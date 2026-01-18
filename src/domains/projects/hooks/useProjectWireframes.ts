@@ -319,7 +319,7 @@ export function useProjectWireframes() {
   const loadWireframes = useCallback(() => {
     if (!isMountedRef.current) return;
     
-    console.log("Loading hardcoded wireframe data");
+    
     setWireframes(SAMPLE_WIREFRAMES);
     setConnections(SAMPLE_CONNECTIONS);
     

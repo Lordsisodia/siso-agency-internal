@@ -109,7 +109,7 @@ export const LegacyAI: React.FC<LegacyAIProps> = ({ className }) => {
           m.id === messageId ? { ...m, userFeedback: feedback } : m
         ));
         
-        console.log(`Legacy AI: Feedback '${feedback}' recorded for message about "${userMessage.content}"`);
+        
       }
     } catch (error) {
       console.error('Failed to record feedback:', error);

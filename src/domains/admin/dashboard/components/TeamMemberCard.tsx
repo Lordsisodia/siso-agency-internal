@@ -3,5 +3,5 @@
 // Canonical: src/domains/tasks/components/TeamMemberCard.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/task-ui/components/TeamMemberCard';
-export { default } from '@/domains/task-ui/components/TeamMemberCard';
+export * from '@/domains/tasks/components/TeamMemberCard';
+export { default } from '@/domains/tasks/components/TeamMemberCard';

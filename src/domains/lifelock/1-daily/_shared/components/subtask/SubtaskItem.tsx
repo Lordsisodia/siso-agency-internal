@@ -83,7 +83,7 @@ export const SubtaskItem: React.FC<SubtaskItemProps> = ({
           onToggleCompletion(taskId, subtask.id);
         }}
         onTouchStart={(e) => {
-          console.log('👆 [SubtaskItem] Checkbox touch started! (stopPropagation called)');
+          
           e.stopPropagation();
         }}
         className="flex-shrink-0 hover:scale-105 active:scale-95 transition-all duration-150 min-h-[32px] min-w-[32px] flex items-center justify-center mt-0.5 hover:bg-gray-600/30 active:bg-gray-500/40 rounded-md touch-manipulation"

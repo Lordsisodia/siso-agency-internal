@@ -3,5 +3,5 @@
 // Canonical: src/domains/tasks/components/KanbanBoard.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/task-ui/components/KanbanBoard';
-export { default } from '@/domains/task-ui/components/KanbanBoard';
+export * from '@/domains/tasks/components/KanbanBoard';
+export { default } from '@/domains/tasks/components/KanbanBoard';

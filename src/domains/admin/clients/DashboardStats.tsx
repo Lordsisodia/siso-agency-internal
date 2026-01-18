@@ -10,7 +10,7 @@ interface DashboardStatsProps {
 
 export function DashboardStats({ totalClients, totalProjectValue }: DashboardStatsProps) {
   // Debug log to see what values we're getting
-  console.log('DashboardStats received:', { totalClients, totalProjectValue });
+  
 
   const stats = [
     {

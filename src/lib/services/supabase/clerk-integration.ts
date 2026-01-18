@@ -26,7 +26,7 @@ export function useSupabaseUserId(clerkUserId: string | null): string | null {
     const fetchInternalUserId = async () => {
       // If no Clerk user, use public user ID for demo mode
       if (!clerkUserId) {
-        console.log('🔓 Using PUBLIC_USER_ID for demo mode:', PUBLIC_USER_ID);
+        
         setInternalUserId(PUBLIC_USER_ID);
         setIsLoaded(true);
         return;

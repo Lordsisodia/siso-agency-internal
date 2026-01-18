@@ -85,7 +85,7 @@ export function useAutoTimeblocks(options: UseAutoTimeblocksOptions): void {
         isCreatingRef.current = true;
         const dateKey = format(selectedDate, 'yyyy-MM-dd');
 
-        console.log('🤖 Auto-creating timeboxes for wake-up time:', wakeUpTime);
+        
 
         const result = await createOrUpdateAutoTimeboxes(wakeUpTime, userId, dateKey);
 

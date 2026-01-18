@@ -35,7 +35,7 @@ export const AdminSidebarNavigation = ({ collapsed, onItemClick, visible }: Navi
   
   // Log current pathname for debugging
   useEffect(() => {
-    console.log('Admin - Current pathname:', location.pathname);
+    
   }, [location.pathname]);
 
   if (!visible) return null;

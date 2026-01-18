@@ -97,12 +97,12 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
 
     try {
       setError(null);
-      console.log('📊 Loading Deep Work tasks (offline-first)...');
+      
 
       const cachedTasks = await loadDeepWorkTasksFromCache(dateString);
       if (cachedTasks.length > 0) {
         const statusLabel = isBrowserOnline() ? 'online' : 'offline';
-        console.log(`⚡ INSTANT: Loaded ${cachedTasks.length} tasks from IndexedDB (${statusLabel})`);
+        
         setTasks(cachedTasks);
       }
 
@@ -128,7 +128,7 @@ export function useDeepWorkTasksSupabase({ selectedDate }: UseDeepWorkTasksProps
       }
 
       const syncedTasks = await cacheSupabaseDeepWorkTasks(data ?? []);
-      console.log(`✅ Synced ${syncedTasks.length} Deep Work tasks from Supabase`);
+      
       setTasks(syncedTasks);
     } catch (loadError) {
       console.error('❌ Error loading Deep Work tasks:', loadError);

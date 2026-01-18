@@ -3,5 +3,5 @@
 // Canonical: src/domains/tasks/components/AdminTaskDetailModal.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/task-ui/components/AdminTaskDetailModal';
-export { default } from '@/domains/task-ui/components/AdminTaskDetailModal';
+export * from '@/domains/tasks/components/AdminTaskDetailModal';
+export { default } from '@/domains/tasks/components/AdminTaskDetailModal';

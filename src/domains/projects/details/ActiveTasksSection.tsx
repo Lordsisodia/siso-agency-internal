@@ -1,6 +1,6 @@
 
 import { Card } from "@/components/ui/card";
-import { ActiveTasksView } from '@/domains/projects/ActiveTasksView';
+import { ActiveTasksView } from '@/domains/projects/pages/ActiveTasksView';
 
 export function ActiveTasksSection() {
   return (

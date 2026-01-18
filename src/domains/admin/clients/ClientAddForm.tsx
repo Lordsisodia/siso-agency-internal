@@ -63,7 +63,7 @@ export function ClientAddForm({ open, onOpenChange, onSuccess }: ClientAddFormPr
       const projectName = values.project_name?.trim();
       const websiteUrl = values.website_url?.trim();
 
-      console.log('Submitting client form with values:', values);
+      
       
       const { data, error } = await supabase
         .from('client_onboarding')
@@ -85,7 +85,7 @@ export function ClientAddForm({ open, onOpenChange, onSuccess }: ClientAddFormPr
         throw error;
       }
       
-      console.log('Client added successfully:', data);
+      
       
       toast({
         title: 'Client added successfully',

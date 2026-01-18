@@ -43,7 +43,7 @@ function UserSyncComponent() {
         if ('indexedDB' in window) {
           const db = await window.indexedDB.open('SISOOfflineDB', 1);
           // Store locally - this always works
-          console.log('✅ [CLERK-PROVIDER] User stored locally:', email);
+          
         }
 
         // Try to sync to Supabase (if online)
@@ -53,14 +53,14 @@ function UserSyncComponent() {
             .upsert(userData, { onConflict: 'supabase_id' });  // Match on supabase_id, not id!
 
           if (error) {
-            console.log('⚠️ [CLERK-PROVIDER] Supabase sync failed:', error.message);
+            
           } else {
-            console.log('✅ [CLERK-PROVIDER] User auto-synced to Supabase');
+            
           }
         }
 
         if (isMounted) {
-          console.log('✅ [CLERK-PROVIDER] User authenticated:', email);
+          
         }
       } catch (error) {
         if (isMounted) {

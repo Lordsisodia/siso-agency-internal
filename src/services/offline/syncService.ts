@@ -304,14 +304,14 @@ export class SyncService {
   // --- Event handlers ------------------------------------------------------
 
   private handleOnline = () => {
-    console.log('[SyncService] Network restored, kicking sync');
+    
     this.isOnline = true;
     void this.emitStatus({ isOnline: true });
     void this.syncAll({ force: true });
   };
 
   private handleOffline = () => {
-    console.log('[SyncService] Network lost, operating offline');
+    
     this.isOnline = false;
     this.retryAttempts = 0;
     void this.emitStatus({ isOnline: false });

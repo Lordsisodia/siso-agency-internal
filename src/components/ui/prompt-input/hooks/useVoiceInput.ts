@@ -45,12 +45,7 @@ export const useVoiceInput = (): UseVoiceInputReturn => {
 
       voiceService.startListening(
         (currentTranscript, isFinal) => {
-          console.log('📝 [VOICE INPUT] Transcript update:', { 
-            text: currentTranscript, 
-            isFinal, 
-            length: currentTranscript.length 
-          });
-          
+                    
           setTranscript(currentTranscript);
           
           if (isFinal && currentTranscript.trim() && !hasResolved) {

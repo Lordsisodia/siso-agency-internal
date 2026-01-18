@@ -79,10 +79,10 @@ export const GamificationDashboard: React.FC<GamificationDashboardProps> = ({
   const [storeManagementOpen, setStoreManagementOpen] = useState(false);
 
   const fetchAnalytics = async (showRefreshLoading = false) => {
-    console.log('fetchAnalytics called, user:', user?.id);
+    
 
     if (!user?.id) {
-      console.log('No user ID, skipping fetch');
+      
       return;
     }
 
@@ -94,18 +94,18 @@ export const GamificationDashboard: React.FC<GamificationDashboardProps> = ({
       }
       setError(null);
 
-      console.log('Calling xpAnalyticsService.getAnalytics...');
+      
       const startTime = Date.now();
 
       const data = await xpAnalyticsService.getAnalytics(user.id);
 
-      console.log('Analytics data loaded in ' + (Date.now() - startTime) + 'ms:', data);
+      
       setAnalytics(data);
     } catch (err) {
       console.error('Error fetching XP analytics:', err);
       setError('Failed to load analytics data: ' + (err as Error).message);
     } finally {
-      console.log('Setting loading to false');
+      
       setLoading(false);
       setRefreshing(false);
     }
@@ -131,7 +131,7 @@ export const GamificationDashboard: React.FC<GamificationDashboardProps> = ({
 
   // Purchase handler for store
   const handlePurchase = (rewardId: string) => {
-    console.log('Purchase requested:', rewardId);
+    
     // TODO: Implement purchase flow
   };
 

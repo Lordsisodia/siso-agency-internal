@@ -435,18 +435,18 @@ export class GamificationService {
           // Supabase is ahead - adopt remote data
           localStorage.setItem(this.STORAGE_KEY, JSON.stringify(supabaseProgress));
           this.notifyProgressUpdate(supabaseProgress);
-          console.log('✅ Loaded XP progress from Supabase');
+          
         } else {
           // Local progress is more up-to-date - keep it and push to Supabase
           localStorage.setItem(this.STORAGE_KEY, JSON.stringify(existingProgress));
           this.notifyProgressUpdate(existingProgress);
           scheduleSyncToSupabase(userId, existingProgress, 0);
-          console.log('🔄 Preserved newer local XP progress and synced to Supabase');
+          
         }
       } else {
         // No Supabase data - sync current localStorage data up
         await scheduleSyncToSupabase(userId, existingProgress, 0); // Immediate sync
-        console.log('✅ Synced local XP progress to Supabase');
+        
       }
     } catch (error) {
       console.error('Error loading XP from Supabase:', error);

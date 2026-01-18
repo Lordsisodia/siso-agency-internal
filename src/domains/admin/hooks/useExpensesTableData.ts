@@ -9,7 +9,7 @@ export function useExpensesTableData(expenses: FinancialTransaction[] = []) {
   
   // Log expenses received for debugging
   useEffect(() => {
-    console.log(`useExpensesTableData received ${expenses.length} expenses`);
+    
   }, [expenses]);
   
   // Filter expenses based on search query and category filter

@@ -61,7 +61,7 @@ const calculateCost = (model: string, inputTokens: number, outputTokens: number,
 // Get real usage statistics from Claude Code session files
 const getClaudeCodeUsageStats = async (cmd: string, args?: any): Promise<any> => {
   try {
-    console.log('🚀 Connecting to Claude Code usage API for real data...');
+    
     // Try to connect to local Claude Code usage API server
     let endpoint = createApiUrl('/usage/stats');
     
@@ -98,9 +98,9 @@ const getClaudeCodeUsageStats = async (cmd: string, args?: any): Promise<any> =>
     
   } catch (error) {
     console.warn('❌ Failed to connect to Claude Code usage API:', error.message);
-    console.log('📊 To enable real Claude Code usage statistics:');
-    console.log('1. Run: scripts/claude/start-claude-usage-api.sh');
-    console.log('2. Refresh this page');
+    
+    
+    
     console.warn('⚠️ Falling back to localStorage tracking (limited data)');
     
     // Fallback to localStorage tracking if Claude Code API not accessible
@@ -274,7 +274,7 @@ const invoke = async <T>(cmd: string, args?: any): Promise<T> => {
       try {
         const { projectPath, prompt, model } = args || {};
         
-        console.log(`Connecting to Claudia for ${cmd}:`, { projectPath, prompt, model, args });
+        
         
         // Different endpoints for different commands
         const endpoint = '/api/execute';
@@ -957,7 +957,7 @@ export const api = {
   async getClaudeSettings(): Promise<ClaudeSettings> {
     try {
       const result = await invoke<{ data: ClaudeSettings }>("get_claude_settings");
-      console.log("Raw result from get_claude_settings:", result);
+      
       
       // The Rust backend returns ClaudeSettings { data: ... }
       // We need to extract the data field
@@ -2201,9 +2201,9 @@ export const api = {
    */
   async mcpList(): Promise<MCPServer[]> {
     try {
-      console.log("API: Calling mcp_list...");
+      
       const result = await invoke<MCPServer[]>("mcp_list");
-      console.log("API: mcp_list returned:", result);
+      
       return result;
     } catch (error) {
       console.error("API: Failed to list MCP servers:", error);
@@ -2663,7 +2663,7 @@ export const api = {
       // Create the full SuperClaude command
       const superClaudePrompt = `/${command} ${commandFlags.join(' ')}`.trim();
       
-      console.log(`Executing SuperClaude command: ${superClaudePrompt}`);
+      
       
       // Execute through existing Claude Code integration
       return await invoke<string>("execute_claude_code", {
@@ -2690,7 +2690,7 @@ export const api = {
     model?: string
   ): Promise<string[]> {
     try {
-      console.log(`Executing SuperClaude workflow: ${workflowId}`);
+      
       
       // Import workflow definitions
       const { SUPERCLAUDE_WORKFLOWS } = await import('@/types/superclaude');
@@ -2705,7 +2705,7 @@ export const api = {
       // Execute workflow steps in sequence
       for (const step of workflow.steps.sort((a, b) => a.order - b.order)) {
         try {
-          console.log(`Executing workflow step ${step.order}: ${step.description}`);
+          
           
           const result = await this.executeSuperClaudeCommand(
             step.command,

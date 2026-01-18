@@ -41,7 +41,7 @@ export const PartnershipSidebarNavigation = ({ collapsed, onItemClick, visible, 
   
   // Log current pathname for debugging
   useEffect(() => {
-    console.log('Partnership - Current pathname:', location.pathname);
+    
   }, [location.pathname]);
 
   if (!visible) return null;

@@ -69,7 +69,7 @@ export function useHomeWorkoutSupabase(selectedDate: Date) {
       const cachedWorkouts = await offlineDb.getWorkoutSessions(dateString);
       
       if (cachedWorkouts && cachedWorkouts.length > 0) {
-        console.log(`⚡ INSTANT: Loaded workout from IndexedDB`);
+        
         const cached = cachedWorkouts[0];
         setWorkout({
           id: cached.id,
@@ -235,7 +235,7 @@ export function useHomeWorkoutSupabase(selectedDate: Date) {
 
     try {
       setIsSaving(true);
-      console.log(`🔄 Updating exercise ${exerciseId} field ${field} to ${value}`);
+      
       
       // Update local state immediately for responsiveness
       const updatedItems = workout.workout_items.map(item =>
@@ -264,7 +264,7 @@ export function useHomeWorkoutSupabase(selectedDate: Date) {
             throw updateError;
           }
 
-          console.log(`✅ Successfully updated exercise ${exerciseId} field ${field}`);
+          
         } catch (err) {
           console.error('❌ Failed to update exercise field:', err);
           setError(err instanceof Error ? err.message : 'Failed to update exercise');

@@ -153,7 +153,7 @@ const AdminPartnershipLeaderboard = () => {
 
   const handlePartnerClick = (partner: any) => {
     // Navigate to partner details
-    console.log('View partner:', partner);
+    
   };
 
   return (

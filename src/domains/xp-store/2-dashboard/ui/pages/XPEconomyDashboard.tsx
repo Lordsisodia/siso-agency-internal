@@ -50,7 +50,7 @@ export const XPEconomyDashboard: React.FC = () => {
     });
 
     if (result.success) {
-      console.log('Purchased:', pendingPurchase.name);
+      
     } else {
       console.error('Purchase failed:', result.message);
     }

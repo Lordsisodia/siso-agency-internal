@@ -3,5 +3,5 @@
 // Canonical: src/domains/tasks/ui/WeekViewEnhancements.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/task-ui/ui/WeekViewEnhancements';
-export { default } from '@/domains/task-ui/ui/WeekViewEnhancements';
+export * from '@/domains/tasks/ui/WeekViewEnhancements';
+export { default } from '@/domains/tasks/ui/WeekViewEnhancements';

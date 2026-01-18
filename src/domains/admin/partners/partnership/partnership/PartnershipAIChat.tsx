@@ -98,7 +98,7 @@ export const PartnershipAIChat = memo(({ onApplyNow }: PartnershipAIChatProps) =
 
   const openNewChat = () => {
     // This would typically open a new chat window or navigate to a chat page
-    console.log("Opening new chat with breadcrumb navigation");
+    
   };
 
   return (

@@ -92,14 +92,14 @@ export abstract class BaseTaskService {
     // Each attempt has progressively longer delays to give the database time to recover
     for (let attempt = 0; attempt < retryConfig.maxAttempts; attempt++) {
       try {
-        console.log(`🔄 Database operation attempt ${attempt + 1}/${retryConfig.maxAttempts}`);
+        
         
         // Execute the actual database operation
         // This could be any Supabase query or MCP tool call
         const result = await operation();
         
         // Success! Return the data with metadata about the operation
-        console.log(`✅ Database operation succeeded on attempt ${attempt + 1}`);
+        
         return {
           data: result,
           error: null,
@@ -127,7 +127,7 @@ export abstract class BaseTaskService {
           ? retryConfig.baseDelayMs * Math.pow(2, attempt)
           : retryConfig.baseDelayMs;
           
-        console.log(`⏱️ Waiting ${delay}ms before retry...`);
+        
         await this.delay(delay);
       }
     }
@@ -158,7 +158,7 @@ export abstract class BaseTaskService {
     // This avoids unnecessary database calls for recently fetched data
     const cachedData = this.getCachedData<T>(cacheKey, cacheTimeMs);
     if (cachedData !== null) {
-      console.log(`📦 Cache hit for key: ${cacheKey}`);
+      
       return {
         data: cachedData,
         error: null,
@@ -167,7 +167,7 @@ export abstract class BaseTaskService {
       };
     }
 
-    console.log(`🔍 Cache miss for key: ${cacheKey}, fetching from database...`);
+    
     
     // Cache miss - execute the operation with retry logic
     // This combines caching with resilience for optimal performance and reliability
@@ -177,7 +177,7 @@ export abstract class BaseTaskService {
     // Only cache successful results to avoid caching errors
     if (result.data !== null && result.error === null) {
       this.setCachedData(cacheKey, result.data);
-      console.log(`💾 Cached result for key: ${cacheKey}`);
+      
     }
 
     return result;
@@ -210,7 +210,7 @@ export abstract class BaseTaskService {
     
     // Cache miss or expired data
     if (cached && (Date.now() - cached.timestamp) >= maxAgeMs) {
-      console.log(`🗑️ Removing expired cache entry: ${key}`);
+      
       this.cache.delete(key);
     }
     
@@ -228,7 +228,7 @@ export abstract class BaseTaskService {
       key
     });
     
-    console.log(`📝 Cached data for key: ${key} (cache size: ${this.cache.size})`);
+    
   }
 
   /**
@@ -240,7 +240,7 @@ export abstract class BaseTaskService {
       // Clear entire cache
       const size = this.cache.size;
       this.cache.clear();
-      console.log(`🧹 Cleared entire cache (${size} entries)`);
+      
       return;
     }
     
@@ -255,7 +255,7 @@ export abstract class BaseTaskService {
     }
     
     if (cleared > 0) {
-      console.log(`🧹 Cleared ${cleared} cache entries matching pattern: ${pattern}`);
+      
     }
   }
 
@@ -277,7 +277,7 @@ export abstract class BaseTaskService {
     }
     
     if (removed > 0) {
-      console.log(`🗑️ Cleaned up ${removed} expired cache entries`);
+      
     }
   }
 
@@ -314,7 +314,7 @@ export abstract class BaseTaskService {
    */
   protected async executeSupabaseQuery(tableName: string, query: 'select' | 'insert' | 'update' | 'delete', options: any = {}): Promise<any[]> {
     try {
-      console.log(`🔍 Executing Supabase query on ${tableName}:`, query);
+      
       
       let result;
       
@@ -363,14 +363,14 @@ export abstract class BaseTaskService {
         throw new Error(`Supabase error: ${result.error.message}`);
       }
       
-      console.log(`✅ Supabase query executed successfully on ${tableName}`);
+      
       return result.data || [];
       
     } catch (error) {
       console.error('❌ Supabase query execution failed:', error);
       
       // Fallback to simulated data for development/testing
-      console.log(`⚠️ Using fallback simulated data for ${tableName}`);
+      
       return await this.simulateQuery(tableName);
     }
   }

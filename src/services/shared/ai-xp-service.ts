@@ -161,7 +161,7 @@ TIME ESTIMATION GUIDELINES:
           const { timeTrackingService } = await import('./time-tracking-service');
           historicalData = await timeTrackingService.getHistoricalAccuracy(context.userId);
         } catch (error) {
-          console.log('📊 Could not fetch historical data, using defaults');
+          
         }
       }
 
@@ -172,17 +172,11 @@ TIME ESTIMATION GUIDELINES:
         { role: 'user', content: prompt }
       ];
 
-      console.log('🔍 [AI-XP] Sending request to Groq API:', {
-        model: this.model,
-        messageCount: messages.length,
-        systemPromptLength: this.systemPrompt.length,
-        userPromptLength: prompt.length
-      });
-
+      
       const response = await this.callGroqAPI(messages);
       const analysis = this.parseAnalysisResponse(response);
       
-      console.log(`🎮 [AI-XP] Analyzed "${taskTitle}": ${analysis.xpReward} XP (${analysis.difficulty})`);
+      
       
       return analysis;
       
@@ -215,7 +209,7 @@ TIME ESTIMATION GUIDELINES:
       const response = await this.callGroqAPI(messages);
       const analyses = this.parseBatchAnalysisResponse(response, tasks.length);
       
-      console.log(`🎮 [AI-XP] Batch analyzed ${tasks.length} tasks`);
+      
       
       return analyses;
       

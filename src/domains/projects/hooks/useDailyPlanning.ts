@@ -161,7 +161,7 @@ export function useDailyPlanning(options: UseDailyPlanningOptions) {
   const saveDailyPlan = (plan: DailyPlan) => {
     try {
       localStorage.setItem(`daily-plan-${plan.date}`, JSON.stringify(plan));
-      console.log('📅 Daily plan saved for', plan.date);
+      
     } catch (error) {
       console.error('Failed to save daily plan:', error);
     }

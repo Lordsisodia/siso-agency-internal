@@ -28,7 +28,7 @@ export class LifeLockVoiceTaskProcessor {
    * Main entry point for processing thought dumps
    */
   public static async processThoughtDump(voiceInput: string): Promise<ThoughtDumpResult> {
-    console.log('🧠 [LIFELOCK PROCESSOR] Processing thought dump:', voiceInput);
+    
     
     try {
       // Step 1: Parse and split the thought dump into individual tasks
@@ -50,7 +50,7 @@ export class LifeLockVoiceTaskProcessor {
         processingNotes: this.generateProcessingNotes(voiceInput, categorizedTasks)
       };
       
-      console.log('✅ [LIFELOCK PROCESSOR] Successfully processed thought dump:', result);
+      
       return result;
       
     } catch (error) {
@@ -69,7 +69,7 @@ export class LifeLockVoiceTaskProcessor {
    * Parse thought dump and split into individual tasks using AI
    */
   private static async parseThoughtDump(input: string): Promise<Partial<LifeLockTask>[]> {
-    console.log('🔍 [LIFELOCK PARSER] Parsing thought dump...');
+    
     
     // Use existing AI Task Agent for intelligent parsing
     const commands = aiTaskAgent.parseCommand(input);
@@ -124,7 +124,7 @@ export class LifeLockVoiceTaskProcessor {
       });
     }
     
-    console.log(`🔍 [LIFELOCK PARSER] Extracted ${tasks.length} tasks`);
+    
     return tasks;
   }
   
@@ -132,7 +132,7 @@ export class LifeLockVoiceTaskProcessor {
    * Categorize tasks as Deep vs Light work
    */
   private static async categorizeTasksByWorkType(tasks: Partial<LifeLockTask>[]): Promise<LifeLockTask[]> {
-    console.log('🏷️ [LIFELOCK CATEGORIZER] Categorizing tasks by work type...');
+    
     
     const categorizedTasks: LifeLockTask[] = [];
     
@@ -157,7 +157,7 @@ export class LifeLockVoiceTaskProcessor {
       categorizedTasks.push(categorizedTask);
     }
     
-    console.log(`🏷️ [LIFELOCK CATEGORIZER] Categorized ${categorizedTasks.length} tasks`);
+    
     return categorizedTasks;
   }
   

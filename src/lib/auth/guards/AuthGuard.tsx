@@ -21,7 +21,7 @@ export const AuthGuard = ({ children, adminOnly = false }: AuthGuardProps) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        console.log('AuthGuard - Checking auth session');
+        
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
@@ -31,24 +31,24 @@ export const AuthGuard = ({ children, adminOnly = false }: AuthGuardProps) => {
         }
         
         if (!session) {
-          console.log('AuthGuard - No active session found, redirecting to login');
+          
           navigate('/auth', { replace: true });
           return;
         } 
         
-        console.log('AuthGuard - Session found:', session.user.id, session.user.email);
+        
         setIsAuthenticated(true);
         
         // Always check admin status for all authenticated users
         try {
           const adminStatus = await checkIsAdmin();
-          console.log('AuthGuard - Admin check result:', adminStatus);
+          
           
           setIsAdmin(adminStatus);
           
           // Auto-redirect admin users to admin dashboard if they're on the home page
           if (adminStatus && location.pathname === '/home') {
-            console.log('AuthGuard - Admin user detected on home page, redirecting to admin dashboard');
+            
             toast({
               title: "Admin Access",
               description: "Redirecting to admin dashboard."
@@ -59,7 +59,7 @@ export const AuthGuard = ({ children, adminOnly = false }: AuthGuardProps) => {
           
           // If this is an admin-only route and user is not an admin, redirect
           if (adminOnly && !adminStatus) {
-            console.log('AuthGuard - Not an admin, redirecting to home');
+            
             toast({
               variant: "destructive",
               title: "Access Denied",
@@ -91,7 +91,7 @@ export const AuthGuard = ({ children, adminOnly = false }: AuthGuardProps) => {
     checkAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('AuthGuard - Auth state change:', event);
+      
       if (event === 'SIGNED_OUT' || !session) {
         navigate('/auth', { replace: true });
       } else if (event === 'SIGNED_IN') {

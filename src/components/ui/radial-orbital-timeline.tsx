@@ -50,7 +50,7 @@ export default function RadialOrbitalTimeline({
     if (onItemSelect) {
       const defaultItem = timelineData.find(item => item.id === 6);
       if (defaultItem) {
-        console.log(`🎬 Initial selection:`, defaultItem.title);
+        
         onItemSelect(defaultItem);
       }
     }
@@ -69,7 +69,7 @@ export default function RadialOrbitalTimeline({
   };
 
   const toggleItem = (id: number) => {
-    console.log(`🔄 TOGGLE ITEM ${id} called`);
+    
     
     // Always set this item as active
     setActiveNodeId(id);
@@ -83,7 +83,7 @@ export default function RadialOrbitalTimeline({
     if (onItemSelect) {
       const selectedItem = timelineData.find(item => item.id === id);
       if (selectedItem) {
-        console.log(`🚀 Calling onItemSelect with:`, selectedItem.title);
+        
         onItemSelect(selectedItem);
       }
     }
@@ -204,7 +204,7 @@ export default function RadialOrbitalTimeline({
 
             // Debug logging for each render
             if (isExpanded) {
-              console.log(`🎨 RENDERING EXPANDED: Item ${item.id} (${item.title}) - isExpanded: ${isExpanded}`);
+              
             }
 
             const nodeStyle = {
@@ -221,9 +221,9 @@ export default function RadialOrbitalTimeline({
                 style={nodeStyle}
                 onClick={(e) => {
                   e.stopPropagation();
-                  console.log(`🔥 CLICKED NODE ${item.id}: ${item.title}`);
-                  console.log(`📊 Current expandedItems:`, expandedItems);
-                  console.log(`🎯 isExpanded before:`, expandedItems[item.id]);
+                  
+                  
+                  
                   toggleItem(item.id);
                 }}
               >

@@ -149,7 +149,7 @@ const TaskCard: React.FC<{ task: ProjectTask }> = ({ task }) => {
                   onSelect={(date) => {
                     if (date) {
                       // Handle due date change here
-                      console.log('Due date changed to:', date);
+                      
                     }
                   }}
                   initialFocus

@@ -151,7 +151,7 @@ export const quickHelpCards: QuickHelpCard[] = [
       if (typeof window !== 'undefined' && (window as any).Intercom) {
         (window as any).Intercom('show');
       } else {
-        console.log('Opening live chat...');
+        
       }
     },
     actionText: 'Start Chat',

@@ -41,7 +41,7 @@ export interface EisenhowerMatrixResult {
 
 class EisenhowerMatrixOrganizer {
   async organizeTasks(tasks: any[]): Promise<EisenhowerMatrixResult> {
-    console.log('🎯 [EISENHOWER MATRIX] Analyzing tasks...');
+    
     
     if (!tasks || tasks.length === 0) {
       return this.createEmptyResult();
@@ -153,14 +153,14 @@ export const eisenhowerMatrixOrganizer = new EisenhowerMatrixOrganizer();
 // Stub classes for compatibility
 class AITaskAgent {
   async processThoughtDump(input: string): Promise<any> {
-    console.log('🤖 [AI] Processing thought dump...');
+    
     return { tasks: [], analysis: '' };
   }
 }
 
 class GrokTaskService {
   async analyzeTask(task: any): Promise<any> {
-    console.log('🧠 [GROK] Analyzing task...');
+    
     return { insights: [] };
   }
 }
@@ -253,7 +253,7 @@ export type TaskContext = any;
 
 class ProjectBasedTaskAgent {
   constructor(userId?: string) {
-    console.log('🎯 [PROJECT] ProjectBasedTaskAgent initialized');
+    
   }
   
   async getProjectSummaries(): Promise<ProjectTaskSummary[]> {
@@ -290,7 +290,7 @@ class HybridTaskService {
 
 class HybridUsageTracker {
   async trackUsage(): Promise<void> {
-    console.log('📊 [USAGE] Tracking usage...');
+    
   }
 }
 
@@ -319,4 +319,4 @@ export const hybridTaskService = new HybridTaskService();
 export const enhancedTimeBlockService = new EnhancedTimeBlockService();
 
 // Re-export from workTypeApiClient for compatibility
-export { personalTaskService } from '@/domains/task-ui/services/workTypeApiClient';
+export { personalTaskService } from '@/domains/tasks/services/workTypeApiClient';

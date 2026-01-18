@@ -25,15 +25,7 @@ export function WireframeSection() {
   
   // Log state for debugging
   useEffect(() => {
-    console.log("WireframeSection rendered with:", { 
-      projectId, 
-      wireframesCount: wireframes?.length || 0,
-      loading,
-      error,
-      activeTab,
-      contentType
-    });
-  }, [projectId, wireframes, loading, error, activeTab, contentType]);
+      }, [projectId, wireframes, loading, error, activeTab, contentType]);
 
   // Determine content type based on loading/error/empty states
   useEffect(() => {

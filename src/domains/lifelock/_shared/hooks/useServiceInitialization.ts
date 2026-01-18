@@ -39,12 +39,12 @@ export const useServiceInitialization = (): UseServiceInitializationReturn => {
     setInitializationError(null);
     
     try {
-      console.log('🔧 Initializing services...');
+      
       
       await ClerkHybridTaskService.initialize();
       
       setIsInitialized(true);
-      console.log('✅ [APP] Hybrid service initialized');
+      
     } catch (error) {
       console.error('❌ [APP] Hybrid service initialization failed:', error);
       setInitializationError(error instanceof Error ? error.message : 'Service initialization failed');

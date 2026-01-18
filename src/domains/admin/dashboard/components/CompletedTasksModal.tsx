@@ -3,5 +3,5 @@
 // Canonical: src/domains/tasks/components/CompletedTasksModal.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/task-ui/components/CompletedTasksModal';
-export { default } from '@/domains/task-ui/components/CompletedTasksModal';
+export * from '@/domains/tasks/components/CompletedTasksModal';
+export { default } from '@/domains/tasks/components/CompletedTasksModal';

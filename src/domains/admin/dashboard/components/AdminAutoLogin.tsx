@@ -17,12 +17,12 @@ export const AdminAutoLogin = () => {
   useEffect(() => {
     const performAdminLogin = async () => {
       try {
-        console.log('AdminAutoLogin - Attempting auto login...');
+        
         
         // Check if already logged in
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
-          console.log('AdminAutoLogin - Already logged in, redirecting to admin...');
+          
           navigate('/admin/clients', { replace: true });
           return;
         }
@@ -38,7 +38,7 @@ export const AdminAutoLogin = () => {
           throw error;
         }
 
-        console.log('AdminAutoLogin - Login successful, redirecting...');
+        
         
         toast({
           title: "Admin Access Granted",

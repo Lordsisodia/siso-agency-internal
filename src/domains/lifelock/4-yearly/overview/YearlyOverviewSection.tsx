@@ -108,7 +108,7 @@ export const YearlyOverviewSection: React.FC<YearlyOverviewSectionProps> = ({ ye
               <MonthGrid
                 months={months}
                 onMonthClick={(month) => {
-                  console.log('Navigate to month:', format(month, 'yyyy-MM'));
+                  
                 }}
               />
             </CardContent>

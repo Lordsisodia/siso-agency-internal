@@ -14,7 +14,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval } from 'date-fns';
 import { useAuthSession } from '@/lib/hooks/auth/useAuthSession';
-import { personalTaskService } from '@/domains/task-ui/services/workTypeApiClient';
+import { personalTaskService } from '@/domains/tasks/services/workTypeApiClient';
 
 export interface TaskCard {
   id: string;
@@ -85,7 +85,7 @@ export const useTaskData = (selectedDate: Date): UseTaskDataReturn => {
         // Logging disabled to reduce console noise
         // Only log once per date change, not on every refresh
         // if (refreshTrigger === 0) {
-        //   console.log(`📅 Loading tasks for ${format(selectedDate, 'yyyy-MM-dd')}`);
+        //   
         // }
 
         const dayTasks = await personalTaskService.getTasksForDate(user.id, selectedDate);

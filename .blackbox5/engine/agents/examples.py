@@ -9,10 +9,10 @@ from pathlib import Path
 
 # Add engine to path
 import sys
-engine_root = Path(__file__).parent.parent.parent
+engine_root = Path(__file__).parent
 sys.path.insert(0, str(engine_root))
 
-from agents.core import (
+from core import (
     AgentLoader,
     AgentRouter,
     SkillManager,

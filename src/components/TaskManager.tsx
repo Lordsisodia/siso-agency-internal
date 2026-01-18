@@ -33,10 +33,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { TaskCard } from '@/domains/task-ui/components/TaskCard';
+import { TaskCard } from '@/domains/tasks/components/TaskCard';
 import { TaskDetailModal } from './ui/task-detail-modal';
 import { useTasks } from '.@/lib/stores/tasks/taskProviderCompat';
-import { Task } from '@/domains/task-ui/components/TaskCard';
+import { Task } from '@/domains/tasks/components/TaskCard';
 
 /**
  * TaskManager component props
@@ -158,7 +158,7 @@ export const TaskManager: React.FC<TaskManagerProps> = ({
         break;
       case 'archive':
         // This would be implemented when archive functionality is added
-        console.log('Archive not yet implemented');
+        
         break;
     }
   }, [hasSelection, utilities]);

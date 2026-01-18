@@ -27,7 +27,7 @@ export const useAdminCheck = () => {
 
     // Setup listener for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Auth state changed:', event, 'Session exists:', !!session);
+      
       setIsAuthStateReady(!!session);
     });
 
@@ -42,10 +42,10 @@ export const useAdminCheck = () => {
 
   // Create a memoized checkAdmin function that will be stable between renders
   const checkAdminStatus = useCallback(async () => {
-    console.log('Executing admin check query function');
+    
     try {
       const isAdmin = await checkIsAdmin();
-      console.log('Admin check result:', isAdmin);
+      
       return isAdmin;
     } catch (error) {
       console.error('Error checking admin status:', error);
@@ -78,7 +78,7 @@ export const useAdminCheck = () => {
 
   // Force refetch on specific events or conditions
   const forceRefresh = useCallback(() => {
-    console.log('Force refreshing admin status');
+    
     refetch();
   }, [refetch]);
 

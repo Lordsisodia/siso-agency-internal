@@ -45,11 +45,11 @@ class OfflineManager {
       );
 
       if (brokenActions.length > 0) {
-        console.log(`🧹 [AUTO-CLEANUP] Removing ${brokenActions.length} broken daily_health sync actions...`);
+        
         for (const action of brokenActions) {
           await offlineDb.removeAction(action.id);
         }
-        console.log('✅ [AUTO-CLEANUP] Broken actions cleared - sync will work now!');
+        
       }
     } catch (error) {
       console.warn('⚠️ Auto-cleanup failed (non-critical):', error);
@@ -65,7 +65,7 @@ class OfflineManager {
     // Initial status check
     await this.checkStatus();
 
-    console.log('🚀 LifeLock Offline Manager initialized');
+    
   }
 
   // ===== STATUS MANAGEMENT =====
@@ -118,13 +118,13 @@ class OfflineManager {
   // ===== NETWORK EVENT HANDLERS =====
 
   private async handleOnline() {
-    console.log('🌐 Back online - initiating sync');
+    
     await this.checkStatus();
     await this.syncPendingActions();
   }
 
   private async handleOffline() {
-    console.log('📴 Gone offline - switching to offline mode');
+    
     await this.checkStatus();
   }
 
@@ -148,7 +148,7 @@ class OfflineManager {
       }
 
       // Fallback to offline storage
-      console.log('💾 Universal offline save:', table, data.title || data.name || data.id);
+      
       await this.cacheToOfflineStorage(table, data, true);
       await this.checkStatus(); // Update pending count
       
@@ -163,18 +163,18 @@ class OfflineManager {
   async loadUniversal(table: string, filters?: any): Promise<any[]> {
     try {
       // 🚀 FIXED: Check IndexedDB first for offline-first architecture
-      console.log('🔍 Loading from IndexedDB first:', table);
+      
       const offlineData = await this.loadFromOfflineStorage(table, filters);
       
       // If we have offline data, return it immediately (offline-first)
       if (offlineData && offlineData.length > 0) {
-        console.log(`📱 Found ${offlineData.length} items in IndexedDB for ${table}`);
+        
         return offlineData;
       }
       
       // Only try online if no offline data and we're connected
       if (this.status.isOnline && this.status.isSupabaseConnected) {
-        console.log('☁️ No offline data, trying Supabase:', table);
+        
         const onlineData = await this.loadFromSupabase(table, filters);
         
         // Cache online data offline for future use
@@ -189,7 +189,7 @@ class OfflineManager {
     }
 
     // Fallback to empty array if everything fails
-    console.log('📭 No data found for:', table);
+    
     return [];
   }
 
@@ -250,7 +250,7 @@ class OfflineManager {
       }
 
       // Fallback to offline storage
-      console.log('💾 Saving to offline storage:', table, task.title || task.id);
+      
       if (table === 'lightWorkTasks' || table === 'deepWorkTasks') {
         await offlineDb[table === 'lightWorkTasks' ? 'saveLightWorkTask' : 'saveDeepWorkTask'](
           task, 
@@ -301,7 +301,7 @@ class OfflineManager {
     }
 
     // Fallback to offline data
-    console.log('📱 Loading from offline storage:', table);
+    
     if (table === 'lightWorkTasks' || table === 'deepWorkTasks') {
       const dateFilter = filters?.date || filters;
       return await offlineDb[table === 'lightWorkTasks' ? 'getLightWorkTasks' : 'getDeepWorkTasks'](dateFilter);
@@ -316,7 +316,7 @@ class OfflineManager {
 
   async syncPendingActions(): Promise<{ synced: number; failed: number }> {
     if (this.status.syncInProgress) {
-      console.log('🔄 Sync already in progress, skipping');
+      
       return { synced: 0, failed: 0 };
     }
 
@@ -328,7 +328,7 @@ class OfflineManager {
 
     try {
       const pendingActions = await offlineDb.getPendingActions();
-      console.log(`🔄 Syncing ${pendingActions.length} pending actions`);
+      
 
       for (const action of pendingActions) {
         try {
@@ -355,7 +355,7 @@ class OfflineManager {
       await this.checkStatus();
     }
 
-    console.log(`✅ Sync complete: ${syncedCount} synced, ${failedCount} failed`);
+    
     return { synced: syncedCount, failed: failedCount };
   }
 
@@ -408,7 +408,7 @@ class OfflineManager {
           if (tableName === 'daily_health' && action.data.id) {
             const { id, ...dataWithoutId } = action.data;
             dataToUpsert = dataWithoutId;
-            console.log('🔧 [SYNC FIX] Stripped invalid id from daily_health record:', id);
+            
           }
 
           const { error } = await supabase
@@ -494,7 +494,7 @@ class OfflineManager {
       if (tableName === 'daily_health' && task.id) {
         const { id, ...dataWithoutId } = task;
         dataToUpsert = dataWithoutId;
-        console.log('🔧 [SAVE FIX] Stripped invalid id from daily_health record:', id);
+        
       }
 
       const { data, error } = await supabase
@@ -511,7 +511,7 @@ class OfflineManager {
           code: error.code
         });
       } else {
-        console.log('✅ Supabase save success:', data);
+        
       }
 
       return { success: !error, error: error?.message };
@@ -602,7 +602,7 @@ class OfflineManager {
 
   // Force immediate sync
   async forcSync(): Promise<{ synced: number; failed: number }> {
-    console.log('🚀 Force sync triggered');
+    
     return await this.syncPendingActions();
   }
 
@@ -610,7 +610,7 @@ class OfflineManager {
   async clearOfflineData(): Promise<void> {
     await offlineDb.clear();
     await this.checkStatus();
-    console.log('🗑️ All offline data cleared');
+    
   }
 
   // Get detailed offline stats
@@ -634,14 +634,14 @@ class OfflineManager {
   // Clear only pending sync actions (keeps cached data)
   async clearPendingActions(): Promise<void> {
     const pending = await offlineDb.getPendingActions();
-    console.log(`🗑️ Clearing ${pending.length} pending actions...`);
+    
 
     for (const action of pending) {
       await offlineDb.removeAction(action.id);
     }
 
     await this.checkStatus();
-    console.log('✅ Pending actions cleared');
+    
   }
 
   // Clean up
@@ -658,7 +658,7 @@ class OfflineManager {
     }
     
     this.listeners = [];
-    console.log('🔌 Offline Manager destroyed');
+    
   }
 }
 
@@ -668,8 +668,8 @@ export const offlineManager = new OfflineManager();
 // Make available globally for debugging
 if (typeof window !== 'undefined') {
   (window as any).offlineManager = offlineManager;
-  console.log('🔧 [OFFLINE] offlineManager available globally as window.offlineManager');
-  console.log('💡 [OFFLINE] Run offlineManager.clearPendingActions() to clear failed sync queue');
+  
+  
 }
 
 // Export types

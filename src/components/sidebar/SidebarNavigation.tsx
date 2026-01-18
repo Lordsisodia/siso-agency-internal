@@ -35,13 +35,13 @@ export const SidebarNavigation = ({ collapsed, onItemClick, visible }: Navigatio
 
   // [Analysis] Enhanced debugging for route matching
   useEffect(() => {
-    console.log('Current pathname:', location.pathname);
+    
     
     // Test some key routes for debugging
     const testRoutes = ['/economy/leaderboards', '/economy/crypto-exchange', '/economy/earn'];
     testRoutes.forEach(route => {
       const isActive = isItemActive(route);
-      console.log(`Route ${route} active?`, isActive);
+      
     });
   }, [location.pathname]);
 

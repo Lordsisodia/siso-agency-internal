@@ -19,7 +19,7 @@ export class TaskQueryTools {
    * 1. Get all tasks for today
    */
   async getTodaysTasks(includeCompleted = false) {
-    console.log(`🔍 [TOOL] getTodaysTasks(includeCompleted: ${includeCompleted})`);
+    
 
     // Build queries - conditionally filter by completed
     let deepQuery = supabase
@@ -48,7 +48,7 @@ export class TaskQueryTools {
     const deepTasks = deepResult.data || [];
     const lightTasks = lightResult.data || [];
 
-    console.log(`✅ [TOOL] Found ${deepTasks.length} deep + ${lightTasks.length} light tasks`);
+    
 
     return {
       deepWorkTasks: deepTasks,
@@ -70,7 +70,7 @@ export class TaskQueryTools {
    * 2. Find task by title (fuzzy match)
    */
   async getTaskByTitle(titleQuery: string) {
-    console.log(`🔍 [TOOL] getTaskByTitle("${titleQuery}")`);
+    
 
     const searchPattern = `%${titleQuery.toLowerCase()}%`;
 
@@ -95,14 +95,14 @@ export class TaskQueryTools {
     const task = deepResult.data || lightResult.data;
 
     if (task) {
-      console.log(`✅ [TOOL] Found task: ${task.title}`);
+      
       return {
         ...task,
         workType: deepResult.data ? 'deep' : 'light'
       };
     }
 
-    console.log(`❌ [TOOL] No task found matching "${titleQuery}"`);
+    
     return { error: 'Task not found' };
   }
 
@@ -110,7 +110,7 @@ export class TaskQueryTools {
    * 3. Get urgent/high priority tasks only
    */
   async getUrgentTasks() {
-    console.log(`🔍 [TOOL] getUrgentTasks()`);
+    
 
     const [deepResult, lightResult] = await Promise.all([
       supabase
@@ -135,7 +135,7 @@ export class TaskQueryTools {
       ...(lightResult.data || []).map(t => ({ ...t, workType: 'light' }))
     ];
 
-    console.log(`✅ [TOOL] Found ${urgentTasks.length} urgent tasks`);
+    
 
     return {
       urgentTasks,
@@ -147,7 +147,7 @@ export class TaskQueryTools {
    * 4. Get deep work tasks only
    */
   async getDeepWorkTasksOnly() {
-    console.log(`🔍 [TOOL] getDeepWorkTasksOnly()`);
+    
 
     const { data } = await supabase
       .from('deep_work_tasks')
@@ -159,7 +159,7 @@ export class TaskQueryTools {
 
     const tasks = data || [];
 
-    console.log(`✅ [TOOL] Found ${tasks.length} deep work tasks`);
+    
 
     return {
       deepWorkTasks: tasks,
@@ -172,7 +172,7 @@ export class TaskQueryTools {
    * 5. Get light work tasks only
    */
   async getLightWorkTasksOnly() {
-    console.log(`🔍 [TOOL] getLightWorkTasksOnly()`);
+    
 
     const { data } = await supabase
       .from('light_work_tasks')
@@ -184,7 +184,7 @@ export class TaskQueryTools {
 
     const tasks = data || [];
 
-    console.log(`✅ [TOOL] Found ${tasks.length} light work tasks`);
+    
 
     return {
       lightWorkTasks: tasks,
@@ -197,7 +197,7 @@ export class TaskQueryTools {
    * 6. Get subtasks for specific task
    */
   async getTaskSubtasks(taskId: string) {
-    console.log(`🔍 [TOOL] getTaskSubtasks("${taskId}")`);
+    
 
     // Try deep work subtasks
     const { data: deepSubtasks } = await supabase
@@ -207,7 +207,7 @@ export class TaskQueryTools {
       .order('created_at');
 
     if (deepSubtasks && deepSubtasks.length > 0) {
-      console.log(`✅ [TOOL] Found ${deepSubtasks.length} deep work subtasks`);
+      
       return {
         subtasks: deepSubtasks,
         completedCount: deepSubtasks.filter(s => s.completed).length,
@@ -224,7 +224,7 @@ export class TaskQueryTools {
       .order('created_at');
 
     if (lightSubtasks && lightSubtasks.length > 0) {
-      console.log(`✅ [TOOL] Found ${lightSubtasks.length} light work subtasks`);
+      
       return {
         subtasks: lightSubtasks,
         completedCount: lightSubtasks.filter(s => s.completed).length,
@@ -233,7 +233,7 @@ export class TaskQueryTools {
       };
     }
 
-    console.log(`❌ [TOOL] No subtasks found for task ${taskId}`);
+    
     return { subtasks: [], completedCount: 0, totalCount: 0 };
   }
 
@@ -241,7 +241,7 @@ export class TaskQueryTools {
    * 7. Get tasks under specific time constraint
    */
   async getTasksByTimeConstraint(maxMinutes: number) {
-    console.log(`🔍 [TOOL] getTasksByTimeConstraint(${maxMinutes} min)`);
+    
 
     const [deepResult, lightResult] = await Promise.all([
       supabase
@@ -266,7 +266,7 @@ export class TaskQueryTools {
       ...(lightResult.data || []).map(t => ({ ...t, workType: 'light' }))
     ];
 
-    console.log(`✅ [TOOL] Found ${matchingTasks.length} tasks under ${maxMinutes} min`);
+    
 
     return {
       tasks: matchingTasks,
@@ -279,7 +279,7 @@ export class TaskQueryTools {
    * 8. Search tasks by keyword
    */
   async searchTasksByKeyword(keyword: string) {
-    console.log(`🔍 [TOOL] searchTasksByKeyword("${keyword}")`);
+    
 
     const searchPattern = `%${keyword.toLowerCase()}%`;
 
@@ -302,7 +302,7 @@ export class TaskQueryTools {
       ...(lightResult.data || []).map(t => ({ ...t, workType: 'light' }))
     ];
 
-    console.log(`✅ [TOOL] Found ${matchingTasks.length} tasks matching "${keyword}"`);
+    
 
     return {
       matchingTasks,
@@ -315,7 +315,7 @@ export class TaskQueryTools {
    * 9. Check upcoming deadlines
    */
   async checkUpcomingDeadlines(daysAhead: number = 3) {
-    console.log(`🔍 [TOOL] checkUpcomingDeadlines(${daysAhead} days ahead)`);
+    
 
     const today = new Date();
     const futureDate = new Date();
@@ -359,7 +359,7 @@ export class TaskQueryTools {
     const soon = allTasks.filter(t => t.task_date > todayStr && t.task_date <= tomorrowStr);
     const upcoming = allTasks.filter(t => t.task_date > tomorrowStr);
 
-    console.log(`✅ [TOOL] Found ${urgent.length} urgent, ${soon.length} soon, ${upcoming.length} upcoming deadlines`);
+    
 
     return {
       urgent: urgent.map(t => ({

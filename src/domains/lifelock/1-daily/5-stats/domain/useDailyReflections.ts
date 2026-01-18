@@ -122,7 +122,7 @@ export function useDailyReflections({ selectedDate, includePreviousDay = false }
       setLoading(true);
       setError(null);
 
-      console.log(`🌙 Loading daily reflection (offline-first) for ${dateString}...`);
+      
       if (includePreviousDay && previousDateString) {
         const reflections = await unifiedDataService.getDailyReflections(internalUserId, [dateString, previousDateString]);
         const currentReflection = reflections[dateString] || null;
@@ -149,10 +149,10 @@ export function useDailyReflections({ selectedDate, includePreviousDay = false }
             updatedAt: currentReflection.updated_at || new Date().toISOString()
           };
 
-          console.log(`✅ Loaded daily reflection (${navigator.onLine ? 'online' : 'offline'}) for ${dateString}`);
+          
           setReflection(transformedReflection);
         } else {
-          console.log(`📝 No reflection found for ${dateString}, will create on save`);
+          
           setReflection(null);
         }
 
@@ -207,10 +207,10 @@ export function useDailyReflections({ selectedDate, includePreviousDay = false }
             updatedAt: data.updated_at || new Date().toISOString()
           };
 
-          console.log(`✅ Loaded daily reflection (${navigator.onLine ? 'online' : 'offline'}) for ${dateString}`);
+          
           setReflection(transformedReflection);
         } else {
-          console.log(`📝 No reflection found for ${dateString}, will create on save`);
+          
           setReflection(null);
         }
 
@@ -232,7 +232,7 @@ export function useDailyReflections({ selectedDate, includePreviousDay = false }
     try {
       setSaving(true);
       setError(null);
-      console.log(`🌙 Saving daily reflection (offline-first) for ${dateString}...`);
+      
 
       // Use unified data service (saves to IndexedDB + syncs to Supabase if online)
       // IMPORTANT: Use snake_case field names to match Supabase schema
@@ -273,7 +273,7 @@ export function useDailyReflections({ selectedDate, includePreviousDay = false }
         updatedAt: new Date().toISOString()
       };
 
-      console.log(`✅ Saved daily reflection (${navigator.onLine ? 'online' : 'offline'}) for ${dateString}`);
+      
       setReflection(savedReflection);
       return savedReflection;
 

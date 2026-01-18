@@ -13,7 +13,7 @@ export function useFeatures() {
   const { id: routeId } = useParams<{ id: string }>();
 
   // For debugging
-  console.log('Current route ID:', routeId);
+  
   
   // Hardcoded project ID for UbahCrypt project - use this as a fallback
   // This ensures we can always load features even if route params are incorrect
@@ -27,17 +27,17 @@ export function useFeatures() {
   } = useQuery({
     queryKey: ['project_id', routeId],
     queryFn: async () => {
-      console.log('Fetching project ID for route:', routeId);
+      
       
       // If no route ID is provided or it's "ubahcrypt", use the hardcoded ID
       if (!routeId || routeId === 'ubahcrypt') {
-        console.log('Using hardcoded UbahCrypt project ID');
+        
         return UBAHCRYPT_PROJECT_ID;
       }
       
       // If routeId is directly a UUID, use it as the project ID
       if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(routeId)) {
-        console.log('Using route ID as project ID:', routeId);
+        
         return routeId;
       }
       
@@ -52,11 +52,11 @@ export function useFeatures() {
         if (error) {
           console.error('Error fetching project by slug:', error);
           // Fall back to the hardcoded ID instead of throwing
-          console.log('Falling back to hardcoded project ID');
+          
           return UBAHCRYPT_PROJECT_ID;
         }
 
-        console.log('Found project ID:', data?.id);
+        
         return data?.id || UBAHCRYPT_PROJECT_ID;
       } catch (err) {
         console.error('Unexpected error in project lookup:', err);
@@ -75,16 +75,16 @@ export function useFeatures() {
   } = useQuery({
     queryKey: ['project_features', projectId],
     queryFn: async () => {
-      console.log('Fetching features for project:', projectId);
+      
       
       try {
         // DEBUGGING: Let's check what tables exist in Supabase
-        console.log('Checking Supabase tables...');
+        
         const tablesResponse = await supabase
           .from('project_features')
           .select('count');
           
-        console.log('Tables response:', tablesResponse);
+        
         
         // Try a raw query to see what's in the database
         const { data: projectsData, error: projectsError } = await supabase
@@ -92,12 +92,12 @@ export function useFeatures() {
           .select('*')
           .limit(5);
           
-        console.log('Available projects:', projectsData || 'none');
-        console.log('Projects query error:', projectsError);
+        
+        
         
         // DEBUGGING: Let's always try to fetch features using the project ID
-        console.log('Current project ID:', projectId);
-        console.log('Hardcoded project ID:', UBAHCRYPT_PROJECT_ID);
+        
+        
         
         // Query the project_features table with proper ordering
         const { data, error } = await supabase
@@ -110,12 +110,12 @@ export function useFeatures() {
         if (error) {
           console.error('Error fetching features:', error);
           // Use mock data as fallback instead of throwing
-          console.log('Falling back to mock feature data');
+          
           return getMockFeatures();
         }
 
         if (!data || data.length === 0) {
-          console.log('No features found for project, using mock data');
+          
           return getMockFeatures();
         }
 
@@ -134,7 +134,7 @@ export function useFeatures() {
           cost_breakdown: feature.cost_breakdown || undefined
         }));
 
-        console.log('Found features:', transformedFeatures);
+        
         return transformedFeatures as Feature[];
       } catch (err) {
         console.error('Unexpected error fetching features:', err);

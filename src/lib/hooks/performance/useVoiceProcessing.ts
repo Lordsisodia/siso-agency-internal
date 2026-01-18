@@ -62,7 +62,7 @@ export const useVoiceProcessing = (selectedDate: Date, onTaskChange?: () => void
     setVoiceError(null);
 
     try {
-      console.log('🎤 Processing voice command:', command);
+      
       
       const result = await instrumentLifeLockEvent(
         'voice_task_processor',
@@ -77,7 +77,7 @@ export const useVoiceProcessing = (selectedDate: Date, onTaskChange?: () => void
         onTaskChange?.();
       }
       
-      console.log('✅ Voice command processed successfully');
+      
     } catch (error) {
       console.error('❌ Voice processing failed:', error);
       setVoiceError(error instanceof Error ? error.message : 'Voice processing failed');

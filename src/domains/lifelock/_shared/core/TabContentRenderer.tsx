@@ -70,8 +70,8 @@ export const TabContentRenderer: React.FC<{
 }> = ({ activeTab, layoutProps }) => {
   // Debug logging for diet section
   if (activeTab === 'diet' || activeTab === 'photo' || activeTab === 'meals' || activeTab === 'macros') {
-    console.log('[TabContentRenderer] activeTab:', activeTab);
-    console.log('[TabContentRenderer] layoutProps.activeSubTab:', layoutProps.activeSubTab);
+    
+    
   }
 
   const config = getEnhancedTabConfig(activeTab);

@@ -122,7 +122,7 @@ export const TimeBoxCalendar: React.FC<TimeBoxCalendarProps> = ({
       try {
         await timeboxApi.scheduleTask(draggedTask.id, slot);
         onScheduleChange?.();
-        console.log(`Scheduled ${draggedTask.title} to ${slot.startTime}`);
+        
       } catch (error) {
         console.error('Failed to schedule task:', error);
       }

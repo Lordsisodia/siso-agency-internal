@@ -91,12 +91,12 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
 
     try {
       setError(null);
-      console.log('📊 Loading Light Work tasks (offline-first)...');
+      
 
       const cachedTasks = await loadLightWorkTasksFromCache(dateString);
       if (cachedTasks.length > 0) {
         const statusLabel = isBrowserOnline() ? 'online' : 'offline';
-        console.log(`⚡ INSTANT: Loaded ${cachedTasks.length} tasks from IndexedDB (${statusLabel})`);
+        
         setTasks(cachedTasks);
       }
 
@@ -122,7 +122,7 @@ export function useLightWorkTasksSupabase({ selectedDate }: UseLightWorkTasksPro
       }
 
       const syncedTasks = await cacheSupabaseLightWorkTasks(data ?? []);
-      console.log(`✅ Synced ${syncedTasks.length} Light Work tasks from Supabase`);
+      
       setTasks(syncedTasks);
     } catch (loadError) {
       console.error('❌ Error loading Light Work tasks:', loadError);

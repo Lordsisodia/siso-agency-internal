@@ -3,5 +3,5 @@
 // Canonical: src/domains/tasks/components/AIChatView.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/task-ui/components/AIChatView';
-export { default } from '@/domains/task-ui/components/AIChatView';
+export * from '@/domains/tasks/components/AIChatView';
+export { default } from '@/domains/tasks/components/AIChatView';

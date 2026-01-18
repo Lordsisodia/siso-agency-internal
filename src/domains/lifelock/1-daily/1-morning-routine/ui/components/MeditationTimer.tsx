@@ -112,7 +112,7 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
       const result = await response.json();
 
       if (result.success) {
-        console.log('✅ Meditation session logged successfully:', result.data);
+        
       } else {
         console.error('❌ Failed to log meditation session:', result.error);
       }

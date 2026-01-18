@@ -95,7 +95,7 @@ export const PartnershipTraining = () => {
 
   // Handler for when an orb is clicked
   const handleItemSelect = (item: TimelineItem) => {
-    console.log(`🎯 PartnershipTraining received item:`, item.title);
+    
     setSelectedItem(item);
   };
   return (

@@ -226,13 +226,7 @@ export class AITaskService {
     // 2. Update ML models with new training data
     // 3. Adjust future estimates based on patterns
     
-    console.log('📚 AI Learning:', {
-      taskId,
-      actualDuration,
-      userSatisfaction,
-      message: 'Data logged for future model improvements'
-    });
-  }
+      }
 }
 
 // Singleton instance

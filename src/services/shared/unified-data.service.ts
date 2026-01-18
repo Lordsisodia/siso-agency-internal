@@ -12,8 +12,8 @@
 import { offlineDb, SyncableTable, OfflineSyncAction } from '@/services/offline/offlineDb';
 import { supabaseAnon } from '@/lib/services/supabase/clerk-integration';
 import { offlineManager } from '@/services/shared/offlineManager';
-import type { DeepWorkTask } from '@/domains/task-ui/hooks/useDeepWorkTasksSupabase';
-import type { LightWorkTask } from '@/domains/task-ui/hooks/useLightWorkTasksSupabase';
+import type { DeepWorkTask } from '@/domains/tasks/hooks/useDeepWorkTasksSupabase';
+import type { LightWorkTask } from '@/domains/tasks/hooks/useLightWorkTasksSupabase';
 import type { Database } from '@/types/supabase';
 
 const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL || '').trim();
@@ -480,7 +480,7 @@ class UnifiedDataService {
           if (isRlsDenied) {
             const fallback = await this.syncDailyReflectionViaApi(reflection, key);
             if (fallback) {
-              console.log('✅ Saved daily reflection via API fallback');
+              
               return;
             }
           }
@@ -488,7 +488,7 @@ class UnifiedDataService {
           // Queue for later sync
           await this.queueForSync('daily_reflections', 'upsert', dbRecord);
         } else {
-          console.log('✅ Successfully saved to Supabase:', data);
+          
 
           if (data) {
             const syncedRecord = this.mapDbReflectionToApp(data);
@@ -503,7 +503,7 @@ class UnifiedDataService {
         }
       }
     } else {
-      console.log('📴 Offline - queuing for later sync');
+      
       // Queue for later sync
       await this.queueForSync('daily_reflections', 'upsert', dbRecord);
     }
@@ -567,7 +567,7 @@ class UnifiedDataService {
     try {
       const local = await offlineDb.getTimeBlocks(userId, date);
       if (local.length > 0) {
-        console.log('📦 Loaded time blocks from cache:', local.length);
+        
         return local;
       }
     } catch (error) {
@@ -648,13 +648,7 @@ class UnifiedDataService {
     const online = this.isOnline();
     await offlineDb.saveTimeBlock(dbRecord, !online);
 
-    console.log('💾 Saving time block to Supabase:', {
-      title: dbRecord.title,
-      userId: dbRecord.user_id,
-      type: dbRecord.type,
-      taskIds: dbRecord.task_ids
-    });
-
+    
     // If online, sync to Supabase
     if (online) {
       try {
@@ -666,7 +660,7 @@ class UnifiedDataService {
           console.warn('❌ Failed to sync timeblock to Supabase:', error);
           await this.queueForSync('time_blocks', 'upsert', dbRecord);
         } else {
-          console.log('✅ Time block synced to Supabase:', timeBlock.title);
+          
           await offlineDb.saveTimeBlock(dbRecord, false);
         }
       } catch (error) {
@@ -674,13 +668,13 @@ class UnifiedDataService {
         await this.queueForSync('time_blocks', 'upsert', dbRecord);
       }
     } else {
-      console.log('📴 Offline - queued for sync');
+      
       await this.queueForSync('time_blocks', 'upsert', dbRecord);
     }
   }
 
   async updateTimeBlock(userId: string, date: string, id: string, updates: Partial<TimeBlock>): Promise<void> {
-    console.log('📝 Updating time block:', id, updates);
+    
 
     // Get existing blocks for this date
     const existingBlocks = await this.getTimeBlocks(userId, date);
@@ -756,7 +750,7 @@ class UnifiedDataService {
           console.warn('❌ Failed to update in Supabase:', error);
           await this.queueForSync('time_blocks', 'upsert', dbRecord);
         } else {
-          console.log('✅ Time block updated in Supabase');
+          
           await offlineDb.saveTimeBlock({ ...dbRecord, created_at: updatedBlock.created_at || new Date().toISOString() }, false);
         }
       } catch (error) {
@@ -767,7 +761,7 @@ class UnifiedDataService {
   }
 
   async deleteTimeBlock(id: string): Promise<void> {
-    console.log('🗑️ Deleting time block:', id);
+    
 
     await offlineDb.deleteTimeBlock(id);
 
@@ -784,7 +778,7 @@ class UnifiedDataService {
           console.warn('❌ Failed to delete from Supabase:', error);
           deleteFailed = true;
         } else {
-          console.log('✅ Time block deleted from Supabase');
+          
         }
       } catch (error) {
         console.warn('❌ Supabase delete error:', error);
@@ -935,11 +929,11 @@ class UnifiedDataService {
   // ===== SYNC OPERATIONS =====
   async syncAll(userId: string): Promise<void> {
     if (!this.isOnline()) {
-      console.log('⚠️ Offline - skipping sync');
+      
       return;
     }
 
-    console.log('🔄 Starting full sync...');
+    
 
     // Get all queued sync operations
     const allSettings = await this.getAllSettings();
@@ -961,7 +955,7 @@ class UnifiedDataService {
       }
     }
 
-    console.log('✅ Sync complete');
+    
   }
 
   private async getAllSettings(): Promise<Array<{ key: string; value: any }>> {

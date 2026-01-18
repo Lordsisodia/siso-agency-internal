@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
-import { useLightWorkTasksSupabase } from '@/domains/task-ui/hooks/useLightWorkTasksSupabase';
-import { useDeepWorkTasksSupabase } from '@/domains/task-ui/hooks/useDeepWorkTasksSupabase';
+import { useLightWorkTasksSupabase } from '@/domains/tasks/hooks/useLightWorkTasksSupabase';
+import { useDeepWorkTasksSupabase } from '@/domains/tasks/hooks/useDeepWorkTasksSupabase';
 import { useMorningRoutineSupabase } from '@/domains/lifelock/1-daily/1-morning-routine/hooks/useMorningRoutineSupabase';
 import { useHomeWorkoutSupabase } from '@/domains/lifelock/1-daily/5-stats/domain/useHomeWorkoutSupabase';
 import { format, parseISO, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
@@ -292,14 +292,7 @@ export function useTimelineTasks(options: UseTimelineTasksOptions = {}) {
         finalTaskData.priority = aiAnalysis.priority;
         finalTaskData.estimatedDuration = aiAnalysis.estimatedDuration;
         
-        console.log('🤖 AI Task Analysis:', {
-          title: taskData.title,
-          aiPriority: aiAnalysis.priority,
-          aiDuration: aiAnalysis.estimatedDuration,
-          reasoning: aiAnalysis.reasoning,
-          confidence: aiAnalysis.confidence
-        });
-      } catch (error) {
+              } catch (error) {
         console.warn('AI analysis failed, using defaults:', error);
       }
     }
@@ -429,13 +422,7 @@ export function useTimelineTasks(options: UseTimelineTasksOptions = {}) {
         estimatedDuration: aiAnalysis.estimatedDuration
       });
       
-      console.log('🤖 AI Priority Update:', {
-        taskId,
-        oldPriority: task.priority,
-        newPriority: aiAnalysis.priority,
-        reasoning: aiAnalysis.reasoning
-      });
-      
+            
       return aiAnalysis;
     } catch (error) {
       console.error('AI priority adjustment failed:', error);
@@ -447,7 +434,7 @@ export function useTimelineTasks(options: UseTimelineTasksOptions = {}) {
   const updateTimeLimit = async (taskId: string, newLimit: number) => {
     try {
       await updateTask(taskId, { estimatedDuration: newLimit });
-      console.log('⏱️ Time Limit Updated:', { taskId, newLimit });
+      
     } catch (error) {
       console.error('Failed to update time limit:', error);
       throw error;

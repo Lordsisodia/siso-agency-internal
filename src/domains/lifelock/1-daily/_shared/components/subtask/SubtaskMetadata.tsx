@@ -51,22 +51,13 @@ export const SubtaskMetadata: React.FC<SubtaskMetadataProps> = ({
     <div
       className="flex items-center justify-between"
       onClick={(e) => {
-        console.log('🔍 [SubtaskMetadata] Container clicked!', {
-          target: e.target,
-          currentTarget: e.currentTarget,
-          subtaskId: subtask.id
-        });
-      }}
+              }}
     >
       {/* Left side: Due date and Priority */}
       <div
         className="flex items-center gap-3"
         onClick={(e) => {
-          console.log('🔍 [SubtaskMetadata] Left side container clicked!', {
-            target: e.target,
-            currentTarget: e.currentTarget
-          });
-        }}
+                  }}
       >
         {/* Due date indicator - opens calendar */}
         <div className="relative">
@@ -100,21 +91,12 @@ export const SubtaskMetadata: React.FC<SubtaskMetadataProps> = ({
         {onPriorityChange ? (
           <div
             onClick={(e) => {
-              console.log('🔍 [SubtaskMetadata] PrioritySelector wrapper clicked!', {
-                target: e.target,
-                currentTarget: e.currentTarget,
-                subtaskId: subtask.id
-              });
-            }}
+                          }}
           >
             <PrioritySelector
               value={(subtask.priority || 'medium') as PriorityLevel}
               onChange={(priority) => {
-                console.log('✅ [SubtaskMetadata] Priority change callback triggered:', {
-                  subtaskId: subtask.id,
-                  newPriority: priority
-                });
-                onPriorityChange(subtask.id, priority);
+                                onPriorityChange(subtask.id, priority);
               }}
               size="sm"
             />

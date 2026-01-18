@@ -170,7 +170,7 @@ export class VoiceService {
 
       try {
         this.isListening = true;
-        console.log('✅ [VOICE AI] Set isListening = true, about to start Deepgram...');
+        
         await deepgramService.startRealTimeTranscription(
           onResult,
           (error) => {
@@ -536,7 +536,7 @@ export class VoiceService {
 
   // Stop any currently playing TTS
   public stopTTS(): void {
-    console.log('🛑 [VOICE AI] stopTTS() called');
+    
 
     // Stop OpenAI/Groq TTS audio
     if (this.currentAudio) {

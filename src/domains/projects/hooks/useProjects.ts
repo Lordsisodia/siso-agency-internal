@@ -21,11 +21,11 @@ export function useProjects() {
     queryKey: ['projects'],
     queryFn: async () => {
       if (!user) {
-        console.log('No authenticated user found');
+        
         throw new Error('Authentication required');
       }
 
-      console.log('Fetching Ubahcrypt project data');
+      
       
       const { data: project, error } = await supabase
         .from('plans')
@@ -44,11 +44,11 @@ export function useProjects() {
       }
 
       if (!project) {
-        console.log('No project found');
+        
         return null;
       }
 
-      console.log('Raw project data:', project);
+      
 
       // Transform project into Project format
       const transformedProject = {
@@ -60,7 +60,7 @@ export function useProjects() {
         created_at: project.created_at
       };
 
-      console.log('Transformed project:', transformedProject);
+      
       return transformedProject;
     },
     enabled: !!user

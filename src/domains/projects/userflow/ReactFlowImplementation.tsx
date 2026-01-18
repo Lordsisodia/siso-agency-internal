@@ -263,14 +263,14 @@ export function ReactFlowImplementation({ projectId, onNodeSelect, setIsLoading 
     if (reactFlowInstance) {
       const flow = reactFlowInstance.toObject();
       // In a real implementation, we would save this to the server
-      console.log('Flow saved:', flow);
+      
       // API call would go here
     }
   }, [reactFlowInstance]);
 
   // Initialize ReactFlow instance
   const onInit = useCallback((instance: ReactFlowInstance) => {
-    console.log('ReactFlow initialized', instance);
+    
     setReactFlowInstance(instance);
     
     // First resize the viewport to get the proper size

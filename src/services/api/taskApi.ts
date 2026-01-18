@@ -3,11 +3,11 @@ import { supabase } from '@/services/integrations/supabase/client';
 import { Task, TaskCategory, TaskStats } from '@/types/task.types';
 
 export async function fetchTasks(category?: TaskCategory, userId?: string): Promise<Task[]> {
-  console.log('Fetching tasks with category:', category, 'and userId:', userId);
+  
   
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    console.log('No authenticated user found');
+    
     throw new Error('Not authenticated');
   }
   
@@ -16,12 +16,12 @@ export async function fetchTasks(category?: TaskCategory, userId?: string): Prom
     .select('id, title, description, status, priority, category, assigned_to, due_date, created_at, updated_at');
 
   if (category) {
-    console.log('Applying category filter:', category);
+    
     query = query.eq('category', category);
   }
   
   if (userId) {
-    console.log('Filtering tasks by assigned user:', userId);
+    
     query = query.eq('assigned_to', userId);
   }
 
@@ -32,16 +32,16 @@ export async function fetchTasks(category?: TaskCategory, userId?: string): Prom
     throw error;
   }
 
-  console.log('Tasks fetched successfully:', data);
+  
   return data as Task[];
 }
 
 export async function fetchTaskStats(userId?: string): Promise<TaskStats> {
-  console.log('Fetching task statistics for userId:', userId);
+  
   
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    console.log('No authenticated user found for task stats');
+    
     throw new Error('Not authenticated');
   }
   
@@ -90,7 +90,7 @@ export async function fetchTaskStats(userId?: string): Promise<TaskStats> {
       total: taskArray.length
     };
 
-    console.log('Task stats calculated successfully:', { totals, byStatus, byPriority });
+    
     
     return {
       byStatus,

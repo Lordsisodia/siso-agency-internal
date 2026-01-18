@@ -110,7 +110,7 @@ export function ClientsHeader({
               size="icon"
               className="ml-1"
               onClick={() => {
-                console.log("Open column customization");
+                
               }}
               title="Columns"
             >

@@ -18,7 +18,7 @@ export class MorningThoughtDumpToolExecutor {
    * Execute any tool by name
    */
   async executeTool(toolName: string, args: any): Promise<any> {
-    console.log(`🔧 [EXECUTOR] Running: ${toolName}`, args);
+    
 
     switch (toolName) {
       case 'get_todays_tasks':

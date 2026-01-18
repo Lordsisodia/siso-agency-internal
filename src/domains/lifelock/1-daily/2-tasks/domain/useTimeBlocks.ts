@@ -129,7 +129,7 @@ export function useTimeBlocks(options: UseTimeBlocksOptions): TimeBlockState & T
     
     autoSaveTimeoutRef.current = setTimeout(() => {
       // Auto-save logic can be implemented here if needed
-      console.log('Auto-save triggered');
+      
     }, autoSaveDelay);
   }, [autoSave, autoSaveDelay]);
 

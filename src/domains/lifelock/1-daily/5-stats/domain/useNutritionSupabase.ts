@@ -69,15 +69,15 @@ export function useNutritionSupabase(userId: string, date: string) {
 
   const saveNutrition = async (updatedNutrition: Partial<NutritionData>) => {
     try {
-      console.log('💾 [NUTRITION HOOK] Starting save operation:', { userId, date, updatedNutrition });
+      
       setSaving(true);
       setError(null);
       
       const newNutrition = { ...nutrition, ...updatedNutrition };
-      console.log('📝 [NUTRITION HOOK] Merged nutrition data:', newNutrition);
+      
 
       // Try to update existing record first
-      console.log('🔍 [NUTRITION HOOK] Checking for existing record...');
+      
       const { data: existingData, error: selectError } = await supabase
         .from('daily_health')
         .select('id')
@@ -91,7 +91,7 @@ export function useNutritionSupabase(userId: string, date: string) {
       }
 
       if (existingData) {
-        console.log('🔄 [NUTRITION HOOK] Updating existing record:', existingData.id);
+        
         // Update existing record
         const { error } = await supabase
           .from('daily_health')
@@ -107,9 +107,9 @@ export function useNutritionSupabase(userId: string, date: string) {
           console.error('❌ [NUTRITION HOOK] Update error:', error);
           throw error;
         }
-        console.log('✅ [NUTRITION HOOK] Successfully updated existing record');
+        
       } else {
-        console.log('➕ [NUTRITION HOOK] Creating new record...');
+        
         // Create new record
         const { error } = await supabase
           .from('daily_health')
@@ -125,11 +125,11 @@ export function useNutritionSupabase(userId: string, date: string) {
           console.error('❌ [NUTRITION HOOK] Insert error:', error);
           throw error;
         }
-        console.log('✅ [NUTRITION HOOK] Successfully created new record');
+        
       }
 
       setNutrition(newNutrition);
-      console.log('🎉 [NUTRITION HOOK] Save operation completed successfully');
+      
     } catch (err) {
       console.error('❌ [NUTRITION HOOK] Error saving nutrition data:', err);
       setError(err instanceof Error ? err.message : 'Failed to save nutrition data');
@@ -139,13 +139,13 @@ export function useNutritionSupabase(userId: string, date: string) {
   };
 
   const updateMeals = async (meals: MealData) => {
-    console.log('🍽️ [NUTRITION HOOK] Updating meals:', meals);
+    
     setNutrition(prev => ({ ...prev, meals }));
     return saveNutrition({ meals });
   };
 
   const updateMacros = async (macros: MacroData) => {
-    console.log('📊 [NUTRITION HOOK] Updating macros:', macros);
+    
     setNutrition(prev => ({ ...prev, macros }));
     return saveNutrition({ macros });
   };

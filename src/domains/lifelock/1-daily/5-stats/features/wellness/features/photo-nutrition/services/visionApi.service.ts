@@ -16,7 +16,7 @@ export class VisionApiService {
    */
   async analyzeFoodPhoto(photoUrl: string): Promise<VisionAnalysisResult> {
     try {
-      console.log('📸 [VISION] Analyzing food photo:', photoUrl);
+      
 
       const response = await fetch(OPENROUTER_API_URL, {
         method: 'POST',
@@ -66,7 +66,7 @@ export class VisionApiService {
       // Parse JSON response
       const macros: MacroEstimate = JSON.parse(content);
 
-      console.log('✅ [VISION] Analysis complete:', macros);
+      
 
       return {
         success: true,

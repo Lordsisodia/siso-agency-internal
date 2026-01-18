@@ -22,7 +22,7 @@
  */
 
 import { Task } from '@/domains/lifelock/1-daily/2-tasks/components-from-root/TaskCard';
-import { LightWorkOrchestrator } from '@/domains/task-ui/services/orchestrators/LightWorkOrchestrator';
+import { LightWorkOrchestrator } from '@/domains/tasks/services/orchestrators/LightWorkOrchestrator';
 
 /**
  * Light Work Task Service - Modernized with micro-decomposed architecture.

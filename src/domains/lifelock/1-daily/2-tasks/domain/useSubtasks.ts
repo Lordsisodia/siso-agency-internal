@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { calculateTaskProgress } from '@/domains/task-ui/utils/taskCardUtils';
+import { calculateTaskProgress } from '@/domains/tasks/utils/taskCardUtils';
 import { isFeatureEnabled } from '@/lib/utils/feature-flags';
 
 interface Subtask {

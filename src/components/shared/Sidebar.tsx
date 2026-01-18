@@ -46,7 +46,7 @@ export const Sidebar = () => {
     const href = e.currentTarget.getAttribute('href');
     if (!href) return;
 
-    console.log('Navigating to:', href); // Debug log
+    
 
     if (href.startsWith('/')) {
       navigate(href);

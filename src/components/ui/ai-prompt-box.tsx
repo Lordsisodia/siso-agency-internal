@@ -196,12 +196,7 @@ const useVoiceInput = () => {
 
       voiceService.startListening(
         (currentTranscript, isFinal) => {
-          console.log('📝 [VOICE INPUT] Transcript update:', { 
-            text: currentTranscript, 
-            isFinal, 
-            length: currentTranscript.length 
-          });
-          
+                    
           setTranscript(currentTranscript);
           
           if (isFinal && currentTranscript.trim() && !hasResolved) {
@@ -664,10 +659,10 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
   // Enhanced voice handlers with better permission handling and input stability
   const handleVoiceRecording = async () => {
     if (isRecording) {
-      console.log('🛑 [VOICE INPUT] Stopping voice recording...');
+      
       stopRecording();
     } else {
-      console.log('🎤 [VOICE INPUT] Starting voice recording session');
+      
       
       // Check browser compatibility first
       if (!voiceService.isSpeechRecognitionSupported()) {
@@ -683,7 +678,7 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
 
       // First try to check/request microphone permissions
       try {
-        console.log('🔐 [VOICE INPUT] Checking microphone permissions...');
+        
         const hasPermission = await voiceService.checkMicrophonePermissions();
         
         if (!hasPermission) {
@@ -695,20 +690,20 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
       }
 
       try {
-        console.log('🚀 [VOICE INPUT] Initiating speech recognition...');
+        
         const result = await startRecording();
         
-        console.log('✅ [VOICE INPUT] Voice recording completed successfully');
-        console.log('📝 [VOICE INPUT] Final transcript:', result);
+        
+        
 
         if (result.trim()) {
-          console.log('🎯 [VOICE INPUT] Setting transcript as input value');
+          
           
           // Set input value and preserve it during submission
           setInput(result);
           
           // Prevent immediate clearing - let user decide when to send
-          console.log('✅ [VOICE INPUT] Voice input set, ready for manual submission');
+          
         } else {
           console.warn('⚠️ [VOICE INPUT] Empty transcript received');
         }

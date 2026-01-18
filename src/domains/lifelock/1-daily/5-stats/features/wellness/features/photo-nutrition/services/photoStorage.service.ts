@@ -18,7 +18,7 @@ export class PhotoStorageService {
     file: File
   ): Promise<PhotoUploadResult> {
     try {
-      console.log('📤 [STORAGE] Uploading photo...', { userId, date, fileName: file.name });
+      
 
       // Generate unique filename
       const timestamp = Date.now();
@@ -42,7 +42,7 @@ export class PhotoStorageService {
         .from(this.bucket)
         .getPublicUrl(data.path);
 
-      console.log('✅ [STORAGE] Photo uploaded:', urlData.publicUrl);
+      
 
       return {
         success: true,
@@ -76,7 +76,7 @@ export class PhotoStorageService {
 
       if (error) throw error;
 
-      console.log('✅ [STORAGE] Photo deleted');
+      
       return true;
 
     } catch (error) {

@@ -109,7 +109,7 @@ const AdminLifeLockDay: React.FC = () => {
   };
 
   const handleQuickAdd = () => {
-    console.log('Quick add task');
+    
   };
 
   const navigateWeek = (direction: 'prev' | 'next') => {
@@ -154,7 +154,7 @@ const AdminLifeLockDay: React.FC = () => {
 
   // REMOVED: Auth check - now publicly accessible for testing
   // If user is not signed in, internalUserId will be null and the UI will work in demo mode
-  console.log('🔓 LifeLock Daily accessible in demo mode - authentication optional');
+  
 
 return (
     <AdminLayout>

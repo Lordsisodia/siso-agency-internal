@@ -566,7 +566,7 @@ async function triggerEmailNotification(notification: {
 }): Promise<void> {
   try {
     // This will be implemented with Supabase Edge Functions
-    console.log('Email notification triggered:', notification);
+    
     
     // TODO: Call Supabase Edge Function for email sending
     // await supabase.functions.invoke('send-email', {

@@ -7,7 +7,7 @@
 import { GLMMCPClient } from '@/services/mcp/glm-client';
 import { SupabaseMCPClient } from '@/services/mcp/supabase-client';
 import type { AIRequest, AIResponse } from '../types/context';
-import type { Task } from '@/domains/task-ui/stores/taskStore';
+import type { Task } from '@/domains/tasks/stores/taskStore';
 
 let glmClient: GLMMCPClient | null = null;
 let supabaseClient: SupabaseMCPClient | null = null;

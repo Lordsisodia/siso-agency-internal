@@ -136,7 +136,7 @@ export const getDataSummary = (): string => {
  */
 export const logAllData = (): void => {
   const data = checkAllSavedData();
-  console.log('🔍 All Saved User Data:', data);
-  console.log('📋 Data Summary:');
-  console.log(getDataSummary());
+  
+  
+  
 }; 
