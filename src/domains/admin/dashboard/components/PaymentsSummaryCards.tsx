@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/financials/payments/PaymentsSummaryCards.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/admin/financials/payments/PaymentsSummaryCards';
-export { default } from '@/domains/admin/financials/payments/PaymentsSummaryCards';
+export * from '@/agency/financials/payments/PaymentsSummaryCards';
+export { default } from '@/agency/financials/payments/PaymentsSummaryCards';

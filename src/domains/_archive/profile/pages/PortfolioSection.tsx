@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { PartnershipLayout } from '@/domains/admin/partners/external/partnerships/components/PartnershipLayout';
+import { PartnershipLayout } from '@/agency/partners/external/partnerships/components/PartnershipLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';

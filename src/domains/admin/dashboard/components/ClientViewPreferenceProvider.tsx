@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/clients/providers/ClientViewPreferenceProvider.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/admin/clients/providers/ClientViewPreferenceProvider';
-export { default } from '@/domains/admin/clients/providers/ClientViewPreferenceProvider';
+export * from '@/agency/clients/providers/ClientViewPreferenceProvider';
+export { default } from '@/agency/clients/providers/ClientViewPreferenceProvider';

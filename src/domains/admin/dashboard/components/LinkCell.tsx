@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/clients/components/table-cells/LinkCell.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/admin/clients/components/table-cells/LinkCell';
-export { default } from '@/domains/admin/clients/components/table-cells/LinkCell';
+export * from '@/agency/clients/components/table-cells/LinkCell';
+export { default } from '@/agency/clients/components/table-cells/LinkCell';

@@ -4,7 +4,7 @@ import { supabase } from '@/services/integrations/supabase/client';
 import { useToast } from '@/lib/hooks/ui/useToast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TodoItem, ClientData } from '@/types/client.types';
-import { TodoList } from '@/domains/admin/clients/TodoList';
+import { TodoList } from '@/agency/clients/TodoList';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, Circle, Clock, FilterIcon } from 'lucide-react';

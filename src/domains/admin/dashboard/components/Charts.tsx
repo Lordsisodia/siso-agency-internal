@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/financials/Charts.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/admin/financials/Charts';
-export { default } from '@/domains/admin/financials/Charts';
+export * from '@/agency/financials/Charts';
+export { default } from '@/agency/financials/Charts';

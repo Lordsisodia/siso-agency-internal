@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/financials/RevenueTable.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/admin/financials/RevenueTable';
-export { default } from '@/domains/admin/financials/RevenueTable';
+export * from '@/agency/financials/RevenueTable';
+export { default } from '@/agency/financials/RevenueTable';

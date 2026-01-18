@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/financials/expense/ImportExpensesButton.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/admin/financials/expense/ImportExpensesButton';
-export { default } from '@/domains/admin/financials/expense/ImportExpensesButton';
+export * from '@/agency/financials/expense/ImportExpensesButton';
+export { default } from '@/agency/financials/expense/ImportExpensesButton';

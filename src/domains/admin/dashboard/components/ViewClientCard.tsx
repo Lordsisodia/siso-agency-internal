@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/clients/ViewClientCard.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/admin/clients/ViewClientCard';
-export { default } from '@/domains/admin/clients/ViewClientCard';
+export * from '@/agency/clients/ViewClientCard';
+export { default } from '@/agency/clients/ViewClientCard';

@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/clients/ClientsControlsBar.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/admin/clients/ClientsControlsBar';
-export { default } from '@/domains/admin/clients/ClientsControlsBar';
+export * from '@/agency/clients/ClientsControlsBar';
+export { default } from '@/agency/clients/ClientsControlsBar';

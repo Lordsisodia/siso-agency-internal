@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/clients/ClientStatusBadge.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/admin/clients/ClientStatusBadge';
-export { default } from '@/domains/admin/clients/ClientStatusBadge';
+export * from '@/agency/clients/ClientStatusBadge';
+export { default } from '@/agency/clients/ClientStatusBadge';

@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/clients/context/ViewPreferenceContext.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/admin/clients/context/ViewPreferenceContext';
-export { default } from '@/domains/admin/clients/context/ViewPreferenceContext';
+export * from '@/agency/clients/context/ViewPreferenceContext';
+export { default } from '@/agency/clients/context/ViewPreferenceContext';

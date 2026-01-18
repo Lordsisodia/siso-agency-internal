@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/clients/ColumnManager.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/admin/clients/ColumnManager';
-export { default } from '@/domains/admin/clients/ColumnManager';
+export * from '@/agency/clients/ColumnManager';
+export { default } from '@/agency/clients/ColumnManager';

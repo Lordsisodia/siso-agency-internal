@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/clients/PriorityCard.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/admin/clients/PriorityCard';
-export { default } from '@/domains/admin/clients/PriorityCard';
+export * from '@/agency/clients/PriorityCard';
+export { default } from '@/agency/clients/PriorityCard';

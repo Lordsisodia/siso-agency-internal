@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/financials/ExpenseDetailsDialog.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/admin/financials/ExpenseDetailsDialog';
-export { default } from '@/domains/admin/financials/ExpenseDetailsDialog';
+export * from '@/agency/financials/ExpenseDetailsDialog';
+export { default } from '@/agency/financials/ExpenseDetailsDialog';

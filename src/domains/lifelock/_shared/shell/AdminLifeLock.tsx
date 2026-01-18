@@ -20,9 +20,6 @@ import { useModalHandlers } from '@/domains/lifelock/_shared/hooks';
 import { useTabConfiguration } from '@/domains/admin/hooks/useTabConfiguration';
 import { tabRegistry } from '@/services/shared/TabRegistry';
 
-// TaskProvider for service integration
-import { TasksProvider } from '@/domains/task-ui/stores/taskStore';
-
 // Day progress utilities
 import { calculateDayCompletionPercentage } from '@/lib/utils/api/dayProgress';
 
@@ -177,66 +174,64 @@ const AdminLifeLock: React.FC = memo(() => {
 
   return (
     <AdminLayout>
-      <TasksProvider>
-        {/* Removed wrapper div - TabLayoutWrapper handles full-screen layout */}
-        <TabLayoutWrapper 
-              selectedDate={dateNavigation.currentDate} 
-              onDateChange={dateNavigation.setCurrentDate}
-            >
-              {(activeTab, navigateDay, activeSubTab) => {
-                // Get tab-specific props using TabRegistry integration
-                const tabSpecificProps = getTabSpecificProps(activeTab, {
-                  selectedDate: dateNavigation.currentDate,
-                  dayCompletionPercentage,
-                  navigateDay,
-                  activeSubTab,
-                  handleQuickAdd,
-                  handleOrganizeTasks: lifeLockHook?.handleOrganizeTasks,
-                  isAnalyzingTasks: lifeLockHook?.isAnalyzingTasks,
-                  isProcessingVoice: lifeLockHook?.isProcessingVoice,
-                  handleVoiceCommand: lifeLockHook?.handleVoiceCommand,
-                  todayCard: lifeLockHook?.todayCard,
-                  userId: user?.id
-                });
-                
-                return (
-                  <SafeTabContentRenderer
-                    activeTab={activeTab as any}
-                    layoutProps={tabSpecificProps}
-                  />
-                );
-              }}
-            </TabLayoutWrapper>
+      {/* Removed wrapper div - TabLayoutWrapper handles full-screen layout */}
+      <TabLayoutWrapper
+            selectedDate={dateNavigation.currentDate}
+            onDateChange={dateNavigation.setCurrentDate}
+          >
+            {(activeTab, navigateDay, activeSubTab) => {
+              // Get tab-specific props using TabRegistry integration
+              const tabSpecificProps = getTabSpecificProps(activeTab, {
+                selectedDate: dateNavigation.currentDate,
+                dayCompletionPercentage,
+                navigateDay,
+                activeSubTab,
+                handleQuickAdd,
+                handleOrganizeTasks: lifeLockHook?.handleOrganizeTasks,
+                isAnalyzingTasks: lifeLockHook?.isAnalyzingTasks,
+                isProcessingVoice: lifeLockHook?.isProcessingVoice,
+                handleVoiceCommand: lifeLockHook?.handleVoiceCommand,
+                todayCard: lifeLockHook?.todayCard,
+                userId: user?.id
+              });
 
-        {/* Modals */}
-          {modalHandlers.isCreateTaskModalOpen && (
-            <CreateTaskModal
-              currentDate={dateNavigation.currentDate}
-              onClose={modalHandlers.closeCreateTaskModal}
-            />
-          )}
+              return (
+                <SafeTabContentRenderer
+                  activeTab={activeTab as any}
+                  layoutProps={tabSpecificProps}
+                />
+              );
+            }}
+          </TabLayoutWrapper>
 
-          {modalHandlers.isCreateHabitModalOpen && (
-            <CreateHabitModal
-              currentDate={dateNavigation.currentDate}
-              onClose={modalHandlers.closeCreateHabitModal}
-            />
-          )}
+      {/* Modals */}
+        {modalHandlers.isCreateTaskModalOpen && (
+          <CreateTaskModal
+            currentDate={dateNavigation.currentDate}
+            onClose={modalHandlers.closeCreateTaskModal}
+          />
+        )}
 
-          {modalHandlers.isCreateGoalModalOpen && (
-            <CreateGoalModal
-              currentDate={dateNavigation.currentDate}
-              onClose={modalHandlers.closeCreateGoalModal}
-            />
-          )}
+        {modalHandlers.isCreateHabitModalOpen && (
+          <CreateHabitModal
+            currentDate={dateNavigation.currentDate}
+            onClose={modalHandlers.closeCreateHabitModal}
+          />
+        )}
 
-          {modalHandlers.isCreateJournalModalOpen && (
-            <CreateJournalEntryModal
-              currentDate={dateNavigation.currentDate}
-              onClose={modalHandlers.closeCreateJournalModal}
-            />
-          )}
-      </TasksProvider>
+        {modalHandlers.isCreateGoalModalOpen && (
+          <CreateGoalModal
+            currentDate={dateNavigation.currentDate}
+            onClose={modalHandlers.closeCreateGoalModal}
+          />
+        )}
+
+        {modalHandlers.isCreateJournalModalOpen && (
+          <CreateJournalEntryModal
+            currentDate={dateNavigation.currentDate}
+            onClose={modalHandlers.closeCreateJournalModal}
+          />
+        )}
     </AdminLayout>
   );
 });

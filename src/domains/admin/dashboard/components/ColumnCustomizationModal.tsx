@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/clients/ColumnCustomizationModal.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/admin/clients/ColumnCustomizationModal';
-export { default } from '@/domains/admin/clients/ColumnCustomizationModal';
+export * from '@/agency/clients/ColumnCustomizationModal';
+export { default } from '@/agency/clients/ColumnCustomizationModal';

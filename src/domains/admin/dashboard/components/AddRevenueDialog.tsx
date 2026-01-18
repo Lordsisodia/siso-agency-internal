@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/financials/revenue/AddRevenueDialog.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/admin/financials/revenue/AddRevenueDialog';
-export { default } from '@/domains/admin/financials/revenue/AddRevenueDialog';
+export * from '@/agency/financials/revenue/AddRevenueDialog';
+export { default } from '@/agency/financials/revenue/AddRevenueDialog';

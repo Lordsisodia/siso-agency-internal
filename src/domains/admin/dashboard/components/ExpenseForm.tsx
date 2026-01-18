@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/financials/expense/ExpenseForm.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/admin/financials/expense/ExpenseForm';
-export { default } from '@/domains/admin/financials/expense/ExpenseForm';
+export * from '@/agency/financials/expense/ExpenseForm';
+export { default } from '@/agency/financials/expense/ExpenseForm';

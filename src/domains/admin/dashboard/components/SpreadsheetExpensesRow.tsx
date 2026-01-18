@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/financials/expense/SpreadsheetExpensesRow.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/admin/financials/expense/SpreadsheetExpensesRow';
-export { default } from '@/domains/admin/financials/expense/SpreadsheetExpensesRow';
+export * from '@/agency/financials/expense/SpreadsheetExpensesRow';
+export { default } from '@/agency/financials/expense/SpreadsheetExpensesRow';

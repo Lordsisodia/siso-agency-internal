@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/financials/TotalCostCard.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/admin/financials/TotalCostCard';
-export { default } from '@/domains/admin/financials/TotalCostCard';
+export * from '@/agency/financials/TotalCostCard';
+export { default } from '@/agency/financials/TotalCostCard';

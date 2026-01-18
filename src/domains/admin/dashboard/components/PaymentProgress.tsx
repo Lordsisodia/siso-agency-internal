@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/financials/payments/PaymentProgress.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/admin/financials/payments/PaymentProgress';
-export { default } from '@/domains/admin/financials/payments/PaymentProgress';
+export * from '@/agency/financials/payments/PaymentProgress';
+export { default } from '@/agency/financials/payments/PaymentProgress';
