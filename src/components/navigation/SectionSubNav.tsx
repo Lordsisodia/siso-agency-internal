@@ -17,7 +17,7 @@ import { CheckCircle2, MoreVertical } from 'lucide-react';
 import { NavSubSection } from '@/services/shared/navigation-config';
 import { cn } from '@/lib/utils';
 import { useLongPress } from '@/lib/hooks/ui/useLongPress';
-import { miniCelebrate } from '@/lib/utils/confetti';
+import { miniCelebrate } from '@/lib/utils/ui/confetti';
 
 interface SectionSubNavProps {
   subSections: NavSubSection[];

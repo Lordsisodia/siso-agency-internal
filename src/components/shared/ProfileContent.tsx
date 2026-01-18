@@ -1,6 +1,6 @@
 
 import { useProfileData } from '@/domains/profile/hooks/useProfileData';
-import { ProfileInfo } from '@/internal/profile/ProfileInfo';
+import { ProfileInfo } from '@/domains/profile/ui/ProfileInfo';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/lib/hooks/ui/useToast';
 import { supabase } from '@/services/integrations/supabase/client';
