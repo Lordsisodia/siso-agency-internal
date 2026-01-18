@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/lib/hooks/ui/useToast';
 import { supabase } from '@/services/integrations/supabase/client';
 import { LeaderboardEntry, LeaderboardFilter, LeaderboardStats, TrendStats } from '../types';
-import { safeGet } from '@/lib/utils/typeHelpers'; 
+import { safeGet } from '@/lib/utils/core/typeHelpers'; 
 
 export const useLeaderboardData = () => {
   const [loading, setLoading] = useState<boolean>(true);

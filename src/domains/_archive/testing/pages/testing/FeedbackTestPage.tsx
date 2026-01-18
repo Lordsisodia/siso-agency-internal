@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { SimpleFeedbackButton } from '@/domains/feedback/SimpleFeedbackButton';
-import { feedbackService } from '@/services/data/feedbackService';
+import { feedbackService } from "@/services/data/feedbackService";
 
 const FeedbackTestPage = () => {
   const [testResults, setTestResults] = useState<string[]>([]);

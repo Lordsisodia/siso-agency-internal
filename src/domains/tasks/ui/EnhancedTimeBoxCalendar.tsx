@@ -44,7 +44,7 @@ import {
   CompletionStatus,
   Priority
 } from '@/types/timeblock.types';
-import { TimeBlockOverlapUtils } from '@/lib/utils/timeblock-overlap.utils';
+import { TimeBlockOverlapUtils } from '@/lib/utils/timeblock/timeblock-overlap.utils';
 import { EnhancedTaskDetailModal } from '@/domains/tasks/components-from-shared/EnhancedTaskDetailModal';
 import { EnhancedTask } from '@/services/shared/task.service';
 

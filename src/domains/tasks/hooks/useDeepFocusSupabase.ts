@@ -7,7 +7,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/services/supabase/client';
-import { useClerkUser } from './useClerkUser';
+import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { useSupabaseClient, useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 
 interface DeepFocusSession {

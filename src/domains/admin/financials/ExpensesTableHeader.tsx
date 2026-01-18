@@ -4,8 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Search, Filter, FileDown, FilePlus } from "lucide-react";
 import { ColumnCustomization } from "./table/ColumnCustomization";
 import { SavedViewsManager } from "./table/SavedViewsManager";
-import { TableColumn } from "@/lib/hooks/useTableColumns";
-import { SavedView } from "@/lib/hooks/useTableViews";
+import { TableColumn } from '@/domains/admin/hooks/useTableColumns';
+import { SavedView } from '@/domains/admin/hooks/useTableViews';
 
 interface ExpensesTableHeaderProps {
   searchQuery: string;

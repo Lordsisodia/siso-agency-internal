@@ -1,6 +1,6 @@
 
 import React, { useRef, useState, useEffect } from 'react';
-import { TableColumn } from "@/lib/hooks/useTableColumns";
+import { TableColumn } from '@/domains/admin/hooks/useTableColumns';
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import "@/components/ui/hide-scrollbar.css";

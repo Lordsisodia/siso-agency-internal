@@ -7,7 +7,7 @@ import { enhancedTimeBlockService } from '@/services/shared/task.service';
 import { DaySchedule, WorkSchedulePreferences, EnhancedTimeBlock } from '@/types/timeblock.types';
 import { supabaseAnon } from '@/lib/services/supabase/clerk-integration';
 import { useUser } from '@clerk/clerk-react';
-import { TimeBlockOverlapUtils } from '@/lib/utils/timeblock-overlap.utils';
+import { TimeBlockOverlapUtils } from '@/lib/utils/timeblock/timeblock-overlap.utils';
 
 interface TimeBlockViewProps {
   currentDate: Date;

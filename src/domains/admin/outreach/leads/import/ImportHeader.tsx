@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
-import { downloadTemplate } from '@/lib/utils/downloadUtils';
+import { downloadTemplate } from '@/lib/utils/ui/downloadUtils';
 import {
   Select,
   SelectContent,

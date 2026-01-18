@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/services/integrations/supabase/client';
 import { useIsClient } from './useIsClient';
 import { ClientData, TodoItem } from '@/types/client.types';
-import { createDefaultClientData } from '@/lib/utils/clientDataProcessors';
+import { createDefaultClientData } from '@/lib/utils/client/clientDataProcessors';
 import { sampleClients } from '@/lib/data/sampleClients';
 
 /**

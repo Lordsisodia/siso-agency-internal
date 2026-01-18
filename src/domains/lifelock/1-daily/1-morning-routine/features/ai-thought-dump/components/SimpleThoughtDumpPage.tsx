@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Mic, MicOff, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { voiceService } from '@/services/voice';
+import { voiceService } from '@/domains/lifelock/services';
 import { lifeLockVoiceTaskProcessor } from '../services/ai/taskProcessor.service';
 import { gpt5NanoService } from '../services/ai/gpt5Nano.service';
 import { ALL_MORNING_AI_TOOLS, MorningThoughtDumpToolExecutor } from '../services/tools';

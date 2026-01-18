@@ -48,7 +48,7 @@ import { GamificationService } from "@/domains/lifelock/_shared/services/gamific
 import { getDeepWorkPriorityMultiplier } from "@/domains/lifelock/1-daily/_shared/utils/taskXpCalculations";
 import { useClientsList } from "@/domains/client/hooks/useClientsList";
 import { Building2 } from "lucide-react";
-import { useGamificationInit } from "@/lib/hooks/useGamificationInit";
+import { useGamificationInit } from '@/domains/lifelock/_shared/hooks/useGamificationInit';
 import { useDeepWorkTimers, formatMsAsClock } from "../../hooks/useDeepWorkTimers";
 
 // Type definitions - exact same as original

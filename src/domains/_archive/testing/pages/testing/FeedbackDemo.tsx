@@ -3,7 +3,7 @@ import { CleanFeedbackManager } from '@/domains/feedback/CleanFeedbackManager';
 import { SimpleFeedbackList } from '@/domains/feedback/SimpleFeedbackList';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { feedbackService } from '@/services/data/feedbackService';
+import { feedbackService } from "@/services/data/feedbackService";
 
 interface FeedbackItem {
   id: string;

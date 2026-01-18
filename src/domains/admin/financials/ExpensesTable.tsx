@@ -40,7 +40,7 @@ import {
 } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import { Input } from "@/components/ui/input";
-import { useExpensesTableData } from "@/lib/hooks/useExpensesTableData";
+import { useExpensesTableData } from '@/domains/admin/hooks/useExpensesTableData';
 import { FinancialTransaction } from "@/domains/financial";
 import { formatCurrency } from "@/lib/formatters";
 import { Badge } from "@/components/ui/badge";

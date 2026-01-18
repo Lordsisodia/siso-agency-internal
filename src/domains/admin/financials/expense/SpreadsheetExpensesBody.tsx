@@ -2,7 +2,7 @@
 import { SpreadsheetExpenseRow } from "./SpreadsheetExpenseRow";
 import { SpreadsheetExpensesEmpty } from "./SpreadsheetExpensesEmpty";
 import { FinancialTransaction } from "@/domains/financial";
-import { TableColumn } from "@/lib/hooks/useTableColumns";
+import { TableColumn } from '@/domains/admin/hooks/useTableColumns';
 
 interface SpreadsheetExpensesBodyProps {
   expenses: FinancialTransaction[];

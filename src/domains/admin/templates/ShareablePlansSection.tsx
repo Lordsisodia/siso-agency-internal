@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { useQuery } from '@tanstack/react-query';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CreatePlanDialog } from './CreatePlanDialog';
-// import { planTemplatesApi, PlanTemplate } from '@/lib/utils/planTemplatesApi';
+// import { planTemplatesApi, PlanTemplate } from '@/lib/utils/api/planTemplatesApi';
 
 // Temporary interface until we set up the database
 interface PlanTemplate {

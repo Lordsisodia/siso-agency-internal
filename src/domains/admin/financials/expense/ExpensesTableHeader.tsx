@@ -1,7 +1,7 @@
 
 import { TableHead, TableRow } from "@/components/ui/table";
 import { ArrowDown, ArrowUp, ArrowUpDown, Check, MoreHorizontal } from "lucide-react";
-import { TableColumn } from "@/lib/hooks/useTableColumns";
+import { TableColumn } from '@/domains/admin/hooks/useTableColumns';
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";

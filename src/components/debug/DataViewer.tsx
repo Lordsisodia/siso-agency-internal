@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Eye, EyeOff, RefreshCw } from 'lucide-react';
-import { checkAllSavedData, getDataSummary } from '@/lib/utils/dataChecker';
+import { checkAllSavedData, getDataSummary } from '@/lib/utils/api/dataChecker';
 import { cn } from '@/lib/utils';
 
 export function DataViewer() {

@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { dailyTrackerAI } from '@/services/shared/ai.service';
-import { voiceService } from '@/services/voice';
+import { voiceService } from '@/domains/lifelock/services';
 
 interface DailyTask {
   id: string;

@@ -23,7 +23,7 @@ import { useDeepWorkTasksSupabase, DeepWorkTask } from "@/domains/lifelock/1-dai
 import { sortSubtasksHybrid } from "@/domains/lifelock/1-daily/_shared/utils/subtaskSorting";
 import { GamificationService } from "@/domains/lifelock/_shared/services/gamificationService";
 import { getDeepWorkPriorityMultiplier } from "@/domains/lifelock/1-daily/_shared/utils/taskXpCalculations";
-import { useGamificationInit } from "@/lib/hooks/useGamificationInit";
+import { useGamificationInit } from '@/domains/lifelock/_shared/hooks/useGamificationInit';
 import { useDeepWorkTimers, formatMsAsClock } from "../../hooks/useDeepWorkTimers";
 import { format } from 'date-fns';
 import { UnifiedTaskCard, DEEP_THEME, UnifiedTask } from "@/domains/lifelock/1-daily/_shared/components/UnifiedTaskCard";

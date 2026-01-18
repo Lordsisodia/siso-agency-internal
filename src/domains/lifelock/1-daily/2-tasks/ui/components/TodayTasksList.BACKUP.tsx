@@ -42,7 +42,7 @@ import { useDeepWorkTasksSupabase, DeepWorkTask, DeepWorkSubtask } from "@/domai
 import { sortSubtasksHybrid } from "@/domains/lifelock/1-daily/_shared/utils/subtaskSorting";
 import { GamificationService } from "@/domains/lifelock/_shared/services/gamificationService";
 import { getLightWorkPriorityMultiplier } from "@/domains/lifelock/1-daily/_shared/utils/taskXpCalculations";
-import { useGamificationInit } from "@/lib/hooks/useGamificationInit";
+import { useGamificationInit } from '@/domains/lifelock/_shared/hooks/useGamificationInit';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 

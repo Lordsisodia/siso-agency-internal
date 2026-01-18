@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/lib/hooks/ui/useToast";
-import { inviteClientUser } from "@/lib/utils/inviteClientUser";
+import { inviteClientUser } from '@/lib/utils/validation/inviteClientUser';
 
 interface ClientInviteDialogProps {
   open: boolean;

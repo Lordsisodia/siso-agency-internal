@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CheckCircle, ArrowRight, InfoIcon } from 'lucide-react';
 import { AppPlanInput } from '@/types/appPlan.types';
-import { saveBusinessOnboardingData } from '@/lib/utils/clientData';
+import { saveBusinessOnboardingData } from '@/lib/utils/client/clientData';
 
 interface BusinessInfoFormProps {
   onComplete: (data: AppPlanInput) => void;

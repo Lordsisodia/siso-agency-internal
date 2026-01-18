@@ -10,7 +10,7 @@ export { SimpleThoughtDumpPage } from './components/SimpleThoughtDumpPage';
 export { ThoughtDumpResults } from './components/ThoughtDumpResults';
 
 // Services (only expose what's needed externally)
-export { voiceService } from '@/services/voice';  // Re-export shared service
+export { voiceService } from '@/domains/lifelock/services';  // Re-export shared service
 export { lifeLockVoiceTaskProcessor } from './services/ai/taskProcessor.service';
 
 // Types

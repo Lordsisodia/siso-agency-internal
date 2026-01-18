@@ -10,7 +10,7 @@ import { ToolActions } from '@/domains/tools/ToolActions';
 import { ToolStats } from '@/domains/tools/ToolStats';
 import { ToolVideos } from '@/domains/tools/ToolVideos';
 import { ToolTags } from '@/domains/tools/ToolTags';
-import { enhancedTableQuery, castToMockType, MockTypes } from '@/lib/utils/errorSuppressions';
+import { enhancedTableQuery, castToMockType, MockTypes } from '@/lib/utils/core/errorSuppressions';
 
 export default function ToolPage() {
   const { id } = useParams();

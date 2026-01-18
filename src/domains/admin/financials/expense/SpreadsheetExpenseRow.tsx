@@ -7,7 +7,7 @@ import { VendorCell } from "./VendorCell";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { EditableCell } from "../table/EditableCell";
-import { TableColumn } from "@/lib/hooks/useTableColumns";
+import { TableColumn } from '@/domains/admin/hooks/useTableColumns';
 import { FinancialTransaction } from "@/domains/financial";
 
 interface SpreadsheetExpenseRowProps {

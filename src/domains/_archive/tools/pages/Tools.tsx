@@ -7,7 +7,7 @@ import { toast } from 'react-hot-toast';
 import { ToolsPageHeader } from '@/internal/tools/ToolsPageHeader';
 import { MainContent } from '@/internal/tools/layout/MainContent';
 import { ChatAssistant } from '@/internal/tools/layout/ChatAssistant';
-import { enhancedTableQuery, castToMockTypeArray } from '@/lib/utils/errorSuppressions';
+import { enhancedTableQuery, castToMockTypeArray } from '@/lib/utils/core/errorSuppressions';
 import { Sidebar } from '@/components/shared/Sidebar';
 
 // [Analysis] Tools page with optimized auth handling and memoized filters

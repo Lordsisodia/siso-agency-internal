@@ -8,7 +8,7 @@ import { AgencyPainPointModal } from './AgencyPainPointModal';
 import { Badge } from '@/components/ui/badge';
 import { safeSupabase } from '@/services/shared/data.service';
 import { useParams } from 'react-router-dom';
-import { safeGet } from '@/lib/utils/typeHelpers';
+import { safeGet } from '@/lib/utils/core/typeHelpers';
 
 export interface PainPoint {
   id: string;

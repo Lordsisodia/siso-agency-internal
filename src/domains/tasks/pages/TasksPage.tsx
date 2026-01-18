@@ -5,7 +5,7 @@
 
 import React, { Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { TasksProvider, useTasks } from '@/lib/stores/tasks/taskProviderCompat';
+import { TasksProvider, useTasks } from '@/domains/tasks/stores/taskStore';
 import { TasksHeader } from '../components/TasksHeader';
 import { TasksFilters } from '../components/TasksFilters';
 import { TasksContent } from '../components/TasksContent';

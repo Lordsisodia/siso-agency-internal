@@ -81,7 +81,7 @@ import { Task } from '@/types/task.types';
 import { AppPlanInput } from '@/types/appPlan.types';
 import { format, differenceInMinutes, differenceInHours, differenceInDays } from 'date-fns';
 import { AppPlanInput, GeneratedAppPlan, AppPlanGenerationOptions, FeaturePlan, DevelopmentPhase, TechnicalRequirements, CostBreakdown, UIUXPlan } from '@/types/appPlan.types';
-import { getBusinessOnboardingData } from '@/lib/utils/clientData';
+import { getBusinessOnboardingData } from '@/lib/utils/client/clientData';
 
 export const AI_INTERFACE = {
   purpose: "Unified AI operations - consolidated from 8 services",

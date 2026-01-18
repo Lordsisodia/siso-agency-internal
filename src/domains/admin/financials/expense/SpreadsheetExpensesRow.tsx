@@ -7,7 +7,7 @@ import { ExpenseRowActions } from "../ExpenseRowActions";
 import { CategoryBadgeCell } from "./CategoryBadgeCell";
 import { RecurringBadgeCell } from "./RecurringBadgeCell";
 import { VendorCell } from "./VendorCell";
-import { TableColumn } from "@/lib/hooks/useTableColumns";
+import { TableColumn } from '@/domains/admin/hooks/useTableColumns';
 import { FinancialTransaction } from "@/domains/financial";
 
 interface SpreadsheetExpensesRowProps {

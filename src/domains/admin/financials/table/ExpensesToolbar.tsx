@@ -1,8 +1,8 @@
 
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import { TableColumn } from "@/lib/hooks/useTableColumns";
-import { SavedView } from "@/lib/hooks/useTableViews";
+import { TableColumn } from '@/domains/admin/hooks/useTableColumns';
+import { SavedView } from '@/domains/admin/hooks/useTableViews';
 import { ColumnCustomization } from "./ColumnCustomization";
 import { SavedViewsManager } from "./SavedViewsManager";
 

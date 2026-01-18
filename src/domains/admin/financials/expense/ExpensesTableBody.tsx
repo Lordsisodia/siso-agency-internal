@@ -2,7 +2,7 @@
 import { TableRow, TableCell } from "@/components/ui/table";
 import { FinancialTransaction } from "@/domains/financial";
 import { ExpenseRowActions } from "../ExpenseRowActions";
-import { TableColumn } from "@/lib/hooks/useTableColumns";
+import { TableColumn } from '@/domains/admin/hooks/useTableColumns';
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";

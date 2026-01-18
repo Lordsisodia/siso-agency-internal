@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { cn } from "@/lib/utils";
 import { FinancialTransaction } from "@/domains/financial";
-import { TableColumn } from "@/lib/hooks/useTableColumns";
+import { TableColumn } from '@/domains/admin/hooks/useTableColumns';
 import { SpreadsheetExpensesBody } from "./SpreadsheetExpensesBody";
 import { ExpensesTableHeader } from "./ExpensesTableHeader";
 import {

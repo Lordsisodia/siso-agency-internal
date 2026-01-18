@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { useUser } from "@/lib/hooks/useUser";
+import { useUser } from '@/lib/hooks/auth/useUser';
 import { Bell, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";

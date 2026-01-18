@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Sidebar } from '@/components/shared/Sidebar';
-import { safeTableQuery } from '@/lib/utils/errorSuppressions';
+import { safeTableQuery } from '@/lib/utils/core/errorSuppressions';
 
 const AINews = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
