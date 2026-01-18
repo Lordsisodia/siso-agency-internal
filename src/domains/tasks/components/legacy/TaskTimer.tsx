@@ -10,7 +10,7 @@ import { Play, Pause, Square } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { useTaskTimer } from '@/lib/domains/lifelock/1-daily/2-tasks/domain/useTaskTimer';
+import { useTaskTimer } from '@/domains/lifelock/1-daily/2-tasks/domain/useTaskTimer';
 import { motion } from 'framer-motion';
 
 interface TaskTimerProps {

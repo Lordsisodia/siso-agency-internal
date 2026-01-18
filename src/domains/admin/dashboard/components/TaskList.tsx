@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useTasks, TaskCategory, Task } from '@/lib/domains/lifelock/1-daily/2-tasks/domain/useTaskCRUD';
+import { useTasks, TaskCategory, Task } from '@/domains/lifelock/1-daily/2-tasks/domain/useTaskCRUD';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { TaskItem } from './TaskItem';

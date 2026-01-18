@@ -5,9 +5,9 @@ import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { TabLayoutWrapper } from '@/domains/lifelock/_shared/core/TabLayoutWrapper';
 
 import { getTaskService } from '@/services/database/TaskServiceRegistry';
-import { useTaskCRUD } from '@/lib/domains/lifelock/1-daily/2-tasks/domain/useTaskCRUD';
-import { useTaskState } from '@/lib/domains/lifelock/1-daily/2-tasks/domain/useTaskState';
-import { useTaskValidation } from '@/lib/domains/lifelock/1-daily/2-tasks/domain/useTaskValidation';
+import { useTaskCRUD } from '@/domains/lifelock/1-daily/2-tasks/domain/useTaskCRUD';
+import { useTaskState } from '@/domains/lifelock/1-daily/2-tasks/domain/useTaskState';
+import { useTaskValidation } from '@/domains/lifelock/1-daily/2-tasks/domain/useTaskValidation';
 
 
 
@@ -17,14 +17,14 @@ import useDateNavigation from '@/domains/lifelock/_shared/hooks/useDateNavigatio
 import { useModalHandlers } from '@/domains/lifelock/_shared/hooks';
 
 // New TabRegistry integration
-import { useTabConfiguration } from '@/lib/domains/admin/hooks/useTabConfiguration';
+import { useTabConfiguration } from '@/domains/admin/hooks/useTabConfiguration';
 import { tabRegistry } from '@/services/shared/TabRegistry';
 
 // TaskProvider for service integration
-import { TasksProvider } from '@/lib/stores/tasks/taskProviderCompat';
+import { TasksProvider } from '@/domains/tasks/stores/taskStore';
 
 // Day progress utilities
-import { calculateDayCompletionPercentage } from '@/lib/utils/dayProgress';
+import { calculateDayCompletionPercentage } from '@/lib/utils/api/dayProgress';
 
 // Modal components (assuming they exist or need to be created)
 import { CreateTaskModal } from '@/domains/lifelock/1-daily/_shared/modals/CreateTaskModal';

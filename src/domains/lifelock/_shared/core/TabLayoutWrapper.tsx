@@ -20,7 +20,7 @@ import { useDateScreenTimeMap } from '@/domains/lifelock/1-daily/_shared/hooks/u
 import { SectionSubNav } from '@/components/navigation/SectionSubNav';
 import { celebrateSides } from '@/lib/utils/confetti';
 import { cn } from '@/lib/utils';
-import { calculateDayCompletionPercentage } from '@/lib/utils/dayProgress';
+import { calculateDayCompletionPercentage } from '@/lib/utils/api/dayProgress';
 import { checkMorningRoutineCompletion, getDefaultTimeboxSubtab } from '@/domains/lifelock/_shared/utils/timeboxNavigation';
 import { useSubtabCompletion } from '@/domains/lifelock/_shared/services/subtabCompletionService';
 

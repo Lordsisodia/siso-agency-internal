@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 
 import { format } from 'date-fns';
 import { useAuth } from '@clerk/clerk-react';
-import { useDailyReflections } from '@/lib/domains/lifelock/1-daily/5-stats/domain/useDailyReflections';
+import { useDailyReflections } from '@/domains/lifelock/1-daily/5-stats/domain/useDailyReflections';
 import { calculateTotalCheckoutXP } from '../../domain/xpCalculations';
 import { GamificationService } from '@/domains/lifelock/_shared/services/gamificationService';
 

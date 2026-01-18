@@ -13,7 +13,7 @@ import {
 import { ClickThroughFeatureSelection } from './ClickThroughFeatureSelection';
 import { RecommendedPackage } from './RecommendedPackage';
 import { UpsellSection } from './UpsellSection';
-import { useRecommendedPackage } from '@/lib/domains/admin/hooks/useRecommendedPackage';
+import { useRecommendedPackage } from '@/domains/admin/hooks/useRecommendedPackage';
 import { UserFacingFeatures } from './UserFacingFeatures';
 
 interface FeatureSectionProps {

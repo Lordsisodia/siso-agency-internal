@@ -14,7 +14,7 @@ import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 
 import { TimeboxSectionProps, TimeboxTask, DragPreviewState, GapFillerState, FocusSprintType } from '../../domain/types';
 import { mapUIToCategory } from '../../domain/utils';
-import { useAutoTimeblocks } from '@/lib/domains/lifelock/1-daily/6-timebox/domain/useAutoTimeblocks';
+import { useAutoTimeblocks } from '@/domains/lifelock/1-daily/6-timebox/domain/useAutoTimeblocks';
 import { useTimeboxCalculations } from '../../domain/useTimeboxCalculations';
 import { useTimeboxHandlers } from '../../domain/useTimeboxHandlers';
 import { TimeboxStats } from '../components/TimeboxStats';

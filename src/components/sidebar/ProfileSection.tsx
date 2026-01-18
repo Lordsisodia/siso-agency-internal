@@ -12,7 +12,7 @@ import {
 import { supabase } from '@/services/integrations/supabase/client';
 import { useToast } from '@/lib/hooks/ui/useToast';
 import { usePoints } from '@/domains/xp-store/_shared/core/usePoints';
-import { useBasicUserData } from '@/lib/domains/lifelock/_shared/hooks/useBasicUserData';
+import { useBasicUserData } from '@/domains/lifelock/_shared/hooks/useBasicUserData';
 
 interface ProfileSectionProps {
   collapsed: boolean;

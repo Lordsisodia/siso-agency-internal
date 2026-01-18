@@ -1,6 +1,6 @@
 
 import { Card, CardContent } from '@/components/ui/card';
-import { useLeadStats } from '@/lib/domains/admin/hooks/useLeadStats';
+import { useLeadStats } from '@/domains/admin/hooks/useLeadStats';
 import { Users, MessageSquare, Send, FileText, Award } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';

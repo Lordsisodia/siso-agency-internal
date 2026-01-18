@@ -27,7 +27,7 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
-import { MorningRoutineMetadata, useMorningRoutineSupabase } from '@/lib/domains/lifelock/1-daily/1-morning-routine/hooks/useMorningRoutineSupabase';
+import { MorningRoutineMetadata, useMorningRoutineSupabase } from '@/domains/lifelock/1-daily/1-morning-routine/hooks/useMorningRoutineSupabase';
 import { SimpleThoughtDumpPage, ThoughtDumpResults, lifeLockVoiceTaskProcessor } from '@/domains/lifelock/1-daily/1-morning-routine/features/ai-thought-dump';
 import type { ThoughtDumpResult } from '@/domains/lifelock/1-daily/1-morning-routine/features/ai-thought-dump';
 import { getRotatingQuotes } from '@/lib/data/motivational-quotes';
@@ -40,7 +40,7 @@ import { WakeUpTimeTracker } from '../components/WakeUpTimeTracker';
 import { PlanDayActions } from '../components/PlanDayActions';
 import { MotivationalQuotes } from '../components/MotivationalQuotes';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useAutoTimeblocks } from '@/lib/domains/lifelock/1-daily/6-timebox/domain/useAutoTimeblocks';
+import { useAutoTimeblocks } from '@/domains/lifelock/1-daily/6-timebox/domain/useAutoTimeblocks';
 import { GamificationService } from '@/domains/lifelock/_shared/services/gamificationService';
 import {
   calculateMinutesSinceWake,

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Task } from '@/types/task.types';
 import { TaskCard } from './TaskCard';
-import { useTimeWindow } from '@/lib/domains/lifelock/1-daily/2-tasks/domain/useTimeWindow';
-import { useCheckInOut } from '@/lib/domains/lifelock/1-daily/5-stats/domain/useCheckInOut';
+import { useTimeWindow } from '@/domains/lifelock/1-daily/2-tasks/domain/useTimeWindow';
+import { useCheckInOut } from '@/domains/lifelock/1-daily/5-stats/domain/useCheckInOut';
 import { CheckInOutDialog } from './CheckInOutDialog';
 import { TimelineRuler } from './timeline/TimelineRuler';
 import { TimeIndicator } from './timeline/TimeIndicator';

@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { useLeadImport, ImportLead } from '@/lib/domains/admin/hooks/useLeadImport';
+import { useLeadImport, ImportLead } from '@/domains/admin/hooks/useLeadImport';
 
 export type ImportMode = 'skip' | 'update' | 'merge' | 'fail';
 

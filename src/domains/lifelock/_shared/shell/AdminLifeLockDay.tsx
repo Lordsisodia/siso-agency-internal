@@ -4,14 +4,14 @@ import { format, addWeeks, subWeeks, getYear, parse, isValid } from 'date-fns';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
-import { useGamificationInit } from '@/lib/domains/lifelock/_shared/hooks/useGamificationInit';
+import { useGamificationInit } from '@/domains/lifelock/_shared/hooks/useGamificationInit';
 import { ThoughtDumpResults } from "@/components/shared/ui";
 import { EisenhowerMatrixModal } from "@/components/shared/ui";
 import { LifeLockViewRenderer } from '@/domains/lifelock/_shared/core/LifeLockViewRenderer';
 import { useRefactoredLifeLockData } from '@/domains/lifelock/_shared/core/useRefactoredLifeLockData';
 import { LoadingState } from '@/components/ui/loading-state';
 import { selectImplementation } from '@/lib/utils/feature-flags';
-import { calculateDayCompletionPercentage } from '@/lib/utils/dayProgress';
+import { calculateDayCompletionPercentage } from '@/lib/utils/api/dayProgress';
 
 const AdminLifeLockDay: React.FC = () => {
   const navigate = useNavigate();

@@ -13,7 +13,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
-import { useExpensesSort } from '@/lib/domains/admin/hooks/useExpensesSort';
+import { useExpensesSort } from '@/domains/admin/hooks/useExpensesSort';
 
 interface AirtableExpensesGridProps {
   expenses: FinancialTransaction[];

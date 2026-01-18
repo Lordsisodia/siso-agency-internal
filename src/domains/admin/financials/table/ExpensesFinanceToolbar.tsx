@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { TableColumn } from '@/lib/domains/admin/hooks/useTableColumns';
+import { TableColumn } from '@/domains/admin/hooks/useTableColumns';
 import { Button } from '@/components/ui/button';
 import { ColumnCustomization } from './ColumnCustomization';
 import { FinancialTransaction } from '@/domains/financial';

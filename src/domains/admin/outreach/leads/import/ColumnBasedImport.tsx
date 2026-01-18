@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { useBulkImport } from '@/lib/domains/admin/hooks/useBulkImport';
+import { useBulkImport } from '@/domains/admin/hooks/useBulkImport';
 import { ImportProgress } from './ImportProgress';
 import { ValidationErrors } from '../ValidationErrors';
 

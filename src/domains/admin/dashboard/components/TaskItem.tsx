@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Calendar, Clock, User, AlertTriangle, AlertCircle, Circle } from 'lucide-react';
 import { format } from 'date-fns';
-import { Task } from '@/lib/domains/lifelock/1-daily/2-tasks/domain/useTaskCRUD';
+import { Task } from '@/domains/lifelock/1-daily/2-tasks/domain/useTaskCRUD';
 
 interface TaskItemProps {
   task: Task;

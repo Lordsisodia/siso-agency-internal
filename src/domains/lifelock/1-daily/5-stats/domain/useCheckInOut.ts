@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useTasks, Task } from '@/lib/domains/lifelock/1-daily/2-tasks/domain/useTaskCRUD';
+import { useTasks, Task } from '@/domains/lifelock/1-daily/2-tasks/domain/useTaskCRUD';
 import { format } from 'date-fns';
 import { useToast } from '@/components/ui/use-toast';
 

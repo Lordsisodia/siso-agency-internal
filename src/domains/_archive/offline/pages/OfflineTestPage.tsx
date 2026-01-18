@@ -10,8 +10,8 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle, XCircle, Wifi, WifiOff, RefreshCw, Trash2, Database } from 'lucide-react';
 import { offlineDb } from '@/services/offline/offlineDb';
 import { offlineManager } from '@/services/shared/offlineManager';
-// import { useMorningRoutineSupabase } from '@/lib/domains/lifelock/1-daily/1-morning-routine/hooks/useMorningRoutineSupabase'; // TODO: Hook needs to be created
-// import { useHomeWorkoutSupabase } from '@/lib/domains/lifelock/1-daily/5-stats/domain/useHomeWorkoutSupabase'; // TODO: Hook needs to be created
+// import { useMorningRoutineSupabase } from '@/domains/lifelock/1-daily/1-morning-routine/hooks/useMorningRoutineSupabase'; // TODO: Hook needs to be created
+// import { useHomeWorkoutSupabase } from '@/domains/lifelock/1-daily/5-stats/domain/useHomeWorkoutSupabase'; // TODO: Hook needs to be created
 import { useLightWorkTasksSupabase } from '@/domains/tasks/hooks/useLightWorkTasksSupabase';
 import { useDeepWorkTasksSupabase } from '@/domains/tasks/hooks/useDeepWorkTasksSupabase';
 

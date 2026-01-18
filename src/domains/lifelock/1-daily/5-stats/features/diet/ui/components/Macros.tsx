@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
-import { useNutritionSupabase } from '@/lib/domains/lifelock/1-daily/5-stats/domain/useNutritionSupabase';
+import { useNutritionSupabase } from '@/domains/lifelock/1-daily/5-stats/domain/useNutritionSupabase';
 import { format } from 'date-fns';
 
 interface MacrosProps {

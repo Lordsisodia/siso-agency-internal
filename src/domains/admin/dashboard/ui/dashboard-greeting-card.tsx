@@ -6,7 +6,7 @@
  */
 
 import { motion } from 'framer-motion';
-import { useDayPeriod } from '@/lib/domains/lifelock/_shared/hooks/useDayPeriod';
+import { useDayPeriod } from '@/domains/lifelock/_shared/hooks/useDayPeriod';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { useTaskDragDrop } from '@/lib/domains/lifelock/1-daily/2-tasks/domain/useTaskCRUD';
+import { useTaskDragDrop } from '@/domains/lifelock/1-daily/2-tasks/domain/useTaskCRUD';
 import { useIsMobile } from '@/lib/hooks/ui/useMobile';
 
 interface TimelineRulerProps {

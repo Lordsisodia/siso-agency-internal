@@ -7,8 +7,8 @@ import { ClerkProvider } from '@/domains/auth';
 import App from './App';
 import './index.css';
 import { ErrorFallback } from '@/components/shared/ErrorFallback';
-import { checkEnv } from '@/lib/utils/envCheck';
-import { registerServiceWorker } from '@/lib/utils/registerServiceWorker';
+import { checkEnv } from '@/lib/utils/core/envCheck';
+import { registerServiceWorker } from '@/lib/utils/core/registerServiceWorker';
 
 // Check environment on load
 if (import.meta.env.PROD) {
