@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { safeSupabase } from '@/services/shared/data.service';
 import { useToast } from '@/lib/hooks/use-toast';
-import FeatureFlags from '@/lib/utils/featureFlags';
+import FeatureFlags from '@/lib/utils/feature-flags';
 
 // Enhanced interface for the daily summary data with proper types
 export interface DailySummaryData {

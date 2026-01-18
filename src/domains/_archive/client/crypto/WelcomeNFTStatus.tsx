@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Confetti } from '@/components/ui/confetti';
 import { safeSupabase } from '@/services/shared/data.service';
 import { supabase } from '@/services/integrations/supabase/client';  
-import FeatureFlags from '@/lib/utils/featureFlags';
+import FeatureFlags from '@/lib/utils/feature-flags';
 import { safeCast } from '@/services/shared/data.service';
 
 interface NFTMetadata {

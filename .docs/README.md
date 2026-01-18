@@ -8,9 +8,16 @@ Use this file as the map. Content is organized into **9 numbered areas** followi
 
 ## 🤖 For AI Agents
 
-**Start Here**: Read `AI-READY.md` for quick navigation or `AI-KNOWLEDGE-CATALOG.json` for complete file mapping.
+**Auto-Generated Catalog**: Run `npm run docs:index` to generate `.docs/index.json`
 
-These files provide structured knowledge for intelligent context retrieval and file discovery.
+**Quick Navigation**: Read `AI-READY.md` for quick reference or `CONTRIBUTING-TO-DOCUMENTATION.md` for the documentation system guide.
+
+**Legacy Catalog**: `AI-KNOWLEDGE-CATALOG.json` is deprecated; use auto-generated `index.json` instead.
+
+The documentation system uses:
+- **YAML Frontmatter** - Machine-readable metadata in each file
+- **Wiki-Style Links** - `[[filename]]` syntax for relationships
+- **Auto-Generated Index** - Run `npm run docs:index` to create `.docs/index.json`
 
 ---
 
@@ -240,8 +247,9 @@ These files provide structured knowledge for intelligent context retrieval and f
 **When adding files**:
 1. Put them in the appropriate numbered category (01-09)
 2. Use the appropriate subdirectory (max 3 levels deep)
-3. Update the folder's README.md if needed
-4. Update `AI-KNOWLEDGE-CATALOG.json` for AI agents
+3. Add YAML frontmatter with metadata (see `CONTRIBUTING-TO-DOCUMENTATION.md`)
+4. Update the folder's README.md if needed
+5. Run `npm run docs:index` to regenerate the documentation catalog
 
 **When removing files**:
 1. Delete empty folders immediately
@@ -256,4 +264,4 @@ This documentation is designed to be:
 - **AI-friendly** - Structured catalog for intelligent context retrieval
 - **Maintainable** - Clear conventions and organization principles
 
-For AI integration details, see `AI-READY.md` and `AI-KNOWLEDGE-CATALOG.json`.
+For AI integration details, see `CONTRIBUTING-TO-DOCUMENTATION.md`.

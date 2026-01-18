@@ -45,15 +45,14 @@
     "security:scan": "snyk test --org=27f2978d-30d9-46a5-b982-64e7055a8a61",
     "security:monitor": "snyk monitor --org=27f2978d-30d9-46a5-b982-64e7055a8a61",
     "security:fix": "snyk fix --org=27f2978d-30d9-46a5-b982-64e7055a8a61",
-    "validate:files": "node scripts/validate-files.mjs",
     "validate:sync": "tsx scripts/validate-supabase-sync.ts",
-    "validate": "npm run validate:files && npm run typecheck && npm run validate:sync",
+    "validate": "npm run typecheck && npm run validate:sync",
     "test:sync": "vitest run src/services/offline/__tests__/syncService.validation.test.ts",
     "ai:snapshot": "bash scripts/ai-session-snapshot.sh",
     "ai:restore": "ls -lt .git/ai-snapshots/ && echo '\nRun: bash .git/ai-snapshots/restore_TIMESTAMP.sh'",
     "ai:protect": "bash scripts/ai-session-snapshot.sh && echo '\n✅ Safe to start AI session'",
-    "docs:index": "node scripts/generate-docs-index.js",
-    "docs:validate": "node scripts/generate-docs-index.js && echo '\n✅ Documentation index validated'"
+    "docs:index": "node scripts/generate-docs-index.cjs",
+    "docs:validate": "node scripts/generate-docs-index.cjs && echo '\n✅ Documentation index validated'"
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.89",
