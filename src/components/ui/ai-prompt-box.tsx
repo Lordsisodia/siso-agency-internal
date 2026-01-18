@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 // Import voice service
-import { voiceService } from '@/services/voice';
+import { voiceService } from '@/domains/lifelock/services';
 
 // Embedded CSS for minimal custom styles
 const styles = `

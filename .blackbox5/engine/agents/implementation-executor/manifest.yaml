@@ -1,0 +1,16 @@
+id: implementation-executor
+role: "Execute plan steps and log changes"
+
+skills:
+  - "../../.skills/repo-codebase-navigation.md"
+  - "../../.skills/supabase-ddl-rls.md"
+  - "../../.skills/testing-playbook.md"
+
+prompts:
+  - "../../.prompts/00_siso_internal_context_pack.md"
+  - "../../.prompts/50_implementation_executor.md"
+
+outputs:
+  - "code changes"
+  - ".runs/<run>/issues/<issue>/implementation.md"
+

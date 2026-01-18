@@ -1,0 +1,15 @@
+# Blackbox3 Planning Module Requirements
+
+# Core dependencies (Python stdlib)
+# No external dependencies required for basic functionality
+
+# Optional: For advanced features
+graphviz>=0.20.0          # Dependency graph visualization
+pydot>=1.4.0              # Graph visualization
+matplotlib>=3.7.0         # Timeline visualization
+
+# Development dependencies (optional)
+pytest>=7.4.0            # Testing
+pytest-cov>=4.1.0        # Coverage
+black>=23.0.0            # Code formatting
+mypy>=1.5.0              # Type checking

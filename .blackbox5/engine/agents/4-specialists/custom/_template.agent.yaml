@@ -1,0 +1,45 @@
+# .blackbox v3 - Agent Template
+# Copy this template to create new agents
+
+agent:
+  metadata:
+    id: "module/agents/agent-id"
+    name: "Agent Name"
+    title: "Agent Title Description"
+    icon: "🎯"
+    version: "1.0.0"
+    module: "module-name"
+
+  persona:
+    role: "Describe the agent's primary role"
+    identity: "Detailed description of who this agent is, their expertise, and background"
+    communication_style: "How they communicate (e.g., friendly, formal, technical)"
+    principles: |
+      - "Principle 1"
+      - "Principle 2"
+      - "Principle 3"
+
+  capabilities:
+    - "Capability 1"
+    - "Capability 2"
+    - "Capability 3"
+
+  critical_actions:
+    - "Action 1 to perform on load"
+    - "Action 2 to perform on load"
+
+  menu:
+    - trigger: "*workflow or fuzzy match on workflow-name"
+      action: "execute workflow modules/module/workflows/workflow-name"
+      description: "[*workflow] Workflow Description"
+
+  dependencies:
+    modules:
+      - "module1"
+      - "module2"
+
+  data_access:
+    read:
+      - "modules/module/data/**"
+    write:
+      - "artifacts/**"

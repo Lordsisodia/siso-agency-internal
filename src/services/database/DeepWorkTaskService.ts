@@ -21,8 +21,8 @@
  * - Orchestration: DeepWorkOrchestrator (480 lines)
  */
 
-import { Task } from '@/components/tasks/TaskCard';
-import { DeepWorkOrchestrator } from '../tasks/orchestrators/DeepWorkOrchestrator';
+import { Task } from '@/domains/lifelock/1-daily/2-tasks/components-from-root/TaskCard';
+import { DeepWorkOrchestrator } from '@/domains/tasks/services/orchestrators/DeepWorkOrchestrator';
 
 /**
  * Deep Work Task Service - Modernized with micro-decomposed architecture.

@@ -8,7 +8,7 @@ import { useIsMobile } from '@/lib/hooks/ui/useMobile';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSelectedProject } from '@/domains/projects/hooks/useSelectedProject';
-import { CollapsedProjectCard } from '@/client/client/CollapsedProjectCard';
+import { CollapsedProjectCard } from '@/domains/projects/types/CollapsedProjectCard';
 import {
   DropdownMenu,
   DropdownMenuContent,

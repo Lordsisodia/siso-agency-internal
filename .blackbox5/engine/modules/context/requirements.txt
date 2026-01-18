@@ -1,0 +1,19 @@
+# Blackbox3 Context Module Requirements
+
+# Core dependencies (Python stdlib)
+# No external dependencies required for basic functionality
+
+# Optional: For advanced features
+chromadb>=0.4.0          # Semantic search integration
+sentence-transformers>=2.2.0  # Text embeddings
+numpy>=1.24.0            # Numerical operations
+
+# Optional: For enhanced storage backends
+redis>=4.5.0             # Redis backend support
+s3fs>=2023.0.0           # S3 backend support
+
+# Development dependencies (optional)
+pytest>=7.4.0            # Testing
+pytest-cov>=4.1.0        # Coverage
+black>=23.0.0            # Code formatting
+mypy>=1.5.0              # Type checking

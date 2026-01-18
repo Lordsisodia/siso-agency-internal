@@ -23,7 +23,7 @@
 import { BaseTaskService } from './BaseTaskService';
 import { LightWorkTaskService } from './LightWorkTaskService';
 import { DeepWorkTaskService } from './DeepWorkTaskService';
-import { Task } from '@/components/tasks/TaskCard';
+import { Task } from '@/domains/lifelock/1-daily/2-tasks/components-from-root/TaskCard';
 
 // Service registration metadata
 // This provides information about each service for monitoring and management

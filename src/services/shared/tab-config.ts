@@ -38,7 +38,7 @@ export {
   useTabList, 
   useTabSuggestion,
   useTabConfigHealth 
-} from '../../lib/hooks/useTabConfiguration';
+} from '@/domains/admin/hooks/useTabConfiguration';
 
 // Re-export all types
 export type * from '../types/tab-types';

@@ -18,7 +18,7 @@
  * while providing common functionality like caching and retry logic in the base class.
  */
 
-import { Task, Subtask } from '@/components/tasks/TaskCard';
+import { Task, Subtask } from '@/domains/lifelock/1-daily/2-tasks/components-from-root/TaskCard';
 import { supabase, TABLES } from '@/lib/services/supabase/client';
 
 // Core database result structure for consistent error handling

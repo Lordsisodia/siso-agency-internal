@@ -21,8 +21,8 @@
  * - Orchestration: LightWorkOrchestrator (320 lines)
  */
 
-import { Task } from '@/components/tasks/TaskCard';
-import { LightWorkOrchestrator } from '../tasks/orchestrators/LightWorkOrchestrator';
+import { Task } from '@/domains/lifelock/1-daily/2-tasks/components-from-root/TaskCard';
+import { LightWorkOrchestrator } from '@/domains/tasks/services/orchestrators/LightWorkOrchestrator';
 
 /**
  * Light Work Task Service - Modernized with micro-decomposed architecture.

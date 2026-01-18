@@ -1,0 +1,80 @@
+# OSS Discovery defaults (used by start-oss-discovery-cycle.sh)
+#
+# Keep this file simple (top-level key: value pairs) because the runner parses it
+# without any external YAML dependencies.
+
+queries_md: ".blackbox/snippets/research/github-search-queries.md"
+feature_map: "05-planning/research/competitor-feature-map.md"
+
+# Output sizing (tune depending on whether you have a GitHub token set)
+max_repos: 75
+max_queries_per_group: 4
+max_total_queries: 40
+
+# Filtering (applied as GitHub Search qualifiers)
+min_stars: 50
+include_forks: false
+include_archived: false
+
+# Excludes (reduce low-signal results like templates/starters)
+# This is applied after GitHub search results return (name/description match).
+# Add/remove carefully — this trades recall for precision.
+exclude_keywords: "template, starter, boilerplate, example, demo, awesome"
+exclude_regex: ""
+
+# Rotation (optional but recommended to increase coverage over time)
+enable_query_rotation: true
+state_file: ".blackbox/.local/oss-discovery-state.json"
+
+# Gap boost (optional): run a second targeted search using suggested gap queries,
+# merge results, then proceed to metadata fetch.
+enable_gap_boost: true
+gap_boost_min_count: 1
+gap_boost_max_total_queries: 8
+
+# If the gap boost search returns 0 results, relax min_stars and retry once.
+gap_boost_retry_on_empty: true
+gap_boost_min_stars_override: ""   # empty = reuse min_stars
+gap_boost_min_stars_relaxed: 50
+
+# If still empty after the relaxed retry, optionally retry once more with excludes disabled
+# (improves recall; can reintroduce templates/boilerplates).
+gap_boost_relax_excludes_on_empty: false
+
+# Auto-tune (optional): if repeated runs are blocked without a token, reduce API calls
+# in subsequent runs unless you explicitly override via CLI flags.
+enable_auto_tune: true
+auto_tune_threshold_failures: 2
+auto_tune_max_total_queries: 4
+auto_tune_max_repos: 25
+
+# Prefer-new repos (optional): after search, try to remove repos already present in the
+# cross-run catalog so each cycle trends toward new discoveries.
+prefer_new_repos: true
+prefer_new_fallback_to_seen: true
+catalog_file: ".blackbox/oss-catalog/catalog.json"
+curation_file: ".blackbox/oss-catalog/curation.json"
+prefer_new_keep_curated_statuses: "adopt,poc,deepen"
+
+# Catalog gap boost (optional): if prefer-new results in too few repos, run a small
+# second search using the *catalog-driven* gap queries to top up the tranche.
+enable_catalog_gap_boost: true
+catalog_gap_boost_min_tranche_repos: 12
+catalog_gap_boost_max_total_queries: 6
+catalog_gap_boost_min_stars_relaxed: 25
+catalog_gap_boost_max_tags_per_run: 3
+catalog_gap_boost_avoid_recent_tags: true
+
+# Coverage quota boost (optional): ensure minimum per-tag coverage in the *current run*
+# by generating gap queries from the merged search candidates (after prefer-new) and
+# running one small additional search.
+enable_coverage_quota_boost: true
+coverage_quota_min_count_per_tag: 2
+coverage_quota_max_total_queries: 6
+coverage_quota_min_stars_relaxed: 25
+coverage_quota_max_tags_per_run: 3
+coverage_quota_rotate_tags: true
+coverage_quota_avoid_recent_tags: true
+
+# Recent tag cache (shared): avoid repeatedly querying the same gap tags.
+gap_tag_recent_window: 10

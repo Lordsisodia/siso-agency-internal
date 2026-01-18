@@ -9,7 +9,7 @@
  */
 
 import React from 'react';
-import { TaskContainerV2 } from '@/components/tasks/TaskContainerV2';
+import { TaskContainerV2 } from '@/domains/lifelock/1-daily/2-tasks/components-from-root/TaskContainerV2';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
 /**

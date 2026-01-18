@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OSS Discovery Extracted Candidates",
+  "type": "object",
+  "required": ["generated_at_utc", "source", "count", "candidates"],
+  "properties": {
+    "generated_at_utc": { "type": "string" },
+    "source": {
+      "type": "object",
+      "required": ["entries_dir"],
+      "properties": {
+        "entries_dir": { "type": "string" }
+      }
+    },
+    "count": { "type": "integer", "minimum": 0 },
+    "candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "full_name",
+          "url",
+          "license_spdx",
+          "license_bucket",
+          "language",
+          "stars",
+          "forks",
+          "updated_at",
+          "topics",
+          "tags",
+          "description",
+          "score",
+          "rationale"
+        ],
+        "properties": {
+          "full_name": { "type": "string" },
+          "url": { "type": "string" },
+          "license_spdx": { "type": "string" },
+          "license_bucket": { "type": "string", "enum": ["safe", "verify", "flagged"] },
+          "language": { "type": "string" },
+          "stars": { "type": "integer", "minimum": 0 },
+          "forks": { "type": "integer", "minimum": 0 },
+          "updated_at": { "type": "string" },
+          "topics": { "type": "array", "items": { "type": "string" } },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "description": { "type": "string" },
+          "score": { "type": "integer", "minimum": 0, "maximum": 100 },
+          "rationale": { "type": "string" }
+        }
+      }
+    }
+  }
+}
+

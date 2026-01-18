@@ -1,0 +1,37 @@
+{
+  "name": "ralph-agent",
+  "type": "autonomous-builder",
+  "description": "Ralph Wiggum autonomous AI agent for continuous Blackbox3 validation and improvement",
+  "version": "1.0.0",
+  "created": "2026-01-15",
+  "status": "active",
+  "capabilities": [
+    "autonomous-coding",
+    "sub-agent-spawning",
+    "continuous-validation",
+    "issue-detection",
+    "automated-fixing",
+    "documentation-generation"
+  ],
+  "context": {
+    "parent_system": "Blackbox3",
+    "protocols": ["BMAD", "file-based", "bash-first", "manual-control"],
+    "workspace": "agents/ralph-agent/work",
+    "logs": "agents/ralph-agent/logs",
+    "context_storage": "agents/ralph-agent/context"
+  },
+  "permissions": {
+    "can_spawn_sub_agents": true,
+    "can_write_to_workspace": true,
+    "can_read_blackbox3": true,
+    "can_commit_changes": true,
+    "can_document_work": true,
+    "requires_human_review": true
+  },
+  "workflow": {
+    "prd_source": "ralph/.agents/tasks/prd.json",
+    "prompt_template": "ralph/.agents/ralph/PROMPT_build_blackbox3.md",
+    "output_directory": "ralph/work",
+    "documentation_target": "agents/ralph-agent/work"
+  }
+}
