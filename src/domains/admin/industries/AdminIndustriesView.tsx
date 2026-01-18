@@ -19,11 +19,11 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { formatIndustryFocus, formatIndustryStatus } from '@/domains/agency/industries/utils/formatters';
-import { useIndustriesList } from '@/domains/agency/industries/hooks/useIndustriesList';
-import { INDUSTRY_FOCUS_LEVELS, INDUSTRY_STATUS_OPTIONS } from '@/domains/agency/industries/constants';
-import type { IndustryWithMeta } from '@/domains/agency/industries/types/industry.types';
-import { IndustryDetailSheet } from '@/domains/agency/industries/IndustryDetailSheet';
+import { formatIndustryFocus, formatIndustryStatus } from '@/domains/admin/industries/utils/formatters';
+import { useIndustriesList } from '@/domains/admin/industries/hooks/useIndustriesList';
+import { INDUSTRY_FOCUS_LEVELS, INDUSTRY_STATUS_OPTIONS } from '@/domains/admin/industries/constants';
+import type { IndustryWithMeta } from '@/domains/admin/industries/types/industry.types';
+import { IndustryDetailSheet } from '@/domains/admin/industries/IndustryDetailSheet';
 
 type SortableColumn = 'name' | 'status' | 'focus_level' | 'updated_at';
 

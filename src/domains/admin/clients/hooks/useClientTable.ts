@@ -1,7 +1,7 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { ClientData, ClientViewPreference } from '@/types/client.types';
-import { useClientsList } from '@/domains/agency/clients/hooks';
+import { useClientsList } from '@/domains/admin/clients/hooks';
 import { useToast } from '@/lib/hooks/ui/useToast';
 import { supabase } from '@/services/integrations/supabase/client';
 

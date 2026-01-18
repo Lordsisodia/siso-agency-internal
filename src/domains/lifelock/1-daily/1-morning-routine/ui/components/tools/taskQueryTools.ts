@@ -21,20 +21,28 @@ export class TaskQueryTools {
   async getTodaysTasks(includeCompleted = false) {
     console.log(`🔍 [TOOL] getTodaysTasks(includeCompleted: ${includeCompleted})`);
 
-    const [deepResult, lightResult] = await Promise.all([
-      supabase
-        .from('deep_work_tasks')
-        .select('*, subtasks:deep_work_subtasks(*)')
-        .eq('user_id', this.userId)
-        .eq('current_date', this.dateString)
-        .eq('completed', includeCompleted ? undefined : false),
+    // Build queries - conditionally filter by completed
+    let deepQuery = supabase
+      .from('deep_work_tasks')
+      .select('*, subtasks:deep_work_subtasks(*)')
+      .eq('user_id', this.userId)
+      .eq('current_date', this.dateString);
 
-      supabase
-        .from('light_work_tasks')
-        .select('*, subtasks:light_work_subtasks(*)')
-        .eq('user_id', this.userId)
-        .eq('current_date', this.dateString)
-        .eq('completed', includeCompleted ? undefined : false)
+    let lightQuery = supabase
+      .from('light_work_tasks')
+      .select('*, subtasks:light_work_subtasks(*)')
+      .eq('user_id', this.userId)
+      .eq('current_date', this.dateString);
+
+    // Only filter by completed if NOT including completed tasks
+    if (!includeCompleted) {
+      deepQuery = deepQuery.eq('completed', false);
+      lightQuery = lightQuery.eq('completed', false);
+    }
+
+    const [deepResult, lightResult] = await Promise.all([
+      deepQuery,
+      lightQuery
     ]);
 
     const deepTasks = deepResult.data || [];
@@ -300,6 +308,83 @@ export class TaskQueryTools {
       matchingTasks,
       searchTerm: keyword,
       resultsCount: matchingTasks.length
+    };
+  }
+
+  /**
+   * 9. Check upcoming deadlines
+   */
+  async checkUpcomingDeadlines(daysAhead: number = 3) {
+    console.log(`🔍 [TOOL] checkUpcomingDeadlines(${daysAhead} days ahead)`);
+
+    const today = new Date();
+    const futureDate = new Date();
+    futureDate.setDate(today.getDate() + daysAhead);
+
+    const todayStr = today.toISOString().split('T')[0];
+    const futureStr = futureDate.toISOString().split('T')[0];
+
+    // Query both deep and light work tasks with due dates
+    const [deepResult, lightResult] = await Promise.all([
+      supabase
+        .from('deep_work_tasks')
+        .select('*')
+        .eq('user_id', this.userId)
+        .eq('completed', false)
+        .gte('task_date', todayStr)
+        .lte('task_date', futureStr)
+        .order('task_date', { ascending: true }),
+
+      supabase
+        .from('light_work_tasks')
+        .select('*')
+        .eq('user_id', this.userId)
+        .eq('completed', false)
+        .gte('task_date', todayStr)
+        .lte('task_date', futureStr)
+        .order('task_date', { ascending: true })
+    ]);
+
+    const allTasks = [
+      ...(deepResult.data || []).map(t => ({ ...t, workType: 'deep' })),
+      ...(lightResult.data || []).map(t => ({ ...t, workType: 'light' }))
+    ];
+
+    // Categorize by urgency
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString().split('T')[0];
+
+    const urgent = allTasks.filter(t => t.task_date === todayStr);
+    const soon = allTasks.filter(t => t.task_date > todayStr && t.task_date <= tomorrowStr);
+    const upcoming = allTasks.filter(t => t.task_date > tomorrowStr);
+
+    console.log(`✅ [TOOL] Found ${urgent.length} urgent, ${soon.length} soon, ${upcoming.length} upcoming deadlines`);
+
+    return {
+      urgent: urgent.map(t => ({
+        title: t.title,
+        dueDate: t.task_date,
+        daysUntil: 0,
+        workType: t.workType,
+        estimatedTime: t.estimated_duration || 'not set'
+      })),
+      soon: soon.map(t => ({
+        title: t.title,
+        dueDate: t.task_date,
+        daysUntil: 1,
+        workType: t.workType,
+        estimatedTime: t.estimated_duration || 'not set'
+      })),
+      upcoming: upcoming.map(t => ({
+        title: t.title,
+        dueDate: t.task_date,
+        daysUntil: Math.ceil((new Date(t.task_date).getTime() - today.getTime()) / (1000 * 60 * 60 * 24)),
+        workType: t.workType,
+        estimatedTime: t.estimated_duration || 'not set'
+      })),
+      totalCount: allTasks.length,
+      hasUrgent: urgent.length > 0
     };
   }
 }

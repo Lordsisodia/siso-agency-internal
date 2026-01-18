@@ -5,7 +5,7 @@ import type {
   IndustryDocumentRow,
   IndustryRow,
   IndustryTaskRow,
-} from '@/domains/agency/industries/types/industry.types';
+} from '@/domains/admin/industries/types/industry.types';
 
 interface IndustryDetailState {
   industry: IndustryRow | null;

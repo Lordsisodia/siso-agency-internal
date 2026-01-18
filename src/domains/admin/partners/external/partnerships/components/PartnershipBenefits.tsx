@@ -3,5 +3,5 @@
 // Canonical: src/domains/partners/partnership/partnership/PartnershipBenefits.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/agency/partners/partnership/partnership/PartnershipBenefits';
-export { default } from '@/domains/agency/partners/partnership/partnership/PartnershipBenefits';
+export * from '@/domains/admin/partners/partnership/partnership/PartnershipBenefits';
+export { default } from '@/domains/admin/partners/partnership/partnership/PartnershipBenefits';

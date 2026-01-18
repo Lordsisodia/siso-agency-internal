@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/financials/FinancialPipeline.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/agency/financials/FinancialPipeline';
-export { default } from '@/domains/agency/financials/FinancialPipeline';
+export * from '@/domains/admin/financials/FinancialPipeline';
+export { default } from '@/domains/admin/financials/FinancialPipeline';

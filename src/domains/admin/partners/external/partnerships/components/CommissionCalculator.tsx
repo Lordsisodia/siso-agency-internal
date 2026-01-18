@@ -3,5 +3,5 @@
 // Canonical: src/domains/partners/partnership/partnership/CommissionCalculator.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/agency/partners/partnership/partnership/CommissionCalculator';
-export { default } from '@/domains/agency/partners/partnership/partnership/CommissionCalculator';
+export * from '@/domains/admin/partners/partnership/partnership/CommissionCalculator';
+export { default } from '@/domains/admin/partners/partnership/partnership/CommissionCalculator';

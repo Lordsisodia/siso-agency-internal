@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/financials/SoftwareExpenseStats.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/agency/financials/SoftwareExpenseStats';
-export { default } from '@/domains/agency/financials/SoftwareExpenseStats';
+export * from '@/domains/admin/financials/SoftwareExpenseStats';
+export { default } from '@/domains/admin/financials/SoftwareExpenseStats';

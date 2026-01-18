@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/financials/table/ColumnCustomization.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/agency/financials/table/ColumnCustomization';
-export { default } from '@/domains/agency/financials/table/ColumnCustomization';
+export * from '@/domains/admin/financials/table/ColumnCustomization';
+export { default } from '@/domains/admin/financials/table/ColumnCustomization';

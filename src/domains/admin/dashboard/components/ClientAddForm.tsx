@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/clients/ClientAddForm.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/agency/clients/ClientAddForm';
-export { default } from '@/domains/agency/clients/ClientAddForm';
+export * from '@/domains/admin/clients/ClientAddForm';
+export { default } from '@/domains/admin/clients/ClientAddForm';

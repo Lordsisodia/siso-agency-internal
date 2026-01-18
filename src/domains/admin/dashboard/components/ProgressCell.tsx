@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/clients/components/table-cells/ProgressCell.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/agency/clients/components/table-cells/ProgressCell';
-export { default } from '@/domains/agency/clients/components/table-cells/ProgressCell';
+export * from '@/domains/admin/clients/components/table-cells/ProgressCell';
+export { default } from '@/domains/admin/clients/components/table-cells/ProgressCell';

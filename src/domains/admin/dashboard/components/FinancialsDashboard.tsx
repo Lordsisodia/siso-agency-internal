@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/financials/FinancialsDashboard.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/agency/financials/FinancialsDashboard';
-export { default } from '@/domains/agency/financials/FinancialsDashboard';
+export * from '@/domains/admin/financials/FinancialsDashboard';
+export { default } from '@/domains/admin/financials/FinancialsDashboard';

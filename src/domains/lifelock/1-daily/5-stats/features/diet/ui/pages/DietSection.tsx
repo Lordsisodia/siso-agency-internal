@@ -21,7 +21,7 @@ import { Button } from '@/components/ui/button';
 import { PhotoNutritionTracker } from '../../features/photo-nutrition/components/PhotoNutritionTracker';
 import { Macros } from '../components/Macros';
 import { Meals } from '../components/Meals';
-import { XPPill } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/XPPill';
+import { XPPill } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/xp/XPPill';
 
 interface DietSectionProps {
   selectedDate: Date;

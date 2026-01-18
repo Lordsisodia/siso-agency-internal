@@ -28,17 +28,17 @@ import { cn } from '@/lib/utils';
 import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 import { MorningRoutineMetadata, useMorningRoutineSupabase } from '@/domains/lifelock/1-daily/1-morning-routine/hooks/useMorningRoutineSupabase';
-import { SimpleThoughtDumpPage, ThoughtDumpResults, lifeLockVoiceTaskProcessor } from '@/domains/lifelock/1-daily/1-morning-routine/features/ai-thought-dump';
-import type { ThoughtDumpResult } from '@/domains/lifelock/1-daily/1-morning-routine/features/ai-thought-dump';
+import { SimpleThoughtDumpPage, ThoughtDumpResults, lifeLockVoiceTaskProcessor } from '@/domains/lifelock/1-daily/1-morning-routine/ui/features/ai-thought-dump';
+import type { ThoughtDumpResult } from '@/domains/lifelock/1-daily/1-morning-routine/ui/features/ai-thought-dump';
 import { getRotatingQuotes } from '@/lib/data/motivational-quotes';
 import { debounce } from '@/lib/utils';
-import { TimeScrollPicker } from '../components/TimeScrollPicker';
-import { WaterTracker } from '../components/WaterTracker';
-import { PushUpTracker } from '../components/PushUpTracker';
-import { MeditationTracker } from '../components/MeditationTracker';
-import { WakeUpTimeTracker } from '../components/WakeUpTimeTracker';
-import { PlanDayActions } from '../components/PlanDayActions';
-import { MotivationalQuotes } from '../components/MotivationalQuotes';
+import { TimeScrollPicker } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/time/TimeScrollPicker';
+import { WaterTracker } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/trackers/WaterTracker';
+import { PushUpTracker } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/trackers/PushUpTracker';
+import { MeditationTracker } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/trackers/MeditationTracker';
+import { WakeUpTimeTracker } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/trackers/WakeUpTimeTracker';
+import { PlanDayActions } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/planning/PlanDayActions';
+import { MotivationalQuotes } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/planning/MotivationalQuotes';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAutoTimeblocks } from '@/domains/lifelock/1-daily/6-timebox/domain/useAutoTimeblocks';
 import { GamificationService } from '@/domains/lifelock/_shared/services/gamificationService';
@@ -47,7 +47,7 @@ import {
   calculateStepXpMultiplier,
   calculateWakeUpXpMultiplier,
   getWakeUpTimestamp
-} from '../../domain/morningRoutineXpUtils';
+} from '@/domains/lifelock/1-daily/1-morning-routine/domain/xp';
 import {
   calculateWakeUpXP,
   calculateFreshenUpXP,
@@ -57,10 +57,10 @@ import {
   calculateMeditationXP,
   calculatePrioritiesXP,
   calculateTotalMorningXP
-} from '../../domain/xpCalculations';
+} from '@/domains/lifelock/1-daily/1-morning-routine/domain/xp';
 import { calculateWaterXP } from '@/domains/lifelock/1-daily/5-stats/features/wellness/domain/xpCalculations';
-import { XPPill } from '../components/XPPill';
-import { XPFooterSummary } from '../components/XPFooterSummary';
+import { XPPill } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/xp/XPPill';
+import { XPFooterSummary } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/xp/XPFooterSummary';
 
 interface MorningRoutineHabit {
   name: string;

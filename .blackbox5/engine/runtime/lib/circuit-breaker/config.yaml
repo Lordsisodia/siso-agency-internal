@@ -1,0 +1,78 @@
+circuit_breaker:
+  max_loops_no_progress: 10
+  stagnation_threshold: 3
+  cooldown_period_seconds: 300
+  absolute_max_loops: 20
+  
+  loops_warning_threshold: 8
+  loops_critical_threshold: 15
+  
+  progress_calculation_method: percentage
+  
+  stagnation_detection:
+    enabled: true
+    methods:
+      progress_delta: true
+      task_completion_stagnant: true
+  
+  project_overrides:
+    critical_feature:
+      max_loops_no_progress: 15
+      stagnation_threshold: 2
+      absolute_max_loops: 30
+    
+    simple_script:
+      max_loops_no_progress: 3
+      stagnation_threshold: 1
+      absolute_max_loops: 5
+    
+    research_task:
+      max_loops_no_progress: 20
+      stagnation_threshold: 5
+      absolute_max_loops: 50
+
+state:
+  file_path: ".ralph/circuit-state.json"
+  auto_save: true
+  backup_enabled: true
+  backup_count: 5
+  
+  manual_override:
+    enabled: true
+    bypass_threshold: false
+    require_confirmation: false
+
+logging:
+  enabled: true
+  level: INFO
+  directory: ".ralph/logs/circuit_breaker"
+  file_prefix: "circuit_"
+  max_file_size_mb: 10
+  rotation_enabled: true
+  retention_days: 30
+  
+  metrics:
+    track_loop_count: true
+    track_consecutive_no_progress_loops: true
+    track_stagnation_count: true
+    track_completion_score: true
+    track_time_between_loops: true
+
+  alerting:
+    warning_triggers:
+      consecutive_no_progress_3: true
+      stagnation_detected: true
+    error_triggers:
+      absolute_max_loops: true
+      circuit_open: true
+
+  actions_on_open:
+    log_event: true
+    notify_user: true
+    stop_execution: true
+    save_state_snapshot: true
+
+  actions_on_reset:
+    log_event: true
+    notify_user: true
+    clear_history: false

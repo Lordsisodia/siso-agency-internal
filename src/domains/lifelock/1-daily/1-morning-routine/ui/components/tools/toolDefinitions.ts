@@ -119,5 +119,21 @@ export const MORNING_AI_TOOLS = [
         required: ['keyword']
       }
     }
+  },
+  {
+    type: 'function' as const,
+    function: {
+      name: 'check_upcoming_deadlines',
+      description: 'Check for tasks with approaching deadlines. CALL THIS at the start of planning to warn user about urgent items.',
+      parameters: {
+        type: 'object',
+        properties: {
+          daysAhead: {
+            type: 'number',
+            description: 'How many days ahead to check (default: 3)'
+          }
+        }
+      }
+    }
   }
 ];

@@ -6,7 +6,7 @@ import type {
   IndustriesListParams,
   IndustriesListState,
   IndustryWithMeta,
-} from '@/domains/agency/industries/types/industry.types';
+} from '@/domains/admin/industries/types/industry.types';
 
 const DEFAULT_PAGE_SIZE = 10;
 const DEFAULT_SORT_COLUMN: NonNullable<IndustriesListParams['sortColumn']> = 'updated_at';

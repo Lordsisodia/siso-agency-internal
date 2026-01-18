@@ -224,4 +224,57 @@ export class TaskUpdateTools {
 
     return { success: false, error: 'Subtask not found' };
   }
+
+  /**
+   * 7. Save user energy level
+   */
+  async saveEnergyLevel(energyLevel: number) {
+    console.log(`🔧 [UPDATE] Saving energy level: ${energyLevel}/10`);
+
+    // Validate input
+    if (energyLevel < 1 || energyLevel > 10) {
+      return { success: false, error: 'Energy level must be between 1-10' };
+    }
+
+    try {
+      // Upsert to daily_health table
+      const { error } = await supabase
+        .from('daily_health')
+        .upsert({
+          user_id: this.userId,
+          date: this.dateString,
+          energy_level: energyLevel,
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'user_id,date'
+        });
+
+      if (error) {
+        console.error(`❌ [UPDATE] Failed to save energy level:`, error);
+        return { success: false, error: error.message };
+      }
+
+      console.log(`✅ [UPDATE] Saved energy level: ${energyLevel}/10`);
+
+      // Return with scheduling suggestions
+      let suggestion = '';
+      if (energyLevel >= 8) {
+        suggestion = 'High energy - perfect for deep work and complex tasks';
+      } else if (energyLevel >= 5) {
+        suggestion = 'Moderate energy - good for medium complexity tasks';
+      } else {
+        suggestion = 'Low energy - focus on light work and easy wins';
+      }
+
+      return {
+        success: true,
+        energyLevel,
+        suggestion,
+        schedulingAdvice: energyLevel >= 7 ? 'schedule_hard_tasks_now' : 'schedule_light_tasks_now'
+      };
+    } catch (error) {
+      console.error(`❌ [UPDATE] Exception saving energy level:`, error);
+      return { success: false, error: 'Failed to save energy level' };
+    }
+  }
 }

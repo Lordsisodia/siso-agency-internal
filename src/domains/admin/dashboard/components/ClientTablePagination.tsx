@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/clients/components/ClientTablePagination.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/domains/agency/clients/components/ClientTablePagination';
-export { default } from '@/domains/agency/clients/components/ClientTablePagination';
+export * from '@/domains/admin/clients/components/ClientTablePagination';
+export { default } from '@/domains/admin/clients/components/ClientTablePagination';

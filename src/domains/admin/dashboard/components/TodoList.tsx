@@ -9,4 +9,4 @@
 // This redirect maintains backward compatibility while eliminating duplication.
 // Phase 2 of consolidation - converting exact binary duplicates to redirects.
 
-export { TodoList } from '@/domains/agency/clients/TodoList';
+export { TodoList } from '@/domains/admin/clients/TodoList';

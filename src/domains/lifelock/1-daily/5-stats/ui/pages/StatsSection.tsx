@@ -15,7 +15,7 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Droplets, CigaretteOff, Dumbbell, Apple } from 'lucide-react';
-import { XPPill } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/XPPill';
+import { XPPill } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/xp/XPPill';
 import { WaterTrackerCard } from '../components/WaterTrackerCard';
 import { SmokingTracker } from '../components/SmokingTracker';
 import { HomeWorkoutSection } from '@/domains/lifelock/1-daily/5-stats/features/wellness/ui/pages/HomeWorkoutSection';

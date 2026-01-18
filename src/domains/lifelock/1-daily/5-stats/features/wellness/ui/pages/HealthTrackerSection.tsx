@@ -12,7 +12,7 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dumbbell, Apple } from 'lucide-react';
-import { XPPill } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/XPPill';
+import { XPPill } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/xp/XPPill';
 import { HomeWorkoutSection } from './HomeWorkoutSection';
 import { DietSection } from '@/domains/lifelock/1-daily/5-stats/features/diet/ui/pages/DietSection';
 import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
