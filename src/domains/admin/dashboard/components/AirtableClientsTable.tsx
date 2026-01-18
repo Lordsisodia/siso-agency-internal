@@ -64,7 +64,7 @@ import {
 } from "@tanstack/react-table";
 import { Pagination, PaginationContent, PaginationItem } from "@/components/ui/pagination";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { ClientData } from "@/types/client.types";
+import { ClientData } from "@/domains/client/domain/types";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/lib/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";

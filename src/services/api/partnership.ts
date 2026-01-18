@@ -16,7 +16,7 @@ import type {
   ApiResponse,
   PaginatedResponse,
   CommissionCalculation
-} from "@/types/partnership";
+} from "@/domains/partnership/domain/types";
 
 // ==================== APPLICATION MANAGEMENT ====================
 
