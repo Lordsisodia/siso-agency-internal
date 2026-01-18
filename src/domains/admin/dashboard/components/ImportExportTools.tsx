@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/clients/ImportExportTools.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/agency/clients/ImportExportTools';
-export { default } from '@/agency/clients/ImportExportTools';
+export * from '@/domains/agency/clients/ImportExportTools';
+export { default } from '@/domains/agency/clients/ImportExportTools';

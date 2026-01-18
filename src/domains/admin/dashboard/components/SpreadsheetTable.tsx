@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/financials/table/SpreadsheetTable.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/agency/financials/table/SpreadsheetTable';
-export { default } from '@/agency/financials/table/SpreadsheetTable';
+export * from '@/domains/agency/financials/table/SpreadsheetTable';
+export { default } from '@/domains/agency/financials/table/SpreadsheetTable';

@@ -13,7 +13,7 @@ import { AdminAutoLogin } from '@/domains/admin/auth/AdminAutoLogin';
 import { AdminLayout } from '@/domains/admin/layout/AdminLayout';
 
 // Lazy load all other pages for super-fast initial load
-const XPStorePage = lazy(() => import('@/xp-store/1-storefront/ui/pages/XPStorePage'));
+const XPStorePage = lazy(() => import('@/domains/xp-store/1-storefront/ui/pages/XPStorePage'));
 const XPDashboardPage = lazy(() => import('@/components/ui/dashboard/pages/XPDashboardPage'));
 
 // Admin pages - heavy bundle, lazy load all
@@ -28,16 +28,16 @@ const AdminLifeLockOverview = lazy(() => import('@/domains/admin/dashboard/pages
 const WeeklyView = lazy(() => import('@/domains/lifelock/2-weekly/WeeklyView').then(m => ({ default: m.WeeklyView })));
 const MonthlyView = lazy(() => import('@/domains/lifelock/3-monthly/MonthlyView'));
 const YearlyView = lazy(() => import('@/domains/lifelock/4-yearly/YearlyView'));
-const AdminIndustriesViewLazy = lazy(() => import('@/agency/industries/AdminIndustriesView').then(m => ({ default: m.AdminIndustriesView })));
+const AdminIndustriesViewLazy = lazy(() => import('@/domains/agency/industries/AdminIndustriesView').then(m => ({ default: m.AdminIndustriesView })));
 const AdminSettings = lazy(() => import('@/domains/admin/pages/AdminSettings'));
-const AdminClients = lazy(() => import('@/agency/pages/AdminClients'));
-const AdminPartnershipDashboard = lazy(() => import('@/agency/pages/AdminPartnershipDashboard'));
+const AdminClients = lazy(() => import('@/domains/agency/pages/AdminClients'));
+const AdminPartnershipDashboard = lazy(() => import('@/domains/agency/pages/AdminPartnershipDashboard'));
 const TeamMemberTasksPage = lazy(() => import('@/domains/task-ui/pages/TeamMemberTasksPage'));
 const AIAssistantPage = lazy(() => import('@/domains/admin/ai-assistant/ui/pages/AIAssistantPage').then(m => ({ default: m.AIAssistantPage })));
 
 // Resources pages
-const DocumentLibraryPage = lazy(() => import('@/resources/DocumentLibraryPage'));
-const ResourcesPage = lazy(() => import('@/resources/ResourcesPage'));
+const DocumentLibraryPage = lazy(() => import('@/domains/resources/DocumentLibraryPage'));
+const ResourcesPage = lazy(() => import('@/domains/resources/ResourcesPage'));
 
 // Automation & Dev Tools removed for core app
 

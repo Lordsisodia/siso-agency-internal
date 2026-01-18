@@ -236,6 +236,17 @@ const importMappings = {
   // Docs components
   '@/docs/DocumentTable': '@/domains/_archive/docs/DocumentTable',
 
+  // XP Store paths
+  '@/xp-store/': '@/domains/admin/xp-store/',
+  '@/domains/xp-store/': '@/domains/admin/xp-store/',
+
+  // Agency domain (moved to admin)
+  '@/domains/agency/': '@/domains/admin/',
+
+  // TimelineTaskView (moved from archive to active)
+  '@/domains/_archive/teams/TimelineTaskView': '@/domains/admin/dashboard/components/TimelineTaskView',
+  '@/domains/teams/TimelineTaskView': '@/domains/admin/dashboard/components/TimelineTaskView',
+
   // ========================================================================
   // STORES - Domain migrations
   // ========================================================================

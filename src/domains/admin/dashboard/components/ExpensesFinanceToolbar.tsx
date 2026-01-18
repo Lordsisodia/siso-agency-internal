@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/financials/table/ExpensesFinanceToolbar.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/agency/financials/table/ExpensesFinanceToolbar';
-export { default } from '@/agency/financials/table/ExpensesFinanceToolbar';
+export * from '@/domains/agency/financials/table/ExpensesFinanceToolbar';
+export { default } from '@/domains/agency/financials/table/ExpensesFinanceToolbar';

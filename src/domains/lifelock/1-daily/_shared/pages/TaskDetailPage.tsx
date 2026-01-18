@@ -21,7 +21,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
-import { useClientsList } from '@/agency/clients/hooks/useClientsList';
+import { useClientsList } from '@/domains/agency/clients/hooks/useClientsList';
 import { useDeepWorkTasksSupabase } from "@/domains/lifelock/1-daily/4-deep-work/domain/useDeepWorkTasksSupabase";
 import { useLightWorkTasksSupabase } from "@/domains/lifelock/1-daily/3-light-work/domain/useLightWorkTasksSupabase";
 import { format } from 'date-fns';

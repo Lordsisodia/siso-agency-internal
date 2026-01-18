@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/clients/ViewModeSwitcher.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/agency/clients/ViewModeSwitcher';
-export { default } from '@/agency/clients/ViewModeSwitcher';
+export * from '@/domains/agency/clients/ViewModeSwitcher';
+export { default } from '@/domains/agency/clients/ViewModeSwitcher';

@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/financials/expense/ExpensesTableBody.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/agency/financials/expense/ExpensesTableBody';
-export { default } from '@/agency/financials/expense/ExpensesTableBody';
+export * from '@/domains/agency/financials/expense/ExpensesTableBody';
+export { default } from '@/domains/agency/financials/expense/ExpensesTableBody';

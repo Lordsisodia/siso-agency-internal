@@ -7,13 +7,13 @@ import {
   updatePartnerReferral,
   upsertPartnerCommission,
   getPartnerReferrals,
-} from '@/agency/partners/services/partnerWorkspaceService';
+} from '@/domains/agency/partners/services/partnerWorkspaceService';
 import type {
   PartnerReferral,
   CreatePartnerReferralInput,
   UpdatePartnerReferralInput,
   UpsertPartnerCommissionInput,
-} from '@/agency/partners/types/partner.types';
+} from '@/domains/agency/partners/types/partner.types';
 
 export interface ReferralAnalytics {
   totalReferrals: number;

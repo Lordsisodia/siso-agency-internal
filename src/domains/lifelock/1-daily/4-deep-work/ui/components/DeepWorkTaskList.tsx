@@ -28,7 +28,7 @@ import { useDeepWorkTimers, formatMsAsClock } from "../../hooks/useDeepWorkTimer
 import { format } from 'date-fns';
 import { UnifiedTaskCard, DEEP_THEME, UnifiedTask } from "@/domains/lifelock/1-daily/_shared/components/UnifiedTaskCard";
 import { logger } from '@/lib/utils/logger';
-import { useClientsList } from '@/agency/clients/hooks/useClientsList';
+import { useClientsList } from '@/domains/agency/clients/hooks/useClientsList';
 
 // Type definitions
 interface Task {

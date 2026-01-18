@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/financials/DatePickerWithRange.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/agency/financials/DatePickerWithRange';
-export { default } from '@/agency/financials/DatePickerWithRange';
+export * from '@/domains/agency/financials/DatePickerWithRange';
+export { default } from '@/domains/agency/financials/DatePickerWithRange';

@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/financials/import/BulkImportDialog.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/agency/financials/import/BulkImportDialog';
-export { default } from '@/agency/financials/import/BulkImportDialog';
+export * from '@/domains/agency/financials/import/BulkImportDialog';
+export { default } from '@/domains/agency/financials/import/BulkImportDialog';

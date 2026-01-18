@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/financials/ExpenseCreditCard.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/agency/financials/ExpenseCreditCard';
-export { default } from '@/agency/financials/ExpenseCreditCard';
+export * from '@/domains/agency/financials/ExpenseCreditCard';
+export { default } from '@/domains/agency/financials/ExpenseCreditCard';

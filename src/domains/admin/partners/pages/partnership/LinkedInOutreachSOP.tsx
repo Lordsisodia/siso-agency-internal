@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SOPDocumentationPage } from '@/agency/partners/external/partnerships/hooks/pages/SOPDocumentationPage';
+import { SOPDocumentationPage } from '@/domains/agency/partners/external/partnerships/hooks/pages/SOPDocumentationPage';
 import { partnershipSOPs } from '@/lib/data/partnershipSOPs';
 
 export default function LinkedInOutreachSOP() {

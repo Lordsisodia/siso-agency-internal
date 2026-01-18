@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/clients/BulkActionsBar.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/agency/clients/BulkActionsBar';
-export { default } from '@/agency/clients/BulkActionsBar';
+export * from '@/domains/agency/clients/BulkActionsBar';
+export { default } from '@/domains/agency/clients/BulkActionsBar';

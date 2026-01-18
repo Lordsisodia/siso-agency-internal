@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/financials/payments/InvoiceManagement.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/agency/financials/payments/InvoiceManagement';
-export { default } from '@/agency/financials/payments/InvoiceManagement';
+export * from '@/domains/agency/financials/payments/InvoiceManagement';
+export { default } from '@/domains/agency/financials/payments/InvoiceManagement';

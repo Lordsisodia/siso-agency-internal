@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/clients/ClientsTableSkeleton.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/agency/clients/ClientsTableSkeleton';
-export { default } from '@/agency/clients/ClientsTableSkeleton';
+export * from '@/domains/agency/clients/ClientsTableSkeleton';
+export { default } from '@/domains/agency/clients/ClientsTableSkeleton';

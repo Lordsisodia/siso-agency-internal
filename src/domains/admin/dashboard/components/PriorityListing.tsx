@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/clients/PriorityListing.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/agency/clients/PriorityListing';
-export { default } from '@/agency/clients/PriorityListing';
+export * from '@/domains/agency/clients/PriorityListing';
+export { default } from '@/domains/agency/clients/PriorityListing';

@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/financials/payments/TokenUsageTracker.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/agency/financials/payments/TokenUsageTracker';
-export { default } from '@/agency/financials/payments/TokenUsageTracker';
+export * from '@/domains/agency/financials/payments/TokenUsageTracker';
+export { default } from '@/domains/agency/financials/payments/TokenUsageTracker';

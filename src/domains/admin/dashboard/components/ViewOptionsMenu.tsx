@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/clients/ViewOptionsMenu.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/agency/clients/ViewOptionsMenu';
-export { default } from '@/agency/clients/ViewOptionsMenu';
+export * from '@/domains/agency/clients/ViewOptionsMenu';
+export { default } from '@/domains/agency/clients/ViewOptionsMenu';

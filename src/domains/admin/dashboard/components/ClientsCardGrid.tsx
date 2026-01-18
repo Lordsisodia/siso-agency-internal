@@ -3,5 +3,5 @@
 // Canonical: src/domains/admin/clients/ClientsCardGrid.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/agency/clients/ClientsCardGrid';
-export { default } from '@/agency/clients/ClientsCardGrid';
+export * from '@/domains/agency/clients/ClientsCardGrid';
+export { default } from '@/domains/agency/clients/ClientsCardGrid';
