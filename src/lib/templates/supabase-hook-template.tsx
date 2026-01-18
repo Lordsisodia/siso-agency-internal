@@ -13,9 +13,9 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/services/supabase/client';
 import { useClerkUser } from '../shared/hooks/useClerkUser';
-import { useSupabaseClient, useSupabaseUserId } from '@/lib/supabase-clerk';
+import { useSupabaseClient, useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 
 // TEMPLATE: Define your data interfaces
 interface EntityItem {

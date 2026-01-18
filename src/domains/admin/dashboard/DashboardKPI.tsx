@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/services/integrations/supabase/client';
-import { formatCompactNumber } from '@/lib/formatters';
+import { formatCompactNumber } from '@/lib/utils/formatters';
 
 interface StatCardProps {
   title: string;

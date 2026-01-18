@@ -9,7 +9,7 @@
  */
 
 import { format, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfDay, differenceInDays, differenceInWeeks } from 'date-fns';
-import { supabaseAnon as supabase } from '@/lib/supabase-clerk';
+import { supabaseAnon as supabase } from '@/lib/services/supabase/clerk-integration';
 import type {
   XPAnalyticsData,
   TodayXPData,

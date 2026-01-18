@@ -3,7 +3,7 @@
  * Provides typed Supabase client for LifeLock application
  */
 
-import { getSupabaseBrowserClient } from '@/lib/supabaseBrowserClient';
+import { getSupabaseBrowserClient } from '@/lib/services/supabase/browser-client';
 
 export const supabase = getSupabaseBrowserClient();
 

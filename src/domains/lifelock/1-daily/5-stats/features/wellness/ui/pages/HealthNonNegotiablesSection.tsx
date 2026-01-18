@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { useClerkUser } from '@/lib/hooks/useClerkUser';
-import { useSupabaseUserId } from '@/lib/supabase-clerk';
+import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 import { useNutritionSupabase } from '@/lib/hooks/useNutritionSupabase';
 import { CleanDateNav } from '@/domains/lifelock/1-daily/_shared/components';
 import { MealInput } from '../components/MealInput';

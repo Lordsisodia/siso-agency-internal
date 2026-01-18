@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { format } from 'date-fns';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/services/supabase/client';
 import { photoStorageService } from '../services/photoStorage.service';
 import { visionApiService } from '../services/visionApi.service';
 import type { FoodPhoto, DailyMacroTotals } from '../types';

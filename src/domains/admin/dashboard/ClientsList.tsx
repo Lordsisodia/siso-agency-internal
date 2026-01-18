@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
-import { formatRelativeTime } from '@/lib/formatters';
+import { formatRelativeTime } from '@/lib/utils/formatters';
 import { CircleUser, ExternalLink, ChevronRight, Filter, Search, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Input } from '@/components/ui/input';

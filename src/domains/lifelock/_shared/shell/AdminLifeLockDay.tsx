@@ -3,7 +3,7 @@ import { AdminLayout } from '@/domains/admin/layout/AdminLayout';
 import { format, addWeeks, subWeeks, getYear, parse, isValid } from 'date-fns';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useClerkUser } from '@/lib/hooks/useClerkUser';
-import { useSupabaseUserId } from '@/lib/supabase-clerk';
+import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 import { useGamificationInit } from '@/lib/hooks/useGamificationInit';
 import { ThoughtDumpResults } from "@/components/shared/ui";
 import { EisenhowerMatrixModal } from "@/components/shared/ui";

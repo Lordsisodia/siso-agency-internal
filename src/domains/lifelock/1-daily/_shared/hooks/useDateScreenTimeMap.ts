@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { format, subDays, startOfMonth, endOfMonth } from 'date-fns';
-import { supabaseAnon as supabase } from '@/lib/supabase-clerk';
+import { supabaseAnon as supabase } from '@/lib/services/supabase/clerk-integration';
 
 /**
  * Hook to fetch screen time data for a range of dates

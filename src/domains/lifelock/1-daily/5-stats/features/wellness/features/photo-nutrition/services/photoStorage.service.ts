@@ -3,7 +3,7 @@
  * Handles uploading food photos to Supabase Storage
  */
 
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/services/supabase/client';
 import type { PhotoUploadResult } from '../types';
 
 export class PhotoStorageService {

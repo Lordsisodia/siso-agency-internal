@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/services/supabase/client';
 import { offlineDb } from '@/services/offline/offlineDb';
 
 export interface SmokingTrackerData {

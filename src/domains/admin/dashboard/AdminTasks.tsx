@@ -5,7 +5,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, ChevronRight, Plus, Clock } from 'lucide-react';
-import { formatRelativeTime } from '@/lib/formatters';
+import { formatRelativeTime } from '@/lib/utils/formatters';
 
 interface Task {
   id: string;

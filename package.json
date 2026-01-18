@@ -51,7 +51,9 @@
     "test:sync": "vitest run src/services/offline/__tests__/syncService.validation.test.ts",
     "ai:snapshot": "bash scripts/ai-session-snapshot.sh",
     "ai:restore": "ls -lt .git/ai-snapshots/ && echo '\nRun: bash .git/ai-snapshots/restore_TIMESTAMP.sh'",
-    "ai:protect": "bash scripts/ai-session-snapshot.sh && echo '\n✅ Safe to start AI session'"
+    "ai:protect": "bash scripts/ai-session-snapshot.sh && echo '\n✅ Safe to start AI session'",
+    "docs:index": "node scripts/generate-docs-index.js",
+    "docs:validate": "node scripts/generate-docs-index.js && echo '\n✅ Documentation index validated'"
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.89",

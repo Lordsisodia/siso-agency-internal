@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { format, subDays, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
-import { supabaseAnon as supabase } from '@/lib/supabase-clerk';
+import { supabaseAnon as supabase } from '@/lib/services/supabase/clerk-integration';
 
 /**
  * Hook to fetch XP data for a range of dates

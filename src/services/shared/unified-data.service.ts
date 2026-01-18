@@ -10,7 +10,7 @@
  */
 
 import { offlineDb, SyncableTable, OfflineSyncAction } from '@/services/offline/offlineDb';
-import { supabaseAnon } from '@/lib/supabase-clerk';
+import { supabaseAnon } from '@/lib/services/supabase/clerk-integration';
 import { offlineManager } from '@/services/shared/offlineManager';
 import type { DeepWorkTask } from '@/domains/tasks/hooks/useDeepWorkTasksSupabase';
 import type { LightWorkTask } from '@/domains/tasks/hooks/useLightWorkTasksSupabase';

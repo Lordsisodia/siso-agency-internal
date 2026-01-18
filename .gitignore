@@ -76,3 +76,6 @@ archives/
 
 # Old workflow tracking
 .todo/
+
+# Auto-generated documentation index
+.docs/index.json

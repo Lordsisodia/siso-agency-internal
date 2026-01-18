@@ -6,14 +6,41 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function debounce<T extends (...args: any[]) => any>(
+type AnyFunction = (...args: any[]) => void;
+
+export interface DebouncedFunction<T extends AnyFunction> {
+  (...args: Parameters<T>): void;
+  cancel: () => void;
+}
+
+/**
+ * Creates a debounced wrapper around the provided callback.
+ * Subsequent calls within the delay window reset the timer.
+ * The wrapped callback is never invoked after `cancel` is called.
+ */
+export function debounce<T extends AnyFunction>(
   func: T,
-  wait: number
-): (...args: Parameters<T>) => void {
-  let timeout: ReturnType<typeof setTimeout> | null = null;
-  
-  return function(...args: Parameters<T>) {
-    if (timeout) clearTimeout(timeout);
-    timeout = setTimeout(() => func(...args), wait);
+  delay: number
+): DebouncedFunction<T> {
+  let timer: ReturnType<typeof setTimeout> | null = null;
+
+  const debounced = (...args: Parameters<T>) => {
+    if (timer) {
+      clearTimeout(timer);
+    }
+
+    timer = setTimeout(() => {
+      timer = null;
+      func(...args);
+    }, Math.max(delay, 0));
   };
+
+  debounced.cancel = () => {
+    if (timer) {
+      clearTimeout(timer);
+      timer = null;
+    }
+  };
+
+  return debounced as DebouncedFunction<T>;
 }

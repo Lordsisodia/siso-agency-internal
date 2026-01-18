@@ -5,7 +5,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, X, Calendar, User } from 'lucide-react';
-import { formatRelativeTime } from '@/lib/formatters';
+import { formatRelativeTime } from '@/lib/utils/formatters';
 
 interface TodoListProps {
   todos?: TodoItem[];

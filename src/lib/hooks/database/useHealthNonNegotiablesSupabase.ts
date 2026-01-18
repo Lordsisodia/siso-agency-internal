@@ -6,9 +6,9 @@
  */
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/services/supabase/client';
 import { useClerkUser } from './useClerkUser';
-import { useSupabaseClient, useSupabaseUserId } from '@/lib/supabase-clerk';
+import { useSupabaseClient, useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 import { offlineDb } from '@/services/offline/offlineDb';
 
 interface MealPlan {

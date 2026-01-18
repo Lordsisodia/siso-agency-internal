@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useClerkUser } from '@/lib/hooks/useClerkUser';
-import { useSupabaseUserId } from '@/lib/supabase-clerk';
+import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 import { SimpleFeedbackList } from './SimpleFeedbackList';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';

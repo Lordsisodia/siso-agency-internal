@@ -31,7 +31,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
-import { formatCompactNumber } from '@/lib/formatters';
+import { formatCompactNumber } from '@/lib/utils/formatters';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, CheckCircle, XCircle, FileText } from 'lucide-react';
 

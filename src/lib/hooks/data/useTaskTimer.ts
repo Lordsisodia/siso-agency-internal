@@ -9,7 +9,7 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { supabaseAnon } from '@/lib/supabase-clerk';
+import { supabaseAnon } from '@/lib/services/supabase/clerk-integration';
 import { format } from 'date-fns';
 
 export interface TimerState {

@@ -2,7 +2,7 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/services/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { formatCompactNumber } from '@/lib/formatters';
+import { formatCompactNumber } from '@/lib/utils/formatters';
 import { 
   Loader2, 
   Users, 

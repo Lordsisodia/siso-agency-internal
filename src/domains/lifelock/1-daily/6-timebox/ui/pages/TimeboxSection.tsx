@@ -10,7 +10,7 @@ import QuickTaskScheduler from '../components/QuickTaskScheduler';
 import { useTimeBlocks } from '@/lib/hooks/useTimeBlocks';
 import { toast } from 'sonner';
 import { useClerkUser } from '@/lib/hooks/useClerkUser';
-import { useSupabaseUserId } from '@/lib/supabase-clerk';
+import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 
 import { TimeboxSectionProps, TimeboxTask, DragPreviewState, GapFillerState, FocusSprintType } from '../../domain/types';
 import { mapUIToCategory } from '../../domain/utils';

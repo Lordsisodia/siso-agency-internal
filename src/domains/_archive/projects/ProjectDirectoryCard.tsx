@@ -5,7 +5,7 @@ import { Bitcoin, ExternalLink, GitBranch, Code, Server, ArrowRight } from 'luci
 import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { formatDate } from '@/lib/formatters';
+import { formatDate } from '@/lib/utils/formatters';
 import { GlowEffect } from '@/components/ui/glow-effect';
 
 interface ProjectDirectoryCardProps {

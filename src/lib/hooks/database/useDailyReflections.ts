@@ -9,7 +9,7 @@
 
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useClerkUser } from './useClerkUser';
-import { useSupabaseUserId } from '@/lib/supabase-clerk';
+import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 import { unifiedDataService } from '@/services/shared/unified-data.service';
 
 // Nightly Checkout Metrics Types

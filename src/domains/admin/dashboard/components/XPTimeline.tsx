@@ -8,7 +8,7 @@
 
 import { useState, useEffect } from 'react';
 import { Loader2, ChevronDown, Filter } from 'lucide-react';
-import { supabaseAnon as supabase } from '@/lib/supabase-clerk';
+import { supabaseAnon as supabase } from '@/lib/services/supabase/clerk-integration';
 import { useUser } from '@clerk/clerk-react';
 import { TimelineEntry, TimelineEntryData } from './TimelineEntry';
 import { cn } from '@/lib/utils';

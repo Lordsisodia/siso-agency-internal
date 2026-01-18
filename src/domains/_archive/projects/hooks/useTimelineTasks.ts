@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useClerkUser } from '@/lib/hooks/useClerkUser';
-import { useSupabaseUserId } from '@/lib/supabase-clerk';
+import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 import { useLightWorkTasksSupabase } from '@/domains/tasks/hooks/useLightWorkTasksSupabase';
 import { useDeepWorkTasksSupabase } from '@/domains/tasks/hooks/useDeepWorkTasksSupabase';
 import { useMorningRoutineSupabase } from '@/lib/hooks/useMorningRoutineSupabase';

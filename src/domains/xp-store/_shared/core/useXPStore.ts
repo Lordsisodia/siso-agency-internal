@@ -14,7 +14,7 @@ import {
   XPStoreError
 } from '@/services/xpStoreService';
 import { XPPsychologyUtils } from '@/lib/utils/xpPsychologyUtils';
-import { supabaseAnon } from '@/lib/supabase-clerk';
+import { supabaseAnon } from '@/lib/services/supabase/clerk-integration';
 
 const userIdCache = new Map<string, string | null>();
 const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

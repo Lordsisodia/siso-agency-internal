@@ -37,7 +37,7 @@ import {
 } from "@/components/ui/select";
 import { useInstagramLeads } from '@/domains/admin/hooks/useInstagramLeads';
 import { toast } from 'sonner';
-import { formatCompactNumber } from '@/lib/formatters';
+import { formatCompactNumber } from '@/lib/utils/formatters';
 
 interface LeadDetailSheetProps {
   leadId: string;

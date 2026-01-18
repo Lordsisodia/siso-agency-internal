@@ -12,7 +12,7 @@ import { GREETING_MESSAGE, MORNING_ROUTINE_SYSTEM_PROMPT, ERROR_MESSAGE, DEFAULT
 import { VOICE_CONFIG_DEFAULTS } from '../config/constants';
 import type { Message } from '../types';
 import { useClerkUser } from '@/lib/hooks/useClerkUser';
-import { useSupabaseUserId } from '@/lib/supabase-clerk';
+import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 
 interface SimpleThoughtDumpPageProps {
   selectedDate: Date;

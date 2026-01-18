@@ -16,7 +16,7 @@ import { XPPill } from '@/domains/lifelock/1-daily/1-morning-routine/ui/componen
 import { HomeWorkoutSection } from './HomeWorkoutSection';
 import { DietSection } from '@/domains/lifelock/1-daily/5-stats/features/diet/ui/pages/DietSection';
 import { useClerkUser } from '@/lib/hooks/useClerkUser';
-import { useSupabaseUserId } from '@/lib/supabase-clerk';
+import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 import { cn } from '@/lib/utils';
 
 interface HealthTrackerSectionProps {

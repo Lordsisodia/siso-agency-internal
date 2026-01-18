@@ -8,7 +8,7 @@
  */
 
 // Re-export everything from the consolidated client
-export { supabase, TABLES, checkSupabaseConnection } from '@/lib/supabase';
+export { supabase, TABLES, checkSupabaseConnection } from '@/lib/services/supabase/client';
 export type {
   SupabaseLightWorkTask,
   SupabaseLightWorkSubtask,
@@ -17,4 +17,4 @@ export type {
   SupabaseMorningRoutineTask,
   SupabaseDailyReflection,
   SupabaseUserFeedback
-} from '@/lib/supabase';
+} from '@/lib/services/supabase/client';

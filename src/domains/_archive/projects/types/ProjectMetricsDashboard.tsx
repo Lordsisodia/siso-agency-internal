@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { CircularProgress } from '@/domains/projects/details/CircularProgress';
 import { motion } from 'framer-motion';
 import { Calendar, CheckCircle, Clock, AlertCircle } from 'lucide-react';
-import { formatDate } from '@/lib/formatters';
+import { formatDate } from '@/lib/utils/formatters';
 
 interface ProjectMetricsDashboardProps {
   projectId: string;

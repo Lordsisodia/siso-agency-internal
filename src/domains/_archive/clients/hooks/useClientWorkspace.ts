@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { supabase } from '@/services/integrations/supabase/client';
 import { useClientDetails } from '@/domains/client/hooks/useClientDetails';
 import { useClerkUser } from '@/lib/hooks/useClerkUser';
-import { useSupabaseUserId } from '@/lib/supabase-clerk';
+import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 import type { DeepWorkTask } from '@/domains/tasks/hooks/useDeepWorkTasksSupabase';
 
 interface TimelineEvent {

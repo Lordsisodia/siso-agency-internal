@@ -8,7 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format, isToday, subDays, startOfWeek, endOfWeek } from 'date-fns';
 import { useClerkUser } from '@/lib/hooks/useClerkUser';
-import { useSupabaseUserId } from '@/lib/supabase-clerk';
+import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 import { smokingService, SmokingSnapshot } from '@/services/database/smokingService';
 import { calculateSmokingXP } from '../../domain/xpCalculations';
 import { GamificationService } from '@/domains/lifelock/_shared/services/gamificationService';

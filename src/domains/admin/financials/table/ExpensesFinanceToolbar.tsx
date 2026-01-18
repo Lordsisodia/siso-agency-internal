@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Filter, FileDown, FileText, ArrowDownUp, Save, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { formatCurrency } from '@/lib/formatters';
+import { formatCurrency } from '@/lib/utils/formatters';
 import { categorizeExpenses } from '@/domains/financial/expenseCategories';
 
 interface ExpensesFinanceToolbarProps {

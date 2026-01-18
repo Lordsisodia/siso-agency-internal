@@ -3,7 +3,7 @@
 // Provides API for AI agents to manage tasks, plans, and context
 // ============================================================================
 
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/services/supabase/client';
 import type {
   AgentExecutionPlan,
   AgentExecutionLog,

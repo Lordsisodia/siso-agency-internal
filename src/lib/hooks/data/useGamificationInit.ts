@@ -12,7 +12,7 @@
 
 import { useEffect } from 'react';
 import { useClerkUser } from './useClerkUser';
-import { useSupabaseUserId } from '@/lib/supabase-clerk';
+import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 import { GamificationService } from '@/domains/lifelock/_shared/services/gamificationService';
 
 export function useGamificationInit(): void {

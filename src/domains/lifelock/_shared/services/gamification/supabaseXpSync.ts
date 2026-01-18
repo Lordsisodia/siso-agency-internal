@@ -8,7 +8,7 @@
  */
 
 import { format } from 'date-fns';
-import { supabaseAnon as supabase } from '@/lib/supabase-clerk';
+import { supabaseAnon as supabase } from '@/lib/services/supabase/clerk-integration';
 import type { UserProgress, DailyStats, Achievement, WeeklyChallenge } from '../gamificationService';
 
 /**

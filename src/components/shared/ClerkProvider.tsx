@@ -3,7 +3,7 @@
 
 import { ClerkProvider as BaseClerkProvider, useUser } from '@clerk/clerk-react';
 import { useEffect, useMemo } from 'react';
-import { supabaseAnon } from '@/lib/supabase-clerk';
+import { supabaseAnon } from '@/lib/services/supabase/clerk-integration';
 
 const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 

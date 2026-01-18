@@ -1,6 +1,6 @@
 
 import { Badge } from '@/components/ui/badge';
-import { formatDate } from '@/lib/formatters';
+import { formatDate } from '@/lib/utils/formatters';
 import { motion } from 'framer-motion';
 import { Clock } from 'lucide-react';
 

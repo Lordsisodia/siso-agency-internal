@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { validate as uuidValidate } from 'uuid';
 import { useClerkUser } from './useClerkUser';
-import { useSupabaseClient, useSupabaseUserId } from '@/lib/supabase-clerk';
+import { useSupabaseClient, useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 import { syncService } from '@/services/offline/syncService';
 import { offlineDb } from '@/services/offline/offlineDb';
-import { TABLES } from '@/lib/supabase';
+import { TABLES } from '@/lib/services/supabase/client';
 
 export interface MorningRoutineHabit {
   name: string;

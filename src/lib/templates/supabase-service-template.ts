@@ -12,7 +12,7 @@
  * 5. Customize CRUD operations as needed
  */
 
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/services/supabase/client';
 
 // TEMPLATE: Define your entity interfaces
 export interface CreateEntityRequest {

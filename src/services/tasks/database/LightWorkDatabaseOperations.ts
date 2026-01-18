@@ -19,7 +19,7 @@
  * - Fast filtering and sorting for task lists
  */
 
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/services/supabase/client';
 import { Task } from '@/components/tasks/TaskCard';
 
 // Light work specific database configuration

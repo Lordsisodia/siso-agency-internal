@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
-import { formatCompactNumber, formatRelativeTime } from '@/lib/formatters';
+import { formatCompactNumber, formatRelativeTime } from '@/lib/utils/formatters';
 import { Loader2, ArrowUpRight, Instagram, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 

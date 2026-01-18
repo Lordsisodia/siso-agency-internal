@@ -3,7 +3,7 @@
  * Handles CRUD operations for XP store rewards
  */
 
-import { supabaseAnon } from '@/lib/supabase-clerk';
+import { supabaseAnon } from '@/lib/services/supabase/clerk-integration';
 
 // Types
 export interface StoreReward {

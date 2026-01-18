@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { ChevronDown, CheckCircle, XCircle, Calendar, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { formatCompactNumber } from '@/lib/formatters';
+import { formatCompactNumber } from '@/lib/utils/formatters';
 import { LeadTableColumn } from '../types';
 
 interface LeadsTableProps {

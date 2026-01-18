@@ -8,13 +8,11 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import { useAuth } from '@clerk/clerk-react';
 import { useEffect, useState } from 'react';
-import { getSupabaseBrowserClient } from '@/lib/supabaseBrowserClient';
+import { getSupabaseBrowserClient } from '@/lib/services/supabase/browser-client';
+import { PUBLIC_USER_ID } from '@/lib/utils/constants';
 
 // Shared browser client instance
 export const supabaseAnon = getSupabaseBrowserClient();
-
-// Public user ID for demo/testing access
-export const PUBLIC_USER_ID = '00000000-0000-0000-0000-000000000000';
 
 /**
  * Hook to get the internal database user ID from Clerk user ID

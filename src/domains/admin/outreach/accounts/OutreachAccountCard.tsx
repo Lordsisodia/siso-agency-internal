@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Edit, Instagram, Linkedin } from 'lucide-react';
 import { OutreachAccount } from '@/types/outreach';
-import { formatCompactNumber } from '@/lib/formatters';
+import { formatCompactNumber } from '@/lib/utils/formatters';
 
 interface OutreachAccountCardProps {
   account: OutreachAccount;

@@ -21,7 +21,7 @@ import { SmokingTracker } from '../components/SmokingTracker';
 import { HomeWorkoutSection } from '@/domains/lifelock/1-daily/5-stats/features/wellness/ui/pages/HomeWorkoutSection';
 import { DietSection } from '@/domains/lifelock/1-daily/5-stats/features/diet/ui/pages/DietSection';
 import { useClerkUser } from '@/lib/hooks/useClerkUser';
-import { useSupabaseUserId } from '@/lib/supabase-clerk';
+import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 import { cn } from '@/lib/utils';
 
 interface StatsSectionProps {

@@ -5,7 +5,7 @@ import { Sparkles, Settings, RefreshCw } from 'lucide-react';
 import { EnhancedTimeBoxCalendar } from '../ui/EnhancedTimeBoxCalendar';
 import { enhancedTimeBlockService } from '@/services/shared/task.service';
 import { DaySchedule, WorkSchedulePreferences, EnhancedTimeBlock } from '@/types/timeblock.types';
-import { supabaseAnon } from '@/lib/supabase-clerk';
+import { supabaseAnon } from '@/lib/services/supabase/clerk-integration';
 import { useUser } from '@clerk/clerk-react';
 import { TimeBlockOverlapUtils } from '@/lib/utils/timeblock-overlap.utils';
 

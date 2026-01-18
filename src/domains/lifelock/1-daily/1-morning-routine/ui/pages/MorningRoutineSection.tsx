@@ -26,7 +26,7 @@ import TextareaAutosize from 'react-textarea-autosize';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useClerkUser } from '@/lib/hooks/useClerkUser';
-import { useSupabaseUserId } from '@/lib/supabase-clerk';
+import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 import { MorningRoutineMetadata, useMorningRoutineSupabase } from '@/lib/hooks/useMorningRoutineSupabase';
 import { SimpleThoughtDumpPage, ThoughtDumpResults, lifeLockVoiceTaskProcessor } from '@/domains/lifelock/1-daily/1-morning-routine/features/ai-thought-dump';
 import type { ThoughtDumpResult } from '@/domains/lifelock/1-daily/1-morning-routine/features/ai-thought-dump';

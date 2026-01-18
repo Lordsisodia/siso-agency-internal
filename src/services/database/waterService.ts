@@ -1,5 +1,5 @@
 import { format, subDays } from 'date-fns';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/services/supabase/client';
 import type { Tables, TablesInsert } from '@/types/supabase';
 import type {
   WaterGoalPreferences,
