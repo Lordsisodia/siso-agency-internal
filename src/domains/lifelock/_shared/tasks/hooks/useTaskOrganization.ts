@@ -13,7 +13,7 @@
 
 import { useState, useCallback } from 'react';
 import { eisenhowerMatrixOrganizer, EisenhowerMatrixResult } from '@/services/shared/task.service';
-import { instrumentLifeLockEvent } from '@/domains/lifelock/utils/lifeLockTelemetry';
+import { instrumentLifeLockEvent } from '@/domains/lifelock/_shared/utils/lifeLockTelemetry';
 import { TaskCard } from './useTaskData';
 
 export interface UseTaskOrganizationReturn {

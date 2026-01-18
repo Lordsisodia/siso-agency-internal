@@ -13,7 +13,7 @@
 
 import { useState, useCallback } from 'react';
 import { lifeLockVoiceTaskProcessor, ThoughtDumpResult } from '@/domains/lifelock/_shared/services/lifeLockVoiceTaskProcessor';
-import { instrumentLifeLockEvent } from '@/domains/lifelock/utils/lifeLockTelemetry';
+import { instrumentLifeLockEvent } from '@/domains/lifelock/_shared/utils/lifeLockTelemetry';
 
 export interface UseVoiceProcessingReturn {
   // Voice processing
