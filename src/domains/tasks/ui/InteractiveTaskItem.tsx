@@ -13,7 +13,7 @@
 
 import React from 'react';
 import { UnifiedTaskCard, TaskCardTask } from '@/domains/tasks/components/UnifiedTaskCard';
-import { selectImplementation } from '@/migration/feature-flags';
+import { selectImplementation } from '@/lib/utils/feature-flags';
 
 // LEGACY IMPORTS (kept for fallback)
 import { motion, AnimatePresence } from 'framer-motion';

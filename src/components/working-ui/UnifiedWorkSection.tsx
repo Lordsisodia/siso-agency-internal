@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { format } from 'date-fns';
-import { selectImplementation } from '@/migration/feature-flags';
+import { selectImplementation } from '@/lib/utils/feature-flags';
 import { theme } from '@/styles/theme';
 import { LoadingState } from '@/components/ui/loading-state';
 import { ErrorState } from '@/components/ui/error-state';

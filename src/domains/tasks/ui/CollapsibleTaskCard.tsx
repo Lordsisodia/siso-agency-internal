@@ -1,7 +1,7 @@
 import React from 'react';
 import { UnifiedTaskCard, TaskCardTask, TaskCardSubtask } from '@/refactored/components/UnifiedTaskCard';
 import { getTaskTheme } from '@/refactored/utils/taskCardUtils';
-import { selectImplementation } from '@/migration/feature-flags';
+import { selectImplementation } from '@/lib/utils/feature-flags';
 import { EnhancedTask, SubTask } from '@/services/shared/task.service';
 
 // LEGACY IMPORTS (kept for fallback)

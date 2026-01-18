@@ -15,7 +15,7 @@ import { getAppPlanByUsername, type SavedAppPlan } from '@/services/appPlanServi
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { LoadingState } from '@/components/ui/loading-state';
-import { selectImplementation } from '@/migration/feature-flags';
+import { selectImplementation } from '@/lib/utils/feature-flags';
 import { theme } from '@/styles/theme';
 
 // Helper functions for enhanced feature display

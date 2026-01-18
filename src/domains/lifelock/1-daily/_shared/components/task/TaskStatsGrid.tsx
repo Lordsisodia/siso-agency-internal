@@ -12,7 +12,7 @@
  */
 
 import React from 'react';
-import { selectImplementation } from '@/migration/feature-flags';
+import { selectImplementation } from '@/lib/utils/feature-flags';
 import { theme } from '@/styles/theme';
 
 export interface StatsData {

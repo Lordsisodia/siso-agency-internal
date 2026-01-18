@@ -9,7 +9,7 @@ import {
   Clock
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { selectImplementation } from '@/migration/feature-flags';
+import { selectImplementation } from '@/lib/utils/feature-flags';
 import { theme } from '@/styles/theme';
 
 export interface DashboardStats {

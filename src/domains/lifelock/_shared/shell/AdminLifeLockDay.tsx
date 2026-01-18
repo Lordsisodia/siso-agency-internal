@@ -10,7 +10,7 @@ import { EisenhowerMatrixModal } from "@/components/shared/ui";
 import { LifeLockViewRenderer } from '@/domains/lifelock/_shared/core/LifeLockViewRenderer';
 import { useRefactoredLifeLockData } from '@/domains/lifelock/_shared/core/useRefactoredLifeLockData';
 import { LoadingState } from '@/components/ui/loading-state';
-import { selectImplementation } from '@/migration/feature-flags';
+import { selectImplementation } from '@/lib/utils/feature-flags';
 import { calculateDayCompletionPercentage } from '@/lib/utils/dayProgress';
 
 const AdminLifeLockDay: React.FC = () => {
