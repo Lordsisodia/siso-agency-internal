@@ -20,7 +20,7 @@
  * - Batch transformation operations
  */
 
-import { Task } from '@/components/tasks/TaskCard';
+import { Task } from '@/domains/lifelock/1-daily/2-tasks/components-from-root/TaskCard';
 
 // Transformation configuration
 const TRANSFORMER_CONFIG = {

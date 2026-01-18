@@ -21,7 +21,7 @@
  * - Track and analyze deep work performance metrics
  */
 
-import { Task } from '@/components/tasks/TaskCard';
+import { Task } from '@/domains/lifelock/1-daily/2-tasks/components-from-root/TaskCard';
 import { DeepWorkValidator } from '../validation/DeepWorkValidator';
 import { DeepWorkDatabaseOperations } from '../database/DeepWorkDatabaseOperations';
 import { TaskCacheManager } from '../cache/TaskCacheManager';

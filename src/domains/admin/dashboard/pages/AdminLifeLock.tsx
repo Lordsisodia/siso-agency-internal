@@ -13,7 +13,7 @@ import { ThoughtDumpResults } from "@/components/shared/ui";
 import { eisenhowerMatrixOrganizer, EisenhowerMatrixResult } from '@/services/shared/task.service';
 import { EisenhowerMatrixModal } from "@/components/shared/ui";
 import { Lock, Calendar } from 'lucide-react';
-import { FloatingAIAssistant } from '@/components/shared/FloatingAIAssistant';
+import { FloatingAIAssistant } from '@/domains/admin/components-from-shared/FloatingAIAssistant';
 
 interface TaskCard {
   id: string;

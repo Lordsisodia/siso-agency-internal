@@ -45,7 +45,7 @@ import {
   Priority
 } from '@/types/timeblock.types';
 import { TimeBlockOverlapUtils } from '@/lib/utils/timeblock-overlap.utils';
-import { EnhancedTaskDetailModal } from '@/components/shared/ui/EnhancedTaskDetailModal';
+import { EnhancedTaskDetailModal } from '@/domains/tasks/components-from-shared/EnhancedTaskDetailModal';
 import { EnhancedTask } from '@/services/shared/task.service';
 
 interface EnhancedTimeBoxCalendarProps {

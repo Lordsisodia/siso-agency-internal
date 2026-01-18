@@ -20,7 +20,7 @@
  */
 
 import { supabase } from '@/lib/services/supabase/client';
-import { Task } from '@/components/tasks/TaskCard';
+import { Task } from '@/domains/lifelock/1-daily/2-tasks/components-from-root/TaskCard';
 
 // Deep work specific database configuration
 const DEEP_WORK_CONFIG = {

@@ -17,8 +17,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { StatisticalWeekView } from '../ui/StatisticalWeekView';
 import { TabProps } from '../DayTabContainer';
-import FunctionalTimeBox from '@/components/timebox/FunctionalTimeBox';
-import { TimeBoxAIAssistant } from '@/components/shared/TimeBoxAIAssistant';
+import FunctionalTimeBox from '@/domains/lifelock/1-daily/6-timebox/components-from-root/FunctionalTimeBox';
+import { TimeBoxAIAssistant } from '@/domains/tasks/components-from-shared/TimeBoxAIAssistant';
 import { timeboxApi, DaySchedule, TimeBoxTask, TimeBoxStats } from '@/services/api/timeboxApi';
 import { format } from 'date-fns';
 

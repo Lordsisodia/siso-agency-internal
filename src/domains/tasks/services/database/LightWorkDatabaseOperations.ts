@@ -20,7 +20,7 @@
  */
 
 import { supabase } from '@/lib/services/supabase/client';
-import { Task } from '@/components/tasks/TaskCard';
+import { Task } from '@/domains/lifelock/1-daily/2-tasks/components-from-root/TaskCard';
 
 // Light work specific database configuration
 const LIGHT_WORK_CONFIG = {

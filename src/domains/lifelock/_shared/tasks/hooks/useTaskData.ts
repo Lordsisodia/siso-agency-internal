@@ -14,7 +14,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval } from 'date-fns';
 import { useAuthSession } from '@/lib/hooks/auth/useAuthSession';
-import { personalTaskService } from '@/services/workTypeApiClient';
+import { personalTaskService } from '@/domains/tasks/services/workTypeApiClient';
 
 export interface TaskCard {
   id: string;

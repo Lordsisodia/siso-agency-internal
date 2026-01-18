@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
-import { useToast } from "@/lib/hooks/use-toast";
-import { safeGet } from "@/lib/utils/typeHelpers";
+import { useToast } from "@/lib/hooks/ui/useToast";
+import { safeGet } from "@/lib/utils/core/typeHelpers";
 import { supabase } from "@/services/integrations/supabase/client";
 
 // Enhanced profile form data interface with all possible fields

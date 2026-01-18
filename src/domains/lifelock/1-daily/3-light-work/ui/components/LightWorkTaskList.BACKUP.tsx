@@ -29,7 +29,7 @@ import {
   ArrowUp,
   ArrowDown
 } from "lucide-react";
-import { TaskSeparator } from "@/components/tasks/TaskSeparator";
+import { TaskSeparator } from "@/domains/lifelock/1-daily/2-tasks/components-from-root/TaskSeparator";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { SimpleFeedbackButton } from "@/domains/feedback/SimpleFeedbackButton";
 import { Button } from "@/components/ui/button";

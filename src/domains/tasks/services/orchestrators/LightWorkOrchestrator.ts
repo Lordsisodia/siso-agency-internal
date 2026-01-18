@@ -20,7 +20,7 @@
  * - Monitor performance for optimization opportunities
  */
 
-import { Task } from '@/components/tasks/TaskCard';
+import { Task } from '@/domains/lifelock/1-daily/2-tasks/components-from-root/TaskCard';
 import { LightWorkValidator } from '../validation/LightWorkValidator';
 import { LightWorkDatabaseOperations } from '../database/LightWorkDatabaseOperations';
 import { TaskCacheManager } from '../cache/TaskCacheManager';

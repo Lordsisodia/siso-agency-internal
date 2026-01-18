@@ -13,7 +13,7 @@
  */
 
 import { useState, useMemo, useCallback } from 'react';
-import { Task } from '@/components/tasks/TaskCard';
+import { Task } from '@/domains/lifelock/1-daily/2-tasks/components-from-root/TaskCard';
 
 /**
  * Filter configuration for task list

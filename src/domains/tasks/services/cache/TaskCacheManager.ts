@@ -20,7 +20,7 @@
  * - Performance metrics and hit rate monitoring
  */
 
-import { Task } from '@/components/tasks/TaskCard';
+import { Task } from '@/domains/lifelock/1-daily/2-tasks/components-from-root/TaskCard';
 
 // Cache configuration for different task types
 const CACHE_CONFIG = {

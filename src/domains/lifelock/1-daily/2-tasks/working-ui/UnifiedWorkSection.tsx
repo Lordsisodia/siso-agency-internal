@@ -21,19 +21,19 @@ import { theme } from '@/styles/theme';
 import { LoadingState } from '@/components/ui/loading-state';
 import { ErrorState } from '@/components/ui/error-state';
 import { TaskActionButtons } from './TaskActionButtons';
-import { TaskSeparator } from '@/components/tasks/TaskSeparator';
-import { TaskProgress } from '@/components/tasks/TaskProgress';
-import { SubtaskMetadata } from '@/components/tasks/SubtaskMetadata';
-import { TaskHeader } from '@/components/tasks/TaskHeader';
-import { SubtaskItem } from '@/components/tasks/SubtaskItem';
-import { AddSubtaskInput } from '@/components/tasks/AddSubtaskInput';
+import { TaskSeparator } from '@/domains/lifelock/1-daily/2-tasks/components-from-root/TaskSeparator';
+import { TaskProgress } from '@/domains/lifelock/1-daily/2-tasks/components-from-root/TaskProgress';
+import { SubtaskMetadata } from '@/domains/lifelock/1-daily/2-tasks/components-from-root/SubtaskMetadata';
+import { TaskHeader } from '@/domains/lifelock/1-daily/2-tasks/components-from-root/TaskHeader';
+import { SubtaskItem } from '@/domains/lifelock/1-daily/2-tasks/components-from-root/SubtaskItem';
+import { AddSubtaskInput } from '@/domains/lifelock/1-daily/2-tasks/components-from-root/AddSubtaskInput';
 import { useTaskEditing } from '@/domains/lifelock/1-daily/2-tasks/domain/useTaskEditing';
 import { useThoughtDump } from '@/domains/lifelock/1-daily/5-stats/domain/useThoughtDump';
 import { useTaskFiltering } from '@/domains/lifelock/1-daily/2-tasks/domain/useTaskFiltering';
 import { WORK_THEMES } from '@/lib/config/work-themes';
 import { CustomCalendar } from '@/components/ui/CustomCalendar';
-import { TaskStatsGrid } from '@/components/tasks/TaskStatsGrid';
-import { WorkProtocolCard } from '@/components/tasks/WorkProtocolCard';
+import { TaskStatsGrid } from '@/domains/lifelock/1-daily/2-tasks/components-from-root/TaskStatsGrid';
+import { WorkProtocolCard } from '@/domains/lifelock/1-daily/2-tasks/components-from-root/WorkProtocolCard';
 
 
 export type WorkType = keyof typeof WORK_THEMES;

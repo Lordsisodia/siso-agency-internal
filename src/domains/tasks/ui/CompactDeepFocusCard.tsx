@@ -3,5 +3,5 @@
 // Canonical: src/shared/components/ui/CompactDeepFocusCard.tsx
 // Phase: Duplicate cleanup batch
 // Date: 2025-10-05
-export * from '@/components/shared/ui/CompactDeepFocusCard';
-export { default } from '@/components/shared/ui/CompactDeepFocusCard';
+export * from '@/domains/tasks/components-from-shared/CompactDeepFocusCard';
+export { default } from '@/domains/tasks/components-from-shared/CompactDeepFocusCard';

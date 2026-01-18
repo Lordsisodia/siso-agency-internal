@@ -26,7 +26,7 @@ import {
   ChevronRight,
   Building2,
 } from "lucide-react";
-import { TaskSeparator } from "@/components/tasks/TaskSeparator";
+import { TaskSeparator } from "@/domains/lifelock/1-daily/2-tasks/components-from-root/TaskSeparator";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { SimpleFeedbackButton } from "@/domains/feedback/SimpleFeedbackButton";
 import { Button } from "@/components/ui/button";
@@ -34,7 +34,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TaskDetailModal } from "@/domains/lifelock/components/TaskDetailModal";
 import { CustomCalendar } from "@/domains/lifelock/views/daily/_shared/components";
-import { SubtaskItem } from "@/components/tasks/SubtaskItem";
+import { SubtaskItem } from "@/domains/lifelock/1-daily/2-tasks/components-from-root/SubtaskItem";
 import { useClientDeepWorkTasks } from "@/domains/client/hooks/useClientDeepWorkTasks";
 import { sortSubtasksHybrid } from "@/domains/tasks/utils/subtaskSorting";
 import { format } from 'date-fns';

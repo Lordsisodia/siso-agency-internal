@@ -20,7 +20,7 @@
  * - Priority and dependency validation
  */
 
-import { Task } from '@/components/tasks/TaskCard';
+import { Task } from '@/domains/lifelock/1-daily/2-tasks/components-from-root/TaskCard';
 
 // Deep work specific validation constraints
 const DEEP_WORK_CONSTRAINTS = {
