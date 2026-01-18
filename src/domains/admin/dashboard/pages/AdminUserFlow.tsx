@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import { AdminLayout } from '@/components/admin/layout/AdminLayout';
+import { AdminLayout } from '@/domains/admin/components-from-root/layout/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AdminLayout } from '@/components/admin/layout/AdminLayout';
+import { AdminLayout } from '@/domains/admin/components-from-root/layout/AdminLayout';
 // Removed framer-motion for performance optimization
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -7,12 +7,12 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { PromptInputBox } from '@/components/ui/ai-prompt-box';
-import { AITaskChat } from '@/components/admin/tasks/AITaskChat';
-import { EnhancedTaskItem } from '@/components/admin/tasks/EnhancedTaskItem';
-import { AdminTaskDetailModal } from '@/components/admin/tasks/AdminTaskDetailModal';
-import { KanbanBoard } from '@/components/admin/tasks/KanbanBoard';
-import CalendarView from '@/components/admin/tasks/CalendarView';
-import { TaskFilterSidebar } from '@/components/admin/tasks/TaskFilterSidebar';
+import { AITaskChat } from '@/domains/admin/components-from-root/tasks/AITaskChat';
+import { EnhancedTaskItem } from '@/domains/admin/components-from-root/tasks/EnhancedTaskItem';
+import { AdminTaskDetailModal } from '@/domains/admin/components-from-root/tasks/AdminTaskDetailModal';
+import { KanbanBoard } from '@/domains/admin/components-from-root/tasks/KanbanBoard';
+import CalendarView from '@/domains/admin/components-from-root/tasks/CalendarView';
+import { TaskFilterSidebar } from '@/domains/admin/components-from-root/tasks/TaskFilterSidebar';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { supabase } from '@/services/integrations/supabase/client';
 import { useAuthSession } from '@/lib/hooks/auth/useAuthSession';

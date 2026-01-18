@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { AdminLayout } from '@/components/admin/layout/AdminLayout';
+import { AdminLayout } from '@/domains/admin/components-from-root/layout/AdminLayout';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, addWeeks, subWeeks, startOfMonth, endOfMonth, addMonths, subMonths, getYear } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
-import { MobileTodayCard } from '@/components/admin/lifelock/ui/MobileTodayCard';
-import { StatisticalWeekView } from '@/components/admin/lifelock/ui/StatisticalWeekView';
-import { MobileMicrophoneButton } from '@/components/admin/lifelock/ui/MobileMicrophoneButton';
+import { MobileTodayCard } from '@/domains/admin/components-from-root/lifelock/ui/MobileTodayCard';
+import { StatisticalWeekView } from '@/domains/admin/components-from-root/lifelock/ui/StatisticalWeekView';
+import { MobileMicrophoneButton } from '@/domains/admin/components-from-root/lifelock/ui/MobileMicrophoneButton';
 import { useClerkUser } from '@/components/ClerkProvider';
 import { PersonalTaskCard, personalTaskService } from '@/services/shared/task.service';
 import { ClerkHybridTaskService } from '@/services/shared/auth.service';

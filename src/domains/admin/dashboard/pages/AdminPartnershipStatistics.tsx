@@ -1,5 +1,5 @@
-import { AdminLayout } from '@/components/admin/layout/AdminLayout';
-import { AdminPageTitle } from '@/components/admin/layout/AdminPageTitle';
+import { AdminLayout } from '@/domains/admin/components-from-root/layout/AdminLayout';
+import { AdminPageTitle } from '@/domains/admin/components-from-root/layout/AdminPageTitle';
 import StatsCard from '@/components/dashboard/StatsCard';
 // import { Charts } from '@/components/ui/charts'; // Create this component or use alternative
 import { Card } from '@/components/ui/card';

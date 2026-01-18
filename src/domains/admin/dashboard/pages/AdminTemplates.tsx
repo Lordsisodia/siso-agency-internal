@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AdminLayout } from '@/components/admin/layout/AdminLayout';
+import { AdminLayout } from '@/domains/admin/components-from-root/layout/AdminLayout';
 import { Card } from '@/components/ui/card';
-import { BulkPlanCreation } from '@/components/admin/BulkPlanCreation';
-import { ShareablePlansSection } from '@/components/admin/templates/ShareablePlansSection';
+import { BulkPlanCreation } from '@/domains/admin/components-from-root/BulkPlanCreation';
+import { ShareablePlansSection } from '@/domains/admin/components-from-root/templates/ShareablePlansSection';
 import { useAdminCheck } from '@/domains/admin/hooks/useAdminCheck';
 import { Loader2, FileStack, ChevronDown, ChevronUp, Users } from 'lucide-react';
-import { AdminPageTitle } from '@/components/admin/layout/AdminPageTitle';
+import { AdminPageTitle } from '@/domains/admin/components-from-root/layout/AdminPageTitle';
 import { Button } from '@/components/ui/button';
 
 export default function AdminTemplates() {

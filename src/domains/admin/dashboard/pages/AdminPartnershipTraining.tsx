@@ -1,5 +1,5 @@
-import { AdminLayout } from '@/components/admin/layout/AdminLayout';
-import { AdminPageTitle } from '@/components/admin/layout/AdminPageTitle';
+import { AdminLayout } from '@/domains/admin/components-from-root/layout/AdminLayout';
+import { AdminPageTitle } from '@/domains/admin/components-from-root/layout/AdminPageTitle';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';

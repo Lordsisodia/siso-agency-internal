@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { AdminLayout } from '@/components/admin/layout/AdminLayout';
-import { AdminPageTitle } from '@/components/admin/layout/AdminPageTitle';
+import { AdminLayout } from '@/domains/admin/components-from-root/layout/AdminLayout';
+import { AdminPageTitle } from '@/domains/admin/components-from-root/layout/AdminPageTitle';
 import { Megaphone } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -10,19 +10,19 @@ import { useOutreachColumnPreferences } from '@/domains/admin/hooks/useOutreachC
 import { useOutreachAccounts } from '@/domains/admin/hooks/useOutreachAccounts';
 import { toast } from "sonner";
 import { UserPlus, BarChart3, Star, Edit, Plus } from 'lucide-react';
-import { INITIAL_COLUMNS } from '@/components/admin/outreach/types';
-import { LeadsTable } from '@/components/admin/outreach/leads/LeadsTable';
-import { LeadsToolbar } from '@/components/admin/outreach/leads/LeadsToolbar';
-import { LeadDetailSheet } from '@/components/admin/outreach/LeadDetailSheet';
-import { LeadsFunnelChart } from '@/components/admin/outreach/LeadsFunnelChart';
-import { OutreachAnalyticsCards } from '@/components/admin/outreach/OutreachAnalyticsCards';
-import { OutreachActivityLog } from '@/components/admin/outreach/OutreachActivityLog';
-import { AccountsGrid } from '@/components/admin/outreach/accounts/AccountsGrid';
-import { AccountManagementDialog } from '@/components/admin/outreach/accounts/AccountManagementDialog';
-import { PlatformFilters } from '@/components/admin/outreach/accounts/PlatformFilters';
-import { IndustryFilter } from '@/components/admin/outreach/accounts/IndustryFilter';
+import { INITIAL_COLUMNS } from '@/domains/admin/components-from-root/outreach/types';
+import { LeadsTable } from '@/domains/admin/components-from-root/outreach/leads/LeadsTable';
+import { LeadsToolbar } from '@/domains/admin/components-from-root/outreach/leads/LeadsToolbar';
+import { LeadDetailSheet } from '@/domains/admin/components-from-root/outreach/LeadDetailSheet';
+import { LeadsFunnelChart } from '@/domains/admin/components-from-root/outreach/LeadsFunnelChart';
+import { OutreachAnalyticsCards } from '@/domains/admin/components-from-root/outreach/OutreachAnalyticsCards';
+import { OutreachActivityLog } from '@/domains/admin/components-from-root/outreach/OutreachActivityLog';
+import { AccountsGrid } from '@/domains/admin/components-from-root/outreach/accounts/AccountsGrid';
+import { AccountManagementDialog } from '@/domains/admin/components-from-root/outreach/accounts/AccountManagementDialog';
+import { PlatformFilters } from '@/domains/admin/components-from-root/outreach/accounts/PlatformFilters';
+import { IndustryFilter } from '@/domains/admin/components-from-root/outreach/accounts/IndustryFilter';
 import type { OutreachAccount } from '@/types/outreach';
-import type { OutreachStats } from '@/components/admin/outreach/types';
+import type { OutreachStats } from '@/domains/admin/components-from-root/outreach/types';
 import {
   Table,
   TableBody,

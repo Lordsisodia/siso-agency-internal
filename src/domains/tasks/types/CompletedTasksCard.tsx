@@ -1,6 +1,6 @@
 import React from 'react';
 import { CheckSquare, Calendar, Clock } from 'lucide-react';
-import { DailyTrackerCard } from '@/components/admin/lifelock/ui/DailyTrackerCard';
+import { DailyTrackerCard } from '@/domains/admin/components-from-root/lifelock/ui/DailyTrackerCard';
 import { format } from 'date-fns';
 
 export interface CompletedTask {

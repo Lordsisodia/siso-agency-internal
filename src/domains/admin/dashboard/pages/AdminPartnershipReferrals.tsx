@@ -1,5 +1,5 @@
-import { AdminLayout } from '@/components/admin/layout/AdminLayout';
-import { AdminPageTitle } from '@/components/admin/layout/AdminPageTitle';
+import { AdminLayout } from '@/domains/admin/components-from-root/layout/AdminLayout';
+import { AdminPageTitle } from '@/domains/admin/components-from-root/layout/AdminPageTitle';
 import { EnhancedTable } from '@/components/ui/enhanced-table';
 import StatsCard from '@/components/dashboard/StatsCard';
 import CommissionCalculator from '@/components/partnership/CommissionCalculator';

@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import { AdminLayout } from '@/components/admin/layout/AdminLayout';
+import { AdminLayout } from '@/domains/admin/components-from-root/layout/AdminLayout';
 import { WireframeAdmin } from '@/components/projects/admin/WireframeAdmin';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 

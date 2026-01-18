@@ -1,21 +1,21 @@
 import { useState, useEffect } from "react";
-import { AdminLayout } from "@/components/admin/layout/AdminLayout";
-import { FinancialsHeader } from "@/components/admin/financials/FinancialsHeader";
-import { FinancialsDashboard } from "@/components/admin/financials/FinancialsDashboard";
-import { ExpensesTable } from "@/components/admin/financials/ExpensesTable";
-import { RevenueTable } from "@/components/admin/financials/RevenueTable";
-import { FinancialPipeline } from "@/components/admin/financials/FinancialPipeline";
+import { AdminLayout } from "@/domains/admin/components-from-root/layout/AdminLayout";
+import { FinancialsHeader } from "@/domains/admin/components-from-root/financials/FinancialsHeader";
+import { FinancialsDashboard } from "@/domains/admin/components-from-root/financials/FinancialsDashboard";
+import { ExpensesTable } from "@/domains/admin/components-from-root/financials/ExpensesTable";
+import { RevenueTable } from "@/domains/admin/components-from-root/financials/RevenueTable";
+import { FinancialPipeline } from "@/domains/admin/components-from-root/financials/FinancialPipeline";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { fetchTransactions, FinancialTransaction } from "@/domains/financial";
 import { Button } from "@/components/ui/button";
 import { seedInitialExpenses } from "@/domains/financial/seedExpenses";
 import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/services/integrations/supabase/client";
-import { ImportExpensesButton } from "@/components/admin/financials/expense/ImportExpensesButton";
+import { ImportExpensesButton } from "@/domains/admin/components-from-root/financials/expense/ImportExpensesButton";
 import { Import, AlertCircle, Wallet } from "lucide-react";
 import { seedExpensesFromList } from "@/domains/financial/bulkExpenseSeeder";
 import { Card } from "@/components/ui/card";
-import { AdminPageTitle } from "@/components/admin/layout/AdminPageTitle";
+import { AdminPageTitle } from "@/domains/admin/components-from-root/layout/AdminPageTitle";
 import { Users } from "lucide-react";
 
 export default function AdminPayments() {

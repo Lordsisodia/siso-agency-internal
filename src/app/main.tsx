@@ -6,7 +6,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { ClerkProvider } from '@/domains/auth';
 import App from './App';
 import './index.css';
-import { ErrorFallback } from '@/components/shared/ErrorFallback';
+import { ErrorFallback } from '@/domains/tasks/components-from-shared/ErrorFallback';
 import { checkEnv } from '@/lib/utils/core/envCheck';
 import { registerServiceWorker } from '@/lib/utils/core/registerServiceWorker';
 

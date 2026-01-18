@@ -23,7 +23,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { CompletedTasksModal } from '@/components/admin/tasks/CompletedTasksModal';
+import { CompletedTasksModal } from '@/domains/admin/components-from-root/tasks/CompletedTasksModal';
 
 interface DailyTrackerTaskItemProps {
   id: string;

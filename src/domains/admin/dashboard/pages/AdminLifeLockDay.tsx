@@ -1,6 +1,6 @@
 // 🔄 DUPLICATE REDIRECT
 // This file was an exact duplicate with broken imports (MD5: bc0922e235a498989bbd2edb6aba95b8)
-// pointing to non-existent @/components/admin/lifelock/ paths.
+// pointing to non-existent @/domains/admin/components-from-root/lifelock/ paths.
 //
 // Canonical: src/domains/lifelock/_shared/shell/AdminLifeLockDay.tsx
 // Purpose: LifeLock daily workflow page with tab-based sections

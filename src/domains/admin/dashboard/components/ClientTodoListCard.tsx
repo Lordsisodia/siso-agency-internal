@@ -1,7 +1,7 @@
 
 import { AnimatedCard } from "@/components/ui/animated-card";
 import { Button } from "@/components/ui/button";
-import { TodoList } from "@/components/admin/clients/TodoList";
+import { TodoList } from "@/domains/admin/components-from-root/clients/TodoList";
 import { TodoItem } from "@/domains/client/domain/types";
 import { useNavigate } from "react-router-dom";
 
