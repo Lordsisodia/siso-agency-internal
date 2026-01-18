@@ -247,9 +247,20 @@ const importMappings = {
   '@/domains/_archive/teams/TimelineTaskView': '@/domains/admin/dashboard/components/TimelineTaskView',
   '@/domains/teams/TimelineTaskView': '@/domains/admin/dashboard/components/TimelineTaskView',
 
-  // LifeLock components-from-root renamed to shared-components
-  '@/domains/lifelock/1-daily/2-tasks/components-from-root': '@/domains/lifelock/1-daily/2-tasks/shared-components',
-  '@/domains/lifelock/1-daily/6-timebox/components-from-root': '@/domains/lifelock/1-daily/6-timebox/shared-components',
+  // LifeLock components-from-root renamed to _shared
+  '@/domains/lifelock/1-daily/2-tasks/components-from-root': '@/domains/lifelock/1-daily/2-tasks/_shared',
+  '@/domains/lifelock/1-daily/6-timebox/components-from-root': '@/domains/lifelock/1-daily/6-timebox/_shared',
+
+  // Admin components-from-root should map to dashboard/components
+  '@/domains/admin/components-from-root': '@/domains/admin/dashboard/components',
+  '@/domains/admin/components-from-root/layout': '@/domains/admin/layout',
+  '@/domains/admin/components-from-root/tasks': '@/domains/admin/dashboard/components',
+  '@/domains/admin/components-from-root/financials': '@/domains/admin/dashboard/components',
+  '@/domains/admin/components-from-root/daily-planner': '@/domains/admin/dashboard/components',
+  '@/domains/admin/components-from-root/clients': '@/domains/admin/dashboard/components',
+  '@/domains/admin/components-from-root/outreach': '@/domains/admin/dashboard/components',
+  '@/domains/admin/components-from-root/teams': '@/domains/admin/dashboard/components',
+  '@/domains/admin/components-from-root/templates': '@/domains/admin/dashboard/components',
 
   // ========================================================================
   // STORES - Domain migrations
