@@ -33,11 +33,11 @@ const AdminSettings = lazy(() => import('@/domains/admin/pages/AdminSettings'));
 const AdminClients = lazy(() => import('@/domains/admin/pages/AdminClients'));
 const AdminPartnershipDashboard = lazy(() => import('@/domains/admin/pages/AdminPartnershipDashboard'));
 const TeamMemberTasksPage = lazy(() => import('@/domains/task-ui/pages/TeamMemberTasksPage'));
-const AIAssistantPage = lazy(() => import('@/domains/ai-assistant').then(m => ({ default: m.AIAssistantPage })));
+const AIAssistantPage = lazy(() => import('@/domains/admin/ai-assistant/ui/pages/AIAssistantPage').then(m => ({ default: m.AIAssistantPage })));
 
 // Resources pages
-const DocumentLibraryPage = lazy(() => import('@/domains/resources/pages/DocumentLibraryPage'));
-const ResourcesPage = lazy(() => import('@/domains/resources/pages/ResourcesPage'));
+const DocumentLibraryPage = lazy(() => import('@/pages/resources/DocumentLibraryPage'));
+const ResourcesPage = lazy(() => import('@/pages/resources/ResourcesPage'));
 
 // Automation & Dev Tools removed for core app
 
