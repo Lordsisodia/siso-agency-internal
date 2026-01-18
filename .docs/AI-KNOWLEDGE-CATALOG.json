@@ -1,0 +1,469 @@
+{
+  "metadata": {
+    "name": "SISO Internal Knowledge Catalog",
+    "version": "1.0.0",
+    "last_updated": "2025-01-18",
+    "purpose": "AI agent knowledge infrastructure - maps every file in the documentation system for intelligent navigation and context retrieval",
+    "format": "JSON for structured querying by AI agents",
+    "total_files": 345,
+    "total_categories": 9
+  },
+  "usage_guide": {
+    "for_ai_agents": [
+      "Start with the entry_point file for any query",
+      "Use the 'when_to_use' field to determine relevance",
+      "Check 'dependencies' for related files",
+      "Use 'search_tags' for semantic matching",
+      "Navigate via 'parent' and 'children' relationships"
+    ],
+    "file_conventions": {
+      "numbered_folders": "01-09 indicate logical flow (overview → architecture → product → build → test → run)",
+      "subdirectories": "max 3 levels deep for easy navigation",
+      "readme_first": "Each folder has a README.md explaining its purpose",
+      "case_sensitive": "All filenames are case-sensitive (use ALL_CAPS for legacy, Title-Case for new)"
+    }
+  },
+  "structure": {
+    "01-overview": {
+      "purpose": "START HERE - Essential introduction and quick start guides",
+      "entry_point": "01-overview/README.md",
+      "audience": ["new_developers", "stakeholders", "ai_agents"],
+      "contents": {
+        "00-project-overview.md": {
+          "title": "Project Overview",
+          "description": "High-level introduction to SISO Internal, features, and tech stack",
+          "when_to_use": ["first_time_visitors", "understanding_project_scope", "product_overview"],
+          "search_tags": ["introduction", "overview", "features", "tech_stack", "getting_started"],
+          "dependencies": [],
+          "related_files": ["02-architecture/README.md", "05-development/01-getting-started/"]
+        },
+        "01-quick-start/README.md": {
+          "title": "Quick Start Guide",
+          "description": "Fast setup instructions to get SISO Internal running locally",
+          "when_to_use": ["local_development_setup", "environment_configuration", "first_run"],
+          "search_tags": ["setup", "installation", "environment", "local_dev", "configuration"],
+          "dependencies": ["00-project-overview.md"],
+          "related_files": ["05-development/01-getting-started/"]
+        }
+      }
+    },
+    "02-architecture": {
+      "purpose": "System design, patterns, database schema, and technical decisions",
+      "entry_point": "02-architecture/README.md",
+      "audience": ["developers", "architects", "technical_leads"],
+      "contents": {
+        "01-system-design": {
+          "purpose": "High-level architecture and design patterns",
+          "subdirectories": ["domains", "state-management", "routing", "authentication"]
+        },
+        "02-database": {
+          "purpose": "Database schema, migrations, and data models",
+          "subdirectories": ["schema", "migrations", "relationships"],
+          "key_files": [
+            "02-database/schema/SCHEMA-ANALYSIS.md",
+            "02-database/schema/DOMAIN-MODEL.md"
+          ]
+        },
+        "03-components": {
+          "purpose": "Component architecture and patterns",
+          "subdirectories": ["shared", "domain-specific", "ui-patterns"]
+        },
+        "04-integrations": {
+          "purpose": "External service integrations architecture",
+          "subdirectories": ["supabase", "clerk", "ai-services"]
+        },
+        "05-api": {
+          "purpose": "API design and endpoints",
+          "subdirectories": ["rest", "graphql", "webhooks"]
+        },
+        "06-security": {
+          "purpose": "Security architecture and best practices",
+          "subdirectories": ["authentication", "authorization", "data-protection"]
+        },
+        "07-performance": {
+          "purpose": "Performance optimization strategies",
+          "subdirectories": ["caching", "lazy-loading", "optimization"]
+        },
+        "08-analysis": {
+          "purpose": "Technical analysis and architecture documentation",
+          "subdirectories": [],
+          "key_files": [
+            "08-analysis/INTELLIGENT-DEDUPLICATION-ANALYSIS.md",
+            "08-analysis/ARCHITECTURE-FIXES.md"
+          ]
+        }
+      }
+    },
+    "03-product": {
+      "purpose": "Features, domains, product requirements, and planning",
+      "entry_point": "03-product/README.md",
+      "audience": ["product_managers", "developers", "stakeholders"],
+      "contents": {
+        "01-domains": {
+          "purpose": "Domain-specific features and functionality",
+          "subdirectories": {
+            "01-lifelock": {
+              "description": "LifeLock dashboard - productivity management system",
+              "key_files": ["lifelock.md", "daily-view.md", "habits.md", "tasks.md"]
+            },
+            "02-tasks": {
+              "description": "Task management domain (placeholder for future)",
+              "status": "planned"
+            },
+            "03-partners": {
+              "description": "Partnership management domain (placeholder for future)",
+              "status": "planned"
+            },
+            "04-clients": {
+              "description": "Client management domain (placeholder for future)",
+              "status": "planned"
+            },
+            "05-xp-store": {
+              "description": "XP/Store domain (placeholder for future)",
+              "status": "planned"
+            }
+          }
+        },
+        "02-planning": {
+          "purpose": "Product planning and roadmap documentation",
+          "subdirectories": ["backlog", "roadmap", "migration"],
+          "key_files": [
+            "02-planning/planning/migration/DOMAIN-ARCHITECTURE-ANALYSIS.md"
+          ]
+        },
+        "03-prds": {
+          "purpose": "Product Requirement Documents",
+          "subdirectories": ["epic", "feature"],
+          "key_files": [
+            "03-prds/prd/epic-1-architecture-migration.md"
+          ]
+        }
+      }
+    },
+    "04-integrations": {
+      "purpose": "AI agents, MCP servers, APIs, and external service integrations",
+      "entry_point": "04-integrations/README.md",
+      "audience": ["developers", "devops", "ai_engineers"],
+      "contents": {
+        "01-ai-agents": {
+          "purpose": "AI agent integration and configuration",
+          "description": "AI assistant setup, prompts, and agent coordination",
+          "subdirectories": {
+            "ops": ["AI-THOUGHT-DUMP-SYSTEM-COMPLETE.md"],
+            "prompt-playbooks": ["CODEX-PROMPT-*.md"],
+            "protection": ["AI-SESSION-PROTECTION.md"]
+          },
+          "key_files": [
+            "AGENT-BLACKBOX-INSTRUCTIONS.md",
+            "AGENTS.md",
+            "AI_ASSISTANT_SUPABASE_GUIDE.md",
+            "AI_INTEGRATION_SUMMARY.md",
+            "GLM_INTEGRATION_COMPLETE.md",
+            "GROQ_SETUP.md"
+          ],
+          "when_to_use": ["ai_integration", "agent_setup", "prompt_engineering", "ai_coordination"]
+        },
+        "02-mcp": {
+          "purpose": "Model Context Protocol (MCP) server integrations",
+          "description": "Vibe Kanban, BlackBox, and other MCP services",
+          "key_files": [
+            "BLACKBOX-INTEGRATION-QUICKSTART.md",
+            "BLACKBOX-VIBE-KANBAN-INTEGRATION.md",
+            "DUAL-KANBAN-SYSTEM-GUIDE.md",
+            "VIBE-KANBAN-MCP-SETUP-GUIDE.md",
+            "VIBE-KANBAN-INTEGRATION-SUMMARY.md"
+          ],
+          "when_to_use": ["mcp_setup", "vibe_kanban_integration", "blackbox_integration"]
+        },
+        "03-external-services": {
+          "purpose": "Third-party service integrations",
+          "status": "placeholder"
+        },
+        "04-offline": {
+          "purpose": "Offline-first architecture and implementation",
+          "subdirectories": {
+            "implementation": ["OFFLINE-FIRST-COMPLETE-FIX.md"],
+            "strategy": ["OFFLINE-INFRASTRUCTURE-ANALYSIS.md", "SYNC-FAILURE-PREVENTION-SYSTEM.md"],
+            "testing": ["OFFLINE-TESTING-GUIDE.md"]
+          },
+          "when_to_use": ["offline_development", "pwa_features", "sync_strategy"]
+        }
+      }
+    },
+    "05-development": {
+      "purpose": "Development guides, workflows, and tooling",
+      "entry_point": "05-development/README.md",
+      "audience": ["developers", "contributors"],
+      "contents": {
+        "01-getting-started": {
+          "purpose": "Onboarding and initial setup",
+          "description": "Environment setup, configuration, and first-time development instructions",
+          "key_files": [
+            "QUICK_START.md",
+            "LOCAL_DEV_SETUP.md",
+            "ENVIRONMENT_VARIABLES.md",
+            "SETUP-MACBOOK-AND-MACMINO.md",
+            "VERCEL_DEPLOYMENT_GUIDE.md",
+            "GOLIVE_INSTRUCTIONS.md"
+          ],
+          "when_to_use": ["new_developer", "environment_setup", "deployment", "local_development"]
+        },
+        "02-workflows": {
+          "purpose": "Development workflows and methodologies",
+          "subdirectories": {
+            "methodology": ["GUIDING-PRINCIPLES.md", "core-architecture.md", "enhanced-ide-development-workflow.md"],
+            "outputs": ["BMAD-ARCHITECTURE-*.md", "bmad-*.md"],
+            "plans": ["BMAD-CONSOLIDATION-PLAN.md", "PHASE1-EXECUTION-PLAN.md"]
+          },
+          "when_to_use": ["development_process", "methodology", "planning"]
+        },
+        "03-guides": {
+          "purpose": "Development guides and how-tos",
+          "description": "AI guides, fixes, component registry, QA processes",
+          "subdirectories": {
+            "ai": ["AI-AGENT-GUIDE.md", "AI-DEVELOPMENT-LESSONS.md"],
+            "fixes": ["EASY-FIXES-GUIDE.md", "FIXES-APPLIED.md"],
+            "general": ["CODEBASE.md", "COMPONENT-REGISTRY.md"],
+            "lifelock": ["LIFELOCK-COMPONENT-DEDUPLICATION-STORY.md"],
+            "qa": ["ERROR-ANALYSIS.md"]
+          },
+          "when_to_use": ["coding_guidance", "troubleshooting", "component_usage"]
+        },
+        "04-tools": {
+          "purpose": "Development tools and utilities",
+          "status": "placeholder"
+        },
+        "05-troubleshooting": {
+          "purpose": "Common issues and solutions",
+          "status": "placeholder"
+        }
+      }
+    },
+    "06-testing": {
+      "purpose": "Testing guides, QA processes, and health checks",
+      "entry_point": "06-testing/README.md",
+      "audience": ["qa_engineers", "developers", "devops"],
+      "contents": {
+        "01-testing-guide": {
+          "purpose": "Testing how-to guides",
+          "key_files": [
+            "TEST-MCP-FINAL.md",
+            "TEST-TASKS-FOR-SISO-INTERNAL.md",
+            "TEST_GLM.md",
+            "USE-MCP-TO-CREATE-TASK.md",
+            "vibe-kanban-task-template.md"
+          ],
+          "when_to_use": ["testing_setup", "mcp_testing", "task_testing"]
+        },
+        "02-qa-process": {
+          "purpose": "QA processes and procedures",
+          "key_files": ["TESTING-QUICK-START.md", "ai-chat-assistant-testing-guide.md"],
+          "when_to_use": ["qa_workflow", "testing_standards"]
+        },
+        "03-test-reports": {
+          "purpose": "Test results and reports",
+          "subdirectory": "reports",
+          "key_files": ["reports/TEST-RESULTS-2025-10-10.md", "reports/FLOATING-AI-INTEGRATION-SUMMARY.md"],
+          "when_to_use": ["test_results", "integration_testing"]
+        },
+        "04-health-checks": {
+          "purpose": "System health and verification reports",
+          "key_files": [
+            "ACTUAL-COMPLETION-REPORT.md",
+            "CODEBASE-HEALTH-REPORT.md",
+            "DEEP-VERIFICATION-REPORT.md",
+            "VERIFICATION-SUMMARY.md"
+          ],
+          "when_to_use": ["health_monitoring", "verification", "completion_status"]
+        },
+        "05-automation": {
+          "purpose": "Automated testing infrastructure",
+          "status": "placeholder"
+        }
+      }
+    },
+    "07-operations": {
+      "purpose": "Deployment, monitoring, maintenance, and migrations",
+      "entry_point": "07-operations/README.md",
+      "audience": ["devops", "sres", "system_administrators"],
+      "contents": {
+        "01-deployment": {
+          "purpose": "Deployment guides and procedures",
+          "key_files": ["VERCEL-BUILD-ANALYSIS.md"],
+          "when_to_use": ["deployment", "vercel", "build_process"]
+        },
+        "02-monitoring": {
+          "purpose": "System monitoring and alerting",
+          "status": "placeholder"
+        },
+        "03-maintenance": {
+          "purpose": "Maintenance procedures and runbooks",
+          "status": "placeholder"
+        },
+        "04-migrations": {
+          "purpose": "Migration history and completion reports",
+          "subdirectories": {
+            "phases": ["PHASE-*-*.md", "CONSOLIDATION-COMPLETE.md"],
+            "lifelock": ["DAILY-VIEW-DOMAIN-MIGRATION-SUMMARY.md", "MIGRATION-SUCCESS-FINAL.md"],
+            "completion": ["BMAD-COMPLETION-REPORT.md", "PRODUCTION-READINESS-REPORT.md"]
+          },
+          "when_to_use": ["migration_history", "phase_completion", "status_tracking"]
+        }
+      }
+    },
+    "08-knowledge": {
+      "purpose": "Research, feedback, stories, and institutional knowledge",
+      "entry_point": "08-knowledge/README.md",
+      "audience": ["developers", "researchers", "ai_agents"],
+      "contents": {
+        "01-research": {
+          "purpose": "Research briefs, comparisons, and questions",
+          "subdirectories": {
+            "briefs": ["DEEP-RESEARCH-BRIEFS.md"],
+            "comparisons": ["GPT5-NANO-VS-GROK-ANALYSIS.md"],
+            "questions": ["DEEP-RESEARCH-QUESTION-BANK.md"]
+          },
+          "key_files": ["freshen-up-domain-analysis.md"],
+          "when_to_use": ["research", "comparative_analysis", "technical_research"]
+        },
+        "02-feedback": {
+          "purpose": "User feedback and professional development feedback",
+          "subdirectories": {
+            "dated": ["2025/"],
+            "feedback": ["pro-dev-feedback/00-MASTER-WTF-SUMMARY.md", "pro-dev-feedback/0[0-9]-*.md"]
+          },
+          "when_to_use": ["feedback_analysis", "improvement_areas", "technical_debt"]
+        },
+        "03-stories": {
+          "purpose": "Development stories and implementation narratives",
+          "subdirectory": "stories",
+          "key_files": ["1.1.build-deep-focus-work-section.md", "1.6.fix-import-paths-integration.md"],
+          "when_to_use": ["implementation_history", "feature_stories"]
+        },
+        "04-thought-dumps": {
+          "purpose": "Brainstorming sessions and idea dumps",
+          "subdirectory": "thought-dumps",
+          "key_files": [
+            "2025-01-09-ai-chat-assistant-vision.md",
+            "THOUGHT-DUMP-COMPONENTS-WORKING.md",
+            "THOUGHT-DUMP-WORKING-COMPONENTS.md"
+          ],
+          "when_to_use": ["ideation", "brainstorming", "raw_ideas"]
+        },
+        "05-lessons-learned": {
+          "purpose": "Lessons learned and best practices",
+          "status": "placeholder"
+        }
+      }
+    },
+    "09-archive": {
+      "purpose": "Legacy documentation, deprecated content, and historical records",
+      "entry_point": "09-archive/README.md",
+      "audience": ["archivists", "historical_research"],
+      "when_to_use": ["historical_reference", "legacy_systems", "deprecated_features"],
+      "contents": {
+        "01-legacy-structure": {
+          "purpose": "Pre-migration documentation structure",
+          "status": "historical"
+        },
+        "02-root-notes": {
+          "purpose": "Notes from root directory",
+          "subdirectories": ["breakthrough"],
+          "key_files": ["breakthrough/QUICK-START-NEW-FEATURES.md"]
+        },
+        "03-deprecated": {
+          "purpose": "Deprecated features and documentation",
+          "status": "archived"
+        },
+        "04-dated": {
+          "purpose": "Time-stamped documentation",
+          "status": "historical"
+        },
+        "archive": {
+          "purpose": "Archived documentation from previous reorganizations",
+          "subdirectories": ["architecture", "platform", "process", "product"]
+        }
+      }
+    }
+  },
+  "ai_agent_queries": {
+    "getting_started": {
+      "entry_point": "01-overview/README.md",
+      "follow_up": ["01-overview/00-project-overview.md", "01-overview/01-quick-start/README.md", "05-development/01-getting-started/QUICK_START.md"]
+    },
+    "architecture_understanding": {
+      "entry_point": "02-architecture/README.md",
+      "follow_up": ["02-architecture/01-system-design/domains/", "02-architecture/02-database/schema/SCHEMA-ANALYSIS.md"]
+    },
+    "feature_implementation": {
+      "entry_point": "03-product/README.md",
+      "follow_up": ["03-product/01-domains/", "05-development/03-guides/general/CODEBASE.md"]
+    },
+    "ai_integration": {
+      "entry_point": "04-integrations/01-ai-agents/AGENTS.md",
+      "follow_up": ["04-integrations/01-ai-agents/AGENT-BLACKBOX-INSTRUCTIONS.md", "04-integrations/02-mcp/VIBE-KANBAN-MCP-SETUP-GUIDE.md"]
+    },
+    "troubleshooting": {
+      "entry_point": "05-development/03-guides/fixes/EASY-FIXES-GUIDE.md",
+      "follow_up": ["05-development/03-guides/qa/ERROR-ANALYSIS.md", "06-testing/04-health-checks/CODEBASE-HEALTH-REPORT.md"]
+    },
+    "testing": {
+      "entry_point": "06-testing/README.md",
+      "follow_up": ["06-testing/01-testing-guide/TEST-MCP-FINAL.md", "06-testing/02-qa-process/TESTING-QUICK-START.md"]
+    },
+    "deployment": {
+      "entry_point": "07-operations/01-deployment/VERCEL-BUILD-ANALYSIS.md",
+      "follow_up": ["05-development/01-getting-started/VERCEL_DEPLOYMENT_GUIDE.md", "05-development/01-getting-started/GOLIVE_INSTRUCTIONS.md"]
+    },
+    "migration_status": {
+      "entry_point": "07-operations/04-migrations/phases/",
+      "follow_up": ["07-operations/04-migrations/completion/PRODUCTION-READINESS-REPORT.md", "06-testing/04-health-checks/VERIFICATION-SUMMARY.md"]
+    },
+    "technical_research": {
+      "entry_point": "08-knowledge/01-research/",
+      "follow_up": ["08-knowledge/01-research/briefs/DEEP-RESEARCH-BRIEFS.md", "08-knowledge/02-feedback/feedback/pro-dev-feedback/00-MASTER-WTF-SUMMARY.md"]
+    }
+  },
+  "file_finding_strategy": {
+    "by_topic": {
+      "lifelock": "03-product/01-domains/01-lifelock/",
+      "authentication": "02-architecture/01-system-design/authentication/",
+      "database": "02-architecture/02-database/",
+      "ai_agents": "04-integrations/01-ai-agents/",
+      "mcp": "04-integrations/02-mcp/",
+      "offline": "04-integrations/04-offline/",
+      "setup": "05-development/01-getting-started/",
+      "methodology": "05-development/02-workflows/methodology/",
+      "testing": "06-testing/",
+      "deployment": "07-operations/01-deployment/",
+      "migrations": "07-operations/04-migrations/"
+    },
+    "by_file_type": {
+      "guides": "*/guides/, */01-getting-started/, */01-quick-start/",
+      "architecture": "02-architecture/",
+      "prds": "03-product/03-prds/",
+      "analysis": "*/analysis/, */reports/",
+      "health_checks": "06-testing/04-health-checks/",
+      "test_results": "06-testing/03-test-reports/",
+      "feedback": "08-knowledge/02-feedback/",
+      "research": "08-knowledge/01-research/"
+    },
+    "by_audience": {
+      "new_developers": ["01-overview/", "05-development/01-getting-started/"],
+      "architects": ["02-architecture/"],
+      "product_managers": ["03-product/"],
+      "ai_engineers": ["04-integrations/01-ai-agents/", "04-integrations/02-mcp/"],
+      "qa_engineers": ["06-testing/"],
+      "devops": ["07-operations/"]
+    }
+  },
+  "maintenance_notes": {
+    "last_reorganization": "2025-01-18",
+    "reorganization_type": "numbered_folders_with_subdirectories",
+    "naming_convention": "kebab-case for folders, ALL_CAPS or Title-Case for files",
+    "max_depth": 3 levels from root (.docs/XX-category/YY-subtype/file.md)",
+    "readme_policy": "Every folder has a README.md explaining its purpose",
+    "empty_folder_policy": "Empty folders are removed immediately",
+    "update_frequency": "Update this catalog when adding/removing/moving files"
+  }
+}
