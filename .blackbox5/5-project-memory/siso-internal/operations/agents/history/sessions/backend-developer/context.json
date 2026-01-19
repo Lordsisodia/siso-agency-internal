@@ -1,0 +1,18 @@
+{
+  "context_id": "context_20260118_072634_103844_d84d0a42",
+  "agent_id": "backend-developer",
+  "created_at": "2026-01-18T07:26:34.103849+00:00",
+  "updated_at": "2026-01-18T07:26:34.104312+00:00",
+  "patterns": [
+    "Use Flask blueprints for API modularization"
+  ],
+  "gotchas": [],
+  "discoveries": [],
+  "preferences": {},
+  "statistics": {
+    "total_sessions": 0,
+    "successful_sessions": 0,
+    "failed_sessions": 0,
+    "total_insights": 1
+  }
+}

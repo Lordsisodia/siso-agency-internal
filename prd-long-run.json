@@ -1,0 +1,340 @@
+{
+  "branchName": "ralph/long-run-test",
+  "userStories": [
+    {
+      "id": "TASK-001",
+      "title": "Create analysis document 1",
+      "priority": 1,
+      "passes": true,
+      "agent": "writer",
+      "context": {
+        "output_file": ".blackbox5/engine/runtime/ralph/output/long-run/doc-001.md",
+        "content": "# Document 1\n\nCreated at {timestamp}\n\nAutonomous task execution test."
+      }
+    },
+    {
+      "id": "TASK-002",
+      "title": "Create analysis document 2",
+      "priority": 2,
+      "passes": true,
+      "agent": "writer",
+      "context": {
+        "output_file": ".blackbox5/engine/runtime/ralph/output/long-run/doc-002.md",
+        "content": "# Document 2\n\nCreated at {timestamp}\n\nAutonomous task execution test."
+      }
+    },
+    {
+      "id": "TASK-003",
+      "title": "Create analysis document 3",
+      "priority": 3,
+      "passes": true,
+      "agent": "writer",
+      "context": {
+        "output_file": ".blackbox5/engine/runtime/ralph/output/long-run/doc-003.md",
+        "content": "# Document 3\n\nCreated at {timestamp}\n\nAutonomous task execution test."
+      }
+    },
+    {
+      "id": "TASK-004",
+      "title": "Create analysis document 4",
+      "priority": 4,
+      "passes": true,
+      "agent": "writer",
+      "context": {
+        "output_file": ".blackbox5/engine/runtime/ralph/output/long-run/doc-004.md",
+        "content": "# Document 4\n\nCreated at {timestamp}\n\nAutonomous task execution test."
+      }
+    },
+    {
+      "id": "TASK-005",
+      "title": "Create analysis document 5",
+      "priority": 5,
+      "passes": true,
+      "agent": "writer",
+      "context": {
+        "output_file": ".blackbox5/engine/runtime/ralph/output/long-run/doc-005.md",
+        "content": "# Document 5\n\nCreated at {timestamp}\n\nAutonomous task execution test."
+      }
+    },
+    {
+      "id": "TASK-006",
+      "title": "Create analysis document 6",
+      "priority": 6,
+      "passes": true,
+      "agent": "writer",
+      "context": {
+        "output_file": ".blackbox5/engine/runtime/ralph/output/long-run/doc-006.md",
+        "content": "# Document 6\n\nCreated at {timestamp}\n\nAutonomous task execution test."
+      }
+    },
+    {
+      "id": "TASK-007",
+      "title": "Create analysis document 7",
+      "priority": 7,
+      "passes": true,
+      "agent": "writer",
+      "context": {
+        "output_file": ".blackbox5/engine/runtime/ralph/output/long-run/doc-007.md",
+        "content": "# Document 7\n\nCreated at {timestamp}\n\nAutonomous task execution test."
+      }
+    },
+    {
+      "id": "TASK-008",
+      "title": "Create analysis document 8",
+      "priority": 8,
+      "passes": true,
+      "agent": "writer",
+      "context": {
+        "output_file": ".blackbox5/engine/runtime/ralph/output/long-run/doc-008.md",
+        "content": "# Document 8\n\nCreated at {timestamp}\n\nAutonomous task execution test."
+      }
+    },
+    {
+      "id": "TASK-009",
+      "title": "Create analysis document 9",
+      "priority": 9,
+      "passes": true,
+      "agent": "writer",
+      "context": {
+        "output_file": ".blackbox5/engine/runtime/ralph/output/long-run/doc-009.md",
+        "content": "# Document 9\n\nCreated at {timestamp}\n\nAutonomous task execution test."
+      }
+    },
+    {
+      "id": "TASK-010",
+      "title": "Create analysis document 10",
+      "priority": 10,
+      "passes": true,
+      "agent": "writer",
+      "context": {
+        "output_file": ".blackbox5/engine/runtime/ralph/output/long-run/doc-010.md",
+        "content": "# Document 10\n\nCreated at {timestamp}\n\nAutonomous task execution test."
+      }
+    },
+    {
+      "id": "TASK-011",
+      "title": "Create analysis document 11",
+      "priority": 11,
+      "passes": true,
+      "agent": "writer",
+      "context": {
+        "output_file": ".blackbox5/engine/runtime/ralph/output/long-run/doc-011.md",
+        "content": "# Document 11\n\nCreated at {timestamp}\n\nAutonomous task execution test."
+      }
+    },
+    {
+      "id": "TASK-012",
+      "title": "Create analysis document 12",
+      "priority": 12,
+      "passes": true,
+      "agent": "writer",
+      "context": {
+        "output_file": ".blackbox5/engine/runtime/ralph/output/long-run/doc-012.md",
+        "content": "# Document 12\n\nCreated at {timestamp}\n\nAutonomous task execution test."
+      }
+    },
+    {
+      "id": "TASK-013",
+      "title": "Create analysis document 13",
+      "priority": 13,
+      "passes": true,
+      "agent": "writer",
+      "context": {
+        "output_file": ".blackbox5/engine/runtime/ralph/output/long-run/doc-013.md",
+        "content": "# Document 13\n\nCreated at {timestamp}\n\nAutonomous task execution test."
+      }
+    },
+    {
+      "id": "TASK-014",
+      "title": "Create analysis document 14",
+      "priority": 14,
+      "passes": true,
+      "agent": "writer",
+      "context": {
+        "output_file": ".blackbox5/engine/runtime/ralph/output/long-run/doc-014.md",
+        "content": "# Document 14\n\nCreated at {timestamp}\n\nAutonomous task execution test."
+      }
+    },
+    {
+      "id": "TASK-015",
+      "title": "Create analysis document 15",
+      "priority": 15,
+      "passes": true,
+      "agent": "writer",
+      "context": {
+        "output_file": ".blackbox5/engine/runtime/ralph/output/long-run/doc-015.md",
+        "content": "# Document 15\n\nCreated at {timestamp}\n\nAutonomous task execution test."
+      }
+    },
+    {
+      "id": "TASK-016",
+      "title": "Create analysis document 16",
+      "priority": 16,
+      "passes": true,
+      "agent": "writer",
+      "context": {
+        "output_file": ".blackbox5/engine/runtime/ralph/output/long-run/doc-016.md",
+        "content": "# Document 16\n\nCreated at {timestamp}\n\nAutonomous task execution test."
+      }
+    },
+    {
+      "id": "TASK-017",
+      "title": "Create analysis document 17",
+      "priority": 17,
+      "passes": true,
+      "agent": "writer",
+      "context": {
+        "output_file": ".blackbox5/engine/runtime/ralph/output/long-run/doc-017.md",
+        "content": "# Document 17\n\nCreated at {timestamp}\n\nAutonomous task execution test."
+      }
+    },
+    {
+      "id": "TASK-018",
+      "title": "Create analysis document 18",
+      "priority": 18,
+      "passes": true,
+      "agent": "writer",
+      "context": {
+        "output_file": ".blackbox5/engine/runtime/ralph/output/long-run/doc-018.md",
+        "content": "# Document 18\n\nCreated at {timestamp}\n\nAutonomous task execution test."
+      }
+    },
+    {
+      "id": "TASK-019",
+      "title": "Create analysis document 19",
+      "priority": 19,
+      "passes": true,
+      "agent": "writer",
+      "context": {
+        "output_file": ".blackbox5/engine/runtime/ralph/output/long-run/doc-019.md",
+        "content": "# Document 19\n\nCreated at {timestamp}\n\nAutonomous task execution test."
+      }
+    },
+    {
+      "id": "TASK-020",
+      "title": "Create analysis document 20",
+      "priority": 20,
+      "passes": true,
+      "agent": "writer",
+      "context": {
+        "output_file": ".blackbox5/engine/runtime/ralph/output/long-run/doc-020.md",
+        "content": "# Document 20\n\nCreated at {timestamp}\n\nAutonomous task execution test."
+      }
+    },
+    {
+      "id": "TASK-021",
+      "title": "Create analysis document 21",
+      "priority": 21,
+      "passes": true,
+      "agent": "writer",
+      "context": {
+        "output_file": ".blackbox5/engine/runtime/ralph/output/long-run/doc-021.md",
+        "content": "# Document 21\n\nCreated at {timestamp}\n\nAutonomous task execution test."
+      }
+    },
+    {
+      "id": "TASK-022",
+      "title": "Create analysis document 22",
+      "priority": 22,
+      "passes": true,
+      "agent": "writer",
+      "context": {
+        "output_file": ".blackbox5/engine/runtime/ralph/output/long-run/doc-022.md",
+        "content": "# Document 22\n\nCreated at {timestamp}\n\nAutonomous task execution test."
+      }
+    },
+    {
+      "id": "TASK-023",
+      "title": "Create analysis document 23",
+      "priority": 23,
+      "passes": true,
+      "agent": "writer",
+      "context": {
+        "output_file": ".blackbox5/engine/runtime/ralph/output/long-run/doc-023.md",
+        "content": "# Document 23\n\nCreated at {timestamp}\n\nAutonomous task execution test."
+      }
+    },
+    {
+      "id": "TASK-024",
+      "title": "Create analysis document 24",
+      "priority": 24,
+      "passes": true,
+      "agent": "writer",
+      "context": {
+        "output_file": ".blackbox5/engine/runtime/ralph/output/long-run/doc-024.md",
+        "content": "# Document 24\n\nCreated at {timestamp}\n\nAutonomous task execution test."
+      }
+    },
+    {
+      "id": "TASK-025",
+      "title": "Create analysis document 25",
+      "priority": 25,
+      "passes": true,
+      "agent": "writer",
+      "context": {
+        "output_file": ".blackbox5/engine/runtime/ralph/output/long-run/doc-025.md",
+        "content": "# Document 25\n\nCreated at {timestamp}\n\nAutonomous task execution test."
+      }
+    },
+    {
+      "id": "TASK-026",
+      "title": "Create progress checkpoint 1",
+      "priority": 26,
+      "passes": true,
+      "agent": "writer",
+      "context": {
+        "output_file": ".blackbox5/engine/runtime/ralph/output/long-run/checkpoint-1.md",
+        "content": "# Checkpoint 1\n\nReached at {timestamp}\n\n25 tasks completed."
+      }
+    },
+    {
+      "id": "TASK-027",
+      "title": "Create analysis document 27",
+      "priority": 27,
+      "passes": true,
+      "agent": "writer",
+      "context": {
+        "output_file": ".blackbox5/engine/runtime/ralph/output/long-run/doc-027.md",
+        "content": "# Document 27\n\nCreated at {timestamp}\n\nAutonomous task execution test."
+      }
+    },
+    {
+      "id": "TASK-028",
+      "title": "Create analysis document 28",
+      "priority": 28,
+      "passes": true,
+      "agent": "writer",
+      "context": {
+        "output_file": ".blackbox5/engine/runtime/ralph/output/long-run/doc-028.md",
+        "content": "# Document 28\n\nCreated at {timestamp}\n\nAutonomous task execution test."
+      }
+    },
+    {
+      "id": "TASK-029",
+      "title": "Create analysis document 29",
+      "priority": 29,
+      "passes": true,
+      "agent": "writer",
+      "context": {
+        "output_file": ".blackbox5/engine/runtime/ralph/output/long-run/doc-029.md",
+        "content": "# Document 29\n\nCreated at {timestamp}\n\nAutonomous task execution test."
+      }
+    },
+    {
+      "id": "TASK-030",
+      "title": "Create analysis document 30",
+      "priority": 30,
+      "passes": true,
+      "agent": "writer",
+      "context": {
+        "output_file": ".blackbox5/engine/runtime/ralph/output/long-run/doc-030.md",
+        "content": "# Document 30\n\nCreated at {timestamp}\n\nAutonomous task execution test."
+      }
+    }
+  ],
+  "metadata": {
+    "project": "Ralph Runtime Long Run Test",
+    "started": "2026-01-18",
+    "goal": "Test Ralph Runtime with 30 tasks over 100 iterations to measure autonomous execution stability"
+  }
+}

@@ -1,0 +1,225 @@
+# Black Box 5 Engine - Configuration
+# Production configuration for GLM-based multi-agent system
+
+engine:
+  name: "Black Box 5"
+  version: "5.0.0"
+  log_level: "INFO"
+  shutdown_timeout: 30
+
+# GLM API Configuration (Primary LLM)
+glm:
+  enabled: true
+  api_key: "${GLM_API_KEY}"  # Loaded from environment variable
+  model: "glm-4.7"  # Primary model
+  base_url: "https://open.bigmodel.cn/api/paas/v4/chat/completions"
+  timeout: 120
+  max_retries: 3
+  default_params:
+    temperature: 0.7
+    top_p: 0.9
+    max_tokens: 4096
+
+# Alternative LLM providers (disabled, using GLM only)
+anthropic:
+  enabled: false  # DISABLED - Using GLM instead
+openai:
+  enabled: false  # DISABLED - Using GLM instead
+
+# API Server Configuration
+api:
+  enabled: false  # Disable for now, enable when needed
+  host: "127.0.0.1"
+  port: 8000
+  reload: false
+  log_level: "info"
+  cors:
+    enabled: true
+    origins: ["*"]
+
+# WebSocket Server Configuration
+websocket:
+  enabled: false  # Disable for now
+  host: "127.0.0.1"
+  port: 8001
+
+# Event Bus (Redis) - Required for multi-agent coordination
+event_bus:
+  enabled: true
+  backend: "redis"  # redis or memory
+  redis:
+    host: "localhost"
+    port: 6379
+    db: 0
+    password: null  # Set if Redis requires password
+    connection_pool:
+      max_connections: 10
+      socket_timeout: 5
+      socket_connect_timeout: 5
+
+# Memory Systems Configuration
+memory:
+  # Working Memory (in-memory, fast access)
+  working:
+    enabled: true
+    capacity_tokens: 100000
+    cleanup_interval: 300  # seconds
+
+  # Episodic Memory (ChromaDB - optional)
+  episodic:
+    enabled: false  # Disable for now, enable when ChromaDB is installed
+    path: "./.blackbox5/data/chroma"
+    collection_name: "episodic"
+
+  # Semantic Memory (Neo4j - optional)
+  semantic:
+    enabled: false  # Disable for now, enable when Neo4j is installed
+    uri: "bolt://localhost:7687"
+    user: "neo4j"
+    password: "${NEO4J_PASSWORD}"
+
+  # Procedural Memory (Redis)
+  procedural:
+    enabled: true
+    redis_db: 1  # Separate from event bus
+
+# Agent System Configuration
+agents:
+  enabled: true
+  lazy: true
+  auto_recover: true
+  max_retries: 3
+
+  # Agent discovery and loading
+  loader:
+    agent_dir: "./.blackbox5/engine/.agents"
+    skill_dir: "./.blackbox5/engine/agents/.skills"
+    hot_reload: true
+
+  # Task routing
+  router:
+    simple_threshold: 0.3
+    moderate_threshold: 0.6
+    enable_caching: true
+
+  # Default agent parameters
+  defaults:
+    context_budget: 50000  # tokens
+    max_iterations: 10
+    timeout: 300  # seconds
+
+# Tool System Configuration
+tools:
+  enabled: true
+  lazy: true
+  auto_recover: true
+  max_retries: 3
+
+  # Built-in tools
+  builtin:
+    - file_read
+    - file_write
+    - bash_execute
+    - search
+
+  # MCP Integration
+  mcp:
+    enabled: true
+    config_path: "./.blackbox5/.config/mcp-servers.json"
+    auto_discover: true
+    auto_start: false  # Don't auto-start MCP servers
+    enable_crash_prevention: true  # Enable crash prevention system
+
+    # Crash Prevention Settings
+    crash_prevention:
+      # Resource limits
+      max_instances_per_type: 2  # Max instances per server type (e.g., 2 chrome-devtools)
+      max_cpu_percent: 80.0  # CPU usage warning threshold
+      max_memory_mb: 500.0  # Memory usage warning threshold (MB)
+      max_age_seconds: 7200  # Max server uptime before restart (2 hours)
+
+      # Health check settings
+      health_check_interval: 60  # Check server health every 60 seconds
+      health_check_timeout: 30  # Health check timeout (seconds)
+      restart_max_retries: 3  # Max restart attempts
+      restart_backoff_seconds: 60  # Backoff between restart attempts
+
+      # Auto-cleanup settings
+      enable_auto_cleanup: true  # Automatically cleanup orphaned servers
+      cleanup_interval: 60  # Cleanup interval (seconds)
+      zombie_detection_enabled: true  # Detect and cleanup zombie processes
+
+      # Warning thresholds
+      warning_cpu_percent: 70.0  # CPU warning threshold
+      warning_memory_mb: 300.0  # Memory warning threshold (MB)
+
+    # Timeout settings
+    server_timeout: 60000  # Server request timeout (ms)
+    startup_timeout: 30000  # Server startup timeout (ms)
+    shutdown_timeout: 10000  # Server shutdown timeout (ms)
+
+# Framework Loaders
+frameworks:
+  enabled: true
+  lazy: true
+
+  # BMAD Methodology
+  bmad:
+    enabled: true
+    path: "./.blackbox5/engine/frameworks/1-bmad"
+
+  # GSD Methodology
+  gsd:
+    enabled: true
+    path: "./.blackbox5/engine/frameworks/2-gsd"
+
+# Integration Configuration
+integrations:
+  # GitHub Integration
+  github:
+    enabled: false  # Enable when needed
+    token: "${GITHUB_TOKEN}"
+    default_repo: "auto-detected"
+
+  # Vibe Kanban Integration
+  vibe_kanban:
+    enabled: false  # Enable when needed
+    api_url: "${VIBE_API_URL}"
+    api_key: "${VIBE_API_KEY}"
+
+# Circuit Breaker Configuration
+circuit_breaker:
+  enabled: true
+  default_timeout: 30
+  failure_threshold: 3
+  recovery_timeout: 60
+  half_open_max_calls: 2
+
+# Manifest System (Operation Tracking)
+manifests:
+  enabled: true
+  output_dir: "./.blackbox5/scratch/manifests"
+  retain_days: 30
+  format: "json"  # json or yaml
+
+# Health Monitoring
+health:
+  enabled: true
+  check_interval: 30
+  failure_threshold: 3
+  critical_threshold: 5
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s"
+  file: "./.blackbox5/logs/blackbox5.log"
+  rotation:
+    max_size: "10 MB"
+    backup_count: 5
+
+# Development/Testing Flags
+development:
+  mock_llm: false  # Set to true for testing without API calls
+  verbose_errors: true
+  debug_mode: false

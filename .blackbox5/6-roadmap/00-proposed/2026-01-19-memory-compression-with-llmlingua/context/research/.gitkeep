@@ -1,0 +1,33 @@
+# Research Materials Template
+
+This directory should contain research materials and findings.
+
+## Types of Content
+
+### Literature Review
+Summaries of relevant papers, documentation, or research.
+
+### Comparison Matrices
+Tables comparing different approaches or technologies.
+
+### Benchmarks
+Performance data or measurements.
+
+### Code Snippets
+Example code or algorithms from research.
+
+### Notes
+Raw research notes and observations.
+
+## Template Structure
+
+```
+research/
+├── literature-review.md
+├── comparisons/
+│   ├── approach-comparison.md
+│   └── technology-comparison.md
+├── benchmarks/
+│   └── performance-data.md
+└── notes.md
+```

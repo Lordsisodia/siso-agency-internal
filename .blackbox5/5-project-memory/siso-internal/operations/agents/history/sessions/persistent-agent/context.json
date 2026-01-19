@@ -1,0 +1,18 @@
+{
+  "context_id": "context_20260118_072634_101049_24368549",
+  "agent_id": "persistent-agent",
+  "created_at": "2026-01-18T07:26:34.101056+00:00",
+  "updated_at": "2026-01-18T07:26:34.101541+00:00",
+  "patterns": [
+    "Always backup database before migration"
+  ],
+  "gotchas": [],
+  "discoveries": [],
+  "preferences": {},
+  "statistics": {
+    "total_sessions": 1,
+    "successful_sessions": 1,
+    "failed_sessions": 0,
+    "total_insights": 1
+  }
+}

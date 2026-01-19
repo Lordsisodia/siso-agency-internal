@@ -1,0 +1,86 @@
+# Test Scenarios Template
+
+This directory should contain test plans and scenarios.
+
+## Types of Content
+
+### Test Plans
+Overall testing strategy and approach.
+
+### Test Scenarios
+Specific test cases with expected outcomes.
+
+### Test Data
+Sample data for testing.
+
+### Validation Criteria
+Definitions of what constitutes success.
+
+## Template Structure
+
+```
+testing/
+├── test-plan.md
+├── scenarios/
+│   ├── unit-tests.md
+│   ├── integration-tests.md
+│   └── e2e-tests.md
+├── data/
+│   └── sample-data.md
+└── validation-criteria.md
+```
+
+## Test Scenario Template
+
+```markdown
+# [Scenario Name]
+
+## Description
+[What this test validates]
+
+## Preconditions
+- [Condition 1]
+- [Condition 2]
+
+## Test Steps
+1. [Step 1]
+2. [Step 2]
+3. [Step 3]
+
+## Expected Outcome
+[What should happen]
+
+## Actual Outcome
+[What actually happened - filled in during testing]
+
+## Status
+- [ ] Pass
+- [ ] Fail
+- [ ] Blocked
+```
+
+## Validation Criteria Template
+
+```markdown
+# Validation Criteria
+
+## Success Metrics
+
+| Metric | Target | Actual | Status |
+|--------|--------|--------|--------|
+| [Metric 1] | [Target] | [Actual] | [Pass/Fail] |
+| [Metric 2] | [Target] | [Actual] | [Pass/Fail] |
+
+## Quality Gates
+
+- [ ] [Gate 1]
+- [ ] [Gate 2]
+- [ ] [Gate 3]
+
+## Performance Benchmarks
+
+| Test | Target | Actual | Status |
+|------|--------|--------|--------|
+| [Benchmark 1] | [Target] | [Actual] | [Pass/Fail] |
+| [Benchmark 2] | [Target] | [Actual] | [Pass/Fail] |
+```

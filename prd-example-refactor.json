@@ -1,0 +1,50 @@
+{
+  "branchName": "ralph/refactor-user-service",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Analyze: Refactor user service",
+      "priority": 1,
+      "passes": false,
+      "agent": "architect",
+      "context": {
+        "description": "Clean up and reorganize the user service module for better maintainability",
+        "phase": "analysis"
+      }
+    },
+    {
+      "id": "US-002",
+      "title": "Refactor: Refactor user service",
+      "priority": 2,
+      "passes": false,
+      "agent": "coder",
+      "tools": [
+        "write_code"
+      ],
+      "context": {
+        "description": "Clean up and reorganize the user service module for better maintainability",
+        "phase": "refactoring"
+      }
+    },
+    {
+      "id": "US-003",
+      "title": "Verify refactoring: Refactor user service",
+      "priority": 3,
+      "passes": false,
+      "agent": "tester",
+      "tools": [
+        "test",
+        "lint"
+      ],
+      "context": {
+        "description": "Clean up and reorganize the user service module for better maintainability",
+        "phase": "verification"
+      }
+    }
+  ],
+  "metadata": {
+    "vibeTaskId": "example-refactor",
+    "originalTitle": "[loop] Refactor user service",
+    "generatedAt": "2026-01-18T14:25:33.126413"
+  }
+}

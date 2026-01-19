@@ -1,0 +1,36 @@
+# {PROJECT_NAME} Project
+
+name: {PROJECT_NAME}
+version: "1.0"
+created: "{DATE}"
+updated: "{DATE}"
+status: "active"
+
+# Project Metadata
+description: "{PROJECT_DESCRIPTION}"
+type: "production"
+tags: ["internal", "development", "active"]
+
+# Projects (sub-projects within this project)
+projects:
+  - id: "{PROJECT_ID_1}"
+    name: "{PROJECT_NAME_1}"
+    status: "planning"
+    priority: "high"
+    started: "{START_DATE}"
+    links:
+      research: "research/{PROJECT_SLUG}/"
+      plans: "plans/{PROJECT_SLUG}/"
+
+# Team
+team:
+  - agent: "{AGENT_NAME_1}"
+    role: "{ROLE_1}"
+    responsibilities: ["{RESPONSIBILITY_1}", "{RESPONSIBILITY_2}"]
+
+# Progress
+progress:
+  total_features: {TOTAL_FEATURES}
+  completed_features: {COMPLETED_FEATURES}
+  active_features: {ACTIVE_FEATURES}
+  overall_completion: "{COMPLETION_PERCENTAGE}%"

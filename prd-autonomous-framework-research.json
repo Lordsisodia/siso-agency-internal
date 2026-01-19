@@ -1,0 +1,193 @@
+{
+  "branchName": "ralph/autonomous-framework-research",
+  "userStories": [
+    {
+      "id": "AFR-001",
+      "title": "Research MetaGPT GitHub issues and patterns",
+      "priority": 1,
+      "passes": true,
+      "agent": "researcher",
+      "context": {
+        "description": "Continuously analyze FoundationAgents/MetaGPT GitHub issues to identify common problems, installation issues, documentation gaps, and feature requests",
+        "github_url": "https://github.com/FoundationAgents/MetaGPT",
+        "output_file": ".blackbox5/engine/development/framework-research/METAGPT-GITHUB-ANALYSIS.md",
+        "focus": "metagpt",
+        "repo": "FoundationAgents/MetaGPT"
+      }
+    },
+    {
+      "id": "AFR-002",
+      "title": "Research AgentScope GitHub issues and patterns",
+      "priority": 2,
+      "passes": true,
+      "agent": "researcher",
+      "context": {
+        "description": "Analyze agentscope-ai/agentscope GitHub issues for agent-oriented programming patterns, LLM application building challenges, and user feedback",
+        "github_url": "https://github.com/agentscope-ai/agentscope",
+        "output_file": ".blackbox5/engine/development/framework-research/AGENTSCOPE-GITHUB-ANALYSIS.md",
+        "focus": "agentscope",
+        "repo": "agentscope-ai/agentscope"
+      }
+    },
+    {
+      "id": "AFR-003",
+      "title": "Research Microsoft Agent Framework issues",
+      "priority": 3,
+      "passes": true,
+      "agent": "researcher",
+      "context": {
+        "description": "Examine microsoft/agent-framework GitHub issues for enterprise deployment patterns, orchestration challenges, and production use cases",
+        "github_url": "https://github.com/microsoft/agent-framework",
+        "output_file": ".blackbox5/engine/development/framework-research/MICROSOFT-AGENT-FRAMEWORK-ANALYSIS.md",
+        "focus": "microsoft-agent-framework",
+        "repo": "microsoft/agent-framework"
+      }
+    },
+    {
+      "id": "AFR-004",
+      "title": "Research Google ADK Python framework",
+      "priority": 4,
+      "passes": true,
+      "agent": "researcher",
+      "context": {
+        "description": "Analyze google/adk-python GitHub issues for toolkit patterns, evaluation methods, and development workflow insights",
+        "github_url": "https://github.com/google/adk-python",
+        "output_file": ".blackbox5/engine/development/framework-research/GOOGLE-ADK-ANALYSIS.md",
+        "focus": "google-adk",
+        "repo": "google/adk-python"
+      }
+    },
+    {
+      "id": "AFR-005",
+      "title": "Research PraisonAI framework patterns",
+      "priority": 5,
+      "passes": true,
+      "agent": "researcher",
+      "context": {
+        "description": "Examine MervinPraison/PraisonAI GitHub issues for production-ready multi-agent patterns, deployment challenges, and integration requirements",
+        "github_url": "https://github.com/MervinPraison/PraisonAI",
+        "output_file": ".blackbox5/engine/development/framework-research/PRAISONAI-ANALYSIS.md",
+        "focus": "praisonai",
+        "repo": "MervinPraison/PraisonAI"
+      }
+    },
+    {
+      "id": "AFR-006",
+      "title": "Research ByteDance Deer Flow framework",
+      "priority": 6,
+      "passes": true,
+      "agent": "researcher",
+      "context": {
+        "description": "Analyze bytedance/deer-flow GitHub issues for deep research patterns, framework design, and community adoption challenges",
+        "github_url": "https://github.com/bytedance/deer-flow",
+        "output_file": ".blackbox5/engine/development/framework-research/DEERFLOW-ANALYSIS.md",
+        "focus": "deerflow",
+        "repo": "bytedance/deer-flow"
+      }
+    },
+    {
+      "id": "AFR-007",
+      "title": "Research Claude Flow orchestration platform",
+      "priority": 7,
+      "passes": true,
+      "agent": "researcher",
+      "context": {
+        "description": "Examine ruvnet/claude-flow GitHub issues for Claude-specific orchestration patterns, deployment strategies, and agent management",
+        "github_url": "https://github.com/ruvnet/claude-flow",
+        "output_file": ".blackbox5/engine/development/framework-research/CLAUDE-FLOW-ANALYSIS.md",
+        "focus": "claude-flow",
+        "repo": "ruvnet/claude-flow"
+      }
+    },
+    {
+      "id": "AFR-008",
+      "title": "Research iFlytek Astron Agent platform",
+      "priority": 8,
+      "passes": false,
+      "agent": "researcher",
+      "context": {
+        "description": "Analyze iflytek/astron-agent GitHub issues for enterprise-grade agentic workflow patterns, commercial deployment challenges, and production readiness",
+        "github_url": "https://github.com/iflytek/astron-agent",
+        "output_file": ".blackbox5/engine/development/framework-research/ASTRON-AGENT-ANALYSIS.md",
+        "focus": "astron-agent",
+        "repo": "iflytek/astron-agent"
+      }
+    },
+    {
+      "id": "AFR-009",
+      "title": "Research OpenAI Swarm repository",
+      "priority": 9,
+      "passes": false,
+      "agent": "researcher",
+      "context": {
+        "description": "Examine openai/swarm for lightweight agent coordination patterns, ergonomic interfaces, and multi-agent system design",
+        "github_url": "https://github.com/openai/swarm",
+        "output_file": ".blackbox5/engine/development/framework-research/SWARM-ANALYSIS.md",
+        "focus": "swarm",
+        "repo": "openai/swarm"
+      }
+    },
+    {
+      "id": "AFR-010",
+      "title": "Research BMAD METHOD framework",
+      "priority": 10,
+      "passes": false,
+      "agent": "researcher",
+      "context": {
+        "description": "Analyze bmad-code-org/BMAD-METHOD GitHub issues for prompt patterns, structured workflows, and scale-adaptive capabilities",
+        "github_url": "https://github.com/bmad-code-org/BMAD-METHOD",
+        "output_file": ".blackbox5/engine/development/framework-research/BMAD-ANALYSIS.md",
+        "focus": "bmad",
+        "repo": "bmad-code-org/BMAD-METHOD"
+      }
+    },
+    {
+      "id": "AFR-011",
+      "title": "Discover and research new multi-agent frameworks",
+      "priority": 11,
+      "passes": false,
+      "agent": "researcher",
+      "context": {
+        "description": "Search GitHub for new multi-agent frameworks using topics: multi-agent, llm-agents, agent-framework, autonomous-agents. Identify frameworks with >1000 stars that we're not already tracking",
+        "github_url": "https://github.com/search?q=topic%3Amulti-agent+stars%3A%3E1000",
+        "output_file": ".blackbox5/engine/development/framework-research/NEW-FRAMEWORKS-DISCOVERY.md",
+        "focus": "discovery",
+        "repo": "github-search"
+      }
+    },
+    {
+      "id": "AFR-012",
+      "title": "Synthesize framework patterns and insights",
+      "priority": 12,
+      "passes": false,
+      "agent": "analyst",
+      "context": {
+        "description": "Analyze all framework research outputs to identify common patterns: installation issues, documentation gaps, API design choices, deployment challenges, community engagement",
+        "output_file": ".blackbox5/engine/development/framework-research/FRAMEWORK-PATTERNS-SYNTHESIS.md",
+        "focus": "synthesis",
+        "research_dir": ".blackbox5/engine/development/framework-research"
+      }
+    }
+  ],
+  "metadata": {
+    "project": "Autonomous Framework Research",
+    "started": "2026-01-18",
+    "goal": "Continuously research 10+ multi-agent frameworks on GitHub to identify patterns, common issues, and improvement opportunities. Apply learnings to improve Blackbox5.",
+    "approach": "continuous_autonomous_research",
+    "target_frameworks": [
+      "FoundationAgents/MetaGPT",
+      "agentscope-ai/agentscope",
+      "microsoft/agent-framework",
+      "google/adk-python",
+      "MervinPraison/PraisonAI",
+      "bytedance/deer-flow",
+      "ruvnet/claude-flow",
+      "iflytek/astron-agent",
+      "openai/swarm",
+      "bmad-code-org/BMAD-METHOD"
+    ],
+    "continuous": true,
+    "test_duration_minutes": 20,
+    "check_interval_seconds": 30
+  }
+}

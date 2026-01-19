@@ -1,0 +1,126 @@
+# SISO Internal Project Timeline
+
+project:
+  name: "siso-internal"
+  started: "2026-01-18"
+  status: "active"
+
+milestones:
+  - id: "M001"
+    name: "Project Kickoff"
+    date: "2026-01-18"
+    status: "completed"
+    description: "Project initialization and setup"
+
+  - id: "M002"
+    name: "GitHub Integration Complete"
+    date: "2026-01-18"
+    status: "completed"
+    description: "Enhanced GitHub integration workflow implemented"
+
+  - id: "M003"
+    name: "User Profile Research Complete"
+    date: "2026-01-18"
+    status: "completed"
+    description: "4-dimensional research completed (STACK, FEATURES, ARCHITECTURE, PITFALLS)"
+
+  - id: "M004"
+    name: "User Profile PRD Approved"
+    date: "2026-01-18"
+    status: "completed"
+    description: "Comprehensive PRD created (8 FRs, 6 NFRs, 43 ACs)"
+
+  - id: "M005"
+    name: "User Profile Epic Complete"
+    date: "2026-01-18"
+    status: "completed"
+    description: "Technical specification with 18 atomic tasks"
+
+  - id: "M006"
+    name: "Project Memory System Complete"
+    date: "2026-01-18"
+    status: "completed"
+    description: "Project-centric memory system implemented"
+
+  - id: "M007"
+    name: "User Profile GitHub Sync"
+    date: ""
+    status: "pending"
+    description: "Sync epic and tasks to GitHub issues"
+
+  - id: "M008"
+    name: "User Profile Development Complete"
+    date: ""
+    status: "pending"
+    description: "All 18 implementation tasks complete"
+
+  - id: "M009"
+    name: "User Profile Launch"
+    date: ""
+    status: "pending"
+    description: "User profile feature launched to production"
+
+events:
+  - date: "2026-01-18"
+    type: "milestone"
+    title: "Project Started"
+    description: "SISO Internal project initialized"
+    impact: "high"
+
+  - date: "2026-01-18"
+    type: "task"
+    title: "GitHub Integration Enhanced"
+    description: "Integrated CCPM framework with BlackBox5"
+    impact: "high"
+
+  - date: "2026-01-18"
+    type: "task"
+    title: "User Profile PRD Created"
+    description: "Comprehensive PRD with research backing"
+    impact: "high"
+
+  - date: "2026-01-18"
+    type: "task"
+    title: "User Profile Epic Created"
+    description: "Technical specification with 18 tasks"
+    impact: "high"
+
+  - date: "2026-01-18"
+    type: "milestone"
+    title: "Project Memory System Implemented"
+    description: "Transformed from agent-centric to project-centric memory"
+    impact: "high"
+
+  - date: "2026-01-18"
+    type: "decision"
+    title: "Project-Centric Memory Architecture"
+    description: "Decided to organize by project instead of by agent"
+    impact: "high"
+
+tasks_completed: 4
+tasks_total: 23  # 4 completed + 18 user-profile + 1 GitHub sync
+progress_percentage: 17
+
+upcoming_work:
+  - task: "Sync User Profile to GitHub"
+    priority: "high"
+    estimated: "2026-01-18"
+    effort: "5 minutes"
+
+  - task: "Implement User Profile Tasks"
+    priority: "high"
+    estimated: "2026-01-19 - 2026-02-15"
+    effort: "63 hours"
+
+risks:
+  - risk: "GitHub sync complexity"
+    probability: "low"
+    impact: "medium"
+    mitigation: "Use established workflow"
+
+  - risk: "Task estimation accuracy"
+    probability: "medium"
+    impact: "medium"
+    mitigation: "Track actual vs estimated"
+
+next_review: "2026-01-25"

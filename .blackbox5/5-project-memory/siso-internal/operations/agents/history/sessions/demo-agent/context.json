@@ -1,0 +1,22 @@
+{
+  "context_id": "context_20260118_072634_099447_6dcc1819",
+  "agent_id": "demo-agent",
+  "created_at": "2026-01-18T07:26:34.099615+00:00",
+  "updated_at": "2026-01-18T07:26:34.100807+00:00",
+  "patterns": [
+    "Use JWT tokens for stateless authentication"
+  ],
+  "gotchas": [
+    "Always validate JWT signature on each request"
+  ],
+  "discoveries": [
+    "bcrypt is slower than SHA256 but more secure for passwords"
+  ],
+  "preferences": {},
+  "statistics": {
+    "total_sessions": 1,
+    "successful_sessions": 1,
+    "failed_sessions": 0,
+    "total_insights": 3
+  }
+}

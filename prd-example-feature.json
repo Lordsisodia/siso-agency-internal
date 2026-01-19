@@ -1,0 +1,61 @@
+{
+  "branchName": "ralph/add-dark-mode-toggle",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Design: Add dark mode toggle",
+      "priority": 1,
+      "passes": false,
+      "agent": "architect",
+      "context": {
+        "description": "Add a dark mode toggle to settings page with localStorage persistence",
+        "phase": "design"
+      }
+    },
+    {
+      "id": "US-002",
+      "title": "Implement: Add dark mode toggle",
+      "priority": 2,
+      "passes": false,
+      "agent": "coder",
+      "tools": [
+        "write_code"
+      ],
+      "context": {
+        "description": "Add a dark mode toggle to settings page with localStorage persistence",
+        "phase": "implementation"
+      }
+    },
+    {
+      "id": "US-003",
+      "title": "Test: Add dark mode toggle",
+      "priority": 3,
+      "passes": false,
+      "agent": "tester",
+      "tools": [
+        "test",
+        "lint"
+      ],
+      "context": {
+        "description": "Add a dark mode toggle to settings page with localStorage persistence",
+        "phase": "testing"
+      }
+    },
+    {
+      "id": "US-004",
+      "title": "Document: Add dark mode toggle",
+      "priority": 4,
+      "passes": false,
+      "agent": "writer",
+      "context": {
+        "description": "Add a dark mode toggle to settings page with localStorage persistence",
+        "phase": "documentation"
+      }
+    }
+  ],
+  "metadata": {
+    "vibeTaskId": "example-feature",
+    "originalTitle": "[auto] Add dark mode toggle",
+    "generatedAt": "2026-01-18T14:25:33.125998"
+  }
+}

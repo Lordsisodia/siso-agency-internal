@@ -1,0 +1,29 @@
+[
+  {
+    "insight_id": "insight_20260118_072634_100086_c91ecde2",
+    "timestamp": "2026-01-18T07:26:34.100093+00:00",
+    "content": "Use JWT tokens for stateless authentication",
+    "category": "pattern",
+    "confidence": 0.9,
+    "source_session": null,
+    "metadata": {}
+  },
+  {
+    "insight_id": "insight_20260118_072634_100372_d0664020",
+    "timestamp": "2026-01-18T07:26:34.100379+00:00",
+    "content": "Always validate JWT signature on each request",
+    "category": "gotcha",
+    "confidence": 1.0,
+    "source_session": null,
+    "metadata": {}
+  },
+  {
+    "insight_id": "insight_20260118_072634_100625_82426f8f",
+    "timestamp": "2026-01-18T07:26:34.100630+00:00",
+    "content": "bcrypt is slower than SHA256 but more secure for passwords",
+    "category": "discovery",
+    "confidence": 0.8,
+    "source_session": null,
+    "metadata": {}
+  }
+]

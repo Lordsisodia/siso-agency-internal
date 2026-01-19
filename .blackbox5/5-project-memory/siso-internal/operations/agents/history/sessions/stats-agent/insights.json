@@ -1,0 +1,29 @@
+[
+  {
+    "insight_id": "insight_20260118_072634_105640_6f93ec78",
+    "timestamp": "2026-01-18T07:26:34.105645+00:00",
+    "content": "Pattern 1",
+    "category": "pattern",
+    "confidence": 1.0,
+    "source_session": null,
+    "metadata": {}
+  },
+  {
+    "insight_id": "insight_20260118_072634_105922_d999ff9a",
+    "timestamp": "2026-01-18T07:26:34.105927+00:00",
+    "content": "Gotcha 1",
+    "category": "gotcha",
+    "confidence": 1.0,
+    "source_session": null,
+    "metadata": {}
+  },
+  {
+    "insight_id": "insight_20260118_072634_106416_ef39517b",
+    "timestamp": "2026-01-18T07:26:34.106432+00:00",
+    "content": "Discovery 1",
+    "category": "discovery",
+    "confidence": 1.0,
+    "source_session": null,
+    "metadata": {}
+  }
+]

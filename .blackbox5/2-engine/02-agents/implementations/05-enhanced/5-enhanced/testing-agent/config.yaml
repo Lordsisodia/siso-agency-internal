@@ -1,0 +1,80 @@
+---
+name: testing-agent
+type: SpecialistAgent
+category: 5-enhanced
+version: 1.0.0
+description: Autonomous testing agent that validates AI-generated output, determines optimal validation strategies, and executes automated tests with minimal friction
+author: siso-ecosystem/blackbox5
+agent_class: blackbox5.engine.agents.core.SpecialistAgent
+
+# Core Configuration
+context_budget: 200000
+temperature: 0.3  # Lower temperature for more deterministic testing
+
+# Specialization
+specialization:
+  domain: testing
+  subdomains:
+    - unit_testing
+    - integration_testing
+    - end_to_end_testing
+    - validation
+    - quality_assurance
+
+# Skills
+skills:
+  - ai-output-validator
+  - systematic-debugging
+  - test-driven-development
+
+# Tools
+tools:
+  - filesystem
+  - playwright
+  - chrome-devtools
+  - supabase
+  - bash
+
+# Testing Configuration
+testing:
+  default_frameworks:
+    javascript:
+      - jest
+      - playwright
+      - vitest
+    python:
+      - pytest
+      - unittest
+    typescript:
+      - jest
+      - vitest
+
+  linting:
+    javascript: eslint
+    python: pylint
+    typescript: eslint
+
+  type_checking:
+    typescript: tsc
+    python: mypy
+
+# Behavior
+behavior:
+  auto_validate: true
+  generate_tests: true
+  maximize_automation: true
+  minimize_steps: true
+  fail_fast_on_critical: true
+
+# Output
+output_format: structured
+report_style: detailed
+
+# Integration
+integration:
+  hooks:
+    - post_commit
+    - pre_push
+  ci_cd:
+    - github_actions
+    - gitlab_ci

@@ -1,0 +1,38 @@
+# Roadmap Item Manifest
+# Auto-generated from proposal metadata
+id: 2025-01-19-memory-compression
+title: Memory Compression System
+status: proposed
+stage: "00-proposed"
+category: memory
+priority: high
+type: feature
+complexity: medium
+created: "2025-01-19"
+updated: "2025-01-19"
+
+# Metadata
+tags:
+  - memory
+  - compression
+  - optimization
+  - tokens
+  - cost
+
+# Dependencies
+blocks: []
+blocked_by: []
+related:
+  - rag-brain-improvements
+  - enhanced-memory-system
+
+# Files
+files:
+  main: proposal.md
+  context:
+    - context/README.md
+    - context/agents/research-agent.md
+    - context/agents/design-agent.md
+
+# Template structure
+template_version: "1.0"

@@ -1,0 +1,180 @@
+updated_at: '2026-01-19T03:31:21.583718'
+total_count: 5
+features:
+- feature_id: 78bcedf4
+  name: Test Feature
+  description: A simple test feature to validate the pipeline system
+  source:
+    type: internal
+    name: test
+    url: null
+    description: ''
+  priority: low
+  status: approved
+  simplified_description: A simple test feature to validate the pipeline system
+  acceptance_criteria:
+  - 'Feature implements: A simple test feature to validate the pipeline system'
+  - Tests pass with 100% success rate
+  - Documentation is complete
+  - Integration with existing codebase works
+  dependencies: []
+  implementation_notes: ''
+  test_results: {}
+  created_at: '2026-01-19T03:19:16.320522'
+  updated_at: '2026-01-19T03:19:23.311696'
+  metadata:
+    review:
+      should_implement: true
+      simplified_description: A simple test feature to validate the pipeline system
+      acceptance_criteria:
+      - 'Feature implements: A simple test feature to validate the pipeline system'
+      - Tests pass with 100% success rate
+      - Documentation is complete
+      - Integration with existing codebase works
+      complexity_estimate: low
+      reasoning: User-requested feature with clear scope.
+      concerns: []
+      keywords:
+      - validate
+      - pipeline
+      - feature
+      - system
+      - simple
+      - test
+- feature_id: bd9e5ed3
+  name: Test Feature
+  description: A simple test feature to validate the pipeline system
+  source:
+    type: internal
+    name: test
+    url: null
+    description: ''
+  priority: low
+  status: approved
+  simplified_description: A simple test feature to validate the pipeline system
+  acceptance_criteria:
+  - 'Feature implements: A simple test feature to validate the pipeline system'
+  - Tests pass with 100% success rate
+  - Documentation is complete
+  - Integration with existing codebase works
+  dependencies: []
+  implementation_notes: ''
+  test_results: {}
+  created_at: '2026-01-19T03:19:35.255878'
+  updated_at: '2026-01-19T03:19:41.800190'
+  metadata:
+    review:
+      should_implement: true
+      simplified_description: A simple test feature to validate the pipeline system
+      acceptance_criteria:
+      - 'Feature implements: A simple test feature to validate the pipeline system'
+      - Tests pass with 100% success rate
+      - Documentation is complete
+      - Integration with existing codebase works
+      complexity_estimate: low
+      reasoning: User-requested feature with clear scope.
+      concerns: []
+      keywords:
+      - validate
+      - pipeline
+      - feature
+      - simple
+      - system
+      - test
+- feature_id: 392069f7
+  name: Test Feature
+  description: A simple test feature to validate the pipeline system
+  source:
+    type: internal
+    name: test
+    url: null
+    description: ''
+  priority: low
+  status: approved
+  simplified_description: A simple test feature to validate the pipeline system
+  acceptance_criteria:
+  - 'Feature implements: A simple test feature to validate the pipeline system'
+  - Tests pass with 100% success rate
+  - Documentation is complete
+  - Integration with existing codebase works
+  dependencies: []
+  implementation_notes: ''
+  test_results: {}
+  created_at: '2026-01-19T03:19:55.057186'
+  updated_at: '2026-01-19T03:20:01.583499'
+  metadata:
+    review:
+      should_implement: true
+      simplified_description: A simple test feature to validate the pipeline system
+      acceptance_criteria:
+      - 'Feature implements: A simple test feature to validate the pipeline system'
+      - Tests pass with 100% success rate
+      - Documentation is complete
+      - Integration with existing codebase works
+      complexity_estimate: low
+      reasoning: User-requested feature with clear scope.
+      concerns: []
+      keywords:
+      - validate
+      - pipeline
+      - feature
+      - system
+      - simple
+      - test
+- feature_id: 6c22a59c
+  name: Integration Test Feature
+  description: Test that pipeline integration works correctly
+  source:
+    type: internal
+    name: test
+    url: null
+    description: ''
+  priority: low
+  status: approved
+  simplified_description: Test that pipeline integration works correctly
+  acceptance_criteria:
+  - 'Feature implements: Test that pipeline integration works correctly'
+  - Tests pass with 100% success rate
+  - Documentation is complete
+  - Integration with existing codebase works
+  dependencies: []
+  implementation_notes: ''
+  test_results: {}
+  created_at: '2026-01-19T03:31:07.215360'
+  updated_at: '2026-01-19T03:31:17.911387'
+  metadata:
+    review:
+      should_implement: true
+      simplified_description: Test that pipeline integration works correctly
+      acceptance_criteria:
+      - 'Feature implements: Test that pipeline integration works correctly'
+      - Tests pass with 100% success rate
+      - Documentation is complete
+      - Integration with existing codebase works
+      complexity_estimate: low
+      reasoning: User-requested feature with clear scope.
+      concerns: []
+      keywords:
+      - integration
+      - correctly
+      - pipeline
+      - works
+      - Test
+- feature_id: e9af6bfc
+  name: Data Flow Test
+  description: Test that data flows through all pipelines
+  source:
+    type: internal
+    name: test
+    url: null
+    description: ''
+  priority: medium
+  status: proposed
+  simplified_description: ''
+  acceptance_criteria: []
+  dependencies: []
+  implementation_notes: ''
+  test_results: {}
+  created_at: '2026-01-19T03:31:21.583703'
+  updated_at: '2026-01-19T03:31:21.583715'
+  metadata: {}

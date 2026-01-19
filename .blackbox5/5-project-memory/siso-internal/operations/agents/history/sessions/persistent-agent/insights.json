@@ -1,0 +1,11 @@
+[
+  {
+    "insight_id": "insight_20260118_072634_101383_64db31ac",
+    "timestamp": "2026-01-18T07:26:34.101388+00:00",
+    "content": "Always backup database before migration",
+    "category": "pattern",
+    "confidence": 1.0,
+    "source_session": null,
+    "metadata": {}
+  }
+]

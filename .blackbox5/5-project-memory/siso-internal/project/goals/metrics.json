@@ -1,0 +1,24 @@
+{
+  "goals": [
+    {
+      "id": "goal-1",
+      "title": "",
+      "description": "",
+      "success_metric": "",
+      "target_date": "",
+      "current_value": 0,
+      "target_value": 100,
+      "status": "on-track",
+      "last_updated": ""
+    }
+  ],
+  "key_metrics": [
+    {
+      "name": "",
+      "current": 0,
+      "target": 100,
+      "unit": "",
+      "status": "on-track"
+    }
+  ]
+}

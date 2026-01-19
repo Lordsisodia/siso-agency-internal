@@ -1,0 +1,38 @@
+[
+  {
+    "session_id": "session_20260118_072634_104598_8a55f27a",
+    "timestamp": "2026-01-18T07:26:34.104601+00:00",
+    "task": "Task 1",
+    "result": "Success",
+    "metadata": {},
+    "success": true,
+    "duration_seconds": 100
+  },
+  {
+    "session_id": "session_20260118_072634_104867_148cf8d0",
+    "timestamp": "2026-01-18T07:26:34.104872+00:00",
+    "task": "Task 2",
+    "result": "Failure",
+    "metadata": {},
+    "success": false,
+    "duration_seconds": 50
+  },
+  {
+    "session_id": "session_20260118_072634_105122_873ce4b1",
+    "timestamp": "2026-01-18T07:26:34.105127+00:00",
+    "task": "Task 3",
+    "result": "Success",
+    "metadata": {},
+    "success": true,
+    "duration_seconds": 150
+  },
+  {
+    "session_id": "session_20260118_072634_105377_95788300",
+    "timestamp": "2026-01-18T07:26:34.105381+00:00",
+    "task": "Task 4",
+    "result": "Success",
+    "metadata": {},
+    "success": true,
+    "duration_seconds": 120
+  }
+]

@@ -1,0 +1,56 @@
+version: '3.8'
+
+# =============================================================================
+# VIBE WEBHOOK SERVER ONLY - For .blackbox Integration
+# Connects your laptop to hosted Vibe Kanban instance
+# Minimal RAM usage (~128MB)
+# =============================================================================
+
+services:
+  # =========================================================================
+  # WEBHOOK SERVER (.blackbox Integration)
+  # =========================================================================
+  webhook-server:
+    build:
+      context: .blackbox5/engine/runtime/integrations/vibe-kanban
+      dockerfile: Dockerfile
+    container_name: vibe-webhook-server-local
+    restart: unless-stopped
+
+    ports:
+      - "5001:5001"
+
+    volumes:
+      # Mount .blackbox5 for tracking
+      - ~/SISO-INTERNAL/.blackbox5:/app/.blackbox5:rw
+
+      # Mount codebase for git operations
+      - ~/SISO-INTERNAL:/workspace/SISO-INTERNAL:rw
+
+    environment:
+      - PYTHONUNBUFFERED=1
+
+    # Resource limits (128MB max)
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+          cpus: '0.5'
+        reservations:
+          memory: 64M
+
+    # Health check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+    networks:
+      - vibe-network-local
+
+networks:
+  vibe-network-local:
+    driver: bridge
+    name: vibe-network-local

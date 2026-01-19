@@ -1,0 +1,39 @@
+{
+  "branchName": "ralph/example-feature",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Create example utility module",
+      "priority": 1,
+      "passes": false,
+      "agent": "coder",
+      "tools": ["write_code"],
+      "context": {
+        "description": "Create a simple utility module with helper functions",
+        "files": ["utils.py"]
+      }
+    },
+    {
+      "id": "US-002",
+      "title": "Add documentation for utility module",
+      "priority": 2,
+      "passes": false,
+      "agent": "writer",
+      "tools": [],
+      "context": {
+        "description": "Document the utility module with docstrings and examples"
+      }
+    },
+    {
+      "id": "US-003",
+      "title": "Run quality checks",
+      "priority": 3,
+      "passes": false,
+      "agent": "tester",
+      "tools": ["test", "lint"],
+      "context": {
+        "description": "Verify code quality with tests and linting"
+      }
+    }
+  ]
+}

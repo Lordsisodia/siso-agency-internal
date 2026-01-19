@@ -1,0 +1,13 @@
+{
+  "agent_id": "",
+  "agent_type": "",
+  "session_start": "",
+  "task": "",
+  "status": "active",
+  "context": {
+    "project": "",
+    "current_work": "",
+    "constraints": [],
+    "preferences": {}
+  }
+}

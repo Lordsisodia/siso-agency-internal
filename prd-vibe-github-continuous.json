@@ -1,0 +1,104 @@
+{
+  "branchName": "ralph/continuous-vibe-github-analysis",
+  "userStories": [
+    {
+      "id": "VG-001",
+      "title": "Fetch latest issues from Vibe Kanban GitHub repository",
+      "priority": 1,
+      "passes": true,
+      "agent": "analyst",
+      "context": {
+        "description": "Use GitHub API to fetch the latest 50 open issues from BloopAI/vibe-kanban repository",
+        "github_repo": "BloopAI/vibe-kanban",
+        "output_file": ".blackbox5/engine/runtime/ralph/vibe-github/GITHUB-ISSUES-FETCH.md",
+        "focus": "fetch"
+      }
+    },
+    {
+      "id": "VG-002",
+      "title": "Analyze fetched GitHub issues for patterns and themes",
+      "priority": 2,
+      "passes": true,
+      "agent": "analyst",
+      "context": {
+        "description": "Categorize issues by type (bug, feature, enhancement, documentation), severity, and frequency",
+        "input_file": ".blackbox5/engine/runtime/ralph/vibe-github/GITHUB-ISSUES-FETCH.md",
+        "output_file": ".blackbox5/engine/runtime/ralph/vibe-github/ISSUES-PATTERNS.md",
+        "focus": "patterns"
+      }
+    },
+    {
+      "id": "VG-003",
+      "title": "Identify high-priority issues that need immediate attention",
+      "priority": 3,
+      "passes": true,
+      "agent": "architect",
+      "context": {
+        "description": "Review issues tagged as bug, critical, or high-priority. Identify common root causes",
+        "input_file": ".blackbox5/engine/runtime/ralph/vibe-github/ISSUES-PATTERNS.md",
+        "output_file": ".blackbox5/engine/runtime/ralph/vibe-github/HIGH-PRIORITY-ANALYSIS.md",
+        "focus": "priority"
+      }
+    },
+    {
+      "id": "VG-004",
+      "title": "Analyze code referenced in issues for improvement opportunities",
+      "priority": 4,
+      "passes": true,
+      "agent": "developer",
+      "context": {
+        "description": "For issues that reference specific files or code, analyze those areas using first principles to find improvements",
+        "github_repo": "BloopAI/vibe-kanban",
+        "output_file": ".blackbox5/engine/runtime/ralph/vibe-github/CODE-ANALYSIS.md",
+        "focus": "code_review"
+      }
+    },
+    {
+      "id": "VG-005",
+      "title": "Search for duplicate or related issues",
+      "priority": 5,
+      "passes": true,
+      "agent": "analyst",
+      "context": {
+        "description": "Identify issues that are duplicates or related. Suggest consolidating to reduce noise",
+        "input_file": ".blackbox5/engine/runtime/ralph/vibe-github/GITHUB-ISSUES-FETCH.md",
+        "output_file": ".blackbox5/engine/runtime/ralph/vibe-github/DUPLICATE-ANALYSIS.md",
+        "focus": "duplicates"
+      }
+    },
+    {
+      "id": "VG-006",
+      "title": "Generate actionable improvement recommendations",
+      "priority": 6,
+      "passes": true,
+      "agent": "architect",
+      "context": {
+        "description": "Combine all analysis into prioritized improvement recommendations with implementation strategies",
+        "output_file": ".blackbox5/engine/runtime/ralph/vibe-github/IMPROVEMENT-RECOMMENDATIONS.md",
+        "focus": "recommendations"
+      }
+    },
+    {
+      "id": "VG-007",
+      "title": "Create backlog items from analysis",
+      "priority": 7,
+      "passes": true,
+      "agent": "writer",
+      "context": {
+        "description": "Convert top findings into backlog items with clear acceptance criteria",
+        "input_file": ".blackbox5/engine/runtime/ralph/vibe-github/IMPROVEMENT-RECOMMENDATIONS.md",
+        "output_dir": ".blackbox5/engine/runtime/ralph/backlog/",
+        "focus": "backlog"
+      }
+    }
+  ],
+  "metadata": {
+    "project": "Continuous Vibe Kanban GitHub Issue Analysis",
+    "started": "2026-01-18",
+    "goal": "Continuously fetch and analyze real GitHub issues from BloopAI/vibe-kanban to identify patterns, find improvements, and generate actionable backlog items. Run forever, always finding new issues as they're created.",
+    "approach": "continuous_github_analysis",
+    "target_system": "Vibe Kanban GitHub Repository - BloopAI/vibe-kanban",
+    "github_repo": "BloopAI/vibe-kanban",
+    "continuous": true
+  }
+}

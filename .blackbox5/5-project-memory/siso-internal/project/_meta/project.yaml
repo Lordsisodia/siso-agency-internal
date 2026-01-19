@@ -1,0 +1,64 @@
+# SISO Internal Project
+
+name: siso-internal
+version: "1.0"
+created: "2026-01-18"
+updated: "2026-01-18"
+status: "active"
+
+# Project Metadata
+description: "SISO Internal Development Project"
+type: "production"
+tags: ["internal", "development", "active"]
+
+# Projects (sub-projects within this project)
+projects:
+  - id: "user-profile"
+    name: "User Profile Page"
+    status: "planning"
+    priority: "high"
+    started: "2026-01-18"
+    links:
+      research: "research/user-profile/"
+      plans: "plans/user-profile/"
+
+  - id: "github-integration"
+    name: "GitHub Integration"
+    status: "completed"
+    priority: "high"
+    completed: "2026-01-18"
+
+  - id: "project-memory-system"
+    name: "Project Memory System"
+    status: "in_progress"
+    priority: "high"
+    started: "2026-01-18"
+
+# Team
+team:
+  - agent: "john"
+    role: "Product Manager"
+    responsibilities: ["PRD creation", "requirements", "research coordination"]
+
+  - agent: "winston"
+    role: "Architect"
+    responsibilities: ["Epic creation", "technical design", "architecture"]
+
+  - agent: "arthur"
+    role: "Developer"
+    responsibilities: ["Implementation", "coding", "testing"]
+
+  - agent: "dexter"
+    role: "DevOps"
+    responsibilities: ["Deployment", "infrastructure", "CI/CD"]
+
+  - agent: "felix"
+    role: "Security"
+    responsibilities: ["Security review", "audits", "compliance"]
+
+# Progress
+progress:
+  total_features: 3
+  completed_features: 1
+  active_features: 2
+  overall_completion: "33%"

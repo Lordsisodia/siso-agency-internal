@@ -1,0 +1,49 @@
+{
+  "branchName": "ralph/fix-login-authentication-error",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Investigate: Fix login authentication error",
+      "priority": 1,
+      "passes": false,
+      "agent": "researcher",
+      "context": {
+        "description": "Users are experiencing authentication errors when logging in with valid credentials",
+        "phase": "investigation"
+      }
+    },
+    {
+      "id": "US-002",
+      "title": "Fix: Fix login authentication error",
+      "priority": 2,
+      "passes": false,
+      "agent": "coder",
+      "tools": [
+        "write_code"
+      ],
+      "context": {
+        "description": "Users are experiencing authentication errors when logging in with valid credentials",
+        "phase": "fix"
+      }
+    },
+    {
+      "id": "US-003",
+      "title": "Verify fix: Fix login authentication error",
+      "priority": 3,
+      "passes": false,
+      "agent": "tester",
+      "tools": [
+        "test"
+      ],
+      "context": {
+        "description": "Users are experiencing authentication errors when logging in with valid credentials",
+        "phase": "verification"
+      }
+    }
+  ],
+  "metadata": {
+    "vibeTaskId": "example-bugfix",
+    "originalTitle": "[ralph] Fix login authentication error",
+    "generatedAt": "2026-01-18T14:25:33.126247"
+  }
+}

@@ -1,0 +1,84 @@
+# SISO Internal Project Context
+
+project:
+  name: "SISO Internal Development"
+  description: "Internal development and features for SISO ecosystem"
+  status: "active"
+
+current_focus:
+  feature: "project-memory-system"
+  phase: "implementation"
+  next_step: "Complete migration to project-centric memory"
+
+goals:
+  primary: "Build production-ready features for SISO ecosystem"
+  secondary:
+    - Implement user identity features
+    - Integrate GitHub for project tracking
+    - Enable autonomous execution via Vibe Kanban
+    - Create project-centric memory system
+
+constraints:
+  technical:
+    - Use existing infrastructure (Supabase, Clerk, Radix UI)
+    - Follow domain-driven design patterns
+    - Maintain type safety (TypeScript)
+
+  time:
+    - User profile: 4 weeks (MVP)
+    - GitHub integration: Complete
+    - Project memory: 1 day
+
+  resources:
+    - 3 agents (John, Winston, Arthur)
+    - 1 autonomous system (Ralph Runtime)
+    - BlackBox5 framework
+
+scope:
+  in_scope:
+    - User profile page
+    - GitHub integration
+    - Project memory system
+    - Autonomous execution
+
+  out_of_scope:
+    - Social features (follow, messaging)
+    - Content creation tools
+    - Advanced analytics
+
+stakeholders:
+  - role: "Product Owner"
+    name: "User"
+    responsibilities: ["Feature prioritization", "Requirements", "Acceptance"]
+
+  - role: "Developer"
+    name: "Arthur"
+    responsibilities: ["Implementation", "Testing", "Documentation"]
+
+timeline:
+  started: "2026-01-18"
+  estimated_completion: "2026-02-15"
+  milestones:
+    - "2026-01-18": "GitHub integration complete"
+    - "2026-01-19": "Project memory system complete"
+    - "2026-02-15": "User profile MVP complete"
+
+active_tasks:
+  - TASK-2026-01-18-004: Complete project memory system migration (in_progress)
+  - TASK-2026-01-18-005: Sync user-profile to GitHub (pending)
+
+upcoming_tasks:
+  - Migrate existing user-profile data to project structure
+  - Update documentation for new memory system
+  - Create tooling for project management
+  - Sync user-profile epic to GitHub issues
+
+completed_tasks:
+  - TASK-2026-01-18-001: User Profile PRD Creation (completed)
+  - TASK-2026-01-18-002: User Profile Epic Creation (completed)
+  - TASK-2026-01-18-003: User Profile Task Breakdown (completed)
+
+recent_work:
+  - "2026-01-18": Created comprehensive project memory design
+  - "2026-01-18": Completed user-profile PRD, epic, and task breakdown
+  - "2026-01-18": Enhanced GitHub integration workflow

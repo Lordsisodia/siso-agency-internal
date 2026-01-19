@@ -1,0 +1,78 @@
+# CODE-INDEX.yaml Schema
+
+# Version of the schema
+version: 1.0
+
+# Last updated timestamp
+last_updated: datetime  # ISO 8601 format
+
+# Total number of files tracked
+total_files: integer
+
+# Number of domains
+domains: integer
+
+# Domain registry
+domains:
+  # Domain name (e.g., admin, lifelock, tasks)
+  domain_name:
+    # Path to domain directory
+    path: str  # e.g., "src/domains/admin/"
+
+    # Domain organization type
+    type: str  # "numbered-flow" | "feature-based" | "unknown"
+
+    # Number of pages/features
+    pages: integer  # For numbered-flow
+    features: integer|null  # For feature-based
+
+    # Number of components
+    components: integer
+
+    # Last refactor date
+    last_refactor: str|datetime|null  # ISO 8601 format or null
+
+    # Overall domain status
+    status: str  # "complete" | "partially_complete" | "in_progress" | "pending" | "empty"
+
+    # Pages or features in domain
+    pages:
+      - id: str  # e.g., "1-overview" or "feature-name"
+        path: str  # e.g., "src/domains/admin/1-overview/ui/pages/"
+        components: str  # e.g., "src/domains/admin/1-overview/ui/components/"
+        status: str  # "complete" | "in_progress" | "pending" | "empty"
+        files: list[str]  # List of actual files
+        task_id: str  # e.g., "TASK-admin-overview"
+
+# Component registry
+components:
+  # Component name (e.g., Button, Card)
+  component_name:
+    path: str  # e.g., "src/components/ui/button/"
+    used_by: list[str]  # List of domains that use this component
+    domain: str|null  # If domain-specific, which domain
+    depends_on: list[str]|null  # Other components this depends on
+    last_modified: str  # Last modified date
+
+# Refactor history
+refactors:
+  - id: str  # e.g., "REFACTOR-2026-01-15-domain-reorg"
+    date: str  # ISO 8601 format
+    domain: str|null  # If domain-specific
+    description: str  # What was refactored
+    affected_domains: list[str]  # Which domains were affected ("all" for global)
+    files_changed: integer  # Approximate number of files changed
+    lessons: list[str]  # Lessons learned
+    gotchas: list[str]|null  # Gotchas discovered
+
+# Quick reference lookups
+quick_find:
+  by_domain:
+    domain_name: str  # Reference to domains.domain_name
+  by_component:
+    component_name: str  # Reference to components.component_name
+  by_status:
+    complete: list[str]  # List of complete domains
+    partially_complete: list[str]  # List of partially complete domains
+    in_progress: list[str]  # List of in-progress domains
+    pending: list[str]  # List of pending domains

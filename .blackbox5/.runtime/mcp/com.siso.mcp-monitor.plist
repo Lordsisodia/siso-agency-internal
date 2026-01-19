@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.siso.mcp-monitor.bb5</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/shaansisodia/DEV/SISO-ECOSYSTEM/SISO-INTERNAL/.blackbox5/.runtime/mcp/mcp-monitor-daemon.sh</string>
+    </array>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>KeepAlive</key>
+    <true/>
+
+    <key>StandardOutPath</key>
+    <string>/Users/shaansisodia/.mcp-logs/mcp-monitor-bb5.stdout.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/shaansisodia/.mcp-logs/mcp-monitor-bb5.stderr.log</string>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/shaansisodia/DEV/SISO-ECOSYSTEM/SISO-INTERNAL</string>
+</dict>
+</plist>

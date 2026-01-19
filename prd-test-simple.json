@@ -1,0 +1,34 @@
+{
+  "branchName": "ralph/test-simple",
+  "userStories": [
+    {
+      "id": "TEST-001",
+      "title": "Create a test summary document",
+      "priority": 1,
+      "passes": true,
+      "agent": "writer",
+      "context": {
+        "description": "Create a simple test document to verify Ralph is working",
+        "output_file": "RALPH-TEST-OUTPUT.md",
+        "content": "# Ralph Runtime Test\n\nThis document was created autonomously by Ralph Runtime!\n\n**Date:** {timestamp}\n**Status:** SUCCESS\n"
+      }
+    },
+    {
+      "id": "TEST-002",
+      "title": "Create a second test document",
+      "priority": 2,
+      "passes": true,
+      "agent": "writer",
+      "context": {
+        "description": "Create another test document",
+        "output_file": "RALPH-TEST-OUTPUT-2.md",
+        "content": "# Second Test\n\nRalph completed multiple tasks in sequence!\n\n**Date:** {timestamp}\n**Status:** SUCCESS\n"
+      }
+    }
+  ],
+  "metadata": {
+    "project": "Ralph Runtime Simple Test",
+    "started": "2026-01-18",
+    "goal": "Verify Ralph Runtime can execute multiple tasks autonomously"
+  }
+}

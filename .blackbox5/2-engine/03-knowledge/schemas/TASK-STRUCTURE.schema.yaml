@@ -1,0 +1,74 @@
+# Task Structure Schema
+
+# Task identifier
+id: str  # Format: TASK-YYYY-MM-DD-domain-name or TASK-domain-feature
+
+# Task title
+title: str
+
+# Task type
+type: str  # "epic" | "implementation" | "subtask" | "research" | "testing"
+
+# Task status
+status: str  # "pending" | "in_progress" | "completed" | "blocked" | "cancelled"
+
+# Domain this task belongs to
+domain: str  # Domain name
+
+# Feature within domain (if applicable)
+feature: str|null  # Feature or page ID
+
+# Path to code being created/modified
+code_path: str|null  # Path to primary code file
+
+# Parent epic (if applicable)
+parent_epic: str|null  # Epic ID
+
+# Iteration number (for page tasks)
+iteration: integer|null  # Current iteration (starts at 0)
+
+# Timestamps
+created_at: datetime  # ISO 8601 format
+started_at: datetime|null  # When work started
+completed_at: datetime|null  # When completed
+
+# Agent assigned
+agent: str|null  # Agent role or name
+
+# Task context
+context:
+  why: str  # Why this task exists
+  before: list[str]  # Tasks that must be completed first
+  after: list[str]  # Tasks that depend on this
+  blockers: list[str]  # What's blocking this task
+  related_issues: list[str]  # Related issue tracker IDs
+
+# Completion criteria
+acceptance_criteria: list[str]  # Checklist of requirements
+
+# Execution tracking
+execution:
+  process: list[str]  # Steps taken
+  outcome: str  # "success" | "failed" | "blocked"
+  lessons_learned: list[str]  # What was learned
+
+# Effort tracking
+effort:
+  estimated_hours: float  # Estimated time to complete
+  actual_hours: float|null  # Actual time taken
+  accuracy: float  # Percentage accuracy of estimate (0-100)
+
+# Artifacts created
+artifacts:
+  designs: list[str]  # Design documents
+  specs: list[str]  # Specification documents
+  tests: list[str]  # Test files
+  code: list[str]  # Code files created/modified
+
+# Workspace data
+workspace:
+  insights: str  # Path to insights.md
+  gotchas: str  # Path to gotchas.md
+  decisions: str  # Path to decisions.md
+  data: str  # Path to data.json
+  iterations: str  # Path to iterations directory

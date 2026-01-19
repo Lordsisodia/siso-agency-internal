@@ -1,0 +1,116 @@
+version: '3.8'
+
+# =============================================================================
+# VIBE KANBAN - LOCAL SELF-HOSTED SETUP
+# Optimized for laptop with 6 Claude agents (~500MB RAM)
+# =============================================================================
+
+services:
+  # =========================================================================
+  # VIBE KANBAN (Main Application)
+  # =========================================================================
+  vibe-kanban:
+    image: ghcr.io/bloopai/vibe-kanban:latest
+    container_name: vibe-kanban-local
+    restart: unless-stopped
+
+    ports:
+      - "3000:3000"  # Web UI
+      - "3001:3001"  # Backend API
+
+    volumes:
+      # Persist database and configuration
+      - vibe-kanban-data:/app/data
+
+      # Mount your codebase for agents to access
+      - ~/SISO-INTERNAL:/workspace/SISO-INTERNAL:rw
+
+    environment:
+      # Server configuration
+      - PORT=3000
+      - HOST=0.0.0.0
+      - BACKEND_PORT=3001
+
+      # Database (SQLite for minimal RAM usage)
+      - DATABASE_URL=sqlite:///app/data/vibe-kanban.db
+
+      # Reduce logging for performance
+      - RUST_LOG=warn
+
+      # Disable analytics
+      - POSTHOG_API_KEY=
+      - POSTHOG_API_ENDPOINT=
+
+      # MCP configuration
+      - MCP_HOST=0.0.0.0
+      - MCP_PORT=3001
+
+    # OPTIMIZED Resource limits for laptop
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '1.0'
+        reservations:
+          memory: 256M
+          cpus: '0.5'
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+    networks:
+      - vibe-network
+
+  # =========================================================================
+  # OPTIONAL: Postgres for better performance
+  # Comment out to use SQLite (even less RAM)
+  # =========================================================================
+  # postgres:
+  #   image: postgres:16-alpine
+  #   container_name: vibe-postgres-local
+  #   restart: unless-stopped
+  #
+  #   environment:
+  #     POSTGRES_USER: vibeuser
+  #     POSTGRES_PASSWORD: vibepass
+  #     POSTGRES_DB: vibekanban
+  #
+  #   volumes:
+  #     - vibe-postgres-data:/var/lib/postgresql/data
+  #
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         memory: 256M
+  #         cpus: '0.5'
+  #
+  #   networks:
+  #     - vibe-network
+
+# =============================================================================
+# VOLUMES
+# =============================================================================
+
+volumes:
+  # Vibe Kanban data (database, config, etc.)
+  vibe-kanban-data:
+    name: vibe-kanban-data-local
+    driver: local
+
+  # Uncomment if using PostgreSQL
+  # vibe-postgres-data:
+  #   name: vibe-postgres-data-local
+  #   driver: local
+
+# =============================================================================
+# NETWORKS
+# =============================================================================
+
+networks:
+  vibe-network:
+    driver: bridge
+    name: vibe-network

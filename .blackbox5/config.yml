@@ -2,11 +2,11 @@ version: 5.0.0
 
 # 1. THE SPINE (The Engine)
 # Points to the shared logic (Submodule)
-engine: ./engine
+engine: ./2-engine
 
 # 2. THE MEMORY (Project Knowledge)
 # Points to committed project knowledge
-memory: ./memory
+memory: ./5-project-memory
 
 # 3. THE STATE (Scratchpad)
 # Points to gitignored working state

@@ -1,0 +1,11 @@
+[
+  {
+    "insight_id": "insight_20260118_072634_104147_b4b633a8",
+    "timestamp": "2026-01-18T07:26:34.104152+00:00",
+    "content": "Use Flask blueprints for API modularization",
+    "category": "pattern",
+    "confidence": 1.0,
+    "source_session": null,
+    "metadata": {}
+  }
+]

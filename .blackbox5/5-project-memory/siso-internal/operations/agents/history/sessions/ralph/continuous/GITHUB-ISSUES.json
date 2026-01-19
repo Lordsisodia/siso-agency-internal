@@ -1,0 +1,29 @@
+[
+  {
+    "title": "[ANALYSIS-FRAMEWORK-INTEGRATION.md] Analysis Framework Integration",
+    "body": "## Analysis Report\n\n**Source:** `.blackbox5/engine/runtime/ralph/continuous/ANALYSIS-FRAMEWORK-INTEGRATION.md`\n**Generated:** 2026-01-18 15:11:00\n**Priority:** 1\n\n### Context\n\nThis issue was automatically generated from Ralph Runtime's continuous analysis of Blackbox5.\n\n### Recommended Actions\n\n\n### Implementation\n\n1. Review the analysis document for full context\n2. Prioritize the recommended actions\n3. Create subtasks for implementation\n4. Track progress with pull requests\n\n### Related\n\n- Ralph Runtime Analysis: Ralph Continuous Blackbox5 Analysis\n- Analysis File: `{analysis['file']}`\n",
+    "labels": [
+      "automated",
+      "ralph-analysis",
+      "priority-1"
+    ]
+  },
+  {
+    "title": "[ANALYSIS-RUNTIME-PERFORMANCE.md] Analysis Runtime Performance",
+    "body": "## Analysis Report\n\n**Source:** `.blackbox5/engine/runtime/ralph/continuous/ANALYSIS-RUNTIME-PERFORMANCE.md`\n**Generated:** 2026-01-18 15:11:00\n**Priority:** 2\n\n### Context\n\nThis issue was automatically generated from Ralph Runtime's continuous analysis of Blackbox5.\n\n### Recommended Actions\n\n\n### Implementation\n\n1. Review the analysis document for full context\n2. Prioritize the recommended actions\n3. Create subtasks for implementation\n4. Track progress with pull requests\n\n### Related\n\n- Ralph Runtime Analysis: Ralph Continuous Blackbox5 Analysis\n- Analysis File: `{analysis['file']}`\n",
+    "labels": [
+      "automated",
+      "ralph-analysis",
+      "priority-2"
+    ]
+  },
+  {
+    "title": "[ANALYSIS-AGENT-SYSTEM.md] Analysis Agent System",
+    "body": "## Analysis Report\n\n**Source:** `.blackbox5/engine/runtime/ralph/continuous/ANALYSIS-AGENT-SYSTEM.md`\n**Generated:** 2026-01-18 15:11:00\n**Priority:** 3\n\n### Context\n\nThis issue was automatically generated from Ralph Runtime's continuous analysis of Blackbox5.\n\n### Recommended Actions\n\n\n### Implementation\n\n1. Review the analysis document for full context\n2. Prioritize the recommended actions\n3. Create subtasks for implementation\n4. Track progress with pull requests\n\n### Related\n\n- Ralph Runtime Analysis: Ralph Continuous Blackbox5 Analysis\n- Analysis File: `{analysis['file']}`\n",
+    "labels": [
+      "automated",
+      "ralph-analysis",
+      "priority-3"
+    ]
+  }
+]

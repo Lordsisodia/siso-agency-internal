@@ -1,0 +1,394 @@
+# ============================================================================
+# ASSUMPTION REGISTRY - MASTER DATABASE
+# ============================================================================
+# Purpose: Track all assumptions across all BlackBox5 features
+# Last Updated: 2026-01-19
+# ============================================================================
+
+metadata:
+  version: "1.0"
+  total_assumptions: 7
+  validated: 1
+  invalidated: 0
+  inconclusive: 0
+  unknown: 6
+  last_updated: "2026-01-19T14:00:00Z"
+
+# ============================================================================
+# ASSUMPTIONS
+# ============================================================================
+assumptions:
+  - id: "ASSUMPTION-0001"
+    feature: "task-analyzer"
+    feature_link: ".blackbox5/roadmap/first-principles/features/task-analyzer.md"
+    assumption: "Tasks can be accurately analyzed from text description"
+    category: "technical"
+    domain: "task-management"
+
+    # Validation Status
+    status: "unknown"
+    confidence: "medium"
+    impact: "high"
+
+    # Priority Score (0-100)
+    priority_score: 85.0
+    priority_reason: "High impact, medium confidence - foundational assumption"
+
+    # Challenges
+    challenges_link: ".blackbox5/roadmap/first-principles/challenges/task-analyzer-challenges.md"
+    total_questions: 10
+    questions_categories: 6
+
+    # Validation
+    validation_link: null
+    validation_date: null
+    validation_method: null
+    validation_result: null
+
+    # What we learned
+    conclusion: null
+    action_required: null
+    next_steps: null
+
+    # Dependencies
+    affects_features: []
+    related_assumptions: []
+
+    # Metadata
+    created_at: "2026-01-19T10:00:00Z"
+    updated_at: "2026-01-19T10:00:00Z"
+    created_by: "human"
+
+  - id: "ASSUMPTION-0002"
+    feature: "task-analyzer"
+    feature_link: ".blackbox5/roadmap/first-principles/features/task-analyzer.md"
+    assumption: "Logarithmic scaling matches natural task distribution"
+    category: "technical"
+    domain: "task-management"
+
+    status: "validated"
+    confidence: "very-high"
+    impact: "low"
+
+    priority_score: 60.0
+    priority_reason: "Low impact if wrong, high confidence, but easy to validate"
+    quick_win: true
+
+    challenges_link: ".blackbox5/roadmap/first-principles/challenges/task-analyzer-challenges.md"
+    total_questions: 8
+    questions_categories: 6
+
+    validation_link: ".blackbox5/roadmap/first-principles/validations/task-analyzer-validation.md"
+    validation_date: "2026-01-19T14:00:00Z"
+    validation_method: "thought-experiment,literature-review,simulation"
+    validation_result: "VALIDATED - Power law distribution confirmed by industry research, theoretical analysis supports logarithmic scaling"
+
+    conclusion: "Assumption validated. Logarithmic scaling is appropriate for task complexity distribution. Industry research confirms power law distributions in software (file sizes, commits, bug fixing). Log scoring provides better discrimination than linear."
+    action_required: "None - continue using log₁₀ scoring"
+    next_steps: "Collect real data from actual BlackBox5 tasks to empirically confirm theoretical results"
+
+    affects_features: []
+    related_assumptions: []
+
+    created_at: "2026-01-19T10:00:00Z"
+    updated_at: "2026-01-19T14:00:00Z"
+    created_by: "human"
+
+  - id: "ASSUMPTION-0003"
+    feature: "task-analyzer"
+    feature_link: ".blackbox5/roadmap/first-principles/features/task-analyzer.md"
+    assumption: "Multiplicative scoring is better than additive"
+    category: "technical"
+    domain: "task-management"
+
+    status: "unknown"
+    confidence: "medium"
+    impact: "medium"
+
+    priority_score: 65.0
+    priority_reason: "Medium impact, medium confidence, requires human judgment"
+
+    challenges_link: ".blackbox5/roadmap/first-principles/challenges/task-analyzer-challenges.md"
+    total_questions: 9
+    questions_categories: 6
+
+    validation_link: null
+    validation_date: null
+    validation_method: null
+    validation_result: null
+
+    conclusion: null
+    action_required: null
+    next_steps: null
+
+    affects_features: []
+    related_assumptions: ["ASSUMPTION-0007"]  # Related to ROI calculation
+
+    created_at: "2026-01-19T10:00:00Z"
+    updated_at: "2026-01-19T10:00:00Z"
+    created_by: "human"
+
+  - id: "ASSUMPTION-0004"
+    feature: "task-analyzer"
+    feature_link: ".blackbox5/roadmap/first-principles/features/task-analyzer.md"
+    assumption: "Task type can be determined from keywords"
+    category: "technical"
+    domain: "task-management"
+
+    status: "unknown"
+    confidence: "high"
+    impact: "high"
+
+    priority_score: 75.0
+    priority_reason: "High impact, high confidence but easy to validate"
+
+    challenges_link: ".blackbox5/roadmap/first-principles/challenges/task-analyzer-challenges.md"
+    total_questions: 8
+    questions_categories: 6
+
+    validation_link: null
+    validation_date: null
+    validation_method: null
+    validation_result: null
+
+    conclusion: null
+    action_required: null
+    next_steps: null
+
+    affects_features: ["routing-system"]
+    related_assumptions: ["ASSUMPTION-0005"]  # Related to task types
+
+    created_at: "2026-01-19T10:00:00Z"
+    updated_at: "2026-01-19T10:00:00Z"
+    created_by: "human"
+
+  - id: "ASSUMPTION-0005"
+    feature: "task-analyzer"
+    feature_link: ".blackbox5/roadmap/first-principles/features/task-analyzer.md"
+    assumption: "10 task types are sufficient"
+    category: "categorical"
+    domain: "task-management"
+
+    status: "unknown"
+    confidence: "medium"
+    impact: "low"
+
+    priority_score: 50.0
+    priority_reason: "Low impact if wrong, medium confidence"
+
+    challenges_link: ".blackbox5/roadmap/first-principles/challenges/task-analyzer-challenges.md"
+    total_questions: 7
+    questions_categories: 6
+
+    validation_link: null
+    validation_date: null
+    validation_method: null
+    validation_result: null
+
+    conclusion: null
+    action_required: null
+    next_steps: null
+
+    affects_features: []
+    related_assumptions: ["ASSUMPTION-0004"]  # Related to keyword classification
+
+    created_at: "2026-01-19T10:00:00Z"
+    updated_at: "2026-01-19T10:00:00Z"
+    created_by: "human"
+
+  - id: "ASSUMPTION-0006"
+    feature: "task-analyzer"
+    feature_link: ".blackbox5/roadmap/first-principles/features/task-analyzer.md"
+    assumption: "Token estimation is possible from complexity analysis"
+    category: "technical"
+    domain: "task-management"
+
+    status: "unknown"
+    confidence: "low"
+    impact: "medium"
+
+    priority_score: 70.0
+    priority_reason: "Medium impact, low confidence - we're unsure about this"
+
+    challenges_link: ".blackbox5/roadmap/first-principles/challenges/task-analyzer-challenges.md"
+    total_questions: 7
+    questions_categories: 6
+
+    validation_link: null
+    validation_date: null
+    validation_method: null
+    validation_result: null
+
+    conclusion: null
+    action_required: null
+    next_steps: null
+
+    affects_features: ["resource-allocation", "budgeting"]
+    related_assumptions: []
+
+    created_at: "2026-01-19T10:00:00Z"
+    updated_at: "2026-01-19T10:00:00Z"
+    created_by: "human"
+
+  - id: "ASSUMPTION-0007"
+    feature: "task-analyzer"
+    feature_link: ".blackbox5/roadmap/first-principles/features/task-analyzer.md"
+    assumption: "ROI (Value/Complexity) is a good prioritization metric"
+    category: "strategic"
+    domain: "task-management"
+
+    status: "unknown"
+    confidence: "high"
+    impact: "low"
+
+    priority_score: 55.0
+    priority_reason: "Low impact if wrong, high confidence"
+
+    challenges_link: ".blackbox5/roadmap/first-principles/challenges/task-analyzer-challenges.md"
+    total_questions: 7
+    questions_categories: 6
+
+    validation_link: null
+    validation_date: null
+    validation_method: null
+    validation_result: null
+
+    conclusion: null
+    action_required: null
+    next_steps: null
+
+    affects_features: ["prioritization-system"]
+    related_assumptions: ["ASSUMPTION-0003"]  # Related to multiplicative scoring
+
+    created_at: "2026-01-19T10:00:00Z"
+    updated_at: "2026-01-19T10:00:00Z"
+    created_by: "human"
+
+# ============================================================================
+# INDEXES
+# ============================================================================
+indexes:
+  by_status:
+    unknown: ["ASSUMPTION-0001", "ASSUMPTION-0003", "ASSUMPTION-0004", "ASSUMPTION-0005", "ASSUMPTION-0006", "ASSUMPTION-0007"]
+    validated: ["ASSUMPTION-0002"]
+    invalidated: []
+    inconclusive: []
+
+  by_priority:
+    critical: []  # >= 90
+    high: ["ASSUMPTION-0001", "ASSUMPTION-0004", "ASSUMPTION-0006"]  # >= 70
+    medium: ["ASSUMPTION-0003", "ASSUMPTION-0007"]  # >= 50
+    low: ["ASSUMPTION-0005"]  # < 50
+
+  by_domain:
+    task-management: ["ASSUMPTION-0001", "ASSUMPTION-0002", "ASSUMPTION-0003", "ASSUMPTION-0004", "ASSUMPTION-0005", "ASSUMPTION-0006", "ASSUMPTION-0007"]
+    agents: []
+    skills: []
+    memory: []
+    tools: []
+    cli: []
+    infrastructure: []
+
+  by_confidence:
+    very-high: ["ASSUMPTION-0002"]
+    high: ["ASSUMPTION-0004", "ASSUMPTION-0007"]
+    medium: ["ASSUMPTION-0001", "ASSUMPTION-0003", "ASSUMPTION-0005"]
+    low: ["ASSUMPTION-0006"]
+
+  by_impact:
+    critical: []
+    high: ["ASSUMPTION-0001", "ASSUMPTION-0004"]
+    medium: ["ASSUMPTION-0003", "ASSUMPTION-0006"]
+    low: ["ASSUMPTION-0002", "ASSUMPTION-0005", "ASSUMPTION-0007"]
+
+# ============================================================================
+# STATISTICS
+# ============================================================================
+statistics:
+  total_by_feature:
+    task-analyzer: 7
+    bmad-framework: 0
+    memory-system: 0
+    gsd-framework: 0
+
+  total_by_status:
+    unknown: 6
+    validated: 1
+    invalidated: 0
+    inconclusive: 0
+
+  total_by_domain:
+    task-management: 7
+    agents: 0
+    skills: 0
+    memory: 0
+    tools: 0
+    cli: 0
+    infrastructure: 0
+
+  total_by_confidence:
+    very-high: 1
+    high: 2
+    medium: 3
+    low: 1
+
+  total_by_impact:
+    critical: 0
+    high: 2
+    medium: 2
+    low: 3
+
+  total_by_category:
+    technical: 5
+    categorical: 1
+    strategic: 1
+
+# ============================================================================
+# VALIDATION QUEUE
+# ============================================================================
+# Ordered by priority_score (descending), then quick_win
+validation_queue:
+  - assumption_id: "ASSUMPTION-0001"
+    priority_score: 85.0
+    estimated_effort: "4-6 hours"
+    quick_win: false
+    reason: "Foundation of entire system - validate first"
+
+  - assumption_id: "ASSUMPTION-0004"
+    priority_score: 75.0
+    estimated_effort: "4-5 hours"
+    quick_win: false
+    reason: "High impact on routing accuracy"
+
+  - assumption_id: "ASSUMPTION-0006"
+    priority_score: 70.0
+    estimated_effort: "Weeks (data collection)"
+    quick_win: false
+    reason: "Low confidence - important to validate when possible"
+
+  - assumption_id: "ASSUMPTION-0003"
+    priority_score: 65.0
+    estimated_effort: "3-4 hours"
+    quick_win: false
+    reason: "Affects ROI calculation accuracy"
+
+  - assumption_id: "ASSUMPTION-0007"
+    priority_score: 55.0
+    estimated_effort: "4-5 hours"
+    quick_win: false
+    reason: "Validates prioritization approach"
+
+  - assumption_id: "ASSUMPTION-0005"
+    priority_score: 50.0
+    estimated_effort: "3-4 hours"
+    quick_win: false
+    reason: "Low priority - validate if time permits"
+
+  # COMPLETED:
+  - assumption_id: "ASSUMPTION-0002"
+    priority_score: 60.0
+    estimated_effort: "2-3 hours"
+    quick_win: true
+    reason: "QUICKEST WIN - validates fundamental approach ✅ VALIDATED"
+    status: "completed"
+    validation_date: "2026-01-19"

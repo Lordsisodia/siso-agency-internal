@@ -1,0 +1,11 @@
+[
+  {
+    "insight_id": "insight_20260118_072634_103853_c9cd78d6",
+    "timestamp": "2026-01-18T07:26:34.103857+00:00",
+    "content": "Use React hooks for component state",
+    "category": "pattern",
+    "confidence": 1.0,
+    "source_session": null,
+    "metadata": {}
+  }
+]

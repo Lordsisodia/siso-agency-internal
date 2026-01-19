@@ -1,0 +1,214 @@
+# Manager Agent Configuration
+# Blackbox 5 Core Agent - Top-level coordinator for multi-agent tasks
+
+name: "manager"
+full_name: "Manager Agent"
+type: "core"
+category: "1-core"
+version: "1.0.0"
+role: "orchestrator"
+
+icon: "orchestration"
+
+description: |
+  The Manager Agent is the top-level coordinator responsible for orchestrating
+  complex multi-agent tasks. When tasks are too complex for a single agent
+  (typically 20+ steps), the Manager decomposes the task, delegates to
+  specialists, monitors progress, and integrates results.
+
+# Agent capabilities
+capabilities:
+  - task_decomposition      # Break complex tasks into subtasks
+  - agent_selection         # Identify appropriate specialists
+  - parallel_coordination   # Execute independent tasks concurrently
+  - result_integration      # Combine specialist outputs
+  - progress_monitoring     # Track subtask status
+  - failure_recovery        # Handle and recover from failures
+
+# Available tools
+tools:
+  - event_bus              # Publish/subscribe coordination events
+  - agent_registry         # Query available specialists
+  - task_tracker           # Monitor subtask status
+  - memory                 # Store/retrieve context
+  - circuit_breaker        # Protect against failures
+
+# Agent behavior
+communication_style: "directive and clear"
+parallel_execution: true
+context_budget: 100000
+
+# Artifacts this agent may produce
+artifacts:
+  - "execution-manifest.md"     # Task execution record
+  - "decomposition.md"          # Task breakdown
+  - "integration-summary.md"    # Combined results
+  - "progress-tracker.md"       # Subtask status
+
+# Specialist agents this coordinator works with
+specialists:
+  - id: "researcher"
+    name: "Research Specialist"
+    capabilities:
+      - web_search
+      - document_analysis
+      - fact_checking
+      - data_gathering
+    best_for: "Information retrieval and research"
+
+  - id: "coder"
+    name: "Code Specialist"
+    capabilities:
+      - code_generation
+      - debugging
+      - refactoring
+      - testing
+    best_for: "Implementation and code changes"
+
+  - id: "writer"
+    name: "Writing Specialist"
+    capabilities:
+      - documentation
+      - explanation
+      - communication
+      - summarization
+    best_for: "Documentation and clear communication"
+
+  - id: "architect"
+    name: "Architecture Specialist"
+    capabilities:
+      - system_design
+      - technical_planning
+      - architecture_decisions
+    best_for: "Design and architecture decisions"
+
+  - id: "analyst"
+    name: "Analysis Specialist"
+    capabilities:
+      - data_analysis
+      - insights
+      - visualization
+      - metrics
+    best_for: "Data interpretation and analytics"
+
+# Event bus configuration
+events:
+  # Events this agent publishes
+  publishes:
+    - topic: "manager.task.decomposed"
+      description: "Task breakdown complete"
+      schema:
+        task_id: "string"
+        subtask_count: "integer"
+        execution_mode: "string"
+
+    - topic: "manager.subtask.assigned"
+      description: "Subtask delegated to specialist"
+      schema:
+        subtask_id: "string"
+        specialist: "string"
+        dependencies: "list"
+
+    - topic: "manager.subtask.completed"
+      description: "Subtask finished successfully"
+      schema:
+        subtask_id: "string"
+        specialist: "string"
+        output_location: "string"
+
+    - topic: "manager.subtask.failed"
+      description: "Subtask failed"
+      schema:
+        subtask_id: "string"
+        specialist: "string"
+        error: "string"
+        retry_attempted: "boolean"
+
+    - topic: "manager.task.completed"
+      description: "Entire task finished"
+      schema:
+        task_id: "string"
+        subtask_count: "integer"
+        duration_seconds: "float"
+        deliverables: "list"
+
+  # Events this agent subscribes to
+  subscribes:
+    - topic: "subtask.started"
+      description: "Specialist began work"
+      handler: "_on_subtask_started"
+
+    - topic: "subtask.progress"
+      description: "Specialist progress update"
+      handler: "_on_subtask_progress"
+
+    - topic: "subtask.output"
+      description: "Specialist produced output"
+      handler: "_on_subtask_output"
+
+# Coordination settings
+coordination:
+  # Maximum subtasks per wave
+  max_subtasks_per_wave: 10
+
+  # Maximum retry attempts for failed subtasks
+  max_retries: 2
+
+  # Timeout for subtask completion (seconds)
+  subtask_timeout: 600
+
+  # Delay between progress checks (seconds)
+  progress_check_interval: 10
+
+  # Enable wave execution (dependency-aware parallel)
+  enable_wave_execution: true
+
+# Thresholds
+thresholds:
+  # Minimum steps before requiring multi-agent coordination
+  min_steps_for_coordination: 20
+
+  # Maximum subtasks to create (prevent over-decomposition)
+  max_subtasks: 50
+
+  # Maximum waves to prevent infinite loops
+  max_waves: 10
+
+# Memory settings
+memory:
+  # Store coordination context
+  enable_context_storage: true
+
+  # Store specialist outputs for integration
+  enable_output_storage: true
+
+  # Retention policy for coordination data (hours)
+  retention_hours: 24
+
+# Circuit breaker settings
+circuit_breaker:
+  # Enable circuit breaker for specialist calls
+  enabled: true
+
+  # Failure threshold before opening circuit
+  failure_threshold: 3
+
+  # Timeout for specialist calls (seconds)
+  timeout: 120
+
+  # Half-open retry attempts
+  half_open_attempts: 1
+
+# Logging configuration
+logging:
+  # Log level (debug, info, warning, error)
+  level: "info"
+
+  # Log coordination events
+  log_events: true
+
+  # Log subtask assignments
+  log_assignments: true
+
+  # Log progress updates
+  log_progress: true

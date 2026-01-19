@@ -1,0 +1,56 @@
+# Design Artifacts Template
+
+This directory should contain design documentation and artifacts.
+
+## Types of Content
+
+### Architecture Diagrams
+System architecture, component diagrams, data flow diagrams.
+
+### Data Models
+Database schemas, data structures, type definitions.
+
+### API Specifications
+Interface definitions, API signatures, protocol specifications.
+
+### Algorithm Specifications
+Detailed algorithm descriptions, pseudocode.
+
+### Wireframes/Mockups
+UI mockups or interaction flows (if applicable).
+
+## Template Structure
+
+```
+design/
+├── architecture.md
+├── data-models.md
+├── api-design.md
+├── algorithms.md
+└── diagrams/
+    ├── system-architecture.md
+    └── data-flow.md
+```
+
+## Diagram Template
+
+```markdown
+# [Diagram Name]
+
+## Purpose
+[What this diagram shows]
+
+## Diagram
+```
+[ASCII art or mermaid diagram]
+```
+
+## Components
+- **[Component 1]:** [Description]
+- **[Component 2]:** [Description]
+
+## Flow
+1. [Step 1]
+2. [Step 2]
+3. [Step 3]
+```

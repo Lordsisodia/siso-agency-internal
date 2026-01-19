@@ -1,0 +1,84 @@
+{
+  "branchName": "ralph/autonomous-framework-research",
+  "userStories": [
+    {
+      "id": "FRM-001",
+      "title": "Research BMAD Framework architecture and capabilities",
+      "priority": 1,
+      "passes": true,
+      "agent": "researcher",
+      "context": {
+        "description": "Research the BMAD (Blackbox Method for Agent Development) framework. Analyze its architecture, key components, workflows, agents, and how it integrates with the overall Blackbox5 system. Document findings in .blackbox5/engine/frameworks/1-bmad/RESEARCH.md",
+        "framework": "BMAD",
+        "path": ".blackbox5/engine/frameworks/1-bmad/",
+        "output_file": ".blackbox5/engine/frameworks/1-bmad/RESEARCH.md"
+      }
+    },
+    {
+      "id": "FRM-002",
+      "title": "Research SpecKit framework architecture and capabilities",
+      "priority": 2,
+      "passes": true,
+      "agent": "researcher",
+      "context": {
+        "description": "Research the SpecKit framework. Analyze its slash commands, templates, architecture, and how it enables spec-driven development. Document findings in .blackbox5/engine/frameworks/2-speckit/RESEARCH.md",
+        "framework": "SpecKit",
+        "path": ".blackbox5/engine/frameworks/2-speckit/",
+        "output_file": ".blackbox5/engine/frameworks/2-speckit/RESEARCH.md"
+      }
+    },
+    {
+      "id": "FRM-003",
+      "title": "Research MetaGPT framework architecture and capabilities",
+      "priority": 3,
+      "passes": true,
+      "agent": "researcher",
+      "context": {
+        "description": "Research the MetaGPT framework. Analyze its multi-agent collaboration patterns, SOP generation, role-based agent system, and templates. Document findings in .blackbox5/engine/frameworks/3-metagpt/RESEARCH.md",
+        "framework": "MetaGPT",
+        "path": ".blackbox5/engine/frameworks/3-metagpt/",
+        "output_file": ".blackbox5/engine/frameworks/3-metagpt/RESEARCH.md"
+      }
+    },
+    {
+      "id": "FRM-004",
+      "title": "Research Swarm framework architecture and capabilities",
+      "priority": 4,
+      "passes": true,
+      "agent": "researcher",
+      "context": {
+        "description": "Research the Swarm framework. Analyze its multi-agent swarm patterns, emergent behavior, communication protocols, and examples. Document findings in .blackbox5/engine/frameworks/4-swarm/RESEARCH.md",
+        "framework": "Swarm",
+        "path": ".blackbox5/engine/frameworks/4-swarm/",
+        "output_file": ".blackbox5/engine/frameworks/4-swarm/RESEARCH.md"
+      }
+    },
+    {
+      "id": "FRM-005",
+      "title": "Synthesize framework comparison and integration opportunities",
+      "priority": 5,
+      "passes": true,
+      "agent": "researcher",
+      "context": {
+        "description": "Create a comprehensive comparison document analyzing all four frameworks (BMAD, SpecKit, MetaGPT, Swarm). Identify strengths, weaknesses, use cases, and opportunities for integration. Document in .blackbox5/engine/frameworks/FRAMEWORK-COMPARISON.md",
+        "output_file": ".blackbox5/engine/frameworks/FRAMEWORK-COMPARISON.md"
+      }
+    },
+    {
+      "id": "FRM-006",
+      "title": "Create autonomous agent workflow recommendations",
+      "priority": 6,
+      "passes": true,
+      "agent": "architect",
+      "context": {
+        "description": "Based on framework research, design recommended autonomous agent workflows that leverage the best aspects of each framework. Document in .blackbox5/engine/frameworks/AUTONOMOUS-WORKFLOW-RECOMMENDATIONS.md",
+        "output_file": ".blackbox5/engine/frameworks/AUTONOMOUS-WORKFLOW-RECOMMENDATIONS.md"
+      }
+    }
+  ],
+  "metadata": {
+    "project": "Autonomous Framework Research",
+    "started": "2026-01-18",
+    "goal": "Comprehensively research and analyze all Blackbox5 frameworks to enable autonomous agent workflows"
+  }
+}

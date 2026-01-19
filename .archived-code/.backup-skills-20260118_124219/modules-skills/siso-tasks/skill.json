@@ -1,0 +1,64 @@
+{
+  "name": "siso-tasks",
+  "version": "1.0.0",
+  "description": "Query and manage SISO Internal tasks from Supabase database",
+  "author": "SISO Internal",
+  "created": "2026-01-16",
+  "category": "database",
+  "tags": ["tasks", "supabase", "siso", "productivity"],
+  "mcp_server": "siso-internal-supabase",
+  "commands": [
+    {
+      "name": "tasks",
+      "description": "List all pending tasks ordered by priority",
+      "usage": "/tasks"
+    },
+    {
+      "name": "tasks urgent",
+      "description": "Show all urgent tasks that need immediate attention",
+      "usage": "/tasks urgent"
+    },
+    {
+      "name": "tasks overdue",
+      "description": "Show all overdue tasks",
+      "usage": "/tasks overdue"
+    },
+    {
+      "name": "tasks high",
+      "description": "Show all high priority tasks",
+      "usage": "/tasks high"
+    },
+    {
+      "name": "tasks search",
+      "description": "Search tasks by keyword in title or description",
+      "usage": "/tasks search <keyword>"
+    },
+    {
+      "name": "tasks stats",
+      "description": "Show task statistics and breakdown",
+      "usage": "/tasks stats"
+    },
+    {
+      "name": "tasks my",
+      "description": "Show tasks assigned to the current user",
+      "usage": "/tasks my"
+    },
+    {
+      "name": "tasks today",
+      "description": "Show tasks due today",
+      "usage": "/tasks today"
+    },
+    {
+      "name": "tasks recent",
+      "description": "Show recently created tasks",
+      "usage": "/tasks recent [limit]"
+    }
+  ],
+  "examples": [
+    "List all pending tasks",
+    "Show urgent tasks only",
+    "Find overdue tasks",
+    "Search for specific tasks",
+    "Get task statistics"
+  ]
+}

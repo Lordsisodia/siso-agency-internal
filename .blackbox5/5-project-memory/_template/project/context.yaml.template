@@ -1,0 +1,60 @@
+# {PROJECT_NAME} Project Context
+
+project:
+  name: "{PROJECT_NAME}"
+  description: "{PROJECT_DESCRIPTION}"
+  status: "active"
+
+current_focus:
+  feature: "{CURRENT_FEATURE}"
+  phase: "{CURRENT_PHASE}"
+  next_step: "{NEXT_STEP}"
+
+goals:
+  primary: "{PRIMARY_GOAL}"
+  secondary:
+    - "{SECONDARY_GOAL_1}"
+    - "{SECONDARY_GOAL_2}"
+    - "{SECONDARY_GOAL_3}"
+
+constraints:
+  technical:
+    - "{TECHNICAL_CONSTRAINT_1}"
+    - "{TECHNICAL_CONSTRAINT_2}"
+
+  time:
+    - "{TIME_CONSTRAINT_1}"
+
+  resources:
+    - "{RESOURCE_1}"
+
+scope:
+  in_scope:
+    - "{SCOPE_ITEM_1}"
+    - "{SCOPE_ITEM_2}"
+
+  out_of_scope:
+    - "{OUT_OF_SCOPE_ITEM_1}"
+
+stakeholders:
+  - role: "{ROLE_1}"
+    name: "{NAME_1}"
+    responsibilities: ["{RESPONSIBILITY_1}"]
+
+timeline:
+  started: "{START_DATE}"
+  estimated_completion: "{ESTIMATED_COMPLETION}"
+  milestones:
+    - "{MILESTONE_DATE}": "{MILESTONE_DESCRIPTION}"
+
+active_tasks:
+  - {TASK_ID_1}: {TASK_DESCRIPTION_1}
+
+upcoming_tasks:
+  - {UPCOMING_TASK_1}
+
+completed_tasks:
+  - {COMPLETED_TASK_1}
+
+recent_work:
+  - "{DATE}": "{WORK_DESCRIPTION}"

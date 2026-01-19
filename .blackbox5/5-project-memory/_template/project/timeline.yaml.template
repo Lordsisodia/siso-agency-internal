@@ -1,0 +1,44 @@
+# {PROJECT_NAME} Project Timeline
+
+project:
+  name: "{PROJECT_ID}"
+  started: "{START_DATE}"
+  status: "active"
+
+milestones:
+  - id: "M001"
+    name: "{MILESTONE_NAME_1}"
+    date: "{DATE}"
+    status: "completed"
+    description: "{MILESTONE_DESCRIPTION}"
+
+  - id: "M002"
+    name: "{MILESTONE_NAME_2}"
+    date: "{DATE}"
+    status: "pending"
+    description: "{MILESTONE_DESCRIPTION}"
+
+events:
+  - date: "{DATE}"
+    type: "milestone"
+    title: "{EVENT_TITLE}"
+    description: "{EVENT_DESCRIPTION}"
+    impact: "high"
+
+tasks_completed: {TASKS_COMPLETED}
+tasks_total: {TASKS_TOTAL}
+progress_percentage: {PROGRESS_PERCENTAGE}
+
+upcoming_work:
+  - task: "{UPCOMING_TASK}"
+    priority: "high"
+    estimated: "{ESTIMATED_DATE}"
+    effort: "{EFFORT_ESTIMATE}"
+
+risks:
+  - risk: "{RISK_DESCRIPTION}"
+    probability: "low"
+    impact: "medium"
+    mitigation: "{MITIGATION_STRATEGY}"
+
+next_review: "{NEXT_REVIEW_DATE}"

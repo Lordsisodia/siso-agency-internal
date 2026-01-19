@@ -1,0 +1,690 @@
+# STATE.yaml - Single Source of Truth
+
+> This is the SINGLE SOURCE OF TRUTH for all project state. All dashboards are generated from this file.
+
+**Version**: 2.0
+**Last Updated**: 2026-01-19T12:45:00Z
+**Maintainer**: Update this file when state changes, then run `./generate-dashboards.sh`
+
+---
+
+## Metadata
+
+```yaml
+project:
+  name: "SISO Internal"
+  version: "2.0"
+  status: "active"
+  started: "2026-01-18"
+```
+
+---
+
+## Tasks
+
+### Active Tasks
+
+```yaml
+active_tasks:
+  - id: "TASK-2026-01-18-005"
+    name: "Sync User Profile to GitHub"
+    description: "Sync the user-profile epic and 18 tasks to GitHub issues"
+    status: "pending"
+    priority: "high"
+    type: "github-integration"
+
+    epic: "user-profile"
+    feature: "User Profile Page"
+
+    file: "tasks/active/TASK-2026-01-18-005.md"
+    context: "tasks/active/TASK-2026-01-18-005-CONTEXT.md"
+
+    dependencies:
+      requires:
+        - "TASK-2026-01-18-001"
+        - "TASK-2026-01-18-002"
+        - "TASK-2026-01-18-003"
+        - "TASK-2026-01-18-004"
+      blocks:
+        - "user-profile-implementation"
+
+    github_issue: null
+    estimated_effort: "5 minutes"
+
+    created_at: "2026-01-18"
+    started_at: null
+    completed_at: null
+```
+
+### Completed Tasks
+
+```yaml
+completed_tasks:
+  - id: "TASK-2026-01-18-001"
+    name: "User Profile PRD Creation"
+    description: "Create comprehensive PRD with 8 FRs, 6 NFRs, 43 ACs"
+    status: "completed"
+    priority: "high"
+    type: "planning"
+
+    epic: "user-profile"
+    feature: "User Profile Page"
+
+    file: "tasks/active/TASK-2026-01-18-001.md"
+
+    deliverables:
+      - "plans/prds/active/user-profile.md"
+
+    github_issue: 38
+    completed_at: "2026-01-18"
+
+  - id: "TASK-2026-01-18-002"
+    name: "User Profile Epic Creation"
+    description: "Create technical specification with 18 atomic tasks"
+    status: "completed"
+    priority: "high"
+    type: "planning"
+
+    epic: "user-profile"
+    feature: "User Profile Page"
+
+    file: "tasks/active/TASK-2026-01-18-002.md"
+
+    deliverables:
+      - "plans/active/user-profile/epic.md"
+      - "plans/active/user-profile/ARCHITECTURE.md"
+      - "plans/active/user-profile/TASK-BREAKDOWN.md"
+
+    github_issue: 39
+    completed_at: "2026-01-18"
+
+  - id: "TASK-2026-01-18-003"
+    name: "User Profile Task Breakdown"
+    description: "Break down epic into 18 atomic implementation tasks"
+    status: "completed"
+    priority: "high"
+    type: "planning"
+
+    epic: "user-profile"
+    feature: "User Profile Page"
+
+    file: "tasks/active/TASK-2026-01-18-003.md"
+
+    deliverables:
+      - "plans/active/user-profile/001.md"
+      - "plans/active/user-profile/002.md"
+      - "... (through 018.md)"
+
+    github_issue: 40
+    completed_at: "2026-01-18"
+
+  - id: "TASK-2026-01-18-004"
+    name: "Project Memory System Migration"
+    description: "Reorganize from 18 folders to 6, remove duplicates"
+    status: "completed"
+    priority: "high"
+    type: "infrastructure"
+
+    epic: "project-memory-system"
+    feature: "Project Memory"
+
+    file: "tasks/active/TASK-2026-01-18-004.md"
+
+    deliverables:
+      - "6-folder structure"
+      - "ACTIVE.md dashboard"
+      - "Decision templates"
+      - "Naming conventions"
+
+    github_issue: 41
+    completed_at: "2026-01-19"
+```
+
+### Task Statistics
+
+```yaml
+task_stats:
+  total: 5
+  active: 1
+  completed: 4
+  blocked: 0
+
+  by_type:
+    planning: 3
+    infrastructure: 1
+    github_integration: 1
+
+  by_priority:
+    high: 5
+    medium: 0
+    low: 0
+```
+
+---
+
+## Features
+
+### Active Features
+
+```yaml
+active_features:
+  - id: "user-profile"
+    name: "User Profile Page"
+    description: "Complete user profile system with authentication, editing, and privacy"
+    status: "planning_complete"
+    priority: "high"
+
+    progress:
+      research: 100
+      planning: 100
+      github_sync: 0
+      implementation: 0
+      overall: 50
+
+    files:
+      epic: "plans/active/user-profile/epic.md"
+      prd: "plans/prds/active/user-profile.md"
+      xref: "plans/active/user-profile/XREF.md"
+      research: "knowledge/research/active/user-profile/"
+      tasks: "plans/active/user-profile/001.md" (through 018.md)
+
+    tasks:
+      total: 22
+      completed: 4
+      active: 1
+      pending: 17
+
+    decisions:
+      architectural: 0
+      scope: 1
+      technical: 0
+
+    technology:
+      - "Clerk (authentication)"
+      - "Supabase (database)"
+      - "Radix UI (components)"
+
+    risks:
+      - name: "Clerk webhook reliability"
+        severity: "high"
+        mitigation: "Implement retry logic"
+      - name: "Supabase RLS complexity"
+        severity: "medium"
+        mitigation: "Thorough testing"
+
+    timeline:
+      research_complete: "2026-01-18"
+      planning_complete: "2026-01-18"
+      estimated_start: "2026-01-19"
+      estimated_complete: "2026-02-15"
+```
+
+### Feature Statistics
+
+```yaml
+feature_stats:
+  total: 1
+  active: 1
+  completed: 0
+```
+
+---
+
+## Decisions
+
+### Architectural Decisions
+
+```yaml
+decisions_architectural:
+  - id: "DEC-2026-01-19-arch-6-folder-structure"
+    title: "6-Folder Memory Structure"
+    date: "2026-01-19"
+    status: "accepted"
+    author: "Claude (with User)"
+
+    summary: "Reorganized from 18 folders to 6 folders organized by question type"
+
+    file: "decisions/architectural/DEC-2026-01-19-6-folder-structure.md"
+
+    impact:
+      folders_before: 18
+      folders_after: 6
+      reduction: 67
+
+    alternatives_considered: 3
+```
+
+### Scope Decisions
+
+```yaml
+decisions_scope:
+  - id: "DEC-2026-01-19-scope-remove-empty-domains"
+    title: "Remove Empty domains/ Folder"
+    date: "2026-01-19"
+    status: "accepted"
+    author: "Claude (with User)"
+
+    summary: "Removed 10 empty domain folders following YAGNI principle"
+
+    file: "decisions/scope/DEC-2026-01-19-remove-empty-domains.md"
+
+    impact:
+      folders_removed: 10
+      files_removed: 0
+
+    rationale: "Don't create structure until content exists"
+```
+
+### Technical Decisions
+
+```yaml
+decisions_technical:
+  - id: "DEC-2026-01-19-tech-consolidate-yaml"
+    title: "Consolidate YAML Files to Root"
+    date: "2026-01-19"
+    status: "accepted"
+    author: "Claude (with User)"
+
+    summary: "Moved FEATURE-BACKLOG.yaml and TEST-RESULTS.yaml to root level"
+
+    file: "decisions/technical/DEC-2026-01-19-consolidate-yaml-files.md"
+
+    files_moved:
+      - "plans/feature_backlog.yaml → FEATURE-BACKLOG.yaml"
+      - "knowledge/artifacts/test_results.yaml → TEST-RESULTS.yaml"
+
+    rationale: "Config files should be at root for discoverability"
+```
+
+### Decision Statistics
+
+```yaml
+decision_stats:
+  total: 3
+  architectural: 1
+  scope: 1
+  technical: 1
+```
+
+---
+
+## Research
+
+### Active Research
+
+```yaml
+active_research:
+  - id: "user-profile"
+    topic: "User Profile Page"
+    status: "complete"
+    date: "2026-01-18"
+
+    location: "knowledge/research/active/user-profile/"
+
+    framework: "4D Analysis"
+
+    files:
+      - name: "STACK.md"
+        dimension: "Technology"
+        key_findings: "Clerk, Supabase, Radix UI"
+      - name: "FEATURES.md"
+        dimension: "Features"
+        key_findings: "Profile editing, preferences, avatar upload"
+      - name: "ARCHITECTURE.md"
+        dimension: "Architecture"
+        key_findings: "3 components, 2 hooks, 5 pages"
+      - name: "PITFALLS.md"
+        dimension: "Pitfalls"
+        key_findings: "Clerk webhooks, RLS policies"
+      - name: "SUMMARY.md"
+        dimension: "Summary"
+        key_findings: "4D analysis complete"
+
+    size:
+      files: 6
+      total_kb: 72
+
+    related:
+      epic: "plans/active/user-profile/epic.md"
+      prd: "plans/prds/active/user-profile.md"
+```
+
+### Research Statistics
+
+```yaml
+research_stats:
+  active: 1
+  archived: 0
+  total_files: 6
+  total_size_kb: 72
+```
+
+---
+
+## GitHub Sync
+
+### Sync Status
+
+```yaml
+github_sync:
+  repository: "siso-agency-internal"
+  repository_url: "https://github.com/siso-agency-internal"
+
+  last_sync: "2026-01-19T12:00:00Z"
+  sync_method: "manual"
+
+  synced_items: 4
+  pending_items: 19
+  sync_completion: 17
+```
+
+### Synced Items
+
+```yaml
+synced_tasks:
+  - task_id: "TASK-2026-01-18-001"
+    issue: 38
+    title: "User Profile PRD Creation"
+    status: "closed"
+    closed_at: "2026-01-18"
+
+  - task_id: "TASK-2026-01-18-002"
+    issue: 39
+    title: "User Profile Epic Creation"
+    status: "closed"
+    closed_at: "2026-01-18"
+
+  - task_id: "TASK-2026-01-18-003"
+    issue: 40
+    title: "User Profile Task Breakdown"
+    status: "closed"
+    closed_at: "2026-01-18"
+
+  - task_id: "TASK-2026-01-18-004"
+    issue: 41
+    title: "Project Memory System Migration"
+    status: "closed"
+    closed_at: "2026-01-19"
+```
+
+### Pending Sync
+
+```yaml
+pending_sync:
+  - type: "epic"
+    name: "User Profile Epic"
+    file: "plans/active/user-profile/epic.md"
+    estimated_issue: "#200"
+
+  - type: "tasks"
+    name: "18 Implementation Tasks"
+    files: "plans/active/user-profile/[001-018].md"
+    estimated_issues: "#201-#218"
+
+  blocking_task: "TASK-2026-01-18-005"
+  planned_sync_date: "2026-01-19"
+```
+
+### Labels
+
+```yaml
+github_labels:
+  standard:
+    - name: "epic"
+      color: "purple"
+      description: "Epic/feature issues"
+    - name: "task"
+      color: "blue"
+      description: "Individual task issues"
+    - name: "user-profile"
+      color: "green"
+      description: "User Profile feature"
+    - name: "priority-high"
+      color: "red"
+      description: "High priority"
+    - name: "priority-medium"
+      color: "yellow"
+      description: "Medium priority"
+    - name: "priority-low"
+      color: "gray"
+      description: "Low priority"
+```
+
+---
+
+## System
+
+### SISO Components
+
+```yaml
+siso_components:
+  - name: "SISO Platform"
+    type: "platform"
+    status: "active"
+    location: "../../"
+    description: "Internal development platform"
+
+  - name: "Ralphie (Ralph Runtime)"
+    type: "agent"
+    status: "active"
+    location: "operations/agents/history/sessions/ralph/"
+    description: "Autonomous agent runtime"
+
+  - name: "AgentMemory"
+    type: "system"
+    status: "active"
+    location: "operations/agents/"
+    description: "Agent memory system"
+
+  - name: "DeepEval"
+    type: "framework"
+    status: "active"
+    location: "../../2-engine/.deepeval/"
+    description: "Safety and evaluation framework"
+```
+
+### Memory Structure
+
+```yaml
+memory_structure:
+  folders: 6
+
+  folders_by_name:
+    - name: "decisions"
+      question: "Why we're doing it this way"
+      subfolders: 3
+    - name: "knowledge"
+      question: "How it works + learnings"
+      subfolders: 4
+    - name: "operations"
+      question: "System operations"
+      subfolders: 7
+    - name: "plans"
+      question: "What we're building"
+      subfolders: 6
+    - name: "project"
+      question: "Project identity & direction"
+      subfolders: 3
+    - name: "tasks"
+      question: "What we're working on"
+      subfolders: 5
+
+  root_files:
+    - "ACTIVE.md"
+    - "WORK-LOG.md"
+    - "STATE.yaml"
+    - "_NAMING.md"
+    - "CODE-INDEX.yaml"
+    - "FEATURE-BACKLOG.yaml"
+    - "TEST-RESULTS.yaml"
+    - "README.md"
+```
+
+### File Statistics
+
+```yaml
+file_stats:
+  markdown: 96
+  yaml: 10
+  json: 33
+  total: 139
+```
+
+---
+
+## Timeline
+
+### Milestones
+
+```yaml
+milestones:
+  - id: "M001"
+    name: "Project Kickoff"
+    date: "2026-01-18"
+    status: "completed"
+
+  - id: "M002"
+    name: "GitHub Integration Complete"
+    date: "2026-01-18"
+    status: "completed"
+
+  - id: "M003"
+    name: "User Profile Research Complete"
+    date: "2026-01-18"
+    status: "completed"
+
+  - id: "M004"
+    name: "User Profile PRD Approved"
+    date: "2026-01-18"
+    status: "completed"
+
+  - id: "M005"
+    name: "User Profile Epic Complete"
+    date: "2026-01-18"
+    status: "completed"
+
+  - id: "M006"
+    name: "Project Memory System Complete"
+    date: "2026-01-19"
+    status: "completed"
+
+  - id: "M007"
+    name: "User Profile GitHub Sync"
+    date: "2026-01-19"
+    status: "pending"
+
+  - id: "M008"
+    name: "User Profile Development Complete"
+    date: "2026-02-15"
+    status: "pending"
+
+  - id: "M009"
+    name: "User Profile Launch"
+    date: "2026-02-15"
+    status: "pending"
+```
+
+### Progress
+
+```yaml
+progress:
+  tasks_completed: 4
+  tasks_total: 23
+  tasks_percentage: 17
+
+  features_completed: 0
+  features_total: 1
+  features_percentage: 0
+
+  milestones_completed: 6
+  milestones_total: 9
+  milestones_percentage: 67
+```
+
+---
+
+## Activity
+
+### Recent Work
+
+```yaml
+recent_work:
+  - date: "2026-01-19"
+    type: "improvement"
+    title: "Tier 1 Workflow Improvements"
+    description: "Added ACTIVE.md, decision templates, task context bundles, WORK-LOG.md"
+    time_invested: "2 hours"
+
+  - date: "2026-01-19"
+    type: "improvement"
+    title: "Tier 2 Quality of Life"
+    description: "Added research index, GitHub sync state, feature XREF"
+    time_invested: "1 hour"
+
+  - date: "2026-01-19"
+    type: "reorganization"
+    title: "Project Memory Reorganization"
+    description: "Reduced from 18 to 6 folders, eliminated duplicates"
+    time_invested: "2 hours"
+
+  - date: "2026-01-18"
+    type: "planning"
+    title: "User Profile Planning Complete"
+    description: "4D research, PRD, Epic, 18 tasks"
+    time_invested: "4 hours"
+```
+
+### Upcoming Work
+
+```yaml
+upcoming_work:
+  - task: "Sync User Profile to GitHub"
+    priority: "high"
+    estimated: "2026-01-19"
+    effort: "5 minutes"
+
+  - task: "Start User Profile Development"
+    priority: "high"
+    estimated: "2026-01-20 - 2026-02-15"
+    effort: "63 hours"
+```
+
+---
+
+## Risks
+
+```yaml
+risks:
+  - risk: "GitHub sync complexity"
+    probability: "low"
+    impact: "medium"
+    mitigation: "Use established workflow"
+
+  - risk: "Task estimation accuracy"
+    probability: "medium"
+    impact: "medium"
+    mitigation: "Track actual vs estimated"
+
+  - risk: "Clerk webhook reliability"
+    probability: "medium"
+    impact: "high"
+    mitigation: "Implement retry logic"
+```
+
+---
+
+## Next Review
+
+```yaml
+next_review: "2026-01-25"
+```
+
+---
+
+**IMPORTANT**: When updating this file:
+1. Update relevant sections
+2. Update `last_updated` timestamp
+3. Run `./generate-dashboards.sh` to update all views
+4. Commit changes with descriptive message
+
+**This file is the SINGLE SOURCE OF TRUTH**. All other dashboards are generated from it.

@@ -1,0 +1,65 @@
+# Agent Instructions Template
+
+This directory should contain agent-specific instruction files.
+
+## Recommended Files
+
+### research-agent.md
+Instructions for research agents working on this item.
+
+### design-agent.md
+Instructions for design agents working on this item.
+
+### implementation-agent.md
+Instructions for implementation agents working on this item.
+
+### testing-agent.md
+Instructions for testing agents working on this item.
+
+## Template for Agent Instructions
+
+```markdown
+# [Agent Type] Agent Instructions
+
+**For:** [Agent Type] Agent working on [Item Title]
+**Item ID:** YYYY-MM-DD-[slug]
+**Current Stage:** [current stage]
+
+---
+
+## Your Mission
+
+[Brief description of what this agent should accomplish]
+
+---
+
+## Key Tasks
+
+1. [Task 1]
+2. [Task 2]
+3. [Task 3]
+
+---
+
+## Deliverables
+
+- [Deliverable 1]
+- [Deliverable 2]
+
+---
+
+## Success Criteria
+
+- [ ] [Criterion 1]
+- [ ] [Criterion 2]
+
+---
+
+## Notes
+
+[Any additional context or guidance]
+
+---
+
+**Last Updated:** YYYY-MM-DD
+```

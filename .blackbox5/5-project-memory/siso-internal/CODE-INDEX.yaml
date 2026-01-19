@@ -1,0 +1,493 @@
+version: '1.0'
+last_updated: '2026-01-19T08:57:19.658270'
+total_files: 1468
+domains:
+  clients:
+    path: src/domains/clients/
+    type: unknown
+    pages: []
+    features: null
+    components: 0
+    last_refactor: '2026-01-15'
+    status: empty
+  tasks:
+    path: src/domains/tasks/
+    type: feature-based
+    pages:
+    - id: calendar
+      path: src/domains/tasks/features/calendar/ui/pages/
+      components: src/domains/tasks/features/calendar/ui/components/
+      status: empty
+      files:
+      - src/domains/tasks/features/calendar/ui/components/CalendarView.tsx
+      - src/domains/tasks/features/calendar/ui/components/EnhancedTimeBoxCalendar.tsx
+      task_id: TASK-tasks-calendar
+    - id: task-management
+      path: src/domains/tasks/features/task-management/ui/pages/
+      components: src/domains/tasks/features/task-management/ui/components/
+      status: in_progress
+      files:
+      - src/domains/tasks/features/task-management/ui/pages/TaskListManager.tsx
+      - src/domains/tasks/features/task-management/ui/pages/TaskMainContent.tsx
+      - src/domains/tasks/features/task-management/ui/components/TaskCard.tsx
+      - src/domains/tasks/features/task-management/ui/components/TaskList.tsx
+      - src/domains/tasks/features/task-management/ui/components/SubtaskItem.tsx
+      - src/domains/tasks/features/task-management/ui/components/WorkflowTaskManager.tsx
+      - src/domains/tasks/features/task-management/ui/components/TaskView.tsx
+      - src/domains/tasks/features/task-management/ui/components/TaskManager.tsx
+      task_id: TASK-tasks-management
+    - id: deep-work
+      path: src/domains/tasks/features/deep-work/ui/pages/
+      components: src/domains/tasks/features/deep-work/ui/components/
+      status: empty
+      files:
+      - src/domains/tasks/features/deep-work/ui/components/FlowStateTimer.tsx
+      - src/domains/tasks/features/deep-work/ui/components/CompactDeepFocusCard.tsx
+      - src/domains/tasks/features/deep-work/ui/components/DeepFocusWorkSection-v2.tsx
+      - src/domains/tasks/features/deep-work/ui/components/DeepWorkTab.tsx
+      task_id: TASK-tasks-work
+    - id: light-work
+      path: src/domains/tasks/features/light-work/ui/pages/
+      components: src/domains/tasks/features/light-work/ui/components/
+      status: empty
+      files:
+      - src/domains/tasks/features/light-work/ui/components/LightWorkTab.tsx
+      - src/domains/tasks/features/light-work/ui/components/LightFocusWorkSection-v2.tsx
+      - src/domains/tasks/features/light-work/ui/components/TaskCreationModal.tsx
+      - src/domains/tasks/features/light-work/ui/components/TaskStatusSelector.tsx
+      - src/domains/tasks/features/light-work/ui/components/CategoryFilter.tsx
+      - src/domains/tasks/features/light-work/ui/components/SubTaskList.tsx
+      - src/domains/tasks/features/light-work/ui/components/StatusIcon.tsx
+      - src/domains/tasks/features/light-work/ui/components/ProgressIndicator.tsx
+      - src/domains/tasks/features/light-work/ui/components/TaskTimer.tsx
+      task_id: TASK-tasks-work
+    - id: ai-assistant
+      path: src/domains/tasks/features/ai-assistant/ui/pages/
+      components: src/domains/tasks/features/ai-assistant/ui/components/
+      status: in_progress
+      files:
+      - src/domains/tasks/features/ai-assistant/ui/pages/AITaskChat.tsx
+      - src/domains/tasks/features/ai-assistant/ui/components/TimeBoxAIAssistant.tsx
+      - src/domains/tasks/features/ai-assistant/ui/components/AIAssistantTab.tsx
+      - src/domains/tasks/features/ai-assistant/ui/components/EnhancedAIChatView.tsx
+      - src/domains/tasks/features/ai-assistant/ui/components/AITaskChat.tsx
+      task_id: TASK-tasks-assistant
+    - id: analytics
+      path: src/domains/tasks/features/analytics/ui/pages/
+      components: src/domains/tasks/features/analytics/ui/components/
+      status: in_progress
+      files:
+      - src/domains/tasks/features/analytics/ui/pages/TaskStats.tsx
+      - src/domains/tasks/features/analytics/ui/components/TodayProgressSection.tsx
+      - src/domains/tasks/features/analytics/ui/components/TaskAnalytics.tsx
+      - src/domains/tasks/features/analytics/ui/components/MonthlyProgressSection.tsx
+      - src/domains/tasks/features/analytics/ui/components/StatsView.tsx
+      task_id: TASK-tasks-analytics
+    features: 6
+    components: 33
+    last_refactor: '2026-01-15'
+    status: in_progress
+  financials:
+    path: src/domains/financials/
+    type: unknown
+    pages: []
+    features: null
+    components: 0
+    last_refactor: '2026-01-15'
+    status: empty
+  projects:
+    path: src/domains/projects/
+    type: numbered-flow
+    pages:
+    - id: 1-discover
+      path: src/domains/projects/1-discover/ui/pages/
+      components: src/domains/projects/1-discover/ui/components/
+      status: empty
+      files:
+      - src/domains/projects/1-discover/ui/components/ProjectContextCard.tsx
+      - src/domains/projects/1-discover/ui/components/ProjectCard.tsx
+      - src/domains/projects/1-discover/ui/components/ProjectDirectoryCard.tsx
+      - src/domains/projects/1-discover/ui/components/ProjectOnboarding.tsx
+      task_id: TASK-projects-discover
+    - id: 2-plan
+      path: src/domains/projects/2-plan/ui/pages/
+      components: src/domains/projects/2-plan/ui/components/
+      status: empty
+      files:
+      - src/domains/projects/2-plan/ui/components/AppPlanSection.tsx
+      - src/domains/projects/2-plan/ui/components/PhasesNavigation.tsx
+      - src/domains/projects/2-plan/ui/components/PlanHeader.tsx
+      - src/domains/projects/2-plan/ui/components/PhaseSection.tsx
+      - src/domains/projects/2-plan/ui/components/SubsectionContent.tsx
+      task_id: TASK-projects-plan
+    - id: 3-build
+      path: src/domains/projects/3-build/ui/pages/
+      components: src/domains/projects/3-build/ui/components/
+      status: in_progress
+      files:
+      - src/domains/projects/3-build/ui/pages/UserFlowPage.tsx
+      - src/domains/projects/3-build/ui/components/ReactFlowImplementation.tsx
+      - src/domains/projects/3-build/ui/components/UserFlowToolbar.tsx
+      - src/domains/projects/3-build/ui/components/QuickFeedbackDialog.tsx
+      - src/domains/projects/3-build/ui/components/UserFlowNavigation.tsx
+      - src/domains/projects/3-build/ui/components/NodeDetailsSidebar.tsx
+      - src/domains/projects/3-build/ui/components/ActionNode.tsx
+      - src/domains/projects/3-build/ui/components/WireframeCard.tsx
+      - src/domains/projects/3-build/ui/components/UserFlowDiagram.tsx
+      - src/domains/projects/3-build/ui/components/FeedbackLogPage.tsx
+      - src/domains/projects/3-build/ui/components/ScreenNode.tsx
+      - src/domains/projects/3-build/ui/components/DecisionNode.tsx
+      - src/domains/projects/3-build/ui/components/WireframeNavigation.tsx
+      task_id: TASK-projects-build
+    - id: 4-review
+      path: src/domains/projects/4-review/ui/pages/
+      components: src/domains/projects/4-review/ui/components/
+      status: in_progress
+      files:
+      - src/domains/projects/4-review/ui/pages/ActiveTasksView.tsx
+      - src/domains/projects/4-review/ui/components/ResearchDocument.tsx
+      - src/domains/projects/4-review/ui/components/ResearchFilters.tsx
+      - src/domains/projects/4-review/ui/components/ActiveTasksSection.tsx
+      - src/domains/projects/4-review/ui/components/FeatureLoadingState.tsx
+      - src/domains/projects/4-review/ui/components/ResearchDocumentSkeleton.tsx
+      - src/domains/projects/4-review/ui/components/FeatureControls.tsx
+      - src/domains/projects/4-review/ui/components/FeatureRequestInput.tsx
+      - src/domains/projects/4-review/ui/components/FeatureRequestsSection.tsx
+      - src/domains/projects/4-review/ui/components/FeatureDetailsModal.tsx
+      - src/domains/projects/4-review/ui/components/ResearchCategories.tsx
+      - src/domains/projects/4-review/ui/components/PinnedResearchAsset.tsx
+      - src/domains/projects/4-review/ui/components/FeatureErrorState.tsx
+      - src/domains/projects/4-review/ui/components/FeatureCard.tsx
+      - src/domains/projects/4-review/ui/components/ResearchDocumentDetail.tsx
+      task_id: TASK-projects-review
+    - id: 5-archive
+      path: src/domains/projects/5-archive/ui/pages/
+      components: src/domains/projects/5-archive/ui/components/
+      status: empty
+      files: []
+      task_id: TASK-projects-archive
+    features: null
+    components: 39
+    last_refactor: '2026-01-15'
+    status: in_progress
+  resources:
+    path: src/domains/resources/
+    type: numbered-flow
+    pages:
+    - id: 1-browse
+      path: src/domains/resources/1-browse/ui/pages/
+      components: src/domains/resources/1-browse/ui/components/
+      status: in_progress
+      files:
+      - src/domains/resources/1-browse/ui/pages/DocumentLibraryPage.tsx
+      - src/domains/resources/1-browse/ui/components/DocumentTable.tsx
+      task_id: TASK-resources-browse
+    features: null
+    components: 1
+    last_refactor: '2026-01-15'
+    status: in_progress
+  admin:
+    path: src/domains/admin/
+    type: numbered-flow
+    pages:
+    - id: 1-overview
+      path: src/domains/admin/1-overview/ui/pages/
+      components: src/domains/admin/1-overview/ui/components/
+      status: in_progress
+      files:
+      - src/domains/admin/1-overview/ui/pages/AdminPlans.tsx
+      - src/domains/admin/1-overview/ui/pages/AdminWireframes.tsx
+      - src/domains/admin/1-overview/ui/pages/AdminLifeLock.tsx
+      - src/domains/admin/1-overview/ui/pages/AdminLifeLockDay.tsx
+      - src/domains/admin/1-overview/ui/pages/AdminPayments.tsx
+      - src/domains/admin/1-overview/ui/pages/AdminDailyPlanner.tsx
+      - src/domains/admin/1-overview/ui/pages/AdminClients.tsx
+      - src/domains/admin/1-overview/ui/pages/AdminTasks.tsx
+      - src/domains/admin/1-overview/ui/pages/AdminOutreach.tsx
+      - src/domains/admin/1-overview/ui/pages/AdminPageTitle.tsx
+      - src/domains/admin/1-overview/ui/pages/AdminLifeLockOverview.tsx
+      - src/domains/admin/1-overview/ui/pages/AdminSettings.tsx
+      - src/domains/admin/1-overview/ui/pages/AdminTemplates.tsx
+      - src/domains/admin/1-overview/ui/pages/AdminTeams.tsx
+      - src/domains/admin/1-overview/ui/pages/AdminDashboard.tsx
+      - src/domains/admin/1-overview/ui/pages/AdminPrompts.tsx
+      - src/domains/admin/1-overview/ui/pages/AdminUserFlow.tsx
+      - src/domains/admin/1-overview/ui/components/WelcomeBanner.tsx
+      - src/domains/admin/1-overview/ui/components/AdminStats.tsx
+      - src/domains/admin/1-overview/ui/components/QuickActions.tsx
+      - src/domains/admin/1-overview/ui/components/DashboardKPI.tsx
+      task_id: TASK-admin-overview
+    - id: 2-clients
+      path: src/domains/admin/2-clients/ui/pages/
+      components: src/domains/admin/2-clients/ui/components/
+      status: in_progress
+      files:
+      - src/domains/admin/2-clients/ui/pages/AdminClientsView.tsx
+      - src/domains/admin/2-clients/ui/components/ClientStatusBadge.tsx
+      - src/domains/admin/2-clients/ui/components/ClientTableBody.tsx
+      - src/domains/admin/2-clients/ui/components/ClientsOverviewCard.tsx
+      - src/domains/admin/2-clients/ui/components/ClientsTable.tsx
+      - src/domains/admin/2-clients/ui/components/ClientCard.tsx
+      - src/domains/admin/2-clients/ui/components/ClientAnalyticsCards.tsx
+      - src/domains/admin/2-clients/ui/components/ClientViewPreferenceProvider.tsx
+      - src/domains/admin/2-clients/ui/components/ClientsTableSkeleton.tsx
+      - src/domains/admin/2-clients/ui/components/ClientsHeader.tsx
+      - src/domains/admin/2-clients/ui/components/ClientTableHeader.tsx
+      - src/domains/admin/2-clients/ui/components/ClientsEnhancedTable.tsx
+      - src/domains/admin/2-clients/ui/components/ClientAddForm.tsx
+      - src/domains/admin/2-clients/ui/components/ClientsList.tsx
+      - src/domains/admin/2-clients/ui/components/ClientTableCell.tsx
+      - src/domains/admin/2-clients/ui/components/ClientTablePagination.tsx
+      task_id: TASK-admin-clients
+    - id: 3-partners
+      path: src/domains/admin/3-partners/ui/pages/
+      components: src/domains/admin/3-partners/ui/components/
+      status: in_progress
+      files:
+      - src/domains/admin/3-partners/ui/pages/AdminPartnershipDashboard.tsx
+      - src/domains/admin/3-partners/ui/pages/AdminPartnershipLeaderboard.tsx
+      - src/domains/admin/3-partners/ui/components/AirtablePartnersTable.tsx
+      task_id: TASK-admin-partners
+    - id: 4-financials
+      path: src/domains/admin/4-financials/ui/pages/
+      components: src/domains/admin/4-financials/ui/components/
+      status: in_progress
+      files:
+      - src/domains/admin/4-financials/ui/pages/AdminPayments.tsx
+      - src/domains/admin/4-financials/ui/components/SpreadsheetExpensesEmpty.tsx
+      - src/domains/admin/4-financials/ui/components/CreateExpenseDialog.tsx
+      - src/domains/admin/4-financials/ui/components/VendorCell.tsx
+      - src/domains/admin/4-financials/ui/components/CategoryBadgeCell.tsx
+      - src/domains/admin/4-financials/ui/components/RevenueTable.tsx
+      - src/domains/admin/4-financials/ui/components/AddExpenseDialog.tsx
+      - src/domains/admin/4-financials/ui/components/ExpensesTableHeader.tsx
+      - src/domains/admin/4-financials/ui/components/SpreadsheetExpensesBody.tsx
+      - src/domains/admin/4-financials/ui/components/ImportExpensesButton.tsx
+      - src/domains/admin/4-financials/ui/components/ExpenseForm.tsx
+      - src/domains/admin/4-financials/ui/components/AirtableExpensesGrid.tsx
+      - src/domains/admin/4-financials/ui/components/ExpensesTable.tsx
+      - src/domains/admin/4-financials/ui/components/FinancialsDashboard.tsx
+      - src/domains/admin/4-financials/ui/components/SpreadsheetExpenseRow.tsx
+      - src/domains/admin/4-financials/ui/components/ExpensesTableLoading.tsx
+      - src/domains/admin/4-financials/ui/components/RecurringBadgeCell.tsx
+      - src/domains/admin/4-financials/ui/components/AddExpenseRow.tsx
+      - src/domains/admin/4-financials/ui/components/SpreadsheetExpensesRow.tsx
+      - src/domains/admin/4-financials/ui/components/ExpensesTableBody.tsx
+      task_id: TASK-admin-financials
+    - id: 5-settings
+      path: src/domains/admin/5-settings/ui/pages/
+      components: src/domains/admin/5-settings/ui/components/
+      status: complete
+      files:
+      - src/domains/admin/5-settings/ui/pages/AdminSettings.tsx
+      task_id: TASK-admin-settings
+    features: null
+    components: 43
+    last_refactor: '2026-01-15'
+    status: partially_complete
+  lifelock:
+    path: src/domains/lifelock/
+    type: numbered-flow
+    pages:
+    - id: 1-daily
+      path: src/domains/lifelock/1-daily/ui/pages/
+      components: src/domains/lifelock/1-daily/ui/components/
+      status: pending
+      files: []
+      task_id: TASK-lifelock-daily
+    - id: 2-weekly
+      path: src/domains/lifelock/2-weekly/ui/pages/
+      components: src/domains/lifelock/2-weekly/ui/components/
+      status: pending
+      files: []
+      task_id: TASK-lifelock-weekly
+    - id: 3-monthly
+      path: src/domains/lifelock/3-monthly/ui/pages/
+      components: src/domains/lifelock/3-monthly/ui/components/
+      status: pending
+      files: []
+      task_id: TASK-lifelock-monthly
+    - id: 4-yearly
+      path: src/domains/lifelock/4-yearly/ui/pages/
+      components: src/domains/lifelock/4-yearly/ui/components/
+      status: pending
+      files: []
+      task_id: TASK-lifelock-yearly
+    - id: 5-life
+      path: src/domains/lifelock/5-life/ui/pages/
+      components: src/domains/lifelock/5-life/ui/components/
+      status: pending
+      files: []
+      task_id: TASK-lifelock-life
+    features: null
+    components: 25
+    last_refactor: '2026-01-15'
+    status: in_progress
+  partners:
+    path: src/domains/partners/
+    type: unknown
+    pages: []
+    features: null
+    components: 0
+    last_refactor: '2026-01-15'
+    status: empty
+  analytics:
+    path: src/domains/analytics/
+    type: unknown
+    pages: []
+    features: null
+    components: 0
+    last_refactor: '2026-01-15'
+    status: empty
+  xp-store:
+    path: src/domains/xp-store/
+    type: numbered-flow
+    pages:
+    - id: 1-storefront
+      path: src/domains/xp-store/1-storefront/ui/pages/
+      components: src/domains/xp-store/1-storefront/ui/components/
+      status: complete
+      files:
+      - src/domains/xp-store/1-storefront/ui/pages/XPStorePage.tsx
+      task_id: TASK-xp-store-storefront
+    features: null
+    components: 0
+    last_refactor: '2026-01-15'
+    status: complete
+components:
+  home:
+    path: src/components/ui/home/
+    used_by:
+    - tasks
+    - lifelock
+    - partners
+    - analytics
+    last_modified: '2026-01-18'
+  calendar:
+    path: src/components/ui/calendar/
+    used_by:
+    - tasks
+    - financials
+    - admin
+    - lifelock
+    - analytics
+    last_modified: '2026-01-18'
+  resources:
+    path: src/components/ui/resources/
+    used_by:
+    - clients
+    - projects
+    - partners
+    - analytics
+    last_modified: '2026-01-18'
+  admin:
+    path: src/components/ui/admin/
+    used_by:
+    - clients
+    - tasks
+    - financials
+    - projects
+    - admin
+    - lifelock
+    - partners
+    - analytics
+    last_modified: '2026-01-18'
+  feedback:
+    path: src/components/ui/feedback/
+    used_by:
+    - clients
+    - tasks
+    - projects
+    - admin
+    - lifelock
+    - partners
+    - analytics
+    last_modified: '2026-01-18'
+  gantt:
+    path: src/components/ui/gantt/
+    used_by:
+    - analytics
+    last_modified: '2026-01-18'
+  dashboard:
+    path: src/components/ui/dashboard/
+    used_by:
+    - clients
+    - tasks
+    - financials
+    - projects
+    - admin
+    - lifelock
+    - partners
+    - analytics
+    last_modified: '2026-01-18'
+  icons:
+    path: src/components/ui/icons/
+    used_by:
+    - clients
+    - tasks
+    - lifelock
+    - partners
+    - analytics
+    last_modified: '2026-01-18'
+  prompt-input:
+    path: src/components/ui/prompt-input/
+    used_by: []
+    last_modified: '2026-01-18'
+refactors:
+- id: REFACTOR-2026-01-15-domain-reorg
+  date: '2026-01-15'
+  description: Comprehensive domain restructuring to standardized patterns
+  affected_domains:
+  - all
+  files_changed: 500
+  lessons:
+  - Domain organization improved discoverability
+  - Shared components reduced duplication
+  - Need better documentation for new patterns
+- id: REFACTOR-2026-01-10-tasks-domain
+  date: '2026-01-10'
+  description: Converted tasks domain to feature-based pattern
+  affected_domains:
+  - tasks
+  files_changed: 50
+  lessons:
+  - Feature-based pattern works better for complex domains
+  - Numbered flow too restrictive for task management
+quick_find:
+  by_domain:
+    clients: See domains.clients
+    tasks: See domains.tasks
+    financials: See domains.financials
+    projects: See domains.projects
+    resources: See domains.resources
+    admin: See domains.admin
+    lifelock: See domains.lifelock
+    partners: See domains.partners
+    analytics: See domains.analytics
+    xp-store: See domains.xp-store
+  by_component:
+    home: See components.home
+    calendar: See components.calendar
+    resources: See components.resources
+    admin: See components.admin
+    feedback: See components.feedback
+    gantt: See components.gantt
+    dashboard: See components.dashboard
+    icons: See components.icons
+    prompt-input: See components.prompt-input
+  by_status:
+    complete:
+    - xp-store
+    partially_complete:
+    - admin
+    in_progress:
+    - tasks
+    - projects
+    - resources
+    - lifelock
+    pending: []
+    empty:
+    - clients
+    - financials
+    - partners
+    - analytics

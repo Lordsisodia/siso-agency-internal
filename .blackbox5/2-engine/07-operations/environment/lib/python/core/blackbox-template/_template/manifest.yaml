@@ -1,0 +1,35 @@
+version: 1
+box:
+  id: docs
+  name: "Docs Black Box"
+  description: "Local agent runtime + context + plans for the /docs domain."
+  owner: "team"
+
+# 📌 Convention: every agent is self-contained under `agents/<agent-id>/`.
+# `skills` are reusable playbooks; `plans` are timestamped executions.
+paths:
+  context: "context.md"
+  tasks: "tasks.md"
+  journal: "journal.md"
+  scratchpad: "scratchpad.md"
+  experiments_dir: "experiments"
+  agents_dir: "agents"
+  skills_dir: ".skills"
+  plans_dir: ".plans"
+  knowledge_dir: "deepresearch"
+  knowledge_index: "deepresearch/index.md"
+  snippets_dir: "snippets"
+  prompts_dir: ".prompts"
+  schemas_dir: "schemas"
+  docs_ledger: "../08-meta/repo/docs-ledger.md"
+  docs_routing: "../08-meta/repo/information-routing.md"
+
+agents:
+  - id: "docs-feedback"
+    path: "agents/docs-feedback/agent.md"
+  - id: "deep-research"
+    path: "agents/deep-research/agent.md"
+  - id: "_core"
+    path: "agents/_core/prompt.md"
+  - id: "template"
+    path: "agents/_template/agent.md"

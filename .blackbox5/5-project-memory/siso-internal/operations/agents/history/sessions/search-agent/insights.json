@@ -1,0 +1,47 @@
+[
+  {
+    "insight_id": "insight_20260118_072634_102034_0af8406a",
+    "timestamp": "2026-01-18T07:26:34.102038+00:00",
+    "content": "Use React hooks for state management",
+    "category": "pattern",
+    "confidence": 1.0,
+    "source_session": null,
+    "metadata": {}
+  },
+  {
+    "insight_id": "insight_20260118_072634_102423_48c714a0",
+    "timestamp": "2026-01-18T07:26:34.102429+00:00",
+    "content": "Python async/await for concurrent operations",
+    "category": "pattern",
+    "confidence": 1.0,
+    "source_session": null,
+    "metadata": {}
+  },
+  {
+    "insight_id": "insight_20260118_072634_102704_f3195e55",
+    "timestamp": "2026-01-18T07:26:34.102710+00:00",
+    "content": "TypeScript prevents type errors at compile time",
+    "category": "pattern",
+    "confidence": 1.0,
+    "source_session": null,
+    "metadata": {}
+  },
+  {
+    "insight_id": "insight_20260118_072634_102996_0ae8ecf3",
+    "timestamp": "2026-01-18T07:26:34.103001+00:00",
+    "content": "Never commit secrets to git repository",
+    "category": "gotcha",
+    "confidence": 1.0,
+    "source_session": null,
+    "metadata": {}
+  },
+  {
+    "insight_id": "insight_20260118_072634_103274_5cdb8639",
+    "timestamp": "2026-01-18T07:26:34.103279+00:00",
+    "content": "GraphQL provides flexible querying",
+    "category": "discovery",
+    "confidence": 1.0,
+    "source_session": null,
+    "metadata": {}
+  }
+]

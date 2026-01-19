@@ -1,0 +1,80 @@
+{
+  "branchName": "ralph/continuous-framework-github-analysis",
+  "userStories": [
+    {
+      "id": "FG-001",
+      "title": "Analyze MetaGPT GitHub issues for improvement patterns",
+      "priority": 1,
+      "passes": false,
+      "agent": "analyst",
+      "context": {
+        "description": "Examine issues from https://github.com/geekan/MetaGPT/issues to identify common problems, installation issues, and documentation gaps",
+        "github_url": "https://github.com/geekan/MetaGPT/issues",
+        "output_file": ".blackbox5/engine/runtime/ralph/framework-github/METAGPT-ISSUES-ANALYSIS.md",
+        "focus": "metagpt"
+      }
+    },
+    {
+      "id": "FG-002",
+      "title": "Analyze OpenAI Swarm repository for architectural insights",
+      "priority": 2,
+      "passes": false,
+      "agent": "architect",
+      "context": {
+        "description": "Review https://github.com/openai/swarm to understand agent coordination patterns, ergonomic interfaces, and multi-agent system design",
+        "github_url": "https://github.com/openai/swarm",
+        "output_file": ".blackbox5/engine/runtime/ralph/framework-github/SWARM-ARCHITECTURE-ANALYSIS.md",
+        "focus": "swarm"
+      }
+    },
+    {
+      "id": "FG-003",
+      "title": "Analyze BMAD METHOD framework for workflow patterns",
+      "priority": 3,
+      "passes": false,
+      "agent": "analyst",
+      "context": {
+        "description": "Examine https://github.com/bmad-code-org/BMAD-METHOD to identify reusable prompt patterns, structured workflows, and scale-adaptive capabilities",
+        "github_url": "https://github.com/bmad-code-org/BMAD-METHOD",
+        "output_file": ".blackbox5/engine/runtime/ralph/framework-github/BMAD-WORKFLOW-ANALYSIS.md",
+        "focus": "bmad"
+      }
+    },
+    {
+      "id": "FG-004",
+      "title": "Compare framework issue patterns for common problems",
+      "priority": 4,
+      "passes": false,
+      "agent": "architect",
+      "context": {
+        "description": "Synthesize findings from all three frameworks to identify common problems: environment setup, API configuration, version compatibility, documentation gaps",
+        "output_file": ".blackbox5/engine/runtime/ralph/framework-github/FRAMEWORK-PATTERNS.md",
+        "focus": "patterns"
+      }
+    },
+    {
+      "id": "FG-005",
+      "title": "Generate actionable recommendations for Blackbox5",
+      "priority": 5,
+      "passes": false,
+      "agent": "architect",
+      "context": {
+        "description": "Based on framework analysis, create specific recommendations for improving Blackbox5: better onboarding, clearer documentation, improved error handling",
+        "output_file": ".blackbox5/engine/runtime/ralph/framework-github/BLACKBOX5-RECOMMENDATIONS.md",
+        "focus": "recommendations"
+      }
+    }
+  ],
+  "metadata": {
+    "project": "Continuous Framework GitHub Analysis",
+    "started": "2026-01-18",
+    "goal": "Continuously analyze GitHub repositories of multi-agent frameworks (MetaGPT, Swarm, BMAD) to identify patterns, common issues, and improvement opportunities. Apply learnings to improve Blackbox5.",
+    "approach": "continuous_framework_analysis",
+    "target_systems": [
+      "https://github.com/geekan/MetaGPT",
+      "https://github.com/openai/swarm",
+      "https://github.com/bmad-code-org/BMAD-METHOD"
+    ],
+    "continuous": true
+  }
+}
