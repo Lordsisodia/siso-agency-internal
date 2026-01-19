@@ -13,8 +13,8 @@ import time
 
 # Configuration
 WORKSPACE = Path.cwd()
-STATE_FILE = WORKSPACE / '.blackbox5' / 'engine' / 'operations' / 'runtime' / 'ralph' / 'github_state.json'
-OUTPUT_DIR = WORKSPACE / '.blackbox5' / 'engine' / 'development' / 'framework-research'
+STATE_FILE = WORKSPACE / 'blackbox5' / 'engine' / 'operations' / 'runtime' / 'ralph' / 'github_state.json'
+OUTPUT_DIR = WORKSPACE / 'blackbox5' / 'engine' / 'development' / 'framework-research'
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 TEST_DURATION_MINUTES = 20

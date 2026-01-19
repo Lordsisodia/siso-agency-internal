@@ -42,7 +42,7 @@ import sys, asyncio
 from pathlib import Path
 import importlib.util
 
-ralph_path = Path.cwd() / '.blackbox5' / 'engine' / 'runtime' / 'ralph' / 'ralph_runtime.py'
+ralph_path = Path.cwd() / 'blackbox5' / 'engine' / 'runtime' / 'ralph' / 'ralph_runtime.py'
 spec = importlib.util.spec_from_file_location('ralph_runtime', ralph_path)
 ralph_module = importlib.util.module_from_spec(spec)
 sys.modules['ralph_runtime'] = ralph_module
@@ -61,7 +61,7 @@ asyncio.run(main())
     # List generated files
     echo ""
     echo "Generated analysis files:"
-    ls -lh .blackbox5/engine/runtime/ralph/continuous/*.md 2>/dev/null | tail -5 || echo "No files generated yet"
+    ls -lh blackbox5/engine/runtime/ralph/continuous/*.md 2>/dev/null | tail -5 || echo "No files generated yet"
 
     echo ""
     echo "Run #$RUN_NUMBER complete. Sleeping for ${SLEEP_INTERVAL}s..."

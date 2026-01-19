@@ -11,8 +11,8 @@ mkdir -p "$LOG_DIR"
 
 LOG_FILE="$LOG_DIR/ralph-test.log"
 PID_FILE="$LOG_DIR/ralph.pid"
-STATE_FILE="$WORKSPACE/.blackbox5/engine/operations/runtime/ralph/github_state.json"
-OUTPUT_DIR="$WORKSPACE/.blackbox5/engine/development/framework-research"
+STATE_FILE="$WORKSPACE/blackbox5/engine/operations/runtime/ralph/github_state.json"
+OUTPUT_DIR="$WORKSPACE/blackbox5/engine/development/framework-research"
 
 # Clear old state for fresh test
 if [ -f "$STATE_FILE" ]; then
@@ -31,7 +31,7 @@ if [ -f "$PID_FILE" ]; then
 fi
 
 # Start Ralph with output redirected
-RALPH_PYTHON="$WORKSPACE/.blackbox5/engine/operations/runtime/ralph/ralph_runtime.py"
+RALPH_PYTHON="$WORKSPACE/blackbox5/engine/operations/runtime/ralph/ralph_runtime.py"
 
 python3 "$RALPH_PYTHON" \
     --workspace "$WORKSPACE" \

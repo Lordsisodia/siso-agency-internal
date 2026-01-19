@@ -1,7 +1,0 @@
-agent_name: oss-discovery
-created_at: '2026-01-12T14:20:21.882022'
-settings:
-  auto_save: true
-  context_window: 10
-  max_memory_items: 1000
-version: '1.0'

@@ -21,10 +21,10 @@ CYAN='\033[0;36m'
 NC='\033[0m'
 
 # Configuration
-STATE_FILE="$WORKSPACE/.blackbox5/engine/operations/runtime/ralph/github_state.json"
-OUTPUT_DIR="$WORKSPACE/.blackbox5/engine/runtime/ralph/framework-github"
+STATE_FILE="$WORKSPACE/blackbox5/engine/operations/runtime/ralph/github_state.json"
+OUTPUT_DIR="$WORKSPACE/blackbox5/engine/runtime/ralph/framework-github"
 PRD_FILE="$WORKSPACE/prd-framework-github-continuous.json"
-RALPH_PYTHON="$WORKSPACE/.blackbox5/engine/operations/runtime/ralph/ralph_runtime.py"
+RALPH_PYTHON="$WORKSPACE/blackbox5/engine/operations/runtime/ralph/ralph_runtime.py"
 
 echo -e "${CYAN}📋 Test Configuration${NC}"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -175,8 +175,8 @@ echo "3. Each iteration only processes NEW issues"
 echo "4. Ralph can run continuously, catching new issues as they appear"
 echo ""
 echo -e "${BLUE}To run Ralph continuously:${NC}"
-echo "  bash .blackbox5/engine/operations/runtime/ralph/start-framework-research.sh"
+echo "  bash blackbox5/engine/operations/runtime/ralph/start-framework-research.sh"
 echo ""
 echo -e "${BLUE}To monitor in real-time:${NC}"
-echo "  bash .blackbox5/engine/operations/runtime/ralph/monitor-autonomous.sh"
+echo "  bash blackbox5/engine/operations/runtime/ralph/monitor-autonomous.sh"
 echo ""

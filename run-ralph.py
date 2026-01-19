@@ -14,7 +14,7 @@ if 'ralph_runtime' in sys.modules:
     del sys.modules['ralph_runtime']
 
 # Load Ralph module fresh
-ralph_path = Path.cwd() / ".blackbox5" / "engine" / "runtime" / "ralph" / "ralph_runtime.py"
+ralph_path = Path.cwd() / "blackbox5" / "engine" / "runtime" / "ralph" / "ralph_runtime.py"
 spec = importlib.util.spec_from_file_location("ralph_runtime", ralph_path)
 ralph_module = importlib.util.module_from_spec(spec)
 sys.modules['ralph_runtime'] = ralph_module

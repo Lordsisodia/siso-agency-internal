@@ -10,7 +10,7 @@ echo "╚═══════════════════════�
 echo ""
 
 # Clear old state
-STATE_FILE=".blackbox5/engine/operations/runtime/ralph/github_state.json"
+STATE_FILE="blackbox5/engine/operations/runtime/ralph/github_state.json"
 if [ -f "$STATE_FILE" ]; then
     mv "$STATE_FILE" "${STATE_FILE}.backup"
 fi
@@ -31,7 +31,7 @@ echo "Starting Ralph Runtime..."
 echo ""
 
 # Start Ralph in background
-python3 .blackbox5/engine/operations/runtime/ralph/ralph_runtime.py \
+python3 blackbox5/engine/operations/runtime/ralph/ralph_runtime.py \
     --workspace "$WORKSPACE" \
     --prd "$WORKSPACE/prd-autonomous-framework-research.json" \
     --max-iterations 40 \
@@ -52,7 +52,7 @@ echo "Monitor commands:"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 echo "  tail -f $LOG_FILE"
-echo "  ls -lh .blackbox5/engine/development/framework-research/"
+echo "  ls -lh blackbox5/engine/development/framework-research/"
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
