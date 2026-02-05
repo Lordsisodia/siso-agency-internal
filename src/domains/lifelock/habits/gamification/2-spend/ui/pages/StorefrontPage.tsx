@@ -5,7 +5,7 @@
  */
 
 import { RewardCatalog } from '@/domains/lifelock/habits/gamification/2-spend/features/storefront/RewardCatalog';
-import { XPStoreProvider } from '@/domains/lifelock/habits/gamification/_shared/core/XPStoreContext';
+import { XPStoreProvider } from '@/domains/lifelock/habits/gamification/1-earn/hooks/XPStoreContext';
 
 export const XPStorePage = () => {
   return (
