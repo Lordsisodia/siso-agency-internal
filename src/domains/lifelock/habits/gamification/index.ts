@@ -6,7 +6,7 @@
 
 // 1-earn: XP earning hooks and context
 export { useXPStore } from './1-earn/hooks/useXPStore';
-export { XPStoreProvider } from './1-earn/hooks/XPStoreContext';
+export { XPStoreProvider, useXPStoreContext } from './1-earn/hooks/XPStoreContext';
 export { usePoints } from './1-earn/hooks/usePoints';
 
 // 2-spend: Storefront and rewards
