@@ -52,7 +52,10 @@
     "ai:restore": "ls -lt .git/ai-snapshots/ && echo '\nRun: bash .git/ai-snapshots/restore_TIMESTAMP.sh'",
     "ai:protect": "bash scripts/ai/ai-session-snapshot.sh && echo '\n✅ Safe to start AI session'",
     "docs:index": "node scripts/docs/generate-docs-index.cjs",
-    "docs:validate": "node scripts/docs/generate-docs-index.cjs && echo '\n✅ Documentation index validated'"
+    "docs:validate": "node scripts/docs/generate-docs-index.cjs && echo '\n✅ Documentation index validated'",
+    "db:generate": "prisma generate",
+    "db:introspect": "prisma db pull",
+    "db:studio": "prisma studio"
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.89",

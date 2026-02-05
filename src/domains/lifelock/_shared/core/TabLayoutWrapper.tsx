@@ -28,48 +28,83 @@ import { useSubtabCompletion } from '@/domains/lifelock/_shared/services/subtabC
 const tabs = Object.values(TAB_CONFIG);
 
 // Section-specific colors for bottom navigation
+// Colors must match NAV_SECTIONS in navigation-config.ts
 const TAB_COLORS: Record<string, string> = {
-  'morning': 'text-orange-400',      // Morning routine - orange
-  'light-work': 'text-emerald-400',  // Light work - green
-  'work': 'text-blue-400',           // Deep work - blue
-  'health': 'text-rose-400',         // Health - rose
+  // Plan section (purple)
+  'morning': 'text-purple-400',      // Morning routine - purple (matches plan)
+  'timebox': 'text-purple-400',      // Timebox - purple (matches plan)
+  'checkout': 'text-purple-400',     // Checkout - purple (matches plan)
+  'plan': 'text-purple-400',         // Plan - purple
+
+  // Tasks section (amber)
   'tasks': 'text-amber-400',         // Tasks - amber
-  'plan': 'text-sky-400',            // Plan - sky blue
-  'diet': 'text-green-400',          // Diet - green
-  'timebox': 'text-sky-400',          // Timebox - sky blue
-  'checkout': 'text-purple-400'      // Checkout - purple
+  'light-work': 'text-amber-400',    // Light work - amber (matches tasks)
+  'deep-work': 'text-amber-400',     // Deep work - amber (matches tasks)
+  'work': 'text-amber-400',          // Deep work legacy - amber
+
+  // Health section (rose)
+  'health': 'text-rose-400',         // Health - rose
+  'stats': 'text-rose-400',          // Stats - rose (matches health)
+  'fitness': 'text-rose-400',        // Fitness - rose (matches health)
+  'nutrition': 'text-rose-400',      // Nutrition - rose (matches health)
+
+  // Legacy
+  'diet': 'text-green-400'           // Diet - green
 };
 
 // Section-specific background colors for active tab (lighter versions)
+// Colors must match NAV_SECTIONS in navigation-config.ts
 const TAB_BG_COLORS: Record<string, string> = {
-  'morning': 'bg-orange-400/20',      // Morning routine - light orange
-  'light-work': 'bg-emerald-400/20',  // Light work - light green
-  'work': 'bg-blue-400/20',           // Deep work - light blue
-  'health': 'bg-rose-400/20',         // Health - light rose
-  'tasks': 'bg-amber-400/20',         // Tasks - light amber
-  'plan': 'bg-sky-400/20',            // Plan - light sky blue
-  'diet': 'bg-green-400/20',          // Diet - light green
-  'timebox': 'bg-sky-400/20',         // Timebox - light sky blue
-  'checkout': 'bg-purple-400/20'      // Checkout - light purple
+  // Plan section (purple)
+  'morning': 'bg-purple-400/20',      // Morning routine - purple (matches plan)
+  'timebox': 'bg-purple-400/20',      // Timebox - purple (matches plan)
+  'checkout': 'bg-purple-400/20',     // Checkout - purple (matches plan)
+  'plan': 'bg-purple-400/20',         // Plan - purple
+
+  // Tasks section (amber)
+  'tasks': 'bg-amber-400/20',         // Tasks - amber
+  'light-work': 'bg-amber-400/20',    // Light work - amber (matches tasks)
+  'deep-work': 'bg-amber-400/20',     // Deep work - amber (matches tasks)
+  'work': 'bg-amber-400/20',          // Deep work legacy - amber
+
+  // Health section (rose)
+  'health': 'bg-rose-400/20',         // Health - rose
+  'stats': 'bg-rose-400/20',          // Stats - rose (matches health)
+  'fitness': 'bg-rose-400/20',        // Fitness - rose (matches health)
+  'nutrition': 'bg-rose-400/20',      // Nutrition - rose (matches health)
+
+  // Legacy
+  'diet': 'bg-green-400/20'           // Diet - green
 };
 
 // Section-specific accent line colors (left border)
+// Colors must match NAV_SECTIONS in navigation-config.ts
 const ACCENT_LINE_COLORS: Record<string, { from: string; via: string; to: string; shadow: string }> = {
-  'morning': { from: 'from-orange-500/60', via: 'via-orange-600/60', to: 'to-orange-700/60', shadow: 'shadow-orange-500/20' },
-  'light-work': { from: 'from-emerald-500/60', via: 'via-green-500/60', to: 'to-emerald-600/60', shadow: 'shadow-emerald-500/20' },
-  'work': { from: 'from-blue-500/60', via: 'via-blue-600/60', to: 'to-blue-700/60', shadow: 'shadow-blue-500/20' },
-  'health': { from: 'from-blue-500/60', via: 'via-cyan-500/60', to: 'to-blue-600/60', shadow: 'shadow-blue-500/20' },
+  // Plan section (purple) - matches NAV_SECTIONS plan color
+  'morning': { from: 'from-purple-500/60', via: 'via-purple-600/60', to: 'to-purple-700/60', shadow: 'shadow-purple-500/20' },
+  'timebox': { from: 'from-purple-500/60', via: 'via-purple-600/60', to: 'to-purple-700/60', shadow: 'shadow-purple-500/20' },
+  'checkout': { from: 'from-purple-500/60', via: 'via-purple-600/60', to: 'to-purple-700/60', shadow: 'shadow-purple-500/20' },
+  'plan': { from: 'from-purple-500/60', via: 'via-purple-600/60', to: 'to-purple-700/60', shadow: 'shadow-purple-500/20' },
+
+  // Tasks section (amber) - matches NAV_SECTIONS tasks color
+  'tasks': { from: 'from-amber-500/60', via: 'via-amber-600/60', to: 'to-amber-700/60', shadow: 'shadow-amber-500/20' },
+  'light-work': { from: 'from-amber-500/60', via: 'via-amber-600/60', to: 'to-amber-700/60', shadow: 'shadow-amber-500/20' },
+  'deep-work': { from: 'from-amber-500/60', via: 'via-amber-600/60', to: 'to-amber-700/60', shadow: 'shadow-amber-500/20' },
+  'work': { from: 'from-amber-500/60', via: 'via-amber-600/60', to: 'to-amber-700/60', shadow: 'shadow-amber-500/20' },
+
+  // Health section (rose) - matches NAV_SECTIONS health color
+  'health': { from: 'from-rose-500/60', via: 'via-rose-600/60', to: 'to-rose-700/60', shadow: 'shadow-rose-500/20' },
+  'stats': { from: 'from-rose-500/60', via: 'via-rose-600/60', to: 'to-rose-700/60', shadow: 'shadow-rose-500/20' },
+  'fitness': { from: 'from-rose-500/60', via: 'via-rose-600/60', to: 'to-rose-700/60', shadow: 'shadow-rose-500/20' },
+  'nutrition': { from: 'from-rose-500/60', via: 'via-rose-600/60', to: 'to-rose-700/60', shadow: 'shadow-rose-500/20' },
+
+  // Legacy/individual tracker colors (kept for backward compatibility)
   'water': { from: 'from-blue-500/60', via: 'via-cyan-500/60', to: 'to-blue-600/60', shadow: 'shadow-blue-500/20' },
-  'fitness': { from: 'from-rose-500/60', via: 'via-red-500/60', to: 'to-rose-600/60', shadow: 'shadow-rose-500/20' },
   'smoking': { from: 'from-purple-500/60', via: 'via-pink-500/60', to: 'to-purple-600/60', shadow: 'shadow-purple-500/20' },
-  'tasks': { from: 'from-amber-500/60', via: 'via-yellow-500/60', to: 'to-amber-600/60', shadow: 'shadow-amber-500/20' },
-  'plan': { from: 'from-sky-500/60', via: 'via-sky-600/60', to: 'to-sky-700/60', shadow: 'shadow-sky-500/20' },
   'diet': { from: 'from-green-500/60', via: 'via-emerald-500/60', to: 'to-green-600/60', shadow: 'shadow-green-500/20' },
   'photo': { from: 'from-green-500/60', via: 'via-emerald-500/60', to: 'to-green-600/60', shadow: 'shadow-green-500/20' },
   'meals': { from: 'from-green-500/60', via: 'via-emerald-500/60', to: 'to-green-600/60', shadow: 'shadow-green-500/20' },
-  'macros': { from: 'from-green-500/60', via: 'via-emerald-500/60', to: 'to-green-600/60', shadow: 'shadow-green-500/20' },
-  'timebox': { from: 'from-sky-500/60', via: 'via-sky-600/60', to: 'to-sky-700/60', shadow: 'shadow-sky-500/20' },
-  'checkout': { from: 'from-purple-500/60', via: 'via-purple-600/60', to: 'to-purple-700/60', shadow: 'shadow-purple-500/20' }
+  'macros': { from: 'from-green-500/60', via: 'via-emerald-500/60', to: 'to-green-600/60', shadow: 'shadow-green-500/20' }
 };
 
 interface TabLayoutWrapperProps {

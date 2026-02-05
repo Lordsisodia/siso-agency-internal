@@ -140,6 +140,7 @@ export const StatsSection: React.FC<StatsSectionProps> = ({
             <XPPill xp={activeTabConfig.xp} activeTab={activeTabConfig.xpCategory} />
           </motion.div>
         </AnimatePresence>
+        </div>
       </div>
 
       {/* Content - each tab renders independently */}

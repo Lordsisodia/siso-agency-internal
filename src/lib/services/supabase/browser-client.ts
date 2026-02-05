@@ -14,6 +14,21 @@ const getGlobalScope = (): typeof globalThis & { __SISO_SUPABASE_CLIENT__?: Brow
   return globalThis as typeof globalThis & { __SISO_SUPABASE_CLIENT__?: BrowserClient };
 };
 
+/**
+ * Keep-alive ping to prevent Supabase free tier from pausing.
+ * Runs a lightweight query every time the client is initialized.
+ */
+const pingSupabase = async (client: BrowserClient) => {
+  try {
+    const { error } = await client.from('light_work_tasks').select('id').limit(1);
+    if (!error) {
+      console.log('✅ Supabase keep-alive ping successful');
+    }
+  } catch {
+    // Silent fail - don't block app initialization
+  }
+};
+
 export const getSupabaseBrowserClient = (): BrowserClient => {
   const globalScope = getGlobalScope();
 
@@ -28,6 +43,9 @@ export const getSupabaseBrowserClient = (): BrowserClient => {
       detectSessionInUrl: true
     }
   });
+
+  // Ping to keep database awake
+  pingSupabase(client);
 
   globalScope.__SISO_SUPABASE_CLIENT__ = client;
   return client;

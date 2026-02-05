@@ -125,9 +125,15 @@ export class SyncService {
    * pulls can be scoped correctly.
    */
   setActiveUser(userId: string | null): void {
-    this.activeUserId = userId;
-    if (userId) {
+    // Validate UUID format before setting
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (userId && uuidRegex.test(userId)) {
+      this.activeUserId = userId;
       void offlineDb.setSetting('activeUserId', userId);
+    } else if (userId === null) {
+      this.activeUserId = null;
+    } else {
+      console.warn('[SyncService] Invalid user ID format, ignoring:', userId);
     }
     void this.emitStatus();
   }
@@ -271,7 +277,14 @@ export class SyncService {
     try {
       const storedUserId = await offlineDb.getSetting('activeUserId');
       if (storedUserId && typeof storedUserId === 'string') {
-        this.activeUserId = storedUserId;
+        // Validate that the stored user ID is a valid UUID
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        if (uuidRegex.test(storedUserId)) {
+          this.activeUserId = storedUserId;
+        } else {
+          console.warn('[SyncService] Invalid stored user ID, clearing:', storedUserId);
+          await offlineDb.setSetting('activeUserId', null);
+        }
       }
     } catch (error) {
       console.error('[SyncService] Failed to restore active user id:', error);
@@ -509,6 +522,14 @@ export class SyncService {
   private async pullServerData(): Promise<void> {
     if (!this.activeUserId) {
       // Nothing to refresh without a scoped user.
+      console.warn('[SyncService] No active user ID, skipping server pull');
+      return;
+    }
+
+    // Validate that activeUserId is a valid UUID
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(this.activeUserId)) {
+      console.warn('[SyncService] Invalid user ID format, skipping server pull:', this.activeUserId);
       return;
     }
 
@@ -673,6 +694,13 @@ export class SyncService {
       return;
     }
 
+    // Validate that activeUserId is a valid UUID
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(this.activeUserId)) {
+      console.warn('[SyncService] Invalid user ID format in pullWorkoutSessions:', this.activeUserId);
+      return;
+    }
+
     const userId = this.activeUserId;
 
     const fetchFromAggregator = async (): Promise<boolean> => {
@@ -832,6 +860,21 @@ export class SyncService {
           updated_at: record.updated_at ?? new Date().toISOString(),
         };
         await offlineDb.saveTimeBlock(payload, false);
+        break;
+      }
+      case 'dailyReflections': {
+        const payload = {
+          id: record.id ?? `${record.user_id}-${record.date}`,
+          user_id: record.user_id,
+          date: record.date,
+          key_learnings: record.key_learnings ?? record.reflection ?? '',
+          went_well: record.went_well ?? record.wins ?? [],
+          even_better_if: record.even_better_if ?? record.improvements ?? [],
+          tomorrow_focus: record.tomorrow_focus ?? '',
+          created_at: record.created_at ?? new Date().toISOString(),
+          updated_at: record.updated_at ?? new Date().toISOString(),
+        };
+        await offlineDb.saveDailyReflection(payload, false);
         break;
       }
       default:

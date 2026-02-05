@@ -358,60 +358,6 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
     }
   }, [validTasks]);
 
-  // Loading state
-  if (isLoading) {
-    return (
-      <div className="min-h-screen w-full mb-24 bg-black overflow-x-hidden">
-        <div className="w-full relative">
-        <div className="w-full mx-auto px-2 sm:px-4 md:px-6 lg:px-8 space-y-6">
-            <Card className="bg-sky-900/10 border-sky-700/30">
-              <CardContent className="p-6 space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {Array.from({ length: 2 }).map((_, index) => (
-                    <div
-                      key={`timebox-stat-skeleton-${index}`}
-                      className="rounded-xl border border-sky-700/40 bg-sky-900/30 p-4 space-y-3"
-                    >
-                      <Skeleton className="h-4 w-24 bg-sky-500/20" />
-                      <Skeleton className="h-8 w-20 bg-sky-400/30" />
-                      <Skeleton className="h-2 w-full bg-sky-500/20 rounded-full" />
-                    </div>
-                  ))}
-                </div>
-
-                <div className="space-y-3">
-                  <Skeleton className="h-6 w-48 bg-sky-500/20" />
-                  <div className="space-y-2">
-                    {Array.from({ length: 4 }).map((_, index) => (
-                      <Skeleton
-                        key={`timebox-timeline-skeleton-${index}`}
-                        className="h-12 w-full bg-sky-900/30 border border-sky-700/40 rounded-xl"
-                      />
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-sky-900/20 border-sky-700/40">
-              <CardContent className="p-4 space-y-3">
-                <Skeleton className="h-5 w-32 bg-sky-500/20" />
-                <div className="grid grid-cols-2 gap-3">
-                  {Array.from({ length: 2 }).map((_, index) => (
-                    <Skeleton
-                      key={`timebox-action-skeleton-${index}`}
-                      className="h-12 w-full bg-sky-900/40 border border-sky-700/40 rounded-xl"
-                    />
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   // Handle navigation to Checkout
   const handleGoToCheckout = useCallback(() => {
     navigate('/lifelock/daily/checkout');
@@ -508,6 +454,60 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
     if (Number.isNaN(hours) || Number.isNaN(minutes)) return null;
     return hours * 60 + minutes;
   };
+
+  // Loading state - must be after all hooks
+  if (isLoading) {
+    return (
+      <div className="min-h-screen w-full mb-24 bg-black overflow-x-hidden">
+        <div className="w-full relative">
+        <div className="w-full mx-auto px-2 sm:px-4 md:px-6 lg:px-8 space-y-6">
+            <Card className="bg-sky-900/10 border-sky-700/30">
+              <CardContent className="p-6 space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {Array.from({ length: 2 }).map((_, index) => (
+                    <div
+                      key={`timebox-stat-skeleton-${index}`}
+                      className="rounded-xl border border-sky-700/40 bg-sky-900/30 p-4 space-y-3"
+                    >
+                      <Skeleton className="h-4 w-24 bg-sky-500/20" />
+                      <Skeleton className="h-8 w-20 bg-sky-400/30" />
+                      <Skeleton className="h-2 w-full bg-sky-500/20 rounded-full" />
+                    </div>
+                  ))}
+                </div>
+
+                <div className="space-y-3">
+                  <Skeleton className="h-6 w-48 bg-sky-500/20" />
+                  <div className="space-y-2">
+                    {Array.from({ length: 4 }).map((_, index) => (
+                      <Skeleton
+                        key={`timebox-timeline-skeleton-${index}`}
+                        className="h-12 w-full bg-sky-900/30 border border-sky-700/40 rounded-xl"
+                      />
+                    ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-sky-900/20 border-sky-700/40">
+              <CardContent className="p-4 space-y-3">
+                <Skeleton className="h-5 w-32 bg-sky-500/20" />
+                <div className="grid grid-cols-2 gap-3">
+                  {Array.from({ length: 2 }).map((_, index) => (
+                    <Skeleton
+                      key={`timebox-action-skeleton-${index}`}
+                      className="h-12 w-full bg-sky-900/40 border border-sky-700/40 rounded-xl"
+                    />
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen w-full bg-transparent overflow-x-hidden">

@@ -191,6 +191,23 @@ interface OfflineDB extends DBSchema {
       _sync_status?: 'pending' | 'syncing' | 'synced' | 'error';
     };
   };
+  dailyReflections: {
+    key: string;
+    value: {
+      id: string;
+      user_id: string;
+      date: string;
+      key_learnings: string;
+      went_well: string[];
+      even_better_if: string[];
+      tomorrow_focus: string;
+      created_at: string;
+      updated_at: string;
+      _needs_sync?: boolean;
+      _last_synced?: string;
+      _sync_status?: 'pending' | 'syncing' | 'synced' | 'error';
+    };
+  };
 }
 
 export type OfflineSyncAction = OfflineDB['offlineActions']['value'];
@@ -198,7 +215,7 @@ export type OfflineSyncAction = OfflineDB['offlineActions']['value'];
 class OfflineDatabase {
   private db: IDBPDatabase<OfflineDB> | null = null;
   private readonly DB_NAME = 'SISOOfflineDB';
-  private readonly DB_VERSION = 5; // v5: Bumped to ensure smokingTracker store is created
+  private readonly DB_VERSION = 7; // v7: Added dailyReflections store, fixed version mismatch
 
   async init(): Promise<void> {
     if (this.db) return;
@@ -281,6 +298,14 @@ class OfflineDatabase {
           smokingStore.createIndex('date', 'date');
           smokingStore.createIndex('user_id', 'user_id');
           smokingStore.createIndex('needs_sync', '_needs_sync');
+        }
+
+        // Daily reflections store (v7)
+        if (!db.objectStoreNames.contains('dailyReflections')) {
+          const reflectionsStore = db.createObjectStore('dailyReflections', { keyPath: 'id' });
+          reflectionsStore.createIndex('date', 'date');
+          reflectionsStore.createIndex('user_id', 'user_id');
+          reflectionsStore.createIndex('needs_sync', '_needs_sync');
         }
       },
     });
@@ -597,6 +622,45 @@ class OfflineDatabase {
     }
   }
 
+  // ===== DAILY REFLECTIONS =====
+  async getDailyReflections(date?: string): Promise<OfflineDB['dailyReflections']['value'][]> {
+    if (!this.db) await this.init();
+
+    const tx = this.db!.transaction('dailyReflections', 'readonly');
+    const store = tx.objectStore('dailyReflections');
+
+    if (date) {
+      const index = store.index('date');
+      return await index.getAll(date);
+    }
+
+    return await store.getAll();
+  }
+
+  async saveDailyReflection(data: OfflineDB['dailyReflections']['value'], markForSync = true): Promise<void> {
+    if (!this.db) await this.init();
+
+    const dataWithMeta = {
+      ...data,
+      _needs_sync: markForSync,
+      _sync_status: markForSync ? ('pending' as const) : ('synced' as const),
+      updated_at: new Date().toISOString()
+    };
+
+    const tx = this.db!.transaction('dailyReflections', 'readwrite');
+    await tx.objectStore('dailyReflections').put(dataWithMeta);
+    await tx.done;
+
+    if (markForSync) {
+      const { _needs_sync, _sync_status, _last_synced, ...payload } = dataWithMeta as typeof dataWithMeta & {
+        _needs_sync?: boolean;
+        _sync_status?: string;
+        _last_synced?: string;
+      };
+      await this.queueAction('upsert', 'dailyReflections', payload);
+    }
+  }
+
   // ===== OFFLINE ACTIONS QUEUE =====
   async queueAction(
     action: OfflineSyncAction['action'],
@@ -689,6 +753,8 @@ class OfflineDatabase {
           return 'timeBlocks';
         case 'smokingTracker':
           return 'smokingTracker';
+        case 'dailyReflections':
+          return 'dailyReflections';
         default:
           return null;
       }
@@ -743,7 +809,7 @@ class OfflineDatabase {
   async clear(): Promise<void> {
     if (!this.db) await this.init();
 
-    const stores = ['lightWorkTasks', 'deepWorkTasks', 'morningRoutines', 'workoutSessions', 'healthHabits', 'nightlyCheckouts', 'offlineActions', 'settings', 'smokingTracker'] as const;
+    const stores = ['lightWorkTasks', 'deepWorkTasks', 'morningRoutines', 'workoutSessions', 'healthHabits', 'nightlyCheckouts', 'offlineActions', 'settings', 'smokingTracker', 'dailyReflections'] as const;
     
     for (const storeName of stores) {
       const tx = this.db!.transaction(storeName, 'readwrite');
@@ -763,6 +829,7 @@ class OfflineDatabase {
     nightlyCheckouts: number;
     timeBlocks: number;
     smokingTracker: number;
+    dailyReflections: number;
     pendingActions: number;
     lastSync?: string;
   }> {
@@ -776,6 +843,7 @@ class OfflineDatabase {
     const nightlyCheckoutsCount = await this.db!.count('nightlyCheckouts');
     const timeBlocksCount = await this.db!.count('timeBlocks');
     const smokingTrackerCount = await this.db!.count('smokingTracker');
+    const dailyReflectionsCount = await this.db!.count('dailyReflections');
     const pendingActionsCount = await this.db!.count('offlineActions');
     const lastSync = await this.getSetting('lastSync');
 
@@ -788,6 +856,7 @@ class OfflineDatabase {
       nightlyCheckouts: nightlyCheckoutsCount,
       timeBlocks: timeBlocksCount,
       smokingTracker: smokingTrackerCount,
+      dailyReflections: dailyReflectionsCount,
       pendingActions: pendingActionsCount,
       lastSync
     };

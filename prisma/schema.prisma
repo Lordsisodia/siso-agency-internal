@@ -1,0 +1,156 @@
+// This is your Prisma schema file for "database in code" experience
+// It reflects your existing Supabase schema - safe to use for type generation
+// DO NOT RUN MIGRATIONS - this is for type safety only
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // Direct URL for migrations (if needed later)
+  directUrl = env("DIRECT_URL")
+}
+
+// Core LifeLock Tables
+model LightWorkTask {
+  id            String   @id @default(uuid())
+  userId        String   @map("user_id")
+  title         String
+  description   String?
+  priority      Priority @default(MEDIUM)
+  completed     Boolean  @default(false)
+  originalDate  DateTime @map("original_date") @db.Date
+  currentDate   DateTime @map("current_date") @db.Date
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  subtasks LightWorkSubtask[]
+
+  @@map("light_work_tasks")
+}
+
+model LightWorkSubtask {
+  id          String   @id @default(uuid())
+  taskId      String   @map("task_id")
+  title       String
+  completed   Boolean  @default(false)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  task LightWorkTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@map("light_work_subtasks")
+}
+
+model DeepWorkTask {
+  id            String   @id @default(uuid())
+  userId        String   @map("user_id")
+  title         String
+  description   String?
+  priority      Priority @default(MEDIUM)
+  completed     Boolean  @default(false)
+  originalDate  DateTime @map("original_date") @db.Date
+  currentDate   DateTime @map("current_date") @db.Date
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  subtasks DeepWorkSubtask[]
+
+  @@map("deep_work_tasks")
+}
+
+model DeepWorkSubtask {
+  id          String   @id @default(uuid())
+  taskId      String   @map("task_id")
+  title       String
+  completed   Boolean  @default(false)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  task DeepWorkTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@map("deep_work_subtasks")
+}
+
+model MorningRoutineTask {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  title       String
+  description String?
+  completed   Boolean  @default(false)
+  date        DateTime @db.Date
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("morning_routine_tasks")
+}
+
+model DailyReflection {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  date      DateTime @db.Date
+  content   String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("daily_reflections")
+}
+
+model UserFeedback {
+  id             String          @id @default(uuid())
+  userId         String          @map("user_id")
+  title          String
+  description    String
+  category       FeedbackCategory
+  priority       Priority
+  feedbackType   FeedbackType    @map("feedback_type")
+  page           String?
+  browserInfo    String?         @map("browser_info")
+  deviceInfo     String?         @map("device_info")
+  screenshots    String[]        @default([])
+  status         FeedbackStatus  @default(OPEN)
+  adminResponse  String?         @map("admin_response")
+  tags           String[]        @default([])
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @map("updated_at")
+  resolvedAt     DateTime?       @map("resolved_at")
+
+  @@map("user_feedback")
+}
+
+// Enums
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum FeedbackCategory {
+  UI_UX
+  PERFORMANCE
+  FEATURE_REQUEST
+  BUG_REPORT
+  GENERAL
+  MOBILE
+  ACCESSIBILITY
+}
+
+enum FeedbackType {
+  BUG
+  SUGGESTION
+  IMPROVEMENT
+  COMPLAINT
+  PRAISE
+}
+
+enum FeedbackStatus {
+  OPEN
+  REVIEWING
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
