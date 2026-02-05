@@ -1,13 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, X, TrendingUp, ChevronDown, ChevronUp, CheckCircle } from 'lucide-react';
+import { Plus, X, TrendingUp, ChevronDown, ChevronUp, CheckCircle, ArrowRight } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { XPPill } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/xp/XPPill';
 
 interface EvenBetterIfSectionProps {
   items: string[];
+  xp: number;
   onChange: (items: string[]) => void;
 }
 
@@ -60,7 +62,7 @@ const BulletItem = React.forwardRef<HTMLDivElement, BulletItemProps>(({
       className="flex items-start space-x-2 group"
     >
       <div className="flex items-center gap-2 mt-2.5 flex-shrink-0">
-        <span className="text-blue-400">{icon}</span>
+        <span className="text-purple-400">{icon}</span>
       </div>
       <Input
         ref={inputRef}
@@ -99,6 +101,7 @@ const BulletItem = React.forwardRef<HTMLDivElement, BulletItemProps>(({
 
 export const EvenBetterIfSection: React.FC<EvenBetterIfSectionProps> = ({
   items,
+  xp,
   onChange
 }) => {
   const [evenBetterIfItems, setEvenBetterIfItems] = useState<string[]>(
@@ -187,6 +190,11 @@ export const EvenBetterIfSection: React.FC<EvenBetterIfSectionProps> = ({
               )}
             </div>
             <div className="flex items-center gap-2">
+              <XPPill
+                xp={xp}
+                earned={hasContent}
+                showGlow={hasContent}
+              />
               {isExpanded ? (
                 <ChevronUp className="h-5 w-5 text-purple-400 flex-shrink-0" />
               ) : (
@@ -207,7 +215,7 @@ export const EvenBetterIfSection: React.FC<EvenBetterIfSectionProps> = ({
             <div className="flex justify-between items-center mt-1">
               <span className="text-xs text-purple-400/70 font-medium">{completedEvenBetterIf}/{evenBetterIfItems.length} captured</span>
               {hasContent && !isExpanded && (
-                <span className="text-xs text-green-400 font-semibold">✓ Complete</span>
+                <span className="text-xs text-green-400 font-semibold flex items-center gap-1"><CheckCircle className="h-3 w-3" /> Complete</span>
               )}
             </div>
           </div>
@@ -235,7 +243,7 @@ export const EvenBetterIfSection: React.FC<EvenBetterIfSectionProps> = ({
                         onRemove={() => removeEvenBetterIfItem(index)}
                         canRemove={evenBetterIfItems.length > 1}
                         placeholder="Something to improve..."
-                        icon={<span className="text-purple-400">→</span>}
+                        icon={<ArrowRight className="h-3 w-3 text-purple-400" />}
                       />
                     ))}
                   </AnimatePresence>

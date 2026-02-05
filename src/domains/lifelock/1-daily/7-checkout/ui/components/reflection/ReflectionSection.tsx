@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, X, CheckCircle2, TrendingUp, Lightbulb } from 'lucide-react';
+import { Plus, X, CheckCircle2, TrendingUp, Lightbulb, Check, ArrowRight } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -189,7 +189,7 @@ export const ReflectionSection: React.FC<ReflectionSectionProps> = ({
               <div className="flex items-center gap-2">
                 <CheckCircle2 className={cn(
                   "h-4 w-4 transition-colors",
-                  completedWentWell > 0 ? "text-green-400" : "text-purple-400"
+                  completedWentWell > 0 ? "text-purple-400" : "text-purple-400"
                 )} />
                 <h4 className="font-semibold text-purple-300">
                   What went well today?
@@ -206,7 +206,7 @@ export const ReflectionSection: React.FC<ReflectionSectionProps> = ({
               </Button>
             </div>
 
-            <div className="space-y-2 pl-4 border-l-2 border-green-700/30">
+            <div className="space-y-2 pl-4 border-l-2 border-purple-700/30">
               <AnimatePresence mode="popLayout">
                 {wentWellItems.map((item, index) => (
                   <BulletItem
@@ -217,7 +217,7 @@ export const ReflectionSection: React.FC<ReflectionSectionProps> = ({
                     onRemove={() => removeWentWellItem(index)}
                     canRemove={wentWellItems.length > 1}
                     placeholder="Something positive that happened..."
-                    icon={<span className="text-green-400">✓</span>}
+                    icon={<Check className="h-3 w-3 text-purple-400" />}
                   />
                 ))}
               </AnimatePresence>
@@ -233,7 +233,7 @@ export const ReflectionSection: React.FC<ReflectionSectionProps> = ({
               <div className="flex items-center gap-2">
                 <TrendingUp className={cn(
                   "h-4 w-4 transition-colors",
-                  completedEvenBetterIf > 0 ? "text-blue-400" : "text-purple-400"
+                  completedEvenBetterIf > 0 ? "text-purple-400" : "text-purple-400"
                 )} />
                 <h4 className="font-semibold text-purple-300">
                   Even better if...
@@ -250,7 +250,7 @@ export const ReflectionSection: React.FC<ReflectionSectionProps> = ({
               </Button>
             </div>
 
-            <div className="space-y-2 pl-4 border-l-2 border-blue-700/30">
+            <div className="space-y-2 pl-4 border-l-2 border-purple-700/30">
               <AnimatePresence mode="popLayout">
                 {evenBetterIfItems.map((item, index) => (
                   <BulletItem
@@ -261,7 +261,7 @@ export const ReflectionSection: React.FC<ReflectionSectionProps> = ({
                     onRemove={() => removeEvenBetterIfItem(index)}
                     canRemove={evenBetterIfItems.length > 1}
                     placeholder="Something that could improve..."
-                    icon={<span className="text-blue-400">→</span>}
+                    icon={<ArrowRight className="h-3 w-3 text-purple-400" />}
                   />
                 ))}
               </AnimatePresence>

@@ -37,7 +37,7 @@ export const PhotoCapture: React.FC<PhotoCaptureProps> = ({
       <Button
         onClick={() => cameraInputRef.current?.click()}
         disabled={isUploading}
-        className="bg-gradient-to-br from-pink-600/30 to-pink-700/30 border border-pink-500/50 text-pink-200 hover:from-pink-600/40 hover:to-pink-700/40 hover:border-pink-400/70 transition-all shadow-lg hover:shadow-pink-500/20"
+        className="bg-gradient-to-br from-green-600/30 to-green-700/30 border border-green-500/50 text-green-200 hover:from-green-600/40 hover:to-green-700/40 hover:border-green-400/70 transition-all shadow-lg hover:shadow-green-500/20"
         size="lg"
       >
         {isUploading ? (
@@ -57,7 +57,7 @@ export const PhotoCapture: React.FC<PhotoCaptureProps> = ({
       <Button
         onClick={() => fileInputRef.current?.click()}
         disabled={isUploading}
-        className="bg-gradient-to-br from-pink-600/30 to-pink-700/30 border border-pink-500/50 text-pink-200 hover:from-pink-600/40 hover:to-pink-700/40 hover:border-pink-400/70 transition-all shadow-lg hover:shadow-pink-500/20"
+        className="bg-gradient-to-br from-green-600/30 to-green-700/30 border border-green-500/50 text-green-200 hover:from-green-600/40 hover:to-green-700/40 hover:border-green-400/70 transition-all shadow-lg hover:shadow-green-500/20"
         size="lg"
       >
         <Upload className="h-5 w-5 mr-2" />

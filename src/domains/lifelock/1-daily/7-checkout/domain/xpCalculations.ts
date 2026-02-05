@@ -144,6 +144,104 @@ export function calculatePerfectCompletionBonus(isComplete: boolean): number {
 }
 
 /**
+ * Calculate meditation XP
+ * Base: 2 XP per minute, max 50 XP
+ * Quality multiplier: 0.5x to 1.5x
+ */
+export function calculateMeditationXP(minutes: number, quality: number): number {
+  if (minutes <= 0) return 0;
+
+  // Base XP: 2 XP per minute, capped at 50 XP
+  const baseXP = Math.min(minutes * 2, 50);
+
+  // Quality multiplier: 0.5x (quality 0) to 1.5x (quality 100)
+  // Quality is 0-100, map to 0.5-1.5 range
+  const qualityMultiplier = 0.5 + (quality / 100) * 1.0;
+
+  return Math.round(baseXP * qualityMultiplier);
+}
+
+/**
+ * Calculate workout XP
+ * Light: 10 XP
+ * Moderate 15-30min: 20 XP
+ * Moderate 30+ min OR Intense 15+ min: 30 XP
+ * Intense 45+ min: 40 XP
+ */
+export function calculateWorkoutXP(duration: number, intensity: string): number {
+  if (duration <= 0) return 0;
+
+  const intensityLower = intensity.toLowerCase();
+
+  if (intensityLower === 'light') {
+    return 10;
+  }
+
+  if (intensityLower === 'moderate') {
+    if (duration >= 30) return 30;
+    if (duration >= 15) return 20;
+    return 10;
+  }
+
+  if (intensityLower === 'intense') {
+    if (duration >= 45) return 40;
+    if (duration >= 15) return 30;
+    return 15;
+  }
+
+  // Default for unknown intensity
+  return duration >= 30 ? 20 : 10;
+}
+
+/**
+ * Calculate deep work XP
+ * Base: 10 XP for any deep work
+ * +5 XP per 30min (up to 2h)
+ * +10 XP bonus for flow state
+ */
+export function calculateDeepWorkXP(hours: number, flowState: boolean): number {
+  if (hours <= 0) return 0;
+
+  // Base XP for any deep work
+  let xp = 10;
+
+  // +5 XP per 30 minutes, capped at 2 hours (4 intervals)
+  const thirtyMinIntervals = Math.min(Math.floor(hours * 2), 4);
+  xp += thirtyMinIntervals * 5;
+
+  // Flow state bonus
+  if (flowState) {
+    xp += 10;
+  }
+
+  return xp;
+}
+
+/**
+ * Calculate research XP
+ * Base: 10 XP
+ * +5 XP per 30min (up to 2h)
+ * +10 XP for notes > 100 chars
+ */
+export function calculateResearchXP(hours: number, notesLength: number): number {
+  if (hours <= 0) return 0;
+
+  // Base XP
+  let xp = 10;
+
+  // +5 XP per 30 minutes, capped at 2 hours (4 intervals)
+  const thirtyMinIntervals = Math.min(Math.floor(hours * 2), 4);
+  xp += thirtyMinIntervals * 5;
+
+  // Notes bonus
+  if (notesLength > 100) {
+    xp += 10;
+  }
+
+  return xp;
+}
+
+/**
  * Calculate total nightly checkout XP
  */
 export function calculateTotalCheckoutXP(checkout: {

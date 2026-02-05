@@ -1,9 +1,9 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Circle, CheckCircle2, Plus, Zap } from 'lucide-react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Circle, CheckCircle2, Plus, Zap, Clock, ArrowRight, Flame, Leaf } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { TimeboxTask, TaskPosition, TIMEBOX_HOUR_HEIGHT } from '../../domain/types';
-import { getCategoryStyles } from '../../domain/utils';
+import { TimeboxTask, TaskPosition, TIMEBOX_HOUR_HEIGHT, TimeboxViewMode } from '../../domain/types';
+import { getCategoryStyles, getEnergyStyle, getEnergyColor, getEnergyBorder, getEnergyShadow } from '../../domain/utils';
 import { isAutoTimebox } from '@/domains/lifelock/_shared/services/autoTimeblockService';
 
 interface TimeboxTaskCardProps {
@@ -14,6 +14,8 @@ interface TimeboxTaskCardProps {
   swipingTaskId: string | null;
   swipeDirection: 'left' | 'right' | null;
   index: number;
+  isOverdue?: boolean;
+  viewMode?: TimeboxViewMode;
   onToggleComplete: (taskId: string) => void;
   onAddAfter: (task: TimeboxTask, minutes: number) => void;
   onDragStart: (taskId: string) => void;
@@ -23,6 +25,8 @@ interface TimeboxTaskCardProps {
   onPanEnd: (taskId: string, info: any) => void;
   onTaskClick: (task: TimeboxTask) => void;
   onTaskDoubleClick: (task: TimeboxTask) => void;
+  onPostponeTask?: (taskId: string, minutes: number) => void;
+  onMoveToNow?: (taskId: string) => void;
 }
 
 export const TimeboxTaskCard: React.FC<TimeboxTaskCardProps> = ({
@@ -33,6 +37,8 @@ export const TimeboxTaskCard: React.FC<TimeboxTaskCardProps> = ({
   swipingTaskId,
   swipeDirection,
   index,
+  isOverdue = false,
+  viewMode = 'category',
   onToggleComplete,
   onAddAfter,
   onDragStart,
@@ -41,9 +47,13 @@ export const TimeboxTaskCard: React.FC<TimeboxTaskCardProps> = ({
   onPan,
   onPanEnd,
   onTaskClick,
-  onTaskDoubleClick
+  onTaskDoubleClick,
+  onPostponeTask,
+  onMoveToNow
 }) => {
+  const [showOverdueActions, setShowOverdueActions] = useState(false);
   const categoryStyles = getCategoryStyles(task.category, task.completed);
+  const energyStyle = getEnergyStyle(task.intensity);
   const taskTitle = typeof task.title === 'string' ? task.title : '';
   const leadingEmojiMatch = taskTitle
     ? taskTitle.match(/^(\p{Extended_Pictographic}+)\s+(.*)$/u)
@@ -51,6 +61,33 @@ export const TimeboxTaskCard: React.FC<TimeboxTaskCardProps> = ({
   const leadingEmoji = leadingEmojiMatch?.[1] ?? null;
   const titleWithoutEmoji = leadingEmojiMatch?.[2] ?? taskTitle;
   const isAuto = isAutoTimebox(task);
+
+  // Render energy indicator (fire dots or leaf)
+  const renderEnergyIndicator = () => {
+    if (task.completed) return null;
+
+    const intensity = task.intensity || 'moderate';
+
+    if (intensity === 'light') {
+      return (
+        <div className="flex items-center gap-0.5" title="Light energy">
+          <Leaf className="h-3 w-3 text-green-400" />
+        </div>
+      );
+    }
+
+    const dotCount = energyStyle.dots;
+    return (
+      <div className="flex items-center gap-0.5" title={`${energyStyle.label} energy`}>
+        {Array.from({ length: dotCount }).map((_, i) => (
+          <Flame
+            key={i}
+            className={cn("h-3 w-3", energyStyle.color)}
+          />
+        ))}
+      </div>
+    );
+  };
 
   return (
     <motion.div
@@ -69,14 +106,21 @@ export const TimeboxTaskCard: React.FC<TimeboxTaskCardProps> = ({
         "bg-gradient-to-br shadow-xl border-2",
         "transition-all duration-500 hover:shadow-2xl overflow-hidden",
         "ring-0 ring-transparent hover:ring-2 hover:ring-white/20",
-        draggingTaskId === task.id && "scale-105 shadow-2xl ring-2 ring-blue-400/50 z-50",
+        draggingTaskId === task.id && "scale-105 shadow-2xl ring-2 ring-sky-400/50 z-50",
+        isOverdue && !task.completed && "border-l-2 border-l-red-400",
         task.completed
           ? "bg-gradient-to-br from-green-900/40 via-emerald-900/30 to-green-800/40"
-          : task.color,
-        categoryStyles.border,
-        categoryStyles.shadow,
+          : viewMode === 'energy'
+            ? getEnergyColor(task.intensity, task.completed)
+            : task.color,
+        viewMode === 'energy'
+          ? getEnergyBorder(task.intensity, task.completed)
+          : categoryStyles.border,
+        viewMode === 'energy'
+          ? getEnergyShadow(task.intensity, task.completed)
+          : categoryStyles.shadow,
         categoryStyles.glow,
-        !task.completed && categoryStyles.accent
+        !task.completed && (viewMode === 'energy' ? energyStyle.bg : categoryStyles.accent)
       )}
       style={{
         top: `${position.top}px`,
@@ -99,9 +143,9 @@ export const TimeboxTaskCard: React.FC<TimeboxTaskCardProps> = ({
         // Add subtle pulse for tasks near current time
         ...(Math.abs(position.top - (currentTimePosition || -1000)) < 60 && currentTimePosition >= 0 && !task.completed ? {
           boxShadow: [
-            "0 0 20px rgba(168, 85, 247, 0.3)",
-            "0 0 30px rgba(168, 85, 247, 0.5)",
-            "0 0 20px rgba(168, 85, 247, 0.3)"
+            "0 0 20px rgba(14, 165, 233, 0.3)",
+            "0 0 30px rgba(14, 165, 233, 0.5)",
+            "0 0 20px rgba(14, 165, 233, 0.3)"
           ]
         } : {})
       }}
@@ -124,6 +168,8 @@ export const TimeboxTaskCard: React.FC<TimeboxTaskCardProps> = ({
           stiffness: 400
         }
       }}
+      onHoverStart={() => isOverdue && !task.completed && setShowOverdueActions(true)}
+      onHoverEnd={() => setShowOverdueActions(false)}
       whileTap={{
         scale: 0.97,
         transition: { duration: 0.1 }
@@ -135,7 +181,7 @@ export const TimeboxTaskCard: React.FC<TimeboxTaskCardProps> = ({
       onDoubleClick={() => onTaskDoubleClick(task)}
       layout
     >
-      <div className="p-3 h-full flex flex-col justify-between relative overflow-hidden">
+      <div className="p-4 h-full flex flex-col justify-between relative overflow-hidden min-h-[80px]">
         {/* Swipe Action Visual Feedback */}
         {swipingTaskId === task.id && swipeDirection && (
           <motion.div
@@ -174,55 +220,118 @@ export const TimeboxTaskCard: React.FC<TimeboxTaskCardProps> = ({
           />
         )}
 
-        {/* Task header section - Compact & Clean */}
-        <div className="relative z-10 mb-auto space-y-2">
-          {/* Compact Top Row: Title + Checkbox + Duration Badge */}
-          <div className="flex items-start justify-between gap-2">
-            <div className="flex-1 min-w-0">
-              <h4 className={cn(
-                "font-semibold text-sm leading-snug transition-all duration-300 group-hover:text-white",
-                task.completed ? "text-green-100 line-through decoration-2 decoration-green-400/60" : "text-white"
-              )}>
-                {leadingEmoji ? (
-                  <span className="inline-flex items-center gap-1">
-                    <span>{leadingEmoji}</span>
-                    <span className="whitespace-pre-line">{titleWithoutEmoji}</span>
-                  </span>
-                ) : (
-                  titleWithoutEmoji
-                )}
-              </h4>
-              {/* Time slot in tiny text */}
-              <p className="text-[10px] text-white/50 mt-0.5 font-medium">
-                {task.startTime} - {task.endTime}
-              </p>
-              {!isAuto && task.wasAutoAdjusted && task.originalStartTime && task.originalEndTime && (
-                <p className="text-[10px] text-amber-300/80 mt-0.5 font-medium flex items-center gap-1">
-                  <span aria-hidden="true">↺</span>
-                  <span>
-                    Adjusted from {task.originalStartTime} – {task.originalEndTime}
-                  </span>
-                </p>
-              )}
-            </div>
+        {/* Task header section - Restructured Layout */}
+        <div className="relative z-10 flex flex-col h-full">
+          {/* First Line: Title (full width with reserved checkbox space) */}
+          <h4 className={cn(
+            "font-semibold text-sm leading-snug transition-all duration-300 group-hover:text-white pr-8",
+            task.completed ? "text-green-100 line-through decoration-2 decoration-green-400/60" : "text-white"
+          )}>
+            {leadingEmoji ? (
+              <span className="inline-flex items-center gap-1">
+                <span>{leadingEmoji}</span>
+                <span className="whitespace-pre-line">{titleWithoutEmoji}</span>
+              </span>
+            ) : (
+              titleWithoutEmoji
+            )}
+          </h4>
 
-            {/* Duration bubble / quick actions */}
-            <div className="flex items-center gap-1.5 flex-shrink-0">
-              {!isAuto && (
-                <motion.div
+          {/* Second Line: Time, Duration, and Energy Indicator (muted style) */}
+          <div className="flex items-center gap-2 mt-1 text-[11px] text-white/50">
+            <span>{task.startTime} - {task.endTime}</span>
+            {!isAuto && (
+              <span className="text-white/40">· {task.duration}m</span>
+            )}
+            {/* Energy indicator - shown in both views */}
+            {!task.completed && renderEnergyIndicator()}
+            {!isAuto && task.wasAutoAdjusted && task.originalStartTime && task.originalEndTime && (
+              <span className="text-amber-300/70 flex items-center gap-1">
+                <span aria-hidden="true">↺</span>
+                <span>Adjusted</span>
+              </span>
+            )}
+            {isOverdue && !task.completed && (
+              <span className="bg-red-500/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider">
+                OVERDUE
+              </span>
+            )}
+          </div>
+
+          {/* Overdue Quick Actions - Show on hover for overdue tasks */}
+          <AnimatePresence>
+            {isOverdue && !task.completed && showOverdueActions && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+                className="flex items-center gap-1.5 mt-2"
+              >
+                <motion.button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleComplete(task.id);
+                  }}
                   whileHover={{ scale: 1.05 }}
-                  className={cn(
-                    "px-2 py-0.5 rounded-full text-[10px] font-bold whitespace-nowrap",
-                    task.completed
-                      ? "bg-green-500/30 text-green-200 border border-green-400/50"
-                      : "bg-white/25 text-white border border-white/40"
-                  )}
+                  whileTap={{ scale: 0.95 }}
+                  className="flex items-center gap-1 px-2 py-1 bg-green-500/80 hover:bg-green-500 text-white text-[10px] font-medium rounded-md transition-colors"
                 >
-                  {task.duration}m
-                </motion.div>
-              )}
-            </div>
+                  <CheckCircle2 className="h-3 w-3" />
+                  Complete
+                </motion.button>
 
+                {onPostponeTask && (
+                  <motion.button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onPostponeTask(task.id, 30);
+                    }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="flex items-center gap-1 px-2 py-1 bg-amber-500/80 hover:bg-amber-500 text-white text-[10px] font-medium rounded-md transition-colors"
+                  >
+                    <Clock className="h-3 w-3" />
+                    +30m
+                  </motion.button>
+                )}
+
+                {onMoveToNow && (
+                  <motion.button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onMoveToNow(task.id);
+                    }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="flex items-center gap-1 px-2 py-1 bg-sky-500/80 hover:bg-sky-500 text-white text-[10px] font-medium rounded-md transition-colors"
+                  >
+                    <ArrowRight className="h-3 w-3" />
+                    Move to Now
+                  </motion.button>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Description - Only if exists and card is tall enough */}
+          {task.description && task.duration >= 45 && (
+            <div className="bg-black/20 border border-white/10 rounded-lg px-2 py-1.5 mt-2">
+              <p className={cn(
+                "text-[10px] leading-relaxed transition-all duration-300 line-clamp-2",
+                task.completed ? "text-green-200/70" : "text-white/60 group-hover:text-white/75"
+              )}>
+                {task.description}
+              </p>
+            </div>
+          )}
+
+          {/* Bottom Row: Add button (hover only) and Checkbox */}
+          <div className="flex items-center justify-end gap-2 mt-auto pt-2">
+            {/* Add button - only shows on hover */}
             {!isAuto && (
               <motion.button
                 type="button"
@@ -232,16 +341,16 @@ export const TimeboxTaskCard: React.FC<TimeboxTaskCardProps> = ({
                 }}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                className="p-1 rounded-full bg-white/20 hover:bg-white/30 border border-white/40 transition-colors flex-shrink-0"
+                className="p-1 rounded-full bg-white/20 hover:bg-white/30 border border-white/40 transition-all opacity-0 group-hover:opacity-100"
                 title="Add follow-up block"
               >
                 <Plus className="h-3 w-3 text-white" />
               </motion.button>
             )}
 
-            {/* Completion Checkbox */}
+            {/* Completion Checkbox - Bottom Right */}
             <motion.div
-              className="flex-shrink-0 cursor-pointer"
+              className="cursor-pointer"
               whileHover={{ scale: 1.15, rotate: 5 }}
               whileTap={{ scale: 0.9 }}
               onClick={(e) => {
@@ -263,18 +372,6 @@ export const TimeboxTaskCard: React.FC<TimeboxTaskCardProps> = ({
               )}
             </motion.div>
           </div>
-
-          {/* Description in Subtle Box - Only if exists and card is tall enough */}
-          {task.description && task.duration >= 45 && (
-            <div className="bg-black/20 border border-white/10 rounded-lg px-2 py-1.5 mt-1">
-              <p className={cn(
-                "text-[10px] leading-relaxed transition-all duration-300 line-clamp-2",
-                task.completed ? "text-green-200/70" : "text-white/60 group-hover:text-white/75"
-              )}>
-                {task.description}
-              </p>
-            </div>
-          )}
         </div>
       </div>
     </motion.div>

@@ -34,16 +34,16 @@ export const XPPill: React.FC<XPPillProps> = ({ xp, earned, emoji, showGlow = fa
       };
     } else if (amount >= 50) {
       return {
-        bg: 'bg-blue-500/20',
-        text: 'text-blue-300',
-        border: 'border-blue-500/40',
+        bg: 'bg-orange-500/20',
+        text: 'text-orange-300',
+        border: 'border-orange-500/40',
         emoji: '⚡'
       };
     } else if (amount >= 25) {
       return {
-        bg: 'bg-green-500/20',
-        text: 'text-green-300',
-        border: 'border-green-500/40',
+        bg: 'bg-amber-500/20',
+        text: 'text-amber-300',
+        border: 'border-amber-500/40',
         emoji: '✨'
       };
     } else {

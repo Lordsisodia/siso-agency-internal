@@ -271,7 +271,7 @@ export const PlanningAssistant: React.FC<PlanningAssistantProps> = ({
           animate={{ scale: 1, rotate: 0 }}
           transition={{ type: 'spring', stiffness: 260, damping: 20 }}
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-24 right-6 z-50 w-14 h-14 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 rounded-full shadow-2xl flex items-center justify-center text-white"
+          className="fixed bottom-24 right-6 z-50 w-14 h-14 bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 rounded-full shadow-2xl flex items-center justify-center text-white"
         >
           <Sparkles className="w-6 h-6" />
         </motion.button>
@@ -288,7 +288,7 @@ export const PlanningAssistant: React.FC<PlanningAssistantProps> = ({
             className="fixed bottom-24 right-6 z-50 w-[calc(100%-3rem)] sm:w-96 h-[600px] max-h-[70vh] bg-gray-900 rounded-2xl shadow-2xl border border-gray-700 flex flex-col overflow-hidden"
           >
             {/* Header */}
-            <div className="bg-gradient-to-r from-purple-600 to-blue-600 px-4 py-3 flex items-center justify-between">
+            <div className="bg-gradient-to-r from-sky-600 to-blue-600 px-4 py-3 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-white" />
                 <span className="text-white font-semibold">Planning Assistant</span>
@@ -313,13 +313,13 @@ export const PlanningAssistant: React.FC<PlanningAssistantProps> = ({
                   <div
                     className={`max-w-[80%] rounded-2xl px-4 py-2 ${
                       message.role === 'user'
-                        ? 'bg-blue-600 text-white'
+                        ? 'bg-sky-600 text-white'
                         : 'bg-gray-800 text-gray-100'
                     }`}
                   >
                     <div className="flex items-start gap-2">
                       {message.role === 'assistant' && (
-                        <Sparkles className="w-4 h-4 text-purple-400 mt-0.5 flex-shrink-0" />
+                        <Sparkles className="w-4 h-4 text-sky-400 mt-0.5 flex-shrink-0" />
                       )}
                       <div className="flex-1">
                         <p className="text-sm whitespace-pre-wrap break-words">
@@ -333,7 +333,7 @@ export const PlanningAssistant: React.FC<PlanningAssistantProps> = ({
                         )}
                       </div>
                       {message.role === 'user' && (
-                        <User className="w-4 h-4 text-blue-300 mt-0.5 flex-shrink-0" />
+                        <User className="w-4 h-4 text-sky-300 mt-0.5 flex-shrink-0" />
                       )}
                     </div>
                     <div className="text-[10px] opacity-50 mt-1">
@@ -354,7 +354,7 @@ export const PlanningAssistant: React.FC<PlanningAssistantProps> = ({
                       {[0, 1, 2].map((i) => (
                         <motion.div
                           key={i}
-                          className="w-2 h-2 bg-purple-400 rounded-full"
+                          className="w-2 h-2 bg-sky-400 rounded-full"
                           animate={{
                             scale: [1, 1.2, 1],
                             opacity: [0.5, 1, 0.5],
@@ -442,7 +442,7 @@ export const PlanningAssistant: React.FC<PlanningAssistantProps> = ({
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Type or speak your plan..."
-                  className="flex-1 bg-gray-800 text-white text-sm rounded-full px-4 py-2 outline-none focus:ring-2 focus:ring-purple-500 placeholder-gray-500"
+                  className="flex-1 bg-gray-800 text-white text-sm rounded-full px-4 py-2 outline-none focus:ring-2 focus:ring-sky-500 placeholder-gray-500"
                   disabled={isProcessing}
                 />
                 <button

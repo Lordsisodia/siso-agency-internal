@@ -9,7 +9,18 @@ import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { useAuth } from '@clerk/clerk-react';
 import { useDailyReflections } from '@/domains/lifelock/1-daily/5-stats/domain/useDailyReflections';
-import { calculateTotalCheckoutXP } from '../../domain/xpCalculations';
+import { useDeepWorkTasksSupabase, type DeepWorkTask } from '@/domains/lifelock/1-daily/4-deep-work/domain/useDeepWorkTasksSupabase';
+import {
+  calculateTotalCheckoutXP,
+  calculateWentWellXP,
+  calculateEvenBetterIfXP,
+  calculateTomorrowTasksXP,
+  calculateBedTimeXP,
+  calculateMeditationXP,
+  calculateWorkoutXP,
+  calculateDeepWorkXP,
+  calculateResearchXP
+} from '../../domain/xpCalculations';
 import { GamificationService } from '@/domains/lifelock/_shared/services/gamificationService';
 
 // Import new components
@@ -26,7 +37,8 @@ interface NightlyCheckoutSectionProps {
 // Types for the new data structure
 interface MeditationValue {
   minutes: number;
-  quality: number;
+  focusLevel: 'distracted' | 'somewhat-focused' | 'deeply-present' | null;
+  feelingAfter: 'more-stressed' | 'same' | 'more-calm' | 'transformed' | null;
 }
 
 interface WorkoutValue {
@@ -37,16 +49,14 @@ interface WorkoutValue {
 }
 
 interface NutritionValue {
-  calories: number;
   protein: number;
-  carbs: number;
-  fats: number;
   hitGoal: boolean;
 }
 
 interface DeepWorkValue {
   hours: number;
   quality: number;
+  flowState?: 'distracted' | 'focused' | 'flow';
 }
 
 interface ResearchValue {
@@ -104,12 +114,15 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
     saveReflection
   } = useDailyReflections({ selectedDate, includePreviousDay: true });
 
+  // Fetch deep work tasks for auto-calculation
+  const { tasks: deepWorkTasks, loading: deepWorkLoading } = useDeepWorkTasksSupabase({ selectedDate });
+
   // Initialize checkout data with default values
   const [checkoutData, setCheckoutData] = useState<CheckoutData>({
     // Metrics
-    meditation: { minutes: 0, quality: 50 },
+    meditation: { minutes: 0, focusLevel: null, feelingAfter: null },
     workout: { completed: false, type: '', duration: 0, intensity: '' },
-    nutrition: { calories: 0, protein: 0, carbs: 0, fats: 0, hitGoal: false },
+    nutrition: { protein: 0, hitGoal: false },
     deepWork: { hours: 0, quality: 50 },
     research: { hours: 0, topic: '', notes: '' },
     sleep: { hours: 0, bedTime: '', wakeTime: '', quality: 50 },
@@ -134,14 +147,33 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
   const [hasUserEdited, setHasUserEdited] = useState(false);
   const [previousCheckoutXP, setPreviousCheckoutXP] = useState(0);
 
+  // Calculate completed deep work hours from tasks
+  const { autoCalculatedDeepWorkHours, completedDeepWorkTaskCount } = useMemo(() => {
+    if (!deepWorkTasks || deepWorkTasks.length === 0) {
+      return { autoCalculatedDeepWorkHours: 0, completedDeepWorkTaskCount: 0 };
+    }
+
+    const completedTasks = deepWorkTasks.filter(task => task.completed);
+    const totalMinutes = completedTasks.reduce((sum, task) => {
+      // Use actual duration if available, otherwise fall back to estimated duration
+      const duration = task.actualDurationMin || task.estimatedDuration || 0;
+      return sum + duration;
+    }, 0);
+
+    return {
+      autoCalculatedDeepWorkHours: Math.round((totalMinutes / 60) * 10) / 10, // Round to 1 decimal
+      completedDeepWorkTaskCount: completedTasks.length
+    };
+  }, [deepWorkTasks]);
+
   // Sync local state with Supabase data when reflection loads
   useEffect(() => {
     if (reflection) {
       setCheckoutData({
         // Metrics
-        meditation: reflection.meditation || { minutes: 0, quality: 50 },
+        meditation: reflection.meditation || { minutes: 0, focusLevel: null, feelingAfter: null },
         workout: reflection.workout || { completed: false, type: '', duration: 0, intensity: '' },
-        nutrition: reflection.nutrition || { calories: 0, protein: 0, carbs: 0, fats: 0, hitGoal: false },
+        nutrition: reflection.nutrition || { protein: 0, hitGoal: false },
         deepWork: reflection.deepWork || { hours: 0, quality: 50 },
         research: reflection.research || { hours: 0, topic: '', notes: '' },
         sleep: reflection.sleep || { hours: 0, bedTime: reflection.bedTime || '', wakeTime: '', quality: 50 },
@@ -189,7 +221,7 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
     // Metrics (6 metrics - count if any data entered)
     if (checkoutData.meditation.minutes > 0) completed++;
     if (checkoutData.workout.completed) completed++;
-    if (checkoutData.nutrition.calories > 0) completed++;
+    if (checkoutData.nutrition.protein > 0) completed++;
     if (checkoutData.deepWork.hours > 0) completed++;
     if (checkoutData.research.hours > 0) completed++;
     if (checkoutData.sleep.hours > 0 || checkoutData.sleep.bedTime) completed++;
@@ -212,19 +244,56 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
     return Math.min((completed / total) * 100, 100);
   }, [checkoutData]);
 
+  // Calculate protein-tier XP based on intake
+  const calculateNutritionXP = (protein: number): number => {
+    if (protein >= 150) return 25; // Elite tier
+    if (protein >= 100) return 20; // Advanced tier
+    if (protein >= 50) return 15;  // Solid tier
+    if (protein > 0) return 5;     // Starter tier
+    return 0;                      // No protein logged
+  };
+
+  // Calculate per-section XP breakdown for display on cards
+  const sectionXP = useMemo(() => {
+    return {
+      wentWell: calculateWentWellXP(checkoutData.wentWell),
+      evenBetterIf: calculateEvenBetterIfXP(checkoutData.evenBetterIf),
+      tomorrowTasks: calculateTomorrowTasksXP(checkoutData.topTasks),
+      bedTime: calculateBedTimeXP(checkoutData.sleep.bedTime),
+      // Per-metric XP using tiered calculations
+      // TODO: Update calculateMeditationXP to use focusLevel and feelingAfter instead of quality
+      meditation: calculateMeditationXP(checkoutData.meditation.minutes, 75), // Default quality for now
+      workout: calculateWorkoutXP(checkoutData.workout.duration, checkoutData.workout.intensity),
+      nutrition: calculateNutritionXP(checkoutData.nutrition.protein),
+      deepWork: calculateDeepWorkXP(checkoutData.deepWork.hours, checkoutData.deepWork.quality >= 70),
+      research: calculateResearchXP(checkoutData.research.hours, checkoutData.research.notes.length),
+      sleep: checkoutData.sleep.hours > 0 ? 25 : 0
+    };
+  }, [checkoutData]);
+
   // Calculate XP for this checkout
   const checkoutXP = useMemo(() => {
-    // Use a simple calculation based on completion
-    const baseXP = Math.round(checkoutProgress / 10); // Up to 10 XP for completion
-    const streakBonus = currentStreak * 0.5; // 0.5 XP per streak day
+    // Sum all section XP values
+    const metricsXP = sectionXP.meditation + sectionXP.workout + sectionXP.nutrition +
+                      sectionXP.deepWork + sectionXP.research + sectionXP.sleep;
+    const reflectionXP = sectionXP.wentWell + sectionXP.evenBetterIf;
+    const planningXP = sectionXP.tomorrowTasks + sectionXP.bedTime;
+
+    const subtotal = metricsXP + reflectionXP + planningXP;
+
+    // Streak bonus: +2 XP per day, cap at 50 XP
+    const streakBonus = Math.min(currentStreak * 2, 50);
+
     return {
-      total: Math.round(baseXP + streakBonus),
+      total: subtotal + streakBonus,
       breakdown: {
-        completion: baseXP,
-        streak: Math.round(streakBonus * 10) / 10
+        metrics: metricsXP,
+        reflection: reflectionXP,
+        planning: planningXP,
+        streak: streakBonus
       }
     };
-  }, [checkoutProgress, currentStreak]);
+  }, [sectionXP, currentStreak]);
 
   // Save to Supabase with debouncing
   useEffect(() => {
@@ -311,61 +380,28 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
 
   return (
     <div className="min-h-screen w-full bg-siso-bg relative overflow-x-hidden">
-      <div className="w-full px-2 sm:px-4 md:px-6 lg:px-8 space-y-6">
+      <div className="w-full max-w-none p-4 sm:p-6 space-y-4">
 
         {/* Page Header - Title, Icon, Subtext */}
-        <div className="px-5 py-5 border-b border-white/10">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0">
-                <Moon className="h-7 w-7 text-purple-400" aria-hidden="true" />
+        <div className="px-3 py-4 border-b border-white/10">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0">
+                <Moon className="h-4 w-4 text-purple-400" aria-hidden="true" />
               </div>
               <div className="min-w-0">
-                <h1 className="text-2xl font-bold text-white tracking-tight">Nightly Checkout</h1>
-                <p className="text-sm text-white/60 mt-0.5">Reflect on your day</p>
+                <h1 className="text-lg font-semibold text-white tracking-tight">Nightly Checkout</h1>
+                <p className="text-xs text-white/60">Reflect on your day</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <div className="text-right">
-                <div className="text-2xl font-bold text-purple-400">{checkoutXP.total} XP</div>
+                <div className="text-lg font-semibold text-purple-400">{checkoutXP.total} XP</div>
                 <div className="text-xs text-purple-400/70">{Math.round(checkoutProgress)}% complete</div>
               </div>
             </div>
           </div>
         </div>
-
-        {/* Streak Counter + XP Display Card */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <div className="w-full">
-            <Card className="mx-0 sm:mx-2 md:mx-4 bg-gradient-to-r from-purple-900/40 to-pink-900/40 border-purple-700/30">
-              <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="text-center">
-                    <div className="flex items-center space-x-2 mb-1">
-                      <span className="text-3xl">🔥</span>
-                      <span className="text-3xl font-bold text-purple-200">{currentStreak}</span>
-                    </div>
-                    <p className="text-xs text-purple-400">Day Streak</p>
-                  </div>
-                  <div className="h-12 w-px bg-purple-700/50"></div>
-                  <div className="text-center">
-                    <div className="flex items-center space-x-2 mb-1">
-                      <Zap className="h-6 w-6 text-yellow-400" />
-                      <span className="text-3xl font-bold text-yellow-400">+{checkoutXP.total}</span>
-                    </div>
-                    <p className="text-xs text-yellow-300">XP Tonight</p>
-                  </div>
-                </div>
-                <Award className="h-8 w-8 text-purple-400 opacity-50" />
-              </div>
-            </CardContent>
-          </Card>
-          </div>
-        </motion.div>
 
         {/* Accountability Card (if yesterday's focus exists) */}
         {yesterdayReflection?.tomorrowFocus && (
@@ -375,7 +411,7 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
             transition={{ delay: 0.1 }}
           >
             <div className="w-full">
-              <Card className="mx-0 sm:mx-2 md:mx-4 bg-yellow-900/20 border-l-4 border-yellow-500">
+              <Card className="bg-yellow-900/20 border-l-4 border-yellow-500">
               <CardContent className="p-4">
                 <div className="flex items-start space-x-3">
                   <TrendingUp className="h-5 w-5 text-yellow-400 mt-1 flex-shrink-0" />
@@ -387,7 +423,7 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
                       "{yesterdayReflection.tomorrowFocus}"
                     </p>
                     <p className="text-yellow-400 text-xs mt-2">
-                      Did you follow through? 🎯
+                      Did you follow through?
                     </p>
                   </div>
                 </div>
@@ -405,6 +441,7 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
         >
           <WentWellSection
             items={checkoutData.wentWell}
+            xp={sectionXP.wentWell}
             onChange={(items) => updateCheckoutData({ wentWell: items })}
           />
         </motion.div>
@@ -417,6 +454,7 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
         >
           <EvenBetterIfSection
             items={checkoutData.evenBetterIf}
+            xp={sectionXP.evenBetterIf}
             onChange={(items) => updateCheckoutData({ evenBetterIf: items })}
           />
         </motion.div>
@@ -431,6 +469,7 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
             nonNegotiables={checkoutData.nonNegotiables}
             tomorrowFocus={checkoutData.tomorrowFocus}
             topTasks={checkoutData.topTasks}
+            xp={sectionXP.tomorrowTasks}
             onChange={(updates) => updateCheckoutData(updates)}
           />
         </motion.div>
@@ -448,8 +487,11 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
             deepWork={checkoutData.deepWork}
             research={checkoutData.research}
             sleep={checkoutData.sleep}
+            xpBreakdown={sectionXP}
             saving={isSaving}
             onChange={(updates) => updateCheckoutData(updates)}
+            autoCalculatedDeepWorkHours={autoCalculatedDeepWorkHours}
+            completedDeepWorkTaskCount={completedDeepWorkTaskCount}
           />
         </motion.div>
 

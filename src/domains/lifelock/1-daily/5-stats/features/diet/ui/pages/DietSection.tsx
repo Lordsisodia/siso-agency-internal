@@ -1,16 +1,17 @@
 /**
  * Diet Section Page
  *
- * Placeholder for diet tracking features
+ * AI-powered nutrition tracking with photo analysis
  */
 
-export const DietSection = () => {
-  return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">Diet Tracking</h2>
-      <p className="text-muted-foreground">Diet tracking features coming soon.</p>
-    </div>
-  );
+import { PhotoNutritionTracker } from '@/domains/lifelock/1-daily/5-stats/features/wellness/features/photo-nutrition/components';
+
+interface DietSectionProps {
+  selectedDate?: Date;
+}
+
+export const DietSection = ({ selectedDate = new Date() }: DietSectionProps) => {
+  return <PhotoNutritionTracker selectedDate={selectedDate} />;
 };
 
 export default DietSection;

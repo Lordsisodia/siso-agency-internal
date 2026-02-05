@@ -206,6 +206,43 @@ export const SLATE_THEME: ThemeConfig = {
   }
 };
 
+export const AMBER_THEME: ThemeConfig = {
+  colors: {
+    bg: 'bg-amber-900/10',
+    border: 'border-amber-700/30',
+    bgHover: 'hover:bg-amber-900/15',
+    borderHover: 'hover:border-amber-600/40',
+    text: 'text-amber-100',
+    textSecondary: 'text-amber-300',
+    textMuted: 'text-amber-200/80',
+    divider: 'border-amber-600/50',
+    inputBg: 'bg-amber-900/40',
+    inputBorder: 'border-amber-600/50',
+    inputFocusBorder: 'focus:border-amber-400',
+    buttonBg: 'text-amber-300 hover:text-amber-200 hover:bg-amber-900/20 border-amber-700/30 hover:border-amber-600/40',
+    buttonText: 'text-amber-300',
+    calendarBg: 'bg-amber-950/95',
+    calendarBorder: 'border-amber-700/60',
+    priorityMenuBg: 'bg-amber-950/95',
+    priorityMenuBorder: 'border-amber-700/60',
+    priorityActive: 'bg-amber-800/40 text-amber-100',
+    priorityInactive: 'text-amber-200 hover:bg-amber-800/30',
+    priorityHover: 'hover:bg-amber-900/25',
+    timerActiveBg: 'bg-amber-900/30',
+    timerActiveText: 'text-amber-200',
+    timerActiveBorder: 'border-amber-700/60',
+    timerBg: 'bg-amber-900/20',
+    timerText: 'text-amber-200',
+    timerBorder: 'border-amber-700/50',
+    deleteButton: 'text-amber-400/70 hover:text-red-400',
+    deleteButtonHover: 'hover:bg-amber-900/25',
+  },
+  icons: {
+    inProgress: 'text-amber-400',
+    checkbox: 'text-amber-400/60',
+  }
+};
+
 const TASK_PRIORITY_CONFIG: Record<string, { icon: string; label: string; badgeClass: string }> = {
   low: { icon: '🟢', label: 'Low', badgeClass: 'text-green-200 bg-green-900/20 hover:bg-green-900/30' },
   medium: { icon: '🟡', label: 'Medium', badgeClass: 'text-yellow-200 bg-yellow-900/20 hover:bg-yellow-900/30' },
@@ -237,6 +274,7 @@ interface UnifiedTaskCardProps {
   showCompletedSubtasks: { [taskId: string]: boolean };
   clientMap?: Map<string, string>;
   sortSubtasks?: (subtasks: UnifiedSubtask[]) => UnifiedSubtask[];
+  workType?: 'light' | 'deep';
   // Handlers
   onToggleTaskStatus: (taskId: string) => void;
   onToggleExpansion: (taskId: string) => void;
@@ -272,7 +310,7 @@ interface UnifiedTaskCardProps {
   onNewSubtaskKeyDown: (e: React.KeyboardEvent, taskId: string) => void;
   formatMsAsClock?: (ms: number) => string;
   getTaskTimeSummary?: (task: UnifiedTask) => { totalMinutes: number; formatted: string };
-  themeName?: 'LIGHT' | 'DEEP';
+  themeName?: 'LIGHT' | 'DEEP' | 'AMBER';
 }
 
 export function UnifiedTaskCard({
@@ -334,6 +372,7 @@ export function UnifiedTaskCard({
   formatMsAsClock,
   getTaskTimeSummary,
   themeName = 'DEEP',
+  workType,
 }: UnifiedTaskCardProps) {
   const priorityConfig = TASK_PRIORITY_CONFIG[task.priority?.toLowerCase()] || TASK_PRIORITY_CONFIG['medium'];
 
@@ -400,7 +439,7 @@ export function UnifiedTaskCard({
       variants={taskVariants}
     >
       {/* Task Container */}
-      <div className={`group ${theme.colors.bg} ${theme.colors.border} ${theme.colors.bgHover} ${theme.colors.borderHover} hover:shadow-${themeName === 'LIGHT' ? 'green' : 'blue'}-500/5 rounded-xl transition-all duration-300 hover:shadow-lg`}>
+      <div className={`group ${theme.colors.bg} ${theme.colors.border} ${theme.colors.bgHover} ${theme.colors.borderHover} hover:shadow-${themeName === 'LIGHT' ? 'green' : themeName === 'AMBER' ? 'amber' : 'blue'}-500/5 rounded-xl transition-all duration-300 hover:shadow-lg`}>
         {/* Task Header */}
         <div className="p-3 sm:p-4">
           <div className="flex items-center gap-3">
@@ -508,6 +547,17 @@ export function UnifiedTaskCard({
                 <span>{priorityConfig.icon}</span>
                 <span>{priorityConfig.label}</span>
               </button>
+
+              {/* Work Type Badge */}
+              {workType && (
+                <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                  workType === 'light'
+                    ? 'bg-green-900/30 text-green-300 border border-green-700/40'
+                    : 'bg-blue-900/30 text-blue-300 border border-blue-700/40'
+                }`}>
+                  {workType === 'light' ? 'Light' : 'Deep'}
+                </span>
+              )}
 
               {/* Client Badge (Deep Work only) */}
               {task.clientId && clientMap && clientMap.has(task.clientId) && (
@@ -696,8 +746,8 @@ export function UnifiedTaskCard({
                         themeConfig={{
                           colors: {
                             text: theme.colors.textSecondary,
-                            border: themeName === 'LIGHT' ? 'border-green-400' : 'border-blue-400',
-                            input: 'border-gray-600 focus:border-' + (themeName === 'LIGHT' ? 'green' : 'blue') + '-400',
+                            border: themeName === 'LIGHT' ? 'border-green-400' : themeName === 'AMBER' ? 'border-amber-400' : 'border-blue-400',
+                            input: 'border-gray-600 focus:border-' + (themeName === 'LIGHT' ? 'green' : themeName === 'AMBER' ? 'amber' : 'blue') + '-400',
                             textSecondary: theme.colors.textSecondary,
                           }
                         }}

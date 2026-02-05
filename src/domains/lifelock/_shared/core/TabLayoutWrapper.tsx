@@ -34,9 +34,9 @@ const TAB_COLORS: Record<string, string> = {
   'work': 'text-blue-400',           // Deep work - blue
   'health': 'text-rose-400',         // Health - rose
   'tasks': 'text-amber-400',         // Tasks - amber
-  'plan': 'text-purple-400',         // Plan - purple
+  'plan': 'text-sky-400',            // Plan - sky blue
   'diet': 'text-green-400',          // Diet - green
-  'timebox': 'text-purple-400',       // Timebox (for backward compat)
+  'timebox': 'text-sky-400',          // Timebox - sky blue
   'checkout': 'text-purple-400'      // Checkout - purple
 };
 
@@ -47,9 +47,9 @@ const TAB_BG_COLORS: Record<string, string> = {
   'work': 'bg-blue-400/20',           // Deep work - light blue
   'health': 'bg-rose-400/20',         // Health - light rose
   'tasks': 'bg-amber-400/20',         // Tasks - light amber
-  'plan': 'bg-purple-400/20',         // Plan - light purple
+  'plan': 'bg-sky-400/20',            // Plan - light sky blue
   'diet': 'bg-green-400/20',          // Diet - light green
-  'timebox': 'bg-purple-400/20',      // Timebox (for backward compat)
+  'timebox': 'bg-sky-400/20',         // Timebox - light sky blue
   'checkout': 'bg-purple-400/20'      // Checkout - light purple
 };
 
@@ -63,12 +63,12 @@ const ACCENT_LINE_COLORS: Record<string, { from: string; via: string; to: string
   'fitness': { from: 'from-rose-500/60', via: 'via-red-500/60', to: 'to-rose-600/60', shadow: 'shadow-rose-500/20' },
   'smoking': { from: 'from-purple-500/60', via: 'via-pink-500/60', to: 'to-purple-600/60', shadow: 'shadow-purple-500/20' },
   'tasks': { from: 'from-amber-500/60', via: 'via-yellow-500/60', to: 'to-amber-600/60', shadow: 'shadow-amber-500/20' },
-  'plan': { from: 'from-purple-500/60', via: 'via-purple-600/60', to: 'to-purple-700/60', shadow: 'shadow-purple-500/20' },
+  'plan': { from: 'from-sky-500/60', via: 'via-sky-600/60', to: 'to-sky-700/60', shadow: 'shadow-sky-500/20' },
   'diet': { from: 'from-green-500/60', via: 'via-emerald-500/60', to: 'to-green-600/60', shadow: 'shadow-green-500/20' },
   'photo': { from: 'from-green-500/60', via: 'via-emerald-500/60', to: 'to-green-600/60', shadow: 'shadow-green-500/20' },
   'meals': { from: 'from-green-500/60', via: 'via-emerald-500/60', to: 'to-green-600/60', shadow: 'shadow-green-500/20' },
   'macros': { from: 'from-green-500/60', via: 'via-emerald-500/60', to: 'to-green-600/60', shadow: 'shadow-green-500/20' },
-  'timebox': { from: 'from-purple-500/60', via: 'via-purple-600/60', to: 'to-purple-700/60', shadow: 'shadow-purple-500/20' },
+  'timebox': { from: 'from-sky-500/60', via: 'via-sky-600/60', to: 'to-sky-700/60', shadow: 'shadow-sky-500/20' },
   'checkout': { from: 'from-purple-500/60', via: 'via-purple-600/60', to: 'to-purple-700/60', shadow: 'shadow-purple-500/20' }
 };
 

@@ -32,18 +32,18 @@ export const TimeboxStats: React.FC<TimeboxStatsProps> = ({
         <Card className="bg-transparent border-gray-800/30 rounded-2xl">
           <CardContent className="p-3">
             <div className="flex items-center space-x-2.5">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center shadow-md">
+              <div className="w-8 h-8 bg-gradient-to-r from-sky-500 to-blue-500 rounded-lg flex items-center justify-center shadow-md">
                 <Target className="h-4 w-4 text-white" />
               </div>
               <div>
                 <h3 className="text-base font-semibold text-white">Today's Focus</h3>
                 <div className="flex items-center space-x-3 text-xs text-gray-300">
                   <span className="flex items-center space-x-1">
-                    <Target className="h-3 w-3 text-blue-400" />
+                    <Target className="h-3 w-3 text-sky-400" />
                     <span>{validTasks.length} tasks</span>
                   </span>
                   <span className="flex items-center space-x-1">
-                    <Clock className="h-3 w-3 text-purple-400" />
+                    <Clock className="h-3 w-3 text-sky-400" />
                     <span>{Math.round(validTasks.reduce((acc, task) => acc + task.duration, 0) / 60)}h planned</span>
                   </span>
                   <span className="flex items-center space-x-1">
@@ -95,9 +95,9 @@ export const TimeboxStats: React.FC<TimeboxStatsProps> = ({
                     className="mt-3 grid grid-cols-3 gap-2 text-center overflow-hidden"
                   >
                     {/* Deep Work Comparison */}
-                    <div className="bg-blue-900/20 border border-blue-700/30 rounded-lg p-2">
+                    <div className="bg-sky-900/20 border border-sky-700/30 rounded-lg p-2">
                       <div className="text-[10px] text-gray-400 mb-1">Deep Work</div>
-                      <div className="text-sm font-bold text-blue-300">{todayStats.deepWorkHours}h</div>
+                      <div className="text-sm font-bold text-sky-300">{todayStats.deepWorkHours}h</div>
                       {parseFloat(yesterdayStats.deepWorkHours) > 0 && (
                         <div className={cn(
                           "text-[9px] font-medium mt-1",

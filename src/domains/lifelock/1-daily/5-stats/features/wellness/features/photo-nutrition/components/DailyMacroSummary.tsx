@@ -45,18 +45,18 @@ export const DailyMacroSummary: React.FC<DailyMacroSummaryProps> = ({
     return (
       <div>
         <div className="flex justify-between items-baseline mb-2">
-          <span className="text-sm font-medium text-pink-200">{label}</span>
+          <span className="text-sm font-medium text-green-200">{label}</span>
           <div className="text-right">
-            <span className="text-xl font-bold text-pink-100">{value}</span>
-            <span className="text-sm text-pink-400 ml-1">{unit}</span>
+            <span className="text-xl font-bold text-green-100">{value}</span>
+            <span className="text-sm text-green-400 ml-1">{unit}</span>
             {goal && (
-              <span className="text-xs text-pink-500 ml-2">/ {goal}{unit}</span>
+              <span className="text-xs text-green-500 ml-2">/ {goal}{unit}</span>
             )}
           </div>
         </div>
 
         {goal && (
-          <div className="w-full bg-pink-950/50 rounded-full h-2 overflow-hidden">
+          <div className="w-full bg-green-950/50 rounded-full h-2 overflow-hidden">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
@@ -73,15 +73,15 @@ export const DailyMacroSummary: React.FC<DailyMacroSummaryProps> = ({
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-gradient-to-br from-pink-900/30 to-pink-950/30 border-2 border-pink-600/40 rounded-xl p-6"
+      className="bg-gradient-to-br from-green-900/30 to-green-950/30 border-2 border-green-600/40 rounded-xl p-6"
     >
       {/* Header */}
       <div className="flex items-center gap-2 mb-6">
-        <TrendingUp className="h-5 w-5 text-pink-400" />
-        <h3 className="text-lg font-semibold text-pink-300">
+        <TrendingUp className="h-5 w-5 text-green-400" />
+        <h3 className="text-lg font-semibold text-green-300">
           Daily Totals
         </h3>
-        <span className="ml-auto text-xs text-pink-500 bg-pink-950/50 px-2 py-1 rounded-full">
+        <span className="ml-auto text-xs text-green-500 bg-green-950/50 px-2 py-1 rounded-full">
           {totals.photoCount} {totals.photoCount === 1 ? 'meal' : 'meals'}
         </span>
       </div>
@@ -93,35 +93,35 @@ export const DailyMacroSummary: React.FC<DailyMacroSummaryProps> = ({
           value={totals.calories}
           unit=""
           goal={goals?.calories}
-          color="bg-gradient-to-r from-pink-500 to-pink-600"
+          color="bg-gradient-to-r from-green-500 to-green-600"
         />
         <MacroBar
           label="Protein"
           value={totals.protein}
           unit="g"
           goal={goals?.protein}
-          color="bg-gradient-to-r from-purple-500 to-purple-600"
+          color="bg-gradient-to-r from-emerald-500 to-emerald-600"
         />
         <MacroBar
           label="Carbs"
           value={totals.carbs}
           unit="g"
           goal={goals?.carbs}
-          color="bg-gradient-to-r from-blue-500 to-blue-600"
+          color="bg-gradient-to-r from-teal-500 to-teal-600"
         />
         <MacroBar
           label="Fats"
           value={totals.fats}
           unit="g"
           goal={goals?.fats}
-          color="bg-gradient-to-r from-amber-500 to-amber-600"
+          color="bg-gradient-to-r from-lime-500 to-lime-600"
         />
       </div>
 
       {/* Empty State Message */}
       {totals.photoCount === 0 && (
-        <div className="text-center py-4 text-pink-400/60 text-sm">
-          Add your first meal photo to start tracking
+        <div className="text-center py-4 text-green-400/60 text-sm">
+          Add your first meal to start tracking
         </div>
       )}
     </motion.div>

@@ -5,8 +5,8 @@
  */
 
 import { useMemo } from 'react';
-import { format, subDays } from 'date-fns';
-import { TimeboxTask, TaskPosition, TIMEBOX_HOUR_HEIGHT, mapCategoryToUI, AutoAdjustment } from './types';
+import { format, subDays, isSameDay } from 'date-fns';
+import { TimeboxTask, TaskPosition, TIMEBOX_HOUR_HEIGHT, mapCategoryToUI, AutoAdjustment, CurrentTaskInfo } from './types';
 
 const START_OF_DAY_MINUTES = 4 * 60;
 const MINUTES_IN_DAY = 24 * 60;
@@ -322,6 +322,228 @@ export const useTimeboxCalculations = ({ timeBlocks, selectedDate }: UseTimeboxC
     };
   }, [selectedDate]);
 
+  // Calculate overdue task IDs (tasks that have passed their end time without completion)
+  const overdueTaskIds = useMemo(() => {
+    const now = new Date();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+    return sequentialTasks
+      .filter(task => {
+        // Only check incomplete tasks
+        if (task.completed) return false;
+
+        const endMinutes = timeToMinutes(task.endTime);
+        if (endMinutes === null) return false;
+
+        // Task is overdue if end time is before current time
+        return endMinutes < currentMinutes;
+      })
+      .map(task => task.id);
+  }, [sequentialTasks]);
+
+  // Calculate day forecast (last task end time, completion status)
+  const dayForecast = useMemo(() => {
+    if (sequentialTasks.length === 0) {
+      return {
+        lastEndTime: null,
+        allCompleted: false,
+        completionPercentage: 0,
+        completionTime: null
+      };
+    }
+
+    // Find the last task end time
+    let lastEndMinutes = 0;
+    let lastCompletedEndMinutes: number | null = null;
+
+    sequentialTasks.forEach(task => {
+      const endMinutes = timeToMinutes(task.endTime);
+      if (endMinutes !== null) {
+        // Track the absolute last end time
+        if (endMinutes > lastEndMinutes) {
+          lastEndMinutes = endMinutes;
+        }
+        // Track the last completed task end time
+        if (task.completed && endMinutes > (lastCompletedEndMinutes ?? 0)) {
+          lastCompletedEndMinutes = endMinutes;
+        }
+      }
+    });
+
+    const totalTasks = sequentialTasks.length;
+    const completedTasks = sequentialTasks.filter(t => t.completed).length;
+    const completionPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+    const allCompleted = completedTasks === totalTasks && totalTasks > 0;
+
+    return {
+      lastEndTime: minutesToTimeString(lastEndMinutes),
+      allCompleted,
+      completionPercentage,
+      completionTime: allCompleted && lastCompletedEndMinutes !== null
+        ? minutesToTimeString(lastCompletedEndMinutes)
+        : null
+    };
+  }, [sequentialTasks]);
+
+  // Calculate day segments for progress timeline
+  const dayProgress = useMemo(() => {
+    const now = new Date();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+    // Calculate total planned minutes for the day
+    const totalPlannedMinutes = sequentialTasks.reduce((acc, task) => acc + task.duration, 0);
+
+    // Calculate completed minutes
+    const completedMinutes = sequentialTasks
+      .filter(task => task.completed)
+      .reduce((acc, task) => acc + task.duration, 0);
+
+    // Calculate remaining minutes (only for upcoming tasks)
+    const remainingMinutes = sequentialTasks
+      .filter(task => {
+        const taskStartMinutes = timeToMinutes(task.startTime) ?? 0;
+        return !task.completed && taskStartMinutes > currentMinutes;
+      })
+      .reduce((acc, task) => acc + task.duration, 0);
+
+    // Build day segments for the timeline visualization
+    const daySegments = sequentialTasks.map(task => {
+      const taskStartMinutes = timeToMinutes(task.startTime) ?? 0;
+      const taskEndMinutes = taskStartMinutes + task.duration;
+
+      let status: 'completed' | 'current' | 'upcoming';
+      if (task.completed) {
+        status = 'completed';
+      } else if (currentMinutes >= taskStartMinutes && currentMinutes < taskEndMinutes) {
+        status = 'current';
+      } else {
+        status = 'upcoming';
+      }
+
+      return {
+        id: task.id,
+        category: task.category,
+        widthPercent: totalPlannedMinutes > 0 ? (task.duration / totalPlannedMinutes) * 100 : 0,
+        status,
+        duration: task.duration,
+        title: task.title
+      };
+    });
+
+    // Calculate current time position as percentage of the day
+    // Use the time range from first task start to last task end
+    let currentTimePercent = 0;
+    if (sequentialTasks.length > 0) {
+      const firstTaskStart = Math.min(...sequentialTasks.map(t => timeToMinutes(t.startTime) ?? 0));
+      const lastTaskEnd = Math.max(...sequentialTasks.map(t => {
+        const start = timeToMinutes(t.startTime) ?? 0;
+        return start + t.duration;
+      }));
+      const totalDaySpan = lastTaskEnd - firstTaskStart;
+
+      if (totalDaySpan > 0) {
+        currentTimePercent = ((currentMinutes - firstTaskStart) / totalDaySpan) * 100;
+        currentTimePercent = Math.max(0, Math.min(100, currentTimePercent));
+      }
+    }
+
+    return {
+      segments: daySegments,
+      totalPlannedMinutes,
+      completedMinutes,
+      remainingMinutes,
+      currentTimePercent,
+      plannedHours: Math.round((totalPlannedMinutes / 60) * 10) / 10,
+      doneHours: Math.round((completedMinutes / 60) * 10) / 10,
+      leftHours: Math.round((remainingMinutes / 60) * 10) / 10
+    };
+  }, [sequentialTasks]);
+
+  // Calculate current task info for Now Task Spotlight
+  const currentTaskInfo: CurrentTaskInfo = useMemo(() => {
+    const now = new Date();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+    // Check if we're viewing today - if not, return null task
+    if (!isSameDay(selectedDate, now)) {
+      return {
+        task: null,
+        isCurrent: false,
+        timeRemaining: 0,
+        nextTask: sequentialTasks.length > 0 ? sequentialTasks[0] : null
+      };
+    }
+
+    // Find current task (where current time is between start and end)
+    let currentTask: TimeboxTask | null = null;
+    let nextTask: TimeboxTask | null = null;
+    let timeRemaining = 0;
+
+    for (let i = 0; i < sequentialTasks.length; i++) {
+      const task = sequentialTasks[i];
+      const taskStartMinutes = timeToMinutes(task.startTime) ?? 0;
+      const taskEndMinutes = taskStartMinutes + task.duration;
+
+      // Check if current time falls within this task
+      if (currentMinutes >= taskStartMinutes && currentMinutes < taskEndMinutes) {
+        currentTask = task;
+        timeRemaining = taskEndMinutes - currentMinutes;
+        // Find next incomplete task after current
+        for (let j = i + 1; j < sequentialTasks.length; j++) {
+          if (!sequentialTasks[j].completed) {
+            nextTask = sequentialTasks[j];
+            break;
+          }
+        }
+        break;
+      }
+
+      // If we haven't found current task yet, track potential next task
+      if (!currentTask && taskStartMinutes > currentMinutes && !task.completed) {
+        if (!nextTask) {
+          nextTask = task;
+        }
+      }
+    }
+
+    // If no current task, find the next upcoming task
+    if (!currentTask) {
+      for (const task of sequentialTasks) {
+        const taskStartMinutes = timeToMinutes(task.startTime) ?? 0;
+        if (taskStartMinutes > currentMinutes && !task.completed) {
+          nextTask = task;
+          break;
+        }
+      }
+    }
+
+    return {
+      task: currentTask,
+      isCurrent: !!currentTask,
+      timeRemaining,
+      nextTask
+    };
+  }, [sequentialTasks, selectedDate]);
+
+  // Calculate timebox XP (10 XP per task)
+  const timeboxXP = useMemo(() => {
+    return sequentialTasks.length * 10;
+  }, [sequentialTasks]);
+
+  // Calculate occupied slots (hours that have tasks)
+  const occupiedSlots = useMemo(() => {
+    const occupied = new Set<number>();
+    sequentialTasks.forEach(task => {
+      const startHour = parseInt(task.startTime.split(':')[0], 10);
+      const endHour = parseInt(task.endTime.split(':')[0], 10);
+      // Add all hours this task spans
+      for (let hour = startHour; hour < endHour; hour++) {
+        occupied.add(hour);
+      }
+    });
+    return Array.from(occupied);
+  }, [sequentialTasks]);
+
   return {
     timeSlots,
     tasks: sequentialTasks,
@@ -331,6 +553,12 @@ export const useTimeboxCalculations = ({ timeBlocks, selectedDate }: UseTimeboxC
     hourlyDensity,
     todayStats,
     yesterdayStats,
-    autoAdjustments
+    autoAdjustments,
+    overdueTaskIds,
+    dayForecast,
+    dayProgress,
+    currentTaskInfo,
+    timeboxXP,
+    occupiedSlots
   };
 };

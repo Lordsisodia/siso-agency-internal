@@ -27,7 +27,10 @@ export function usePhotoNutrition(userId: string, date: Date) {
 
   // Load photos for the selected date
   const loadPhotos = useCallback(async () => {
-    if (!userId) return;
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
 
     try {
       setLoading(true);

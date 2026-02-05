@@ -66,7 +66,7 @@ export const XPFooterSummary: React.FC<XPFooterSummaryProps> = ({ breakdown, tot
                   Freshen Up
                   {breakdown.bonuses.freshenUpSpeed && <span className="text-xs text-green-300 ml-2">🎁 +{breakdown.bonuses.freshenUpSpeed} speed</span>}
                 </span>
-                <span className="text-blue-300 font-bold">{breakdown.freshenUp} XP ⚡</span>
+                <span className="text-orange-300 font-bold">{breakdown.freshenUp} XP ⚡</span>
               </div>
             )}
 
@@ -84,7 +84,7 @@ export const XPFooterSummary: React.FC<XPFooterSummaryProps> = ({ breakdown, tot
             {breakdown.powerUpBrain > 0 && (
               <div className="flex items-center justify-between">
                 <span className="text-orange-100/90">Power Up Brain</span>
-                <span className="text-blue-300 font-bold">{breakdown.powerUpBrain} XP 🧠</span>
+                <span className="text-orange-300 font-bold">{breakdown.powerUpBrain} XP 🧠</span>
               </div>
             )}
 

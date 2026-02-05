@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Plus, X, ArrowRight, Rocket, CheckCircle, Clock } from 'lucide-react';
+import { Plus, X, ArrowRight, Brain, CheckCircle, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useLocalStorage } from '@/lib/hooks/ui/useLocalStorage';
@@ -26,9 +26,9 @@ interface WorkflowTaskManagerProps {
   className?: string;
 }
 
-export function WorkflowTaskManager({ 
-  title = "Your Next Steps", 
-  className 
+export function WorkflowTaskManager({
+  title = "Your Next Steps",
+  className
 }: WorkflowTaskManagerProps) {
   const navigate = useNavigate();
   const { project, hasProjects, loading } = useMainUserProject();
@@ -54,7 +54,7 @@ export function WorkflowTaskManager({
         priority: 'high',
         action: () => navigate('/projects/new'),
         actionText: 'Start Now',
-        icon: <Rocket className="h-4 w-4" />
+        icon: <Brain className="h-4 w-4" />
       });
     } else if (project) {
       // If project exists, add relevant workflow tasks
@@ -160,7 +160,7 @@ export function WorkflowTaskManager({
     <Card className={cn("bg-white/95 backdrop-blur-sm border-0 shadow-lg", className)}>
       <CardHeader className="pb-3">
         <CardTitle className="text-lg font-bold text-gray-700 flex items-center gap-2">
-          <Rocket className="h-5 w-5 text-orange-500" />
+          <Brain className="h-5 w-5 text-blue-500" />
           {title}
         </CardTitle>
       </CardHeader>
@@ -205,7 +205,7 @@ export function WorkflowTaskManager({
               >
                 <div className="flex items-center gap-2">
                   {task.icon && (
-                    <div className="text-orange-500">
+                    <div className="text-blue-500">
                       {task.icon}
                     </div>
                   )}
@@ -240,7 +240,7 @@ export function WorkflowTaskManager({
                     <Button
                       onClick={task.action}
                       size="sm"
-                      className="h-7 px-3 bg-orange-500 hover:bg-orange-600 text-white text-xs"
+                      className="h-7 px-3 bg-blue-500 hover:bg-blue-600 text-white text-xs"
                     >
                       {task.actionText}
                       <ArrowRight className="h-3 w-3 ml-1" />
@@ -274,7 +274,7 @@ export function WorkflowTaskManager({
                 variant="ghost" 
                 size="sm" 
                 onClick={() => navigate('/projects/tasks')}
-                className="text-orange-500 hover:text-orange-600"
+                className="text-blue-500 hover:text-blue-600"
               >
                 View All
                 <ArrowRight className="h-3 w-3 ml-1" />

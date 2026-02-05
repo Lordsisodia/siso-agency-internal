@@ -40,7 +40,8 @@ import {
   Timeline,
   BarChart3,
   CigaretteOff,
-  Droplets
+  Droplets,
+  Dumbbell
 } from 'lucide-react';
 
 // Types
@@ -107,16 +108,15 @@ export const NAV_SECTIONS: NavSection[] = [
     ]
   },
   {
-    id: 'stats',
-    name: 'Stats',
-    icon: BarChart3,
-    color: 'text-cyan-400',
-    bgActive: 'bg-cyan-400/20',
+    id: 'health',
+    name: 'Health',
+    icon: Heart,
+    color: 'text-rose-400',
+    bgActive: 'bg-rose-400/20',
     hasSubNav: true,
     subSections: [
-      { id: 'smoking', name: 'Smoking', icon: CigaretteOff },
-      { id: 'water', name: 'Water', icon: Droplets },
-      { id: 'fitness', name: 'Fitness', icon: Heart },
+      { id: 'stats', name: 'Stats', icon: BarChart3 },
+      { id: 'fitness', name: 'Fitness', icon: Dumbbell },
       { id: 'nutrition', name: 'Nutrition', icon: Apple }
     ]
   }
@@ -182,18 +182,19 @@ export const GRID_MENU_ITEMS: GridMenuItem[] = [
 ];
 
 // Map old tabs to new structure for backward compatibility
-// PHASE 4: Health tabs now map to Stats section
+// PHASE 5: Stats renamed to Health, Smoking+Water merged into Stats subtab
 export const LEGACY_TAB_MAPPING: Record<string, { section: string; subtab?: string }> = {
   'morning': { section: 'plan', subtab: 'morning' },
   'light-work': { section: 'tasks', subtab: 'light-work' },
-  'work': { section: 'tasks', subtab: 'deep-work' }, // Legacy 'work' tab maps to 'deep-work' subtab
-  'deep-work': { section: 'tasks', subtab: 'deep-work' }, // Direct mapping
-  'wellness': { section: 'stats', subtab: 'fitness' }, // Wellness/Health now maps to Stats/Fitness
-  'health': { section: 'stats', subtab: 'fitness' }, // Health maps to Stats/Fitness
-  'water': { section: 'stats', subtab: 'water' },
-  'smoking': { section: 'stats', subtab: 'smoking' },
-  'fitness': { section: 'stats', subtab: 'fitness' }, // PHASE 4: Fitness moved to Stats
-  'nutrition': { section: 'stats', subtab: 'nutrition' }, // PHASE 4: Nutrition moved to Stats
+  'work': { section: 'tasks', subtab: 'deep-work' },
+  'deep-work': { section: 'tasks', subtab: 'deep-work' },
+  'wellness': { section: 'health', subtab: 'fitness' },
+  'health': { section: 'health', subtab: 'stats' },
+  'stats': { section: 'health', subtab: 'stats' }, // Old stats section -> new health/stats
+  'water': { section: 'health', subtab: 'stats' }, // Water now in Health/Stats
+  'smoking': { section: 'health', subtab: 'stats' }, // Smoking now in Health/Stats
+  'fitness': { section: 'health', subtab: 'fitness' },
+  'nutrition': { section: 'health', subtab: 'nutrition' },
   'tasks': { section: 'tasks', subtab: 'tasks' },
   'timebox': { section: 'plan', subtab: 'timebox' },
   'checkout': { section: 'plan', subtab: 'checkout' }

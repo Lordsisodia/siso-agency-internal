@@ -242,15 +242,15 @@ export const SmokingTracker: React.FC<SmokingTrackerProps> = ({ selectedDate }) 
             <div className={cn(
               "p-1.5 rounded-lg border transition-all duration-300",
               smokingData.cigarettes === 0
-                ? "border-purple-400/30"
-                : "border-purple-400/30"
+                ? "border-rose-400/30"
+                : "border-rose-400/30"
             )}>
               <Cigarette className={cn(
                 "h-4 w-4 transition-colors duration-300",
-                smokingData.cigarettes === 0 ? "text-purple-300" : "text-purple-300"
+                smokingData.cigarettes === 0 ? "text-rose-300" : "text-rose-300"
               )} />
             </div>
-            <CardTitle className="text-base font-semibold text-purple-100">Smoking Tracker</CardTitle>
+            <CardTitle className="text-base font-semibold text-rose-100">Smoking Tracker</CardTitle>
           </div>
           <div className="flex items-center gap-2">
             <Badge className={cn(status.bg, status.color, status.borderColor, "border")}>
@@ -263,9 +263,9 @@ export const SmokingTracker: React.FC<SmokingTrackerProps> = ({ selectedDate }) 
       <CardContent className="relative pt-0 space-y-3">
         {isLoading ? (
           <div className="space-y-3">
-            <Skeleton className="h-32 w-full bg-purple-900/30" />
-            <Skeleton className="h-24 w-full bg-purple-900/20" />
-            <Skeleton className="h-20 w-full bg-purple-900/20" />
+            <Skeleton className="h-32 w-full bg-rose-900/30" />
+            <Skeleton className="h-24 w-full bg-rose-900/20" />
+            <Skeleton className="h-20 w-full bg-rose-900/20" />
           </div>
         ) : (
           <>
@@ -274,16 +274,16 @@ export const SmokingTracker: React.FC<SmokingTrackerProps> = ({ selectedDate }) 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="rounded-xl border border-purple-500/30 bg-purple-950/20 p-4"
+              className="rounded-xl border border-rose-500/30 bg-rose-950/20 p-4"
             >
               <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-semibold text-purple-200">7-Day Trend</span>
-                <span className="text-xs text-purple-400">{weeklyStats.total} total</span>
+                <span className="text-sm font-semibold text-rose-200">7-Day Trend</span>
+                <span className="text-xs text-rose-400">{weeklyStats.total} total</span>
               </div>
               <div className="flex items-end justify-between gap-1 h-24">
                 {isLoadingWeek ? (
                   Array.from({ length: 7 }).map((_, i) => (
-                    <Skeleton key={i} className="flex-1 h-full bg-purple-900/30" />
+                    <Skeleton key={i} className="flex-1 h-full bg-rose-900/30" />
                   ))
                 ) : (
                   weekData.map((day, index) => {
@@ -300,8 +300,8 @@ export const SmokingTracker: React.FC<SmokingTrackerProps> = ({ selectedDate }) 
                           className={cn(
                             "w-full rounded-t-sm transition-all duration-300",
                             day.isSmokeFree
-                              ? "bg-purple-400/70"
-                              : "bg-purple-600/70",
+                              ? "bg-rose-400/70"
+                              : "bg-rose-600/70",
                             isToday && "ring-2 ring-white/30"
                           )}
                           style={{ height: `${Math.max(height, 4)}px` }}
@@ -326,11 +326,11 @@ export const SmokingTracker: React.FC<SmokingTrackerProps> = ({ selectedDate }) 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15 }}
-              className="rounded-xl border border-purple-500/30 bg-purple-950/20 p-4 transition-all duration-300"
+              className="rounded-xl border border-rose-500/30 bg-rose-950/20 p-4 transition-all duration-300"
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm mb-1 text-purple-300">
+                  <p className="text-sm mb-1 text-rose-300">
                     Cigarettes Today
                   </p>
                   <motion.p
@@ -347,7 +347,7 @@ export const SmokingTracker: React.FC<SmokingTrackerProps> = ({ selectedDate }) 
                     onClick={() => updateCount('cigarettes', -1)}
                     variant="outline"
                     size="icon"
-                    className="h-12 w-12 rounded-full border-purple-500/50 text-purple-400 hover:bg-purple-900/30 transition-all duration-200"
+                    className="h-12 w-12 rounded-full border-rose-500/50 text-rose-400 hover:bg-rose-900/30 transition-all duration-200"
                     disabled={smokingData.cigarettes === 0 || isUpdating}
                   >
                     <Minus className="h-5 w-5" />
@@ -356,7 +356,7 @@ export const SmokingTracker: React.FC<SmokingTrackerProps> = ({ selectedDate }) 
                     onClick={() => updateCount('cigarettes', 1)}
                     variant="outline"
                     size="icon"
-                    className="h-12 w-12 rounded-full border-purple-500/50 text-purple-400 hover:bg-purple-900/30 transition-all duration-200"
+                    className="h-12 w-12 rounded-full border-rose-500/50 text-rose-400 hover:bg-rose-900/30 transition-all duration-200"
                     disabled={isUpdating}
                   >
                     <Plus className="h-5 w-5" />
@@ -395,7 +395,7 @@ export const SmokingTracker: React.FC<SmokingTrackerProps> = ({ selectedDate }) 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="rounded-xl border border-purple-500/30 bg-purple-950/20 p-4"
+              className="rounded-xl border border-rose-500/30 bg-rose-950/20 p-4"
             >
               <p className="text-sm font-semibold text-purple-200 mb-3">Analytics</p>
               <div className="grid grid-cols-3 gap-3">

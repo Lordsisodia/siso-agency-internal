@@ -1,11 +1,12 @@
 /**
- * Stats Tracker Section - Consolidated Stats Monitoring
+ * Health Tracker Section - Consolidated Health Monitoring
  *
- * PHASE 4: Health tabs (Fitness, Nutrition) merged into Stats
+ * PHASE 5: Stats section renamed to Health
+ * - Smoking + Water merged into "Stats" subtab
+ * - Fitness and Nutrition remain separate subtabs
  *
  * Features:
- * - Smoking cessation tracking
- * - Water intake tracking
+ * - Stats (Smoking + Water) tracking
  * - Fitness/workout tracking
  * - Nutrition tracking (Photo, Meals, Macros)
  * - XP rewards for healthy habits
@@ -14,7 +15,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Droplets, CigaretteOff, Dumbbell, Apple } from 'lucide-react';
+import { Droplets, CigaretteOff, Dumbbell, Apple, BarChart3 } from 'lucide-react';
 import { XPPill } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/xp/XPPill';
 import { WaterTrackerCard } from '../components/WaterTrackerCard';
 import { SmokingTracker } from '../components/SmokingTracker';
@@ -27,10 +28,10 @@ import { cn } from '@/lib/utils';
 interface StatsSectionProps {
   selectedDate: Date;
   navigateDay?: (direction: 'prev' | 'next') => void;
-  activeSubTab?: 'smoking' | 'water' | 'fitness' | 'nutrition';
+  activeSubTab?: 'stats' | 'fitness' | 'nutrition';
 }
 
-type StatsTab = 'smoking' | 'water' | 'fitness' | 'nutrition';
+type StatsTab = 'stats' | 'fitness' | 'nutrition';
 
 interface TabConfig {
   id: StatsTab;
@@ -49,32 +50,18 @@ interface TabConfig {
 
 const STATS_TABS: TabConfig[] = [
   {
-    id: 'smoking',
-    label: 'Smoking',
-    title: 'Smoking Tracker',
-    subtitle: 'Track your smoking cessation',
-    icon: CigaretteOff,
+    id: 'stats',
+    label: 'Stats',
+    title: 'Daily Stats',
+    subtitle: 'Smoking & Water tracking',
+    icon: BarChart3,
     iconBg: 'bg-white/5',
     iconBorder: 'border-white/10',
-    iconColor: 'text-purple-400',
-    activeColor: 'bg-purple-500/20 text-purple-400',
-    xpCategory: 'smoking',
+    iconColor: 'text-blue-400',
+    activeColor: 'bg-blue-500/20 text-blue-400',
+    xpCategory: 'stats',
     xp: 50,
-    accentColor: 'bg-gradient-to-b from-purple-500/40 via-pink-500/40 to-purple-600/40 shadow-purple-500/10',
-  },
-  {
-    id: 'water',
-    label: 'Water',
-    title: 'Hydration',
-    subtitle: 'Track your water intake',
-    icon: Droplets,
-    iconBg: 'bg-white/5',
-    iconBorder: 'border-white/10',
-    iconColor: 'text-cyan-400',
-    activeColor: 'bg-cyan-500/20 text-cyan-400',
-    xpCategory: 'water',
-    xp: 50,
-    accentColor: 'bg-gradient-to-b from-cyan-500/40 via-blue-500/40 to-cyan-600/40 shadow-cyan-500/10',
+    accentColor: 'bg-gradient-to-b from-blue-500/40 via-cyan-500/40 to-blue-600/40 shadow-blue-500/10',
   },
   {
     id: 'fitness',
@@ -109,7 +96,7 @@ const STATS_TABS: TabConfig[] = [
 export const StatsSection: React.FC<StatsSectionProps> = ({
   selectedDate,
   navigateDay,
-  activeSubTab = 'smoking' // Default to smoking tab
+  activeSubTab = 'stats' // Default to merged stats tab
 }) => {
   const { user } = useClerkUser();
   const internalUserId = useSupabaseUserId(user?.id || null);
@@ -128,9 +115,10 @@ export const StatsSection: React.FC<StatsSectionProps> = ({
   const ActiveIcon = activeTabConfig.icon;
 
   return (
-    <div className="min-h-screen w-full pb-24 relative">
-      {/* Header with icon, title, and XP - changes based on active tab */}
-      <div className="px-5 py-5 border-b border-white/10">
+    <div className="min-h-screen w-full bg-siso-bg relative overflow-x-hidden">
+      <div className="w-full max-w-none p-4 sm:p-6 space-y-4">
+        {/* Header with icon, title, and XP - changes based on active tab */}
+        <div className="px-3 py-4 border-b border-white/10">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeSubTab}
@@ -155,31 +143,20 @@ export const StatsSection: React.FC<StatsSectionProps> = ({
       </div>
 
       {/* Content - each tab renders independently */}
-      <div className="px-2 sm:px-4 md:px-6 lg:px-8 py-6 space-y-6">
-        {activeSubTab === 'smoking' && (
+      <div className="space-y-4">
+        {/* PHASE 5: Merged Stats tab shows both Smoking and Water */}
+        {activeSubTab === 'stats' && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2 }}
-            id="stats-panel-smoking"
+            id="stats-panel-stats"
             role="tabpanel"
-            aria-labelledby="stats-tab-smoking"
+            aria-labelledby="stats-tab-stats"
             tabIndex={0}
+            className="space-y-4"
           >
             <SmokingTracker selectedDate={selectedDate} />
-          </motion.div>
-        )}
-
-        {activeSubTab === 'water' && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.2 }}
-            id="stats-panel-water"
-            role="tabpanel"
-            aria-labelledby="stats-tab-water"
-            tabIndex={0}
-          >
             <WaterTrackerCard selectedDate={selectedDate} userId={internalUserId} />
           </motion.div>
         )}

@@ -287,8 +287,8 @@ const QuickTaskScheduler: React.FC<QuickTaskSchedulerProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-3">
-            <div className="p-2 bg-blue-500/10 rounded-lg">
-              <Calendar className="h-6 w-6 text-blue-400" />
+            <div className="p-2 bg-sky-500/10 rounded-lg">
+              <Calendar className="h-6 w-6 text-sky-400" />
             </div>
             <h3 className="text-xl font-semibold text-white">Add Tasks to Timebox</h3>
           </div>
@@ -308,16 +308,16 @@ const QuickTaskScheduler: React.FC<QuickTaskSchedulerProps> = ({
             onClick={() => setActiveTab('light')}
             className={`flex-1 px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
               activeTab === 'light'
-                ? 'bg-blue-600 text-white shadow-lg'
+                ? 'bg-sky-600 text-white shadow-lg'
                 : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
             }`}
           >
             <div className="flex items-center justify-center space-x-2">
               <Coffee className="h-4 w-4" />
               <span>Light Work</span>
-              <Badge 
-                variant={activeTab === 'light' ? 'secondary' : 'outline'} 
-                className={`ml-2 ${activeTab === 'light' ? 'bg-blue-500/20 text-blue-100' : ''}`}
+              <Badge
+                variant={activeTab === 'light' ? 'secondary' : 'outline'}
+                className={`ml-2 ${activeTab === 'light' ? 'bg-sky-500/20 text-sky-100' : ''}`}
               >
                 {transformedLightTasks.length}
               </Badge>
@@ -348,7 +348,7 @@ const QuickTaskScheduler: React.FC<QuickTaskSchedulerProps> = ({
         <div className="flex-1 overflow-y-auto space-y-3 pr-2">
           {loading ? (
             <div className="flex items-center justify-center py-12 text-slate-400">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-500"></div>
               <span className="ml-3 text-lg">Loading tasks...</span>
             </div>
           ) : currentTasks.length === 0 ? (

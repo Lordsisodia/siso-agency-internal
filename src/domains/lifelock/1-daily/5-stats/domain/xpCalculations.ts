@@ -89,7 +89,42 @@ export function calculateSmokingXP(data: {
 }
 
 /**
- * Calculate total Stats XP (water + smoking)
+ * Calculate alcohol tracking XP
+ * Rewards for logging and dry days
+ * Max: 75 XP per day
+ */
+export function calculateAlcoholXP(data: {
+  drinksToday: number;
+  dryDays: number;
+}): { total: number; dryDayBonus: number; loggingBonus: number } {
+  let dryDayBonus = 0;
+  let loggingBonus = 5; // +5 XP for logging (honesty reward)
+
+  // Dry day bonus: 25 XP for alcohol-free day
+  if (data.drinksToday === 0) {
+    dryDayBonus = 25;
+
+    // Additional streak bonus
+    if (data.dryDays >= 90) {
+      dryDayBonus += 25; // Bonus for 90+ day streak
+    } else if (data.dryDays >= 30) {
+      dryDayBonus += 15; // Bonus for month streak
+    } else if (data.dryDays >= 7) {
+      dryDayBonus += 10; // Bonus for week streak
+    } else if (data.dryDays >= 3) {
+      dryDayBonus += 5; // Bonus for 3+ day streak
+    }
+  }
+
+  return {
+    total: dryDayBonus + loggingBonus,
+    dryDayBonus,
+    loggingBonus
+  };
+}
+
+/**
+ * Calculate total Stats XP (water + smoking + alcohol)
  */
 export function calculateTotalStatsXP(data: {
   water: { dailyTotalMl: number; goalMl: number; streakDays: number };
@@ -98,17 +133,23 @@ export function calculateTotalStatsXP(data: {
     cravingsResisted: number;
     smokeFreeDays: number;
   };
-}): { total: number; waterXP: number; smokingXP: number } {
+  alcohol?: {
+    drinksToday: number;
+    dryDays: number;
+  };
+}): { total: number; waterXP: number; smokingXP: number; alcoholXP: number } {
   const waterResult = calculateWaterXP(
     data.water.dailyTotalMl,
     data.water.goalMl,
     data.water.streakDays
   );
   const smokingResult = calculateSmokingXP(data.smoking);
+  const alcoholResult = data.alcohol ? calculateAlcoholXP(data.alcohol) : { total: 0, dryDayBonus: 0, loggingBonus: 0 };
 
   return {
-    total: waterResult.total + smokingResult.total,
+    total: waterResult.total + smokingResult.total + alcoholResult.total,
     waterXP: waterResult.total,
-    smokingXP: smokingResult.total
+    smokingXP: smokingResult.total,
+    alcoholXP: alcoholResult.total
   };
 }

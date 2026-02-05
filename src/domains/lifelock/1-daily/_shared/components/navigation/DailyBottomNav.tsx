@@ -45,11 +45,11 @@ export const DailyBottomNav: React.FC<DailyBottomNavProps> = ({
   // Extract all tabs (should be 3 now + More button)
   const navTabs = tabs.slice(0, 3);
 
-  // Color gradients for each tab (PHASE 4: Updated for 3 tabs + More)
+  // Color gradients for each tab (PHASE 5: Stats renamed to Health)
   const tabColors = [
     'from-purple-500 to-violet-500',  // Plan
     'from-amber-500 to-orange-500',    // Tasks
-    'from-cyan-500 to-blue-500',       // Stats
+    'from-rose-500 to-pink-500',       // Health
   ];
 
   if (hidden) return null;

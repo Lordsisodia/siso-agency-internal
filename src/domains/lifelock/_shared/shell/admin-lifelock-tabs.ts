@@ -139,8 +139,7 @@ export const ENHANCED_TAB_CONFIG: Record<TabId, EnhancedTabConfig> = {
     components: [HomeWorkoutSection],
   },
 
-  // Health is an alias for wellness (renamed in navigation)
-  // PHASE 4: Now redirects to Stats/Fitness
+  // PHASE 5: Health section with merged Stats (Smoking + Water), Fitness, Nutrition
   'health': {
     ...TAB_CONFIG['wellness'],
     id: 'health' as TabId,
@@ -149,30 +148,44 @@ export const ENHANCED_TAB_CONFIG: Record<TabId, EnhancedTabConfig> = {
     backgroundClass: '',
     showDateNav: true,
     components: [StatsSection],
+    componentProps: { activeSubTab: 'stats' }, // Default to merged Stats view
+  },
+
+  // Health subtabs
+  'stats': {
+    ...TAB_CONFIG['stats'],
+    id: 'stats' as TabId,
+    name: 'Stats',
+    layoutType: 'standard',
+    backgroundClass: '',
+    showDateNav: true,
+    components: [StatsSection],
+    componentProps: { activeSubTab: 'stats' }, // Shows merged Smoking + Water
+  },
+
+  'fitness': {
+    ...TAB_CONFIG['wellness'],
+    id: 'fitness' as TabId,
+    name: 'Fitness',
+    layoutType: 'standard',
+    backgroundClass: '',
+    showDateNav: true,
+    components: [StatsSection],
     componentProps: { activeSubTab: 'fitness' },
   },
 
-  // Stats section (PHASE 3: New section, PHASE 4: Enhanced with Fitness & Nutrition)
-  'stats': {
-    ...TAB_CONFIG['stats'],
-    layoutType: 'standard',
-    backgroundClass: '',
-    showDateNav: true,
-    components: [StatsSection],
-  },
-
-  // Stats subtabs (PHASE 3: Moved from Health, PHASE 4: Added Fitness & Nutrition)
-  'water': {
+  'nutrition': {
     ...TAB_CONFIG['wellness'],
-    id: 'water' as TabId,
-    name: 'Water',
+    id: 'nutrition' as TabId,
+    name: 'Nutrition',
     layoutType: 'standard',
     backgroundClass: '',
     showDateNav: true,
     components: [StatsSection],
-    componentProps: { activeSubTab: 'water' },
+    componentProps: { activeSubTab: 'nutrition' },
   },
 
+  // Legacy redirects (PHASE 5: Smoking and Water now part of Stats)
   'smoking': {
     ...TAB_CONFIG['wellness'],
     id: 'smoking' as TabId,
@@ -181,7 +194,18 @@ export const ENHANCED_TAB_CONFIG: Record<TabId, EnhancedTabConfig> = {
     backgroundClass: '',
     showDateNav: true,
     components: [StatsSection],
-    componentProps: { activeSubTab: 'smoking' },
+    componentProps: { activeSubTab: 'stats' }, // Redirect to merged view
+  },
+
+  'water': {
+    ...TAB_CONFIG['wellness'],
+    id: 'water' as TabId,
+    name: 'Water',
+    layoutType: 'standard',
+    backgroundClass: '',
+    showDateNav: true,
+    components: [StatsSection],
+    componentProps: { activeSubTab: 'stats' }, // Redirect to merged view
   },
 
   // PHASE 4: Fitness moved from Health to Stats

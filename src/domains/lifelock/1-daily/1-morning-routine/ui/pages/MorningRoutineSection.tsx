@@ -37,6 +37,7 @@ import { debounce } from '@/lib/utils';
 import { TimeScrollPicker } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/time/TimeScrollPicker';
 import { WaterTracker } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/trackers/WaterTracker';
 import { PushUpTracker } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/trackers/PushUpTracker';
+import { QuantifiableSubtask } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/trackers/QuantifiableSubtask';
 import { MeditationTracker } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/trackers/MeditationTracker';
 import { WakeUpTimeTracker } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/trackers/WakeUpTimeTracker';
 import { PlanDayActions } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/planning/PlanDayActions';
@@ -159,11 +160,11 @@ const MORNING_ROUTINE_TASKS = [
   {
     key: 'getBloodFlowing' as const,
     title: 'Get Blood Flowing',
-    description: 'Max rep push-ups (Target PB: 30) - Physical activation to wake up the body.',
+    description: 'Max rep push-ups - Physical activation to wake up the body.',
     icon: Dumbbell,
     hasTimeTracking: false,
     subtasks: [
-      { key: 'pushups', title: 'Push-ups (PB 30)' }
+      { key: 'pushups', title: 'Push-ups' }
     ]
   },
   {
@@ -174,7 +175,7 @@ const MORNING_ROUTINE_TASKS = [
     hasTimeTracking: false,
     subtasks: [
       { key: 'supplements', title: 'Supplements' },
-      { key: 'water', title: 'Water (500ml)' }
+      { key: 'water', title: 'Water' }
     ]
   },
   {
@@ -256,6 +257,13 @@ const waterXPRef = useRef(0);
 
   // Push-ups tracking state
   const [pushupReps, setPushupReps] = useState<number>(0);
+
+  // Supplements tracking state
+  const [supplementCount, setSupplementCount] = useState<number>(0);
+  const [supplementGoal, setSupplementGoal] = useState<number>(() => {
+    const saved = localStorage.getItem('lifelock-supplementGoal');
+    return saved ? parseInt(saved) : 3; // Default goal is 3 pills
+  });
 
   const [pushupPB, setPushupPB] = useState<number>(() => {
     // PB is global, not per day
@@ -373,6 +381,11 @@ const waterXPRef = useRef(0);
     if (localWater && !internalUserId) {
       setWaterAmount(Number(localWater));
     }
+
+    const localSupplements = localStorage.getItem(`lifelock-supplements-${routineDateKey}`);
+    if (localSupplements && !internalUserId) {
+      setSupplementCount(Number(localSupplements));
+    }
   }, [routineDateKey, internalUserId]);
 
   useEffect(() => {
@@ -382,6 +395,14 @@ const waterXPRef = useRef(0);
   useEffect(() => {
     localStorage.setItem(`lifelock-water-amount-${routineDateKey}`, String(waterAmount));
   }, [waterAmount, routineDateKey]);
+
+  useEffect(() => {
+    localStorage.setItem(`lifelock-supplements-${routineDateKey}`, String(supplementCount));
+  }, [supplementCount, routineDateKey]);
+
+  useEffect(() => {
+    localStorage.setItem('lifelock-supplementGoal', String(supplementGoal));
+  }, [supplementGoal]);
 
   const [xpState, setXpState] = useState<MorningRoutineXPState>(() => loadXpStateFromStorage(xpStorageKey));
 
@@ -867,20 +888,20 @@ const waterXPRef = useRef(0);
       <div className="w-full max-w-none p-4 sm:p-6 space-y-4">
 
         {/* Page Header - Title, Icon, Subtext */}
-        <div className="px-5 py-5 border-b border-white/10">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0">
-                <Sun className="h-7 w-7 text-orange-400" aria-hidden="true" />
+        <div className="px-3 py-4 border-b border-white/10">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0">
+                <Sun className="h-4 w-4 text-orange-400" aria-hidden="true" />
               </div>
               <div className="min-w-0">
-                <h1 className="text-2xl font-bold text-white tracking-tight">Morning Routine</h1>
-                <p className="text-sm text-white/60 mt-0.5">Start your day right</p>
+                <h1 className="text-lg font-semibold text-white tracking-tight">Morning Routine</h1>
+                <p className="text-xs text-white/60">Start your day right</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <div className="text-right">
-                <div className="text-2xl font-bold text-orange-400">{todayXP.total} XP</div>
+                <div className="text-lg font-semibold text-orange-400">{todayXP.total} XP</div>
                 <div className="text-xs text-orange-400/70">{Math.round(morningRoutineProgress)}% complete</div>
               </div>
             </div>
@@ -1101,55 +1122,122 @@ const waterXPRef = useRef(0);
                               />
                             )}
 
-                            {/* Sub-tasks - Enhanced with better visual hierarchy and mobile touch targets */}
+                            {/* Sub-tasks - Unified checkbox + tracker components */}
                             {task.subtasks.length > 0 && (
-                              <div className="mt-4 ml-4 space-y-3">
+                              <div className="mt-4 ml-2 space-y-4">
                                 {task.subtasks.map((subtask) => (
                                   <div key={subtask.key}>
-                                    {/* Full row clickable - makes it easier to tap on mobile */}
-                                    <div
-                                      className="group flex items-center gap-3 rounded-lg transition-all duration-200 cursor-pointer touch-manipulation min-h-[44px] p-2 -m-2 hover:bg-orange-900/20 active:bg-orange-900/30"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleHabitToggle(subtask.key, !isHabitCompleted(subtask.key));
-                                      }}
-                                    >
-                                      {/* Checkbox - visual indicator only, click handled by parent */}
-                                      <div className="flex items-center justify-center">
-                                        <Checkbox
-                                          checked={isHabitCompleted(subtask.key)}
-                                          className="h-6 w-6 border-2 border-orange-400/70 data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500 transition-all duration-200 group-hover:border-orange-400 pointer-events-none"
-                                        />
-                                      </div>
-                                      <span className={cn(
-                                        "text-sm font-medium transition-all duration-200 flex-1",
-                                        isHabitCompleted(subtask.key)
-                                          ? "text-gray-500 line-through"
-                                          : "text-orange-200/90 group-hover:text-orange-50"
-                                      )}>
-                                        {subtask.title}
-                                      </span>
-                                      {isHabitCompleted(subtask.key) && (
-                                        <CheckCircle2 className="h-3.5 w-3.5 text-green-400 animate-in zoom-in-50 duration-200" />
-                                      )}
-                                    </div>
-
-                                    {/* Push-ups Tracking UI - Special case for pushups subtask */}
-                                    {subtask.key === 'pushups' && (
-                                      <PushUpTracker
-                                        reps={pushupReps}
-                                        personalBest={pushupPB}
-                                        onUpdateReps={updatePushupReps}
+                                    {/* Push-ups - Unified quantifiable subtask */}
+                                    {subtask.key === 'pushups' ? (
+                                      <QuantifiableSubtask
+                                        title="Push-ups"
+                                        unit="reps"
+                                        goal={pushupPB}
+                                        value={pushupReps}
+                                        onChange={(value) => {
+                                          updatePushupReps(value);
+                                          // Auto-complete when reps > 0
+                                          if (value > 0 && !isHabitCompleted('pushups')) {
+                                            handleHabitToggle('pushups', true);
+                                          } else if (value === 0 && isHabitCompleted('pushups')) {
+                                            handleHabitToggle('pushups', false);
+                                          }
+                                        }}
+                                        checked={isHabitCompleted('pushups')}
+                                        onCheckChange={(checked) => {
+                                          handleHabitToggle('pushups', checked);
+                                          if (!checked) updatePushupReps(0);
+                                        }}
+                                        incrementStep={1}
+                                        quickAddButtons={[5, 10]}
                                       />
-                                    )}
-
-                                    {/* Water Tracking UI - Special case for water subtask */}
-                                    {subtask.key === 'water' && (
-                                      <WaterTracker
+                                    ) : subtask.key === 'water' ? (
+                                      /* Water - Unified quantifiable subtask */
+                                      <QuantifiableSubtask
+                                        title="Water"
+                                        unit="ml"
+                                        goal={500}
                                         value={waterAmount}
-                                        onIncrement={incrementWater}
-                                        onDecrement={decrementWater}
+                                        onChange={(value) => {
+                                          setWaterAmount(value);
+                                          // Auto-complete when water > 0
+                                          if (value > 0 && !isHabitCompleted('water')) {
+                                            handleHabitToggle('water', true);
+                                          } else if (value === 0 && isHabitCompleted('water')) {
+                                            handleHabitToggle('water', false);
+                                          }
+                                        }}
+                                        checked={isHabitCompleted('water')}
+                                        onCheckChange={(checked) => {
+                                          handleHabitToggle('water', checked);
+                                          if (!checked) setWaterAmount(0);
+                                        }}
+                                        incrementStep={100}
+                                        quickAddButtons={[250, 500]}
                                       />
+                                    ) : subtask.key === 'supplements' ? (
+                                      /* Supplements - Unified quantifiable subtask */
+                                      <QuantifiableSubtask
+                                        title="Supplements"
+                                        unit="pills"
+                                        goal={supplementGoal}
+                                        value={supplementCount}
+                                        onChange={(value) => {
+                                          setSupplementCount(value);
+                                          // Auto-complete when pills > 0
+                                          if (value > 0 && !isHabitCompleted('supplements')) {
+                                            handleHabitToggle('supplements', true);
+                                          } else if (value === 0 && isHabitCompleted('supplements')) {
+                                            handleHabitToggle('supplements', false);
+                                          }
+                                        }}
+                                        checked={isHabitCompleted('supplements')}
+                                        onCheckChange={(checked) => {
+                                          handleHabitToggle('supplements', checked);
+                                          if (!checked) setSupplementCount(0);
+                                        }}
+                                        incrementStep={1}
+                                        quickAddButtons={[1, 3]}
+                                      />
+                                    ) : (
+                                      /* Regular checkbox subtask - ROUNDED */
+                                      <div
+                                        className="group flex items-center gap-3 rounded-lg transition-all duration-200 cursor-pointer touch-manipulation min-h-[44px] p-2 -m-2 hover:bg-orange-900/20 active:bg-orange-900/30"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleHabitToggle(subtask.key, !isHabitCompleted(subtask.key));
+                                        }}
+                                      >
+                                        {/* Rounded Checkbox */}
+                                        <motion.div
+                                          className={cn(
+                                            "flex-shrink-0 w-5 h-5 rounded-full border-2 transition-all duration-200",
+                                            "flex items-center justify-center",
+                                            isHabitCompleted(subtask.key)
+                                              ? "bg-orange-500 border-orange-500"
+                                              : "border-orange-400/50 group-hover:border-orange-400"
+                                          )}
+                                          whileTap={{ scale: 0.95 }}
+                                        >
+                                          {isHabitCompleted(subtask.key) && (
+                                            <motion.div
+                                              initial={{ scale: 0 }}
+                                              animate={{ scale: 1 }}
+                                              transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                            >
+                                              <CheckCircle2 className="w-3 h-3 text-white" />
+                                            </motion.div>
+                                          )}
+                                        </motion.div>
+                                        <span className={cn(
+                                          "text-sm font-medium transition-all duration-200 flex-1",
+                                          isHabitCompleted(subtask.key)
+                                            ? "text-gray-500 line-through"
+                                            : "text-orange-200/90 group-hover:text-orange-50"
+                                        )}>
+                                          {subtask.title}
+                                        </span>
+                                      </div>
                                     )}
                                   </div>
                                 ))}

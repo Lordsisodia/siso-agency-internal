@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, ChevronUp, Zap, Activity, Apple, Brain, Book, Moon, CheckCircle } from 'lucide-react';
+import { ChevronDown, ChevronUp, Zap, Activity, Apple, Brain, Book, Moon, CheckCircle, Check } from 'lucide-react';
 import { Card } from '@/components/ui/card';
+import { XPPill } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/xp/XPPill';
 
 import {
   MeditationCard,
@@ -13,21 +14,37 @@ import {
 } from './index';
 
 interface DailyMetricsSectionProps {
-  meditation: { minutes: number; quality: number };
+  meditation: { minutes: number; focusLevel: 'distracted' | 'somewhat-focused' | 'deeply-present' | null; feelingAfter: 'more-stressed' | 'same' | 'more-calm' | 'transformed' | null };
   workout: { completed: boolean; type: string; duration: number; intensity: string };
-  nutrition: { calories: number; protein: number; carbs: number; fats: number; hitGoal: boolean };
-  deepWork: { hours: number; quality: number };
+  nutrition: { protein: number; hitGoal: boolean };
+  deepWork: { hours: number; quality: number; flowState?: 'distracted' | 'focused' | 'flow' };
   research: { hours: number; topic: string; notes: string };
   sleep: { hours: number; bedTime: string; wakeTime: string; quality: number };
+  xpBreakdown: {
+    meditation: number;
+    workout: number;
+    nutrition: number;
+    deepWork: number;
+    research: number;
+    sleep: number;
+    bedTime: number;
+  };
   saving: boolean;
   onChange: (updates: {
-    meditation?: { minutes: number; quality: number };
+    meditation?: { minutes: number; focusLevel: 'distracted' | 'somewhat-focused' | 'deeply-present' | null; feelingAfter: 'more-stressed' | 'same' | 'more-calm' | 'transformed' | null };
     workout?: { completed: boolean; type: string; duration: number; intensity: string };
-    nutrition?: { calories: number; protein: number; carbs: number; fats: number; hitGoal: boolean };
-    deepWork?: { hours: number; quality: number };
+    nutrition?: { protein: number; hitGoal: boolean };
+    deepWork?: { hours: number; quality: number; flowState?: 'distracted' | 'focused' | 'flow' };
     research?: { hours: number; topic: string; notes: string };
     sleep?: { hours: number; bedTime: string; wakeTime: string; quality: number };
   }) => void;
+  meditationStreakData?: {
+    last7Days: number;
+    totalSessions: number;
+    averageMinutes: number;
+  };
+  autoCalculatedDeepWorkHours?: number;
+  completedDeepWorkTaskCount?: number;
 }
 
 export const DailyMetricsSection: React.FC<DailyMetricsSectionProps> = ({
@@ -37,8 +54,12 @@ export const DailyMetricsSection: React.FC<DailyMetricsSectionProps> = ({
   deepWork,
   research,
   sleep,
+  xpBreakdown,
   saving,
-  onChange
+  onChange,
+  meditationStreakData,
+  autoCalculatedDeepWorkHours = 0,
+  completedDeepWorkTaskCount = 0
 }) => {
   const [expandedSections, setExpandedSections] = useState({
     meditation: false,
@@ -70,7 +91,7 @@ export const DailyMetricsSection: React.FC<DailyMetricsSectionProps> = ({
   useEffect(() => {
     const hasMeditation = meditation.minutes > 0;
     const hasWorkout = workout.completed;
-    const hasNutrition = nutrition.hitGoal;
+    const hasNutrition = nutrition.protein > 0;
     const hasDeepWork = deepWork.hours > 0;
     const hasResearch = research.hours > 0 || research.topic.trim() !== '';
     const hasSleep = sleep.hours > 0;
@@ -120,11 +141,13 @@ export const DailyMetricsSection: React.FC<DailyMetricsSectionProps> = ({
       title: 'Meditation',
       icon: <Zap className="h-4 w-4 text-purple-300" />,
       isComplete: meditation.minutes > 0,
+      xp: xpBreakdown.meditation,
       component: (
         <MeditationCard
           value={meditation}
           onChange={(value) => onChange({ meditation: value })}
           saving={saving}
+          streakData={meditationStreakData}
         />
       )
     },
@@ -133,6 +156,7 @@ export const DailyMetricsSection: React.FC<DailyMetricsSectionProps> = ({
       title: 'Workout',
       icon: <Activity className="h-4 w-4 text-purple-300" />,
       isComplete: workout.completed,
+      xp: xpBreakdown.workout,
       component: (
         <WorkoutCard
           value={workout}
@@ -145,7 +169,8 @@ export const DailyMetricsSection: React.FC<DailyMetricsSectionProps> = ({
       key: 'nutrition' as const,
       title: 'Nutrition',
       icon: <Apple className="h-4 w-4 text-purple-300" />,
-      isComplete: nutrition.hitGoal,
+      isComplete: nutrition.protein > 0,
+      xp: xpBreakdown.nutrition,
       component: (
         <NutritionCard
           value={nutrition}
@@ -159,11 +184,14 @@ export const DailyMetricsSection: React.FC<DailyMetricsSectionProps> = ({
       title: 'Deep Work',
       icon: <Brain className="h-4 w-4 text-purple-300" />,
       isComplete: deepWork.hours > 0,
+      xp: xpBreakdown.deepWork,
       component: (
         <DeepWorkCard
           value={deepWork}
           onChange={(value) => onChange({ deepWork: value })}
           saving={saving}
+          autoCalculatedHours={autoCalculatedDeepWorkHours}
+          completedTaskCount={completedDeepWorkTaskCount}
         />
       )
     },
@@ -172,6 +200,7 @@ export const DailyMetricsSection: React.FC<DailyMetricsSectionProps> = ({
       title: 'Research & Learning',
       icon: <Book className="h-4 w-4 text-purple-300" />,
       isComplete: research.hours > 0 || research.topic.trim() !== '',
+      xp: xpBreakdown.research,
       component: (
         <ResearchCard
           value={research}
@@ -185,6 +214,7 @@ export const DailyMetricsSection: React.FC<DailyMetricsSectionProps> = ({
       title: 'Sleep',
       icon: <Moon className="h-4 w-4 text-purple-300" />,
       isComplete: sleep.hours > 0,
+      xp: xpBreakdown.sleep + xpBreakdown.bedTime,
       component: (
         <SleepCard
           value={sleep}
@@ -248,7 +278,7 @@ export const DailyMetricsSection: React.FC<DailyMetricsSectionProps> = ({
                 {completedCount}/{totalCount} metrics tracked
               </span>
               {completedCount > 0 && !expandedSections.meditation && (
-                <span className="text-xs text-green-400 font-semibold">✓ Complete</span>
+                <span className="text-xs text-green-400 font-semibold flex items-center gap-1"><Check className="h-3 w-3" /> Complete</span>
               )}
             </div>
           </div>
@@ -289,7 +319,11 @@ export const DailyMetricsSection: React.FC<DailyMetricsSectionProps> = ({
                           )}
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="text-xs text-purple-400/70">+25 XP</span>
+                          <XPPill
+                            xp={metric.xp}
+                            earned={metric.isComplete}
+                            showGlow={metric.isComplete}
+                          />
                           {expandedSections[metric.key] ? (
                             <ChevronUp className="h-4 w-4 text-purple-400" />
                           ) : (

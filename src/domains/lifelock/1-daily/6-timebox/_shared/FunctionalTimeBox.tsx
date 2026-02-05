@@ -616,22 +616,13 @@ export const FunctionalTimeBox: React.FC = () => {
           </div>
           
           <div className="flex items-center justify-center gap-4">
-            <Button 
-              onClick={loadSchedule} 
+            <Button
+              onClick={loadSchedule}
               disabled={loading}
               variant="outline"
             >
               <RefreshCw className={cn("h-4 w-4 mr-2", loading && "animate-spin")} />
               Refresh
-            </Button>
-            
-            <Button 
-              onClick={handleAutoSchedule} 
-              disabled={loading}
-              className="bg-purple-600 hover:bg-purple-700"
-            >
-              <Sparkles className="h-4 w-4 mr-2" />
-              Auto Schedule
             </Button>
           </div>
         </motion.div>

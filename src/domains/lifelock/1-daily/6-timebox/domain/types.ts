@@ -136,6 +136,8 @@ export interface DragPreviewState {
   startTime: string;
   endTime: string;
   top: number;
+  hasConflict: boolean;
+  conflictingTasks?: string[];
 }
 
 // Gap filler state for smart scheduling
@@ -163,4 +165,47 @@ export interface TodayStats {
   totalTasks: number;
   completedTasks: number;
   completionPercentage: number;
+}
+
+// Day segment for progress timeline
+export interface DaySegment {
+  id: string;
+  category: string;
+  widthPercent: number;
+  status: 'completed' | 'current' | 'upcoming';
+  duration: number;
+  title: string;
+}
+
+// Day progress data structure
+export interface DayProgress {
+  segments: DaySegment[];
+  totalPlannedMinutes: number;
+  completedMinutes: number;
+  remainingMinutes: number;
+  currentTimePercent: number;
+  plannedHours: number;
+  doneHours: number;
+  leftHours: number;
+}
+
+// Energy level types for task intensity visualization
+export type EnergyLevel = 'maximum' | 'intense' | 'moderate' | 'light';
+
+export interface EnergyStyle {
+  dots: number;
+  color: string;
+  bg: string;
+  label: string;
+}
+
+// View mode for timeline display
+export type TimeboxViewMode = 'category' | 'energy';
+
+// Current task info for Now Task Spotlight
+export interface CurrentTaskInfo {
+  task: TimeboxTask | null;
+  isCurrent: boolean;
+  timeRemaining: number; // minutes
+  nextTask: TimeboxTask | null;
 }

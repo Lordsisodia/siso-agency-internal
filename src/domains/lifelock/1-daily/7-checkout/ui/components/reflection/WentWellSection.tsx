@@ -1,13 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, X, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, X, CheckCircle2, ChevronDown, ChevronUp, Sparkles, Check } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { XPPill } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/xp/XPPill';
 
 interface WentWellSectionProps {
   items: string[];
+  xp: number;
   onChange: (items: string[]) => void;
 }
 
@@ -60,7 +62,7 @@ const BulletItem = React.forwardRef<HTMLDivElement, BulletItemProps>(({
       className="flex items-start space-x-2 group"
     >
       <div className="flex items-center gap-2 mt-2.5 flex-shrink-0">
-        <span className="text-green-400">{icon}</span>
+        <span className="text-purple-400">{icon}</span>
       </div>
       <Input
         ref={inputRef}
@@ -99,6 +101,7 @@ BulletItem.displayName = 'BulletItem';
 
 export const WentWellSection: React.FC<WentWellSectionProps> = ({
   items,
+  xp,
   onChange
 }) => {
   const [wentWellItems, setWentWellItems] = useState<string[]>(
@@ -172,7 +175,7 @@ export const WentWellSection: React.FC<WentWellSectionProps> = ({
           <div className="flex items-center justify-between gap-2 mb-3">
             <div className="flex items-center gap-2 flex-1 min-w-0">
               <div className="p-1.5 rounded-lg border border-purple-400/30 flex-shrink-0">
-                <span className="text-purple-300 text-lg">✨</span>
+                <Sparkles className="h-4 w-4 text-purple-300" />
               </div>
               <h4 className="text-purple-100 font-semibold text-base truncate">What went well today?</h4>
               {/* Green CheckCircle when has content */}
@@ -187,6 +190,11 @@ export const WentWellSection: React.FC<WentWellSectionProps> = ({
               )}
             </div>
             <div className="flex items-center gap-2">
+              <XPPill
+                xp={xp}
+                earned={hasContent}
+                showGlow={hasContent}
+              />
               {isExpanded ? (
                 <ChevronUp className="h-5 w-5 text-purple-400 flex-shrink-0" />
               ) : (
@@ -207,7 +215,7 @@ export const WentWellSection: React.FC<WentWellSectionProps> = ({
             <div className="flex justify-between items-center mt-1">
               <span className="text-xs text-purple-400/70 font-medium">{completedWentWell}/{wentWellItems.length} captured</span>
               {hasContent && !isExpanded && (
-                <span className="text-xs text-green-400 font-semibold">✓ Complete</span>
+                <span className="text-xs text-green-400 font-semibold flex items-center gap-1"><Check className="h-3 w-3" /> Complete</span>
               )}
             </div>
           </div>
@@ -235,7 +243,7 @@ export const WentWellSection: React.FC<WentWellSectionProps> = ({
                         onRemove={() => removeWentWellItem(index)}
                         canRemove={wentWellItems.length > 1}
                         placeholder="Something positive..."
-                        icon={<span className="text-purple-400">✓</span>}
+                        icon={<Check className="h-3 w-3 text-purple-400" />}
                       />
                     ))}
                   </AnimatePresence>

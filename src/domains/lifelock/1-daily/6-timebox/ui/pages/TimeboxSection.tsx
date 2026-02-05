@@ -1,6 +1,6 @@
 import React, { useState, useEffect, memo, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, Zap } from 'lucide-react';
+import { Calendar, Zap, Clock, LayoutGrid, Flame } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -11,19 +11,27 @@ import { useTimeBlocks } from '@/domains/lifelock/1-daily/2-tasks/domain/useTime
 import { toast } from 'sonner';
 import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
+import { cn } from '@/lib/utils';
 
-import { TimeboxSectionProps, TimeboxTask, DragPreviewState, GapFillerState, FocusSprintType } from '../../domain/types';
+import { TimeboxSectionProps, TimeboxTask, DragPreviewState, GapFillerState, FocusSprintType, TimeboxViewMode } from '../../domain/types';
 import { mapUIToCategory } from '../../domain/utils';
 import { useAutoTimeblocks } from '@/domains/lifelock/1-daily/6-timebox/domain/useAutoTimeblocks';
 import { useTimeboxCalculations } from '../../domain/useTimeboxCalculations';
 import { useTimeboxHandlers } from '../../domain/useTimeboxHandlers';
 import { TimeboxStats } from '../components/TimeboxStats';
 import { TimeboxTimeline } from '../components/TimeboxTimeline';
+import { DayForecast } from '../components/DayForecast';
+import { DayProgressBar } from '../components/DayProgressBar';
+import { NowTaskSpotlight } from '../components/NowTaskSpotlight';
 import { AUTO_TIMEBOX_CONFIG, createOrUpdateAutoTimeboxes } from '@/domains/lifelock/_shared/services/autoTimeblockService';
 import { Badge } from '@/components/ui/badge';
 import { PlanningAssistant } from '../components/PlanningAssistant';
+import { useNavigate } from 'react-router-dom';
 
 const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }) => {
+  // Navigation
+  const navigate = useNavigate();
+
   // Authentication
   const { user, isSignedIn } = useClerkUser();
   const internalUserId = useSupabaseUserId(user?.id || null);
@@ -44,6 +52,8 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
   const [gapSuggestions, setGapSuggestions] = useState<any[]>([]);
   const [availabilityMode, setAvailabilityMode] = useState(false);
   const [wakeUpTime, setWakeUpTime] = useState('');
+  const [isFocusMode, setIsFocusMode] = useState(false);
+  const [viewMode, setViewMode] = useState<TimeboxViewMode>('category');
   const timelineContainerRef = useRef<HTMLDivElement | null>(null);
   const processedAutoAdjustmentsRef = useRef<Set<string>>(new Set());
   const autoSyncingRef = useRef(false);
@@ -81,7 +91,12 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
     hourlyDensity,
     todayStats,
     yesterdayStats,
-    autoAdjustments
+    autoAdjustments,
+    dayForecast,
+    dayProgress,
+    currentTaskInfo,
+    timeboxXP,
+    occupiedSlots
   } = useTimeboxCalculations({ timeBlocks, selectedDate });
 
   // Handlers hook
@@ -100,6 +115,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
     handlePanEnd,
     handleTimelineClick,
     handleGapSchedule,
+    handleQuickAddTask,
     createFocusSprint
   } = useTimeboxHandlers({
     validTasks,
@@ -168,6 +184,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
   const handleAutoBlocksUpdated = useCallback(() => {
     refreshTimeBlocks();
   }, [refreshTimeBlocks]);
+
 
   useAutoTimeblocks({
     wakeUpTime,
@@ -347,28 +364,28 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
       <div className="min-h-screen w-full mb-24 bg-black overflow-x-hidden">
         <div className="w-full relative">
         <div className="w-full mx-auto px-2 sm:px-4 md:px-6 lg:px-8 space-y-6">
-            <Card className="bg-purple-900/10 border-purple-700/30">
+            <Card className="bg-sky-900/10 border-sky-700/30">
               <CardContent className="p-6 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {Array.from({ length: 2 }).map((_, index) => (
                     <div
                       key={`timebox-stat-skeleton-${index}`}
-                      className="rounded-xl border border-purple-700/40 bg-purple-900/30 p-4 space-y-3"
+                      className="rounded-xl border border-sky-700/40 bg-sky-900/30 p-4 space-y-3"
                     >
-                      <Skeleton className="h-4 w-24 bg-purple-500/20" />
-                      <Skeleton className="h-8 w-20 bg-purple-400/30" />
-                      <Skeleton className="h-2 w-full bg-purple-500/20 rounded-full" />
+                      <Skeleton className="h-4 w-24 bg-sky-500/20" />
+                      <Skeleton className="h-8 w-20 bg-sky-400/30" />
+                      <Skeleton className="h-2 w-full bg-sky-500/20 rounded-full" />
                     </div>
                   ))}
                 </div>
 
                 <div className="space-y-3">
-                  <Skeleton className="h-6 w-48 bg-purple-500/20" />
+                  <Skeleton className="h-6 w-48 bg-sky-500/20" />
                   <div className="space-y-2">
                     {Array.from({ length: 4 }).map((_, index) => (
                       <Skeleton
                         key={`timebox-timeline-skeleton-${index}`}
-                        className="h-12 w-full bg-purple-900/30 border border-purple-700/40 rounded-xl"
+                        className="h-12 w-full bg-sky-900/30 border border-sky-700/40 rounded-xl"
                       />
                     ))}
                   </div>
@@ -376,14 +393,14 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
               </CardContent>
             </Card>
 
-            <Card className="bg-purple-900/20 border-purple-700/40">
+            <Card className="bg-sky-900/20 border-sky-700/40">
               <CardContent className="p-4 space-y-3">
-                <Skeleton className="h-5 w-32 bg-purple-500/20" />
+                <Skeleton className="h-5 w-32 bg-sky-500/20" />
                 <div className="grid grid-cols-2 gap-3">
                   {Array.from({ length: 2 }).map((_, index) => (
                     <Skeleton
                       key={`timebox-action-skeleton-${index}`}
-                      className="h-12 w-full bg-purple-900/40 border border-purple-700/40 rounded-xl"
+                      className="h-12 w-full bg-sky-900/40 border border-sky-700/40 rounded-xl"
                     />
                   ))}
                 </div>
@@ -395,12 +412,174 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
     );
   }
 
+  // Handle navigation to Checkout
+  const handleGoToCheckout = useCallback(() => {
+    navigate('/lifelock/daily/checkout');
+  }, [navigate]);
+
+  // Handle adding more tasks
+  const handleAddMoreTasks = useCallback(() => {
+    setIsQuickSchedulerOpen(true);
+  }, []);
+
+  // Handle snooze task (postpone by N minutes)
+  const handleSnoozeTask = useCallback(async (taskId: string, minutes: number) => {
+    const task = validTasks.find(t => t.id === taskId);
+    if (!task || !internalUserId) return;
+
+    const startMinutes = timeToMinutes(task.startTime) ?? 0;
+    const endMinutes = startMinutes + task.duration;
+
+    const newStartMinutes = startMinutes + minutes;
+    const newEndMinutes = endMinutes + minutes;
+
+    const formatTime = (mins: number): string => {
+      const normalized = mins % (24 * 60);
+      const hours = Math.floor(normalized / 60);
+      const minsVal = normalized % 60;
+      return `${hours.toString().padStart(2, '0')}:${minsVal.toString().padStart(2, '0')}`;
+    };
+
+    try {
+      const success = await updateTimeBlock(taskId, {
+        userId: internalUserId,
+        date: dateKey,
+        startTime: formatTime(newStartMinutes),
+        endTime: formatTime(newEndMinutes)
+      });
+
+      if (success) {
+        toast.success(`Task postponed by ${minutes} minutes`);
+      } else {
+        toast.error('Failed to postpone task');
+      }
+    } catch (error) {
+      console.error('Error snoozing task:', error);
+      toast.error('Failed to postpone task');
+    }
+  }, [validTasks, internalUserId, dateKey, updateTimeBlock]);
+
+  // Handle extend task duration
+  const handleExtendTask = useCallback(async (taskId: string, minutes: number) => {
+    const task = validTasks.find(t => t.id === taskId);
+    if (!task || !internalUserId) return;
+
+    const startMinutes = timeToMinutes(task.startTime) ?? 0;
+    const endMinutes = startMinutes + task.duration;
+    const newEndMinutes = endMinutes + minutes;
+
+    const formatTime = (mins: number): string => {
+      const normalized = mins % (24 * 60);
+      const hours = Math.floor(normalized / 60);
+      const minsVal = normalized % 60;
+      return `${hours.toString().padStart(2, '0')}:${minsVal.toString().padStart(2, '0')}`;
+    };
+
+    try {
+      const success = await updateTimeBlock(taskId, {
+        userId: internalUserId,
+        date: dateKey,
+        startTime: task.startTime,
+        endTime: formatTime(newEndMinutes)
+      });
+
+      if (success) {
+        toast.success(`Task extended by ${minutes} minutes`);
+      } else {
+        toast.error('Failed to extend task');
+      }
+    } catch (error) {
+      console.error('Error extending task:', error);
+      toast.error('Failed to extend task');
+    }
+  }, [validTasks, internalUserId, dateKey, updateTimeBlock]);
+
+  // Toggle focus mode
+  const handleToggleFocusMode = useCallback(() => {
+    setIsFocusMode(prev => !prev);
+  }, []);
+
+  // Helper to convert time string to minutes
+  const timeToMinutes = (time: string): number | null => {
+    const match = time.trim().match(/(\d{1,2}):(\d{2})/);
+    if (!match) return null;
+    const hours = Number(match[1]);
+    const minutes = Number(match[2]);
+    if (Number.isNaN(hours) || Number.isNaN(minutes)) return null;
+    return hours * 60 + minutes;
+  };
+
   return (
     <div className="min-h-screen w-full bg-transparent overflow-x-hidden">
       <div className="w-full relative">
-          <div className="w-full mx-auto px-2 sm:px-4 md:px-6 lg:px-8 pb-32">
-          {/* Timeline - No header, no stats, just the timeline */}
-          <div className="w-full">
+          <div className="w-full max-w-none p-4 sm:p-6 space-y-4 pb-32">
+          {/* Page Header - Title, Icon, Subtext */}
+          <div className="px-3 py-4 border-b border-white/10">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0">
+                  <Clock className="h-4 w-4 text-sky-400" aria-hidden="true" />
+                </div>
+                <div className="min-w-0">
+                  <h1 className="text-lg font-semibold text-white tracking-tight">Timebox</h1>
+                  <p className="text-xs text-white/60">Plan your day</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                {/* View Mode Toggle */}
+                <div className="flex items-center bg-gray-900/60 rounded-lg p-1 border border-white/10">
+                  <button
+                    onClick={() => setViewMode('category')}
+                    className={cn(
+                      "flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all",
+                      viewMode === 'category'
+                        ? "bg-sky-500/20 text-sky-300"
+                        : "text-white/50 hover:text-white/70"
+                    )}
+                    title="Category View"
+                  >
+                    <LayoutGrid className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Category</span>
+                  </button>
+                  <button
+                    onClick={() => setViewMode('energy')}
+                    className={cn(
+                      "flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all",
+                      viewMode === 'energy'
+                        ? "bg-sky-500/20 text-sky-300"
+                        : "text-white/50 hover:text-white/70"
+                    )}
+                    title="Energy View"
+                  >
+                    <Flame className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Energy</span>
+                  </button>
+                </div>
+                <div className="text-right">
+                  <div className="text-lg font-semibold text-sky-400">{timeboxXP} XP</div>
+                  <div className="text-xs text-sky-400/70">{todayStats.completionPercentage}% complete</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Day Progress Bar */}
+          <div className="px-3">
+            <DayProgressBar dayProgress={dayProgress} />
+          </div>
+
+          {/* Now Task Spotlight - Sticky Header */}
+          <NowTaskSpotlight
+            currentTaskInfo={currentTaskInfo}
+            onToggleComplete={handleToggleComplete}
+            onSnooze={handleSnoozeTask}
+            onExtend={handleExtendTask}
+            isFocusMode={isFocusMode}
+            onToggleFocusMode={handleToggleFocusMode}
+          />
+
+          {/* Timeline */}
+          <div className={cn("w-full transition-all duration-500", isFocusMode && "opacity-40 blur-[1px]")}>
             <TimeboxTimeline
               ref={timelineContainerRef}
               timeSlots={timeSlots}
@@ -414,6 +593,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
               dragPreview={dragPreview}
               gapFiller={gapFiller}
               gapSuggestions={gapSuggestions}
+              occupiedSlots={occupiedSlots}
               getTaskPosition={getTaskPosition}
               onToggleComplete={handleToggleComplete}
               onAddAfter={handleAddAfter}
@@ -431,6 +611,8 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
                 setGapSuggestions([]);
               }}
               setIsQuickSchedulerOpen={setIsQuickSchedulerOpen}
+              onQuickAddTask={handleQuickAddTask}
+              viewMode={viewMode}
             />
           </div>
         </div>
@@ -489,11 +671,14 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
           </div>
         )}
 
-        {/* AI Planning Assistant */}
-        <PlanningAssistant
-          selectedDate={selectedDate}
-          createTimeBlock={handleCreateBlock}
-          timeBlocks={timeBlocks}
+        {/* Day Completion Forecast Footer */}
+        <DayForecast
+          lastEndTime={dayForecast.lastEndTime}
+          allCompleted={dayForecast.allCompleted}
+          completionPercentage={dayForecast.completionPercentage}
+          completionTime={dayForecast.completionTime}
+          onGoToCheckout={handleGoToCheckout}
+          onAddMoreTasks={handleAddMoreTasks}
         />
       </div>
     </div>

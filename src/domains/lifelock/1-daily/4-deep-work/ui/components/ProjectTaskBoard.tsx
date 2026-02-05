@@ -105,7 +105,7 @@ const TaskCard: React.FC<{ task: ProjectTask }> = ({ task }) => {
                 {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
               </Badge>
               
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-500 to-orange-500 flex items-center justify-center text-white text-xs font-semibold">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white text-xs font-semibold">
                 {task.assignee.initials}
               </div>
             </div>

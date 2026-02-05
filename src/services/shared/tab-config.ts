@@ -181,7 +181,7 @@ export const TAB_CONFIG: Record<TabId, TabConfig> = {
     name: 'Time Box',
     icon: Calendar,
     timeRelevance: [8, 12, 17],
-    color: 'from-purple-500 to-pink-500',
+    color: 'from-sky-400 to-blue-500',
     description: 'Time blocking and schedule management',
     componentPath: 'TimeboxSection'
   },

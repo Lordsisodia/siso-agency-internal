@@ -26,7 +26,7 @@ export const MealInput: React.FC<MealInputProps> = ({
       <Textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-1 bg-pink-900/40 border-pink-600/50 text-white placeholder:text-pink-200/60 focus:border-pink-400 focus:ring-pink-400/20"
+        className="mt-1 bg-green-900/40 border-green-600/50 text-white placeholder:text-green-200/60 focus:border-green-400 focus:ring-green-400/20"
         placeholder={placeholder}
       />
     </div>

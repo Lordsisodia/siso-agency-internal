@@ -2,7 +2,7 @@ import { useCallback, Dispatch, SetStateAction } from 'react';
 import { toast } from 'sonner';
 import { TimeBlockCategory } from '@/services/api/timeblocksApi.offline';
 import { TimeboxTask, DragPreviewState, GapFillerState, FocusSprintType, TIMEBOX_HOUR_HEIGHT } from './types';
-import { mapUIToCategory, formatTime, parseTimeToMinutes } from './utils';
+import { mapUIToCategory, formatTime, parseTimeToMinutes, inferCategoryFromHour } from './utils';
 import { unifiedDataService } from '@/services/shared/unified-data.service';
 
 interface UseTimeboxHandlersProps {
@@ -169,7 +169,34 @@ export const useTimeboxHandlers = ({
     return await checkConflicts(startTime, endTime, excludeId);
   }, [checkConflicts]);
 
-  // Handle live drag preview with 15-minute snapping
+  // Helper function to check if two time ranges overlap
+  const checkTimeOverlap = useCallback((start1: number, end1: number, start2: number, end2: number): boolean => {
+    return start1 < end2 && start2 < end1;
+  }, []);
+
+  // Helper function to find conflicting tasks
+  const findConflictingTasks = useCallback((taskId: string, startMinutes: number, endMinutes: number): { hasConflict: boolean; conflictingTasks: string[] } => {
+    const conflictingTasks: string[] = [];
+
+    for (const otherTask of validTasks) {
+      // Skip the task being dragged
+      if (otherTask.id === taskId) continue;
+
+      const otherStart = parseTimeToMinutes(otherTask.startTime);
+      const otherEnd = parseTimeToMinutes(otherTask.endTime);
+
+      if (checkTimeOverlap(startMinutes, endMinutes, otherStart, otherEnd)) {
+        conflictingTasks.push(otherTask.title);
+      }
+    }
+
+    return {
+      hasConflict: conflictingTasks.length > 0,
+      conflictingTasks
+    };
+  }, [validTasks, checkTimeOverlap]);
+
+  // Handle live drag preview with 15-minute snapping and conflict detection
   const handleDrag = useCallback((taskId: string, info: any) => {
     const PIXELS_PER_MINUTE = TIMEBOX_HOUR_HEIGHT / 60;
     const minutesMoved = Math.round(info.offset.y / PIXELS_PER_MINUTE);
@@ -188,18 +215,29 @@ export const useTimeboxHandlers = ({
     const snappedStart = snapTo15(newStartMinutes);
     const snappedEnd = snappedStart + task.duration;
 
-    // Validate bounds
+    // Validate bounds - outside bounds is invalid (red state)
     if (snappedStart < 0 || snappedEnd > 24 * 60) {
-      setDragPreview(null);
+      setDragPreview({
+        startTime: formatTime(Math.max(0, snappedStart)),
+        endTime: formatTime(Math.min(24 * 60, snappedEnd)),
+        top: info.point.y,
+        hasConflict: true,
+        conflictingTasks: ['Outside timeline bounds']
+      });
       return;
     }
+
+    // Check for conflicts with other tasks
+    const { hasConflict, conflictingTasks } = findConflictingTasks(taskId, snappedStart, snappedEnd);
 
     setDragPreview({
       startTime: formatTime(snappedStart),
       endTime: formatTime(snappedEnd),
-      top: info.point.y
+      top: info.point.y,
+      hasConflict,
+      conflictingTasks: hasConflict ? conflictingTasks : undefined
     });
-  }, [tasks, setDragPreview]);
+  }, [tasks, validTasks, setDragPreview, findConflictingTasks, checkTimeOverlap]);
 
   // Handle drag-and-drop repositioning
   const handleDragEnd = useCallback(async (taskId: string, info: any) => {
@@ -471,6 +509,27 @@ export const useTimeboxHandlers = ({
     }
   }, [createTimeBlock, setGapFiller, setGapSuggestions]);
 
+  // Handle quick add task from inline input on empty slots
+  const handleQuickAddTask = useCallback(async (hour: number, title: string) => {
+    const startTime = `${hour.toString().padStart(2, '0')}:00`;
+    const endTime = `${(hour + 1).toString().padStart(2, '0')}:00`;
+    const category = inferCategoryFromHour(hour);
+
+    const success = await createTimeBlock({
+      title: title.trim(),
+      startTime,
+      endTime,
+      category,
+      description: ''
+    });
+
+    if (success) {
+      toast.success(`Task added: ${title}`);
+    } else {
+      toast.error('Failed to add task');
+    }
+  }, [createTimeBlock]);
+
   // Focus Sprint Generator - Create Pomodoro-style work/break chains
   const createFocusSprint = useCallback(async (startTime: string, templateType: FocusSprintType) => {
     const templates = {
@@ -556,6 +615,7 @@ export const useTimeboxHandlers = ({
     handlePanEnd,
     handleTimelineClick,
     handleGapSchedule,
+    handleQuickAddTask,
     createFocusSprint
   };
 };

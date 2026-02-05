@@ -24,7 +24,8 @@ import { useDeepWorkTasksSupabase, DeepWorkTask } from "@/domains/lifelock/1-dai
 import { useGamificationInit } from '@/domains/lifelock/_shared/hooks/useGamificationInit';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { UnifiedTaskCard, UnifiedTask, SLATE_THEME } from "@/domains/lifelock/1-daily/_shared/components/UnifiedTaskCard";
+import { UnifiedTaskCard, UnifiedTask, AMBER_THEME } from "@/domains/lifelock/1-daily/_shared/components/UnifiedTaskCard";
+import { useDeepWorkTimers } from "@/domains/lifelock/1-daily/4-deep-work/hooks/useDeepWorkTimers";
 
 // Stub for missing sortSubtasksHybrid function
 const sortSubtasksHybrid = (subtasks: any[]) => subtasks;
@@ -110,6 +111,10 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
 
   // Initialize gamification system for XP tracking
   useGamificationInit();
+
+  // Initialize timer hook for deep work tracking
+  const dateKey = useMemo(() => selectedDate ? format(selectedDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd'), [selectedDate]);
+  const { activeTimer, start, stop, getElapsedMsForTask } = useDeepWorkTimers(dateKey);
 
   // Get today's date string for comparison (using local time, not UTC)
   const getLocalDate = () => {
@@ -422,7 +427,11 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
   };
 
   const handleTimerToggle = (taskId: string) => {
-    // No-op for TodayTasksList - no timer
+    if (activeTimer?.taskId === taskId) {
+      stop(taskId);
+    } else {
+      start(taskId);
+    }
   };
 
   const toggleSubtaskVisibility = (taskId: string) => {
@@ -660,17 +669,17 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
   // Loading state
   if (loading) {
     return (
-      <div className="text-slate-50 h-full">
-        <Card className="bg-slate-900/20 border-slate-700/50">
+      <div className="text-amber-50 h-full">
+        <Card className="bg-amber-900/20 border-amber-700/50">
           <CardHeader className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <Skeleton className="h-5 w-5 rounded-full bg-slate-500/30" />
-                <Skeleton className="h-5 w-40 bg-slate-400/20" />
+                <Skeleton className="h-5 w-5 rounded-full bg-amber-500/30" />
+                <Skeleton className="h-5 w-40 bg-amber-400/20" />
               </div>
-              <Skeleton className="h-4 w-16 bg-slate-400/20" />
+              <Skeleton className="h-4 w-16 bg-amber-400/20" />
             </div>
-            <Skeleton className="h-2 w-full bg-slate-400/20 rounded-full" />
+            <Skeleton className="h-2 w-full bg-amber-400/20 rounded-full" />
           </CardHeader>
         </Card>
       </div>
@@ -751,31 +760,31 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
   };
 
   return (
-    <div className="text-slate-50 h-full">
-      <Card className="bg-slate-900/20 border-slate-700/50">
+    <div className="text-amber-50 h-full">
+      <Card className="bg-amber-900/20 border-amber-700/50">
         <CardHeader className="p-3 sm:p-4">
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center text-slate-300 text-base sm:text-lg">
+            <CardTitle className="flex items-center text-amber-300 text-base sm:text-lg">
               <Calendar className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
               Today's Tasks
             </CardTitle>
             {tasks.length === 0 && (rawLightTasks.length > 0 || rawDeepTasks.length > 0) && (
               <button
                 onClick={scheduleFirstTaskForToday}
-                className="px-3 py-1 text-xs font-medium text-slate-300 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors"
+                className="px-3 py-1 text-xs font-medium text-amber-300 bg-amber-700 hover:bg-amber-600 rounded-lg transition-colors"
               >
                 Test: Schedule First Task
               </button>
             )}
           </div>
-          <div className="border-t border-slate-600/50 my-4"></div>
-          <div className="text-slate-300 text-sm">
+          <div className="border-t border-amber-600/50 my-4"></div>
+          <div className="text-amber-300 text-sm">
             {tasks.length === 0
               ? 'No tasks scheduled for today.'
               : `${tasks.length} ${tasks.length === 1 ? 'task' : 'tasks'} scheduled for today`
             }
           </div>
-          <div className="border-t border-slate-600/50 my-3 sm:my-4"></div>
+          <div className="border-t border-amber-600/50 my-3 sm:my-4"></div>
         </CardHeader>
         <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
           <motion.div
@@ -797,8 +806,12 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
                     return (
                       <UnifiedTaskCard
                         key={task.id}
-                        task={task}
-                        theme={SLATE_THEME}
+                        task={{
+                          ...task,
+                          activeTimer,
+                          elapsedMs: getElapsedMsForTask(task.id)
+                        }}
+                        theme={AMBER_THEME}
                         index={index}
                         isExpanded={isExpanded}
                         isFirst={isFirst}
@@ -819,6 +832,7 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
                         newSubtaskTitle={newSubtaskTitle}
                         showCompletedSubtasks={showCompletedSubtasks}
                         sortSubtasks={sortSubtasksHybrid}
+                        workType={task.id.startsWith('light-') ? 'light' : 'deep'}
                         onToggleTaskStatus={handleToggleTaskStatus}
                         onToggleExpansion={toggleTaskExpansion}
                         onTaskCalendarToggle={handleTaskCalendarToggle}
@@ -860,7 +874,7 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
                         onNewSubtaskKeyDown={handleNewSubtaskKeyDown}
                         formatMsAsClock={formatMsAsClock}
                         getTaskTimeSummary={getTaskTimeSummary}
-                        themeName="DEEP"
+                        themeName="AMBER"
                       />
                     );
                   })}
@@ -875,7 +889,7 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
               <Button
                 variant="ghost"
                 size="sm"
-                className="w-full text-slate-300 hover:text-slate-200 hover:bg-slate-700/30 border-slate-600/50 hover:border-slate-500/50 transition-all duration-200 text-sm border"
+                className="w-full text-amber-300 hover:text-amber-200 hover:bg-amber-700/30 border-amber-600/50 hover:border-amber-500/50 transition-all duration-200 text-sm border"
                 onClick={() => setIsAddingNewTask(true)}
               >
                 <Plus className="h-4 w-4 mr-2" />
@@ -896,20 +910,20 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
                     }
                   }}
                   placeholder="Enter task title..."
-                  className="w-full px-3 py-2 text-sm bg-slate-800/50 border border-slate-600/50 rounded-lg text-slate-100 placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500"
+                  className="w-full px-3 py-2 text-sm bg-amber-900/40 border border-amber-600/50 rounded-lg text-amber-100 placeholder-amber-400/50 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
                   autoFocus
                 />
 
                 {/* Task Type and Priority Selection */}
                 <div className="flex items-center gap-2">
                   {/* Work Type Selector */}
-                  <div className="flex items-center gap-1 bg-slate-800/30 rounded-lg p-1 border border-slate-600/30">
+                  <div className="flex items-center gap-1 bg-amber-900/30 rounded-lg p-1 border border-amber-600/30">
                     <button
                       onClick={() => setNewTaskType('light')}
                       className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
                         newTaskType === 'light'
-                          ? 'bg-green-600/30 text-green-200 border border-green-500/40'
-                          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/30'
+                          ? 'bg-amber-600/40 text-amber-100 border border-amber-500/50'
+                          : 'text-amber-400/70 hover:text-amber-200 hover:bg-amber-800/30'
                       }`}
                     >
                       Light
@@ -918,8 +932,8 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
                       onClick={() => setNewTaskType('deep')}
                       className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
                         newTaskType === 'deep'
-                          ? 'bg-purple-600/30 text-purple-200 border border-purple-500/40'
-                          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/30'
+                          ? 'bg-amber-600/40 text-amber-100 border border-amber-500/50'
+                          : 'text-amber-400/70 hover:text-amber-200 hover:bg-amber-800/30'
                       }`}
                     >
                       Deep
@@ -930,7 +944,7 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
                   <select
                     value={newTaskPriority}
                     onChange={(e) => setNewTaskPriority(e.target.value as 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT')}
-                    className="flex-1 px-3 py-1.5 text-xs bg-slate-800/50 border border-slate-600/50 rounded-lg text-slate-200 focus:outline-none focus:border-slate-500"
+                    className="flex-1 px-3 py-1.5 text-xs bg-amber-900/40 border border-amber-600/50 rounded-lg text-amber-100 focus:outline-none focus:border-amber-500"
                   >
                     <option value="LOW">Low Priority</option>
                     <option value="MEDIUM">Medium Priority</option>
@@ -944,7 +958,7 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
                       size="sm"
                       onClick={handleCreateNewTask}
                       disabled={!newTaskTitle.trim()}
-                      className="px-3 py-1.5 text-xs bg-slate-600 hover:bg-slate-500 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-3 py-1.5 text-xs bg-amber-600 hover:bg-amber-500 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Add
                     </Button>
@@ -955,7 +969,7 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
                         setIsAddingNewTask(false);
                         setNewTaskTitle('');
                       }}
-                      className="px-3 py-1.5 text-xs text-slate-400 hover:text-slate-200 hover:bg-slate-700/30 rounded-lg transition-colors"
+                      className="px-3 py-1.5 text-xs text-amber-400/70 hover:text-amber-200 hover:bg-amber-800/30 rounded-lg transition-colors"
                     >
                       Cancel
                     </Button>

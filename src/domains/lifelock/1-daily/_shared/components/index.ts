@@ -51,5 +51,5 @@ export { CustomCalendar } from './ui/CustomCalendar';
 export { WorkProtocolCard } from './ui/WorkProtocolCard';
 
 // Unified Task Card
-export { UnifiedTaskCard, LIGHT_THEME, DEEP_THEME, SLATE_THEME } from './UnifiedTaskCard';
+export { UnifiedTaskCard, LIGHT_THEME, DEEP_THEME, SLATE_THEME, AMBER_THEME } from './UnifiedTaskCard';
 export type { UnifiedTask, UnifiedSubtask, ThemeConfig } from './UnifiedTaskCard';
