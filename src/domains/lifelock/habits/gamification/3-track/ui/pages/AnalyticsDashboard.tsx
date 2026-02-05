@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingCart, Lock, Sparkles, Flame, Crown, ChevronDown } from 'lucide-react';
 import { useXPStoreContext } from '@/domains/lifelock/habits/gamification/1-earn/hooks/XPStoreContext';
-import { xpStoreService, RewardItem } from '@/domains/lifelock/habits/gamification/services/xpStoreService';
+import { xpStoreService, RewardItem } from '@/domains/lifelock/habits/gamification/3-track/domain/xpStoreService';
 import { PurchaseConfirmationModal } from '../../../2-spend/ui/components/PurchaseConfirmationModal';
 import { cn } from '@/lib/utils';
 
