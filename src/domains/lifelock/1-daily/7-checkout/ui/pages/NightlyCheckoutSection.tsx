@@ -317,8 +317,8 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
         <div className="px-5 py-5 border-b border-white/10">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500/20 to-indigo-500/20 border-2 border-purple-500/30 flex items-center justify-center flex-shrink-0">
-                <Moon className="h-7 w-7 text-purple-400" />
+              <div className="p-1.5 rounded-lg border border-purple-400/30 flex-shrink-0">
+                <Moon className="h-4 w-4 text-purple-300" />
               </div>
               <div className="min-w-0">
                 <h1 className="text-2xl font-bold text-white tracking-tight">Nightly Checkout</h1>

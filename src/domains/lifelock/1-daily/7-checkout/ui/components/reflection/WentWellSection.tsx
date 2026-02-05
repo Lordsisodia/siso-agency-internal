@@ -106,12 +106,36 @@ export const WentWellSection: React.FC<WentWellSectionProps> = ({
   );
   const [isExpanded, setIsExpanded] = useState(false);
 
+  // Track previous completion state for auto-collapse
+  const prevCompleteRef = useRef(false);
+  // Track expanded state in ref to avoid dependency cycle
+  const isExpandedRef = useRef(isExpanded);
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    isExpandedRef.current = isExpanded;
+  }, [isExpanded]);
+
   // Sync props to local state
   useEffect(() => {
     if (items.length > 0) {
       setWentWellItems(items);
     }
   }, [items]);
+
+  // Auto-collapse when section becomes complete
+  useEffect(() => {
+    const hasContent = wentWellItems.some(item => item.trim() !== '');
+    const wasComplete = prevCompleteRef.current;
+
+    // If section just got content and was empty before, collapse it
+    // Use ref to check current state without adding isExpanded to dependencies
+    if (hasContent && !wasComplete && isExpandedRef.current) {
+      setIsExpanded(false);
+    }
+
+    prevCompleteRef.current = hasContent;
+  }, [wentWellItems]);
 
   const addWentWellItem = () => {
     const newItems = [...wentWellItems, ''];
@@ -135,6 +159,7 @@ export const WentWellSection: React.FC<WentWellSectionProps> = ({
   };
 
   const completedWentWell = wentWellItems.filter(item => item.trim() !== '').length;
+  const hasContent = completedWentWell > 0;
 
   return (
     <div>
@@ -152,6 +177,16 @@ export const WentWellSection: React.FC<WentWellSectionProps> = ({
                   {completedWentWell} {completedWentWell === 1 ? 'win' : 'wins'} captured
                 </p>
               </div>
+              {/* Green CheckCircle when has content */}
+              {hasContent && (
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 200, damping: 10 }}
+                >
+                  <CheckCircle2 className="h-5 w-5 text-green-400" />
+                </motion.div>
+              )}
             </div>
             {isExpanded ? (
               <ChevronUp className="text-purple-400" />

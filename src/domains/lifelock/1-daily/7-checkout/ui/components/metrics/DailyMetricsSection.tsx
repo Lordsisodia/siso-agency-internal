@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, ChevronUp, Zap, Activity, Apple, Brain, Book, Moon } from 'lucide-react';
+import { ChevronDown, ChevronUp, Zap, Activity, Apple, Brain, Book, Moon, CheckCircle } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 
 import {
@@ -49,6 +49,64 @@ export const DailyMetricsSection: React.FC<DailyMetricsSectionProps> = ({
     sleep: false
   });
 
+  // Track previous completion states for auto-collapse
+  const prevCompleteRef = useRef({
+    meditation: false,
+    workout: false,
+    nutrition: false,
+    deepWork: false,
+    research: false,
+    sleep: false
+  });
+  // Track expanded sections in ref to avoid dependency cycle
+  const expandedSectionsRef = useRef(expandedSections);
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    expandedSectionsRef.current = expandedSections;
+  }, [expandedSections]);
+
+  // Auto-collapse sections when they become complete
+  useEffect(() => {
+    const hasMeditation = meditation.minutes > 0;
+    const hasWorkout = workout.completed;
+    const hasNutrition = nutrition.hitGoal;
+    const hasDeepWork = deepWork.hours > 0;
+    const hasResearch = research.hours > 0 || research.topic.trim() !== '';
+    const hasSleep = sleep.hours > 0;
+
+    // Check each section for transition from incomplete to complete
+    // Use ref to check current state without adding expandedSections to dependencies
+    if (hasMeditation && !prevCompleteRef.current.meditation && expandedSectionsRef.current.meditation) {
+      setExpandedSections(prev => ({ ...prev, meditation: false }));
+    }
+    if (hasWorkout && !prevCompleteRef.current.workout && expandedSectionsRef.current.workout) {
+      setExpandedSections(prev => ({ ...prev, workout: false }));
+    }
+    if (hasNutrition && !prevCompleteRef.current.nutrition && expandedSectionsRef.current.nutrition) {
+      setExpandedSections(prev => ({ ...prev, nutrition: false }));
+    }
+    if (hasDeepWork && !prevCompleteRef.current.deepWork && expandedSectionsRef.current.deepWork) {
+      setExpandedSections(prev => ({ ...prev, deepWork: false }));
+    }
+    if (hasResearch && !prevCompleteRef.current.research && expandedSectionsRef.current.research) {
+      setExpandedSections(prev => ({ ...prev, research: false }));
+    }
+    if (hasSleep && !prevCompleteRef.current.sleep && expandedSectionsRef.current.sleep) {
+      setExpandedSections(prev => ({ ...prev, sleep: false }));
+    }
+
+    // Update refs
+    prevCompleteRef.current = {
+      meditation: hasMeditation,
+      workout: hasWorkout,
+      nutrition: hasNutrition,
+      deepWork: hasDeepWork,
+      research: hasResearch,
+      sleep: hasSleep
+    };
+  }, [meditation, workout, nutrition, deepWork, research, sleep]);
+
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections(prev => ({
       ...prev,
@@ -61,6 +119,7 @@ export const DailyMetricsSection: React.FC<DailyMetricsSectionProps> = ({
       key: 'meditation' as const,
       title: 'Meditation',
       icon: <Zap className="h-4 w-4 text-purple-400" />,
+      isComplete: meditation.minutes > 0,
       component: (
         <MeditationCard
           value={meditation}
@@ -73,6 +132,7 @@ export const DailyMetricsSection: React.FC<DailyMetricsSectionProps> = ({
       key: 'workout' as const,
       title: 'Workout',
       icon: <Activity className="h-4 w-4 text-purple-400" />,
+      isComplete: workout.completed,
       component: (
         <WorkoutCard
           value={workout}
@@ -85,6 +145,7 @@ export const DailyMetricsSection: React.FC<DailyMetricsSectionProps> = ({
       key: 'nutrition' as const,
       title: 'Nutrition',
       icon: <Apple className="h-4 w-4 text-purple-400" />,
+      isComplete: nutrition.hitGoal,
       component: (
         <NutritionCard
           value={nutrition}
@@ -97,6 +158,7 @@ export const DailyMetricsSection: React.FC<DailyMetricsSectionProps> = ({
       key: 'deepWork' as const,
       title: 'Deep Work',
       icon: <Brain className="h-4 w-4 text-purple-400" />,
+      isComplete: deepWork.hours > 0,
       component: (
         <DeepWorkCard
           value={deepWork}
@@ -109,6 +171,7 @@ export const DailyMetricsSection: React.FC<DailyMetricsSectionProps> = ({
       key: 'research' as const,
       title: 'Research & Learning',
       icon: <Book className="h-4 w-4 text-purple-400" />,
+      isComplete: research.hours > 0 || research.topic.trim() !== '',
       component: (
         <ResearchCard
           value={research}
@@ -121,6 +184,7 @@ export const DailyMetricsSection: React.FC<DailyMetricsSectionProps> = ({
       key: 'sleep' as const,
       title: 'Sleep',
       icon: <Moon className="h-4 w-4 text-purple-400" />,
+      isComplete: sleep.hours > 0,
       component: (
         <SleepCard
           value={sleep}
@@ -168,6 +232,16 @@ export const DailyMetricsSection: React.FC<DailyMetricsSectionProps> = ({
                       {metric.icon}
                     </div>
                     <h4 className="font-semibold text-purple-200">{metric.title}</h4>
+                    {/* Green CheckCircle when complete */}
+                    {metric.isComplete && (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: "spring", stiffness: 200, damping: 10 }}
+                      >
+                        <CheckCircle className="h-4 w-4 text-green-400" />
+                      </motion.div>
+                    )}
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-purple-400/70">+25 XP</span>

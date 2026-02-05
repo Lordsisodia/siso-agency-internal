@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Sun,
   CheckCircle2,
@@ -15,7 +15,9 @@ import {
   Activity,
   Heart,
   Plus,
-  Minus
+  Minus,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -61,6 +63,8 @@ import {
 import { calculateWaterXP } from '@/domains/lifelock/1-daily/5-stats/features/wellness/domain/xpCalculations';
 import { XPPill } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/xp/XPPill';
 import { XPFooterSummary } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/xp/XPFooterSummary';
+import { FlowStatisticsDashboard } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/statistics';
+import { FlowStateRulesCard } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/flow-state';
 
 interface MorningRoutineHabit {
   name: string;
@@ -261,6 +265,83 @@ const waterXPRef = useRef(0);
 
   // Top 3 Daily Priorities (after meditation)
   const [dailyPriorities, setDailyPriorities] = useState<string[]>(['', '', '']);
+
+  // Track expanded/collapsed state for each task card
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>(() => {
+    // Default all sections to expanded
+    const initial: Record<string, boolean> = {};
+    MORNING_ROUTINE_TASKS.forEach(t => {
+      initial[t.key] = true;
+    });
+    return initial;
+  });
+
+  // Helper function to check if a habit is completed - DEFINED EARLY for use in isTaskComplete
+  const isHabitCompleted = useCallback((habitKey: string): boolean => {
+    if (!morningRoutine || !morningRoutine.items) {
+      return false;
+    }
+
+    const habit = morningRoutine.items.find(item => item.name === habitKey);
+    return habit?.completed ?? false;
+  }, [morningRoutine]);
+
+  // Smart completion check based on data, not checkboxes - DEFINED EARLY for useEffect
+  const isTaskComplete = useCallback((taskKey: string, subtasks: any[]): boolean => {
+    switch (taskKey) {
+      case 'wakeUp':
+        return wakeUpTime !== ''; // Complete when time is set
+      case 'freshenUp':
+      case 'getBloodFlowing':
+      case 'powerUpBrain':
+        // Complete when all subtasks are checked
+        return subtasks.length > 0 && subtasks.every(subtask => isHabitCompleted(subtask.key));
+      case 'planDay':
+        return isPlanDayComplete; // Complete when manually marked or AI marks it
+      case 'meditation':
+        return meditationDuration !== ''; // Complete when duration is entered
+      default:
+        return false;
+    }
+  }, [wakeUpTime, meditationDuration, isPlanDayComplete, isHabitCompleted]);
+
+  // Track which sections were previously complete (to detect transitions)
+  const prevCompleteStateRef = useRef<Record<string, boolean>>({});
+  // Track open sections in a ref to avoid dependency cycle in auto-collapse effect
+  const openSectionsRef = useRef<Record<string, boolean>>(openSections);
+
+  // Keep the ref in sync with state
+  useEffect(() => {
+    openSectionsRef.current = openSections;
+  }, [openSections]);
+
+  // Auto-collapse sections when they become complete
+  useEffect(() => {
+    MORNING_ROUTINE_TASKS.forEach(task => {
+      const isComplete = isTaskComplete(task.key, task.subtasks);
+      const wasComplete = prevCompleteStateRef.current[task.key];
+
+      // If section just became complete, collapse it
+      // Use the ref to check current state without adding openSections to dependencies
+      if (isComplete && !wasComplete && openSectionsRef.current[task.key]) {
+        setOpenSections(prev => ({
+          ...prev,
+          [task.key]: false
+        }));
+      }
+
+      // Update the ref
+      prevCompleteStateRef.current[task.key] = isComplete;
+    });
+  }, [wakeUpTime, meditationDuration, isPlanDayComplete, morningRoutine, isTaskComplete]);
+
+  // Toggle section open/closed
+  const toggleSection = (taskKey: string) => {
+    setOpenSections(prev => ({
+      ...prev,
+      [taskKey]: !prev[taskKey]
+    }));
+  };
 
   // 🤖 Auto-create timeboxes based on wake-up time
   useAutoTimeblocks({
@@ -603,34 +684,7 @@ const waterXPRef = useRef(0);
     setIsEditingWakeTime(false);
   };
 
-  // Helper function to check if a habit is completed
-  const isHabitCompleted = useCallback((habitKey: string): boolean => {
-    if (!morningRoutine || !morningRoutine.items) {
-      return false;
-    }
-
-    const habit = morningRoutine.items.find(item => item.name === habitKey);
-    return habit?.completed ?? false;
-  }, [morningRoutine]);
-
-  // Smart completion check based on data, not checkboxes
-  const isTaskComplete = useCallback((taskKey: string, subtasks: any[]): boolean => {
-    switch (taskKey) {
-      case 'wakeUp':
-        return wakeUpTime !== ''; // Complete when time is set
-      case 'freshenUp':
-      case 'getBloodFlowing':
-      case 'powerUpBrain':
-        // Complete when all subtasks are checked
-        return subtasks.length > 0 && subtasks.every(subtask => isHabitCompleted(subtask.key));
-      case 'planDay':
-        return isPlanDayComplete; // Complete when manually marked or AI marks it
-      case 'meditation':
-        return meditationDuration !== ''; // Complete when duration is entered
-      default:
-        return false;
-    }
-  }, [wakeUpTime, meditationDuration, isPlanDayComplete, isHabitCompleted]);
+  // Note: isHabitCompleted and isTaskComplete are defined earlier in the component
 
   // Calculate progress based on smart completion logic
   const getRoutineProgress = useCallback(() => {
@@ -812,34 +866,26 @@ const waterXPRef = useRef(0);
     <div className="min-h-screen w-full relative overflow-x-hidden">
       <div className="w-full max-w-none p-4 sm:p-6 space-y-4">
 
-        {/* Morning Routine Header */}
-        <Card className="bg-slate-950/40 border border-slate-700/30 shadow-lg overflow-hidden">
-          <CardHeader className="relative pb-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="p-1.5 rounded-lg border border-orange-400/30">
-                  <Sun className="h-4 w-4 text-orange-300" />
-                </div>
-                <div className="space-y-0.5">
-                  <CardTitle className="text-base font-semibold text-orange-100">Morning Routine</CardTitle>
-                  <p className="text-xs text-slate-400">Start your day right</p>
-                </div>
+        {/* Page Header - Title, Icon, Subtext */}
+        <div className="px-5 py-5 border-b border-white/10">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="p-1.5 rounded-lg border border-orange-400/30 flex-shrink-0">
+                <Sun className="h-4 w-4 text-orange-300" />
               </div>
-              <div className="flex items-center gap-2">
-                <Badge className={cn(
-                  "border",
-                  morningRoutineProgress >= 100
-                    ? "bg-green-500/20 text-green-300 border-green-500/30"
-                    : morningRoutineProgress >= 50
-                    ? "bg-amber-500/20 text-amber-300 border-amber-500/30"
-                    : "bg-slate-500/20 text-slate-400 border-slate-500/30"
-                )}>
-                  {morningRoutineProgress >= 100 ? 'Complete' : `${Math.round(morningRoutineProgress)}%`}
-                </Badge>
+              <div className="min-w-0">
+                <h1 className="text-2xl font-bold text-white tracking-tight">Morning Routine</h1>
+                <p className="text-sm text-white/60 mt-0.5">Start your day right</p>
               </div>
             </div>
-          </CardHeader>
-        </Card>
+            <div className="flex items-center gap-3">
+              <div className="text-right">
+                <div className="text-2xl font-bold text-orange-400">{todayXP.total} XP</div>
+                <div className="text-xs text-orange-400/70">{Math.round(morningRoutineProgress)}% complete</div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Mindset Card - Combined with tabs */}
         <Card className="morning-card bg-orange-900/20 border-orange-700/40">
@@ -892,21 +938,34 @@ const waterXPRef = useRef(0);
               {activeMindsetTab === 'coding' && (
                 <div>
                   <h3 className="text-orange-300 font-bold text-base mb-3">Coding My Brain</h3>
-                  <p className="text-gray-200 text-sm leading-relaxed">
-                    I am Shaan Sisodia. I have been given divine purpose, and on this mission, temptation awaits on either side of the path.
-                    When I give in to temptation, I shall know I am astray. I will bring my family to a new age of freedom.
-                    I will not be distracted from the path.
-                  </p>
+                  <div className="space-y-3">
+                    <p className="text-gray-200 text-sm leading-relaxed">
+                      I am Shaan Sisodia.
+                    </p>
+                    <p className="text-gray-200 text-sm leading-relaxed">
+                      I have been given divine purpose, and on this mission, temptation awaits on either side of the path.
+                    </p>
+                    <p className="text-gray-200 text-sm leading-relaxed">
+                      When I give in to temptation, I shall know I am astray.
+                    </p>
+                    <p className="text-gray-200 text-sm leading-relaxed">
+                      I will bring my family to a new age of freedom.
+                    </p>
+                    <p className="text-gray-200 text-sm leading-relaxed">
+                      I will not be distracted from the path.
+                    </p>
+                  </div>
                 </div>
               )}
               {activeMindsetTab === 'rules' && (
-                <div>
-                  <h3 className="text-orange-300 font-bold text-base mb-3">Flow State Rules</h3>
-                  <ul className="text-gray-200 text-sm space-y-2">
-                    <li>• No use of apps other than Notion.</li>
-                    <li>• No vapes or drugs (including weed).</li>
-                    <li>• No more than 5 seconds until the next action.</li>
-                  </ul>
+                <div className="space-y-6">
+                  {/* Flow State Rules Section */}
+                  <FlowStateRulesCard />
+
+                  {/* Statistics Dashboard */}
+                  <div className="pt-4 border-t border-orange-700/30">
+                    <FlowStatisticsDashboard selectedDate={selectedDate} />
+                  </div>
                 </div>
               )}
               {activeMindsetTab === 'quotes' && (
@@ -924,6 +983,7 @@ const waterXPRef = useRef(0);
                 const IconComponent = task.icon;
                 const completedSubtasks = task.subtasks.filter(subtask => isHabitCompleted(subtask.key)).length;
                 const taskComplete = isTaskComplete(task.key, task.subtasks);
+                const isExpanded = openSections[task.key] ?? true;
 
                 // Calculate progress percentage
                 const progressPercent = task.subtasks.length > 0
@@ -932,172 +992,218 @@ const waterXPRef = useRef(0);
 
                 return (
                   <Card key={task.key} className="morning-card bg-orange-900/20 border-orange-700/40 overflow-hidden">
-                    <div className="p-4">
+                    {/* Clickable Header */}
+                    <div
+                      className="p-4 cursor-pointer hover:bg-orange-900/10 transition-colors"
+                      onClick={() => toggleSection(task.key)}
+                    >
                       <div className="flex items-center justify-between gap-2 mb-3">
                         <div className="flex items-center gap-2 flex-1 min-w-0">
-                          <IconComponent className="h-5 w-5 text-orange-400 flex-shrink-0" />
+                          <div className="p-1.5 rounded-lg border border-orange-400/30 flex-shrink-0">
+                            <IconComponent className="h-4 w-4 text-orange-300" />
+                          </div>
                           <h4 className="text-orange-100 font-semibold text-base truncate">{task.title}</h4>
-                        </div>
-                        {/* XP Pill */}
-                        <XPPill
-                          xp={todayXP.breakdown[task.key] || 0}
-                          earned={taskComplete}
-                          showGlow={taskComplete}
-                        />
-                      </div>
-
-                        {/* Universal Progress Bar - ALL TASKS */}
-                        <div className="mt-2 mb-1">
-                          <div className="w-full bg-orange-900/30 border border-orange-600/20 rounded-full h-1.5">
-                            <motion.div
-                              className="bg-gradient-to-r from-orange-400 to-orange-600 h-1.5 rounded-full transition-all duration-500"
-                              initial={{ width: 0 }}
-                              animate={{ width: `${progressPercent}%` }}
-                            />
-                          </div>
-                          <div className="flex justify-between items-center mt-1">
-                            {task.subtasks.length > 0 ? (
-                              <>
-                                <span className="text-xs text-orange-400/70 font-medium">{completedSubtasks}/{task.subtasks.length} completed</span>
-                                {taskComplete && (
-                                  <span className="text-xs text-green-400 font-semibold">✓ Complete</span>
-                                )}
-                              </>
-                            ) : (
-                              <>
-                                <span className="text-xs text-orange-400/70 font-medium">
-                                  {taskComplete ? 'Completed' : 'Not started'}
-                                </span>
-                                {taskComplete && (
-                                  <span className="text-xs text-green-400 font-semibold">✓ Complete</span>
-                                )}
-                              </>
-                            )}
-                          </div>
-                        </div>
-
-                        {task.description && (
-                          <p className="text-gray-300 text-xs sm:text-sm mt-1 leading-relaxed">{task.description}</p>
-                        )}
-                        
-                        {/* Time tracking interface - for wake-up */}
-                        {task.hasTimeTracking && task.key === 'wakeUp' && (
-                          <WakeUpTimeTracker
-                            time={wakeUpTime}
-                            onTimeChange={setWakeUpTime}
-                            onOpenPicker={() => setShowTimeScrollPicker(true)}
-                            onUseNow={setCurrentTimeAsWakeUp}
-                            getCurrentTime={getCurrentTime}
-                            onClear={() => setWakeUpTime('')}
-                          />
-                        )}
-
-                        {/* Meditation time tracking with buttons */}
-                        {task.hasTimeTracking && task.key === 'meditation' && (
-                          <MeditationTracker
-                            duration={meditationDuration}
-                            onChange={setMeditationDuration}
-                            selectedDate={selectedDate}
-                          />
-                        )}
-                      </div>
-
-                    {/* Sub-tasks - Enhanced with better visual hierarchy and mobile touch targets */}
-                    {task.subtasks.length > 0 && (
-                      <div className="mt-4 ml-4 space-y-3">
-                        {task.subtasks.map((subtask) => (
-                          <div key={subtask.key}>
-                            {/* Full row clickable - makes it easier to tap on mobile */}
-                            <div
-                              className="group flex items-center gap-3 rounded-lg transition-all duration-200 cursor-pointer touch-manipulation min-h-[44px] p-2 -m-2 hover:bg-orange-900/20 active:bg-orange-900/30"
-                              onClick={() => handleHabitToggle(subtask.key, !isHabitCompleted(subtask.key))}
-                            >
-                              {/* Checkbox - visual indicator only, click handled by parent */}
-                              <div className="flex items-center justify-center">
-                                <Checkbox
-                                  checked={isHabitCompleted(subtask.key)}
-                                  className="h-6 w-6 border-2 border-orange-400/70 data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500 transition-all duration-200 group-hover:border-orange-400 pointer-events-none"
-                                />
-                              </div>
-                              <span className={cn(
-                                "text-sm font-medium transition-all duration-200 flex-1",
-                                isHabitCompleted(subtask.key)
-                                  ? "text-gray-500 line-through"
-                                  : "text-orange-200/90 group-hover:text-orange-50"
-                              )}>
-                                {subtask.title}
-                              </span>
-                              {isHabitCompleted(subtask.key) && (
-                                <CheckCircle2 className="h-3.5 w-3.5 text-green-400 animate-in zoom-in-50 duration-200" />
-                              )}
-                            </div>
-
-                            {/* Push-ups Tracking UI - Special case for pushups subtask */}
-                            {subtask.key === 'pushups' && (
-                              <PushUpTracker
-                                reps={pushupReps}
-                                personalBest={pushupPB}
-                                onUpdateReps={updatePushupReps}
-                              />
-                            )}
-
-                            {/* Water Tracking UI - Special case for water subtask */}
-                            {subtask.key === 'water' && (
-                              <WaterTracker
-                                value={waterAmount}
-                                onIncrement={incrementWater}
-                                onDecrement={decrementWater}
-                              />
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Plan Day Actions */}
-                    {task.key === 'planDay' && (
-                      <PlanDayActions
-                        isComplete={isPlanDayComplete}
-                        onMarkComplete={() => setIsPlanDayComplete(true)}
-                        onOpenThoughtDump={() => setShowThoughtDumpChat(true)}
-                      />
-                    )}
-
-                    {/* Completion Status Bar at bottom of card */}
-                    {taskComplete && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="mt-4 pt-3 border-t border-orange-700/30"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
+                          {/* Green CheckCircle when complete */}
+                          {taskComplete && (
                             <motion.div
                               initial={{ scale: 0 }}
                               animate={{ scale: 1 }}
                               transition={{ type: "spring", stiffness: 200, damping: 10 }}
                             >
-                              <CheckCircle2 className="h-4 w-4 text-green-400" />
+                              <CheckCircle2 className="h-5 w-5 text-green-400 flex-shrink-0" />
                             </motion.div>
-                            <span className="text-xs text-green-400 font-semibold">Complete</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-orange-300/70">
-                              {task.key === 'wakeUp' ? 'Wake-up logged' :
-                               task.key === 'meditation' ? 'Meditation complete' :
-                               task.key === 'planDay' ? 'Day planned' :
-                               'Task completed'}
-                            </span>
-                            <motion.div
-                              initial={{ scale: 0 }}
-                              animate={{ scale: 1 }}
-                              transition={{ delay: 0.1, type: "spring", stiffness: 200, damping: 10 }}
-                              className="h-2 w-2 rounded-full bg-green-400"
-                            />
-                          </div>
+                          )}
                         </div>
-                      </motion.div>
-                    )}
+                        <div className="flex items-center gap-2">
+                          {/* XP Pill */}
+                          <XPPill
+                            xp={todayXP.breakdown[task.key] || 0}
+                            earned={taskComplete}
+                            showGlow={taskComplete}
+                          />
+                          {/* Expand/Collapse Icon */}
+                          {isExpanded ? (
+                            <ChevronUp className="h-5 w-5 text-orange-400 flex-shrink-0" />
+                          ) : (
+                            <ChevronDown className="h-5 w-5 text-orange-400 flex-shrink-0" />
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Universal Progress Bar - ALL TASKS */}
+                      <div className="mt-2 mb-1">
+                        <div className="w-full bg-orange-900/30 border border-orange-600/20 rounded-full h-1.5">
+                          <motion.div
+                            className="bg-gradient-to-r from-orange-400 to-orange-600 h-1.5 rounded-full transition-all duration-500"
+                            initial={{ width: 0 }}
+                            animate={{ width: `${progressPercent}%` }}
+                          />
+                        </div>
+                        <div className="flex justify-between items-center mt-1">
+                          {task.subtasks.length > 0 ? (
+                            <>
+                              <span className="text-xs text-orange-400/70 font-medium">{completedSubtasks}/{task.subtasks.length} completed</span>
+                              {taskComplete && !isExpanded && (
+                                <span className="text-xs text-green-400 font-semibold">✓ Complete</span>
+                              )}
+                            </>
+                          ) : (
+                            <>
+                              <span className="text-xs text-orange-400/70 font-medium">
+                                {taskComplete ? 'Completed' : 'Not started'}
+                              </span>
+                              {taskComplete && !isExpanded && (
+                                <span className="text-xs text-green-400 font-semibold">✓ Complete</span>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </div>
+
+                      {task.description && !isExpanded && (
+                        <p className="text-gray-300 text-xs sm:text-sm mt-1 leading-relaxed">{task.description}</p>
+                      )}
+                    </div>
+
+                    {/* Collapsible Content */}
+                    <AnimatePresence>
+                      {isExpanded && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="px-4 pb-4">
+                            {task.description && (
+                              <p className="text-gray-300 text-xs sm:text-sm mb-3 leading-relaxed">{task.description}</p>
+                            )}
+
+                            {/* Time tracking interface - for wake-up */}
+                            {task.hasTimeTracking && task.key === 'wakeUp' && (
+                              <WakeUpTimeTracker
+                                time={wakeUpTime}
+                                onTimeChange={setWakeUpTime}
+                                onOpenPicker={() => setShowTimeScrollPicker(true)}
+                                onUseNow={setCurrentTimeAsWakeUp}
+                                getCurrentTime={getCurrentTime}
+                                onClear={() => setWakeUpTime('')}
+                              />
+                            )}
+
+                            {/* Meditation time tracking with buttons */}
+                            {task.hasTimeTracking && task.key === 'meditation' && (
+                              <MeditationTracker
+                                duration={meditationDuration}
+                                onChange={setMeditationDuration}
+                                selectedDate={selectedDate}
+                              />
+                            )}
+
+                            {/* Sub-tasks - Enhanced with better visual hierarchy and mobile touch targets */}
+                            {task.subtasks.length > 0 && (
+                              <div className="mt-4 ml-4 space-y-3">
+                                {task.subtasks.map((subtask) => (
+                                  <div key={subtask.key}>
+                                    {/* Full row clickable - makes it easier to tap on mobile */}
+                                    <div
+                                      className="group flex items-center gap-3 rounded-lg transition-all duration-200 cursor-pointer touch-manipulation min-h-[44px] p-2 -m-2 hover:bg-orange-900/20 active:bg-orange-900/30"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleHabitToggle(subtask.key, !isHabitCompleted(subtask.key));
+                                      }}
+                                    >
+                                      {/* Checkbox - visual indicator only, click handled by parent */}
+                                      <div className="flex items-center justify-center">
+                                        <Checkbox
+                                          checked={isHabitCompleted(subtask.key)}
+                                          className="h-6 w-6 border-2 border-orange-400/70 data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500 transition-all duration-200 group-hover:border-orange-400 pointer-events-none"
+                                        />
+                                      </div>
+                                      <span className={cn(
+                                        "text-sm font-medium transition-all duration-200 flex-1",
+                                        isHabitCompleted(subtask.key)
+                                          ? "text-gray-500 line-through"
+                                          : "text-orange-200/90 group-hover:text-orange-50"
+                                      )}>
+                                        {subtask.title}
+                                      </span>
+                                      {isHabitCompleted(subtask.key) && (
+                                        <CheckCircle2 className="h-3.5 w-3.5 text-green-400 animate-in zoom-in-50 duration-200" />
+                                      )}
+                                    </div>
+
+                                    {/* Push-ups Tracking UI - Special case for pushups subtask */}
+                                    {subtask.key === 'pushups' && (
+                                      <PushUpTracker
+                                        reps={pushupReps}
+                                        personalBest={pushupPB}
+                                        onUpdateReps={updatePushupReps}
+                                      />
+                                    )}
+
+                                    {/* Water Tracking UI - Special case for water subtask */}
+                                    {subtask.key === 'water' && (
+                                      <WaterTracker
+                                        value={waterAmount}
+                                        onIncrement={incrementWater}
+                                        onDecrement={decrementWater}
+                                      />
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+
+                            {/* Plan Day Actions */}
+                            {task.key === 'planDay' && (
+                              <PlanDayActions
+                                isComplete={isPlanDayComplete}
+                                onMarkComplete={() => setIsPlanDayComplete(true)}
+                                onOpenThoughtDump={() => setShowThoughtDumpChat(true)}
+                              />
+                            )}
+
+                            {/* Completion Status Bar at bottom of card */}
+                            {taskComplete && (
+                              <motion.div
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="mt-4 pt-3 border-t border-orange-700/30"
+                              >
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    <motion.div
+                                      initial={{ scale: 0 }}
+                                      animate={{ scale: 1 }}
+                                      transition={{ type: "spring", stiffness: 200, damping: 10 }}
+                                    >
+                                      <CheckCircle2 className="h-4 w-4 text-green-400" />
+                                    </motion.div>
+                                    <span className="text-xs text-green-400 font-semibold">Complete</span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs text-orange-300/70">
+                                      {task.key === 'wakeUp' ? 'Wake-up logged' :
+                                       task.key === 'meditation' ? 'Meditation complete' :
+                                       task.key === 'planDay' ? 'Day planned' :
+                                       'Task completed'}
+                                    </span>
+                                    <motion.div
+                                      initial={{ scale: 0 }}
+                                      animate={{ scale: 1 }}
+                                      transition={{ delay: 0.1, type: "spring", stiffness: 200, damping: 10 }}
+                                      className="h-2 w-2 rounded-full bg-green-400"
+                                    />
+                                  </div>
+                                </div>
+                              </motion.div>
+                            )}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </Card>
                 );
               })}

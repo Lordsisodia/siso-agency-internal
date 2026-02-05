@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, X, TrendingUp, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, X, TrendingUp, ChevronDown, ChevronUp, CheckCircle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -106,12 +106,36 @@ export const EvenBetterIfSection: React.FC<EvenBetterIfSectionProps> = ({
   );
   const [isExpanded, setIsExpanded] = useState(false);
 
+  // Track previous completion state for auto-collapse
+  const prevCompleteRef = useRef(false);
+  // Track expanded state in ref to avoid dependency cycle
+  const isExpandedRef = useRef(isExpanded);
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    isExpandedRef.current = isExpanded;
+  }, [isExpanded]);
+
   // Sync props to local state
   useEffect(() => {
     if (items.length > 0) {
       setEvenBetterIfItems(items);
     }
   }, [items]);
+
+  // Auto-collapse when section becomes complete
+  useEffect(() => {
+    const hasContent = evenBetterIfItems.some(item => item.trim() !== '');
+    const wasComplete = prevCompleteRef.current;
+
+    // If section just got content and was empty before, collapse it
+    // Use ref to check current state without adding isExpanded to dependencies
+    if (hasContent && !wasComplete && isExpandedRef.current) {
+      setIsExpanded(false);
+    }
+
+    prevCompleteRef.current = hasContent;
+  }, [evenBetterIfItems]);
 
   const addEvenBetterIfItem = () => {
     const newItems = [...evenBetterIfItems, ''];
@@ -135,6 +159,7 @@ export const EvenBetterIfSection: React.FC<EvenBetterIfSectionProps> = ({
   };
 
   const completedEvenBetterIf = evenBetterIfItems.filter(item => item.trim() !== '').length;
+  const hasContent = completedEvenBetterIf > 0;
 
   return (
     <div className="w-full">
@@ -148,9 +173,19 @@ export const EvenBetterIfSection: React.FC<EvenBetterIfSectionProps> = ({
             <div className="flex items-center gap-2">
               <TrendingUp className={cn(
                 "h-5 w-5 transition-colors",
-                completedEvenBetterIf > 0 ? "text-white" : "text-purple-200"
+                hasContent ? "text-white" : "text-purple-200"
               )} />
               <span className="font-semibold text-white">Even Better If...</span>
+              {/* Green CheckCircle when has content */}
+              {hasContent && (
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 200, damping: 10 }}
+                >
+                  <CheckCircle className="h-5 w-5 text-green-400" />
+                </motion.div>
+              )}
             </div>
             {isExpanded ? (
               <ChevronUp className="h-5 w-5 text-white" />

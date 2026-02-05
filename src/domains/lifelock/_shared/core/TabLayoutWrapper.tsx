@@ -13,7 +13,7 @@ import { NAV_SECTIONS, LEGACY_TAB_MAPPING } from '@/services/shared/navigation-c
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ConsolidatedBottomNav } from '@/domains/lifelock/1-daily/_shared/components/navigation/ConsolidatedBottomNav';
-import { BevelDateHeader, UnifiedTopNav, SwipeableSubTabContent, XPToastNotification, useXPToasts } from '@/domains/lifelock/1-daily/_shared/components';
+import { BevelDateHeader, UnifiedTopNav, SwipeableSubTabContent, XPToastNotification, useXPToasts, VerticalDayProgressBar } from '@/domains/lifelock/1-daily/_shared/components';
 import { useDateCompletionMap } from '@/domains/lifelock/1-daily/_shared/hooks/useDateCompletionMap';
 import { useDateXPMap } from '@/domains/lifelock/1-daily/_shared/hooks/useDateXPMap';
 import { useDateScreenTimeMap } from '@/domains/lifelock/1-daily/_shared/hooks/useDateScreenTimeMap';
@@ -425,11 +425,17 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
   const accentColors = ACCENT_LINE_COLORS[colorKey] || ACCENT_LINE_COLORS[activeSection] || ACCENT_LINE_COLORS['plan'];
 
   return (
-    <div className="flex flex-col h-screen w-full overflow-hidden relative bg-white/5">
+    <div className="flex flex-col h-screen w-full overflow-hidden relative bg-[#121212]">
       {/* Page accent line on left side - fixed to true viewport edge, dynamic color based on section */}
       <div className={`fixed top-0 left-0 w-1 h-screen bg-gradient-to-b ${accentColors.from} ${accentColors.via} ${accentColors.to} shadow-lg ${accentColors.shadow} pointer-events-none z-50`} />
+
+      {/* Vertical Day Progress Bar - positioned alongside the accent line */}
+      <VerticalDayProgressBar
+        percentage={calculateDayCompletionPercentage(selectedDate)}
+        activeTab={effectiveTabId}
+      />
       {/* SCROLLABLE CONTENT AREA - Contains header, pills, and content */}
-      <div className="flex-1 relative overflow-x-hidden overflow-y-hidden">
+      <div className="flex-1 relative overflow-x-hidden overflow-y-hidden isolate">
         <AnimatePresence mode="popLayout" custom={activeTabIndex}>
           <motion.div
             key={effectiveTabId}
@@ -442,9 +448,9 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
               x: { type: "spring", stiffness: 400, damping: 35 },
               opacity: { duration: 0.15 },
             }}
-            className="h-full overflow-x-hidden overflow-y-auto hide-scrollbar"
+            className="h-full overflow-x-hidden overflow-y-auto hide-scrollbar relative z-10"
             style={{
-              paddingBottom: '100px',
+              paddingBottom: '120px',
               WebkitOverflowScrolling: 'touch',
               overscrollBehavior: 'contain',
             }}

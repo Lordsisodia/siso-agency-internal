@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Clock, ChevronDown, ChevronUp, AlertCircle, Target, List } from 'lucide-react';
+import { Clock, ChevronDown, ChevronUp, AlertCircle, Target, List, CheckCircle } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -28,6 +28,46 @@ export const TomorrowsPlanSection: React.FC<TomorrowsPlanSectionProps> = ({
     topTasks: false
   });
 
+  // Track previous completion states for auto-collapse
+  const prevCompleteRef = useRef({
+    nonNegotiables: false,
+    mainFocus: false,
+    topTasks: false
+  });
+  // Track expanded sections in ref to avoid dependency cycle
+  const expandedSectionsRef = useRef(expandedSections);
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    expandedSectionsRef.current = expandedSections;
+  }, [expandedSections]);
+
+  // Auto-collapse sections when they become complete
+  useEffect(() => {
+    const hasNonNegotiables = nonNegotiables.some(item => item.trim() !== '');
+    const hasMainFocus = tomorrowFocus.trim() !== '';
+    const hasTopTasks = topTasks.some(task => task.trim() !== '');
+
+    // Check each section for transition from incomplete to complete
+    // Use ref to check current state without adding expandedSections to dependencies
+    if (hasNonNegotiables && !prevCompleteRef.current.nonNegotiables && expandedSectionsRef.current.nonNegotiables) {
+      setExpandedSections(prev => ({ ...prev, nonNegotiables: false }));
+    }
+    if (hasMainFocus && !prevCompleteRef.current.mainFocus && expandedSectionsRef.current.mainFocus) {
+      setExpandedSections(prev => ({ ...prev, mainFocus: false }));
+    }
+    if (hasTopTasks && !prevCompleteRef.current.topTasks && expandedSectionsRef.current.topTasks) {
+      setExpandedSections(prev => ({ ...prev, topTasks: false }));
+    }
+
+    // Update refs
+    prevCompleteRef.current = {
+      nonNegotiables: hasNonNegotiables,
+      mainFocus: hasMainFocus,
+      topTasks: hasTopTasks
+    };
+  }, [nonNegotiables, tomorrowFocus, topTasks]);
+
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections(prev => ({
       ...prev,
@@ -46,6 +86,11 @@ export const TomorrowsPlanSection: React.FC<TomorrowsPlanSectionProps> = ({
     newTasks[index] = value;
     onChange({ topTasks: newTasks });
   };
+
+  // Calculate completion states
+  const hasNonNegotiables = nonNegotiables.some(item => item.trim() !== '');
+  const hasMainFocus = tomorrowFocus.trim() !== '';
+  const hasTopTasks = topTasks.some(task => task.trim() !== '');
 
   return (
     <div className="w-full">
@@ -69,6 +114,16 @@ export const TomorrowsPlanSection: React.FC<TomorrowsPlanSectionProps> = ({
                 <div className="flex items-center gap-2">
                   <AlertCircle className="h-4 w-4 text-red-400" />
                   <h4 className="font-semibold text-purple-300 text-sm">Non-Negotiables</h4>
+                  {/* Green CheckCircle when has content */}
+                  {hasNonNegotiables && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: "spring", stiffness: 200, damping: 10 }}
+                    >
+                      <CheckCircle className="h-4 w-4 text-green-400" />
+                    </motion.div>
+                  )}
                 </div>
                 {expandedSections.nonNegotiables ? (
                   <ChevronUp className="h-4 w-4 text-purple-400" />
@@ -120,6 +175,16 @@ export const TomorrowsPlanSection: React.FC<TomorrowsPlanSectionProps> = ({
                 <div className="flex items-center gap-2">
                   <Target className="h-4 w-4 text-purple-400" />
                   <h4 className="font-semibold text-purple-300 text-sm">Main Focus</h4>
+                  {/* Green CheckCircle when has content */}
+                  {hasMainFocus && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: "spring", stiffness: 200, damping: 10 }}
+                    >
+                      <CheckCircle className="h-4 w-4 text-green-400" />
+                    </motion.div>
+                  )}
                 </div>
                 {expandedSections.mainFocus ? (
                   <ChevronUp className="h-4 w-4 text-purple-400" />
@@ -164,6 +229,16 @@ export const TomorrowsPlanSection: React.FC<TomorrowsPlanSectionProps> = ({
                 <div className="flex items-center gap-2">
                   <List className="h-4 w-4 text-purple-400" />
                   <h4 className="font-semibold text-purple-300 text-sm">Top 3 Tasks</h4>
+                  {/* Green CheckCircle when has content */}
+                  {hasTopTasks && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: "spring", stiffness: 200, damping: 10 }}
+                    >
+                      <CheckCircle className="h-4 w-4 text-green-400" />
+                    </motion.div>
+                  )}
                 </div>
                 {expandedSections.topTasks ? (
                   <ChevronUp className="h-4 w-4 text-purple-400" />

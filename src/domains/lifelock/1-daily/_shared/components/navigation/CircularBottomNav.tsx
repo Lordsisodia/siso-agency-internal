@@ -35,7 +35,7 @@ export const CircularBottomNav: React.FC<CircularBottomNavProps> = ({
       className={cn(
         "flex items-center justify-center gap-3 sm:gap-4",
         "px-4 py-3 rounded-2xl",
-        "bg-gray-900/30 backdrop-blur-xl border border-white/10 shadow-2xl",
+        "bg-gray-900/50 backdrop-blur-xl border border-white/10 shadow-2xl z-50",
         className
       )}
     >

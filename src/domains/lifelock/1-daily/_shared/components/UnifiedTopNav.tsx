@@ -4,9 +4,9 @@ import { ChevronDown } from 'lucide-react';
 import { format, isToday, isTomorrow, isYesterday } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
-import { DayProgressBar } from './DayProgressBar';
 import { UserProfileDropdown } from './UserProfileDropdown';
 import { MonthlyDatePickerModalV2 as MonthlyDatePickerModal } from './MonthlyDatePickerModalV2';
+import { XPBalanceDisplay } from './XPBalanceDisplay';
 
 interface UnifiedTopNavProps {
   selectedDate: Date;
@@ -79,7 +79,7 @@ export const UnifiedTopNav: React.FC<UnifiedTopNavProps> = ({
   return (
     <div className={cn('relative', className)}>
       {/* Main Header Bar */}
-      <div className="bg-white/5 border-b border-white/10">
+      <div className="bg-[#1a1a1a] border-b border-white/10">
         {/* Top Row: Date, XP, Profile */}
         <div className="px-4 py-3">
           <div className="flex items-center justify-between gap-3">
@@ -96,26 +96,22 @@ export const UnifiedTopNav: React.FC<UnifiedTopNavProps> = ({
               <ChevronDown className="h-4 w-4 text-gray-400" />
             </motion.button>
 
-            {/* Right: Profile Avatar with Dropdown */}
-            <UserProfileDropdown
-              user={user}
-              totalXP={totalXP}
-              completionPercentage={completionPercentage}
-              selectedDate={selectedDate}
-              userId={userId}
-              isOpen={isProfileDropdownOpen}
-              onOpenChange={setIsProfileDropdownOpen}
-            />
+            {/* Right: XP Balance + Profile Avatar with Dropdown */}
+            <div className="flex items-center gap-3">
+              <XPBalanceDisplay />
+              <UserProfileDropdown
+                user={user}
+                totalXP={totalXP}
+                completionPercentage={completionPercentage}
+                selectedDate={selectedDate}
+                userId={userId}
+                isOpen={isProfileDropdownOpen}
+                onOpenChange={setIsProfileDropdownOpen}
+              />
+            </div>
           </div>
         </div>
 
-        {/* Bottom: Full-width Day Progress Bar */}
-        <div className="px-4 pb-3">
-          <DayProgressBar
-            percentage={completionPercentage}
-            activeTab={activeTab}
-          />
-        </div>
       </div>
 
       {/* Monthly Date Picker Modal */}
