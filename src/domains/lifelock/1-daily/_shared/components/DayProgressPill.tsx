@@ -91,14 +91,14 @@ export const DayProgressPill: React.FC<DayProgressPillProps> = ({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.4 }}
-        className="bg-white/5 border border-white/10 rounded-full px-3.5 py-2.5"
-        whileHover={{ scale: 1.02 }}
+        className="bg-gradient-to-b from-white/[0.07] to-white/[0.03] border border-white/[0.12] rounded-full px-4 py-3 shadow-[0_2px_8px_rgba(0,0,0,0.3),0_0_20px_rgba(255,255,255,0.03),inset_0_1px_0_rgba(255,255,255,0.08)]"
+        whileHover={{ scale: 1.01, boxShadow: '0 4px 12px rgba(0,0,0,0.4), 0 0 30px rgba(255,255,255,0.05), inset 0 1px 0 rgba(255,255,255,0.1)' }}
       >
         <div className="flex items-center gap-2.5">
           {/* Icon with colored background - shows time of day */}
           {showIcon && (
             <div className={cn(
-              'w-7 h-7 rounded-full bg-gradient-to-br flex items-center justify-center flex-shrink-0',
+              'w-8 h-8 rounded-full bg-gradient-to-br flex items-center justify-center flex-shrink-0 shadow-[0_2px_8px_rgba(0,0,0,0.4),0_0_12px_rgba(255,255,255,0.15),inset_0_1px_1px_rgba(255,255,255,0.3)]',
               getTabColors.gradient
             )}>
               {displayIcon}
@@ -114,8 +114,8 @@ export const DayProgressPill: React.FC<DayProgressPillProps> = ({
               </span>
               {showPercentage && (
                 <span className={cn(
-                  "text-[11px] font-bold tabular-nums transition-opacity duration-300",
-                  percentage <= 50 ? "text-white/90" : "text-white/0"
+                  "text-[11px] font-bold tabular-nums transition-opacity duration-300 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]",
+                  percentage <= 50 ? "text-white" : "text-white/0"
                 )}>
                   {Math.round(percentage)}%
                 </span>
@@ -125,7 +125,7 @@ export const DayProgressPill: React.FC<DayProgressPillProps> = ({
             {/* Progress Bar */}
             <div className="relative">
               {/* Track with subtle depth */}
-              <div className="w-full bg-black/40 rounded-full h-3 overflow-hidden relative shadow-[inset_0_1px_2px_rgba(0,0,0,0.5),inset_0_-1px_1px_rgba(255,255,255,0.05)] border border-white/5">
+              <div className="w-full bg-black/50 rounded-full h-4 overflow-hidden relative shadow-[inset_0_2px_4px_rgba(0,0,0,0.6),inset_0_-1px_2px_rgba(255,255,255,0.08)] border border-white/10">
                 {/* Fill with gradient and glow */}
                 <motion.div
                   className={cn(
@@ -136,15 +136,24 @@ export const DayProgressPill: React.FC<DayProgressPillProps> = ({
                   animate={{ width: `${Math.min(100, Math.max(0, percentage))}%` }}
                   transition={{ delay: 0.4, duration: 1.2, ease: "easeOut" }}
                   style={{
-                    boxShadow: '0 0 8px rgba(255,255,255,0.3), 0 0 16px rgba(255,255,255,0.1)'
+                    boxShadow: `
+                      0 0 6px rgba(255,255,255,0.4),
+                      0 0 12px rgba(255,255,255,0.2),
+                      0 0 24px rgba(255,255,255,0.1),
+                      inset 0 1px 1px rgba(255,255,255,0.3),
+                      inset 0 -1px 1px rgba(0,0,0,0.2)
+                    `
                   }}
                 >
                   {/* Leading edge highlight */}
-                  <div className="absolute right-0 top-0 bottom-0 w-1 bg-gradient-to-l from-white/60 to-transparent rounded-full" />
+                  <div className="absolute right-0 top-0 bottom-0 w-1.5 bg-gradient-to-l from-white/70 via-white/30 to-transparent rounded-full" />
+
+                  {/* Top highlight for 3D effect */}
+                  <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
 
                   {/* Subtle shimmer */}
                   <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent"
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
                     animate={{ x: ['-100%', '100%'] }}
                     transition={{
                       duration: 2.5,
@@ -165,8 +174,8 @@ export const DayProgressPill: React.FC<DayProgressPillProps> = ({
               >
                 <div className="relative">
                   <span className={cn(
-                    "text-[10px] font-bold tabular-nums",
-                    percentage > 50 ? "text-white drop-shadow-md" : "text-white/0"
+                    "text-[10px] font-bold tabular-nums drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]",
+                    percentage > 50 ? "text-white" : "text-white/0"
                   )}>
                     {Math.round(percentage)}%
                   </span>

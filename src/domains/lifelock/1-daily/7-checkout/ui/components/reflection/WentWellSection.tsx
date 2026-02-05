@@ -163,20 +163,18 @@ export const WentWellSection: React.FC<WentWellSectionProps> = ({
 
   return (
     <div>
-      <Card className="bg-gradient-to-br from-purple-900/20 to-blue-900/20 border-purple-700/30">
-        <CardContent className="p-0">
-          <motion.button
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="w-full flex items-center justify-between p-4 hover:bg-purple-900/10 transition-colors"
-          >
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">✨</span>
-              <div className="text-left">
-                <h3 className="text-white font-semibold">What went well today?</h3>
-                <p className="text-purple-300/60 text-sm">
-                  {completedWentWell} {completedWentWell === 1 ? 'win' : 'wins'} captured
-                </p>
+      <Card className="bg-purple-900/20 border-purple-700/40 overflow-hidden">
+        {/* Clickable Header */}
+        <div
+          className="p-4 sm:p-6 cursor-pointer hover:bg-purple-900/10 transition-colors"
+          onClick={() => setIsExpanded(!isExpanded)}
+        >
+          <div className="flex items-center justify-between gap-2 mb-3">
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <div className="p-1.5 rounded-lg border border-purple-400/30 flex-shrink-0">
+                <span className="text-purple-300 text-lg">✨</span>
               </div>
+              <h4 className="text-purple-100 font-semibold text-base truncate">What went well today?</h4>
               {/* Green CheckCircle when has content */}
               {hasContent && (
                 <motion.div
@@ -184,58 +182,78 @@ export const WentWellSection: React.FC<WentWellSectionProps> = ({
                   animate={{ scale: 1 }}
                   transition={{ type: "spring", stiffness: 200, damping: 10 }}
                 >
-                  <CheckCircle2 className="h-5 w-5 text-green-400" />
+                  <CheckCircle2 className="h-5 w-5 text-green-400 flex-shrink-0" />
                 </motion.div>
               )}
             </div>
-            {isExpanded ? (
-              <ChevronUp className="text-purple-400" />
-            ) : (
-              <ChevronDown className="text-purple-400" />
-            )}
-          </motion.button>
+            <div className="flex items-center gap-2">
+              {isExpanded ? (
+                <ChevronUp className="h-5 w-5 text-purple-400 flex-shrink-0" />
+              ) : (
+                <ChevronDown className="h-5 w-5 text-purple-400 flex-shrink-0" />
+              )}
+            </div>
+          </div>
 
-          <AnimatePresence>
-            {isExpanded && (
+          {/* Progress Bar */}
+          <div className="mt-2 mb-1">
+            <div className="w-full bg-purple-900/30 border border-purple-600/20 rounded-full h-1.5">
               <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="overflow-hidden"
-              >
-                <CardContent className="space-y-3 pt-4">
-                  <div className="space-y-2 pl-4 border-l-2 border-purple-700/30">
-                    <AnimatePresence mode="popLayout">
-                      {wentWellItems.map((item, index) => (
-                        <BulletItem
-                          key={`went-well-${index}`}
-                          item={item}
-                          index={index}
-                          onChange={(value) => updateWentWellItem(index, value)}
-                          onRemove={() => removeWentWellItem(index)}
-                          canRemove={wentWellItems.length > 1}
-                          placeholder="Something positive..."
-                          icon={<span className="text-purple-400">✓</span>}
-                        />
-                      ))}
-                    </AnimatePresence>
-                  </div>
+                className="bg-gradient-to-r from-purple-400 to-purple-600 h-1.5 rounded-full transition-all duration-500"
+                initial={{ width: 0 }}
+                animate={{ width: `${Math.min((completedWentWell / Math.max(wentWellItems.length, 1)) * 100, 100)}%` }}
+              />
+            </div>
+            <div className="flex justify-between items-center mt-1">
+              <span className="text-xs text-purple-400/70 font-medium">{completedWentWell}/{wentWellItems.length} captured</span>
+              {hasContent && !isExpanded && (
+                <span className="text-xs text-green-400 font-semibold">✓ Complete</span>
+              )}
+            </div>
+          </div>
+        </div>
 
-                  {/* Add Button at Bottom */}
-                  <Button
-                    onClick={addWentWellItem}
-                    variant="ghost"
-                    className="w-full text-purple-400 hover:text-purple-300 hover:bg-purple-900/20 border border-dashed border-purple-700/30"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add another win
-                  </Button>
-                </CardContent>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </CardContent>
+        {/* Collapsible Content */}
+        <AnimatePresence>
+          {isExpanded && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden"
+            >
+              <div className="px-4 sm:px-6 pb-4 sm:pb-6">
+                <div className="space-y-2 pl-4 border-l-2 border-purple-700/30">
+                  <AnimatePresence mode="popLayout">
+                    {wentWellItems.map((item, index) => (
+                      <BulletItem
+                        key={`went-well-${index}`}
+                        item={item}
+                        index={index}
+                        onChange={(value) => updateWentWellItem(index, value)}
+                        onRemove={() => removeWentWellItem(index)}
+                        canRemove={wentWellItems.length > 1}
+                        placeholder="Something positive..."
+                        icon={<span className="text-purple-400">✓</span>}
+                      />
+                    ))}
+                  </AnimatePresence>
+                </div>
+
+                {/* Add Button at Bottom */}
+                <Button
+                  onClick={addWentWellItem}
+                  variant="ghost"
+                  className="w-full mt-3 text-purple-400 hover:text-purple-300 hover:bg-purple-900/20 border border-dashed border-purple-700/30"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add another win
+                </Button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </Card>
     </div>
   );

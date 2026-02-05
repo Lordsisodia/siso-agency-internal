@@ -28,15 +28,16 @@ export default {
       },
       colors: {
         siso: {
-          bg: "#121212",
-          "bg-alt": "#1A1A1A",
+          bg: "#202020",           // Exact color from screenshot - memorable dark gray
+          "bg-alt": "#2A2A2A",     // Slightly lighter for cards/elevated
+          "bg-hover": "#333333",   // Hover state
           red: "#FF5722",
           orange: "#FFA726",
           text: "#E0E0E0",
           "text-bold": "#FFFFFF",
           "text-muted": "#9E9E9E",
-          border: "#2A2A2A",
-          "border-hover": "#3A3A3A", // Added the missing border-hover color
+          border: "#3A3A3A",
+          "border-hover": "#454545",
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

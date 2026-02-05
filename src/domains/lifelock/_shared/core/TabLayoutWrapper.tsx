@@ -425,7 +425,7 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
   const accentColors = ACCENT_LINE_COLORS[colorKey] || ACCENT_LINE_COLORS[activeSection] || ACCENT_LINE_COLORS['plan'];
 
   return (
-    <div className="flex flex-col h-screen w-full overflow-hidden relative bg-[#121212]">
+    <div className="flex flex-col h-screen w-full overflow-hidden relative bg-siso-bg">
       {/* Page accent line on left side - fixed to true viewport edge, dynamic color based on section */}
       <div className={`fixed top-0 left-0 w-1 h-screen bg-gradient-to-b ${accentColors.from} ${accentColors.via} ${accentColors.to} shadow-lg ${accentColors.shadow} pointer-events-none z-50`} />
 

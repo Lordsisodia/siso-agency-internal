@@ -163,19 +163,18 @@ export const EvenBetterIfSection: React.FC<EvenBetterIfSectionProps> = ({
 
   return (
     <div className="w-full">
-      <Card className="mx-6 sm:mx-8 md:mx-12 bg-purple-900/10 border-purple-700/30 overflow-hidden">
-        {/* Solid Purple Header Bar */}
+      <Card className="bg-purple-900/20 border-purple-700/40 overflow-hidden">
+        {/* Clickable Header */}
         <div
-          className="bg-purple-800/80 border-b border-purple-700/50 px-4 py-3 cursor-pointer"
+          className="p-4 sm:p-6 cursor-pointer hover:bg-purple-900/10 transition-colors"
           onClick={() => setIsExpanded(!isExpanded)}
         >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <TrendingUp className={cn(
-                "h-5 w-5 transition-colors",
-                hasContent ? "text-white" : "text-purple-200"
-              )} />
-              <span className="font-semibold text-white">Even Better If...</span>
+          <div className="flex items-center justify-between gap-2 mb-3">
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <div className="p-1.5 rounded-lg border border-purple-400/30 flex-shrink-0">
+                <TrendingUp className="h-4 w-4 text-purple-300" />
+              </div>
+              <h4 className="text-purple-100 font-semibold text-base truncate">Even Better If...</h4>
               {/* Green CheckCircle when has content */}
               {hasContent && (
                 <motion.div
@@ -183,15 +182,34 @@ export const EvenBetterIfSection: React.FC<EvenBetterIfSectionProps> = ({
                   animate={{ scale: 1 }}
                   transition={{ type: "spring", stiffness: 200, damping: 10 }}
                 >
-                  <CheckCircle className="h-5 w-5 text-green-400" />
+                  <CheckCircle className="h-5 w-5 text-green-400 flex-shrink-0" />
                 </motion.div>
               )}
             </div>
-            {isExpanded ? (
-              <ChevronUp className="h-5 w-5 text-white" />
-            ) : (
-              <ChevronDown className="h-5 w-5 text-white" />
-            )}
+            <div className="flex items-center gap-2">
+              {isExpanded ? (
+                <ChevronUp className="h-5 w-5 text-purple-400 flex-shrink-0" />
+              ) : (
+                <ChevronDown className="h-5 w-5 text-purple-400 flex-shrink-0" />
+              )}
+            </div>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="mt-2 mb-1">
+            <div className="w-full bg-purple-900/30 border border-purple-600/20 rounded-full h-1.5">
+              <motion.div
+                className="bg-gradient-to-r from-purple-400 to-purple-600 h-1.5 rounded-full transition-all duration-500"
+                initial={{ width: 0 }}
+                animate={{ width: `${Math.min((completedEvenBetterIf / Math.max(evenBetterIfItems.length, 1)) * 100, 100)}%` }}
+              />
+            </div>
+            <div className="flex justify-between items-center mt-1">
+              <span className="text-xs text-purple-400/70 font-medium">{completedEvenBetterIf}/{evenBetterIfItems.length} captured</span>
+              {hasContent && !isExpanded && (
+                <span className="text-xs text-green-400 font-semibold">✓ Complete</span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -205,7 +223,7 @@ export const EvenBetterIfSection: React.FC<EvenBetterIfSectionProps> = ({
               transition={{ duration: 0.2 }}
               className="overflow-hidden"
             >
-              <CardContent className="space-y-3 pt-4">
+              <div className="px-4 sm:px-6 pb-4 sm:pb-6">
                 <div className="space-y-2 pl-4 border-l-2 border-purple-700/30">
                   <AnimatePresence mode="popLayout">
                     {evenBetterIfItems.map((item, index) => (
@@ -227,12 +245,12 @@ export const EvenBetterIfSection: React.FC<EvenBetterIfSectionProps> = ({
                 <Button
                   onClick={addEvenBetterIfItem}
                   variant="ghost"
-                  className="w-full text-purple-400 hover:text-purple-300 hover:bg-purple-900/20 border border-dashed border-purple-700/30"
+                  className="w-full mt-3 text-purple-400 hover:text-purple-300 hover:bg-purple-900/20 border border-dashed border-purple-700/30"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Add improvement
                 </Button>
-              </CardContent>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

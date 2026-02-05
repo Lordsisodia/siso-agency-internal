@@ -259,7 +259,7 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
 
   if (isLoading) {
     return (
-      <div className="min-h-screen w-full bg-[#121212] relative overflow-x-hidden">
+      <div className="min-h-screen w-full bg-siso-bg relative overflow-x-hidden">
         <div className="w-full px-2 sm:px-4 md:px-6 lg:px-8 space-y-6">
           <Card className="mb-24 bg-purple-900/10 border-purple-700/30">
             <CardHeader className="space-y-4">
@@ -310,15 +310,15 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
   }
 
   return (
-    <div className="min-h-screen w-full bg-[#121212] relative overflow-x-hidden">
+    <div className="min-h-screen w-full bg-siso-bg relative overflow-x-hidden">
       <div className="w-full px-2 sm:px-4 md:px-6 lg:px-8 space-y-6">
 
         {/* Page Header - Title, Icon, Subtext */}
         <div className="px-5 py-5 border-b border-white/10">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="p-1.5 rounded-lg border border-purple-400/30 flex-shrink-0">
-                <Moon className="h-4 w-4 text-purple-300" />
+              <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0">
+                <Moon className="h-7 w-7 text-purple-400" aria-hidden="true" />
               </div>
               <div className="min-w-0">
                 <h1 className="text-2xl font-bold text-white tracking-tight">Nightly Checkout</h1>

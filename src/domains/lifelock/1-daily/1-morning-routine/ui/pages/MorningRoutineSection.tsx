@@ -870,8 +870,8 @@ const waterXPRef = useRef(0);
         <div className="px-5 py-5 border-b border-white/10">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="p-1.5 rounded-lg border border-orange-400/30 flex-shrink-0">
-                <Sun className="h-4 w-4 text-orange-300" />
+              <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0">
+                <Sun className="h-7 w-7 text-orange-400" aria-hidden="true" />
               </div>
               <div className="min-w-0">
                 <h1 className="text-2xl font-bold text-white tracking-tight">Morning Routine</h1>

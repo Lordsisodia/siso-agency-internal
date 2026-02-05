@@ -118,7 +118,7 @@ export const DailyMetricsSection: React.FC<DailyMetricsSectionProps> = ({
     {
       key: 'meditation' as const,
       title: 'Meditation',
-      icon: <Zap className="h-4 w-4 text-purple-400" />,
+      icon: <Zap className="h-4 w-4 text-purple-300" />,
       isComplete: meditation.minutes > 0,
       component: (
         <MeditationCard
@@ -131,7 +131,7 @@ export const DailyMetricsSection: React.FC<DailyMetricsSectionProps> = ({
     {
       key: 'workout' as const,
       title: 'Workout',
-      icon: <Activity className="h-4 w-4 text-purple-400" />,
+      icon: <Activity className="h-4 w-4 text-purple-300" />,
       isComplete: workout.completed,
       component: (
         <WorkoutCard
@@ -144,7 +144,7 @@ export const DailyMetricsSection: React.FC<DailyMetricsSectionProps> = ({
     {
       key: 'nutrition' as const,
       title: 'Nutrition',
-      icon: <Apple className="h-4 w-4 text-purple-400" />,
+      icon: <Apple className="h-4 w-4 text-purple-300" />,
       isComplete: nutrition.hitGoal,
       component: (
         <NutritionCard
@@ -157,7 +157,7 @@ export const DailyMetricsSection: React.FC<DailyMetricsSectionProps> = ({
     {
       key: 'deepWork' as const,
       title: 'Deep Work',
-      icon: <Brain className="h-4 w-4 text-purple-400" />,
+      icon: <Brain className="h-4 w-4 text-purple-300" />,
       isComplete: deepWork.hours > 0,
       component: (
         <DeepWorkCard
@@ -170,7 +170,7 @@ export const DailyMetricsSection: React.FC<DailyMetricsSectionProps> = ({
     {
       key: 'research' as const,
       title: 'Research & Learning',
-      icon: <Book className="h-4 w-4 text-purple-400" />,
+      icon: <Book className="h-4 w-4 text-purple-300" />,
       isComplete: research.hours > 0 || research.topic.trim() !== '',
       component: (
         <ResearchCard
@@ -183,7 +183,7 @@ export const DailyMetricsSection: React.FC<DailyMetricsSectionProps> = ({
     {
       key: 'sleep' as const,
       title: 'Sleep',
-      icon: <Moon className="h-4 w-4 text-purple-400" />,
+      icon: <Moon className="h-4 w-4 text-purple-300" />,
       isComplete: sleep.hours > 0,
       component: (
         <SleepCard
@@ -195,83 +195,131 @@ export const DailyMetricsSection: React.FC<DailyMetricsSectionProps> = ({
     }
   ];
 
+  // Calculate completion stats
+  const completedCount = metrics.filter(m => m.isComplete).length;
+  const totalCount = metrics.length;
+
   return (
     <div className="w-full">
       {/* Today's XP Breakdown Card */}
-      <Card className="mx-0 sm:mx-2 md:mx-4 bg-purple-900/10 border-purple-700/30 overflow-hidden">
-        {/* Header Section */}
-        <div className="bg-gradient-to-r from-purple-800/60 to-indigo-800/60 border-b border-purple-700/50 px-5 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-400/30 flex items-center justify-center">
-                <Zap className="h-5 w-5 text-purple-300" />
+      <Card className="bg-purple-900/20 border-purple-700/40 overflow-hidden">
+        {/* Clickable Header */}
+        <div
+          className="p-4 sm:p-6 cursor-pointer hover:bg-purple-900/10 transition-colors"
+          onClick={() => toggleSection('meditation')}
+        >
+          <div className="flex items-center justify-between gap-2 mb-3">
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <div className="p-1.5 rounded-lg border border-purple-400/30 flex-shrink-0">
+                <Zap className="h-4 w-4 text-purple-300" />
               </div>
-              <div>
-                <h3 className="font-semibold text-white text-lg">Today's XP Breakdown</h3>
-                <p className="text-xs text-purple-300/70">Track your daily metrics and earn rewards</p>
-              </div>
+              <h4 className="text-purple-100 font-semibold text-base truncate">Today's XP Breakdown</h4>
+              {/* Green CheckCircle when has content */}
+              {completedCount > 0 && (
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 200, damping: 10 }}
+                >
+                  <CheckCircle className="h-5 w-5 text-green-400 flex-shrink-0" />
+                </motion.div>
+              )}
             </div>
-            <div className="text-right">
-              <div className="text-2xl font-bold text-yellow-400">+150</div>
-              <div className="text-xs text-yellow-300/70">XP available</div>
+            <div className="flex items-center gap-2">
+              {expandedSections.meditation ? (
+                <ChevronUp className="h-5 w-5 text-purple-400 flex-shrink-0" />
+              ) : (
+                <ChevronDown className="h-5 w-5 text-purple-400 flex-shrink-0" />
+              )}
+            </div>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="mt-2 mb-1">
+            <div className="w-full bg-purple-900/30 border border-purple-600/20 rounded-full h-1.5">
+              <motion.div
+                className="bg-gradient-to-r from-purple-400 to-purple-600 h-1.5 rounded-full transition-all duration-500"
+                initial={{ width: 0 }}
+                animate={{ width: `${Math.min((completedCount / Math.max(totalCount, 1)) * 100, 100)}%` }}
+              />
+            </div>
+            <div className="flex justify-between items-center mt-1">
+              <span className="text-xs text-purple-400/70 font-medium">
+                {completedCount}/{totalCount} metrics tracked
+              </span>
+              {completedCount > 0 && !expandedSections.meditation && (
+                <span className="text-xs text-green-400 font-semibold">✓ Complete</span>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Metrics Grid */}
-        <div className="p-4 space-y-3">
-          {metrics.map((metric) => (
-            <div key={metric.key} className="border border-purple-700/30 rounded-lg overflow-hidden bg-purple-900/5 hover:bg-purple-900/10 transition-colors">
-              <div
-                className="px-4 py-3.5 cursor-pointer"
-                onClick={() => toggleSection(metric.key)}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
-                      {metric.icon}
+        {/* Collapsible Content */}
+        <AnimatePresence>
+          {expandedSections.meditation && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden"
+            >
+              <div className="px-4 sm:px-6 pb-4 sm:pb-6 space-y-3">
+                {metrics.map((metric) => (
+                  <div key={metric.key} className="border border-purple-700/30 rounded-lg overflow-hidden bg-purple-900/10 hover:bg-purple-900/20 transition-colors">
+                    <div
+                      className="px-4 py-3.5 cursor-pointer"
+                      onClick={(e) => { e.stopPropagation(); toggleSection(metric.key); }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="p-1.5 rounded-lg border border-purple-400/30 flex items-center justify-center">
+                            {metric.icon}
+                          </div>
+                          <h4 className="font-semibold text-purple-200">{metric.title}</h4>
+                          {/* Green CheckCircle when complete */}
+                          {metric.isComplete && (
+                            <motion.div
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              transition={{ type: "spring", stiffness: 200, damping: 10 }}
+                            >
+                              <CheckCircle className="h-4 w-4 text-green-400" />
+                            </motion.div>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-purple-400/70">+25 XP</span>
+                          {expandedSections[metric.key] ? (
+                            <ChevronUp className="h-4 w-4 text-purple-400" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4 text-purple-400" />
+                          )}
+                        </div>
+                      </div>
                     </div>
-                    <h4 className="font-semibold text-purple-200">{metric.title}</h4>
-                    {/* Green CheckCircle when complete */}
-                    {metric.isComplete && (
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ type: "spring", stiffness: 200, damping: 10 }}
-                      >
-                        <CheckCircle className="h-4 w-4 text-green-400" />
-                      </motion.div>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-purple-400/70">+25 XP</span>
-                    {expandedSections[metric.key] ? (
-                      <ChevronUp className="h-4 w-4 text-purple-400" />
-                    ) : (
-                      <ChevronDown className="h-4 w-4 text-purple-400" />
-                    )}
-                  </div>
-                </div>
-              </div>
 
-              <AnimatePresence>
-                {expandedSections[metric.key] && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="px-4 pb-4 bg-purple-950/30">
-                      {metric.component}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          ))}
-        </div>
+                    <AnimatePresence>
+                      {expandedSections[metric.key] && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="px-4 pb-4 bg-purple-950/30">
+                            {metric.component}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </Card>
     </div>
   );

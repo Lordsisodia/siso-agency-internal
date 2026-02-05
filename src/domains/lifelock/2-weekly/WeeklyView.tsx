@@ -70,7 +70,7 @@ export const WeeklyView: React.FC = () => {
 
   return (
     <AdminLayout>
-      <div className="min-h-screen w-full bg-[#121212] text-white relative">
+      <div className="min-h-screen w-full bg-siso-bg text-white relative">
 
         {/* Navigation Button - Monthly View on left */}
         <div className="sticky top-0 z-50 bg-gray-900/80 backdrop-blur-md border-b border-gray-800/50">
@@ -90,7 +90,7 @@ export const WeeklyView: React.FC = () => {
         </div>
 
       {/* Weekly Top Navigation - Fixed at top */}
-      <div className="sticky top-12 z-40 px-4 py-3 bg-[#121212]/95 backdrop-blur-sm border-b border-white/5">
+      <div className="sticky top-12 z-40 px-4 py-3 bg-siso-bg/95 backdrop-blur-sm border-b border-white/5">
         <div className="max-w-7xl mx-auto">
           <WeeklyTopNav
             selectedWeek={selectedWeek}

@@ -36,12 +36,12 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   };
 
   return (
-    <div className="min-h-screen w-full relative" style={{ backgroundColor: '#121212' }}>
+    <div className="min-h-screen w-full relative" style={{ backgroundColor: '#202020' }}>
       <Sidebar
         onExpandedChange={setSidebarExpanded}
         onMobileMenuChange={setMobileMenuOpen}
       />
-      <main className={`${getMainMargin()} overflow-y-auto admin-scrollbar min-h-screen transition-all duration-100 relative pb-24`} style={{ backgroundColor: '#121212' }}>
+      <main className={`${getMainMargin()} overflow-y-auto admin-scrollbar min-h-screen transition-all duration-100 relative pb-24`} style={{ backgroundColor: '#202020' }}>
         <div key={location.pathname} className="min-h-screen">
           {children}
         </div>

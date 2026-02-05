@@ -58,7 +58,7 @@ export const DailyBottomNav: React.FC<DailyBottomNavProps> = ({
     <div className="fixed inset-x-0 bottom-6 z-[60] flex justify-center px-4 pointer-events-none">
       <div className="pointer-events-auto flex items-center gap-3 w-full max-w-lg">
         {/* Main Navigation Pill - 3 tabs + More button integrated */}
-        <div className="flex-1 h-14 bg-gray-900/70 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl overflow-hidden">
+        <div className="flex-1 h-14 bg-siso-bg-alt/70 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl overflow-hidden">
           <div className="flex items-center h-full">
             {/* Regular navigation tabs */}
             {navTabs.map((tab, index) => {
