@@ -106,6 +106,14 @@ export const WeeklyOverviewSection: React.FC<WeeklyOverviewSectionProps> = ({
   weeklyData,
   onNavigateToDaily,
 }) => {
+  if (!weeklyData) {
+    return (
+      <div className="flex items-center justify-center h-64 text-slate-400">
+        Loading weekly data...
+      </div>
+    );
+  }
+
   const { weekStart, weekEnd, dailyData, summary } = weeklyData;
 
   const totalDeepWorkHours = dailyData.reduce(
