@@ -32,7 +32,7 @@ import { RecentAchievementsCard } from '@/services/analytics/ui/components/achie
 import { XPBottomNav } from '@/services/analytics/ui/pages/XPBottomNav';
 import { GridMoreMenu } from '@/components/GridMoreMenu';
 import { RewardCatalog } from '@/domains/lifelock/habits/gamification/1-storefront/ui/components/RewardCatalog';
-import { XPStoreProvider } from '@/domains/lifelock/habits/gamification/_shared/core/XPStoreContext';
+import { XPStoreProvider } from '@/domains/lifelock/habits/gamification/1-earn/hooks/XPStoreContext';
 import { AllAchievementsGrid } from './AllAchievementsGrid';
 import { LevelProgressCard } from './LevelProgressCard';
 import { StoreManagementPanel } from './StoreManagementPanel';
