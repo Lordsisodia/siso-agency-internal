@@ -85,8 +85,8 @@ function App() {
       >
         <Suspense fallback={<PageLoader />}>
           <Routes>
-            {/* Public routes - redirect root to LifeLock */}
-            <Route path="/" element={<Navigate to="/admin/life-lock-overview" replace />} />
+            {/* Public routes - redirect root to daily LifeLock */}
+            <Route path="/" element={<Navigate to="/admin/lifelock/daily" replace />} />
             <Route path="/index" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/admin-login" element={<AdminAutoLogin />} />
