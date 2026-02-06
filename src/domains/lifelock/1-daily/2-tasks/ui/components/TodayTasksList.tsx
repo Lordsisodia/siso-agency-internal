@@ -14,7 +14,7 @@ import { useDeepWorkTasksSupabase } from "@/domains/lifelock/1-daily/4-deep-work
 import { useTimeBlocks } from "@/domains/lifelock/1-daily/2-tasks/domain/useTimeBlocks";
 import { useGamificationInit } from "@/domains/lifelock/_shared/hooks/useGamificationInit";
 import { useDeepWorkTimers, formatMsAsClock } from "@/domains/lifelock/1-daily/4-deep-work/hooks/useDeepWorkTimers";
-import { useCurrentUser } from "@/domains/auth/hooks/useCurrentUser";
+import { useClerkUser } from "@/lib/hooks/auth/useClerkUser";
 import { format } from 'date-fns';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -378,7 +378,7 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
   useGamificationInit();
 
   const prefersReducedMotion = useReducedMotion();
-  const { user } = useCurrentUser();
+  const { user } = useClerkUser();
   const dateKey = useMemo(() => format(selectedDate, 'yyyy-MM-dd'), [selectedDate]);
 
   // Timer functionality
@@ -685,7 +685,9 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
                   {TODAY_FLOW_PROTOCOL.title}
                 </h1>
                 <p className={`text-xs ${themeColors.textMuted}`}>
-                  {stats.total > 0 ? `${stats.allocated} allocated, ${stats.unallocated} to allocate` : 'No tasks for today'}
+                  {stats.total > 0
+                    ? `${stats.scheduled} scheduled, ${stats.allocated - stats.scheduled} unscheduled${stats.unallocated > 0 ? `, ${stats.unallocated} to allocate` : ''}`
+                    : 'No tasks for today'}
                 </p>
               </div>
             </div>
@@ -693,11 +695,11 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
 
           {/* Stats Grid */}
           {stats.total > 0 && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
               <div className={`p-3 rounded-lg ${themeColors.statCardBg} border ${themeColors.statCardBorder}`}>
                 <div className="flex items-center gap-2 mb-1">
                   <ListTodo className={`h-3.5 w-3.5 ${themeColors.statLabelColor}`} />
-                  <span className={`text-xs ${themeColors.statLabelColor}`}>Allocated</span>
+                  <span className={`text-xs ${themeColors.statLabelColor}`}>Tasks</span>
                 </div>
                 <div className={`text-lg font-bold ${themeColors.statValueColor}`}>
                   {stats.allocated}
@@ -706,15 +708,25 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
 
               <div className={`p-3 rounded-lg ${themeColors.statCardBg} border ${themeColors.statCardBorder}`}>
                 <div className="flex items-center gap-2 mb-1">
-                  <Calendar className={`h-3.5 w-3.5 ${themeColors.statLabelColor}`} />
-                  <span className={`text-xs ${themeColors.statLabelColor}`}>To Allocate</span>
+                  <Timer className={`h-3.5 w-3.5 ${themeColors.statLabelColor}`} />
+                  <span className={`text-xs ${themeColors.statLabelColor}`}>Scheduled</span>
                 </div>
                 <div className={`text-lg font-bold ${themeColors.statValueColor}`}>
-                  {stats.unallocated}
+                  {stats.scheduled}
                 </div>
               </div>
 
-              <div className={`p-3 rounded-lg ${themeColors.statCardBg} border ${themeColors.statCardBorder} col-span-2 sm:col-span-1`}>
+              <div className={`p-3 rounded-lg ${themeColors.statCardBg} border ${themeColors.statCardBorder}`}>
+                <div className="flex items-center gap-2 mb-1">
+                  <Calendar className={`h-3.5 w-3.5 ${themeColors.statLabelColor}`} />
+                  <span className={`text-xs ${themeColors.statLabelColor}`}>Unscheduled</span>
+                </div>
+                <div className={`text-lg font-bold ${themeColors.statValueColor}`}>
+                  {stats.allocated - stats.scheduled}
+                </div>
+              </div>
+
+              <div className={`p-3 rounded-lg ${themeColors.statCardBg} border ${themeColors.statCardBorder}`}>
                 <div className="flex items-center gap-2 mb-1">
                   <Clock className={`h-3.5 w-3.5 ${themeColors.statLabelColor}`} />
                   <span className={`text-xs ${themeColors.statLabelColor}`}>Est. Time</span>
@@ -767,10 +779,11 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
         <div className="space-y-3">
           <div className="flex items-center justify-between px-3">
             <h2 className={`text-sm font-medium ${themeColors.sectionHeader} uppercase tracking-wider`}>
-              Allocated for Today
+              {stats.scheduled > 0 ? 'Scheduled Tasks' : 'Allocated for Today'}
             </h2>
             <span className={`text-xs ${themeColors.textMuted}`}>
               {allocatedTasks.length} tasks
+              {stats.scheduled > 0 && ` • ${stats.scheduled} scheduled`}
             </span>
           </div>
 
