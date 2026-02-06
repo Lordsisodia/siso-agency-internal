@@ -23,6 +23,7 @@ import {
   Building2,
   Play,
   Pause,
+  Maximize2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -354,6 +355,7 @@ interface UnifiedTaskCardProps {
   formatMsAsClock?: (ms: number) => string;
   getTaskTimeSummary?: (task: UnifiedTask) => { totalMinutes: number; formatted: string };
   themeName?: 'LIGHT' | 'DEEP' | 'AMBER';
+  onTaskClick?: (task: UnifiedTask) => void;
 }
 
 export function UnifiedTaskCard({
@@ -417,6 +419,7 @@ export function UnifiedTaskCard({
   getTaskTimeSummary,
   themeName = 'DEEP',
   workType,
+  onTaskClick,
 }: UnifiedTaskCardProps) {
   const priorityConfig = TASK_PRIORITY_CONFIG[task.priority?.toLowerCase()] || TASK_PRIORITY_CONFIG['medium'];
 
@@ -551,6 +554,7 @@ export function UnifiedTaskCard({
                   onToggleExpansion(task.id);
                 }}
                 whileTap={{ scale: 0.9 }}
+                title={isExpanded ? "Collapse subtasks" : "Expand subtasks"}
               >
                 {isExpanded ? (
                   <ChevronDown className={`h-4 w-4 ${theme.colors.textSecondary}`} />
@@ -654,6 +658,21 @@ export function UnifiedTaskCard({
                   </>
                 )}
               </button>
+
+              {/* Expand Button - Opens Task Detail */}
+              {onTaskClick && (
+                <motion.button
+                  className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium border ${theme.colors.bg}/20 hover:${theme.colors.bg}/40 ${theme.colors.textSecondary} transition-colors`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onTaskClick(task);
+                  }}
+                  whileTap={{ scale: 0.9 }}
+                  title="Open task details"
+                >
+                  <Maximize2 className="h-3.5 w-3.5" />
+                </motion.button>
+              )}
 
               {/* Reorder Arrows - Inline */}
               <div className="flex items-center gap-1 ml-auto">

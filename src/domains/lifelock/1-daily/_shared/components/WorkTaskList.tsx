@@ -957,6 +957,9 @@ export function WorkTaskList({
                             expandedSubtasks={expandedSubtasks}
                             clientMap={clientMap}
                             sortSubtasks={sortSubtasksHybrid}
+                            formatMsAsClock={formatMsAsClock}
+                            getTaskTimeSummary={getTaskTimeSummary}
+                            onTaskClick={() => handleTaskClick(task)}
                             onToggleTaskStatus={handleToggleTaskStatus}
                             onToggleExpansion={toggleTaskExpansion}
                             onTaskCalendarToggle={handleTaskCalendarToggle}

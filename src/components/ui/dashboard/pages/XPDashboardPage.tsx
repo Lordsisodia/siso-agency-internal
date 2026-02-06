@@ -7,6 +7,7 @@
 import { XPStoreProvider } from '@/domains/lifelock/habits/gamification/1-earn/hooks/XPStoreContext';
 import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { PageLoader } from '@/components/ui/PageLoader';
+import { AnalyticsDashboard } from '@/domains/lifelock/habits/gamification';
 
 export const XPDashboardPage = () => {
   const { user, isLoaded } = useClerkUser();
@@ -28,7 +29,7 @@ export const XPDashboardPage = () => {
     <XPStoreProvider userId={user.id}>
       <div className="container mx-auto py-6">
         <h1 className="text-3xl font-bold mb-6">XP Dashboard</h1>
-        <p className="text-muted-foreground">XP economy dashboard coming soon.</p>
+        <AnalyticsDashboard />
       </div>
     </XPStoreProvider>
   );
