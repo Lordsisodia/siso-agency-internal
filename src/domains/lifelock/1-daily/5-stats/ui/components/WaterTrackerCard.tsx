@@ -176,7 +176,7 @@ export const WaterTrackerCard: React.FC<WaterTrackerCardProps> = ({ selectedDate
         .replace('about ', '')
     : null;
 
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
 
   // XP value for hydration tracking
   const hydrationXP = 25;

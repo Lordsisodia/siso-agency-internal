@@ -391,6 +391,60 @@ export const AlcoholTracker: React.FC<AlcoholTrackerProps> = ({ selectedDate }) 
                     </div>
                   </motion.div>
 
+                  {/* 7-Day Trend Chart */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.18 }}
+                    className="rounded-xl border border-emerald-700/30 bg-emerald-900/30 p-4"
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-sm font-semibold text-emerald-200">7-Day Trend</span>
+                      <span className="text-xs text-emerald-400">{weeklyStats.total} total</span>
+                    </div>
+                    <div className="flex items-end justify-between gap-1 h-24">
+                      {isLoadingWeek ? (
+                        Array.from({ length: 7 }).map((_, i) => (
+                          <Skeleton key={i} className="flex-1 h-full bg-emerald-900/30" />
+                        ))
+                      ) : (
+                        weekData.map((day) => {
+                          const maxHeight = 80;
+                          const height = Math.min((day.drinks / 5) * maxHeight, maxHeight);
+                          const isTodayDay = day.date === dateKey;
+
+                          return (
+                            <div
+                              key={day.date}
+                              className="flex-1 flex flex-col items-center gap-1"
+                            >
+                              <div
+                                className={cn(
+                                  "w-full rounded-t-sm transition-all duration-300",
+                                  day.isDryDay
+                                    ? "bg-emerald-400/70"
+                                    : day.drinks <= 2
+                                      ? "bg-amber-500/70"
+                                      : "bg-rose-500/70",
+                                  isTodayDay && "ring-2 ring-white/30"
+                                )}
+                                style={{ height: `${Math.max(height, 4)}px` }}
+                              />
+                              <span
+                                className={cn(
+                                  "text-[10px] w-full text-center truncate",
+                                  isTodayDay ? "text-white font-medium" : "text-emerald-300"
+                                )}
+                              >
+                                {format(new Date(day.date), 'E')[0]}
+                              </span>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+                  </motion.div>
+
                   {/* Analytics Section */}
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}

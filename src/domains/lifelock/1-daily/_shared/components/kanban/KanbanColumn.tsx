@@ -128,7 +128,7 @@ export function KanbanColumn({
       <div
         ref={setNodeRef}
         className={cn(
-          "flex-1 p-3 space-y-2 overflow-y-auto min-h-0",
+          "flex-1 p-3 space-y-2 min-h-0",
           isOver && "bg-primary/5"
         )}
       >
