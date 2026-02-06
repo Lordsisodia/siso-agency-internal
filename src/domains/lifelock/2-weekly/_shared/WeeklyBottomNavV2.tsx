@@ -1,12 +1,13 @@
 /**
- * DailyBottomNav Component
+ * WeeklyBottomNavV2 Component
  *
- * Shared bottom navigation with glassmorphism effect for LifeLock daily views.
- * Provides consistent styling and behavior across all daily sections.
+ * Shared bottom navigation with glassmorphism effect for LifeLock weekly views.
+ * Based on DailyBottomNav pattern with blue/indigo theme for weekly.
  *
- * PHASE 5 COMPLETE: AI Legacy button replaces Timeline circle button
- * PHASE 4: 3-pill navigation + More button (9-dot) as 4th pill
- * Previous: 4-pill navigation + 9-dot FAB button
+ * 3-pill navigation + More button (9-dot) as 4th pill
+ * - Review (Overview, Wins, Problems)
+ * - Work (Productivity, Goals, Time Analysis)
+ * - Health (Wellness, Habits, Recovery)
  */
 
 import React from 'react';
@@ -16,15 +17,15 @@ import { AIOrbButton } from '@/components/ui/AIOrbButton';
 import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export interface DailyBottomNavTab {
+export interface WeeklyBottomNavTab {
   title: string;
   icon: LucideIcon;
   color?: string;
   bgActive?: string;
 }
 
-export interface DailyBottomNavProps {
-  tabs: DailyBottomNavTab[];
+export interface WeeklyBottomNavV2Props {
+  tabs: WeeklyBottomNavTab[];
   activeIndex: number;
   activeColor?: string;
   activeBgColor?: string;
@@ -35,7 +36,7 @@ export interface DailyBottomNavProps {
   hidden?: boolean;
 }
 
-export const DailyBottomNav: React.FC<DailyBottomNavProps> = ({
+export const WeeklyBottomNavV2: React.FC<WeeklyBottomNavV2Props> = ({
   tabs,
   activeIndex,
   activeSubTab,
@@ -47,41 +48,41 @@ export const DailyBottomNav: React.FC<DailyBottomNavProps> = ({
   // Extract all tabs (should be 3 now + More button)
   const navTabs = tabs.slice(0, 3);
 
-  // Get color based on active subsection
+  // Get color based on active subsection - BLUE THEME for Weekly
   const getSubTabGradient = (subTab: string | undefined): string => {
     switch (subTab) {
-      // Plan section
-      case 'morning':
-        return 'from-orange-500 to-amber-500';
-      case 'timebox':
+      // Review section
+      case 'overview':
         return 'from-blue-500 to-cyan-500';
-      case 'checkout':
-        return 'from-purple-500 to-violet-500';
-      // Tasks section
-      case 'light-work':
+      case 'wins':
         return 'from-emerald-500 to-teal-500';
-      case 'deep-work':
-      case 'work':
-        return 'from-blue-500 to-cyan-500';
-      case 'tasks':
-        return 'from-amber-500 to-orange-500';
-      // Health section
-      case 'stats':
-        return 'from-emerald-500 to-green-500';
-      case 'fitness':
+      case 'problems':
         return 'from-rose-500 to-orange-500';
-      case 'nutrition':
+      // Work section
+      case 'productivity':
+        return 'from-indigo-500 to-blue-500';
+      case 'goals':
+        return 'from-violet-500 to-purple-500';
+      case 'time-analysis':
+        return 'from-cyan-500 to-sky-500';
+      // Health section
+      case 'wellness':
+        return 'from-emerald-500 to-green-500';
+      case 'habits':
         return 'from-amber-500 to-orange-500';
+      case 'recovery':
+        return 'from-teal-500 to-cyan-500';
       default:
         return '';
     }
   };
 
   // Color gradients for each main tab (fallback when no subsection)
+  // BLUE THEME for Weekly view
   const tabColors = [
-    'from-purple-500 to-violet-500',  // Plan
-    'from-amber-500 to-orange-500',   // Tasks
-    'from-emerald-500 to-green-500',  // Health ( emerald green)
+    'from-blue-500 to-cyan-500',      // Review
+    'from-indigo-500 to-blue-500',    // Work
+    'from-emerald-500 to-teal-500',   // Health
   ];
 
   // Get the appropriate gradient - use subsection color if available
@@ -120,7 +121,7 @@ export const DailyBottomNav: React.FC<DailyBottomNavProps> = ({
                   {/* Active Background */}
                   {isActive && (
                     <motion.div
-                      layoutId="activeTabBg"
+                      layoutId="weeklyActiveTabBg"
                       className={cn(
                         'absolute inset-0 bg-gradient-to-br',
                         gradient
@@ -151,7 +152,7 @@ export const DailyBottomNav: React.FC<DailyBottomNavProps> = ({
                   {/* Active Glow */}
                   {isActive && (
                     <motion.div
-                      layoutId="activeGlow"
+                      layoutId="weeklyActiveGlow"
                       className={cn(
                         'absolute inset-0 bg-gradient-to-br opacity-30 blur-lg',
                         gradient
@@ -195,7 +196,7 @@ export const DailyBottomNav: React.FC<DailyBottomNavProps> = ({
           </div>
         </div>
 
-        {/* AI Legacy Button - PHASE 5: Replaces Timeline circle button */}
+        {/* AI Legacy Button */}
         <AIOrbButton
           onClick={onAILegacyClick}
           size="md"

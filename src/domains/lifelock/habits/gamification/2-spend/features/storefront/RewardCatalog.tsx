@@ -449,3 +449,5 @@ export const RewardCatalog = ({ onPurchase, className }: RewardCatalogProps) => 
     </div>
   );
 };
+
+export default RewardCatalog;

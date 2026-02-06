@@ -1298,3 +1298,15 @@ body.pwa-mode {
   border-color: rgba(234, 88, 12, 0.5);
   transform: scale(1.02);
 }
+
+/* ========================================
+   Task Detail Drawer - Hide Bottom Nav
+   ======================================== */
+
+/* Hide bottom nav when task detail is open */
+body.task-detail-open [data-bottom-nav="true"],
+body.task-detail-open .consolidated-bottom-nav,
+body.task-detail-open nav[class*="bottom-nav"],
+body.task-detail-open div[class*="bottom-nav"] {
+  display: none !important;
+}

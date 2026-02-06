@@ -220,6 +220,18 @@ export const BeautifulTaskDetail = memo(({
 
   const theme = THEMES[workType];
 
+  // Hide bottom nav when drawer is open
+  React.useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add('task-detail-open');
+    } else {
+      document.body.classList.remove('task-detail-open');
+    }
+    return () => {
+      document.body.classList.remove('task-detail-open');
+    };
+  }, [isOpen]);
+
   // Calculate progress
   const progress = task
     ? Math.round((task.subtasks.filter(s => s.completed).length / (task.subtasks.length || 1)) * 100)
