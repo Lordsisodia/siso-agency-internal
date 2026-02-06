@@ -954,6 +954,7 @@ export function WorkTaskList({
                             addingSubtaskToTask={addingSubtaskToTask}
                             newSubtaskTitle={newSubtaskTitle}
                             showCompletedSubtasks={showCompletedSubtasks}
+                            expandedSubtasks={expandedSubtasks}
                             clientMap={clientMap}
                             sortSubtasks={sortSubtasksHybrid}
                             onToggleTaskStatus={handleToggleTaskStatus}

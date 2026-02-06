@@ -106,7 +106,7 @@ export const LIGHT_THEME: ThemeConfig = {
     text: 'text-green-100',
     textSecondary: 'text-green-300',
     textMuted: 'text-green-200/80',
-    divider: 'border-green-600/50',
+    divider: 'border-t-2 border-green-600/50',
     inputBg: 'bg-green-900/40',
     inputBorder: 'border-green-600/50',
     inputFocusBorder: 'focus:border-green-400',
@@ -143,7 +143,7 @@ export const DEEP_THEME: ThemeConfig = {
     text: 'text-blue-100',
     textSecondary: 'text-blue-300',
     textMuted: 'text-blue-200/80',
-    divider: 'border-blue-600/50',
+    divider: 'border-t-2 border-blue-600/50',
     inputBg: 'bg-blue-900/40',
     inputBorder: 'border-blue-600/50',
     inputFocusBorder: 'focus:border-blue-400',
@@ -180,7 +180,7 @@ export const SLATE_THEME: ThemeConfig = {
     text: 'text-slate-100',
     textSecondary: 'text-slate-300',
     textMuted: 'text-slate-200/80',
-    divider: 'border-slate-600/50',
+    divider: 'border-t-2 border-slate-600/50',
     inputBg: 'bg-slate-800/50',
     inputBorder: 'border-slate-600/50',
     inputFocusBorder: 'focus:border-slate-500',
@@ -217,7 +217,7 @@ export const AMBER_THEME: ThemeConfig = {
     text: 'text-amber-100',
     textSecondary: 'text-amber-300',
     textMuted: 'text-amber-200/80',
-    divider: 'border-amber-600/50',
+    divider: 'border-t-2 border-amber-600/50',
     inputBg: 'bg-amber-900/40',
     inputBorder: 'border-amber-600/50',
     inputFocusBorder: 'focus:border-amber-400',
@@ -255,7 +255,7 @@ export const TEAL_THEME: ThemeConfig = {
     text: 'text-teal-100',
     textSecondary: 'text-teal-300',
     textMuted: 'text-teal-200/80',
-    divider: 'border-teal-600/50',
+    divider: 'border-t-2 border-teal-600/50',
     inputBg: 'bg-teal-900/40',
     inputBorder: 'border-teal-600/50',
     inputFocusBorder: 'focus:border-teal-400',
@@ -312,6 +312,7 @@ interface UnifiedTaskCardProps {
   addingSubtaskToTask: string | null;
   newSubtaskTitle: string;
   showCompletedSubtasks: { [taskId: string]: boolean };
+  expandedSubtasks: { [key: string]: boolean };
   clientMap?: Map<string, string>;
   sortSubtasks?: (subtasks: UnifiedSubtask[]) => UnifiedSubtask[];
   workType?: 'light' | 'deep';
@@ -375,6 +376,7 @@ export function UnifiedTaskCard({
   addingSubtaskToTask,
   newSubtaskTitle,
   showCompletedSubtasks,
+  expandedSubtasks,
   clientMap,
   sortSubtasks,
   onToggleTaskStatus,
@@ -796,7 +798,7 @@ export function UnifiedTaskCard({
                         editTitle={editSubtaskTitle}
                         calendarSubtaskId={calendarSubtaskId}
                         depth={0}
-                        isExpanded={false}
+                        isExpanded={expandedSubtasks[`${task.id}-${subtask.id}`] || false}
                         onToggleCompletion={(_taskId, subtaskId, _depth) => onToggleSubtaskStatus(task.id, subtaskId)}
                         onToggleExpansion={(_taskId, subtaskId) => onToggleSubtaskExpansion(task.id, subtaskId)}
                         onStartEditing={(subtaskId, currentTitle, _depth) => onSubtaskStartEditing(subtaskId, currentTitle)}
