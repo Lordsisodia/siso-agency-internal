@@ -144,6 +144,7 @@
     "reaviz": "^16.0.4",
     "recharts": "^2.12.7",
     "sonner": "^1.5.0",
+    "swr": "^2.4.0",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
     "tsparticles-slim": "^2.12.0",
