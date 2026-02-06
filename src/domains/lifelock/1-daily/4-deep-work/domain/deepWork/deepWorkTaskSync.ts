@@ -1,9 +1,7 @@
 import type { SupabaseClient, PostgrestError } from '@supabase/supabase-js';
-import { logger } from '@/lib/utils/logger';
 import { offlineDb } from '@/services/offline/offlineDb';
-import { logger } from '@/lib/utils/logger';
 import type { DeepWorkTask } from '../useDeepWorkTasksSupabase';
-import { logger } from '@/lib/utils/logger';
+import type { TaskAction, TaskSyncAdapter } from '../../../_shared/hooks/useTaskHookFactory';
 import {
   buildDeepWorkQueuePayload,
   markDeepWorkTaskSynced,
@@ -15,7 +13,7 @@ export type DeepWorkAction = 'create' | 'update' | 'delete';
 
 export interface DeepWorkMutationContext {
   supabase: SupabaseClient | null;
-  action: DeepWorkAction;
+  action: TaskAction;
   payload: any;
 }
 
@@ -29,7 +27,7 @@ export async function persistOptimisticDeepTask(task: DeepWorkTask, markForSync 
   await saveDeepWorkTaskToCache(task, markForSync);
 }
 
-export async function queueDeepWorkTask(action: DeepWorkAction, task: DeepWorkTask): Promise<void> {
+export async function queueDeepWorkTask(action: TaskAction, task: DeepWorkTask): Promise<void> {
   await offlineDb.queueAction(action, 'deepWorkTasks', buildDeepWorkQueuePayload(task));
 }
 
@@ -57,3 +55,12 @@ export async function handleDeepWorkMutation<T>(
 }
 
 export { mapSupabaseDeepWorkTask, markDeepWorkTaskSynced };
+
+// ============================================================================
+// GENERIC ADAPTER IMPLEMENTATION
+// ============================================================================
+
+export const deepWorkSyncAdapter: TaskSyncAdapter<DeepWorkTask> = {
+  persistOptimisticTask: persistOptimisticDeepTask,
+  queueTask: queueDeepWorkTask,
+};

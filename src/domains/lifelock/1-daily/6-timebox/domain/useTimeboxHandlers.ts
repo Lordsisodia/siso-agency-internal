@@ -4,6 +4,7 @@ import { TimeBlockCategory } from '@/services/api/timeblocksApi.offline';
 import { TimeboxTask, DragPreviewState, GapFillerState, FocusSprintType, TIMEBOX_HOUR_HEIGHT } from './types';
 import { mapUIToCategory, formatTime, parseTimeToMinutes, inferCategoryFromHour } from './utils';
 import { unifiedDataService } from '@/services/shared/unified-data.service';
+import { parseTimeEstimateToMinutes } from '@/domains/lifelock/1-daily/2-tasks/domain/utils/timeUtils';
 
 interface UseTimeboxHandlersProps {
   validTasks: TimeboxTask[];
@@ -293,11 +294,37 @@ export const useTimeboxHandlers = ({
   const handleScheduleTask = useCallback(async (task: any, timeSlot: any, taskType: 'light' | 'deep') => {
     const category: TimeBlockCategory = taskType === 'deep' ? 'DEEP_WORK' : 'LIGHT_WORK';
 
+    // Parse timeEstimate from task (e.g., "30 mins", "1 hour", "1.5 hours") into minutes
+    let durationMinutes: number;
+
+    if (task.timeEstimate) {
+      // Use timeEstimate string (e.g., "30 mins", "1 hour", "1.5 hours")
+      durationMinutes = parseTimeEstimateToMinutes(task.timeEstimate);
+    } else if (task.estimatedDuration) {
+      // Fallback to estimatedDuration if available
+      durationMinutes = task.estimatedDuration;
+    } else {
+      // Default durations based on task type
+      durationMinutes = taskType === 'deep' ? 90 : 30;
+    }
+
+    // Ensure minimum duration of 15 minutes
+    durationMinutes = Math.max(15, durationMinutes);
+
+    // Calculate end time based on start time and parsed duration
+    const [startHour, startMin] = timeSlot.start.split(':').map(Number);
+    const startMinutes = startHour * 60 + startMin;
+    const endMinutes = startMinutes + durationMinutes;
+
+    // Format end time, capping at midnight
+    const formatTime = (m: number) => `${Math.floor(m / 60).toString().padStart(2, '0')}:${(m % 60).toString().padStart(2, '0')}`;
+    const calculatedEndTime = endMinutes >= 24 * 60 ? '23:59' : formatTime(endMinutes);
+
     const timeBlockData = {
       title: task.title,
       description: task.description || `Scheduled ${taskType} work task`,
       startTime: timeSlot.start,
-      endTime: timeSlot.end,
+      endTime: calculatedEndTime,
       category: category,
       taskId: task.id, // Link to original task for subtask display
       notes: `Linked to ${taskType} work task: ${task.id}`
@@ -306,7 +333,7 @@ export const useTimeboxHandlers = ({
     const success = await createTimeBlock(timeBlockData);
 
     if (success) {
-      toast.success(`Added "${task.title}" to timeline`);
+      toast.success(`Added "${task.title}" to timeline (${durationMinutes} min)`);
     } else {
       toast.error('Failed to add task to timeline');
     }
@@ -488,7 +515,21 @@ export const useTimeboxHandlers = ({
   const handleGapSchedule = useCallback(async (task: any, gapFiller: GapFillerState | null) => {
     if (!gapFiller) return;
 
-    const estimatedDuration = Math.min(task.estimatedDuration || 60, gapFiller.duration);
+    // Parse timeEstimate from task (e.g., "30 mins", "1 hour", "1.5 hours") into minutes
+    let durationMinutes: number;
+
+    if (task.timeEstimate) {
+      // Use timeEstimate string (e.g., "30 mins", "1 hour", "1.5 hours")
+      durationMinutes = parseTimeEstimateToMinutes(task.timeEstimate);
+    } else if (task.estimatedDuration) {
+      // Fallback to estimatedDuration if available
+      durationMinutes = task.estimatedDuration;
+    } else {
+      // Default duration
+      durationMinutes = 60;
+    }
+
+    const estimatedDuration = Math.min(durationMinutes, gapFiller.duration);
     const startMinutes = parseTimeToMinutes(gapFiller.startTime);
     const endMinutes = startMinutes + estimatedDuration;
 

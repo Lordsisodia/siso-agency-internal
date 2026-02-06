@@ -24,19 +24,27 @@ const tasks = await prisma.lightWorkTask.findMany({
 // tasks is LightWorkTask[] with full autocomplete
 ```
 
-## Setup Steps
+## Quick Setup (One Command)
+
+```bash
+npm run db:setup
+```
+
+This installs Prisma and generates types from the schema.
+
+## Manual Setup
 
 1. **Copy environment file:**
    ```bash
-   cp .env.prisma.example .env
+   cp .env.prisma .env
    ```
 
-2. **Add your Supabase credentials:**
+2. **Add your Supabase database password:**
    - Go to Supabase Dashboard → Project Settings → Database
-   - Copy "Connection string" (URI format)
-   - Replace `[YOUR-PASSWORD]` and `[YOUR-PROJECT-REF]` in `.env`
+   - Copy your database password
+   - Replace `[YOUR-PASSWORD]` in `.env` with the actual password
 
-3. **Install Prisma CLI:**
+3. **Install Prisma:**
    ```bash
    npm install -D prisma
    ```
@@ -45,12 +53,6 @@ const tasks = await prisma.lightWorkTask.findMany({
    ```bash
    npm run db:generate
    ```
-
-5. **Optional: Sync with actual database:**
-   ```bash
-   npm run db:introspect
-   ```
-   This pulls your actual Supabase schema into `schema.prisma`
 
 ## Usage
 
@@ -77,8 +79,9 @@ const tasks = await prisma.lightWorkTask.findMany({
 
 ## Scripts
 
+- `npm run db:setup` - Install Prisma and generate types (one-time)
 - `npm run db:generate` - Generate TypeScript types from schema
-- `npm run db:introspect` - Pull schema from Supabase
+- `npm run db:introspect` - Pull schema from Supabase (if you change DB)
 - `npm run db:studio` - Open Prisma Studio (visual DB browser)
 
 ## Comparison: Convex vs Supabase + Prisma
@@ -93,3 +96,27 @@ const tasks = await prisma.lightWorkTask.findMany({
 | Branded IDs | ✅ Yes | ❌ No |
 
 **Trade-off:** You get 80% of Convex's DX with 100% of Supabase's ecosystem.
+
+## Your Supabase Project
+
+- **Project URL:** https://avdgyrepwrvsvwgxrccr.supabase.co
+- **Schema:** Auto-generated from your actual database
+- **Tables included:**
+  - `light_work_tasks` / `light_work_subtasks`
+  - `deep_work_tasks` / `deep_work_subtasks` / `deep_work_sessions`
+  - `daily_reflections`
+  - `user_feedback`
+  - `daily_routines`
+  - `time_blocks`
+
+## Troubleshooting
+
+**Error: Environment variable not found**
+- Make sure `.env` file exists with DATABASE_URL and DIRECT_URL
+
+**Error: Can't reach database**
+- Check your password is correct
+- Make sure you're using the right project URL
+
+**Types not updating**
+- Run `npm run db:generate` after any schema changes

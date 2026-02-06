@@ -28,6 +28,7 @@ export interface DailyBottomNavProps {
   activeIndex: number;
   activeColor?: string;
   activeBgColor?: string;
+  activeSubTab?: string; // For dynamic subsection coloring
   onChange: (index: number | null) => void;
   onAILegacyClick?: () => void;
   className?: string;
@@ -37,6 +38,7 @@ export interface DailyBottomNavProps {
 export const DailyBottomNav: React.FC<DailyBottomNavProps> = ({
   tabs,
   activeIndex,
+  activeSubTab,
   onChange,
   onAILegacyClick,
   className = '',
@@ -45,12 +47,51 @@ export const DailyBottomNav: React.FC<DailyBottomNavProps> = ({
   // Extract all tabs (should be 3 now + More button)
   const navTabs = tabs.slice(0, 3);
 
-  // Color gradients for each tab (PHASE 5: Stats renamed to Health)
+  // Get color based on active subsection
+  const getSubTabGradient = (subTab: string | undefined): string => {
+    switch (subTab) {
+      // Plan section
+      case 'morning':
+        return 'from-orange-500 to-amber-500';
+      case 'timebox':
+        return 'from-blue-500 to-cyan-500';
+      case 'checkout':
+        return 'from-purple-500 to-violet-500';
+      // Tasks section
+      case 'light-work':
+        return 'from-emerald-500 to-teal-500';
+      case 'deep-work':
+      case 'work':
+        return 'from-blue-500 to-cyan-500';
+      case 'tasks':
+        return 'from-amber-500 to-orange-500';
+      // Health section
+      case 'stats':
+        return 'from-emerald-500 to-green-500';
+      case 'fitness':
+        return 'from-rose-500 to-orange-500';
+      case 'nutrition':
+        return 'from-amber-500 to-orange-500';
+      default:
+        return '';
+    }
+  };
+
+  // Color gradients for each main tab (fallback when no subsection)
   const tabColors = [
     'from-purple-500 to-violet-500',  // Plan
-    'from-amber-500 to-orange-500',    // Tasks
-    'from-rose-500 to-pink-500',       // Health
+    'from-amber-500 to-orange-500',   // Tasks
+    'from-emerald-500 to-green-500',  // Health ( emerald green)
   ];
+
+  // Get the appropriate gradient - use subsection color if available
+  const subTabGradient = getSubTabGradient(activeSubTab);
+  const getTabGradient = (index: number): string => {
+    if (index === activeIndex && subTabGradient) {
+      return subTabGradient;
+    }
+    return tabColors[index % tabColors.length];
+  };
 
   if (hidden) return null;
 
@@ -64,7 +105,7 @@ export const DailyBottomNav: React.FC<DailyBottomNavProps> = ({
             {navTabs.map((tab, index) => {
               const Icon = tab.icon;
               const isActive = activeIndex === index;
-              const gradient = tabColors[index % tabColors.length];
+              const gradient = getTabGradient(index);
 
               return (
                 <motion.button
@@ -159,6 +200,7 @@ export const DailyBottomNav: React.FC<DailyBottomNavProps> = ({
           onClick={onAILegacyClick}
           size="md"
           className="flex-shrink-0"
+          activeSubTab={activeSubTab}
         />
       </div>
     </div>

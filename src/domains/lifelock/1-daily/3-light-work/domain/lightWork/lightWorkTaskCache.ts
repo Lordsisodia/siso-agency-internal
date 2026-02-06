@@ -1,5 +1,6 @@
 import { offlineDb } from '@/services/offline/offlineDb';
 import type { LightWorkSubtask, LightWorkTask } from '../useLightWorkTasksSupabase';
+import type { TaskCacheAdapter } from '../../../_shared/hooks/useTaskHookFactory';
 
 export type LightWorkTaskRow = {
   id: string;
@@ -139,3 +140,15 @@ export async function markLightWorkTaskSynced(taskId: string): Promise<void> {
 export function buildLightWorkQueuePayload(task: LightWorkTask): any {
   return mapLightWorkTaskToOfflineRecord(task);
 }
+
+// ============================================================================
+// GENERIC ADAPTER IMPLEMENTATION
+// ============================================================================
+
+export const lightWorkCacheAdapter: TaskCacheAdapter<LightWorkTask> = {
+  loadFromCache: loadLightWorkTasksFromCache,
+  cacheSupabaseTasks: cacheSupabaseLightWorkTasks,
+  saveToCache: saveLightWorkTaskToCache,
+  markTaskSynced: markLightWorkTaskSynced,
+  buildQueuePayload: buildLightWorkQueuePayload,
+};

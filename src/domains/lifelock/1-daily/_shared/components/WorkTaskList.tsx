@@ -8,16 +8,21 @@
  */
 
 import React, { useState, useMemo, useCallback } from "react";
-import { Brain, Plus, Info, X, ListTodo, Clock, Trophy } from "lucide-react";
+import { Brain, Plus, Info, X, ListTodo, Clock, Trophy, Grid3X3, List, Columns3 } from "lucide-react";
 import { motion, LayoutGroup, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from 'date-fns';
 import { UnifiedTaskCard, LIGHT_THEME, DEEP_THEME, ThemeConfig, UnifiedTask } from "./UnifiedTaskCard";
 import { useDeepWorkTimers, formatMsAsClock } from "@/domains/lifelock/1-daily/4-deep-work/hooks/useDeepWorkTimers";
+import { ListTaskItem } from "./ListTaskItem";
+import { KanbanBoard } from "./kanban";
 
 // Stub for missing sortSubtasksHybrid function
 const sortSubtasksHybrid = (subtasks: any[]) => subtasks;
+
+// View mode type
+export type ViewMode = 'card' | 'list' | 'kanban';
 
 // Types
 export type WorkType = 'light' | 'deep';
@@ -86,8 +91,11 @@ export interface WorkTaskListProps {
   onUpdateTaskPriority: (taskId: string, priority: string) => Promise<void>;
   onUpdateTaskTimeEstimate: (taskId: string, estimate: string | null) => Promise<void>;
   onPushTaskToAnotherDay?: (taskId: string, date: string) => Promise<void>;
+  onUpdateTaskActualDuration?: (taskId: string, durationMin: number | null) => Promise<void>;
   // Optional callbacks
   onStartFocusSession?: (taskId: string, intensity: number) => void;
+  // Kanban specific
+  onUpdateTaskStatus?: (taskId: string, status: string) => Promise<void>;
 }
 
 // Convert WorkTask to UnifiedTask
@@ -140,7 +148,9 @@ export function WorkTaskList({
   onUpdateTaskPriority,
   onUpdateTaskTimeEstimate,
   onPushTaskToAnotherDay,
+  onUpdateTaskActualDuration,
   onStartFocusSession,
+  onUpdateTaskStatus,
 }: WorkTaskListProps) {
   const dateKey = useMemo(
     () => selectedDate ? format(selectedDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd'),
@@ -163,6 +173,46 @@ export function WorkTaskList({
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   const [showCompletedSubtasks, setShowCompletedSubtasks] = useState<{ [taskId: string]: boolean }>({});
   const [isProtocolExpanded, setIsProtocolExpanded] = useState(false);
+
+  // View mode state (persisted to localStorage)
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    const saved = localStorage.getItem(`${workType}work-viewMode`);
+    return (saved as ViewMode) || 'card';
+  });
+
+  // Persist view mode preference
+  React.useEffect(() => {
+    localStorage.setItem(`${workType}work-viewMode`, viewMode);
+  }, [viewMode, workType]);
+
+  // Toggle view mode - cycles through card -> list -> kanban
+  const toggleViewMode = () => {
+    setViewMode(prev => {
+      if (prev === 'card') return 'list';
+      if (prev === 'list') return 'kanban';
+      return 'card';
+    });
+  };
+
+  // Get view mode icon
+  const getViewModeIcon = () => {
+    switch (viewMode) {
+      case 'card': return <List className="h-4 w-4" />;
+      case 'list': return <Columns3 className="h-4 w-4" />;
+      case 'kanban': return <Grid3X3 className="h-4 w-4" />;
+      default: return <List className="h-4 w-4" />;
+    }
+  };
+
+  // Get view mode tooltip
+  const getViewModeTooltip = () => {
+    switch (viewMode) {
+      case 'card': return 'Switch to List View';
+      case 'list': return 'Switch to Kanban View';
+      case 'kanban': return 'Switch to Card View';
+      default: return 'Switch View';
+    }
+  };
 
   // Task order (persisted to localStorage)
   const [taskOrder, setTaskOrder] = useState<string[]>(() => {
@@ -257,6 +307,33 @@ export function WorkTaskList({
       const updatedTask = await onToggleTaskCompletion(taskId);
       if (updatedTask && !wasCompleted && onAwardTaskCompletion) {
         onAwardTaskCompletion(updatedTask);
+      }
+
+      // Auto-populate actualDurationMin from timer when task is completed
+      // Only if actualDurationMin is empty (don't overwrite user input)
+      if (updatedTask && !wasCompleted && onUpdateTaskActualDuration) {
+        const hasNoActualDuration = !previousTask?.actualDurationMin;
+        const timerWasRunning = activeTimer?.taskId === taskId;
+
+        if (hasNoActualDuration) {
+          // Get elapsed time from timer service (includes both active and completed sessions)
+          const elapsedMs = getElapsedMsForTask(taskId);
+
+          if (elapsedMs > 0) {
+            // Convert to minutes and round to nearest 5
+            const elapsedMinutes = Math.round(elapsedMs / 60000);
+            const roundedMinutes = Math.round(elapsedMinutes / 5) * 5;
+
+            if (roundedMinutes > 0) {
+              await onUpdateTaskActualDuration(taskId, roundedMinutes);
+            }
+          }
+        }
+
+        // Stop the timer if it was running for this task
+        if (timerWasRunning) {
+          stop(taskId);
+        }
       }
     } catch (error) {
       console.error('Error toggling task completion:', error);
@@ -702,16 +779,29 @@ export function WorkTaskList({
               </div>
             </div>
 
-            {/* Protocol Toggle Button */}
-            <motion.button
-              onClick={() => setIsProtocolExpanded(!isProtocolExpanded)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className={`p-2 rounded-lg border ${themeColors.iconBorder} ${themeColors.iconColor} hover:${themeColors.iconBg} transition-colors flex-shrink-0`}
-              title="Flow State Protocol"
-            >
-              {isProtocolExpanded ? <X className="h-4 w-4" /> : <Info className="h-4 w-4" />}
-            </motion.button>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {/* View Mode Toggle */}
+              <motion.button
+                onClick={toggleViewMode}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className={`p-2 rounded-lg border ${themeColors.iconBorder} ${themeColors.iconColor} hover:${themeColors.iconBg} transition-colors`}
+                title={getViewModeTooltip()}
+              >
+                {getViewModeIcon()}
+              </motion.button>
+
+              {/* Protocol Toggle Button */}
+              <motion.button
+                onClick={() => setIsProtocolExpanded(!isProtocolExpanded)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className={`p-2 rounded-lg border ${themeColors.iconBorder} ${themeColors.iconColor} hover:${themeColors.iconBg} transition-colors`}
+                title="Flow State Protocol"
+              >
+                {isProtocolExpanded ? <X className="h-4 w-4" /> : <Info className="h-4 w-4" />}
+              </motion.button>
+            </div>
           </div>
 
           {/* Bento Grid Stats - Nightly Checkout / Timebox pattern */}
@@ -785,113 +875,223 @@ export function WorkTaskList({
           </AnimatePresence>
         </div>
 
-        {/* Task List - Individual Cards like Morning Routine */}
-        <div className="space-y-3">
+        {/* Task List - Card, List, or Kanban View */}
+        <div className={viewMode === 'kanban' ? 'h-[calc(100vh-280px)]' : 'space-y-3'}>
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0, transition: { duration: 0.3, ease: [0.2, 0.65, 0.3, 0.9] } }}
+            className={viewMode === 'kanban' ? 'h-full' : ''}
           >
             <LayoutGroup>
-              <div className="overflow-hidden">
-                <ul className="space-y-3 overflow-hidden">
-                  {activeTasks.map((task, index) => {
-                    const isFirst = index === 0;
-                    const isLast = index === activeTasks.length - 1;
-                    const isExpanded = expandedTasks.includes(task.id);
+              <div className={viewMode === 'kanban' ? 'h-full' : 'overflow-hidden'}>
+                <AnimatePresence mode="wait">
+                  {viewMode === 'card' ? (
+                    <motion.ul
+                      key="card-view"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="space-y-3 overflow-hidden"
+                    >
+                      {activeTasks.map((task, index) => {
+                        const isFirst = index === 0;
+                        const isLast = index === activeTasks.length - 1;
+                        const isExpanded = expandedTasks.includes(task.id);
 
-                    return (
-                      <UnifiedTaskCard
-                        key={task.id}
-                        task={taskToUnified(task, activeTimer, getElapsedMsForTask(task.id))}
-                        theme={theme}
-                        index={index}
-                        isExpanded={isExpanded}
-                        isFirst={isFirst}
-                        isLast={isLast}
-                        taskVariants={taskVariants}
-                        subtaskListVariants={subtaskListVariants}
-                        subtaskVariants={subtaskVariants}
-                        activeTaskCalendarId={activeTaskCalendarId}
-                        taskPriorityMenuId={taskPriorityMenuId}
-                        editingTaskTimeId={editingTaskTimeId}
-                        editTaskTimeValue={editTaskTimeValue}
-                        editingMainTask={editingMainTask}
-                        editMainTaskTitle={editMainTaskTitle}
-                        calendarSubtaskId={calendarSubtaskId}
-                        editingSubtask={editingSubtask}
-                        editSubtaskTitle={editSubtaskTitle}
-                        addingSubtaskToTask={addingSubtaskToTask}
-                        newSubtaskTitle={newSubtaskTitle}
-                        showCompletedSubtasks={showCompletedSubtasks}
-                        clientMap={clientMap}
-                        sortSubtasks={sortSubtasksHybrid}
+                        return (
+                          <UnifiedTaskCard
+                            key={task.id}
+                            task={taskToUnified(task, activeTimer, getElapsedMsForTask(task.id))}
+                            theme={theme}
+                            index={index}
+                            isExpanded={isExpanded}
+                            isFirst={isFirst}
+                            isLast={isLast}
+                            taskVariants={taskVariants}
+                            subtaskListVariants={subtaskListVariants}
+                            subtaskVariants={subtaskVariants}
+                            activeTaskCalendarId={activeTaskCalendarId}
+                            taskPriorityMenuId={taskPriorityMenuId}
+                            editingTaskTimeId={editingTaskTimeId}
+                            editTaskTimeValue={editTaskTimeValue}
+                            editingMainTask={editingMainTask}
+                            editMainTaskTitle={editMainTaskTitle}
+                            calendarSubtaskId={calendarSubtaskId}
+                            editingSubtask={editingSubtask}
+                            editSubtaskTitle={editSubtaskTitle}
+                            addingSubtaskToTask={addingSubtaskToTask}
+                            newSubtaskTitle={newSubtaskTitle}
+                            showCompletedSubtasks={showCompletedSubtasks}
+                            clientMap={clientMap}
+                            sortSubtasks={sortSubtasksHybrid}
+                            onToggleTaskStatus={handleToggleTaskStatus}
+                            onToggleExpansion={toggleTaskExpansion}
+                            onTaskCalendarToggle={handleTaskCalendarToggle}
+                            onTaskCalendarSelect={handleTaskCalendarSelect}
+                            onTaskPrioritySelect={handleTaskPrioritySelect}
+                            onTaskTimeStartEditing={handleTaskTimeStartEditing}
+                            onTaskTimeSave={handleTaskTimeSave}
+                            onTaskTimeKeyDown={handleTaskTimeKeyDown}
+                            onTaskTimeChange={(value) => setEditTaskTimeValue(value)}
+                            onMoveTask={handleMoveTask}
+                            onTimerToggle={handleTimerToggle}
+                            onToggleSubtaskVisibility={toggleSubtaskVisibility}
+                            onDeleteTask={onDeleteTask}
+                            onMainTaskStartEditing={handleMainTaskStartEditing}
+                            onMainTaskEditTitleChange={handleMainTaskEditTitleChange}
+                            onMainTaskSaveEdit={handleMainTaskSaveEdit}
+                            onMainTaskKeyDown={handleMainTaskKeyDown}
+                            onToggleSubtaskStatus={handleToggleSubtaskStatus}
+                            onToggleSubtaskExpansion={toggleSubtaskExpansion}
+                            onSubtaskStartEditing={handleSubtaskStartEditing}
+                            onSubtaskEditTitleChange={handleSubtaskEditTitleChange}
+                            onSubtaskSaveEdit={handleSubtaskSaveEdit}
+                            onSubtaskKeyDown={handleSubtaskKeyDown}
+                            onCalendarToggle={handleCalendarToggle}
+                            onDeleteSubtask={handleDeleteSubtask}
+                            onUpdateSubtaskPriority={handleUpdateSubtaskPriority}
+                            onUpdateSubtaskEstimatedTime={handleUpdateSubtaskEstimatedTime}
+                            onUpdateSubtaskDescription={handleUpdateSubtaskDescription}
+                            onStartAddingSubtask={handleStartAddingSubtask}
+                            onNewSubtaskTitleChange={handleNewSubtaskTitleChange}
+                            onSaveNewSubtask={handleSaveNewSubtask}
+                            onNewSubtaskKeyDown={handleNewSubtaskKeyDown}
+                            formatMsAsClock={formatMsAsClock}
+                            getTaskTimeSummary={getTaskTimeSummary}
+                            themeName={themeName}
+                          />
+                        );
+                      })}
+                    </motion.ul>
+                  ) : viewMode === 'list' ? (
+                    <motion.ul
+                      key="list-view"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="space-y-1 overflow-hidden"
+                    >
+                      {activeTasks.map((task, index) => {
+                        const isExpanded = expandedTasks.includes(task.id);
+
+                        return (
+                          <ListTaskItem
+                            key={task.id}
+                            task={task}
+                            theme={theme}
+                            themeName={themeName}
+                            index={index}
+                            isExpanded={isExpanded}
+                            expandedTasks={expandedTasks}
+                            taskVariants={taskVariants}
+                            subtaskListVariants={subtaskListVariants}
+                            subtaskVariants={subtaskVariants}
+                            editingMainTask={editingMainTask}
+                            editMainTaskTitle={editMainTaskTitle}
+                            editingSubtask={editingSubtask}
+                            editSubtaskTitle={editSubtaskTitle}
+                            addingSubtaskToTask={addingSubtaskToTask}
+                            newSubtaskTitle={newSubtaskTitle}
+                            showCompletedSubtasks={showCompletedSubtasks}
+                            calendarSubtaskId={calendarSubtaskId}
+                            activeTaskCalendarId={activeTaskCalendarId}
+                            taskPriorityMenuId={taskPriorityMenuId}
+                            editingTaskTimeId={editingTaskTimeId}
+                            editTaskTimeValue={editTaskTimeValue}
+                            clientMap={clientMap}
+                            activeTimer={activeTimer}
+                            getElapsedMsForTask={getElapsedMsForTask}
+                            formatMsAsClock={formatMsAsClock}
+                            getTaskTimeSummary={getTaskTimeSummary}
+                            onToggleTaskStatus={handleToggleTaskStatus}
+                            onToggleExpansion={toggleTaskExpansion}
+                            onMainTaskStartEditing={handleMainTaskStartEditing}
+                            onMainTaskEditTitleChange={handleMainTaskEditTitleChange}
+                            onMainTaskSaveEdit={handleMainTaskSaveEdit}
+                            onMainTaskKeyDown={handleMainTaskKeyDown}
+                            onToggleSubtaskStatus={handleToggleSubtaskStatus}
+                            onSubtaskStartEditing={handleSubtaskStartEditing}
+                            onSubtaskEditTitleChange={handleSubtaskEditTitleChange}
+                            onSubtaskSaveEdit={handleSubtaskSaveEdit}
+                            onSubtaskKeyDown={handleSubtaskKeyDown}
+                            onCalendarToggle={handleCalendarToggle}
+                            onTaskCalendarToggle={handleTaskCalendarToggle}
+                            onTaskCalendarSelect={handleTaskCalendarSelect}
+                            onTaskPrioritySelect={handleTaskPrioritySelect}
+                            onTaskTimeStartEditing={handleTaskTimeStartEditing}
+                            onTaskTimeChange={setEditTaskTimeValue}
+                            onTaskTimeSave={handleTaskTimeSave}
+                            onTaskTimeKeyDown={handleTaskTimeKeyDown}
+                            onDeleteSubtask={handleDeleteSubtask}
+                            onUpdateSubtaskPriority={handleUpdateSubtaskPriority}
+                            onUpdateSubtaskEstimatedTime={handleUpdateSubtaskEstimatedTime}
+                            onUpdateSubtaskDescription={handleUpdateSubtaskDescription}
+                            onStartAddingSubtask={handleStartAddingSubtask}
+                            onNewSubtaskTitleChange={handleNewSubtaskTitleChange}
+                            onSaveNewSubtask={handleSaveNewSubtask}
+                            onNewSubtaskKeyDown={handleNewSubtaskKeyDown}
+                            onToggleSubtaskVisibility={toggleSubtaskVisibility}
+                            onToggleSubtaskExpansion={toggleSubtaskExpansion}
+                            onDeleteTask={onDeleteTask}
+                            onTimerToggle={handleTimerToggle}
+                            sortSubtasks={sortSubtasksHybrid}
+                          />
+                        );
+                      })}
+                    </motion.ul>
+                  ) : (
+                    <motion.div
+                      key="kanban-view"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="h-full"
+                    >
+                      <KanbanBoard
+                        tasks={tasks}
+                        themeName={themeName}
+                        workType={workType}
                         onToggleTaskStatus={handleToggleTaskStatus}
                         onToggleExpansion={toggleTaskExpansion}
-                        onTaskCalendarToggle={handleTaskCalendarToggle}
-                        onTaskCalendarSelect={handleTaskCalendarSelect}
-                        onTaskPrioritySelect={handleTaskPrioritySelect}
-                        onTaskTimeStartEditing={handleTaskTimeStartEditing}
-                        onTaskTimeSave={handleTaskTimeSave}
-                        onTaskTimeKeyDown={handleTaskTimeKeyDown}
-                        onTaskTimeChange={(value) => setEditTaskTimeValue(value)}
-                        onMoveTask={handleMoveTask}
-                        onTimerToggle={handleTimerToggle}
-                        onToggleSubtaskVisibility={toggleSubtaskVisibility}
-                        onDeleteTask={onDeleteTask}
-                        onMainTaskStartEditing={handleMainTaskStartEditing}
-                        onMainTaskEditTitleChange={handleMainTaskEditTitleChange}
-                        onMainTaskSaveEdit={handleMainTaskSaveEdit}
-                        onMainTaskKeyDown={handleMainTaskKeyDown}
-                        onToggleSubtaskStatus={handleToggleSubtaskStatus}
-                        onToggleSubtaskExpansion={toggleSubtaskExpansion}
-                        onSubtaskStartEditing={handleSubtaskStartEditing}
-                        onSubtaskEditTitleChange={handleSubtaskEditTitleChange}
-                        onSubtaskSaveEdit={handleSubtaskSaveEdit}
-                        onSubtaskKeyDown={handleSubtaskKeyDown}
-                        onCalendarToggle={handleCalendarToggle}
-                        onDeleteSubtask={handleDeleteSubtask}
-                        onUpdateSubtaskPriority={handleUpdateSubtaskPriority}
-                        onUpdateSubtaskEstimatedTime={handleUpdateSubtaskEstimatedTime}
-                        onUpdateSubtaskDescription={handleUpdateSubtaskDescription}
-                        onStartAddingSubtask={handleStartAddingSubtask}
-                        onNewSubtaskTitleChange={handleNewSubtaskTitleChange}
-                        onSaveNewSubtask={handleSaveNewSubtask}
-                        onNewSubtaskKeyDown={handleNewSubtaskKeyDown}
-                        formatMsAsClock={formatMsAsClock}
-                        getTaskTimeSummary={getTaskTimeSummary}
-                        themeName={themeName}
+                        onUpdateTaskStatus={onUpdateTaskStatus}
+                        expandedTasks={expandedTasks}
                       />
-                    );
-                  })}
-                </ul>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
-                {/* Add Task Button */}
-                <div className="mt-6">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={`w-full ${themeColors.buttonClass} transition-all duration-200 text-sm border`}
-                    onClick={async () => {
-                      try {
-                        const newTask = await onCreateTask({
-                          title: `New ${workType === 'light' ? 'Light' : 'Deep'} Work Task`,
-                          priority: 'HIGH'
-                        });
-                        if (newTask) {
-                          setTimeout(() => {
-                            setEditingMainTask(newTask.id);
-                            setEditMainTaskTitle(newTask.title);
-                          }, 100);
+                {/* Add Task Button - Hidden in Kanban view */}
+                {viewMode !== 'kanban' && (
+                  <div className="mt-6">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className={`w-full ${themeColors.buttonClass} transition-all duration-200 text-sm border`}
+                      onClick={async () => {
+                        try {
+                          const newTask = await onCreateTask({
+                            title: `New ${workType === 'light' ? 'Light' : 'Deep'} Work Task`,
+                            priority: 'HIGH'
+                          });
+                          if (newTask) {
+                            setTimeout(() => {
+                              setEditingMainTask(newTask.id);
+                              setEditMainTaskTitle(newTask.title);
+                            }, 100);
+                          }
+                        } catch (error) {
+                          console.error('Error creating new task:', error);
                         }
-                      } catch (error) {
-                        console.error('Error creating new task:', error);
-                      }
-                    }}
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Task
-                  </Button>
-                </div>
+                      }}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Task
+                    </Button>
+                  </div>
+                )}
               </div>
             </LayoutGroup>
           </motion.div>

@@ -96,8 +96,9 @@ const saveSessionOffline = async (session: WorkoutSessionRecord, markForSync: bo
 };
 
 const buildSessionFromItems = (userId: string, date: string, rows: WorkoutItem[]): WorkoutSessionRecord => {
+  const sessionId = `session-${userId}-${date}`;
   const items = rows.map((item, index) => ({
-    id: item.id ?? `${date}-${index}`,
+    id: item.id ?? `${sessionId}-${index}`,
     title: item.title,
     target: item.target,
     logged: item.logged,
@@ -107,7 +108,7 @@ const buildSessionFromItems = (userId: string, date: string, rows: WorkoutItem[]
   const completedCount = items.filter(item => item.completed).length;
 
   return {
-    id: `session-${userId}-${date}`,
+    id: sessionId,
     user_id: userId,
     date,
     items,
@@ -251,7 +252,7 @@ export class SupabaseWorkoutService {
         return { id: item.id, ...base };
       }
 
-      return { ...base, id: `session-${session.date}-${index}` };
+      return { ...base, id: `${session.id}-${index}` };
     });
 
     if (rows.length === 0) {
@@ -299,8 +300,17 @@ export class SupabaseWorkoutService {
       throw new Error('Workout session not found');
     }
 
+    // Find the item to update by ID first, then fall back to title matching
+    // This handles cases where items are loaded from home_workouts JSON without proper IDs
+    const targetItem = session.items.find(item => item.id === id) ||
+                       (updates.title ? session.items.find(item => item.title === updates.title) : undefined);
+
+    if (!targetItem) {
+      throw new Error(`Workout item not found with id: ${id}`);
+    }
+
     const items = session.items.map(item =>
-      item.id === id
+      (item.id === id || item.title === targetItem.title)
         ? {
             ...item,
             title: updates.title ?? item.title,
@@ -314,7 +324,9 @@ export class SupabaseWorkoutService {
     const updatedSession = buildSessionRecord(session.user_id, session.date, items, session.id);
     await this.persistSession(updatedSession);
 
-    const updatedItem = mapSessionToItems(updatedSession).find(item => item.id === id);
+    const updatedItem = mapSessionToItems(updatedSession).find(item =>
+      item.id === id || item.title === targetItem.title
+    );
     if (!updatedItem) {
       throw new Error('Updated workout item not found');
     }

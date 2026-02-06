@@ -64,7 +64,7 @@ export const DayProgressPill: React.FC<DayProgressPillProps> = ({
         };
       case 'timebox':
         return {
-          gradient: 'from-indigo-500 to-cyan-400'
+          gradient: 'from-blue-500 to-cyan-400'
         };
       case 'wellness':
         return {
@@ -78,9 +78,22 @@ export const DayProgressPill: React.FC<DayProgressPillProps> = ({
         return {
           gradient: 'from-green-500 to-emerald-400'
         };
+      // Health section
+      case 'stats':
+        return {
+          gradient: 'from-emerald-500 to-green-400'
+        };
+      case 'fitness':
+        return {
+          gradient: 'from-rose-500 to-orange-400'
+        };
+      case 'nutrition':
+        return {
+          gradient: 'from-amber-500 to-orange-400'
+        };
       default:
         return {
-          gradient: 'from-indigo-500 to-cyan-400'
+          gradient: 'from-blue-500 to-cyan-400'
         };
     }
   }, [activeTab]);

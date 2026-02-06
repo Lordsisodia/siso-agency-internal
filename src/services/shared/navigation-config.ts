@@ -111,8 +111,8 @@ export const NAV_SECTIONS: NavSection[] = [
     id: 'health',
     name: 'Health',
     icon: Heart,
-    color: 'text-rose-400',
-    bgActive: 'bg-rose-400/20',
+    color: 'text-emerald-400',
+    bgActive: 'bg-emerald-400/20',
     hasSubNav: true,
     subSections: [
       { id: 'stats', name: 'Stats', icon: BarChart3 },

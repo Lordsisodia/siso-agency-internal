@@ -1,6 +1,5 @@
-// This is your Prisma schema file for "database in code" experience
-// It reflects your existing Supabase schema - safe to use for type generation
-// DO NOT RUN MIGRATIONS - this is for type safety only
+// Auto-generated Prisma schema from SISO Internal Supabase
+// Generated from 86 tables with 1140 columns
 
 generator client {
   provider = "prisma-client-js"
@@ -8,149 +7,1491 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-  // Direct URL for migrations (if needed later)
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
-// Core LifeLock Tables
-model LightWorkTask {
-  id            String   @id @default(uuid())
-  userId        String   @map("user_id")
-  title         String
-  description   String?
-  priority      Priority @default(MEDIUM)
-  completed     Boolean  @default(false)
-  originalDate  DateTime @map("original_date") @db.Date
-  currentDate   DateTime @map("current_date") @db.Date
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
-
-  subtasks LightWorkSubtask[]
-
-  @@map("light_work_tasks")
+model Accounts {
+  id String @id @default(uuid())
+  userId String @map("user_id")
+  type String
+  provider String
+  providerAccountId String @map("provider_account_id")
+  refreshToken String? @map("refresh_token")
+  accessToken String? @map("access_token")
+  expiresAt BigInt? @map("expires_at")
+  tokenType String? @map("token_type")
+  scope String?
+  idToken String? @map("id_token")
+  sessionState String? @map("session_state")
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  @@map("accounts")
 }
 
-model LightWorkSubtask {
-  id          String   @id @default(uuid())
-  taskId      String   @map("task_id")
-  title       String
-  completed   Boolean  @default(false)
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
-  task LightWorkTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
-
-  @@map("light_work_subtasks")
+model AgentContextMemory {
+  id String @id @default(uuid())
+  taskId String? @map("task_id")
+  planId String? @map("plan_id")
+  contextType String @map("context_type")
+  contextKey String @map("context_key")
+  contextValue String @map("context_value")
+  metadata Json?
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  @@map("agent_context_memory")
 }
 
-model DeepWorkTask {
-  id            String   @id @default(uuid())
-  userId        String   @map("user_id")
-  title         String
-  description   String?
-  priority      Priority @default(MEDIUM)
-  completed     Boolean  @default(false)
-  originalDate  DateTime @map("original_date") @db.Date
-  currentDate   DateTime @map("current_date") @db.Date
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
-
-  subtasks DeepWorkSubtask[]
-
-  @@map("deep_work_tasks")
+model AgentConversations {
+  id String @id @default(uuid())
+  userId String @map("user_id")
+  telegramChatId Int? @map("telegram_chat_id")
+  conversationHistory String[]? @map("conversation_history")
+  context Json?
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  @@map("agent_conversations")
 }
 
-model DeepWorkSubtask {
-  id          String   @id @default(uuid())
-  taskId      String   @map("task_id")
-  title       String
-  completed   Boolean  @default(false)
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
-  task DeepWorkTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
-
-  @@map("deep_work_subtasks")
+model AgentExecutionLogs {
+  id String @id @default(uuid())
+  planId String @map("plan_id")
+  stepNumber Int @map("step_number")
+  actionType String @map("action_type")
+  entityType String? @map("entity_type")
+  entityId String? @map("entity_id")
+  description String
+  beforeState Json? @map("before_state")
+  afterState Json? @map("after_state")
+  agentConfidence Float? @map("agent_confidence")
+  errorMessage String? @map("error_message")
+  timestamp DateTime? @default(now())
+  @@map("agent_execution_logs")
 }
 
-model MorningRoutineTask {
-  id          String   @id @default(uuid())
-  userId      String   @map("user_id")
-  title       String
+model AgentExecutionPlans {
+  id String @id @default(uuid())
+  taskId String @map("task_id")
+  planType String @map("plan_type")
+  currentStep Int? @map("current_step")
+  totalSteps Int @map("total_steps")
+  status String?
+  planJson Json @map("plan_json")
+  agentReasoning String? @map("agent_reasoning")
+  createdBy String? @map("created_by")
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  completedAt DateTime? @map("completed_at")
+  @@map("agent_execution_plans")
+}
+
+model AutomationTasks {
+  id String @id @default(uuid())
+  name String
   description String?
-  completed   Boolean  @default(false)
-  date        DateTime @db.Date
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
-  @@map("morning_routine_tasks")
+  category String
+  priority String
+  status String
+  prompt String
+  allowedTools String[]? @map("allowed_tools")
+  estimatedTokens Int @map("estimated_tokens")
+  actualTokens Int? @map("actual_tokens")
+  executionTimeMs Int? @map("execution_time_ms")
+  result String?
+  error String?
+  createdBy String @map("created_by")
+  metadata Json?
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  startedAt DateTime? @map("started_at")
+  completedAt DateTime? @map("completed_at")
+  @@map("automation_tasks")
 }
 
-model DailyReflection {
-  id        String   @id @default(uuid())
-  userId    String   @map("user_id")
-  date      DateTime @db.Date
-  content   String
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+model BusinessContext {
+  id String @id @default(uuid())
+  contextType String? @map("context_type")
+  category String?
+  content String?
+  embedding String?
+  importanceLevel String? @map("importance_level")
+  shouldAlwaysConsider Boolean? @map("should_always_consider")
+  appliesToTasks String[]? @map("applies_to_tasks")
+  lastUpdated DateTime? @default(now()) @map("last_updated")
+  @@map("business_context")
+}
 
+model CalendarEvents {
+  id String @id @default(uuid())
+  title String
+  description String?
+  startTime DateTime @map("start_time")
+  endTime DateTime @map("end_time")
+  allDay Boolean? @map("all_day")
+  taskId String? @map("task_id")
+  userId String? @map("user_id")
+  location String?
+  color String?
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  @@map("calendar_events")
+}
+
+model ClaudeEffectivenessMetrics {
+  id String @id @default(uuid())
+  sessionId String? @map("session_id")
+  taskType String? @map("task_type")
+  contextProvided Json? @map("context_provided")
+  claudeApproach Json? @map("claude_approach")
+  userSatisfaction Int? @map("user_satisfaction")
+  timeToCompletion String? @map("time_to_completion")
+  iterationsRequired Int? @map("iterations_required")
+  contextUtilizationScore Float? @map("context_utilization_score")
+  learningExtracted Json? @map("learning_extracted")
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  @@map("claude_effectiveness_metrics")
+}
+
+model ClientOnboarding {
+  id String @id @default(uuid())
+  userId String? @map("user_id")
+  contactName String? @map("contact_name")
+  email String?
+  companyName String? @map("company_name")
+  projectName String? @map("project_name")
+  websiteUrl String? @map("website_url")
+  companyNiche String? @map("company_niche")
+  status String?
+  currentStep Int? @map("current_step")
+  totalSteps Int? @map("total_steps")
+  todos String[]?
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  estimatedPrice String? @map("estimated_price")
+  estimatedCompletionDate DateTime? @map("estimated_completion_date")
+  paymentStatus String? @map("payment_status")
+  progress String?
+  completedSteps String[]? @map("completed_steps")
+  slug String?
+  @@map("client_onboarding")
+}
+
+model ClientOnboardingTasks {
+  id String @id @default(uuid())
+  clientId String @map("client_id")
+  userId String? @map("user_id")
+  title String
+  description String?
+  completed Boolean?
+  priority String?
+  dueDate DateTime? @map("due_date")
+  completedAt DateTime? @map("completed_at")
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  @@map("client_onboarding_tasks")
+}
+
+model ClientUserLinks {
+  id String @id @default(uuid())
+  clientId String @map("client_id")
+  userId String @map("user_id")
+  role String?
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  @@map("client_user_links")
+}
+
+model Clients {
+  id String @id @default(uuid())
+  name String
+  slug String
+  cloudinaryFolder String @map("cloudinary_folder")
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  @@map("clients")
+}
+
+model CmsProductMedia {
+  id String @id @default(uuid())
+  productHandle String @map("product_handle")
+  publicId String @map("public_id")
+  secureUrl String @map("secure_url")
+  alt String?
+  kind String
+  sortOrder Int @map("sort_order")
+  createdAt DateTime @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  @@map("cms_product_media")
+}
+
+model DailyDeepWorkSummary {
+  id String @id @default(uuid())
+  userId String @map("user_id")
+  date String
+  totalPlannedMinutes Int? @map("total_planned_minutes")
+  totalActualMinutes Int? @map("total_actual_minutes")
+  totalSessions Int? @map("total_sessions")
+  completedSessions Int? @map("completed_sessions")
+  averageFocusQuality String? @map("average_focus_quality")
+  productivityScore String? @map("productivity_score")
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  @@map("daily_deep_work_summary")
+}
+
+model DailyHabits {
+  id String @id @default(uuid())
+  userId String? @map("user_id")
+  date String
+  screenTimeMinutes Int? @map("screen_time_minutes")
+  bullshitContentMinutes Int? @map("bullshit_content_minutes")
+  noWeed Boolean? @map("no_weed")
+  noScrolling Boolean? @map("no_scrolling")
+  deepWorkHours String? @map("deep_work_hours")
+  lightWorkHours String? @map("light_work_hours")
+  habitsData Json @map("habits_data")
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  @@map("daily_habits")
+}
+
+model DailyHealth {
+  id String @id @default(uuid())
+  userId String? @map("user_id")
+  date String
+  healthChecklist String[] @map("health_checklist")
+  meals Json
+  macros Json
+  waterIntakeMl Int? @map("water_intake_ml")
+  sleepHours String? @map("sleep_hours")
+  energyLevel Int? @map("energy_level")
+  moodLevel Int? @map("mood_level")
+  notes String?
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  wakeTime String? @map("wake_time")
+  @@map("daily_health")
+}
+
+model DailyNutritionTotals {
+  id String @id @default(uuid())
+  userId String @map("user_id")
+  date String
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  totalEntries Int? @map("total_entries")
+  totalCalories Int? @map("total_calories")
+  totalProteinG String? @map("total_protein_g")
+  totalCarbsG String? @map("total_carbs_g")
+  totalFatsG String? @map("total_fats_g")
+  totalFiberG String? @map("total_fiber_g")
+  totalSugarG String? @map("total_sugar_g")
+  totalVitaminAMcg String? @map("total_vitamin_a_mcg")
+  totalVitaminCMg String? @map("total_vitamin_c_mg")
+  totalVitaminDMcg String? @map("total_vitamin_d_mcg")
+  totalCalciumMg String? @map("total_calcium_mg")
+  totalIronMg String? @map("total_iron_mg")
+  totalPotassiumMg String? @map("total_potassium_mg")
+  totalSodiumMg String? @map("total_sodium_mg")
+  calorieGoal Int? @map("calorie_goal")
+  proteinGoalG String? @map("protein_goal_g")
+  carbsGoalG String? @map("carbs_goal_g")
+  fatsGoalG String? @map("fats_goal_g")
+  goalMet Boolean? @map("goal_met")
+  macroBalanceScore String? @map("macro_balance_score")
+  @@map("daily_nutrition_totals")
+}
+
+model DailyReflections {
+  id String @id @default(uuid())
+  userId String? @map("user_id")
+  date String
+  wentWell String[]? @map("went_well")
+  evenBetterIf String[]? @map("even_better_if")
+  overallRating Int? @map("overall_rating")
+  keyLearnings String? @map("key_learnings")
+  tomorrowFocus String? @map("tomorrow_focus")
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  dailyAnalysis String? @map("daily_analysis")
+  actionItems String? @map("action_items")
+  bedTime String? @map("bed_time")
+  winOfDay String? @map("win_of_day")
+  mood String?
+  energyLevel Int? @map("energy_level")
+  tomorrowTopTasks String[]? @map("tomorrow_top_tasks")
+  aiFeedback Json? @map("ai_feedback")
+  aiInputHash String? @map("ai_input_hash")
+  meditation Json?
+  workout Json?
+  nutrition Json?
+  deepWork Json? @map("deep_work")
+  research Json?
+  sleep Json?
+  moodStart Int? @map("mood_start")
+  moodEnd Int? @map("mood_end")
+  stressLevel Int? @map("stress_level")
+  nonNegotiable String? @map("non_negotiable")
+  topTasks String[]? @map("top_tasks")
   @@map("daily_reflections")
 }
 
-model UserFeedback {
-  id             String          @id @default(uuid())
-  userId         String          @map("user_id")
-  title          String
-  description    String
-  category       FeedbackCategory
-  priority       Priority
-  feedbackType   FeedbackType    @map("feedback_type")
-  page           String?
-  browserInfo    String?         @map("browser_info")
-  deviceInfo     String?         @map("device_info")
-  screenshots    String[]        @default([])
-  status         FeedbackStatus  @default(OPEN)
-  adminResponse  String?         @map("admin_response")
-  tags           String[]        @default([])
-  createdAt      DateTime        @default(now()) @map("created_at")
-  updatedAt      DateTime        @updatedAt @map("updated_at")
-  resolvedAt     DateTime?       @map("resolved_at")
+model DailyRoutines {
+  id String @id @default(uuid())
+  userId String? @map("user_id")
+  date String
+  routineType String @map("routine_type")
+  items String[]
+  completedCount Int? @map("completed_count")
+  totalCount Int? @map("total_count")
+  completionPercentage String? @map("completion_percentage")
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  metadata Json?
+  @@map("daily_routines")
+}
 
+model DailyTaskOrders {
+  id String @id @default(uuid())
+  userId String @map("user_id")
+  dateKey String @map("date_key")
+  orderedIds String[] @map("ordered_ids")
+  createdAt DateTime @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  @@map("daily_task_orders")
+}
+
+model DailyTracker {
+  id String @id @default(uuid())
+  createdAt DateTime @default(now()) @updatedAt @map("created_at")
+  userId String? @map("user_id")
+  name String
+  date String
+  assignee String?
+  wokeUp Boolean @map("woke_up")
+  workHours String? @map("work_hours")
+  workoutDone Boolean @map("workout_done")
+  pushUps Int? @map("push_ups")
+  foodCalories Int? @map("food_calories")
+  status String
+  @@map("daily_tracker")
+}
+
+model DailyWorkouts {
+  id String @id @default(uuid())
+  userId String? @map("user_id")
+  date String
+  exercises String[]
+  totalExercises Int? @map("total_exercises")
+  completedExercises Int? @map("completed_exercises")
+  completionPercentage String? @map("completion_percentage")
+  durationMinutes Int? @map("duration_minutes")
+  notes String?
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  @@map("daily_workouts")
+}
+
+model DailyXpStats {
+  id String @id @default(uuid())
+  userId String @map("user_id")
+  date String
+  totalXp Int @map("total_xp")
+  activitiesCompleted Int @map("activities_completed")
+  streakCount Int @map("streak_count")
+  levelAtDay Int @map("level_at_day")
+  categoryBreakdown Json @map("category_breakdown")
+  achievementsUnlocked String[]? @map("achievements_unlocked")
+  createdAt DateTime @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  @@map("daily_xp_stats")
+}
+
+model DaySchedules {
+  id String @id @default(uuid())
+  userId String @map("user_id")
+  date String
+  scheduleData Json @map("schedule_data")
+  totalWorkTime Int? @map("total_work_time")
+  totalFocusTime Int? @map("total_focus_time")
+  totalBreakTime Int? @map("total_break_time")
+  energyUtilization Int? @map("energy_utilization")
+  scheduleEfficiency Int? @map("schedule_efficiency")
+  isOptimized Boolean? @map("is_optimized")
+  version Int?
+  lastOptimized DateTime? @map("last_optimized")
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  @@map("day_schedules")
+}
+
+model DeepFocusSessions {
+  id String @id @default(uuid())
+  userId String @map("user_id")
+  date String
+  sessionType String @map("session_type")
+  plannedDurationMinutes Int @map("planned_duration_minutes")
+  actualDurationMinutes Int? @map("actual_duration_minutes")
+  completed Boolean?
+  focusQualityRating Int? @map("focus_quality_rating")
+  sessionNotes String? @map("session_notes")
+  distractionsCount Int? @map("distractions_count")
+  breakIntervals Json? @map("break_intervals")
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  @@map("deep_focus_sessions")
+}
+
+model DeepWorkSessions {
+  id String @id @default(uuid())
+  userId String? @map("user_id")
+  date String
+  startTime DateTime? @map("start_time")
+  endTime DateTime? @map("end_time")
+  plannedDuration Int? @map("planned_duration")
+  actualDuration Int? @map("actual_duration")
+  focusQuality Int? @map("focus_quality")
+  distractionsCount Int? @map("distractions_count")
+  environmentRating Int? @map("environment_rating")
+  energyStart Int? @map("energy_start")
+  energyEnd Int? @map("energy_end")
+  sessionNotes String? @map("session_notes")
+  techniqueUsed String? @map("technique_used")
+  tasksCompleted String[]? @map("tasks_completed")
+  sessionType String? @map("session_type")
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  @@map("deep_work_sessions")
+}
+
+model DeepWorkSubtasks {
+  id String @id @default(uuid())
+  taskId String @map("task_id")
+  title String
+  text String
+  completed Boolean?
+  priority String?
+  dueDate DateTime? @map("due_date")
+  requiresFocus Boolean? @map("requires_focus")
+  complexityLevel Int? @map("complexity_level")
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  completedAt DateTime? @map("completed_at")
+  startedAt DateTime? @map("started_at")
+  actualDurationMin Int? @map("actual_duration_min")
+  timeAccuracy Float? @map("time_accuracy")
+  aiAnalyzed Boolean? @map("ai_analyzed")
+  aiReasoning String? @map("ai_reasoning")
+  analyzedAt DateTime? @map("analyzed_at")
+  xpReward Int? @map("xp_reward")
+  complexity Int?
+  confidence Float?
+  contextualBonus Float? @map("contextual_bonus")
+  difficulty Int?
+  learningValue Int? @map("learning_value")
+  priorityRank Int? @map("priority_rank")
+  strategicImportance Int? @map("strategic_importance")
+  estimatedTime String? @map("estimated_time")
+  @@map("deep_work_subtasks")
+}
+
+model DeepWorkTasks {
+  id String @id @default(uuid())
+  userId String @map("user_id")
+  title String
+  description String?
+  priority String?
+  completed Boolean?
+  originalDate String @map("original_date")
+  taskDate String @map("task_date")
+  estimatedDuration Int? @map("estimated_duration")
+  focusBlocks Int? @map("focus_blocks")
+  breakDuration Int? @map("break_duration")
+  interruptionMode Boolean? @map("interruption_mode")
+  rollovers Int?
+  tags String[]?
+  category String?
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  completedAt DateTime? @map("completed_at")
+  startedAt DateTime? @map("started_at")
+  actualDurationMin Int? @map("actual_duration_min")
+  timeEstimate String? @map("time_estimate")
+  aiAnalyzed Boolean? @map("ai_analyzed")
+  aiReasoning String? @map("ai_reasoning")
+  analyzedAt DateTime? @map("analyzed_at")
+  xpReward Int? @map("xp_reward")
+  complexity Int?
+  confidence Float?
+  contextualBonus Float? @map("contextual_bonus")
+  difficulty Int?
+  learningValue Int? @map("learning_value")
+  priorityRank Int? @map("priority_rank")
+  strategicImportance Int? @map("strategic_importance")
+  timeAccuracy Float? @map("time_accuracy")
+  clientId String? @map("client_id")
+  deadline DateTime?
+  @@map("deep_work_tasks")
+}
+
+model ExpenseCategories {
+  id String @id @default(uuid())
+  name String
+  description String?
+  isActive Boolean? @map("is_active")
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  @@map("expense_categories")
+}
+
+model FinancialTransactions {
+  id String @id @default(uuid())
+  type String
+  amount String
+  currency String?
+  date String
+  description String?
+  categoryId String? @map("category_id")
+  vendorId String? @map("vendor_id")
+  paymentMethodId String? @map("payment_method_id")
+  recurringType String? @map("recurring_type")
+  status String?
+  receiptUrl String? @map("receipt_url")
+  notes String?
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  userId String? @map("user_id")
+  @@map("financial_transactions")
+}
+
+model GalleryPhotos {
+  id String @id @default(uuid())
+  clientId String? @map("client_id")
+  title String?
+  caption String?
+  cloudinaryPublicId String @map("cloudinary_public_id")
+  imageUrl String? @map("image_url")
+  isFeatured Boolean? @map("is_featured")
+  displayOrder Int? @map("display_order")
+  tags String[]?
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  @@map("gallery_photos")
+}
+
+model Industries {
+  id String @id @default(uuid())
+  userId String? @map("user_id")
+  name String
+  slug String
+  description String?
+  status String
+  focusLevel String @map("focus_level")
+  pipelineValue String? @map("pipeline_value")
+  marketSizeNotes String? @map("market_size_notes")
+  goToMarketNotes String? @map("go_to_market_notes")
+  positioning String?
+  targetLaunchQuarter String? @map("target_launch_quarter")
+  lastReviewedAt DateTime? @map("last_reviewed_at")
+  createdAt DateTime @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  @@map("industries")
+}
+
+model IndustryClients {
+  id String @id @default(uuid())
+  industryId String @map("industry_id")
+  clientId String @map("client_id")
+  userId String? @map("user_id")
+  relationshipNotes String? @map("relationship_notes")
+  createdAt DateTime @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  @@map("industry_clients")
+}
+
+model IndustryDocuments {
+  id String @id @default(uuid())
+  industryId String @map("industry_id")
+  userId String? @map("user_id")
+  title String
+  documentType String? @map("document_type")
+  sourceUrl String? @map("source_url")
+  storagePath String? @map("storage_path")
+  summary String?
+  createdAt DateTime @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  @@map("industry_documents")
+}
+
+model IndustryTasks {
+  id String @id @default(uuid())
+  industryId String @map("industry_id")
+  userId String? @map("user_id")
+  title String
+  description String?
+  status String
+  priority String
+  dueDate DateTime? @map("due_date")
+  completedAt DateTime? @map("completed_at")
+  createdAt DateTime @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  @@map("industry_tasks")
+}
+
+model LearningPatterns {
+  id String @id @default(uuid())
+  patternType String? @map("pattern_type")
+  patternData Json? @map("pattern_data")
+  confidence Float?
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  @@map("learning_patterns")
+}
+
+model LightWorkSubtasks {
+  id String @id @default(uuid())
+  taskId String @map("task_id")
+  title String
+  text String
+  completed Boolean?
+  priority String?
+  dueDate DateTime? @map("due_date")
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  completedAt DateTime? @map("completed_at")
+  startedAt DateTime? @map("started_at")
+  actualDurationMin Int? @map("actual_duration_min")
+  timeAccuracy Float? @map("time_accuracy")
+  aiAnalyzed Boolean? @map("ai_analyzed")
+  aiReasoning String? @map("ai_reasoning")
+  analyzedAt DateTime? @map("analyzed_at")
+  xpReward Int? @map("xp_reward")
+  complexity Int?
+  confidence Float?
+  contextualBonus Float? @map("contextual_bonus")
+  difficulty Int?
+  learningValue Int? @map("learning_value")
+  priorityRank Int? @map("priority_rank")
+  strategicImportance Int? @map("strategic_importance")
+  estimatedTime String? @map("estimated_time")
+  @@map("light_work_subtasks")
+}
+
+model LightWorkTasks {
+  id String @id @default(uuid())
+  userId String @map("user_id")
+  title String
+  description String?
+  priority String?
+  completed Boolean?
+  originalDate String @map("original_date")
+  taskDate String @map("task_date")
+  estimatedDuration Int? @map("estimated_duration")
+  rollovers Int?
+  tags String[]?
+  category String?
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  completedAt DateTime? @map("completed_at")
+  startedAt DateTime? @map("started_at")
+  actualDurationMin Int? @map("actual_duration_min")
+  timeEstimate String? @map("time_estimate")
+  aiAnalyzed Boolean? @map("ai_analyzed")
+  aiReasoning String? @map("ai_reasoning")
+  analyzedAt DateTime? @map("analyzed_at")
+  xpReward Int? @map("xp_reward")
+  complexity Int?
+  confidence Float?
+  contextualBonus Float? @map("contextual_bonus")
+  difficulty Int?
+  learningValue Int? @map("learning_value")
+  priorityRank Int? @map("priority_rank")
+  strategicImportance Int? @map("strategic_importance")
+  timeAccuracy Float? @map("time_accuracy")
+  dueDate DateTime? @map("due_date")
+  deadline DateTime?
+  @@map("light_work_tasks")
+}
+
+model LoginStreaks {
+  id String @id @default(uuid())
+  userId String @map("user_id")
+  currentStreak Int? @map("current_streak")
+  longestStreak Int? @map("longest_streak")
+  lastLogin DateTime? @default(now()) @map("last_login")
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  @@map("login_streaks")
+}
+
+model MeditationSessions {
+  id String @id @default(uuid())
+  userId String @map("user_id")
+  date String
+  startedAt DateTime @map("started_at")
+  completedAt DateTime? @map("completed_at")
+  durationSeconds Int @map("duration_seconds")
+  durationMinutes Int? @map("duration_minutes")
+  completed Boolean
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  @@map("meditation_sessions")
+}
+
+model Memories {
+  id String @id @default(uuid())
+  content String
+  title String?
+  memoryType String @map("memory_type")
+  category String?
+  embedding String?
+  importanceScore Float? @map("importance_score")
+  accessCount Int? @map("access_count")
+  lastAccessed DateTime? @default(now()) @map("last_accessed")
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  metadata Json?
+  projectName String? @map("project_name")
+  tags String[]?
+  @@map("memories")
+}
+
+model MemoryRelationships {
+  id String @id @default(uuid())
+  sourceMemoryId String? @map("source_memory_id")
+  targetMemoryId String? @map("target_memory_id")
+  relationshipType String? @map("relationship_type")
+  strength Float?
+  autoDetected Boolean? @map("auto_detected")
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  @@map("memory_relationships")
+}
+
+model NutritionAiAnalysisLog {
+  id String @id @default(uuid())
+  userId String? @map("user_id")
+  analyzedAt DateTime? @default(now()) @updatedAt @map("analyzed_at")
+  modelUsed String @map("model_used")
+  success Boolean?
+  errorMessage String? @map("error_message")
+  analysisTimeMs Int? @map("analysis_time_ms")
+  confidenceScore Float? @map("confidence_score")
+  tokensUsed Int? @map("tokens_used")
+  estimatedCostUsd String? @map("estimated_cost_usd")
+  dailyCount Int? @map("daily_count")
+  isRateLimited Boolean? @map("is_rate_limited")
+  @@map("nutrition_ai_analysis_log")
+}
+
+model NutritionEntries {
+  id String @id @default(uuid())
+  userId String @map("user_id")
+  date String
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  mealType String @map("meal_type")
+  mealTime String? @map("meal_time")
+  foodDescription String @map("food_description")
+  detectedItems String[]? @map("detected_items")
+  portionSize String? @map("portion_size")
+  confidenceScore Float? @map("confidence_score")
+  aiModelUsed String? @map("ai_model_used")
+  dataSource String? @map("data_source")
+  isEstimate Boolean? @map("is_estimate")
+  calories Int?
+  proteinG String? @map("protein_g")
+  carbsG String? @map("carbs_g")
+  fatsG String? @map("fats_g")
+  fiberG String? @map("fiber_g")
+  sugarG String? @map("sugar_g")
+  saturatedFatG String? @map("saturated_fat_g")
+  transFatG String? @map("trans_fat_g")
+  monounsaturatedFatG String? @map("monounsaturated_fat_g")
+  polyunsaturatedFatG String? @map("polyunsaturated_fat_g")
+  vitaminAMcg String? @map("vitamin_a_mcg")
+  vitaminCMg String? @map("vitamin_c_mg")
+  vitaminDMcg String? @map("vitamin_d_mcg")
+  vitaminEMg String? @map("vitamin_e_mg")
+  vitaminKMcg String? @map("vitamin_k_mcg")
+  vitaminB6Mg String? @map("vitamin_b6_mg")
+  vitaminB12Mcg String? @map("vitamin_b12_mcg")
+  folateMcg String? @map("folate_mcg")
+  thiaminMg String? @map("thiamin_mg")
+  riboflavinMg String? @map("riboflavin_mg")
+  niacinMg String? @map("niacin_mg")
+  calciumMg String? @map("calcium_mg")
+  ironMg String? @map("iron_mg")
+  magnesiumMg String? @map("magnesium_mg")
+  phosphorusMg String? @map("phosphorus_mg")
+  potassiumMg String? @map("potassium_mg")
+  sodiumMg String? @map("sodium_mg")
+  zincMg String? @map("zinc_mg")
+  cholesterolMg String? @map("cholesterol_mg")
+  caffeineMg String? @map("caffeine_mg")
+  alcoholG String? @map("alcohol_g")
+  additionalNutrients Json? @map("additional_nutrients")
+  manuallyAdjusted Boolean? @map("manually_adjusted")
+  notes String?
+  photoUrl String? @map("photo_url")
+  photoTimestamp DateTime? @map("photo_timestamp")
+  @@map("nutrition_entries")
+}
+
+model PartnerActivityLog {
+  id String @id @default(uuid())
+  partnerId String @map("partner_id")
+  eventType String @map("event_type")
+  occurredAt DateTime @default(now()) @updatedAt @map("occurred_at")
+  actorId String? @map("actor_id")
+  summary String
+  payload Json?
+  createdAt DateTime @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  @@map("partner_activity_log")
+}
+
+model PartnerCommissions {
+  id String @id @default(uuid())
+  partnerId String? @map("partner_id")
+  referralId String? @map("referral_id")
+  commissionType String? @map("commission_type")
+  baseAmount String @map("base_amount")
+  commissionRate String @map("commission_rate")
+  commissionAmount String @map("commission_amount")
+  status String?
+  paymentMethod String? @map("payment_method")
+  transactionId String? @map("transaction_id")
+  paidAt DateTime? @map("paid_at")
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  @@map("partner_commissions")
+}
+
+model PartnerDocuments {
+  id String @id @default(uuid())
+  partnerId String @map("partner_id")
+  ownerId String? @map("owner_id")
+  title String
+  documentType String @map("document_type")
+  url String?
+  storagePath String? @map("storage_path")
+  tags String[]?
+  createdAt DateTime @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  @@map("partner_documents")
+}
+
+model PartnerReferrals {
+  id String @id @default(uuid())
+  partnerId String? @map("partner_id")
+  clientEmail String @map("client_email")
+  clientName String? @map("client_name")
+  clientPhone String? @map("client_phone")
+  companyName String? @map("company_name")
+  referralSource String? @map("referral_source")
+  status String?
+  estimatedValue String? @map("estimated_value")
+  actualValue String? @map("actual_value")
+  commissionAmount String? @map("commission_amount")
+  commissionStatus String? @map("commission_status")
+  notes String?
+  referredAt DateTime? @default(now()) @updatedAt @map("referred_at")
+  convertedAt DateTime? @map("converted_at")
+  paidAt DateTime? @map("paid_at")
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  @@map("partner_referrals")
+}
+
+model PartnerResources {
+  id String @id @default(uuid())
+  partnerId String? @map("partner_id")
+  resourceType String @map("resource_type")
+  resourceName String @map("resource_name")
+  resourceUrl String @map("resource_url")
+  downloadCount Int? @map("download_count")
+  lastDownloaded DateTime? @map("last_downloaded")
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  @@map("partner_resources")
+}
+
+model PartnerTasks {
+  id String @id @default(uuid())
+  partnerId String @map("partner_id")
+  userId String? @map("user_id")
+  title String
+  description String?
+  status String
+  priority String
+  dueDate DateTime? @map("due_date")
+  completedAt DateTime? @map("completed_at")
+  metadata Json?
+  createdAt DateTime @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  @@map("partner_tasks")
+}
+
+model PartnerTraining {
+  id String @id @default(uuid())
+  partnerId String? @map("partner_id")
+  moduleName String @map("module_name")
+  moduleType String? @map("module_type")
+  status String?
+  progressPercentage Int? @map("progress_percentage")
+  completionDate DateTime? @map("completion_date")
+  certificateUrl String? @map("certificate_url")
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  @@map("partner_training")
+}
+
+model Partners {
+  id String @id @default(uuid())
+  userId String? @map("user_id")
+  email String
+  fullName String? @map("full_name")
+  companyName String? @map("company_name")
+  phone String?
+  website String?
+  status String?
+  tier String?
+  commissionRate String? @map("commission_rate")
+  overrideCommission String? @map("override_commission")
+  referralCode String? @map("referral_code")
+  joinedAt DateTime? @default(now()) @updatedAt @map("joined_at")
+  approvedAt DateTime? @map("approved_at")
+  lastLogin DateTime? @map("last_login")
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  @@map("partners")
+}
+
+model PlanningSessions {
+  id String @id @default(uuid())
+  userId String @map("user_id")
+  sessionDate DateTime @default(now()) @map("session_date")
+  rawTranscript String @map("raw_transcript")
+  audioChunksCount Int? @map("audio_chunks_count")
+  conversationTurns Int? @map("conversation_turns")
+  questionsAsked String[]? @map("questions_asked")
+  planJson Json @map("plan_json")
+  suggestedSchedule Json? @map("suggested_schedule")
+  finalSchedule Json? @map("final_schedule")
+  currentTimeAtPlanning DateTime @map("current_time_at_planning")
+  timezone String?
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  @@map("planning_sessions")
+}
+
+model Profiles {
+  id String @id
+  createdAt DateTime @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  fullName String? @map("full_name")
+  avatarUrl String? @map("avatar_url")
+  businessName String? @map("business_name")
+  onboardingCompleted Boolean? @map("onboarding_completed")
+  linkedinUrl String? @map("linkedin_url")
+  twitterUrl String? @map("twitter_url")
+  instagramUrl String? @map("instagram_url")
+  youtubeUrl String? @map("youtube_url")
+  websiteUrl String? @map("website_url")
+  bio String?
+  professionalRole String? @map("professional_role")
+  solanaWalletAddress String? @map("solana_wallet_address")
+  sisoTokens Int? @map("siso_tokens")
+  @@map("profiles")
+}
+
+model ProjectMemories {
+  id String @id @default(uuid())
+  projectName String @map("project_name")
+  memoryType String? @map("memory_type")
+  content String?
+  embedding String?
+  priorityLevel String? @map("priority_level")
+  activeStatus Boolean? @map("active_status")
+  relatedFiles String[]? @map("related_files")
+  stakeholders String[]?
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  lastAccessed DateTime? @default(now()) @map("last_accessed")
+  @@map("project_memories")
+}
+
+model Projects {
+  id String @id @default(uuid())
+  userId String @map("user_id")
+  name String
+  description String?
+  status String
+  completionPercentage Int @map("completion_percentage")
+  createdAt DateTime @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  slug String?
+  @@map("projects")
+}
+
+model PromptTemplates {
+  id String @id @default(uuid())
+  title String
+  description String?
+  step String
+  templateContent String @map("template_content")
+  estimatedTime String? @map("estimated_time")
+  orderPosition Int @map("order_position")
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  category String?
+  @@map("prompt_templates")
+}
+
+model Prompts {
+  id String @id @default(uuid())
+  pageId String? @map("page_id")
+  templateId String? @map("template_id")
+  content String
+  step String
+  status String?
+  cycleNumber Int? @map("cycle_number")
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  @@map("prompts")
+}
+
+model ScheduledTasks {
+  id String @id @default(uuid())
+  taskType String @map("task_type")
+  lastRun DateTime? @map("last_run")
+  nextRun DateTime? @map("next_run")
+  status String?
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  @@map("scheduled_tasks")
+}
+
+model Sessions {
+  id String @id
+  id String @id @default(uuid())
+  userId String @map("user_id")
+  sessionToken String @map("session_token")
+  userId String @map("user_id")
+  createdAt DateTime? @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+  expires DateTime
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  factorId String? @map("factor_id")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  aal String?
+  notAfter DateTime? @map("not_after")
+  refreshedAt DateTime? @map("refreshed_at")
+  userAgent String? @map("user_agent")
+  ip String?
+  tag String?
+  oauthClientId String? @map("oauth_client_id")
+  refreshTokenHmacKey String? @map("refresh_token_hmac_key")
+  refreshTokenCounter BigInt? @map("refresh_token_counter")
+  scopes String?
+  @@map("sessions")
+}
+
+model SkillPaths {
+  id String @id @default(uuid())
+  name String
+  description String
+  icon String
+  level Int
+  createdAt DateTime @default(now()) @updatedAt @map("created_at")
+  @@map("skill_paths")
+}
+
+model Skills {
+  id String @id @default(uuid())
+  pathId String @map("path_id")
+  name String
+  description String
+  points Int
+  level Int
+  prerequisites String[]
+  cooldownMinutes Int? @map("cooldown_minutes")
+  requirements Json
+  createdAt DateTime @default(now()) @updatedAt @map("created_at")
+  @@map("skills")
+}
+
+model SmokingTracker {
+  id String @id @default(uuid())
+  userId String @map("user_id")
+  date String
+  cigarettesToday Int @map("cigarettes_today")
+  cravingsResisted Int @map("cravings_resisted")
+  notes String?
+  createdAt DateTime @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  @@map("smoking_tracker")
+}
+
+model TaskAnalytics {
+  id String @id @default(uuid())
+  userId String? @map("user_id")
+  taskId String? @map("task_id")
+  date String
+  plannedDuration Int? @map("planned_duration")
+  actualDuration Int? @map("actual_duration")
+  focusQuality Int? @map("focus_quality")
+  difficultyRating Int? @map("difficulty_rating")
+  satisfactionRating Int? @map("satisfaction_rating")
+  energyLevelStart Int? @map("energy_level_start")
+  energyLevelEnd Int? @map("energy_level_end")
+  distractionsCount Int? @map("distractions_count")
+  contextSwitches Int? @map("context_switches")
+  workEnvironment String? @map("work_environment")
+  noiseLevel Int? @map("noise_level")
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  @@map("task_analytics")
+}
+
+model TaskRolloverHistory {
+  id String @id @default(uuid())
+  taskId String? @map("task_id")
+  rolledFromDate String @map("rolled_from_date")
+  rolledToDate String @map("rolled_to_date")
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  @@map("task_rollover_history")
+}
+
+model TaskTemplates {
+  id String @id @default(uuid())
+  userId String? @map("user_id")
+  name String
+  description String?
+  workType String? @map("work_type")
+  estimatedDuration Int? @map("estimated_duration")
+  focusLevel Int? @map("focus_level")
+  energyLevel String? @map("energy_level")
+  flowStatePotential Int? @map("flow_state_potential")
+  effortPoints Int? @map("effort_points")
+  tags String[]?
+  subtasks String[]?
+  templateNotes String? @map("template_notes")
+  isActive Boolean? @map("is_active")
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  @@map("task_templates")
+}
+
+model TaskTimeLogs {
+  id String @id @default(uuid())
+  userId String @map("user_id")
+  taskId String @map("task_id")
+  timeblockId String? @map("timeblock_id")
+  startedAt DateTime @map("started_at")
+  pausedAt DateTime? @map("paused_at")
+  stoppedAt DateTime? @map("stopped_at")
+  totalSeconds Int? @map("total_seconds")
+  interruptionCount Int? @map("interruption_count")
+  sessionType String? @map("session_type")
+  notes String?
+  date String
+  isActive Boolean? @map("is_active")
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  @@map("task_time_logs")
+}
+
+model Tasks {
+  id String @id @default(uuid())
+  title String
+  description String?
+  priority String?
+  category String
+  status String?
+  dueDate DateTime? @map("due_date")
+  completedAt DateTime? @map("completed_at")
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  createdBy String? @map("created_by")
+  assignedTo String? @map("assigned_to")
+  parentTaskId String? @map("parent_task_id")
+  rolledOverFrom String? @map("rolled_over_from")
+  startTime DateTime? @map("start_time")
+  duration Int?
+  recurringType String? @map("recurring_type")
+  recurringDays String[]? @map("recurring_days")
+  assignedClientId String? @map("assigned_client_id")
+  projectId String? @map("project_id")
+  workType String? @map("work_type")
+  focusLevel Int? @map("focus_level")
+  energyLevel String? @map("energy_level")
+  estimatedDuration Int? @map("estimated_duration")
+  actualDuration Int? @map("actual_duration")
+  tags String[]?
+  subtasks String[]?
+  notes String?
+  flowStatePotential Int? @map("flow_state_potential")
+  lifelockSync Boolean? @map("lifelock_sync")
+  autoSchedule Boolean? @map("auto_schedule")
+  effortPoints Int? @map("effort_points")
+  timeBlockStart String? @map("time_block_start")
+  timeBlockEnd String? @map("time_block_end")
+  deepWorkSessionId String? @map("deep_work_session_id")
+  contextSwitchingCost Int? @map("context_switching_cost")
+  dependencies String[]?
+  templateId String? @map("template_id")
+  @@map("tasks")
+}
+
+model TimeBlocks {
+  id String @id @default(uuid())
+  userId String? @map("user_id")
+  date String
+  startTime String @map("start_time")
+  endTime String @map("end_time")
+  type String?
+  title String?
+  description String?
+  taskIds String[]? @map("task_ids")
+  isFlexible Boolean? @map("is_flexible")
+  bufferTime Int? @map("buffer_time")
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  @@map("time_blocks")
+}
+
+model Transactions {
+  id String @id @default(uuid())
+  userId String @map("user_id")
+  amount Int
+  transactionType String @map("transaction_type")
+  status String
+  currency String
+  createdAt DateTime @default(now()) @updatedAt @map("created_at")
+  metadata Json?
+  @@map("transactions")
+}
+
+model UserAchievements {
+  id String @id @default(uuid())
+  userId String @map("user_id")
+  achievementId String @map("achievement_id")
+  achievementName String @map("achievement_name")
+  achievementBadge String @map("achievement_badge")
+  category String
+  progress Int
+  maxProgress Int @map("max_progress")
+  unlocked Boolean
+  unlockedAt DateTime? @map("unlocked_at")
+  createdAt DateTime @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  @@map("user_achievements")
+}
+
+model UserFeedback {
+  id String @id @default(uuid())
+  userId String @map("user_id")
+  title String
+  description String
+  category String
+  priority String
+  feedbackType String @map("feedback_type")
+  page String?
+  browserInfo String? @map("browser_info")
+  deviceInfo String? @map("device_info")
+  screenshots String[]?
+  status String
+  adminResponse String? @map("admin_response")
+  tags String[]?
+  createdAt DateTime @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  resolvedAt DateTime? @map("resolved_at")
   @@map("user_feedback")
 }
 
-// Enums
-enum Priority {
-  LOW
-  MEDIUM
-  HIGH
-  URGENT
+model UserGamificationProgress {
+  id String @id @default(uuid())
+  userId String @map("user_id")
+  currentLevel Int @map("current_level")
+  totalXp Int @map("total_xp")
+  dailyXp Int @map("daily_xp")
+  currentStreak Int @map("current_streak")
+  bestStreak Int @map("best_streak")
+  lastActivityDate String? @map("last_activity_date")
+  createdAt DateTime @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  @@map("user_gamification_progress")
 }
 
-enum FeedbackCategory {
-  UI_UX
-  PERFORMANCE
-  FEATURE_REQUEST
-  BUG_REPORT
-  GENERAL
-  MOBILE
-  ACCESSIBILITY
+model UserPreferences {
+  id String @id @default(uuid())
+  userId String @map("user_id")
+  waterGoalMl Int @map("water_goal_ml")
+  createdAt DateTime @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  @@map("user_preferences")
 }
 
-enum FeedbackType {
-  BUG
-  SUGGESTION
-  IMPROVEMENT
-  COMPLAINT
-  PRAISE
+model UserRoles {
+  id String @id @default(uuid())
+  userId String? @map("user_id")
+  role String
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  @@map("user_roles")
 }
 
-enum FeedbackStatus {
-  OPEN
-  REVIEWING
-  IN_PROGRESS
-  RESOLVED
-  CLOSED
+model UserSearchHistory {
+  id String @id @default(uuid())
+  userId String @map("user_id")
+  query String
+  resultType String? @map("result_type")
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  @@map("user_search_history")
+}
+
+model UserSkillProgress {
+  id String @id @default(uuid())
+  userId String @map("user_id")
+  skillId String @map("skill_id")
+  progress Int
+  timesCompleted Int @map("times_completed")
+  completedAt DateTime? @map("completed_at")
+  lastCompletedAt DateTime? @map("last_completed_at")
+  createdAt DateTime @default(now()) @updatedAt @map("created_at")
+  @@map("user_skill_progress")
+}
+
+model Users {
+  instanceId String? @map("instance_id")
+  id String @id @default(uuid())
+  supabaseId String @map("supabase_id")
+  id String @id
+  email String
+  aud String?
+  role String?
+  displayName String? @map("display_name")
+  role String?
+  email String?
+  encryptedPassword String? @map("encrypted_password")
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  emailConfirmedAt DateTime? @map("email_confirmed_at")
+  invitedAt DateTime? @map("invited_at")
+  emailVerified DateTime? @map("email_verified")
+  confirmationToken String? @map("confirmation_token")
+  image String?
+  confirmationSentAt DateTime? @map("confirmation_sent_at")
+  recoveryToken String? @map("recovery_token")
+  recoverySentAt DateTime? @map("recovery_sent_at")
+  emailChangeTokenNew String? @map("email_change_token_new")
+  emailChange String? @map("email_change")
+  emailChangeSentAt DateTime? @map("email_change_sent_at")
+  lastSignInAt DateTime? @map("last_sign_in_at")
+  rawAppMetaData Json? @map("raw_app_meta_data")
+  rawUserMetaData Json? @map("raw_user_meta_data")
+  isSuperAdmin Boolean? @map("is_super_admin")
+  createdAt DateTime? @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+  phone String?
+  phoneConfirmedAt DateTime? @map("phone_confirmed_at")
+  phoneChange String? @map("phone_change")
+  phoneChangeToken String? @map("phone_change_token")
+  phoneChangeSentAt DateTime? @map("phone_change_sent_at")
+  confirmedAt DateTime? @map("confirmed_at")
+  emailChangeTokenCurrent String? @map("email_change_token_current")
+  emailChangeConfirmStatus String? @map("email_change_confirm_status")
+  bannedUntil DateTime? @map("banned_until")
+  reauthenticationToken String? @map("reauthentication_token")
+  reauthenticationSentAt DateTime? @map("reauthentication_sent_at")
+  isSsoUser Boolean @map("is_sso_user")
+  deletedAt DateTime? @map("deleted_at")
+  isAnonymous Boolean @map("is_anonymous")
+  @@map("users")
+}
+
+model VerificationTokens {
+  identifier String
+  token String
+  expires DateTime
+  @@map("verification_tokens")
+}
+
+model WaterLog {
+  id String @id @default(uuid())
+  userId String @map("user_id")
+  date String
+  amountMl Int @map("amount_ml")
+  timestamp DateTime @default(now())
+  createdAt DateTime @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  @@map("water_log")
+}
+
+model WeeklyChallenges {
+  id String @id @default(uuid())
+  userId String @map("user_id")
+  challengeName String @map("challenge_name")
+  challengeDescription String @map("challenge_description")
+  target Int
+  currentProgress Int @map("current_progress")
+  reward String
+  startDate String @map("start_date")
+  endDate String @map("end_date")
+  completed Boolean
+  completedAt DateTime? @map("completed_at")
+  createdAt DateTime @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  @@map("weekly_challenges")
+}
+
+model WeeklyTasks {
+  id String @id @default(uuid())
+  userId String @map("user_id")
+  weekStartDate String @map("week_start_date")
+  title String
+  description String?
+  completed Boolean?
+  priority String?
+  category String?
+  orderIndex Int? @map("order_index")
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at")
+  @@map("weekly_tasks")
+}
+
+model WorkingStylePreferences {
+  id String @id @default(uuid())
+  taskType String @map("task_type")
+  preferenceCategory String? @map("preference_category")
+  preferenceData Json? @map("preference_data")
+  confidenceScore Float? @map("confidence_score")
+  learnedFromSessions Int? @map("learned_from_sessions")
+  lastReinforced DateTime? @default(now()) @map("last_reinforced")
+  createdAt DateTime? @default(now()) @updatedAt @map("created_at")
+  @@map("working_style_preferences")
+}
+
+model WorkoutItems {
+  id String @id @default(uuid())
+  userId String @map("user_id")
+  workoutDate String @map("workout_date")
+  title String
+  completed Boolean?
+  target String?
+  logged String?
+  createdAt DateTime @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  @@map("workout_items")
+}
+
+model XpPurchases {
+  id String @id @default(uuid())
+  userId String @map("user_id")
+  rewardId String @map("reward_id")
+  rewardName String @map("reward_name")
+  rewardCategory String @map("reward_category")
+  xpCost Int @map("xp_cost")
+  notes String?
+  purchasedAt DateTime @default(now()) @updatedAt @map("purchased_at")
+  createdAt DateTime @default(now()) @updatedAt @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  @@map("xp_purchases")
 }

@@ -78,6 +78,7 @@ export const ConsolidatedBottomNav: React.FC<ConsolidatedBottomNavProps> = ({
       <DailyBottomNav
         tabs={tabs}
         activeIndex={activeIndex}
+        activeSubTab={activeSubTab}
         onChange={handleTabChange}
         onAILegacyClick={handleAILegacyClick}
         className={className}

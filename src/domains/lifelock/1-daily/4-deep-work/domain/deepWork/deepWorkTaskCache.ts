@@ -1,5 +1,6 @@
 import { offlineDb } from '@/services/offline/offlineDb';
 import type { DeepWorkSubtask, DeepWorkTask } from '../useDeepWorkTasksSupabase';
+import type { TaskCacheAdapter } from '../../../_shared/hooks/useTaskHookFactory';
 
 export type DeepWorkTaskRow = {
   id: string;
@@ -157,3 +158,15 @@ export async function markDeepWorkTaskSynced(taskId: string): Promise<void> {
 export function buildDeepWorkQueuePayload(task: DeepWorkTask): any {
   return mapDeepWorkTaskToOfflineRecord(task);
 }
+
+// ============================================================================
+// GENERIC ADAPTER IMPLEMENTATION
+// ============================================================================
+
+export const deepWorkCacheAdapter: TaskCacheAdapter<DeepWorkTask> = {
+  loadFromCache: loadDeepWorkTasksFromCache,
+  cacheSupabaseTasks: cacheSupabaseDeepWorkTasks,
+  saveToCache: saveDeepWorkTaskToCache,
+  markTaskSynced: markDeepWorkTaskSynced,
+  buildQueuePayload: buildDeepWorkQueuePayload,
+};

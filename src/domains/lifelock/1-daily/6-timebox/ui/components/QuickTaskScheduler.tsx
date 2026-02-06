@@ -28,6 +28,7 @@ import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { useDeepWorkTasksSupabase } from '@/domains/lifelock/1-daily/4-deep-work/domain/useDeepWorkTasksSupabase';
 import { useLightWorkTasksSupabase } from '@/domains/lifelock/1-daily/3-light-work/domain/useLightWorkTasksSupabase';
+import { parseTimeEstimateToMinutes } from '@/domains/lifelock/1-daily/2-tasks/domain/utils/timeUtils';
 
 // Types for our scheduler
 interface Task {
@@ -37,6 +38,7 @@ interface Task {
   priority: 'LOW' | 'MEDIUM' | 'HIGH';
   completed: boolean;
   estimatedDuration?: number;
+  timeEstimate?: string;
   subtasks?: Subtask[];
   category?: string;
 }
@@ -103,6 +105,14 @@ const QuickTaskScheduler: React.FC<QuickTaskSchedulerProps> = ({
 
   // Auto-estimate duration based on task type and complexity
   const estimateTaskDuration = (task: Task | Subtask, taskType: 'light' | 'deep'): number => {
+    // Check if task has timeEstimate string (e.g., "30 mins", "1 hour", "1.5 hours")
+    if ('timeEstimate' in task && task.timeEstimate) {
+      const parsedMinutes = parseTimeEstimateToMinutes(task.timeEstimate);
+      if (parsedMinutes > 0) {
+        return parsedMinutes;
+      }
+    }
+
     // Check if task has explicit duration
     if ('estimatedDuration' in task && task.estimatedDuration) {
       return task.estimatedDuration;
@@ -119,17 +129,17 @@ const QuickTaskScheduler: React.FC<QuickTaskSchedulerProps> = ({
       // Light work estimation
       const titleLength = task.title.length;
       const priority = ('priority' in task) ? task.priority : 'MEDIUM';
-      
+
       let baseDuration = 30; // Default 30 minutes
-      
+
       // Adjust based on title length (complexity indicator)
       if (titleLength > 50) baseDuration = 45;
       if (titleLength > 100) baseDuration = 60;
-      
+
       // Adjust based on priority
       if (priority === 'HIGH' || priority === 'High') baseDuration += 15;
       if (priority === 'LOW' || priority === 'Low') baseDuration -= 10;
-      
+
       return Math.max(15, baseDuration); // Minimum 15 minutes
     }
   };
@@ -257,6 +267,7 @@ const QuickTaskScheduler: React.FC<QuickTaskSchedulerProps> = ({
     priority: task.priority,
     completed: task.completed,
     estimatedDuration: task.estimatedDuration,
+    timeEstimate: task.timeEstimate,
     subtasks: task.subtasks || [],
     category: 'light-work'
   }));
@@ -268,6 +279,7 @@ const QuickTaskScheduler: React.FC<QuickTaskSchedulerProps> = ({
     priority: task.priority,
     completed: task.completed,
     estimatedDuration: task.estimatedDuration,
+    timeEstimate: task.timeEstimate,
     subtasks: task.subtasks || [],
     category: 'deep-work'
   }));

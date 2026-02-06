@@ -5,11 +5,27 @@
  * 🔄 Hybrid Storage Strategy:
  * - localStorage: Immediate updates (offline-first)
  * - Supabase: Background sync (cross-device persistence)
+ *
+ * 🎯 Intelligent XP Allocation:
+ * Uses taskXpCalculations.ts for transparent, configurable XP calculations
  */
 
 import { format } from 'date-fns';
 import { logger } from '@/lib/utils/logger';
 import { scheduleSyncToSupabase, loadProgressFromSupabase } from './gamification/supabaseXpSync';
+import {
+  calculateTaskXP,
+  calculateDailyTaskXP,
+  previewTaskXP,
+  calculateTaskCompletionXP,
+  getXPFormulaExplanation,
+  formatXPBreakdown,
+  TaskPriority,
+  TaskStatus,
+  type TaskForXP,
+  type XPCalculationResult,
+  type XPBreakdown,
+} from '@/domains/lifelock/1-daily/_shared/utils/taskXpCalculations';
 
 export interface XPActivity {
   id: string;
@@ -210,6 +226,142 @@ export class GamificationService {
     this.saveUserProgress(progress);
 
     return points;
+  }
+
+  /**
+   * Award XP for task completion using intelligent XP allocation
+   * Calculates XP based on priority, time estimates, focus intensity, and subtasks
+   *
+   * @param task - Task data for XP calculation
+   * @returns XP calculation result with full breakdown
+   *
+   * @example
+   * ```typescript
+   * const result = GamificationService.awardTaskXP({
+   *   workType: 'deep',
+   *   priority: TaskPriority.HIGH,
+   *   status: TaskStatus.COMPLETED,
+   *   timeEstimateMinutes: 120,
+   *   subtasks: [...]
+   * });
+   * console.log(`Earned ${result.total} XP!`, result.breakdown);
+   * ```
+   */
+  public static awardTaskXP(task: TaskForXP): XPCalculationResult {
+    const result = calculateTaskCompletionXP(task, {
+      includeCompletionBonus: true,
+      completionBonusAmount: 10
+    });
+
+    const progress = this.getUserProgress();
+    const today = this.getDateKey();
+
+    // Update daily XP
+    progress.dailyXP += result.total;
+    progress.totalXP += result.total;
+
+    // Update daily stats
+    if (!progress.dailyStats[today]) {
+      progress.dailyStats[today] = {
+        date: today,
+        totalXP: 0,
+        activitiesCompleted: 0,
+        streakCount: progress.currentStreak,
+        level: progress.currentLevel,
+        achievements: [],
+        categories: { routine: 0, task: 0, health: 0, focus: 0, habit: 0 }
+      };
+    }
+
+    progress.dailyStats[today].totalXP += result.total;
+    progress.dailyStats[today].activitiesCompleted++;
+    progress.dailyStats[today].categories.task += result.total;
+
+    // Check for level up
+    const newLevel = Math.floor(progress.totalXP / this.LEVEL_XP_THRESHOLD) + 1;
+    if (newLevel > progress.currentLevel) {
+      progress.currentLevel = newLevel;
+      this.triggerLevelUpNotification(newLevel);
+    }
+
+    // Check achievements
+    this.checkAchievements(progress);
+
+    // Save progress
+    this.saveUserProgress(progress);
+
+    return result;
+  }
+
+  /**
+   * Preview XP for a task without awarding it
+   * Useful for showing users what they will earn before completion
+   */
+  public static previewTaskXP(task: TaskForXP): XPCalculationResult {
+    return previewTaskXP(task);
+  }
+
+  /**
+   * Award XP for multiple tasks using intelligent allocation
+   */
+  public static awardDailyTaskXP(
+    tasks: TaskForXP[],
+    options?: { includeStreakBonus?: boolean; currentStreakDays?: number }
+  ): { total: number; lightWorkXP: number; deepWorkXP: number; taskBreakdown: XPCalculationResult[] } {
+    const result = calculateDailyTaskXP(tasks, options);
+
+    const progress = this.getUserProgress();
+    const today = this.getDateKey();
+
+    // Update daily XP
+    progress.dailyXP += result.total;
+    progress.totalXP += result.total;
+
+    // Update daily stats
+    if (!progress.dailyStats[today]) {
+      progress.dailyStats[today] = {
+        date: today,
+        totalXP: 0,
+        activitiesCompleted: 0,
+        streakCount: progress.currentStreak,
+        level: progress.currentLevel,
+        achievements: [],
+        categories: { routine: 0, task: 0, health: 0, focus: 0, habit: 0 }
+      };
+    }
+
+    progress.dailyStats[today].totalXP += result.total;
+    progress.dailyStats[today].activitiesCompleted += tasks.length;
+    progress.dailyStats[today].categories.task += result.total;
+
+    // Check for level up
+    const newLevel = Math.floor(progress.totalXP / this.LEVEL_XP_THRESHOLD) + 1;
+    if (newLevel > progress.currentLevel) {
+      progress.currentLevel = newLevel;
+      this.triggerLevelUpNotification(newLevel);
+    }
+
+    // Check achievements
+    this.checkAchievements(progress);
+
+    // Save progress
+    this.saveUserProgress(progress);
+
+    return result;
+  }
+
+  /**
+   * Get the XP formula explanation for transparency
+   */
+  public static getXPFormulaExplanation(): string {
+    return getXPFormulaExplanation();
+  }
+
+  /**
+   * Format XP breakdown for display
+   */
+  public static formatXPBreakdown(result: XPCalculationResult): string {
+    return formatXPBreakdown(result);
   }
 
   /**
@@ -498,3 +650,38 @@ export class GamificationService {
 
 // Export singleton for easy usage
 export const gamificationService = GamificationService;
+
+// Re-export types and utilities for convenience
+export type {
+  TaskForXP,
+  XPCalculationResult,
+  XPBreakdown,
+  WorkType,
+  FocusIntensity,
+  SubtaskXP,
+} from '@/domains/lifelock/1-daily/_shared/utils/taskXpCalculations';
+
+export {
+  calculateTaskXP,
+  calculateDailyTaskXP,
+  previewTaskXP,
+  calculateTaskCompletionXP,
+  getXPFormulaExplanation,
+  formatXPBreakdown,
+  getPriorityMultiplier,
+  getFocusMultiplier,
+  calculateTimeBonus,
+  calculateSubtaskXP,
+  calculateStreakBonus,
+  parseTimeEstimate,
+  XP_BASE,
+  XP_PRIORITY_MULTIPLIERS_LIGHT,
+  XP_PRIORITY_MULTIPLIERS_DEEP,
+  XP_TIME_BONUS,
+  XP_SUBTASK,
+  XP_FOCUS_MULTIPLIERS,
+  XP_STREAK_BONUSES,
+  XP_LIMITS,
+  TaskPriority,
+  TaskStatus,
+} from '@/domains/lifelock/1-daily/_shared/utils/taskXpCalculations';

@@ -80,6 +80,7 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
     updateTaskDueDate,
     updateTaskPriority,
     updateTaskTimeEstimate,
+    updateTaskActualDuration,
     pushTaskToAnotherDay
   } = useLightWorkTasksSupabase({ selectedDate });
 
@@ -132,6 +133,7 @@ export default function LightWorkTaskList({ onStartFocusSession, selectedDate = 
       onUpdateTaskPriority={updateTaskPriority}
       onUpdateTaskTimeEstimate={updateTaskTimeEstimate}
       onPushTaskToAnotherDay={pushTaskToAnotherDay}
+      onUpdateTaskActualDuration={updateTaskActualDuration}
       onStartFocusSession={onStartFocusSession}
     />
   );

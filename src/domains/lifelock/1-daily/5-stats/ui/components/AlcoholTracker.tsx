@@ -292,7 +292,7 @@ export const AlcoholTracker: React.FC<AlcoholTrackerProps> = ({ selectedDate }) 
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <div className="px-4 pb-4 space-y-3">
+            <div className="p-4 space-y-3">
               {isLoading ? (
                 <div className="space-y-3">
                   <Skeleton className="h-32 w-full bg-rose-900/30" />

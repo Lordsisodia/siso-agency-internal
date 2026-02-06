@@ -186,11 +186,17 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({ selected
   }, [internalUserId, selectedDate]);
 
   const updateItem = useCallback(async (id: string, updates: Partial<WorkoutItem>) => {
-    
 
     if (!internalUserId) {
       console.warn('🏋️ [WORKOUT] No internalUserId - updating local state only');
       setWorkoutItems((prev) => prev.map((item) => (item.id === id ? { ...item, ...updates } : item)));
+      return;
+    }
+
+    // Find the item to get its title for matching
+    const targetItem = workoutItems.find(item => item.id === id);
+    if (!targetItem) {
+      console.error('❌ [WORKOUT] Item not found:', id);
       return;
     }
 
@@ -199,25 +205,24 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({ selected
 
     // Don't save temp/local items to Supabase
     if (id.startsWith('temp-') || id.startsWith('local-')) {
-      
       return;
     }
 
     try {
-      
       const updated = await supabaseWorkoutService.updateWorkoutItem(id, {
         ...updates,
+        title: targetItem.title,
         user_id: internalUserId,
         workout_date: dateKey,
       });
-      
+
       setWorkoutItems((prev) =>
         prev.map((item) => (item.id === id ? mapWorkoutRowToItem(updated) : item)),
       );
     } catch (error) {
       console.error('❌ [WORKOUT] Failed to update workout item:', error);
     }
-  }, [dateKey, internalUserId]);
+  }, [dateKey, internalUserId, workoutItems]);
 
   // Fetch exercise statistics when an exercise is expanded
   const fetchExerciseStatistics = useCallback(async (exerciseTitle: string) => {
@@ -321,7 +326,7 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({ selected
     return (
       <div className="w-full px-2 sm:px-4 md:px-6 lg:px-8 space-y-4">
         {[1, 2, 3].map((i) => (
-          <Skeleton key={i} className="h-32 w-full bg-rose-900/20" />
+          <Skeleton key={i} className="h-32 w-full bg-red-900/20" />
         ))}
       </div>
     );
@@ -335,13 +340,13 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({ selected
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.05 }}
       >
-        <Card className="bg-gradient-to-br from-rose-950/30 to-slate-950/30 border-rose-500/20">
+        <Card className="bg-red-900/10 border-red-500/30">
           <CardContent className="p-3">
             <div className="flex items-center justify-around">
-              <StatBarItem emoji="🔥" label="Streak" value={`${streak.current}d`} color="text-rose-400" />
-              <div className="w-px h-8 bg-rose-500/20" />
-              <StatBarItem emoji="🎯" label="Progress" value={`${overallPercent}%`} color="text-amber-400" />
-              <div className="w-px h-8 bg-rose-500/20" />
+              <StatBarItem emoji="🔥" label="Streak" value={`${streak.current}d`} color="text-red-400" />
+              <div className="w-px h-8 bg-red-500/20" />
+              <StatBarItem emoji="🎯" label="Progress" value={`${overallPercent}%`} color="text-red-400" />
+              <div className="w-px h-8 bg-red-500/20" />
               <StatBarItem emoji="✅" label="Done" value={`${totals.completed}/${normalizedItems.length}`} color="text-emerald-400" />
             </div>
           </CardContent>
@@ -358,14 +363,14 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({ selected
         <span className="text-xs text-white/50 whitespace-nowrap">Daily Progress</span>
         <Progress
           value={overallPercent}
-          className="h-1.5 flex-1 bg-rose-950/30"
-          indicatorColor="bg-gradient-to-r from-rose-500 to-orange-500"
+          className="h-1.5 flex-1 bg-red-900/30"
+          indicatorColor="bg-gradient-to-r from-red-500 to-red-600"
         />
         <span className="text-xs text-white/50 whitespace-nowrap">{overallPercent}%</span>
       </motion.div>
 
       {/* Separator Line */}
-      <div className="w-full h-px bg-gradient-to-r from-transparent via-rose-500/30 to-transparent" />
+      <div className="w-full h-px bg-gradient-to-r from-transparent via-red-500/30 to-transparent" />
 
       {/* Exercise List */}
       <div className="space-y-4">
@@ -399,8 +404,8 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({ selected
           className={cn(
             "rounded-full px-6",
             isEditingGoals
-              ? "bg-rose-500 hover:bg-rose-600 text-white"
-              : "border-rose-500/30 text-rose-300 hover:bg-rose-500/10"
+              ? "bg-red-500 hover:bg-red-600 text-white"
+              : "border-red-500/30 text-red-300 hover:bg-red-500/10"
           )}
         >
           <Edit2 className="h-4 w-4 mr-2" />
@@ -565,8 +570,8 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
         className={cn(
           'border transition-all duration-200',
           isComplete
-            ? 'bg-emerald-950/20 border-emerald-500/30'
-            : 'bg-slate-950/40 border-rose-500/20 hover:border-rose-500/40'
+            ? 'bg-emerald-900/10 border-emerald-500/30'
+            : 'bg-red-900/10 border-red-500/30 hover:border-red-500/50'
         )}
       >
         <CardContent className="p-4">
@@ -575,7 +580,7 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
             <div
               className={cn(
                 'flex h-14 w-14 items-center justify-center rounded-xl text-2xl relative shrink-0',
-                isComplete ? 'bg-emerald-500/20 ring-2 ring-emerald-500/40' : 'bg-rose-500/10'
+                isComplete ? 'bg-emerald-500/20 ring-2 ring-emerald-500/40' : 'bg-red-500/20'
               )}
             >
               <span className="relative z-10">{item.config.emoji}</span>
@@ -625,14 +630,14 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
               className={cn(
                 "h-2",
                 isComplete
-                  ? "bg-emerald-950/30"
-                  : "bg-rose-950/30"
+                  ? "bg-emerald-900/30"
+                  : "bg-red-900/30"
               )}
               indicatorColor={cn(
                 "h-2 rounded-full transition-all duration-500",
                 isComplete
                   ? "bg-gradient-to-r from-emerald-400 to-emerald-600"
-                  : "bg-gradient-to-r from-rose-400 to-orange-500"
+                  : "bg-gradient-to-r from-red-400 to-red-600"
               )}
             />
           </div>
@@ -654,7 +659,7 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
                     "flex-1 text-xs h-9 transition-all duration-200 font-medium",
                     isComplete
                       ? "border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
-                      : "border-rose-500/30 text-rose-300 hover:bg-rose-500/10"
+                      : "border-red-500/30 text-red-300 hover:bg-red-500/10"
                   )}
                 >
                   {action.label}
@@ -680,9 +685,9 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
                       value={progressPercent}
                       className={cn(
                         'h-2',
-                        isComplete ? 'bg-emerald-950/50' : 'bg-rose-950/50'
+                        isComplete ? 'bg-emerald-900/30' : 'bg-red-900/30'
                       )}
-                      indicatorColor={isComplete ? 'bg-emerald-500' : 'bg-gradient-to-r from-rose-500 to-orange-500'}
+                      indicatorColor={isComplete ? 'bg-emerald-500' : 'bg-gradient-to-r from-red-400 to-red-600'}
                     />
                   </div>
 
@@ -706,12 +711,12 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
                           value={goalInput}
                           onChange={(e) => setGoalInput(e.target.value)}
                           onBlur={() => onUpdate({ target: goalInput })}
-                          className="flex-1 bg-rose-950/50 border border-rose-500/30 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-rose-500/60"
+                          className="flex-1 bg-red-900/20 border border-red-500/30 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500/60"
                         />
                         <Button
                           type="button"
                           onClick={() => onUpdate({ target: goalInput })}
-                          className="bg-rose-500 hover:bg-rose-600"
+                          className="bg-red-500 hover:bg-red-600"
                         >
                           <Check className="h-4 w-4" />
                         </Button>
@@ -733,7 +738,7 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
                           setLoggedInput(newVal.toString());
                           onUpdate({ logged: newVal.toString() });
                         }}
-                        className="border-rose-500/30 text-rose-300 hover:bg-rose-500/20"
+                        className="border-red-500/30 text-red-300 hover:bg-red-500/20"
                       >
                         −
                       </Button>
@@ -746,7 +751,7 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
                           setCurrentLogged(val);
                         }}
                         onBlur={() => onUpdate({ logged: loggedInput })}
-                        className="flex-1 bg-rose-950/50 border border-rose-500/30 rounded-lg px-3 py-2 text-sm text-white text-center focus:outline-none focus:border-rose-500/60"
+                        className="flex-1 bg-red-900/20 border border-red-500/30 rounded-lg px-3 py-2 text-sm text-white text-center focus:outline-none focus:border-red-500/60"
                       />
                       <Button
                         type="button"
@@ -758,7 +763,7 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
                           setLoggedInput(newVal.toString());
                           onUpdate({ logged: newVal.toString() });
                         }}
-                        className="border-rose-500/30 text-rose-300 hover:bg-rose-500/20"
+                        className="border-red-500/30 text-red-300 hover:bg-red-500/20"
                       >
                         +
                       </Button>

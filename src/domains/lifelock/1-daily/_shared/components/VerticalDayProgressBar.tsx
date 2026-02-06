@@ -81,8 +81,8 @@ export const VerticalDayProgressBar: React.FC<VerticalDayProgressBarProps> = ({
         };
       case 'timebox':
         return {
-          gradient: timeColors.gradient,
-          glow: timeColors.glow,
+          gradient: 'from-blue-500 to-cyan-400',
+          glow: 'shadow-blue-500/30',
           temperature: timeColors.temperature
         };
       case 'wellness':
@@ -103,10 +103,29 @@ export const VerticalDayProgressBar: React.FC<VerticalDayProgressBarProps> = ({
           glow: 'shadow-green-500/30',
           temperature: timeColors.temperature
         };
+      // Health section
+      case 'stats':
+        return {
+          gradient: 'from-emerald-500 to-green-400',
+          glow: 'shadow-emerald-500/30',
+          temperature: timeColors.temperature
+        };
+      case 'fitness':
+        return {
+          gradient: 'from-rose-500 to-orange-400',
+          glow: 'shadow-rose-500/30',
+          temperature: timeColors.temperature
+        };
+      case 'nutrition':
+        return {
+          gradient: 'from-amber-500 to-orange-400',
+          glow: 'shadow-amber-500/30',
+          temperature: timeColors.temperature
+        };
       default:
         return {
-          gradient: timeColors.gradient,
-          glow: timeColors.glow,
+          gradient: 'from-blue-500 to-cyan-400',
+          glow: 'shadow-blue-500/30',
           temperature: timeColors.temperature
         };
     }

@@ -60,9 +60,9 @@ export const BevelDateHeader: React.FC<BevelDateHeaderProps> = ({
         };
       case 'timebox':
         return {
-          primary: 'text-sky-400',
-          bg: 'bg-sky-400',
-          gradient: 'from-indigo-500 to-cyan-400'
+          primary: 'text-blue-400',
+          bg: 'bg-blue-400',
+          gradient: 'from-blue-500 to-cyan-400'
         };
       case 'wellness':
         return {
@@ -76,11 +76,30 @@ export const BevelDateHeader: React.FC<BevelDateHeaderProps> = ({
           bg: 'bg-purple-400',
           gradient: 'from-purple-500 to-pink-400'
         };
+      // Health section
+      case 'stats':
+        return {
+          primary: 'text-emerald-400',
+          bg: 'bg-emerald-400',
+          gradient: 'from-emerald-500 to-green-400'
+        };
+      case 'fitness':
+        return {
+          primary: 'text-rose-400',
+          bg: 'bg-rose-400',
+          gradient: 'from-rose-500 to-orange-400'
+        };
+      case 'nutrition':
+        return {
+          primary: 'text-amber-400',
+          bg: 'bg-amber-400',
+          gradient: 'from-amber-500 to-orange-400'
+        };
       default:
         return {
-          primary: 'text-sky-400',
-          bg: 'bg-sky-400',
-          gradient: 'from-indigo-500 to-cyan-400'
+          primary: 'text-blue-400',
+          bg: 'bg-blue-400',
+          gradient: 'from-blue-500 to-cyan-400'
         };
     }
   }, [activeTab]);

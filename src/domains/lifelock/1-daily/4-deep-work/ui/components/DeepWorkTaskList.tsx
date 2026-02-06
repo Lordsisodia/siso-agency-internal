@@ -110,6 +110,7 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
     updateTaskDueDate,
     updateTaskPriority,
     updateTaskTimeEstimate,
+    updateTaskActualDuration,
     pushTaskToAnotherDay
   } = useDeepWorkTasksSupabase({ selectedDate });
 
@@ -145,6 +146,7 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
       onUpdateTaskPriority={updateTaskPriority}
       onUpdateTaskTimeEstimate={updateTaskTimeEstimate}
       onPushTaskToAnotherDay={pushTaskToAnotherDay}
+      onUpdateTaskActualDuration={updateTaskActualDuration}
       onStartFocusSession={onStartFocusSession}
     />
   );

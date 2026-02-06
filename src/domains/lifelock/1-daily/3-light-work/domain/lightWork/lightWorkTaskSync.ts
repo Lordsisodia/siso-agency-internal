@@ -1,9 +1,7 @@
 import type { SupabaseClient, PostgrestError } from '@supabase/supabase-js';
-import { logger } from '@/lib/utils/logger';
 import { offlineDb } from '@/services/offline/offlineDb';
-import { logger } from '@/lib/utils/logger';
 import type { LightWorkTask } from '../useLightWorkTasksSupabase';
-import { logger } from '@/lib/utils/logger';
+import type { TaskAction, TaskSyncAdapter } from '../../../_shared/hooks/useTaskHookFactory';
 import {
   buildLightWorkQueuePayload,
   markLightWorkTaskSynced,
@@ -11,11 +9,9 @@ import {
   mapSupabaseLightWorkTask,
 } from './lightWorkTaskCache';
 
-export type LightWorkAction = 'create' | 'update' | 'delete';
-
 export interface LightWorkMutationContext {
   supabase: SupabaseClient | null;
-  action: LightWorkAction;
+  action: TaskAction;
   payload: any;
 }
 
@@ -29,7 +25,7 @@ export async function persistOptimisticLightTask(task: LightWorkTask, markForSyn
   await saveLightWorkTaskToCache(task, markForSync);
 }
 
-export async function queueLightWorkTask(action: LightWorkAction, task: LightWorkTask): Promise<void> {
+export async function queueLightWorkTask(action: TaskAction, task: LightWorkTask): Promise<void> {
   await offlineDb.queueAction(action, 'lightWorkTasks', buildLightWorkQueuePayload(task));
 }
 
@@ -57,3 +53,12 @@ export async function handleLightWorkMutation<T>(
 }
 
 export { mapSupabaseLightWorkTask, markLightWorkTaskSynced };
+
+// ============================================================================
+// GENERIC ADAPTER IMPLEMENTATION
+// ============================================================================
+
+export const lightWorkSyncAdapter: TaskSyncAdapter<LightWorkTask> = {
+  persistOptimisticTask: persistOptimisticLightTask,
+  queueTask: queueLightWorkTask,
+};

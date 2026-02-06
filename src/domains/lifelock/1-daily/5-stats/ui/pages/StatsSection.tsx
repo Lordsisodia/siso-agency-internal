@@ -57,11 +57,11 @@ const STATS_TABS: TabConfig[] = [
     icon: BarChart3,
     iconBg: 'bg-white/5',
     iconBorder: 'border-white/10',
-    iconColor: 'text-blue-400',
-    activeColor: 'bg-blue-500/20 text-blue-400',
+    iconColor: 'text-emerald-400',
+    activeColor: 'bg-emerald-500/20 text-emerald-400',
     xpCategory: 'stats',
     xp: 50,
-    accentColor: 'bg-gradient-to-b from-blue-500/40 via-cyan-500/40 to-blue-600/40 shadow-blue-500/10',
+    accentColor: 'bg-gradient-to-b from-emerald-500/40 via-green-500/40 to-emerald-600/40 shadow-emerald-500/10',
   },
   {
     id: 'fitness',
@@ -85,11 +85,11 @@ const STATS_TABS: TabConfig[] = [
     icon: Apple,
     iconBg: 'bg-white/5',
     iconBorder: 'border-white/10',
-    iconColor: 'text-green-400',
-    activeColor: 'bg-green-500/20 text-green-400',
+    iconColor: 'text-amber-400',
+    activeColor: 'bg-amber-500/20 text-amber-400',
     xpCategory: 'diet',
     xp: 65,
-    accentColor: 'bg-gradient-to-b from-green-500/40 via-emerald-500/40 to-green-600/40 shadow-green-500/10',
+    accentColor: 'bg-gradient-to-b from-amber-500/40 via-orange-500/40 to-amber-600/40 shadow-amber-500/10',
   },
 ];
 
@@ -144,7 +144,7 @@ export const StatsSection: React.FC<StatsSectionProps> = ({
       </div>
 
       {/* Content - each tab renders independently */}
-      <div className="space-y-4">
+      <div className="space-y-4 px-4 sm:px-6">
         {/* PHASE 5: Merged Stats tab shows both Smoking and Water */}
         {activeSubTab === 'stats' && (
           <motion.div

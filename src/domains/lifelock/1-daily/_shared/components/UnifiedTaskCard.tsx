@@ -38,6 +38,8 @@ export interface UnifiedSubtask {
   tools?: string[];
   completed: boolean;
   dueDate?: string;
+  /** Nested sub-subtasks (2-level hierarchy) */
+  subtasks?: UnifiedSubtask[];
 }
 
 export interface UnifiedTask {
@@ -240,6 +242,44 @@ export const AMBER_THEME: ThemeConfig = {
   icons: {
     inProgress: 'text-amber-400',
     checkbox: 'text-amber-400/60',
+  }
+};
+
+// TEAL_THEME for Today Tasks - bridges Light (green) and Deep (blue) work
+export const TEAL_THEME: ThemeConfig = {
+  colors: {
+    bg: 'bg-teal-900/10',
+    border: 'border-teal-700/30',
+    bgHover: 'hover:bg-teal-900/15',
+    borderHover: 'hover:border-teal-600/40',
+    text: 'text-teal-100',
+    textSecondary: 'text-teal-300',
+    textMuted: 'text-teal-200/80',
+    divider: 'border-teal-600/50',
+    inputBg: 'bg-teal-900/40',
+    inputBorder: 'border-teal-600/50',
+    inputFocusBorder: 'focus:border-teal-400',
+    buttonBg: 'text-teal-300 hover:text-teal-200 hover:bg-teal-900/20 border-teal-700/30 hover:border-teal-600/40',
+    buttonText: 'text-teal-300',
+    calendarBg: 'bg-teal-950/95',
+    calendarBorder: 'border-teal-700/60',
+    priorityMenuBg: 'bg-teal-950/95',
+    priorityMenuBorder: 'border-teal-700/60',
+    priorityActive: 'bg-teal-800/40 text-teal-100',
+    priorityInactive: 'text-teal-200 hover:bg-teal-800/30',
+    priorityHover: 'hover:bg-teal-900/25',
+    timerActiveBg: 'bg-teal-900/30',
+    timerActiveText: 'text-teal-200',
+    timerActiveBorder: 'border-teal-700/60',
+    timerBg: 'bg-teal-900/20',
+    timerText: 'text-teal-200',
+    timerBorder: 'border-teal-700/50',
+    deleteButton: 'text-teal-400/70 hover:text-red-400',
+    deleteButtonHover: 'hover:bg-teal-900/25',
+  },
+  icons: {
+    inProgress: 'text-teal-400',
+    checkbox: 'text-teal-400/60',
   }
 };
 
@@ -740,7 +780,8 @@ export function UnifiedTaskCard({
                           description: subtask.description,
                           priority: subtask.priority,
                           estimatedTime: subtask.estimatedTime,
-                          tools: subtask.tools
+                          tools: subtask.tools,
+                          subtasks: subtask.subtasks // Pass nested sub-subtasks
                         }}
                         taskId={task.id}
                         themeConfig={{
@@ -754,18 +795,18 @@ export function UnifiedTaskCard({
                         isEditing={editingSubtask === subtask.id}
                         editTitle={editSubtaskTitle}
                         calendarSubtaskId={calendarSubtaskId}
+                        depth={0}
                         isExpanded={false}
-                        onToggleCompletion={() => onToggleSubtaskStatus(task.id, subtask.id)}
-                        onToggleExpansion={() => onToggleSubtaskExpansion(task.id, subtask.id)}
-                        onStartEditing={(subtaskId, currentTitle) => onSubtaskStartEditing(subtaskId, currentTitle)}
+                        onToggleCompletion={(_taskId, subtaskId, _depth) => onToggleSubtaskStatus(task.id, subtaskId)}
+                        onToggleExpansion={(_taskId, subtaskId) => onToggleSubtaskExpansion(task.id, subtaskId)}
+                        onStartEditing={(subtaskId, currentTitle, _depth) => onSubtaskStartEditing(subtaskId, currentTitle)}
                         onEditTitleChange={(title) => onSubtaskEditTitleChange(title)}
-                        onSaveEdit={(taskId, subtaskId) => onSubtaskSaveEdit(taskId, subtaskId)}
-                        onKeyDown={(e, type, taskId, subtaskId) => onSubtaskKeyDown(e, type, taskId, subtaskId)}
+                        onSaveEdit={(_taskId, subtaskId, _depth) => onSubtaskSaveEdit(task.id, subtaskId)}
+                        onKeyDown={(e, type, _taskId, subtaskId, _depth) => onSubtaskKeyDown(e, type, task.id, subtaskId)}
                         onCalendarToggle={(subtaskId) => onCalendarToggle(subtaskId)}
-                        onDeleteSubtask={(subtaskId) => onDeleteSubtask(subtaskId)}
-                        onPriorityUpdate={(subtaskId, priority) => onUpdateSubtaskPriority(subtaskId, priority)}
-                        onEstimatedTimeUpdate={(subtaskId, time) => onUpdateSubtaskEstimatedTime(subtaskId, time)}
-                        onDescriptionUpdate={(subtaskId, desc) => onUpdateSubtaskDescription(subtaskId, desc)}
+                        onDeleteSubtask={(subtaskId, _depth) => onDeleteSubtask(subtaskId)}
+                        onPriorityChange={(subtaskId, priority, _depth) => onUpdateSubtaskPriority(subtaskId, priority)}
+                        onEstimatedTimeChange={(subtaskId, time, _depth) => onUpdateSubtaskEstimatedTime(subtaskId, time)}
                       >
                         {/* Calendar popup */}
                         {calendarSubtaskId === subtask.id && (

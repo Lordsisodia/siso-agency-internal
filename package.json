@@ -55,7 +55,8 @@
     "docs:validate": "node scripts/docs/generate-docs-index.cjs && echo '\n✅ Documentation index validated'",
     "db:generate": "prisma generate",
     "db:introspect": "prisma db pull",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "db:setup": "npm install -D prisma && prisma generate"
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.89",
