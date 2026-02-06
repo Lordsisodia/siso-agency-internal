@@ -300,18 +300,18 @@ export const CannabisTracker: React.FC<CannabisTrackerProps> = ({ selectedDate }
     : false;
 
   return (
-    <Card className="bg-green-900/20 border-green-700/40 overflow-hidden">
+    <Card className="bg-emerald-900/20 border-emerald-700/40 overflow-hidden">
       {/* Clickable Header */}
       <div
-        className="p-4 cursor-pointer hover:bg-green-900/10 transition-colors"
+        className="p-4 cursor-pointer hover:bg-emerald-900/10 transition-colors"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center justify-between gap-2 mb-3">
           <div className="flex items-center gap-2 flex-1 min-w-0">
-            <div className="p-1.5 rounded-lg bg-green-500/20 border border-green-400/30 flex-shrink-0">
-              <Leaf className="h-4 w-4 text-green-300" />
+            <div className="p-1.5 rounded-lg bg-emerald-500/20 border border-emerald-400/30 flex-shrink-0">
+              <Leaf className="h-4 w-4 text-emerald-300" />
             </div>
-            <h4 className="text-green-100 font-semibold text-base truncate">Cannabis</h4>
+            <h4 className="text-emerald-100 font-semibold text-base truncate">Cannabis</h4>
             {/* CheckCircle when on T-break */}
             {isTBreak && (
               <motion.div
@@ -319,7 +319,7 @@ export const CannabisTracker: React.FC<CannabisTrackerProps> = ({ selectedDate }
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", stiffness: 200, damping: 10 }}
               >
-                <CheckCircle2 className="h-5 w-5 text-emerald-400 flex-shrink-0" />
+                <CheckCircle2 className="h-5 w-5 text-green-400 flex-shrink-0" />
               </motion.div>
             )}
             {/* Sparkles on milestone */}
@@ -340,35 +340,35 @@ export const CannabisTracker: React.FC<CannabisTrackerProps> = ({ selectedDate }
               showGlow={isMilestoneDay}
             />
             {isExpanded ? (
-              <ChevronUp className="h-5 w-5 text-green-400 flex-shrink-0" />
+              <ChevronUp className="h-5 w-5 text-emerald-400 flex-shrink-0" />
             ) : (
-              <ChevronDown className="h-5 w-5 text-green-400 flex-shrink-0" />
+              <ChevronDown className="h-5 w-5 text-emerald-400 flex-shrink-0" />
             )}
           </div>
         </div>
 
         {/* Progress Bar */}
         <div className="mt-2 mb-1">
-          <div className="w-full bg-green-900/30 border border-green-600/20 rounded-full h-1.5">
+          <div className="w-full bg-emerald-900/30 border border-emerald-600/20 rounded-full h-1.5">
             <motion.div
               className={cn(
                 "h-1.5 rounded-full transition-all duration-500",
                 isTBreak
                   ? "bg-gradient-to-r from-emerald-400 to-green-500"
-                  : "bg-gradient-to-r from-green-400 to-emerald-500"
+                  : "bg-gradient-to-r from-emerald-400 to-green-500"
               )}
               initial={{ width: 0 }}
               animate={{ width: `${isTBreak ? 100 : Math.min((cannabisData.sessions / 5) * 100, 100)}%` }}
             />
           </div>
           <div className="flex justify-between items-center mt-1">
-            <span className="text-xs text-green-400/70 font-medium">
+            <span className="text-xs text-emerald-400/70 font-medium">
               {isTBreak
                 ? `T-break day ${cannabisData.streakData?.currentTBreakDays ? `(${cannabisData.streakData.currentTBreakDays})` : ''}`
                 : `${cannabisData.sessions} session${cannabisData.sessions !== 1 ? 's' : ''} today`}
             </span>
             {isTBreak && !isExpanded && (
-              <span className="text-xs text-emerald-400 font-semibold flex items-center gap-1">
+              <span className="text-xs text-green-400 font-semibold flex items-center gap-1">
                 <CheckCircle2 className="h-3 w-3" /> T-Break
               </span>
             )}
@@ -389,9 +389,9 @@ export const CannabisTracker: React.FC<CannabisTrackerProps> = ({ selectedDate }
             <div className="p-4 space-y-3">
               {isLoading ? (
                 <div className="space-y-3">
-                  <Skeleton className="h-32 w-full bg-green-900/30" />
-                  <Skeleton className="h-24 w-full bg-green-900/20" />
-                  <Skeleton className="h-20 w-full bg-green-900/20" />
+                  <Skeleton className="h-32 w-full bg-emerald-900/30" />
+                  <Skeleton className="h-24 w-full bg-emerald-900/20" />
+                  <Skeleton className="h-20 w-full bg-emerald-900/20" />
                 </div>
               ) : (
                 <>
@@ -400,16 +400,16 @@ export const CannabisTracker: React.FC<CannabisTrackerProps> = ({ selectedDate }
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="rounded-xl border border-green-700/30 bg-green-900/30 p-4"
+                    className="rounded-xl border border-emerald-700/30 bg-emerald-900/30 p-4"
                   >
                     <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm font-semibold text-green-200">7-Day Trend</span>
-                      <span className="text-xs text-green-400">{weeklyStats.total} total</span>
+                      <span className="text-sm font-semibold text-emerald-200">7-Day Trend</span>
+                      <span className="text-xs text-emerald-400">{weeklyStats.total} total</span>
                     </div>
                     <div className="flex items-end justify-between gap-1 h-24">
                       {isLoadingWeek ? (
                         Array.from({ length: 7 }).map((_, i) => (
-                          <Skeleton key={i} className="flex-1 h-full bg-green-900/30" />
+                          <Skeleton key={i} className="flex-1 h-full bg-emerald-900/30" />
                         ))
                       ) : (
                         weekData.map((day) => {
@@ -427,7 +427,7 @@ export const CannabisTracker: React.FC<CannabisTrackerProps> = ({ selectedDate }
                                   "w-full rounded-t-sm transition-all duration-300",
                                   day.isTBreakDay
                                     ? "bg-emerald-400/70"
-                                    : "bg-green-600/70",
+                                    : "bg-emerald-600/70",
                                   isTodayDay && "ring-2 ring-white/30"
                                 )}
                                 style={{ height: `${Math.max(height, 4)}px` }}
@@ -435,7 +435,7 @@ export const CannabisTracker: React.FC<CannabisTrackerProps> = ({ selectedDate }
                               <span
                                 className={cn(
                                   "text-[10px] w-full text-center truncate",
-                                  isTodayDay ? "text-white font-medium" : "text-green-300"
+                                  isTodayDay ? "text-white font-medium" : "text-emerald-300"
                                 )}
                               >
                                 {format(new Date(day.date), 'E')[0]}
@@ -455,15 +455,15 @@ export const CannabisTracker: React.FC<CannabisTrackerProps> = ({ selectedDate }
                     className={cn(
                       "rounded-xl border p-4 transition-all duration-300",
                       isTBreak
-                        ? "border-emerald-500/30 bg-emerald-950/20"
-                        : "border-green-700/30 bg-green-900/30"
+                        ? "border-green-500/30 bg-green-950/20"
+                        : "border-emerald-700/30 bg-emerald-900/30"
                     )}
                   >
                     <div className="flex items-center justify-between">
                       <div>
                         <p className={cn(
                           "text-sm mb-1",
-                          isTBreak ? "text-emerald-300" : "text-green-300"
+                          isTBreak ? "text-green-300" : "text-emerald-300"
                         )}>
                           Sessions Today
                         </p>
@@ -473,7 +473,7 @@ export const CannabisTracker: React.FC<CannabisTrackerProps> = ({ selectedDate }
                           animate={{ scale: 1, opacity: 1 }}
                           className={cn(
                             "text-5xl font-bold",
-                            isTBreak ? "text-emerald-400" : "text-white"
+                            isTBreak ? "text-green-400" : "text-white"
                           )}
                         >
                           {cannabisData.sessions}
@@ -487,7 +487,7 @@ export const CannabisTracker: React.FC<CannabisTrackerProps> = ({ selectedDate }
                           }}
                           variant="outline"
                           size="icon"
-                          className="h-12 w-12 rounded-full border-green-600/50 text-green-400 hover:bg-green-800/50 hover:text-green-200 transition-all duration-200"
+                          className="h-12 w-12 rounded-full border-emerald-600/50 text-emerald-400 hover:bg-emerald-800/50 hover:text-emerald-200 transition-all duration-200"
                           disabled={cannabisData.sessions === 0 || isUpdating}
                         >
                           <Minus className="h-5 w-5" />
@@ -499,7 +499,7 @@ export const CannabisTracker: React.FC<CannabisTrackerProps> = ({ selectedDate }
                           }}
                           variant="outline"
                           size="icon"
-                          className="h-12 w-12 rounded-full border-green-500/50 text-green-400 hover:bg-green-900/30 hover:text-green-300 transition-all duration-200"
+                          className="h-12 w-12 rounded-full border-emerald-500/50 text-emerald-400 hover:bg-emerald-900/30 hover:text-emerald-300 transition-all duration-200"
                           disabled={isUpdating}
                         >
                           <Plus className="h-5 w-5" />
@@ -519,7 +519,7 @@ export const CannabisTracker: React.FC<CannabisTrackerProps> = ({ selectedDate }
                             "flex-1 h-9 text-sm font-medium transition-all duration-200",
                             amount === 0.5
                               ? "border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/20"
-                              : "border-green-500/40 text-green-300 hover:bg-green-500/20"
+                              : "border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/20"
                           )}
                           disabled={isUpdating}
                           onClick={(e) => {
@@ -538,9 +538,9 @@ export const CannabisTracker: React.FC<CannabisTrackerProps> = ({ selectedDate }
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.18 }}
-                    className="rounded-xl border border-green-700/30 bg-green-900/30 p-4"
+                    className="rounded-xl border border-emerald-700/30 bg-emerald-900/30 p-4"
                   >
-                    <p className="text-sm font-semibold text-green-200 mb-3">Method (Optional)</p>
+                    <p className="text-sm font-semibold text-emerald-200 mb-3">Method (Optional)</p>
                     <div className="flex flex-wrap gap-2">
                       {CONSUMPTION_METHODS.map((method) => (
                         <button
@@ -552,8 +552,8 @@ export const CannabisTracker: React.FC<CannabisTrackerProps> = ({ selectedDate }
                           className={cn(
                             "px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200",
                             selectedMethod === method
-                              ? "bg-green-500/40 text-green-100 border border-green-400/50"
-                              : "bg-green-900/30 text-green-400 border border-green-700/30 hover:bg-green-800/40"
+                              ? "bg-emerald-500/40 text-emerald-100 border border-emerald-400/50"
+                              : "bg-emerald-900/30 text-emerald-400 border border-emerald-700/30 hover:bg-emerald-800/40"
                           )}
                         >
                           {method}
@@ -567,7 +567,7 @@ export const CannabisTracker: React.FC<CannabisTrackerProps> = ({ selectedDate }
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="rounded-xl border border-green-700/30 bg-green-900/30 p-4"
+                    className="rounded-xl border border-emerald-700/30 bg-emerald-900/30 p-4"
                   >
                     <p className="text-sm font-semibold text-emerald-200 mb-3">Analytics</p>
                     <div className="grid grid-cols-3 gap-3">
@@ -585,7 +585,7 @@ export const CannabisTracker: React.FC<CannabisTrackerProps> = ({ selectedDate }
                             {cannabisData.streakData?.currentTBreakDays ?? 0}
                           </span>
                         </div>
-                        <span className="text-xs text-green-300">T-Break Days</span>
+                        <span className="text-xs text-emerald-300">T-Break Days</span>
                       </div>
 
                       {/* Longest T-Break */}
@@ -594,7 +594,7 @@ export const CannabisTracker: React.FC<CannabisTrackerProps> = ({ selectedDate }
                         <span className="text-2xl font-bold text-amber-200">
                           {cannabisData.streakData?.longestTBreakStreak ?? 0}
                         </span>
-                        <span className="text-xs text-green-300">Best T-Break</span>
+                        <span className="text-xs text-emerald-300">Best T-Break</span>
                       </div>
 
                       {/* T-Break Days This Week */}
@@ -603,25 +603,25 @@ export const CannabisTracker: React.FC<CannabisTrackerProps> = ({ selectedDate }
                         <span className="text-2xl font-bold text-emerald-200">
                           {weeklyStats.tBreakDays}/7
                         </span>
-                        <span className="text-xs text-green-300">T-Break Days</span>
+                        <span className="text-xs text-emerald-300">T-Break Days</span>
                       </div>
                     </div>
 
                     {/* Additional Stats */}
-                    <div className="grid grid-cols-2 gap-3 mt-3 pt-3 border-t border-green-700/20">
+                    <div className="grid grid-cols-2 gap-3 mt-3 pt-3 border-t border-emerald-700/20">
                       <div className="flex flex-col items-center gap-1">
-                        <span className="text-lg font-semibold text-green-200">{weeklyStats.average}/d</span>
-                        <span className="text-xs text-green-300">Weekly Average</span>
+                        <span className="text-lg font-semibold text-emerald-200">{weeklyStats.average}/d</span>
+                        <span className="text-xs text-emerald-300">Weekly Average</span>
                       </div>
                       <div className="flex flex-col items-center gap-1">
-                        <span className="text-lg font-semibold text-green-200">{cannabisData.streakData?.totalSessionsThisMonth ?? 0}</span>
-                        <span className="text-xs text-green-300">This Month</span>
+                        <span className="text-lg font-semibold text-emerald-200">{cannabisData.streakData?.totalSessionsThisMonth ?? 0}</span>
+                        <span className="text-xs text-emerald-300">This Month</span>
                       </div>
                     </div>
 
                     {/* T-Break Milestones */}
-                    <div className="mt-3 pt-3 border-t border-green-700/20">
-                      <p className="text-xs text-green-400 mb-2">T-Break Milestones</p>
+                    <div className="mt-3 pt-3 border-t border-emerald-700/20">
+                      <p className="text-xs text-emerald-400 mb-2">T-Break Milestones</p>
                       <div className="flex justify-between">
                         {TBREAK_MILESTONES.map((milestone) => {
                           const currentDays = cannabisData.streakData?.currentTBreakDays ?? 0;
@@ -634,12 +634,12 @@ export const CannabisTracker: React.FC<CannabisTrackerProps> = ({ selectedDate }
                               className={cn(
                                 "flex flex-col items-center gap-1 px-2 py-1 rounded-lg transition-all duration-200",
                                 isReached && "bg-emerald-500/20",
-                                isNext && "bg-green-500/10 ring-1 ring-green-400/30"
+                                isNext && "bg-emerald-500/10 ring-1 ring-emerald-400/30"
                               )}
                             >
                               <span className={cn(
                                 "text-xs font-bold",
-                                isReached ? "text-emerald-300" : isNext ? "text-green-300" : "text-slate-500"
+                                isReached ? "text-emerald-300" : isNext ? "text-emerald-300" : "text-slate-500"
                               )}>
                                 {milestone}d
                               </span>
@@ -653,8 +653,8 @@ export const CannabisTracker: React.FC<CannabisTrackerProps> = ({ selectedDate }
                     </div>
 
                     {/* Motivational Message */}
-                    <div className="mt-3 pt-3 border-t border-green-700/20 text-center">
-                      <p className="text-sm text-green-100">
+                    <div className="mt-3 pt-3 border-t border-emerald-700/20 text-center">
+                      <p className="text-sm text-emerald-100">
                         {getMotivationalMessage()}
                       </p>
                     </div>

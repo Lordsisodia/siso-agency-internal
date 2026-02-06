@@ -19,6 +19,11 @@ import { Droplets, CigaretteOff, Dumbbell, Apple, BarChart3 } from 'lucide-react
 import { XPPill } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/xp/XPPill';
 import { WaterTrackerCard } from '../components/WaterTrackerCard';
 import { SmokingTracker } from '../components/SmokingTracker';
+import { CannabisTracker } from '../components/CannabisTracker';
+import { CaffeineTracker } from '../components/CaffeineTracker';
+import { AlcoholTracker } from '../components/AlcoholTracker';
+import { ScreenTimeTracker } from '../components/ScreenTimeTracker';
+import { EnergyTracker } from '../components/EnergyTracker';
 import { HomeWorkoutSection } from '@/domains/lifelock/1-daily/5-stats/features/wellness/ui/pages/HomeWorkoutSection';
 import { DietSection } from '@/domains/lifelock/1-daily/5-stats/features/diet/ui/pages/DietSection';
 import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
@@ -145,7 +150,7 @@ export const StatsSection: React.FC<StatsSectionProps> = ({
 
       {/* Content - each tab renders independently */}
       <div className="space-y-4 px-4 sm:px-6">
-        {/* PHASE 5: Merged Stats tab shows both Smoking and Water */}
+        {/* PHASE 5: Merged Stats tab shows all health trackers */}
         {activeSubTab === 'stats' && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -159,6 +164,11 @@ export const StatsSection: React.FC<StatsSectionProps> = ({
           >
             <SmokingTracker selectedDate={selectedDate} />
             <WaterTrackerCard selectedDate={selectedDate} userId={internalUserId} />
+            <CannabisTracker selectedDate={selectedDate} />
+            <AlcoholTracker selectedDate={selectedDate} />
+            <CaffeineTracker selectedDate={selectedDate} />
+            <ScreenTimeTracker selectedDate={selectedDate} />
+            <EnergyTracker selectedDate={selectedDate} />
           </motion.div>
         )}
 

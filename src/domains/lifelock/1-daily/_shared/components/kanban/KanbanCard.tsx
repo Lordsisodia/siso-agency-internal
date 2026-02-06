@@ -19,6 +19,7 @@ export interface KanbanCardProps {
   themeName: 'LIGHT' | 'DEEP';
   onToggleTaskStatus: (taskId: string) => void;
   onToggleExpansion: (taskId: string) => void;
+  onTaskClick?: (task: WorkTask) => void;
   isExpanded?: boolean;
 }
 
@@ -29,6 +30,7 @@ export function KanbanCard({
   themeName,
   onToggleTaskStatus,
   onToggleExpansion,
+  onTaskClick,
   isExpanded = false,
 }: KanbanCardProps) {
   const {
@@ -86,6 +88,20 @@ export function KanbanCard({
         dragHandle: 'text-blue-400/50 hover:text-blue-400',
       };
 
+  // Handle card click for opening task detail modal
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Don't open modal if clicking on interactive elements
+    const target = e.target as HTMLElement;
+    if (
+      target.closest('button') ||
+      target.closest('[role="button"]') ||
+      isDragging
+    ) {
+      return;
+    }
+    onTaskClick?.(task);
+  };
+
   return (
     <motion.div
       ref={setNodeRef}
@@ -95,13 +111,15 @@ export function KanbanCard({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
       transition={{ duration: 0.2, delay: index * 0.03 }}
+      onClick={handleCardClick}
       className={cn(
         "group relative rounded-lg border p-3 transition-all",
         themeColors.cardBg,
         themeColors.cardBorder,
         themeColors.cardHover,
+        onTaskClick && "cursor-pointer",
         isDragging && "z-50 opacity-90 rotate-2 scale-105 shadow-xl cursor-grabbing",
-        !isDragging && "cursor-grab"
+        !isDragging && !onTaskClick && "cursor-grab"
       )}
     >
       {/* Drag Handle */}

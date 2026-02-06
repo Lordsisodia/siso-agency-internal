@@ -39,6 +39,7 @@ export interface KanbanBoardProps {
   onToggleTaskStatus: (taskId: string) => void;
   onToggleExpansion: (taskId: string) => void;
   onUpdateTaskStatus?: (taskId: string, status: string) => Promise<void>;
+  onTaskClick?: (task: WorkTask) => void;
   expandedTasks: string[];
 }
 
@@ -73,6 +74,7 @@ export function KanbanBoard({
   onToggleTaskStatus,
   onToggleExpansion,
   onUpdateTaskStatus,
+  onTaskClick,
   expandedTasks,
 }: KanbanBoardProps) {
   // Mobile column index (0 = todo, 1 = in-progress, 2 = done)
@@ -306,6 +308,7 @@ export function KanbanBoard({
                     isActive={true}
                     onToggleTaskStatus={onToggleTaskStatus}
                     onToggleExpansion={onToggleExpansion}
+                    onTaskClick={onTaskClick}
                     expandedTasks={expandedTasks}
                   />
                 </motion.div>
@@ -325,6 +328,7 @@ export function KanbanBoard({
                   isActive={true}
                   onToggleTaskStatus={onToggleTaskStatus}
                   onToggleExpansion={onToggleExpansion}
+                  onTaskClick={onTaskClick}
                   expandedTasks={expandedTasks}
                 />
               ))}
@@ -363,6 +367,7 @@ export function KanbanBoard({
               themeName={themeName}
               onToggleTaskStatus={onToggleTaskStatus}
               onToggleExpansion={onToggleExpansion}
+              onTaskClick={onTaskClick}
               isExpanded={expandedTasks.includes(activeDragTask.id)}
             />
           </div>

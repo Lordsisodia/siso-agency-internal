@@ -23,6 +23,7 @@ export interface KanbanColumnProps {
   isActive?: boolean;
   onToggleTaskStatus: (taskId: string) => void;
   onToggleExpansion: (taskId: string) => void;
+  onTaskClick?: (task: WorkTask) => void;
   expandedTasks: string[];
 }
 
@@ -56,6 +57,7 @@ export function KanbanColumn({
   isActive = true,
   onToggleTaskStatus,
   onToggleExpansion,
+  onTaskClick,
   expandedTasks,
 }: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
@@ -126,7 +128,7 @@ export function KanbanColumn({
       <div
         ref={setNodeRef}
         className={cn(
-          "flex-1 p-3 space-y-2 overflow-y-auto",
+          "flex-1 p-3 space-y-2 overflow-y-auto min-h-0",
           isOver && "bg-primary/5"
         )}
       >
@@ -152,6 +154,7 @@ export function KanbanColumn({
               themeName={themeName}
               onToggleTaskStatus={onToggleTaskStatus}
               onToggleExpansion={onToggleExpansion}
+              onTaskClick={onTaskClick}
               isExpanded={expandedTasks.includes(task.id)}
             />
           ))

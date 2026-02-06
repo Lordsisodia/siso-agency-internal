@@ -10,6 +10,7 @@
 import React, { useState, useMemo, useCallback } from "react";
 import { Brain, Plus, Info, X, ListTodo, Clock, Trophy, Grid3X3, List, Columns3 } from "lucide-react";
 import { motion, LayoutGroup, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from 'date-fns';
@@ -17,6 +18,7 @@ import { UnifiedTaskCard, LIGHT_THEME, DEEP_THEME, ThemeConfig, UnifiedTask } fr
 import { useDeepWorkTimers, formatMsAsClock } from "@/domains/lifelock/1-daily/4-deep-work/hooks/useDeepWorkTimers";
 import { ListTaskItem } from "./ListTaskItem";
 import { KanbanBoard } from "./kanban";
+import { TaskDetailModal } from "@/domains/lifelock/_shared/components/ui/TaskDetailModal";
 
 // Stub for missing sortSubtasksHybrid function
 const sortSubtasksHybrid = (subtasks: any[]) => subtasks;
@@ -180,38 +182,33 @@ export function WorkTaskList({
     return (saved as ViewMode) || 'card';
   });
 
+  // Task detail modal state
+  const [selectedTask, setSelectedTask] = useState<WorkTask | null>(null);
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+
   // Persist view mode preference
   React.useEffect(() => {
     localStorage.setItem(`${workType}work-viewMode`, viewMode);
   }, [viewMode, workType]);
 
-  // Toggle view mode - cycles through card -> list -> kanban
-  const toggleViewMode = () => {
-    setViewMode(prev => {
-      if (prev === 'card') return 'list';
-      if (prev === 'list') return 'kanban';
-      return 'card';
-    });
+  // Handle task click to open detail modal
+  const handleTaskClick = (task: WorkTask) => {
+    setSelectedTask(task);
+    setIsTaskModalOpen(true);
   };
 
-  // Get view mode icon
-  const getViewModeIcon = () => {
-    switch (viewMode) {
-      case 'card': return <List className="h-4 w-4" />;
-      case 'list': return <Columns3 className="h-4 w-4" />;
-      case 'kanban': return <Grid3X3 className="h-4 w-4" />;
-      default: return <List className="h-4 w-4" />;
+  // Handle task update from modal
+  const handleTaskUpdate = async (updatedTask: any) => {
+    // Update task title if changed
+    if (updatedTask.title !== selectedTask?.title) {
+      await onUpdateTaskTitle(updatedTask.id, updatedTask.title);
     }
-  };
-
-  // Get view mode tooltip
-  const getViewModeTooltip = () => {
-    switch (viewMode) {
-      case 'card': return 'Switch to List View';
-      case 'list': return 'Switch to Kanban View';
-      case 'kanban': return 'Switch to Card View';
-      default: return 'Switch View';
+    // Update task description if changed
+    if (updatedTask.description !== selectedTask?.description) {
+      await onUpdateSubtaskDescription(updatedTask.id, updatedTask.description);
     }
+    setIsTaskModalOpen(false);
+    setSelectedTask(null);
   };
 
   // Task order (persisted to localStorage)
@@ -780,16 +777,50 @@ export function WorkTaskList({
             </div>
 
             <div className="flex items-center gap-2 flex-shrink-0">
-              {/* View Mode Toggle */}
-              <motion.button
-                onClick={toggleViewMode}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className={`p-2 rounded-lg border ${themeColors.iconBorder} ${themeColors.iconColor} hover:${themeColors.iconBg} transition-colors`}
-                title={getViewModeTooltip()}
-              >
-                {getViewModeIcon()}
-              </motion.button>
+              {/* View Mode Toggle - Clean Segmented Control */}
+              <div className={`flex items-center rounded-lg border ${themeColors.iconBorder} overflow-hidden`}>
+                <button
+                  onClick={() => setViewMode('card')}
+                  className={cn(
+                    "px-3 py-1.5 text-xs font-medium transition-all flex items-center gap-1.5",
+                    viewMode === 'card'
+                      ? `${themeColors.iconBg} ${themeColors.iconColor}`
+                      : `hover:${themeColors.iconBg} ${themeColors.textMuted}`
+                  )}
+                  title="Card View"
+                >
+                  <List className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Cards</span>
+                </button>
+                <div className={`w-px h-4 ${themeColors.iconBorder.replace('border-', 'bg-').replace('/30', '/20')}`} />
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={cn(
+                    "px-3 py-1.5 text-xs font-medium transition-all flex items-center gap-1.5",
+                    viewMode === 'list'
+                      ? `${themeColors.iconBg} ${themeColors.iconColor}`
+                      : `hover:${themeColors.iconBg} ${themeColors.textMuted}`
+                  )}
+                  title="List View"
+                >
+                  <Columns3 className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">List</span>
+                </button>
+                <div className={`w-px h-4 ${themeColors.iconBorder.replace('border-', 'bg-').replace('/30', '/20')}`} />
+                <button
+                  onClick={() => setViewMode('kanban')}
+                  className={cn(
+                    "px-3 py-1.5 text-xs font-medium transition-all flex items-center gap-1.5",
+                    viewMode === 'kanban'
+                      ? `${themeColors.iconBg} ${themeColors.iconColor}`
+                      : `hover:${themeColors.iconBg} ${themeColors.textMuted}`
+                  )}
+                  title="Kanban View"
+                >
+                  <Grid3X3 className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Kanban</span>
+                </button>
+              </div>
 
               {/* Protocol Toggle Button */}
               <motion.button
@@ -1057,6 +1088,7 @@ export function WorkTaskList({
                         onToggleTaskStatus={handleToggleTaskStatus}
                         onToggleExpansion={toggleTaskExpansion}
                         onUpdateTaskStatus={onUpdateTaskStatus}
+                        onTaskClick={handleTaskClick}
                         expandedTasks={expandedTasks}
                       />
                     </motion.div>
@@ -1097,6 +1129,40 @@ export function WorkTaskList({
           </motion.div>
         </div>
       </div>
+
+      {/* Task Detail Modal */}
+      <TaskDetailModal
+        task={selectedTask ? {
+          id: selectedTask.id,
+          title: selectedTask.title,
+          description: selectedTask.description,
+          status: selectedTask.status,
+          priority: selectedTask.priority,
+          level: 1,
+          dependencies: [],
+          subtasks: selectedTask.subtasks.map(s => ({
+            id: s.id,
+            title: s.title,
+            description: s.description,
+            status: s.status,
+            priority: s.priority,
+            estimatedTime: s.estimatedTime,
+            tools: s.tools,
+            completed: s.completed,
+            dueDate: s.dueDate,
+          })),
+          focusIntensity: selectedTask.focusIntensity,
+          context: workType,
+          dueDate: selectedTask.dueDate || undefined,
+        } : null}
+        isOpen={isTaskModalOpen}
+        onClose={() => {
+          setIsTaskModalOpen(false);
+          setSelectedTask(null);
+        }}
+        onTaskUpdate={handleTaskUpdate}
+        onStartFocusSession={onStartFocusSession}
+      />
     </div>
   );
 }
