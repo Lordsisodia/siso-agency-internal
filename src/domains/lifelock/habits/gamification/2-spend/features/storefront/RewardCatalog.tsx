@@ -34,12 +34,12 @@ import { Progress } from '@/components/ui/progress';
 import type { RewardItem } from '@/domains/lifelock/habits/gamification/services/xpStoreService';
 
 interface RewardCatalogProps {
-  onPurchase: (rewardId: string) => void;
+  onPurchase?: (rewardId: string) => void;
   className?: string;
 }
 
 export const RewardCatalog = ({ onPurchase, className }: RewardCatalogProps) => {
-  const { rewards, balance, loading, error } = useXPStoreContext();
+  const { rewards, balance, loading, error, purchaseReward } = useXPStoreContext();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'price' | 'popularity' | 'satisfaction'>('price');
@@ -376,7 +376,13 @@ export const RewardCatalog = ({ onPurchase, className }: RewardCatalogProps) => 
 
                     {/* Purchase Button */}
                     <Button
-                      onClick={() => onPurchase(reward.id)}
+                      onClick={async () => {
+                        if (onPurchase) {
+                          onPurchase(reward.id);
+                        } else {
+                          await purchaseReward(reward.id);
+                        }
+                      }}
                       disabled={
                         affordability === 'saving' ||
                         affordability === 'locked' ||

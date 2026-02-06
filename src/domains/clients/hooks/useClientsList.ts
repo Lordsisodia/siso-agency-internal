@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useAdminCheck } from "@/domains/admin/hooks/useAdminCheck";
 import { sampleClients } from "@/lib/data/sampleClients";
 import { supabase } from "@/services/integrations/supabase/client";
-import { ClientData, ClientsListParams, ClientsListResponse, TodoItem } from "@/domains/client/domain/types";
+import { ClientData, ClientsListParams, ClientsListResponse, TodoItem } from "@/domains/projects/_shared/domain/client.types";
 
 /**
  * Hook to fetch a list of all clients (admin only)
