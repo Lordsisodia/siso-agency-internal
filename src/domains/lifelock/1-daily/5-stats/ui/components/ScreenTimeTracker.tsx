@@ -605,8 +605,8 @@ export const ScreenTimeTracker: React.FC<ScreenTimeTrackerProps> = ({ selectedDa
                     className={cn(
                       "rounded-xl border p-4 transition-all duration-300",
                       screenTimeData.digitalSunset
-                        ? "border-orange-500/30 bg-orange-950/20"
-                        : "border-indigo-700/30 bg-indigo-900/30"
+                        ? "border-emerald-500/30 bg-emerald-950/20"
+                        : "border-emerald-700/30 bg-emerald-900/30"
                     )}
                   >
                     <div className="flex items-center justify-between">
@@ -614,26 +614,26 @@ export const ScreenTimeTracker: React.FC<ScreenTimeTrackerProps> = ({ selectedDa
                         <div className={cn(
                           "p-2 rounded-lg transition-colors",
                           screenTimeData.digitalSunset
-                            ? "bg-orange-500/20"
-                            : "bg-indigo-500/20"
+                            ? "bg-emerald-500/20"
+                            : "bg-emerald-500/20"
                         )}>
                           <Moon className={cn(
                             "h-5 w-5",
                             screenTimeData.digitalSunset
-                              ? "text-orange-400"
-                              : "text-indigo-400"
+                              ? "text-emerald-400"
+                              : "text-emerald-400"
                           )} />
                         </div>
                         <div>
                           <p className={cn(
                             "text-sm font-medium",
                             screenTimeData.digitalSunset
-                              ? "text-orange-300"
-                              : "text-indigo-200"
+                              ? "text-emerald-300"
+                              : "text-emerald-200"
                           )}>
                             Digital Sunset
                           </p>
-                          <p className="text-xs text-indigo-400/70">
+                          <p className="text-xs text-emerald-400/70">
                             No screens 1hr before bed
                           </p>
                         </div>
@@ -645,8 +645,8 @@ export const ScreenTimeTracker: React.FC<ScreenTimeTrackerProps> = ({ selectedDa
                         className={cn(
                           "h-6 w-6 border-2",
                           screenTimeData.digitalSunset
-                            ? "border-orange-500 bg-orange-500"
-                            : "border-indigo-500"
+                            ? "border-emerald-500 bg-emerald-500"
+                            : "border-emerald-500"
                         )}
                         onClick={(e) => e.stopPropagation()}
                       />
@@ -654,7 +654,7 @@ export const ScreenTimeTracker: React.FC<ScreenTimeTrackerProps> = ({ selectedDa
 
                     {/* Streak Display */}
                     {screenTimeData.digitalSunsetStreak > 0 && (
-                      <div className="mt-3 pt-3 border-t border-indigo-700/20">
+                      <div className="mt-3 pt-3 border-t border-emerald-700/20">
                         <div className="flex items-center justify-center gap-2">
                           <Flame className={cn(
                             "h-5 w-5",
@@ -667,7 +667,7 @@ export const ScreenTimeTracker: React.FC<ScreenTimeTrackerProps> = ({ selectedDa
                           <span className="text-2xl font-bold text-white">
                             {screenTimeData.digitalSunsetStreak}
                           </span>
-                          <span className="text-sm text-indigo-300">
+                          <span className="text-sm text-emerald-300">
                             day{screenTimeData.digitalSunsetStreak !== 1 ? 's' : ''} streak
                           </span>
                         </div>
@@ -680,9 +680,9 @@ export const ScreenTimeTracker: React.FC<ScreenTimeTrackerProps> = ({ selectedDa
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.25 }}
-                    className="rounded-xl border border-indigo-700/30 bg-indigo-900/30 p-4"
+                    className="rounded-xl border border-emerald-700/30 bg-emerald-900/30 p-4"
                   >
-                    <p className="text-sm font-semibold text-indigo-200 mb-3">Analytics</p>
+                    <p className="text-sm font-semibold text-emerald-200 mb-3">Analytics</p>
                     <div className="grid grid-cols-3 gap-3">
                       {/* Current Streak */}
                       <div className="flex flex-col items-center gap-1">
@@ -698,7 +698,7 @@ export const ScreenTimeTracker: React.FC<ScreenTimeTrackerProps> = ({ selectedDa
                             {screenTimeData.digitalSunsetStreak}
                           </span>
                         </div>
-                        <span className="text-xs text-indigo-300">Day Streak</span>
+                        <span className="text-xs text-emerald-300">Day Streak</span>
                       </div>
 
                       {/* Digital Sunset Days */}
@@ -713,7 +713,7 @@ export const ScreenTimeTracker: React.FC<ScreenTimeTrackerProps> = ({ selectedDa
                         )}>
                           {weeklyStats.digitalSunsetDays}/7
                         </span>
-                        <span className="text-xs text-indigo-300">This Week</span>
+                        <span className="text-xs text-emerald-300">This Week</span>
                       </div>
 
                       {/* Status */}
@@ -728,21 +728,21 @@ export const ScreenTimeTracker: React.FC<ScreenTimeTrackerProps> = ({ selectedDa
                         )}>
                           {screenTimeData.totalHours > 0 ? statusColor.label : '-'}
                         </span>
-                        <span className="text-xs text-indigo-300">Status</span>
+                        <span className="text-xs text-emerald-300">Status</span>
                       </div>
                     </div>
 
                     {/* Weekly Total */}
-                    <div className="mt-3 pt-3 border-t border-indigo-700/20">
+                    <div className="mt-3 pt-3 border-t border-emerald-700/20">
                       <div className="flex items-center justify-center gap-2">
-                        <span className="text-sm text-indigo-300">Weekly Total:</span>
+                        <span className="text-sm text-emerald-300">Weekly Total:</span>
                         <span className="text-lg font-semibold text-white">{weeklyStats.total}h</span>
                       </div>
                     </div>
 
                     {/* Motivational Message */}
-                    <div className="mt-3 pt-3 border-t border-indigo-700/20 text-center">
-                      <p className="text-sm text-indigo-100">
+                    <div className="mt-3 pt-3 border-t border-emerald-700/20 text-center">
+                      <p className="text-sm text-emerald-100">
                         {getMotivationalMessage()}
                       </p>
                     </div>
@@ -754,13 +754,13 @@ export const ScreenTimeTracker: React.FC<ScreenTimeTrackerProps> = ({ selectedDa
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.3 }}
-                      className="rounded-xl border border-indigo-700/30 bg-indigo-900/30 p-4"
+                      className="rounded-xl border border-emerald-700/30 bg-emerald-900/30 p-4"
                     >
-                      <p className="text-sm font-semibold text-indigo-200 mb-2">XP Breakdown</p>
+                      <p className="text-sm font-semibold text-emerald-200 mb-2">XP Breakdown</p>
                       <div className="space-y-1 text-xs">
                         <div className="flex justify-between">
-                          <span className="text-indigo-400">Base (logging)</span>
-                          <span className="text-indigo-200">+{screenTimeXP.baseXP} XP</span>
+                          <span className="text-emerald-400">Base (logging)</span>
+                          <span className="text-emerald-200">+{screenTimeXP.baseXP} XP</span>
                         </div>
                         {screenTimeXP.total > screenTimeXP.baseXP && (
                           <div className="flex justify-between">
@@ -780,8 +780,8 @@ export const ScreenTimeTracker: React.FC<ScreenTimeTrackerProps> = ({ selectedDa
                             <span className="text-orange-200">+{screenTimeXP.streakBonus} XP</span>
                           </div>
                         )}
-                        <div className="pt-1 mt-1 border-t border-indigo-700/20 flex justify-between">
-                          <span className="text-indigo-300 font-medium">Total</span>
+                        <div className="pt-1 mt-1 border-t border-emerald-700/20 flex justify-between">
+                          <span className="text-emerald-300 font-medium">Total</span>
                           <span className="text-white font-bold">{screenTimeXP.total} XP</span>
                         </div>
                       </div>

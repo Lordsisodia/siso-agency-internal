@@ -18,7 +18,7 @@ import { UnifiedTaskCard, LIGHT_THEME, DEEP_THEME, ThemeConfig, UnifiedTask } fr
 import { useDeepWorkTimers, formatMsAsClock } from "@/domains/lifelock/1-daily/4-deep-work/hooks/useDeepWorkTimers";
 import { ListTaskItem } from "./ListTaskItem";
 import { KanbanBoard } from "./kanban";
-import { TaskDetailModal } from "@/domains/lifelock/_shared/components/ui/TaskDetailModal";
+import { BeautifulTaskDetail } from "@/domains/lifelock/_shared/components/ui/BeautifulTaskDetail";
 
 // Stub for missing sortSubtasksHybrid function
 const sortSubtasksHybrid = (subtasks: any[]) => subtasks;
@@ -1131,37 +1131,30 @@ export function WorkTaskList({
       </div>
 
       {/* Task Detail Modal */}
-      <TaskDetailModal
+      <BeautifulTaskDetail
         task={selectedTask ? {
           id: selectedTask.id,
           title: selectedTask.title,
           description: selectedTask.description,
-          status: selectedTask.status,
-          priority: selectedTask.priority,
-          level: 1,
-          dependencies: [],
+          completed: selectedTask.status === 'completed',
+          priority: selectedTask.priority as 'low' | 'medium' | 'high' | 'urgent',
+          dueDate: selectedTask.dueDate || undefined,
+          timeEstimate: selectedTask.timeEstimate || undefined,
           subtasks: selectedTask.subtasks.map(s => ({
             id: s.id,
             title: s.title,
-            description: s.description,
-            status: s.status,
-            priority: s.priority,
-            estimatedTime: s.estimatedTime,
-            tools: s.tools,
             completed: s.completed,
-            dueDate: s.dueDate,
           })),
           focusIntensity: selectedTask.focusIntensity,
-          context: workType,
-          dueDate: selectedTask.dueDate || undefined,
         } : null}
         isOpen={isTaskModalOpen}
         onClose={() => {
           setIsTaskModalOpen(false);
           setSelectedTask(null);
         }}
-        onTaskUpdate={handleTaskUpdate}
-        onStartFocusSession={onStartFocusSession}
+        workType={workType}
+        onToggleComplete={onToggleTaskCompletion}
+        onStartFocus={onStartFocusSession}
       />
     </div>
   );

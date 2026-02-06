@@ -280,7 +280,7 @@ export function KanbanBoard({
         )}
 
         {/* Board Content */}
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1">
           {isMobile ? (
             // Mobile: Swipeable single column view
             <motion.div
@@ -288,7 +288,7 @@ export function KanbanBoard({
               dragConstraints={{ left: 0, right: 0 }}
               dragElastic={0.2}
               onDragEnd={handleSwipe}
-              className="h-full"
+              className="min-h-0"
             >
               <AnimatePresence mode="wait">
                 <motion.div
@@ -297,7 +297,7 @@ export function KanbanBoard({
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.2 }}
-                  className="h-full p-4"
+                  className="p-4"
                 >
                   <KanbanColumn
                     id={COLUMNS[activeColumnIndex].id}
