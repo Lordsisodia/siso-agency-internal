@@ -4,7 +4,7 @@ import { Cigarette, Plus, Minus, Flame, Target, Trophy, ChevronDown, ChevronUp, 
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { format, isToday, subDays } from 'date-fns';
+import { format, isToday } from 'date-fns';
 import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 import { smokingService, SmokingSnapshot } from '@/services/database/smokingService';
@@ -23,12 +23,6 @@ const SMOKING_ACTION_AMOUNTS = [1, 5, -1];
 const fetchSmokingData = (userId: string, dateKey: string) =>
   smokingService.getSmokingData(userId, dateKey);
 
-interface WeekData {
-  date: string;
-  cigarettes: number;
-  isSmokeFree: boolean;
-}
-
 export const SmokingTracker: React.FC<SmokingTrackerProps> = ({ selectedDate }) => {
   const { user } = useClerkUser();
   const internalUserId = useSupabaseUserId(user?.id || null);
@@ -46,8 +40,6 @@ export const SmokingTracker: React.FC<SmokingTrackerProps> = ({ selectedDate }) 
 
   const [isUpdating, setIsUpdating] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
-  const [weekData, setWeekData] = useState<WeekData[]>([]);
-  const [isLoadingWeek, setIsLoadingWeek] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
   const smokingXPRef = useRef(0);
 
@@ -62,38 +54,6 @@ export const SmokingTracker: React.FC<SmokingTrackerProps> = ({ selectedDate }) 
       totalCigarettesThisMonth: 0,
     },
   };
-
-  // Load weekly trend data
-  useEffect(() => {
-    const loadWeekData = async () => {
-      if (!internalUserId) {
-        setWeekData([]);
-        return;
-      }
-
-      setIsLoadingWeek(true);
-      try {
-        const days = [];
-        for (let i = 6; i >= 0; i--) {
-          const d = subDays(selectedDate, i);
-          const dk = format(d, 'yyyy-MM-dd');
-          const dayData = await smokingService.getSmokingData(internalUserId, dk);
-          days.push({
-            date: dk,
-            cigarettes: dayData.cigarettes,
-            isSmokeFree: dayData.cigarettes === 0,
-          });
-        }
-        setWeekData(days);
-      } catch (error) {
-        console.error('[SmokingTracker] Failed to load week data:', error);
-      } finally {
-        setIsLoadingWeek(false);
-      }
-    };
-
-    loadWeekData();
-  }, [internalUserId, selectedDate]);
 
   // XP storage key
   const smokingXPStorageKey = useMemo(() => {
@@ -178,14 +138,6 @@ export const SmokingTracker: React.FC<SmokingTrackerProps> = ({ selectedDate }) 
     }
   }, [isUpdating, internalUserId, smokingData.cigarettes, smokingData.cravings, mutate, dateKey]);
 
-  // Calculate weekly stats
-  const weeklyStats = useMemo(() => {
-    const total = weekData.reduce((sum, day) => sum + day.cigarettes, 0);
-    const smokeFreeDays = weekData.filter(day => day.isSmokeFree).length;
-    const average = Math.round(total / 7);
-    return { total, smokeFreeDays, average };
-  }, [weekData]);
-
   // Get motivational message
   const getMotivationalMessage = () => {
     if (smokingData.cigarettes === 0) {
@@ -196,27 +148,24 @@ export const SmokingTracker: React.FC<SmokingTrackerProps> = ({ selectedDate }) 
     if (smokingData.cravings > smokingData.cigarettes * 2) {
       return "Great job resisting those cravings!";
     }
-    if (weeklyStats.smokeFreeDays >= 5) {
-      return "You're doing great this week!";
-    }
     return "Every smoke-free day counts!";
   };
 
   const isSmokeFree = smokingData.cigarettes === 0;
 
   return (
-    <Card className="bg-rose-900/20 border-rose-700/40 overflow-hidden">
+    <Card className="bg-emerald-900/20 border-emerald-700/40 overflow-hidden">
       {/* Clickable Header */}
       <div
-        className="p-4 cursor-pointer hover:bg-rose-900/10 transition-colors"
+        className="p-4 cursor-pointer hover:bg-emerald-900/10 transition-colors"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center justify-between gap-2 mb-3">
           <div className="flex items-center gap-2 flex-1 min-w-0">
-            <div className="p-1.5 rounded-lg bg-rose-500/20 border border-rose-400/30 flex-shrink-0">
-              <Cigarette className="h-4 w-4 text-rose-300" />
+            <div className="p-1.5 rounded-lg bg-emerald-500/20 border border-emerald-400/30 flex-shrink-0">
+              <Cigarette className="h-4 w-4 text-emerald-300" />
             </div>
-            <h4 className="text-rose-100 font-semibold text-base truncate">Smoking Tracker</h4>
+            <h4 className="text-emerald-100 font-semibold text-base truncate">Smoking Tracker</h4>
             {/* Green CheckCircle when smoke-free */}
             {isSmokeFree && (
               <motion.div
@@ -235,24 +184,24 @@ export const SmokingTracker: React.FC<SmokingTrackerProps> = ({ selectedDate }) 
               showGlow={isSmokeFree}
             />
             {isExpanded ? (
-              <ChevronUp className="h-5 w-5 text-rose-400 flex-shrink-0" />
+              <ChevronUp className="h-5 w-5 text-emerald-400 flex-shrink-0" />
             ) : (
-              <ChevronDown className="h-5 w-5 text-rose-400 flex-shrink-0" />
+              <ChevronDown className="h-5 w-5 text-emerald-400 flex-shrink-0" />
             )}
           </div>
         </div>
 
         {/* Progress Bar */}
         <div className="mt-2 mb-1">
-          <div className="w-full bg-rose-900/30 border border-rose-600/20 rounded-full h-1.5">
+          <div className="w-full bg-emerald-900/30 border border-emerald-600/20 rounded-full h-1.5">
             <motion.div
-              className="bg-gradient-to-r from-rose-400 to-red-500 h-1.5 rounded-full transition-all duration-500"
+              className="bg-gradient-to-r from-emerald-400 to-green-500 h-1.5 rounded-full transition-all duration-500"
               initial={{ width: 0 }}
               animate={{ width: `${isSmokeFree ? 100 : Math.max(0, 100 - (smokingData.cigarettes * 10))}%` }}
             />
           </div>
           <div className="flex justify-between items-center mt-1">
-            <span className="text-xs text-rose-400/70 font-medium">
+            <span className="text-xs text-emerald-400/70 font-medium">
               {isSmokeFree ? 'Smoke-free today' : `${smokingData.cigarettes} cigarettes today`}
             </span>
             {isSmokeFree && !isExpanded && (
@@ -277,81 +226,28 @@ export const SmokingTracker: React.FC<SmokingTrackerProps> = ({ selectedDate }) 
             <div className="p-4 space-y-3">
               {isLoading ? (
                 <div className="space-y-3">
-                  <Skeleton className="h-32 w-full bg-rose-900/30" />
-                  <Skeleton className="h-24 w-full bg-rose-900/20" />
-                  <Skeleton className="h-20 w-full bg-rose-900/20" />
+                  <Skeleton className="h-32 w-full bg-emerald-900/30" />
+                  <Skeleton className="h-24 w-full bg-emerald-900/20" />
                 </div>
               ) : (
                 <>
-                  {/* 7-Day Trend Chart */}
+                  {/* Simplified Counter Section */}
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="rounded-xl border border-rose-700/30 bg-rose-900/30 p-4"
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm font-semibold text-rose-200">7-Day Trend</span>
-                      <span className="text-xs text-rose-400">{weeklyStats.total} total</span>
-                    </div>
-                    <div className="flex items-end justify-between gap-1 h-24">
-                      {isLoadingWeek ? (
-                        Array.from({ length: 7 }).map((_, i) => (
-                          <Skeleton key={i} className="flex-1 h-full bg-rose-900/30" />
-                        ))
-                      ) : (
-                        weekData.map((day) => {
-                          const maxHeight = 80;
-                          const height = Math.min((day.cigarettes / 20) * maxHeight, maxHeight);
-                          const isTodayDay = day.date === dateKey;
-
-                          return (
-                            <div
-                              key={day.date}
-                              className="flex-1 flex flex-col items-center gap-1"
-                            >
-                              <div
-                                className={cn(
-                                  "w-full rounded-t-sm transition-all duration-300",
-                                  day.isSmokeFree
-                                    ? "bg-rose-400/70"
-                                    : "bg-rose-600/70",
-                                  isTodayDay && "ring-2 ring-white/30"
-                                )}
-                                style={{ height: `${Math.max(height, 4)}px` }}
-                              />
-                              <span
-                                className={cn(
-                                  "text-[10px] w-full text-center truncate",
-                                  isTodayDay ? "text-white font-medium" : "text-rose-300"
-                                )}
-                              >
-                                {format(new Date(day.date), 'E')[0]}
-                              </span>
-                            </div>
-                          );
-                        })
-                      )}
-                    </div>
-                  </motion.div>
-
-                  {/* Cigarettes Today Counter */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.15 }}
                     className={cn(
                       "rounded-xl border p-4 transition-all duration-300",
                       isSmokeFree
                         ? "border-green-500/30 bg-green-950/20"
-                        : "border-rose-700/30 bg-rose-900/30"
+                        : "border-emerald-700/30 bg-emerald-900/30"
                     )}
                   >
                     <div className="flex items-center justify-between">
                       <div>
                         <p className={cn(
                           "text-sm mb-1",
-                          isSmokeFree ? "text-green-300" : "text-rose-300"
+                          isSmokeFree ? "text-green-300" : "text-emerald-300"
                         )}>
                           Cigarettes Today
                         </p>
@@ -375,7 +271,7 @@ export const SmokingTracker: React.FC<SmokingTrackerProps> = ({ selectedDate }) 
                           }}
                           variant="outline"
                           size="icon"
-                          className="h-12 w-12 rounded-full border-rose-600/50 text-rose-400 hover:bg-rose-800/50 hover:text-rose-200 transition-all duration-200"
+                          className="h-12 w-12 rounded-full border-emerald-600/50 text-emerald-400 hover:bg-emerald-800/50 hover:text-emerald-200 transition-all duration-200"
                           disabled={smokingData.cigarettes === 0 || isUpdating}
                         >
                           <Minus className="h-5 w-5" />
@@ -387,7 +283,7 @@ export const SmokingTracker: React.FC<SmokingTrackerProps> = ({ selectedDate }) 
                           }}
                           variant="outline"
                           size="icon"
-                          className="h-12 w-12 rounded-full border-rose-500/50 text-rose-400 hover:bg-rose-900/30 hover:text-rose-300 transition-all duration-200"
+                          className="h-12 w-12 rounded-full border-emerald-500/50 text-emerald-400 hover:bg-emerald-900/30 hover:text-emerald-300 transition-all duration-200"
                           disabled={isUpdating}
                         >
                           <Plus className="h-5 w-5" />
@@ -408,8 +304,8 @@ export const SmokingTracker: React.FC<SmokingTrackerProps> = ({ selectedDate }) 
                             className={cn(
                               "flex-1 h-9 text-sm font-medium transition-all duration-200",
                               isPositive
-                                ? "border-rose-500/40 text-rose-300 hover:bg-rose-500/20"
-                                : "border-rose-600/40 text-rose-400 hover:bg-rose-800/50"
+                                ? "border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/20"
+                                : "border-emerald-600/40 text-emerald-400 hover:bg-emerald-800/50"
                             )}
                             disabled={isUpdating || (amount < 0 && smokingData.cigarettes === 0)}
                             onClick={(e) => {
@@ -424,14 +320,13 @@ export const SmokingTracker: React.FC<SmokingTrackerProps> = ({ selectedDate }) 
                     </div>
                   </motion.div>
 
-                  {/* Analytics Section */}
+                  {/* Simplified Stats Row */}
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="rounded-xl border border-rose-700/30 bg-rose-900/30 p-4"
+                    transition={{ delay: 0.15 }}
+                    className="rounded-xl border border-emerald-700/30 bg-emerald-900/30 p-4"
                   >
-                    <p className="text-sm font-semibold text-rose-200 mb-3">Analytics</p>
                     <div className="grid grid-cols-3 gap-3">
                       {/* Current Streak */}
                       <div className="flex flex-col items-center gap-1">
@@ -447,7 +342,7 @@ export const SmokingTracker: React.FC<SmokingTrackerProps> = ({ selectedDate }) 
                             {smokingData.streakData?.currentSmokeFreeDays ?? 0}
                           </span>
                         </div>
-                        <span className="text-xs text-rose-300">Day Streak</span>
+                        <span className="text-xs text-emerald-300">Day Streak</span>
                       </div>
 
                       {/* Longest Streak */}
@@ -456,34 +351,22 @@ export const SmokingTracker: React.FC<SmokingTrackerProps> = ({ selectedDate }) 
                         <span className="text-2xl font-bold text-amber-200">
                           {smokingData.streakData?.longestSmokeFreeStreak ?? 0}
                         </span>
-                        <span className="text-xs text-rose-300">Best Streak</span>
+                        <span className="text-xs text-emerald-300">Best Streak</span>
                       </div>
 
-                      {/* Smoke-Free Days This Week */}
+                      {/* Monthly Total */}
                       <div className="flex flex-col items-center gap-1">
                         <Target className="h-4 w-4 text-emerald-400" />
                         <span className="text-2xl font-bold text-emerald-200">
-                          {weeklyStats.smokeFreeDays}/7
+                          {smokingData.streakData?.totalCigarettesThisMonth ?? 0}
                         </span>
-                        <span className="text-xs text-rose-300">Smoke-Free</span>
-                      </div>
-                    </div>
-
-                    {/* Additional Stats */}
-                    <div className="grid grid-cols-2 gap-3 mt-3 pt-3 border-t border-rose-700/20">
-                      <div className="flex flex-col items-center gap-1">
-                        <span className="text-lg font-semibold text-rose-200">{weeklyStats.average}/d</span>
-                        <span className="text-xs text-rose-300">Weekly Average</span>
-                      </div>
-                      <div className="flex flex-col items-center gap-1">
-                        <span className="text-lg font-semibold text-rose-200">{smokingData.streakData?.totalCigarettesThisMonth ?? 0}</span>
-                        <span className="text-xs text-rose-300">This Month</span>
+                        <span className="text-xs text-emerald-300">This Month</span>
                       </div>
                     </div>
 
                     {/* Motivational Message */}
-                    <div className="mt-3 pt-3 border-t border-rose-700/20 text-center">
-                      <p className="text-sm text-rose-100">
+                    <div className="mt-3 pt-3 border-t border-emerald-700/20 text-center">
+                      <p className="text-sm text-emerald-100">
                         {getMotivationalMessage()}
                       </p>
                     </div>

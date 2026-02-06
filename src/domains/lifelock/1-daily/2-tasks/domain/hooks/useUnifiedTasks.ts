@@ -297,7 +297,7 @@ export function useUnifiedTasks({
   }, []);
 
   // Split tasks into allocated and unallocated
-  const { allocated, unallocated, completed } = useMemo(() => {
+  const { allocatedTasks, unallocatedTasks, completedTasks } = useMemo(() => {
     const allocated: UnifiedTaskWithType[] = [];
     const unallocated: UnifiedTaskWithType[] = [];
     const completed: UnifiedTaskWithType[] = [];
@@ -355,7 +355,7 @@ export function useUnifiedTasks({
     // Link time blocks to allocated tasks
     const allocatedWithTime = linkTimeBlocksToTasks(allocated, timeBlocks);
 
-    return { allocated: allocatedWithTime, unallocated, completed };
+    return { allocatedTasks: allocatedWithTime, unallocatedTasks: unallocated, completedTasks: completed };
   }, [allLightTasks, allDeepTasks, rawLightMap, rawDeepMap, todayDate, timeBlocks, linkTimeBlocksToTasks]);
 
   // Find next available time slot
@@ -459,16 +459,16 @@ export function useUnifiedTasks({
   );
 
   const filteredAllocated = useMemo(
-    () => sortTasks(filterTasks(allocated)),
-    [allocated, filterTasks]
+    () => sortTasks(filterTasks(allocatedTasks)),
+    [allocatedTasks, filterTasks]
   );
   const filteredUnallocated = useMemo(
-    () => sortTasks(filterTasks(unallocated)),
-    [unallocated, filterTasks]
+    () => sortTasks(filterTasks(unallocatedTasks)),
+    [unallocatedTasks, filterTasks]
   );
   const filteredCompleted = useMemo(
-    () => sortTasks(filterTasks(completed)),
-    [completed, filterTasks]
+    () => sortTasks(filterTasks(completedTasks)),
+    [completedTasks, filterTasks]
   );
 
   // Calculate stats
@@ -481,14 +481,14 @@ export function useUnifiedTasks({
     const scheduledCount = filteredAllocated.filter((t) => t.timebox).length;
 
     return {
-      total: allocated.length + unallocated.length + completed.length,
-      allocated: allocated.length,
-      unallocated: unallocated.length,
-      completed: completed.length,
+      total: allocatedTasks.length + unallocatedTasks.length + completedTasks.length,
+      allocated: allocatedTasks.length,
+      unallocated: unallocatedTasks.length,
+      completed: completedTasks.length,
       scheduled: scheduledCount,
       totalEstimatedMinutes,
     };
-  }, [allocated, unallocated, completed, filteredAllocated]);
+  }, [allocatedTasks, unallocatedTasks, completedTasks, filteredAllocated]);
 
   return {
     allocatedTasks: filteredAllocated,

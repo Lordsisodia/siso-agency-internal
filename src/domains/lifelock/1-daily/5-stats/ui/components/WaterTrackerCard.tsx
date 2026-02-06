@@ -182,18 +182,18 @@ export const WaterTrackerCard: React.FC<WaterTrackerCardProps> = ({ selectedDate
   const hydrationXP = 25;
 
   return (
-    <Card className="bg-blue-900/20 border-blue-700/40 overflow-hidden backdrop-blur-sm">
+    <Card className="bg-emerald-900/20 border-emerald-700/40 overflow-hidden backdrop-blur-sm">
       {/* Clickable Header */}
       <div
-        className="p-4 sm:p-6 cursor-pointer hover:bg-blue-900/10 transition-colors"
+        className="p-4 sm:p-6 cursor-pointer hover:bg-emerald-900/10 transition-colors"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center justify-between gap-2 mb-3">
           <div className="flex items-center gap-2 flex-1 min-w-0">
-            <div className="p-1.5 rounded-lg bg-blue-500/20 border border-blue-400/30 flex-shrink-0">
-              <Droplets className="h-4 w-4 text-blue-300" />
+            <div className="p-1.5 rounded-lg bg-emerald-500/20 border border-emerald-400/30 flex-shrink-0">
+              <Droplets className="h-4 w-4 text-emerald-300" />
             </div>
-            <h4 className="text-blue-100 font-semibold text-base truncate">Hydration</h4>
+            <h4 className="text-emerald-100 font-semibold text-base truncate">Hydration</h4>
             {/* Green CheckCircle when goal reached */}
             {isGoalReached && (
               <motion.div
@@ -212,24 +212,24 @@ export const WaterTrackerCard: React.FC<WaterTrackerCardProps> = ({ selectedDate
               showGlow={isGoalReached}
             />
             {isExpanded ? (
-              <ChevronUp className="h-5 w-5 text-blue-400 flex-shrink-0" />
+              <ChevronUp className="h-5 w-5 text-emerald-400 flex-shrink-0" />
             ) : (
-              <ChevronDown className="h-5 w-5 text-blue-400 flex-shrink-0" />
+              <ChevronDown className="h-5 w-5 text-emerald-400 flex-shrink-0" />
             )}
           </div>
         </div>
 
         {/* Progress Bar */}
         <div className="mt-2 mb-1">
-          <div className="w-full bg-blue-900/30 border border-blue-600/20 rounded-full h-1.5">
+          <div className="w-full bg-emerald-900/30 border border-emerald-600/20 rounded-full h-1.5">
             <motion.div
-              className="bg-gradient-to-r from-blue-400 to-cyan-500 h-1.5 rounded-full transition-all duration-500"
+              className="bg-gradient-to-r from-emerald-400 to-green-500 h-1.5 rounded-full transition-all duration-500"
               initial={{ width: 0 }}
               animate={{ width: `${Math.min(progressPercentage, 100)}%` }}
             />
           </div>
           <div className="flex justify-between items-center mt-1">
-            <span className="text-xs text-blue-400/70 font-medium">{displaySnapshot.dailyTotalMl}ml / {displaySnapshot.goalMl}ml</span>
+            <span className="text-xs text-emerald-400/70 font-medium">{displaySnapshot.dailyTotalMl}ml / {displaySnapshot.goalMl}ml</span>
             {isGoalReached && !isExpanded && (
               <span className="text-xs text-green-400 font-semibold flex items-center gap-1"><Check className="h-3 w-3" /> Complete</span>
             )}
@@ -252,7 +252,7 @@ export const WaterTrackerCard: React.FC<WaterTrackerCardProps> = ({ selectedDate
               <div className="flex items-start justify-between mb-6">
                 <div className="space-y-1">
                   {lastDrinkLabel && (
-                    <p className="text-sm text-blue-200/70">Last drink {lastDrinkLabel}</p>
+                    <p className="text-sm text-emerald-200/70">Last drink {lastDrinkLabel}</p>
                   )}
                 </div>
                 {displaySnapshot.streakCount > 0 && (
@@ -269,7 +269,7 @@ export const WaterTrackerCard: React.FC<WaterTrackerCardProps> = ({ selectedDate
 
               {/* Main progress display */}
               {isLoading ? (
-                <Skeleton className="h-32 w-full bg-blue-800/30 rounded-2xl" />
+                <Skeleton className="h-32 w-full bg-emerald-800/30 rounded-2xl" />
               ) : (
                 <div className="relative mb-6">
                   {/* Circular progress */}
@@ -289,7 +289,7 @@ export const WaterTrackerCard: React.FC<WaterTrackerCardProps> = ({ selectedDate
                           cy="100"
                           r="90"
                           fill="none"
-                          stroke={isGoalReached ? "#10b981" : "#3b82f6"}
+                          stroke={isGoalReached ? "#10b981" : "#10b981"}
                           strokeWidth="12"
                           strokeLinecap="round"
                           initial={{ pathLength: 0 }}
@@ -306,7 +306,7 @@ export const WaterTrackerCard: React.FC<WaterTrackerCardProps> = ({ selectedDate
                       <div className="absolute inset-0 flex flex-col items-center justify-center">
                         <span className="text-5xl font-bold text-white tracking-tight">{displaySnapshot.dailyTotalMl}</span>
                         <span className="text-lg text-slate-400 mt-1">of {displaySnapshot.goalMl}ml</span>
-                        <span className="text-2xl font-semibold text-blue-400 mt-2">{progressPercentage}%</span>
+                        <span className="text-2xl font-semibold text-emerald-400 mt-2">{progressPercentage}%</span>
                       </div>
                     </div>
                   </div>
@@ -331,7 +331,7 @@ export const WaterTrackerCard: React.FC<WaterTrackerCardProps> = ({ selectedDate
 
               {/* Quick add buttons */}
               <div className="space-y-3 mb-4">
-                <p className="text-xs font-semibold text-blue-300/70 uppercase tracking-wider">Quick Add</p>
+                <p className="text-xs font-semibold text-emerald-300/70 uppercase tracking-wider">Quick Add</p>
                 <div className="grid grid-cols-2 gap-3">
                   {[250, 100].map((amount) => (
                     <Button
@@ -339,7 +339,7 @@ export const WaterTrackerCard: React.FC<WaterTrackerCardProps> = ({ selectedDate
                       type="button"
                       disabled={isSubmitting}
                       onClick={() => handleAmountChange(amount)}
-                      className="h-14 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-semibold text-lg transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100"
+                      className="h-14 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-lg transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100"
                     >
                       <Plus className="h-5 w-5" />
                       <span className="ml-2">{amount}ml</span>
@@ -350,7 +350,7 @@ export const WaterTrackerCard: React.FC<WaterTrackerCardProps> = ({ selectedDate
 
               {/* Adjust buttons */}
               <div className="space-y-3">
-                <p className="text-xs font-semibold text-blue-300/70 uppercase tracking-wider">Adjust</p>
+                <p className="text-xs font-semibold text-emerald-300/70 uppercase tracking-wider">Adjust</p>
                 <div className="grid grid-cols-2 gap-3">
                   {[-100, -250].map((amount) => (
                     <Button
@@ -359,7 +359,7 @@ export const WaterTrackerCard: React.FC<WaterTrackerCardProps> = ({ selectedDate
                       variant="outline"
                       disabled={isSubmitting}
                       onClick={() => handleAmountChange(amount)}
-                      className="h-12 rounded-xl border-blue-600/50 text-blue-200 hover:bg-blue-800/50 hover:text-white font-medium transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100"
+                      className="h-12 rounded-xl border-emerald-600/50 text-emerald-200 hover:bg-emerald-800/50 hover:text-white font-medium transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100"
                     >
                       <Minus className="h-4 w-4" />
                       <span className="ml-2">{amount}ml</span>
