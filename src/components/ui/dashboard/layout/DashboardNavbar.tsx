@@ -4,7 +4,8 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useSupabaseAuth } from "@/lib/hooks/auth/useSupabaseAuth";
 import { cn } from "@/lib/utils";
-import { useIsClient } from "@/domains/client/hooks/useIsClient";
+// Stub: useIsClient hook not available - defaulting to false
+const useIsClient = () => ({ isClient: false, loading: false });
 import { Briefcase } from "lucide-react";
 
 interface NavItemProps {

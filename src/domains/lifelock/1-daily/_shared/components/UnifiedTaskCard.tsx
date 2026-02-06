@@ -21,6 +21,8 @@ import {
   ArrowUp,
   ArrowDown,
   Building2,
+  Play,
+  Pause,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -590,17 +592,6 @@ export function UnifiedTaskCard({
                 <span>{priorityConfig.label}</span>
               </button>
 
-              {/* Work Type Badge */}
-              {workType && (
-                <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-                  workType === 'light'
-                    ? 'bg-green-900/30 text-green-300 border border-green-700/40'
-                    : 'bg-blue-900/30 text-blue-300 border border-blue-700/40'
-                }`}>
-                  {workType === 'light' ? 'Light' : 'Deep'}
-                </span>
-              )}
-
               {/* Client Badge (Deep Work only) */}
               {task.clientId && clientMap && clientMap.has(task.clientId) && (
                 <div
@@ -638,21 +629,30 @@ export function UnifiedTaskCard({
                 </button>
               )}
 
-              {/* Timer Button */}
+              {/* Timer Button - Smart Collapse */}
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   onTimerToggle(task.id);
                 }}
-                className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium border transition-colors ${
+                className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium border transition-all duration-200 ${
                   task.activeTimer?.taskId === task.id
                     ? `${theme.colors.timerActiveBg} ${theme.colors.timerActiveText} border ${theme.colors.timerActiveBorder} hover:${theme.colors.timerActiveBg}/40`
                     : `${theme.colors.timerBg} ${theme.colors.timerText} border ${theme.colors.timerBorder} hover:${theme.colors.bg}/30`
                 }`}
-                title="Start or stop timer"
+                title={task.activeTimer?.taskId === task.id ? `Stop timer (${formattedTime})` : `Start timer (${formattedTime})`}
               >
-                <Timer className="h-3.5 w-3.5" />
-                <span>{task.activeTimer?.taskId === task.id ? 'Stop' : 'Start'} • {formattedTime}</span>
+                {task.activeTimer?.taskId === task.id ? (
+                  <>
+                    <Pause className="h-3.5 w-3.5" />
+                    <span>{formattedTime}</span>
+                  </>
+                ) : (
+                  <>
+                    <Play className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">{formattedTime}</span>
+                  </>
+                )}
               </button>
 
               {/* Reorder Arrows - Inline */}

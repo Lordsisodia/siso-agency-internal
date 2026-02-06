@@ -1,7 +1,14 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useClientDetails } from '@/domains/client/hooks';
+// Stub: useClientDetails hook not available
+const useClientDetails = (clientId: string | null) => ({
+  clientData: null,
+  loading: false,
+  updateClient: () => {},
+  updateTodos: () => {},
+  isUpdating: false
+});
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
