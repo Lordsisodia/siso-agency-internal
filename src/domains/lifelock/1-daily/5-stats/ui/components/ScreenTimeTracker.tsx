@@ -365,18 +365,18 @@ export const ScreenTimeTracker: React.FC<ScreenTimeTrackerProps> = ({ selectedDa
   const isGoalMet = screenTimeData.totalHours > 0 && screenTimeData.totalHours < 4;
 
   return (
-    <Card className="bg-indigo-900/20 border-indigo-700/40 overflow-hidden">
+    <Card className="bg-emerald-900/20 border-emerald-700/40 overflow-hidden">
       {/* Clickable Header */}
       <div
-        className="p-4 cursor-pointer hover:bg-indigo-900/10 transition-colors"
+        className="p-4 cursor-pointer hover:bg-emerald-900/10 transition-colors"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center justify-between gap-2 mb-3">
           <div className="flex items-center gap-2 flex-1 min-w-0">
-            <div className="p-1.5 rounded-lg bg-indigo-500/20 border border-indigo-400/30 flex-shrink-0">
-              <Smartphone className="h-4 w-4 text-indigo-300" />
+            <div className="p-1.5 rounded-lg bg-emerald-500/20 border border-emerald-400/30 flex-shrink-0">
+              <Smartphone className="h-4 w-4 text-emerald-300" />
             </div>
-            <h4 className="text-indigo-100 font-semibold text-base truncate">Screen Time</h4>
+            <h4 className="text-emerald-100 font-semibold text-base truncate">Screen Time</h4>
             {/* Green CheckCircle when goal met */}
             {isGoalMet && (
               <motion.div
@@ -395,16 +395,16 @@ export const ScreenTimeTracker: React.FC<ScreenTimeTrackerProps> = ({ selectedDa
               showGlow={isGoalMet || screenTimeData.digitalSunset}
             />
             {isExpanded ? (
-              <ChevronUp className="h-5 w-5 text-indigo-400 flex-shrink-0" />
+              <ChevronUp className="h-5 w-5 text-emerald-400 flex-shrink-0" />
             ) : (
-              <ChevronDown className="h-5 w-5 text-indigo-400 flex-shrink-0" />
+              <ChevronDown className="h-5 w-5 text-emerald-400 flex-shrink-0" />
             )}
           </div>
         </div>
 
         {/* Progress Bar */}
         <div className="mt-2 mb-1">
-          <div className="w-full bg-indigo-900/30 border border-indigo-600/20 rounded-full h-1.5">
+          <div className="w-full bg-emerald-900/30 border border-emerald-600/20 rounded-full h-1.5">
             <motion.div
               className={cn(
                 "h-1.5 rounded-full transition-all duration-500",
@@ -419,7 +419,7 @@ export const ScreenTimeTracker: React.FC<ScreenTimeTrackerProps> = ({ selectedDa
             />
           </div>
           <div className="flex justify-between items-center mt-1">
-            <span className="text-xs text-indigo-400/70 font-medium">
+            <span className="text-xs text-emerald-400/70 font-medium">
               {screenTimeData.totalHours > 0 ? `${screenTimeData.totalHours}h today` : 'No data logged'}
             </span>
             {isGoalMet && !isExpanded && (
@@ -444,9 +444,9 @@ export const ScreenTimeTracker: React.FC<ScreenTimeTrackerProps> = ({ selectedDa
             <div className="p-4 space-y-3">
               {isLoading ? (
                 <div className="space-y-3">
-                  <Skeleton className="h-32 w-full bg-indigo-900/30" />
-                  <Skeleton className="h-24 w-full bg-indigo-900/20" />
-                  <Skeleton className="h-20 w-full bg-indigo-900/20" />
+                  <Skeleton className="h-32 w-full bg-emerald-900/30" />
+                  <Skeleton className="h-24 w-full bg-emerald-900/20" />
+                  <Skeleton className="h-20 w-full bg-emerald-900/20" />
                 </div>
               ) : (
                 <>
@@ -455,16 +455,16 @@ export const ScreenTimeTracker: React.FC<ScreenTimeTrackerProps> = ({ selectedDa
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="rounded-xl border border-indigo-700/30 bg-indigo-900/30 p-4"
+                    className="rounded-xl border border-emerald-700/30 bg-emerald-900/30 p-4"
                   >
                     <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm font-semibold text-indigo-200">7-Day Trend</span>
-                      <span className="text-xs text-indigo-400">{weeklyStats.average}h avg</span>
+                      <span className="text-sm font-semibold text-emerald-200">7-Day Trend</span>
+                      <span className="text-xs text-emerald-400">{weeklyStats.average}h avg</span>
                     </div>
                     <div className="flex items-end justify-between gap-1 h-24">
                       {isLoadingWeek ? (
                         Array.from({ length: 7 }).map((_, i) => (
-                          <Skeleton key={i} className="flex-1 h-full bg-indigo-900/30" />
+                          <Skeleton key={i} className="flex-1 h-full bg-emerald-900/30" />
                         ))
                       ) : (
                         weekData.map((day) => {
@@ -492,7 +492,7 @@ export const ScreenTimeTracker: React.FC<ScreenTimeTrackerProps> = ({ selectedDa
                               <span
                                 className={cn(
                                   "text-[10px] w-full text-center truncate",
-                                  isTodayDay ? "text-white font-medium" : "text-indigo-300"
+                                  isTodayDay ? "text-white font-medium" : "text-emerald-300"
                                 )}
                               >
                                 {format(new Date(day.date), 'E')[0]}
@@ -513,7 +513,7 @@ export const ScreenTimeTracker: React.FC<ScreenTimeTrackerProps> = ({ selectedDa
                       "rounded-xl border p-4 transition-all duration-300",
                       screenTimeData.totalHours > 0 && screenTimeData.totalHours < 4
                         ? "border-emerald-500/30 bg-emerald-950/20"
-                        : "border-indigo-700/30 bg-indigo-900/30"
+                        : "border-emerald-700/30 bg-emerald-900/30"
                     )}
                   >
                     <div className="flex items-center justify-between">
@@ -522,7 +522,7 @@ export const ScreenTimeTracker: React.FC<ScreenTimeTrackerProps> = ({ selectedDa
                           "text-sm mb-1",
                           screenTimeData.totalHours > 0 && screenTimeData.totalHours < 4
                             ? "text-emerald-300"
-                            : "text-indigo-300"
+                            : "text-emerald-300"
                         )}>
                           Total Hours Today
                         </p>
@@ -538,7 +538,7 @@ export const ScreenTimeTracker: React.FC<ScreenTimeTrackerProps> = ({ selectedDa
                           )}
                         >
                           {screenTimeData.totalHours}
-                          <span className="text-2xl text-indigo-400 ml-1">h</span>
+                          <span className="text-2xl text-emerald-400 ml-1">h</span>
                         </motion.p>
                       </div>
                       <div className="flex items-center gap-2">
@@ -549,7 +549,7 @@ export const ScreenTimeTracker: React.FC<ScreenTimeTrackerProps> = ({ selectedDa
                           }}
                           variant="outline"
                           size="icon"
-                          className="h-12 w-12 rounded-full border-indigo-600/50 text-indigo-400 hover:bg-indigo-800/50 hover:text-indigo-200 transition-all duration-200"
+                          className="h-12 w-12 rounded-full border-emerald-600/50 text-emerald-400 hover:bg-emerald-800/50 hover:text-emerald-200 transition-all duration-200"
                           disabled={screenTimeData.totalHours === 0 || isUpdating}
                         >
                           <Minus className="h-5 w-5" />
@@ -561,7 +561,7 @@ export const ScreenTimeTracker: React.FC<ScreenTimeTrackerProps> = ({ selectedDa
                           }}
                           variant="outline"
                           size="icon"
-                          className="h-12 w-12 rounded-full border-indigo-500/50 text-indigo-400 hover:bg-indigo-900/30 hover:text-indigo-300 transition-all duration-200"
+                          className="h-12 w-12 rounded-full border-emerald-500/50 text-emerald-400 hover:bg-emerald-900/30 hover:text-emerald-300 transition-all duration-200"
                           disabled={screenTimeData.totalHours >= 24 || isUpdating}
                         >
                           <Plus className="h-5 w-5" />

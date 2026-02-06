@@ -255,18 +255,18 @@ export const EnergyTracker: React.FC<EnergyTrackerProps> = ({ selectedDate }) =>
   ];
 
   return (
-    <Card className="bg-amber-900/20 border-amber-700/40 overflow-hidden">
+    <Card className="bg-emerald-900/20 border-emerald-700/40 overflow-hidden">
       {/* Clickable Header */}
       <div
-        className="p-4 cursor-pointer hover:bg-amber-900/10 transition-colors"
+        className="p-4 cursor-pointer hover:bg-emerald-900/10 transition-colors"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center justify-between gap-2 mb-3">
           <div className="flex items-center gap-2 flex-1 min-w-0">
-            <div className="p-1.5 rounded-lg bg-amber-500/20 border border-amber-400/30 flex-shrink-0">
-              <Zap className="h-4 w-4 text-amber-300" />
+            <div className="p-1.5 rounded-lg bg-emerald-500/20 border border-emerald-400/30 flex-shrink-0">
+              <Zap className="h-4 w-4 text-emerald-300" />
             </div>
-            <h4 className="text-amber-100 font-semibold text-base truncate">Energy</h4>
+            <h4 className="text-emerald-100 font-semibold text-base truncate">Energy</h4>
             {/* Green CheckCircle when complete */}
             {isComplete && (
               <motion.div
@@ -285,18 +285,18 @@ export const EnergyTracker: React.FC<EnergyTrackerProps> = ({ selectedDate }) =>
               showGlow={isComplete}
             />
             {isExpanded ? (
-              <ChevronUp className="h-5 w-5 text-amber-400 flex-shrink-0" />
+              <ChevronUp className="h-5 w-5 text-emerald-400 flex-shrink-0" />
             ) : (
-              <ChevronDown className="h-5 w-5 text-amber-400 flex-shrink-0" />
+              <ChevronDown className="h-5 w-5 text-emerald-400 flex-shrink-0" />
             )}
           </div>
         </div>
 
         {/* Progress Bar */}
         <div className="mt-2 mb-1">
-          <div className="w-full bg-amber-900/30 border border-amber-600/20 rounded-full h-1.5">
+          <div className="w-full bg-emerald-900/30 border border-emerald-600/20 rounded-full h-1.5">
             <motion.div
-              className="bg-gradient-to-r from-amber-400 to-yellow-500 h-1.5 rounded-full transition-all duration-500"
+              className="bg-gradient-to-r from-emerald-400 to-green-500 h-1.5 rounded-full transition-all duration-500"
               initial={{ width: 0 }}
               animate={{
                 width: `${
@@ -317,7 +317,7 @@ export const EnergyTracker: React.FC<EnergyTrackerProps> = ({ selectedDate }) =>
             />
           </div>
           <div className="flex justify-between items-center mt-1">
-            <span className="text-xs text-amber-400/70 font-medium">
+            <span className="text-xs text-emerald-400/70 font-medium">
               {isComplete
                 ? `Average: ${averageEnergy}/10`
                 : `${[
@@ -348,9 +348,9 @@ export const EnergyTracker: React.FC<EnergyTrackerProps> = ({ selectedDate }) =>
             <div className="p-4 space-y-3">
               {isLoading ? (
                 <div className="space-y-3">
-                  <Skeleton className="h-32 w-full bg-amber-900/30" />
-                  <Skeleton className="h-24 w-full bg-amber-900/20" />
-                  <Skeleton className="h-20 w-full bg-amber-900/20" />
+                  <Skeleton className="h-32 w-full bg-emerald-900/30" />
+                  <Skeleton className="h-24 w-full bg-emerald-900/20" />
+                  <Skeleton className="h-20 w-full bg-emerald-900/20" />
                 </div>
               ) : (
                 <>
@@ -359,10 +359,10 @@ export const EnergyTracker: React.FC<EnergyTrackerProps> = ({ selectedDate }) =>
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="rounded-xl border border-amber-700/30 bg-amber-900/30 p-4"
+                    className="rounded-xl border border-emerald-700/30 bg-emerald-900/30 p-4"
                   >
                     <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm font-semibold text-amber-200">
+                      <span className="text-sm font-semibold text-emerald-200">
                         Today's Energy
                       </span>
                       {averageEnergy > 0 && (
@@ -418,7 +418,7 @@ export const EnergyTracker: React.FC<EnergyTrackerProps> = ({ selectedDate }) =>
                             <div className="flex flex-col items-center">
                               <div className="flex items-center gap-1">
                                 {period.icon}
-                                <span className="text-[10px] text-amber-300">
+                                <span className="text-[10px] text-emerald-300">
                                   {period.label}
                                 </span>
                               </div>
@@ -454,20 +454,20 @@ export const EnergyTracker: React.FC<EnergyTrackerProps> = ({ selectedDate }) =>
                           'rounded-xl border p-4 transition-all duration-300',
                           isLogged
                             ? 'border-green-500/30 bg-green-950/20'
-                            : 'border-amber-700/30 bg-amber-900/30'
+                            : 'border-emerald-700/30 bg-emerald-900/30'
                         )}
                       >
                         {/* Period Header */}
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-2">
-                            <div className="p-1.5 rounded-lg bg-amber-500/20 border border-amber-400/30">
+                            <div className="p-1.5 rounded-lg bg-emerald-500/20 border border-emerald-400/30">
                               {period.icon}
                             </div>
                             <div>
-                              <p className="text-sm font-semibold text-amber-200">
+                              <p className="text-sm font-semibold text-emerald-200">
                                 {period.label}
                               </p>
-                              <p className="text-xs text-amber-400/60">
+                              <p className="text-xs text-emerald-400/60">
                                 {period.timeRange}
                               </p>
                             </div>
@@ -544,8 +544,8 @@ export const EnergyTracker: React.FC<EnergyTrackerProps> = ({ selectedDate }) =>
                               className={cn(
                                 'h-8 rounded text-xs font-bold transition-all duration-200',
                                 currentValue === level.value
-                                  ? 'bg-amber-500 text-amber-950 ring-2 ring-amber-300'
-                                  : 'bg-amber-950/50 text-amber-400 hover:bg-amber-800/50',
+                                  ? 'bg-emerald-500 text-emerald-950 ring-2 ring-emerald-300'
+                                  : 'bg-emerald-950/50 text-emerald-400 hover:bg-emerald-800/50',
                                 level.value <= 4 && 'hover:bg-red-900/50',
                                 level.value >= 5 &&
                                   level.value <= 7 &&
@@ -559,7 +559,7 @@ export const EnergyTracker: React.FC<EnergyTrackerProps> = ({ selectedDate }) =>
                         </div>
 
                         {/* Legend */}
-                        <div className="flex justify-between mt-2 text-[10px] text-amber-400/60">
+                        <div className="flex justify-between mt-2 text-[10px] text-emerald-400/60">
                           <span>1-4 Low</span>
                           <span>5-7 Medium</span>
                           <span>8-10 High</span>
@@ -573,16 +573,16 @@ export const EnergyTracker: React.FC<EnergyTrackerProps> = ({ selectedDate }) =>
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
-                    className="rounded-xl border border-amber-700/30 bg-amber-900/30 p-4"
+                    className="rounded-xl border border-emerald-700/30 bg-emerald-900/30 p-4"
                   >
-                    <p className="text-sm font-semibold text-amber-200 mb-3">
+                    <p className="text-sm font-semibold text-emerald-200 mb-3">
                       Analytics
                     </p>
                     <div className="grid grid-cols-3 gap-3">
                       {/* Logs Today */}
                       <div className="flex flex-col items-center gap-1">
-                        <Zap className="h-4 w-4 text-amber-400" />
-                        <span className="text-2xl font-bold text-amber-200">
+                        <Zap className="h-4 w-4 text-emerald-400" />
+                        <span className="text-2xl font-bold text-emerald-200">
                           {
                             [
                               energyData.morning,
@@ -592,7 +592,7 @@ export const EnergyTracker: React.FC<EnergyTrackerProps> = ({ selectedDate }) =>
                           }
                           /3
                         </span>
-                        <span className="text-xs text-amber-300">Logged</span>
+                        <span className="text-xs text-emerald-300">Logged</span>
                       </div>
 
                       {/* Average */}
@@ -607,7 +607,7 @@ export const EnergyTracker: React.FC<EnergyTrackerProps> = ({ selectedDate }) =>
                         >
                           {averageEnergy > 0 ? averageEnergy : '-'}
                         </span>
-                        <span className="text-xs text-amber-300">Average</span>
+                        <span className="text-xs text-emerald-300">Average</span>
                       </div>
 
                       {/* Streak */}
@@ -616,13 +616,13 @@ export const EnergyTracker: React.FC<EnergyTrackerProps> = ({ selectedDate }) =>
                         <span className="text-2xl font-bold text-yellow-200">
                           {streak}
                         </span>
-                        <span className="text-xs text-amber-300">Day Streak</span>
+                        <span className="text-xs text-emerald-300">Day Streak</span>
                       </div>
                     </div>
 
                     {/* Motivational Message */}
-                    <div className="mt-3 pt-3 border-t border-amber-700/20 text-center">
-                      <p className="text-sm text-amber-100">
+                    <div className="mt-3 pt-3 border-t border-emerald-700/20 text-center">
+                      <p className="text-sm text-emerald-100">
                         {getMotivationalMessage()}
                       </p>
                     </div>
