@@ -1,20 +1,19 @@
 /**
  * YearlyView - Main Orchestrator
- * 
- * Manages navigation between 5 yearly pages:
- * 1. Overview (12-month grid, quarterly breakdown)
- * 2. Goals & Milestones
- * 3. Growth & Trends
- * 4. Life Balance
- * 5. Planning & Vision
+ *
+ * Manages navigation between 3 main pills with sub-tabs:
+ * 1. Review (overview, wins, vision)
+ * 2. Goals (goals, milestones, growth)
+ * 3. Balance (scorecard, trends, insights)
  */
 
 import React, { useState } from 'react';
 import { format } from 'date-fns';
-import { Calendar, Target, TrendingUp, PieChart, Rocket, ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react';
+import { Calendar, Target, PieChart, ChevronLeft, ChevronRight, ArrowLeft, Trophy, Sparkles, TrendingUp, BarChart3, Lightbulb } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { YearlyBottomNav } from './_shared/YearlyBottomNav';
+import { YearlyBottomNavV2 } from './_shared/YearlyBottomNavV2';
+import { SectionSubNav } from '@/components/navigation/SectionSubNav';
 import { YearlyOverviewSection } from './overview/YearlyOverviewSection';
 import { YearlyGoalsSection } from './goals/YearlyGoalsSection';
 import { YearlyGrowthSection } from './growth/YearlyGrowthSection';
@@ -29,18 +28,40 @@ import {
   mockYearlyReflection
 } from './_shared/mockData';
 
+// Define the 3 main pills
+const PILLS = [
+  { title: 'Review', icon: Calendar },
+  { title: 'Goals', icon: Target },
+  { title: 'Balance', icon: PieChart },
+];
+
+// Define sub-tabs for each pill
+const SUB_TABS = {
+  review: [
+    { id: 'overview', name: 'Overview', icon: Calendar },
+    { id: 'wins', name: 'Wins', icon: Trophy },
+    { id: 'vision', name: 'Vision', icon: Sparkles },
+  ],
+  goals: [
+    { id: 'goals', name: 'Goals', icon: Target },
+    { id: 'milestones', name: 'Milestones', icon: Trophy },
+    { id: 'growth', name: 'Growth', icon: TrendingUp },
+  ],
+  balance: [
+    { id: 'scorecard', name: 'Scorecard', icon: PieChart },
+    { id: 'trends', name: 'Trends', icon: BarChart3 },
+    { id: 'insights', name: 'Insights', icon: Lightbulb },
+  ],
+};
+
+// Pill ID type
+type PillId = 'review' | 'goals' | 'balance';
+
 export const YearlyView: React.FC = () => {
   const navigate = useNavigate();
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
-  const [activeTab, setActiveTab] = useState<number>(0);
-
-  const tabs = [
-    { title: 'Overview', icon: Calendar },
-    { title: 'Goals', icon: Target },
-    { title: 'Growth', icon: TrendingUp },
-    { title: 'Balance', icon: PieChart },
-    { title: 'Vision', icon: Rocket },
-  ];
+  const [activePill, setActivePill] = useState<number>(0);
+  const [activeSubTab, setActiveSubTab] = useState<string>('overview');
 
   const goToPreviousYear = () => {
     setSelectedYear(prev => prev - 1);
@@ -59,9 +80,77 @@ export const YearlyView: React.FC = () => {
   // Update mock data with selected year
   const yearlyData = { ...mockYearlyData, year: selectedYear };
 
+  // Get current pill ID
+  const currentPillId: PillId = ['review', 'goals', 'balance'][activePill] as PillId;
+
+  // Get current sub-tabs for the active pill
+  const currentSubTabs = SUB_TABS[currentPillId];
+
+  // Handle pill change
+  const handlePillChange = (index: number | null) => {
+    if (index === null) {
+      // More button clicked - handle as needed
+      return;
+    }
+    setActivePill(index);
+    // Set default sub-tab for the new pill
+    const newPillId = ['review', 'goals', 'balance'][index] as PillId;
+    setActiveSubTab(SUB_TABS[newPillId][0].id);
+  };
+
+  // Handle sub-tab change
+  const handleSubTabChange = (subTab: string) => {
+    setActiveSubTab(subTab);
+  };
+
+  // Render content based on active pill and sub-tab
+  const renderContent = () => {
+    switch (currentPillId) {
+      case 'review':
+        switch (activeSubTab) {
+          case 'overview':
+            return <YearlyOverviewSection yearlyData={yearlyData} />;
+          case 'wins':
+            // Wins view - could be a new component or reuse overview with wins filter
+            return <YearlyOverviewSection yearlyData={yearlyData} showWins />;
+          case 'vision':
+            return <YearlyPlanningSection reflectionData={mockYearlyReflection} currentYear={selectedYear} />;
+          default:
+            return <YearlyOverviewSection yearlyData={yearlyData} />;
+        }
+      case 'goals':
+        switch (activeSubTab) {
+          case 'goals':
+            return <YearlyGoalsSection annualGoals={mockAnnualGoals} milestones={mockMilestones} />;
+          case 'milestones':
+            // Milestones view - could filter goals section to show milestones
+            return <YearlyGoalsSection annualGoals={mockAnnualGoals} milestones={mockMilestones} showMilestones />;
+          case 'growth':
+            return <YearlyGrowthSection yearOverYear={mockYearOverYear} currentYear={selectedYear} />;
+          default:
+            return <YearlyGoalsSection annualGoals={mockAnnualGoals} milestones={mockMilestones} />;
+        }
+      case 'balance':
+        switch (activeSubTab) {
+          case 'scorecard':
+            return <YearlyBalanceSection balanceData={mockLifeBalance} />;
+          case 'trends':
+            // Trends view - could reuse growth section or create new
+            return <YearlyGrowthSection yearOverYear={mockYearOverYear} currentYear={selectedYear} showTrends />;
+          case 'insights':
+            // Insights view - could reuse planning section or create new
+            return <YearlyPlanningSection reflectionData={mockYearlyReflection} currentYear={selectedYear} showInsights />;
+          default:
+            return <YearlyBalanceSection balanceData={mockLifeBalance} />;
+        }
+      default:
+        return <YearlyOverviewSection yearlyData={yearlyData} />;
+    }
+  };
+
   return (
     <div className="min-h-screen w-full bg-gray-950 relative">
-      
+
       {/* Year Selector - Fixed at top */}
       <div className="sticky top-0 z-40 bg-gray-900/80 backdrop-blur-md border-b border-gray-800/50">
         <div className="max-w-7xl mx-auto px-4 py-3">
@@ -80,7 +169,7 @@ export const YearlyView: React.FC = () => {
               Life View (Coming Soon)
             </div>
           </div>
-          
+
           <div className="flex items-center justify-between">
             {/* Previous Year Button */}
             <Button
@@ -122,38 +211,27 @@ export const YearlyView: React.FC = () => {
         </div>
       </div>
 
+      {/* Sub-navigation */}
+      <SectionSubNav
+        subSections={currentSubTabs}
+        activeSubTab={activeSubTab}
+        onSubTabChange={handleSubTabChange}
+        activeColor="text-orange-400"
+        activeBgColor="bg-orange-400/20"
+      />
+
       {/* Page Content */}
-      <div className="relative">
-        {activeTab === 0 && <YearlyOverviewSection yearlyData={yearlyData} />}
-        {activeTab === 1 && (
-          <YearlyGoalsSection
-            annualGoals={mockAnnualGoals}
-            milestones={mockMilestones}
-          />
-        )}
-        {activeTab === 2 && (
-          <YearlyGrowthSection
-            yearOverYear={mockYearOverYear}
-            currentYear={selectedYear}
-          />
-        )}
-        {activeTab === 3 && <YearlyBalanceSection balanceData={mockLifeBalance} />}
-        {activeTab === 4 && (
-          <YearlyPlanningSection
-            reflectionData={mockYearlyReflection}
-            currentYear={selectedYear}
-          />
-        )}
+      <div className="relative pb-24">
+        {renderContent()}
       </div>
 
       {/* Bottom Navigation */}
-      <YearlyBottomNav
-        tabs={tabs}
-        activeIndex={activeTab}
+      <YearlyBottomNavV2
+        tabs={PILLS}
+        activeIndex={activePill}
         activeColor="text-orange-400"
-        onChange={(index) => {
-          if (index !== null) setActiveTab(index);
-        }}
+        activeSubTab={activeSubTab}
+        onChange={handlePillChange}
       />
     </div>
   );
