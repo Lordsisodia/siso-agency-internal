@@ -858,7 +858,7 @@ export function UnifiedTaskCard({
                         depth={0}
                         isExpanded={expandedSubtasks[`${task.id}-${subtask.id}`] || false}
                         onToggleCompletion={(_taskId, subtaskId, _depth) => onToggleSubtaskStatus(task.id, subtaskId)}
-                        onToggleExpansion={(_taskId, subtaskId) => onToggleSubtaskExpansion(task.id, subtaskId)}
+                        onToggleExpansion={(subtaskId) => onToggleSubtaskExpansion(task.id, subtaskId)}
                         onStartEditing={(subtaskId, currentTitle, _depth) => onSubtaskStartEditing(subtaskId, currentTitle)}
                         onEditTitleChange={(title) => onSubtaskEditTitleChange(title)}
                         onSaveEdit={(_taskId, subtaskId, _depth) => onSubtaskSaveEdit(task.id, subtaskId)}
