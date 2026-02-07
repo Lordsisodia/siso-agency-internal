@@ -317,21 +317,37 @@ const waterXPRef = useRef(0);
   const prevCompleteStateRef = useRef<Record<string, boolean>>({});
   // Track open sections in a ref to avoid dependency cycle in auto-collapse effect
   const openSectionsRef = useRef<Record<string, boolean>>(openSections);
+  // Track recent user interactions to prevent auto-collapse during interaction
+  const recentInteractionRef = useRef<Record<string, number>>({});
 
   // Keep the ref in sync with state
   useEffect(() => {
     openSectionsRef.current = openSections;
   }, [openSections]);
 
-  // Auto-collapse sections when they become complete
+  // Helper to mark recent interaction (prevents auto-collapse)
+  const markRecentInteraction = useCallback((taskKey: string) => {
+    recentInteractionRef.current[taskKey] = Date.now();
+  }, []);
+
+  // Auto-collapse sections when they become complete (with delay after interaction)
   useEffect(() => {
+    const INTERACTION_COOLDOWN_MS = 2000; // 2 second cooldown after interaction
+    const now = Date.now();
+
     MORNING_ROUTINE_TASKS.forEach(task => {
       const isComplete = isTaskComplete(task.key, task.subtasks);
       const wasComplete = prevCompleteStateRef.current[task.key];
+      const lastInteraction = recentInteractionRef.current[task.key] || 0;
+      const timeSinceInteraction = now - lastInteraction;
 
-      // If section just became complete, collapse it
+      // If section just became complete, collapse it (but not if user just interacted)
       // Use the ref to check current state without adding openSections to dependencies
       if (isComplete && !wasComplete && openSectionsRef.current[task.key]) {
+        // Skip auto-collapse if user recently interacted with this section
+        if (timeSinceInteraction < INTERACTION_COOLDOWN_MS) {
+          return;
+        }
         setOpenSections(prev => ({
           ...prev,
           [task.key]: false
@@ -1135,16 +1151,17 @@ const waterXPRef = useRef(0);
                                         goal={pushupPB}
                                         value={pushupReps}
                                         onChange={(value) => {
+                                          markRecentInteraction('getBloodFlowing');
                                           updatePushupReps(value);
-                                          // Auto-complete when reps > 0
-                                          if (value > 0 && !isHabitCompleted('pushups')) {
-                                            handleHabitToggle('pushups', true);
-                                          } else if (value === 0 && isHabitCompleted('pushups')) {
-                                            handleHabitToggle('pushups', false);
+                                          // Sync checkbox state with value (checked if reps > 0)
+                                          const shouldBeChecked = value > 0;
+                                          if (shouldBeChecked !== isHabitCompleted('pushups')) {
+                                            handleHabitToggle('pushups', shouldBeChecked);
                                           }
                                         }}
                                         checked={isHabitCompleted('pushups')}
                                         onCheckChange={(checked) => {
+                                          markRecentInteraction('getBloodFlowing');
                                           handleHabitToggle('pushups', checked);
                                           if (!checked) updatePushupReps(0);
                                         }}
@@ -1159,16 +1176,17 @@ const waterXPRef = useRef(0);
                                         goal={500}
                                         value={waterAmount}
                                         onChange={(value) => {
+                                          markRecentInteraction('powerUpBrain');
                                           setWaterAmount(value);
-                                          // Auto-complete when water > 0
-                                          if (value > 0 && !isHabitCompleted('water')) {
-                                            handleHabitToggle('water', true);
-                                          } else if (value === 0 && isHabitCompleted('water')) {
-                                            handleHabitToggle('water', false);
+                                          // Sync checkbox state with value (checked if water > 0)
+                                          const shouldBeChecked = value > 0;
+                                          if (shouldBeChecked !== isHabitCompleted('water')) {
+                                            handleHabitToggle('water', shouldBeChecked);
                                           }
                                         }}
                                         checked={isHabitCompleted('water')}
                                         onCheckChange={(checked) => {
+                                          markRecentInteraction('powerUpBrain');
                                           handleHabitToggle('water', checked);
                                           if (!checked) setWaterAmount(0);
                                         }}
@@ -1183,16 +1201,17 @@ const waterXPRef = useRef(0);
                                         goal={supplementGoal}
                                         value={supplementCount}
                                         onChange={(value) => {
+                                          markRecentInteraction('powerUpBrain');
                                           setSupplementCount(value);
-                                          // Auto-complete when pills > 0
-                                          if (value > 0 && !isHabitCompleted('supplements')) {
-                                            handleHabitToggle('supplements', true);
-                                          } else if (value === 0 && isHabitCompleted('supplements')) {
-                                            handleHabitToggle('supplements', false);
+                                          // Sync checkbox state with value (checked if pills > 0)
+                                          const shouldBeChecked = value > 0;
+                                          if (shouldBeChecked !== isHabitCompleted('supplements')) {
+                                            handleHabitToggle('supplements', shouldBeChecked);
                                           }
                                         }}
                                         checked={isHabitCompleted('supplements')}
                                         onCheckChange={(checked) => {
+                                          markRecentInteraction('powerUpBrain');
                                           handleHabitToggle('supplements', checked);
                                           if (!checked) setSupplementCount(0);
                                         }}

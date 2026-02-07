@@ -36,14 +36,8 @@ export const QuantifiableSubtask: React.FC<QuantifiableSubtaskProps> = ({
   const isComplete = value > 0;
   const progressPercent = goal && goal > 0 ? Math.min(100, (value / goal) * 100) : 0;
 
-  // Auto-check when value > 0, allow manual uncheck
-  React.useEffect(() => {
-    if (value > 0 && !checked) {
-      onCheckChange(true);
-    } else if (value === 0 && checked) {
-      onCheckChange(false);
-    }
-  }, [value, checked, onCheckChange]);
+  // Note: Auto-check logic removed to prevent conflicts with manual checkbox toggle
+  // The parent component now handles the relationship between value and checked state
 
   return (
     <div className="space-y-2">
