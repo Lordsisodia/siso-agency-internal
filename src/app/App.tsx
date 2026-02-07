@@ -33,7 +33,8 @@ const AdminSettings = lazy(() => import('@/domains/analytics/pages/AdminSettings
 const AdminClients = lazy(() => import('@/domains/analytics/pages/AdminClients'));
 const AdminPartnershipDashboard = lazy(() => import('@/domains/partners/pages/AdminPartnershipDashboard'));
 const TeamMemberTasksPage = lazy(() => import('@/domains/tasks/components/TeamMemberTasksView').then(m => ({ default: m.TeamMemberTasksView })));
-// const AIAssistantPage = lazy(() => import('@/domains/admin/ai-assistant/ui/pages/AIAssistantPage').then(m => ({ default: m.AIAssistantPage })));
+const AIAssistantPage = lazy(() => import('@/domains/admin/ai-assistant/ui/pages/AIAssistantPage').then(m => ({ default: m.AIAssistantPage })));
+const LifeView = lazy(() => import('@/domains/lifelock/5-life/LifeView').then(m => ({ default: m.LifeView })));
 
 // Resources pages
 const DocumentLibraryPage = lazy(() => import('@/components/ui/resources/1-browse/ui/pages/DocumentLibraryPage'));
@@ -106,6 +107,7 @@ function App() {
             <Route path="/admin/lifelock/weekly" element={<ClerkAuthGuard><WeeklyView /></ClerkAuthGuard>} />
             <Route path="/admin/lifelock/monthly" element={<ClerkAuthGuard><MonthlyView /></ClerkAuthGuard>} />
             <Route path="/admin/lifelock/yearly" element={<ClerkAuthGuard><YearlyView /></ClerkAuthGuard>} />
+            <Route path="/admin/lifelock/life" element={<ClerkAuthGuard><LifeView /></ClerkAuthGuard>} />
             <Route path="/weekly" element={<Navigate to="/admin/lifelock/weekly" replace />} />
             <Route path="/admin/life-lock/daily" element={<Navigate to="/admin/lifelock/daily" replace />} />
             <Route path="/admin/lifelock/daily/:date" element={<Navigate to="/admin/lifelock/daily" replace />} />
@@ -121,7 +123,7 @@ function App() {
             <Route path="/admin/settings" element={<ClerkAuthGuard><AdminSettings /></ClerkAuthGuard>} />
 
             {/* AI Assistant */}
-            {/* <Route path="/admin/ai-assistant" element={<ClerkAuthGuard><AIAssistantPage /></ClerkAuthGuard>} />
+            <Route path="/admin/ai-assistant" element={<ClerkAuthGuard><AIAssistantPage /></ClerkAuthGuard>} />
 
             {/* XP Store */}
             <Route path="/xp-store" element={<ClerkAuthGuard><XPStorePage /></ClerkAuthGuard>} />
