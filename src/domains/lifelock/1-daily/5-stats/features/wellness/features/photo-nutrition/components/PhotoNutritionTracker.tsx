@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, AlertCircle, Apple, ChevronDown, ChevronUp, Utensils } from 'lucide-react';
+import { Camera, AlertCircle, ChevronDown, ChevronUp, Utensils } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
@@ -18,7 +18,6 @@ import { DailyMacroSummary } from './DailyMacroSummary';
 import { MealInput } from '@/domains/lifelock/1-daily/5-stats/features/wellness/ui/components/MealInput';
 import { MacroTracker } from '@/domains/lifelock/1-daily/5-stats/features/wellness/ui/components/MacroTracker';
 import { calculateTotalNutritionXP } from '../../../domain/xpCalculations';
-import { XPPill } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/xp/XPPill';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 
@@ -142,27 +141,27 @@ export const PhotoNutritionTracker: React.FC<PhotoNutritionTrackerProps> = ({
     return (
       <div className="w-full">
         <div className="max-w-7xl mx-auto p-2 sm:p-3 md:p-4 lg:p-6 space-y-6">
-          <Card className="mb-24 bg-gradient-to-br from-green-950/60 via-emerald-900/60 to-green-950/60 border border-green-500/40 shadow-xl">
+          <Card className="mb-24 bg-gradient-to-br from-amber-950/60 via-yellow-900/60 to-amber-950/60 border border-amber-500/40 shadow-xl">
             <CardHeader className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <Skeleton className="h-5 w-5 rounded-full bg-green-500/30" />
-                  <Skeleton className="h-5 w-48 bg-green-400/20" />
+                  <Skeleton className="h-5 w-5 rounded-full bg-amber-500/30" />
+                  <Skeleton className="h-5 w-48 bg-amber-400/20" />
                 </div>
-                <Skeleton className="h-4 w-20 bg-green-400/20" />
+                <Skeleton className="h-4 w-20 bg-amber-400/20" />
               </div>
-              <Skeleton className="h-3 w-3/4 bg-green-400/20" />
+              <Skeleton className="h-3 w-3/4 bg-amber-400/20" />
             </CardHeader>
             <CardContent className="space-y-6 pb-24">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {Array.from({ length: 3 }).map((_, index) => (
                   <div
                     key={`nutrition-summary-skeleton-${index}`}
-                    className="p-4 rounded-xl border border-green-500/30 bg-slate-950/40 space-y-3 backdrop-blur-lg"
+                    className="p-4 rounded-xl border border-amber-500/30 bg-slate-950/40 space-y-3 backdrop-blur-lg"
                   >
-                    <Skeleton className="h-4 w-1/2 bg-green-400/20" />
-                    <Skeleton className="h-8 w-20 bg-green-400/30" />
-                    <Skeleton className="h-2 w-full bg-green-400/20 rounded-full" />
+                    <Skeleton className="h-4 w-1/2 bg-amber-400/20" />
+                    <Skeleton className="h-8 w-20 bg-amber-400/30" />
+                    <Skeleton className="h-2 w-full bg-amber-400/20 rounded-full" />
                   </div>
                 ))}
               </div>
@@ -171,7 +170,7 @@ export const PhotoNutritionTracker: React.FC<PhotoNutritionTrackerProps> = ({
                 {Array.from({ length: 4 }).map((_, index) => (
                   <Skeleton
                     key={`nutrition-photo-skeleton-${index}`}
-                    className="h-40 w-full bg-slate-950/40 border border-green-500/30 rounded-2xl"
+                    className="h-40 w-full bg-slate-950/40 border border-amber-500/30 rounded-2xl"
                   />
                 ))}
               </div>
@@ -185,34 +184,12 @@ export const PhotoNutritionTracker: React.FC<PhotoNutritionTrackerProps> = ({
   return (
     <div className="w-full">
       <div className="max-w-7xl mx-auto p-2 sm:p-3 md:p-4 lg:p-6 space-y-6">
-        {/* Header */}
-        <div className="px-3 py-4 border-b border-white/10">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0">
-                <Apple className="h-4 w-4 text-green-400" aria-hidden="true" />
-              </div>
-              <div className="min-w-0">
-                <h1 className="text-lg font-semibold text-white tracking-tight">Nutrition</h1>
-                <p className="text-xs text-white/60">Track your meals and macros</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <XPPill
-                xp={xpResult.total}
-                earned={photos.length >= 3}
-                showGlow={photos.length >= 3}
-              />
-            </div>
-          </div>
-        </div>
-
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <Card className="mb-24 bg-gradient-to-br from-green-950/40 via-emerald-900/40 to-green-950/40 border border-green-500/30 shadow-xl">
+          <Card className="mb-24 bg-gradient-to-br from-amber-950/40 via-yellow-900/40 to-amber-950/40 border border-amber-500/30 shadow-xl">
             <CardContent className="space-y-6 pb-24 pt-6">
               {/* Error Alert */}
               {photosError && (
@@ -239,8 +216,8 @@ export const PhotoNutritionTracker: React.FC<PhotoNutritionTrackerProps> = ({
                   className={cn(
                     "px-4 py-2 rounded-full text-sm font-medium transition-all duration-200",
                     activeTab === 'photos'
-                      ? "bg-green-600 text-white shadow-lg shadow-green-500/30"
-                      : "bg-green-900/30 text-green-300/70 hover:bg-green-900/50 hover:text-green-200"
+                      ? "bg-amber-600 text-white shadow-lg shadow-amber-500/30"
+                      : "bg-amber-900/30 text-amber-300/70 hover:bg-amber-900/50 hover:text-amber-200"
                   )}
                 >
                   <Camera className="h-4 w-4 inline mr-2" />
@@ -251,8 +228,8 @@ export const PhotoNutritionTracker: React.FC<PhotoNutritionTrackerProps> = ({
                   className={cn(
                     "px-4 py-2 rounded-full text-sm font-medium transition-all duration-200",
                     activeTab === 'manual'
-                      ? "bg-green-600 text-white shadow-lg shadow-green-500/30"
-                      : "bg-green-900/30 text-green-300/70 hover:bg-green-900/50 hover:text-green-200"
+                      ? "bg-amber-600 text-white shadow-lg shadow-amber-500/30"
+                      : "bg-amber-900/30 text-amber-300/70 hover:bg-amber-900/50 hover:text-amber-200"
                   )}
                 >
                   <Utensils className="h-4 w-4 inline mr-2" />
@@ -279,17 +256,17 @@ export const PhotoNutritionTracker: React.FC<PhotoNutritionTrackerProps> = ({
                       className="flex items-center justify-between mb-4 cursor-pointer"
                       onClick={() => toggleSection('photos')}
                     >
-                      <h3 className="text-lg font-semibold text-green-100 flex items-center gap-2">
-                        <Camera className="h-5 w-5 text-green-200" />
+                      <h3 className="text-lg font-semibold text-amber-100 flex items-center gap-2">
+                        <Camera className="h-5 w-5 text-amber-200" />
                         Photo Meals
-                        <span className="text-xs text-green-400/70 bg-green-950/50 px-2 py-1 rounded-full">
+                        <span className="text-xs text-amber-400/70 bg-amber-950/50 px-2 py-1 rounded-full">
                           {photos.length}
                         </span>
                       </h3>
                       {expandedSections.photos ? (
-                        <ChevronUp className="h-5 w-5 text-green-400" />
+                        <ChevronUp className="h-5 w-5 text-amber-400" />
                       ) : (
-                        <ChevronDown className="h-5 w-5 text-green-400" />
+                        <ChevronDown className="h-5 w-5 text-amber-400" />
                       )}
                     </div>
 
@@ -317,13 +294,13 @@ export const PhotoNutritionTracker: React.FC<PhotoNutritionTrackerProps> = ({
                             <motion.div
                               initial={{ opacity: 0 }}
                               animate={{ opacity: 1 }}
-                              className="text-center py-12 bg-green-900/20 rounded-xl border border-green-600/30"
+                              className="text-center py-12 bg-amber-900/20 rounded-xl border border-amber-600/30"
                             >
-                              <Camera className="h-16 w-16 text-green-400/30 mx-auto mb-4" />
-                              <p className="text-green-100 font-medium">
+                              <Camera className="h-16 w-16 text-amber-400/30 mx-auto mb-4" />
+                              <p className="text-amber-100 font-medium">
                                 No photo meals logged
                               </p>
-                              <p className="text-sm text-green-200/60 mt-2">
+                              <p className="text-sm text-amber-200/60 mt-2">
                                 Take a photo of your food to get started
                               </p>
                             </motion.div>
@@ -343,20 +320,20 @@ export const PhotoNutritionTracker: React.FC<PhotoNutritionTrackerProps> = ({
                   className="space-y-6"
                 >
                   {/* Meals Input Section */}
-                  <Card className="bg-green-900/20 border-green-700/40">
+                  <Card className="bg-amber-900/20 border-amber-700/40">
                     <CardHeader
-                      className="p-4 cursor-pointer hover:bg-green-900/10 transition-colors"
+                      className="p-4 cursor-pointer hover:bg-amber-900/10 transition-colors"
                       onClick={() => toggleSection('meals')}
                     >
                       <div className="flex items-center justify-between">
-                        <CardTitle className="text-green-100 text-base flex items-center gap-2">
-                          <Utensils className="h-4 w-4 text-green-300" />
+                        <CardTitle className="text-amber-100 text-base flex items-center gap-2">
+                          <Utensils className="h-4 w-4 text-amber-300" />
                           Meals
                         </CardTitle>
                         {expandedSections.meals ? (
-                          <ChevronUp className="h-5 w-5 text-green-400" />
+                          <ChevronUp className="h-5 w-5 text-amber-400" />
                         ) : (
-                          <ChevronDown className="h-5 w-5 text-green-400" />
+                          <ChevronDown className="h-5 w-5 text-amber-400" />
                         )}
                       </div>
                     </CardHeader>
@@ -400,20 +377,20 @@ export const PhotoNutritionTracker: React.FC<PhotoNutritionTrackerProps> = ({
                   </Card>
 
                   {/* Macro Tracker Section */}
-                  <Card className="bg-green-900/20 border-green-700/40">
+                  <Card className="bg-amber-900/20 border-amber-700/40">
                     <CardHeader
-                      className="p-4 cursor-pointer hover:bg-green-900/10 transition-colors"
+                      className="p-4 cursor-pointer hover:bg-amber-900/10 transition-colors"
                       onClick={() => toggleSection('macros')}
                     >
                       <div className="flex items-center justify-between">
-                        <CardTitle className="text-green-100 text-base flex items-center gap-2">
-                          <Utensils className="h-4 w-4 text-green-300" />
+                        <CardTitle className="text-amber-100 text-base flex items-center gap-2">
+                          <Utensils className="h-4 w-4 text-amber-300" />
                           Macros
                         </CardTitle>
                         {expandedSections.macros ? (
-                          <ChevronUp className="h-5 w-5 text-green-400" />
+                          <ChevronUp className="h-5 w-5 text-amber-400" />
                         ) : (
-                          <ChevronDown className="h-5 w-5 text-green-400" />
+                          <ChevronDown className="h-5 w-5 text-amber-400" />
                         )}
                       </div>
                     </CardHeader>

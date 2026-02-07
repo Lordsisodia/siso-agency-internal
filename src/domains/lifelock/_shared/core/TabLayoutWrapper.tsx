@@ -483,11 +483,12 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
               x: { type: "spring", stiffness: 400, damping: 35 },
               opacity: { duration: 0.15 },
             }}
-            className="h-full overflow-x-hidden overflow-y-auto hide-scrollbar relative z-10"
+            className="h-full overflow-x-hidden overflow-y-auto hide-scrollbar relative z-10 scroll-smooth"
             style={{
-              paddingBottom: '120px',
+              paddingBottom: '140px',
               WebkitOverflowScrolling: 'touch',
-              overscrollBehavior: 'contain',
+              overscrollBehavior: 'auto',
+              scrollPaddingTop: '20px',
             }}
           >
             {/* NEW Unified Top Navigation */}

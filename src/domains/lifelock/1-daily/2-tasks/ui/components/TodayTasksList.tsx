@@ -48,6 +48,14 @@ import {
 } from "@/domains/lifelock/1-daily/2-tasks/domain/hooks/useTaskHandlers";
 import { TimeBlockCategory } from "@/services/api/timeblocksApi.offline";
 
+// Parse task ID into workType and originalId
+function parseTaskId(taskId: string): { workType: "light" | "deep"; originalId: string } {
+  const parts = taskId.split("-");
+  const workType = parts[0] as "light" | "deep";
+  const originalId = parts.slice(1).join("-");
+  return { workType, originalId };
+}
+
 interface TodayTasksListProps {
   onStartFocusSession?: (taskId: string, intensity: number) => void;
   selectedDate?: Date;
@@ -777,14 +785,14 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
 
         {/* ALLOCATED SECTION */}
         <div className="space-y-3">
-          <div className="flex items-center justify-between px-3">
-            <h2 className={`text-sm font-medium ${themeColors.sectionHeader} uppercase tracking-wider`}>
+          <div className="flex items-center justify-center px-3">
+            <h2 className={`text-sm font-medium ${themeColors.sectionHeader} uppercase tracking-wider text-center`}>
               {stats.scheduled > 0 ? 'Scheduled Tasks' : 'Allocated for Today'}
+              <span className={`ml-2 text-xs ${themeColors.textMuted} normal-case`}>
+                ({allocatedTasks.length} tasks
+                {stats.scheduled > 0 && ` • ${stats.scheduled} scheduled`})
+              </span>
             </h2>
-            <span className={`text-xs ${themeColors.textMuted}`}>
-              {allocatedTasks.length} tasks
-              {stats.scheduled > 0 && ` • ${stats.scheduled} scheduled`}
-            </span>
           </div>
 
           {allocatedTasks.length > 0 ? (
@@ -891,6 +899,50 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
                             }}
                             onTaskCalendarSelect={handleTaskCalendarSelect}
                             onTaskPrioritySelect={handleTaskPrioritySelect}
+                            onTaskPriorityMenuToggle={(taskId) => {
+                              setTaskPriorityMenuId(prev => (prev === taskId ? null : taskId));
+                              setActiveTaskCalendarId(null);
+                              setEditingTaskTimeId(null);
+                            }}
+                            onWorkTypeToggle={async (taskId, newWorkType) => {
+                              // Parse current task info
+                              const { workType, originalId } = parseTaskId(taskId);
+                              const currentTask = allocatedTasks.find(t => t.id === taskId) ||
+                                                 unallocatedTasks.find(t => t.id === taskId);
+                              if (!currentTask) return;
+
+                              // Create new task in the target work type
+                              const newTaskData = {
+                                title: currentTask.title,
+                                description: currentTask.description,
+                                priority: currentTask.priority.toUpperCase() as 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT',
+                                dueDate: currentTask.dueDate || todayDate,
+                                timeEstimate: currentTask.timeEstimate,
+                              };
+
+                              try {
+                                if (newWorkType === 'light') {
+                                  await lightWorkHook.createTask({
+                                    ...newTaskData,
+                                    currentDate: todayDate,
+                                  });
+                                } else {
+                                  await deepWorkHook.createTask({
+                                    ...newTaskData,
+                                    taskDate: todayDate,
+                                    focusBlocks: 4,
+                                  });
+                                }
+                                // Delete the old task
+                                if (workType === 'light') {
+                                  await lightWorkHook.deleteTask(originalId);
+                                } else {
+                                  await deepWorkHook.deleteTask(originalId);
+                                }
+                              } catch (error) {
+                                console.error('Error toggling work type:', error);
+                              }
+                            }}
                             onTaskTimeStartEditing={(task, fallbackLabel) => {
                               setEditingTaskTimeId(task.id);
                               setEditTaskTimeValue(task.timeEstimate || fallbackLabel);

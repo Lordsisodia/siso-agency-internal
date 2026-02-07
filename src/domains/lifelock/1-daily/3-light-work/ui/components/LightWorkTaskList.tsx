@@ -20,7 +20,7 @@ interface LightWorkTaskListProps {
 }
 
 const LIGHT_FLOW_PROTOCOL = {
-  title: "🌱 Light Work Tasks",
+  title: "Light Work Tasks",
   subtitle: "Light Focus Work",
   description: "Light work sessions require focused attention without deep cognitive load. These blocks are designed for your routine, administrative, and quick-turnaround work that creates steady progress.",
   rules: [

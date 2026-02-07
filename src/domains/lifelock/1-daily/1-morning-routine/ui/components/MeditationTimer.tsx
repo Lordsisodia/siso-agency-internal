@@ -3,9 +3,10 @@
  *
  * Full-screen meditation timer with start/stop/reset functionality.
  * Automatically saves duration and logs sessions to Supabase.
+ * PERSISTS timer state in localStorage to survive app closes.
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { X, Play, Pause, RotateCcw } from 'lucide-react';
@@ -21,6 +22,16 @@ interface MeditationTimerProps {
   selectedDate?: Date;
 }
 
+// localStorage key for persisting timer state
+const TIMER_STORAGE_KEY = 'meditation-timer-state';
+
+interface TimerState {
+  seconds: number;
+  isRunning: boolean;
+  sessionStartTime: string | null;
+  lastUpdated: string;
+}
+
 export const MeditationTimer: React.FC<MeditationTimerProps> = ({
   isOpen,
   onClose,
@@ -32,8 +43,84 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
   const [isRunning, setIsRunning] = useState(false);
   const [sessionStartTime, setSessionStartTime] = useState<Date | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const hasRestoredRef = useRef(false);
 
-  // Timer logic
+  // Save timer state to localStorage
+  const saveTimerState = useCallback((state: TimerState) => {
+    try {
+      localStorage.setItem(TIMER_STORAGE_KEY, JSON.stringify(state));
+    } catch (error) {
+      console.error('Failed to save meditation timer state:', error);
+    }
+  }, []);
+
+  // Load timer state from localStorage
+  const loadTimerState = useCallback((): TimerState | null => {
+    try {
+      const stored = localStorage.getItem(TIMER_STORAGE_KEY);
+      if (stored) {
+        return JSON.parse(stored) as TimerState;
+      }
+    } catch (error) {
+      console.error('Failed to load meditation timer state:', error);
+    }
+    return null;
+  }, []);
+
+  // Clear timer state from localStorage
+  const clearTimerState = useCallback(() => {
+    try {
+      localStorage.removeItem(TIMER_STORAGE_KEY);
+    } catch (error) {
+      console.error('Failed to clear meditation timer state:', error);
+    }
+  }, []);
+
+  // Restore timer state on mount and when dialog opens
+  useEffect(() => {
+    if (isOpen && !hasRestoredRef.current) {
+      const savedState = loadTimerState();
+      if (savedState) {
+        const lastUpdated = new Date(savedState.lastUpdated);
+        const now = new Date();
+        const elapsedSinceLastUpdate = Math.floor((now.getTime() - lastUpdated.getTime()) / 1000);
+
+        // Restore seconds - add elapsed time if timer was running
+        const restoredSeconds = savedState.isRunning
+          ? savedState.seconds + elapsedSinceLastUpdate
+          : savedState.seconds;
+
+        setSeconds(restoredSeconds);
+        setIsRunning(savedState.isRunning);
+
+        // Restore session start time, adjusting for elapsed time if running
+        if (savedState.sessionStartTime) {
+          const originalStart = new Date(savedState.sessionStartTime);
+          setSessionStartTime(originalStart);
+        }
+      }
+      hasRestoredRef.current = true;
+    }
+
+    if (!isOpen) {
+      hasRestoredRef.current = false;
+    }
+  }, [isOpen, loadTimerState]);
+
+  // Persist timer state whenever it changes
+  useEffect(() => {
+    if (hasRestoredRef.current) {
+      const state: TimerState = {
+        seconds,
+        isRunning,
+        sessionStartTime: sessionStartTime?.toISOString() || null,
+        lastUpdated: new Date().toISOString()
+      };
+      saveTimerState(state);
+    }
+  }, [seconds, isRunning, sessionStartTime, saveTimerState]);
+
+  // Timer logic - updates every second
   useEffect(() => {
     if (isRunning) {
       intervalRef.current = setInterval(() => {
@@ -65,7 +152,8 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
   const handleStart = () => {
     if (!sessionStartTime) {
       // First start - record session start time
-      setSessionStartTime(new Date());
+      const now = new Date();
+      setSessionStartTime(now);
     }
     setIsRunning(true);
   };
@@ -78,6 +166,7 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
     setIsRunning(false);
     setSeconds(0);
     setSessionStartTime(null);
+    clearTimerState();
   };
 
   const logMeditationSession = async (durationSeconds: number, startTime: Date) => {
@@ -135,9 +224,11 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
       onComplete(durationMinutes);
     }
 
-    // Reset and close
+    // Reset and clear persistence
     setSeconds(0);
     setSessionStartTime(null);
+    clearTimerState();
+    hasRestoredRef.current = false;
     onClose();
   };
 
@@ -145,6 +236,8 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
     setIsRunning(false);
     setSeconds(0);
     setSessionStartTime(null);
+    clearTimerState();
+    hasRestoredRef.current = false;
     onClose();
   };
 

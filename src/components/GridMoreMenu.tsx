@@ -131,10 +131,10 @@ export const GridMoreMenu: React.FC<GridMoreMenuProps> = ({ open, onOpenChange }
                       variants={itemVariants}
                       onClick={() => handleItemClick(item)}
                       className={cn(
-                        'aspect-square rounded-2xl',
+                        'rounded-2xl min-h-[100px]',
                         'bg-gradient-to-br from-white/5 to-white/[0.02]',
                         'border border-white/10',
-                        'flex flex-col items-center justify-center gap-2',
+                        'flex flex-col items-center justify-center gap-2 py-3',
                         'hover:scale-105 active:scale-95',
                         'transition-all duration-200',
                         'group shadow-lg'
@@ -151,7 +151,7 @@ export const GridMoreMenu: React.FC<GridMoreMenuProps> = ({ open, onOpenChange }
                       )}>
                         <item.icon className={cn('h-6 w-6', item.color)} strokeWidth={2} />
                       </div>
-                      <span className="text-xs font-medium text-white/60 group-hover:text-white transition-colors">
+                      <span className="text-xs font-medium text-white/60 group-hover:text-white transition-colors leading-tight text-center px-1">
                         {item.label}
                       </span>
                     </motion.button>

@@ -161,57 +161,83 @@ class SmokingService {
       throw new Error('User ID is required');
     }
 
-    // Get current data first
-    const current = await this.getSmokingData(userId, date);
+    try {
+      // Get current data first
+      const current = await this.getSmokingData(userId, date);
 
-    const updatedData: SmokingTrackerData = {
-      user_id: userId,
-      date,
-      cigarettes_today: updates.cigarettes_today ?? current.cigarettes,
-      cravings_resisted: updates.cravings_resisted ?? current.cravings,
-      notes: updates.notes ?? '',
-    };
+      const updatedData: SmokingTrackerData = {
+        user_id: userId,
+        date,
+        cigarettes_today: updates.cigarettes_today ?? current.cigarettes,
+        cravings_resisted: updates.cravings_resisted ?? current.cravings,
+        notes: updates.notes ?? '',
+      };
 
-    // Save offline
-    await this.persistOffline(updatedData, !isOnline());
-
-    if (isOnline()) {
-      // Sync to Supabase
-      const { data, error } = await supabase
-        .from('smoking_tracker')
-        .upsert(
-          {
-            user_id: userId,
-            date,
-            cigarettes_today: updatedData.cigarettes_today,
-            cravings_resisted: updatedData.cravings_resisted,
-            notes: updatedData.notes,
-          },
-          { onConflict: 'user_id,date' }
-        )
-        .select()
-        .maybeSingle();
-
-      if (error) {
+      // Save offline (wrap in try-catch to prevent offline DB errors from breaking the flow)
+      try {
+        await this.persistOffline(updatedData, !isOnline());
+      } catch (offlineError) {
         if (import.meta.env.DEV) {
-          console.debug('[SmokingService] Failed to sync smoking data:', error.message);
+          console.debug('[SmokingService] Offline save failed, continuing:', offlineError);
         }
-      } else if (data) {
-        // Update offline cache with server response
-        await this.persistOffline(data, false);
-        return {
-          date: data.date,
-          cigarettes: data.cigarettes_today,
-          cravings: data.cravings_resisted,
-        };
       }
-    }
 
-    return {
-      date,
-      cigarettes: updatedData.cigarettes_today,
-      cravings: updatedData.cravings_resisted,
-    };
+      if (isOnline()) {
+        // Sync to Supabase
+        const { data, error } = await supabase
+          .from('smoking_tracker')
+          .upsert(
+            {
+              user_id: userId,
+              date,
+              cigarettes_today: updatedData.cigarettes_today,
+              cravings_resisted: updatedData.cravings_resisted,
+              notes: updatedData.notes,
+            },
+            { onConflict: 'user_id,date' }
+          )
+          .select()
+          .maybeSingle();
+
+        if (error) {
+          if (import.meta.env.DEV) {
+            console.debug('[SmokingService] Failed to sync smoking data:', error.message);
+          }
+        } else if (data) {
+          // Update offline cache with server response
+          try {
+            await this.persistOffline(data, false);
+          } catch (persistError) {
+            if (import.meta.env.DEV) {
+              console.debug('[SmokingService] Failed to persist server response:', persistError);
+            }
+          }
+          return {
+            date: data.date,
+            cigarettes: data.cigarettes_today,
+            cravings: data.cravings_resisted,
+          };
+        }
+      }
+
+      return {
+        date,
+        cigarettes: updatedData.cigarettes_today,
+        cravings: updatedData.cravings_resisted,
+      };
+    } catch (error) {
+      // Catch any unexpected errors and return current state to prevent UI from breaking
+      if (import.meta.env.DEV) {
+        console.error('[SmokingService] Unexpected error in updateSmokingData:', error);
+      }
+
+      // Return a valid snapshot with the requested updates as fallback
+      return {
+        date,
+        cigarettes: updates.cigarettes_today ?? 0,
+        cravings: updates.cravings_resisted ?? 0,
+      };
+    }
   }
 
   async getSmokingStreaks(userId: string, lookbackDays: number = 30): Promise<{

@@ -12,6 +12,7 @@ import { useRefactoredLifeLockData } from '@/domains/lifelock/_shared/core/useRe
 import { LoadingState } from '@/components/ui/loading-state';
 import { selectImplementation } from '@/lib/utils/feature-flags';
 import { calculateDayCompletionPercentage } from '@/lib/utils/api/dayProgress';
+import { TrackingReminders } from '@/domains/lifelock/_shared/components';
 
 const AdminLifeLockDay: React.FC = () => {
   const navigate = useNavigate();
@@ -158,6 +159,9 @@ const AdminLifeLockDay: React.FC = () => {
 
 return (
     <AdminLayout>
+      {/* Tracking Reminders - Browser notifications and in-app reminders */}
+      <TrackingReminders />
+
       {/* NEW: Using LifeLockViewRenderer with CORRECT components from SafeTabContentRenderer */}
       <LifeLockViewRenderer
         view="daily"

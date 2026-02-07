@@ -24,9 +24,12 @@ import {
   Play,
   Pause,
   Maximize2,
+  Brain,
+  Zap,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { SubtaskItem } from "@/domains/lifelock/1-daily/_shared/components/subtask/SubtaskItem";
 import { CustomCalendar } from "../components";
 
@@ -325,6 +328,8 @@ interface UnifiedTaskCardProps {
   onTaskCalendarToggle: (taskId: string) => void;
   onTaskCalendarSelect: (taskId: string, date: Date | null) => void;
   onTaskPrioritySelect: (taskId: string, priority: 'low' | 'medium' | 'high' | 'urgent') => void;
+  onTaskPriorityMenuToggle?: (taskId: string) => void;
+  onWorkTypeToggle?: (taskId: string, newWorkType: 'light' | 'deep') => void;
   onTaskTimeStartEditing: (task: UnifiedTask, fallbackLabel: string) => void;
   onTaskTimeSave: (taskId: string) => void;
   onTaskTimeKeyDown: (event: React.KeyboardEvent<HTMLInputElement>, taskId: string) => void;
@@ -388,6 +393,8 @@ export function UnifiedTaskCard({
   onTaskCalendarToggle,
   onTaskCalendarSelect,
   onTaskPrioritySelect,
+  onTaskPriorityMenuToggle,
+  onWorkTypeToggle,
   onTaskTimeStartEditing,
   onTaskTimeSave,
   onTaskTimeKeyDown,
@@ -583,18 +590,50 @@ export function UnifiedTaskCard({
                 <span>{formatShortDate(task.dueDate)}</span>
               </button>
 
+              {/* Priority Badge - Click to open priority menu */}
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  onTaskPrioritySelect(task.id, task.priority as any);
-                  onTaskCalendarToggle('');
+                  if (onTaskPriorityMenuToggle) {
+                    onTaskPriorityMenuToggle(task.id);
+                  }
                 }}
                 className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${priorityConfig.badgeClass}`}
-                title="Adjust priority"
+                title="Click to change priority"
               >
                 <span>{priorityConfig.icon}</span>
                 <span>{priorityConfig.label}</span>
               </button>
+
+              {/* Work Type Toggle - Light/Deep Work */}
+              {onWorkTypeToggle && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const newWorkType = workType === 'light' ? 'deep' : 'light';
+                    onWorkTypeToggle(task.id, newWorkType);
+                  }}
+                  className={cn(
+                    "flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors border",
+                    workType === 'deep'
+                      ? "bg-blue-900/30 text-blue-200 border-blue-700/40 hover:bg-blue-900/50"
+                      : "bg-green-900/30 text-green-200 border-green-700/40 hover:bg-green-900/50"
+                  )}
+                  title={`Click to switch to ${workType === 'light' ? 'deep' : 'light'} work`}
+                >
+                  {workType === 'deep' ? (
+                    <>
+                      <Brain className="h-3.5 w-3.5" />
+                      <span>Deep</span>
+                    </>
+                  ) : (
+                    <>
+                      <Zap className="h-3.5 w-3.5" />
+                      <span>Light</span>
+                    </>
+                  )}
+                </button>
+              )}
 
               {/* Client Badge (Deep Work only) */}
               {task.clientId && clientMap && clientMap.has(task.clientId) && (
@@ -607,7 +646,7 @@ export function UnifiedTaskCard({
                 </div>
               )}
 
-              {/* Time Estimate */}
+              {/* Time Estimate - Always show button to allow editing */}
               {editingTaskTimeId === task.id ? (
                 <input
                   type="text"
@@ -619,17 +658,17 @@ export function UnifiedTaskCard({
                   placeholder="e.g. 2h"
                   autoFocus
                 />
-              ) : summary && (
+              ) : (
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    onTaskTimeStartEditing(task, summary.formatted);
+                    onTaskTimeStartEditing(task, summary?.formatted || '30m');
                   }}
-                  className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium ${theme.colors.textMuted}/90 ${theme.colors.bg}/20 transition-colors`}
-                  title="Set total focus time"
+                  className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium ${theme.colors.textMuted}/90 ${theme.colors.bg}/20 transition-colors hover:${theme.colors.bg}/40`}
+                  title="Click to set time estimate"
                 >
                   <Timer className="h-3.5 w-3.5" />
-                  <span>{summary.formatted}</span>
+                  <span>{summary?.formatted || 'Set time'}</span>
                 </button>
               )}
 

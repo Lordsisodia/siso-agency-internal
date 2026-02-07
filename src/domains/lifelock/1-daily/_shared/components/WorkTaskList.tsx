@@ -822,16 +822,18 @@ export function WorkTaskList({
                 </button>
               </div>
 
-              {/* Protocol Toggle Button */}
-              <motion.button
-                onClick={() => setIsProtocolExpanded(!isProtocolExpanded)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className={`p-2 rounded-lg border ${themeColors.iconBorder} ${themeColors.iconColor} hover:${themeColors.iconBg} transition-colors`}
-                title="Flow State Protocol"
-              >
-                {isProtocolExpanded ? <X className="h-4 w-4" /> : <Info className="h-4 w-4" />}
-              </motion.button>
+              {/* Protocol Toggle Button - Deep Work only */}
+              {workType === 'deep' && (
+                <motion.button
+                  onClick={() => setIsProtocolExpanded(!isProtocolExpanded)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`p-2 rounded-lg border ${themeColors.iconBorder} ${themeColors.iconColor} hover:${themeColors.iconBg} transition-colors`}
+                  title="Flow State Protocol"
+                >
+                  {isProtocolExpanded ? <X className="h-4 w-4" /> : <Info className="h-4 w-4" />}
+                </motion.button>
+              )}
             </div>
           </div>
 

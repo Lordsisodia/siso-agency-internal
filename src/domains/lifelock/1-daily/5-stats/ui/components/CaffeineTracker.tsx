@@ -290,18 +290,18 @@ export const CaffeineTracker: React.FC<CaffeineTrackerProps> = ({ selectedDate }
   };
 
   return (
-    <Card className="bg-amber-900/20 border-amber-700/40 overflow-hidden">
+    <Card className="bg-emerald-900/20 border-emerald-700/40 overflow-hidden">
       {/* Clickable Header */}
       <div
-        className="p-4 cursor-pointer hover:bg-amber-900/10 transition-colors"
+        className="p-4 cursor-pointer hover:bg-emerald-900/10 transition-colors"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center justify-between gap-2 mb-3">
           <div className="flex items-center gap-2 flex-1 min-w-0">
-            <div className="p-1.5 rounded-lg bg-amber-500/20 border border-amber-400/30 flex-shrink-0">
-              <Coffee className="h-4 w-4 text-amber-300" />
+            <div className="p-1.5 rounded-lg bg-emerald-500/20 border border-emerald-400/30 flex-shrink-0">
+              <Coffee className="h-4 w-4 text-emerald-300" />
             </div>
-            <h4 className="text-amber-100 font-semibold text-base truncate">Caffeine</h4>
+            <h4 className="text-emerald-100 font-semibold text-base truncate">Caffeine</h4>
             {/* Green CheckCircle when under 200mg and has entries */}
             {caffeineData.totalMg > 0 && isUnderLowThreshold && (
               <motion.div
@@ -320,16 +320,16 @@ export const CaffeineTracker: React.FC<CaffeineTrackerProps> = ({ selectedDate }
               showGlow={isUnderLowThreshold && caffeineData.entries.length > 0}
             />
             {isExpanded ? (
-              <ChevronUp className="h-5 w-5 text-amber-400 flex-shrink-0" />
+              <ChevronUp className="h-5 w-5 text-emerald-400 flex-shrink-0" />
             ) : (
-              <ChevronDown className="h-5 w-5 text-amber-400 flex-shrink-0" />
+              <ChevronDown className="h-5 w-5 text-emerald-400 flex-shrink-0" />
             )}
           </div>
         </div>
 
         {/* Progress Bar */}
         <div className="mt-2 mb-1">
-          <div className="w-full bg-amber-900/30 border border-amber-600/20 rounded-full h-1.5">
+          <div className="w-full bg-emerald-900/30 border border-emerald-600/20 rounded-full h-1.5">
             <motion.div
               className={cn(
                 "h-1.5 rounded-full transition-all duration-500",
@@ -342,7 +342,7 @@ export const CaffeineTracker: React.FC<CaffeineTrackerProps> = ({ selectedDate }
             />
           </div>
           <div className="flex justify-between items-center mt-1">
-            <span className="text-xs text-amber-400/70 font-medium">
+            <span className="text-xs text-emerald-400/70 font-medium">
               {caffeineData.totalMg}mg / {CAFFEINE_MAX_DAILY}mg
             </span>
             {isUnderLowThreshold && caffeineData.entries.length > 0 && !isExpanded && (
@@ -367,8 +367,8 @@ export const CaffeineTracker: React.FC<CaffeineTrackerProps> = ({ selectedDate }
             <div className="p-4 space-y-3">
               {isLoading ? (
                 <div className="space-y-3">
-                  <Skeleton className="h-32 w-full bg-amber-900/30" />
-                  <Skeleton className="h-24 w-full bg-amber-900/20" />
+                  <Skeleton className="h-32 w-full bg-emerald-900/30" />
+                  <Skeleton className="h-24 w-full bg-emerald-900/20" />
                 </div>
               ) : (
                 <>
@@ -398,7 +398,7 @@ export const CaffeineTracker: React.FC<CaffeineTrackerProps> = ({ selectedDate }
                           )}
                         >
                           {caffeineData.totalMg}
-                          <span className="text-lg font-medium text-amber-400/70 ml-1">mg</span>
+                          <span className="text-lg font-medium text-emerald-400/70 ml-1">mg</span>
                         </motion.p>
                       </div>
                       <div className="flex flex-col items-end gap-1">
@@ -412,7 +412,7 @@ export const CaffeineTracker: React.FC<CaffeineTrackerProps> = ({ selectedDate }
                     </div>
 
                     {/* Status Message */}
-                    <p className="text-sm text-amber-200/80 mt-2">{getStatusMessage()}</p>
+                    <p className="text-sm text-emerald-200/80 mt-2">{getStatusMessage()}</p>
                   </motion.div>
 
                   {/* Cutoff Time Warning */}
@@ -440,9 +440,9 @@ export const CaffeineTracker: React.FC<CaffeineTrackerProps> = ({ selectedDate }
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.15 }}
-                    className="rounded-xl border border-amber-700/30 bg-amber-900/30 p-4"
+                    className="rounded-xl border border-emerald-700/30 bg-emerald-900/30 p-4"
                   >
-                    <p className="text-sm font-semibold text-amber-200 mb-3">Quick Add</p>
+                    <p className="text-sm font-semibold text-emerald-200 mb-3">Quick Add</p>
                     <div className="grid grid-cols-2 gap-2">
                       {CAFFEINE_TYPES.map((item) => (
                         <Button
@@ -455,10 +455,10 @@ export const CaffeineTracker: React.FC<CaffeineTrackerProps> = ({ selectedDate }
                             e.stopPropagation();
                             addEntry(item.type, item.amountMg);
                           }}
-                          className="h-12 rounded-xl border-amber-500/40 text-amber-200 hover:bg-amber-500/20 hover:text-amber-100 transition-all duration-200 flex flex-col items-center justify-center gap-0.5"
+                          className="h-12 rounded-xl border-emerald-500/40 text-emerald-200 hover:bg-emerald-500/20 hover:text-emerald-100 transition-all duration-200 flex flex-col items-center justify-center gap-0.5"
                         >
                           <span className="text-xs font-medium">{item.type}</span>
-                          <span className="text-[10px] text-amber-400/70">{item.amountMg}mg</span>
+                          <span className="text-[10px] text-emerald-400/70">{item.amountMg}mg</span>
                         </Button>
                       ))}
                     </div>
@@ -470,9 +470,9 @@ export const CaffeineTracker: React.FC<CaffeineTrackerProps> = ({ selectedDate }
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.2 }}
-                      className="rounded-xl border border-amber-700/30 bg-amber-900/30 p-4"
+                      className="rounded-xl border border-emerald-700/30 bg-emerald-900/30 p-4"
                     >
-                      <p className="text-sm font-semibold text-amber-200 mb-3">Today's Drinks</p>
+                      <p className="text-sm font-semibold text-emerald-200 mb-3">Today's Drinks</p>
                       <div className="space-y-2">
                         {caffeineData.entries.slice().reverse().map((entry, index) => (
                           <motion.div
@@ -480,24 +480,24 @@ export const CaffeineTracker: React.FC<CaffeineTrackerProps> = ({ selectedDate }
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: index * 0.05 }}
-                            className="flex items-center justify-between py-2 px-3 rounded-lg bg-amber-950/30 border border-amber-700/20"
+                            className="flex items-center justify-between py-2 px-3 rounded-lg bg-emerald-950/30 border border-emerald-700/20"
                           >
                             <div className="flex items-center gap-3">
-                              <Coffee className="h-4 w-4 text-amber-400" />
+                              <Coffee className="h-4 w-4 text-emerald-400" />
                               <div>
-                                <p className="text-sm text-amber-200">{entry.type}</p>
-                                <p className="text-xs text-amber-400/60">{formatTime(entry.timestamp)}</p>
+                                <p className="text-sm text-emerald-200">{entry.type}</p>
+                                <p className="text-xs text-emerald-400/60">{formatTime(entry.timestamp)}</p>
                               </div>
                             </div>
                             <div className="flex items-center gap-3">
-                              <span className="text-sm font-semibold text-amber-300">{entry.amountMg}mg</span>
+                              <span className="text-sm font-semibold text-emerald-300">{entry.amountMg}mg</span>
                               {isTodayDate && (
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     removeEntry(entry.id);
                                   }}
-                                  className="p-1.5 rounded-md hover:bg-red-500/20 text-amber-500/50 hover:text-red-400 transition-colors"
+                                  className="p-1.5 rounded-md hover:bg-red-500/20 text-emerald-500/50 hover:text-red-400 transition-colors"
                                   disabled={isUpdating}
                                 >
                                   <Trash2 className="h-3.5 w-3.5" />
@@ -515,46 +515,46 @@ export const CaffeineTracker: React.FC<CaffeineTrackerProps> = ({ selectedDate }
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.25 }}
-                    className="rounded-xl border border-amber-700/30 bg-amber-900/30 p-4"
+                    className="rounded-xl border border-emerald-700/30 bg-emerald-900/30 p-4"
                   >
-                    <p className="text-sm font-semibold text-amber-200 mb-3">Analytics</p>
+                    <p className="text-sm font-semibold text-emerald-200 mb-3">Analytics</p>
                     <div className="grid grid-cols-3 gap-3">
                       {/* Entry Count */}
                       <div className="flex flex-col items-center gap-1">
-                        <Coffee className="h-4 w-4 text-amber-400" />
-                        <span className="text-2xl font-bold text-amber-200">
+                        <Coffee className="h-4 w-4 text-emerald-400" />
+                        <span className="text-2xl font-bold text-emerald-200">
                           {caffeineData.entries.length}
                         </span>
-                        <span className="text-xs text-amber-300/70">Drinks</span>
+                        <span className="text-xs text-emerald-300/70">Drinks</span>
                       </div>
 
                       {/* Average per drink */}
                       <div className="flex flex-col items-center gap-1">
-                        <span className="text-2xl font-bold text-amber-200">
+                        <span className="text-2xl font-bold text-emerald-200">
                           {caffeineData.entries.length > 0
                             ? Math.round(caffeineData.totalMg / caffeineData.entries.length)
                             : 0}
                         </span>
-                        <span className="text-xs text-amber-300/70">Avg mg</span>
+                        <span className="text-xs text-emerald-300/70">Avg mg</span>
                       </div>
 
                       {/* Last Caffeine Time */}
                       <div className="flex flex-col items-center gap-1">
-                        <Clock className="h-4 w-4 text-amber-400" />
-                        <span className="text-lg font-bold text-amber-200">
+                        <Clock className="h-4 w-4 text-emerald-400" />
+                        <span className="text-lg font-bold text-emerald-200">
                           {caffeineData.lastCaffeineAt
                             ? format(parseISO(caffeineData.lastCaffeineAt), 'h:mm a')
                             : '--'}
                         </span>
-                        <span className="text-xs text-amber-300/70">Last</span>
+                        <span className="text-xs text-emerald-300/70">Last</span>
                       </div>
                     </div>
 
                     {/* XP Breakdown */}
-                    <div className="mt-3 pt-3 border-t border-amber-700/20">
+                    <div className="mt-3 pt-3 border-t border-emerald-700/20">
                       <div className="flex justify-between items-center">
-                        <span className="text-xs text-amber-300/70">XP Breakdown</span>
-                        <span className="text-xs text-amber-300">+{caffeineXP.baseXP} base +{caffeineXP.bonusXP} bonus</span>
+                        <span className="text-xs text-emerald-300/70">XP Breakdown</span>
+                        <span className="text-xs text-emerald-300">+{caffeineXP.baseXP} base +{caffeineXP.bonusXP} bonus</span>
                       </div>
                     </div>
                   </motion.div>

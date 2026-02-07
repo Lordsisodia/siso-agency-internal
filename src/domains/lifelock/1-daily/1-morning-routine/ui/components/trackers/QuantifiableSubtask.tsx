@@ -53,10 +53,15 @@ export const QuantifiableSubtask: React.FC<QuantifiableSubtaskProps> = ({
       >
         {/* Checkbox - Visual confirmation - ROUNDED */}
         <motion.button
-          onClick={() => onCheckChange(!checked)}
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onCheckChange(!checked);
+          }}
           className={cn(
             "flex-shrink-0 w-5 h-5 rounded-full border-2 transition-all duration-200",
-            "flex items-center justify-center",
+            "flex items-center justify-center cursor-pointer",
             checked
               ? "bg-orange-500 border-orange-500"
               : "border-orange-400/50 hover:border-orange-400"

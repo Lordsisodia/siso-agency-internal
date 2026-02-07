@@ -21,7 +21,7 @@ interface DeepWorkTaskListProps {
 }
 
 const DEEP_FLOW_PROTOCOL = {
-  title: "🧠 Deep Work Tasks",
+  title: "Deep Work Tasks",
   subtitle: "Deep Focus Work",
   description: "Deep work sessions require your highest cognitive capacity and total focus. These blocks are designed for your most challenging, high-value work that creates breakthrough results.",
   rules: [
