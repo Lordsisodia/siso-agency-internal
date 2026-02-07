@@ -317,44 +317,28 @@ const waterXPRef = useRef(0);
   const prevCompleteStateRef = useRef<Record<string, boolean>>({});
   // Track open sections in a ref to avoid dependency cycle in auto-collapse effect
   const openSectionsRef = useRef<Record<string, boolean>>(openSections);
-  // Track recent user interactions to prevent auto-collapse during interaction
-  const recentInteractionRef = useRef<Record<string, number>>({});
 
   // Keep the ref in sync with state
   useEffect(() => {
     openSectionsRef.current = openSections;
   }, [openSections]);
 
-  // Helper to mark recent interaction (prevents auto-collapse)
-  const markRecentInteraction = useCallback((taskKey: string) => {
-    recentInteractionRef.current[taskKey] = Date.now();
+  // Track pending saves to prevent database overwrite
+  const pendingSaveRef = useRef<Record<string, boolean>>({});
+  const markPendingSave = useCallback((key: string) => {
+    pendingSaveRef.current[key] = true;
+  }, []);
+  const clearPendingSave = useCallback((key: string) => {
+    delete pendingSaveRef.current[key];
   }, []);
 
-  // Auto-collapse sections when they become complete (with delay after interaction)
+  // DISABLED: Auto-collapse sections when they become complete
+  // User must explicitly click the circular dot to collapse
+  // This prevents sections from closing unexpectedly when clicking +5, +250, etc.
   useEffect(() => {
-    const INTERACTION_COOLDOWN_MS = 2000; // 2 second cooldown after interaction
-    const now = Date.now();
-
+    // Only track completion state for the progress bar, don't auto-collapse
     MORNING_ROUTINE_TASKS.forEach(task => {
       const isComplete = isTaskComplete(task.key, task.subtasks);
-      const wasComplete = prevCompleteStateRef.current[task.key];
-      const lastInteraction = recentInteractionRef.current[task.key] || 0;
-      const timeSinceInteraction = now - lastInteraction;
-
-      // If section just became complete, collapse it (but not if user just interacted)
-      // Use the ref to check current state without adding openSections to dependencies
-      if (isComplete && !wasComplete && openSectionsRef.current[task.key]) {
-        // Skip auto-collapse if user recently interacted with this section
-        if (timeSinceInteraction < INTERACTION_COOLDOWN_MS) {
-          return;
-        }
-        setOpenSections(prev => ({
-          ...prev,
-          [task.key]: false
-        }));
-      }
-
-      // Update the ref
       prevCompleteStateRef.current[task.key] = isComplete;
     });
   }, [wakeUpTime, meditationDuration, isPlanDayComplete, morningRoutine, isTaskComplete]);
@@ -460,12 +444,26 @@ const waterXPRef = useRef(0);
       completionPercentage: morningRoutineState.completionPercentage,
     });
 
-    setWakeUpTime(morningRoutineState.metadata.wakeUpTime ?? '');
-    setWaterAmount(morningRoutineState.metadata.waterAmount ?? 0);
-    setMeditationDuration(morningRoutineState.metadata.meditationDuration ?? '');
-    setPushupReps(morningRoutineState.metadata.pushupReps ?? 0);
-    setDailyPriorities(morningRoutineState.metadata.dailyPriorities ?? ['', '', '']);
-    setIsPlanDayComplete(morningRoutineState.metadata.isPlanDayComplete ?? false);
+    // Only update from database if there's no pending save for that field
+    // This prevents the database from overwriting local changes during debounced saves
+    if (!pendingSaveRef.current['wakeUpTime']) {
+      setWakeUpTime(morningRoutineState.metadata.wakeUpTime ?? '');
+    }
+    if (!pendingSaveRef.current['waterAmount']) {
+      setWaterAmount(morningRoutineState.metadata.waterAmount ?? 0);
+    }
+    if (!pendingSaveRef.current['meditationDuration']) {
+      setMeditationDuration(morningRoutineState.metadata.meditationDuration ?? '');
+    }
+    if (!pendingSaveRef.current['pushupReps']) {
+      setPushupReps(morningRoutineState.metadata.pushupReps ?? 0);
+    }
+    if (!pendingSaveRef.current['dailyPriorities']) {
+      setDailyPriorities(morningRoutineState.metadata.dailyPriorities ?? ['', '', '']);
+    }
+    if (!pendingSaveRef.current['isPlanDayComplete']) {
+      setIsPlanDayComplete(morningRoutineState.metadata.isPlanDayComplete ?? false);
+    }
   }, [morningRoutineState]);
 
   // Load morning routine data
@@ -480,11 +478,16 @@ const waterXPRef = useRef(0);
     }
 
     const update = debounce((payload: Partial<MorningRoutineMetadata>) => {
-      void persistMorningMetadata(payload);
+      // Mark all keys in payload as pending save
+      Object.keys(payload).forEach(key => markPendingSave(key));
+      void persistMorningMetadata(payload).then(() => {
+        // Clear pending saves after successful save
+        Object.keys(payload).forEach(key => clearPendingSave(key));
+      });
     }, 500);
 
     return update;
-  }, [morningRoutineState, persistMorningMetadata]);
+  }, [morningRoutineState, persistMorningMetadata, markPendingSave, clearPendingSave]);
 
   useEffect(() => {
     return () => {
@@ -1151,7 +1154,6 @@ const waterXPRef = useRef(0);
                                         goal={pushupPB}
                                         value={pushupReps}
                                         onChange={(value) => {
-                                          markRecentInteraction('getBloodFlowing');
                                           updatePushupReps(value);
                                           // Sync checkbox state with value (checked if reps > 0)
                                           const shouldBeChecked = value > 0;
@@ -1161,7 +1163,6 @@ const waterXPRef = useRef(0);
                                         }}
                                         checked={isHabitCompleted('pushups')}
                                         onCheckChange={(checked) => {
-                                          markRecentInteraction('getBloodFlowing');
                                           handleHabitToggle('pushups', checked);
                                           if (!checked) updatePushupReps(0);
                                         }}
@@ -1176,7 +1177,6 @@ const waterXPRef = useRef(0);
                                         goal={500}
                                         value={waterAmount}
                                         onChange={(value) => {
-                                          markRecentInteraction('powerUpBrain');
                                           setWaterAmount(value);
                                           // Sync checkbox state with value (checked if water > 0)
                                           const shouldBeChecked = value > 0;
@@ -1186,7 +1186,6 @@ const waterXPRef = useRef(0);
                                         }}
                                         checked={isHabitCompleted('water')}
                                         onCheckChange={(checked) => {
-                                          markRecentInteraction('powerUpBrain');
                                           handleHabitToggle('water', checked);
                                           if (!checked) setWaterAmount(0);
                                         }}
@@ -1201,7 +1200,6 @@ const waterXPRef = useRef(0);
                                         goal={supplementGoal}
                                         value={supplementCount}
                                         onChange={(value) => {
-                                          markRecentInteraction('powerUpBrain');
                                           setSupplementCount(value);
                                           // Sync checkbox state with value (checked if pills > 0)
                                           const shouldBeChecked = value > 0;
@@ -1211,7 +1209,6 @@ const waterXPRef = useRef(0);
                                         }}
                                         checked={isHabitCompleted('supplements')}
                                         onCheckChange={(checked) => {
-                                          markRecentInteraction('powerUpBrain');
                                           handleHabitToggle('supplements', checked);
                                           if (!checked) setSupplementCount(0);
                                         }}

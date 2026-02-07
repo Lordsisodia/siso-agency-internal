@@ -19,6 +19,7 @@ import {
   GripVertical,
   MoreHorizontal,
   Edit3,
+  Timer,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -269,10 +270,8 @@ export const BeautifulTaskDetail = memo(({
       <DrawerContent theme={workType} onClose={onClose} className="h-[92vh]">
         {/* Header */}
         <DrawerHeader className="space-y-4">
-          {/* Top Row: Progress + Actions */}
+          {/* Top Row: Title + Actions */}
           <div className="flex items-start gap-4">
-            <ProgressRing progress={progress} theme={theme} />
-
             <div className="flex-1 min-w-0 space-y-2">
               {/* Title */}
               <DrawerTitle className="text-2xl leading-tight">
@@ -333,12 +332,22 @@ export const BeautifulTaskDetail = memo(({
         <div className="flex-1 overflow-y-auto px-6 space-y-6 scrollbar-hide">
           {/* Description */}
           <div className="space-y-3">
-            <label className="text-xs font-medium text-white/40 uppercase tracking-wider">
-              Description
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-medium text-white/40 uppercase tracking-wider">
+                Notes & Details
+              </label>
+              <span className="text-[10px] text-white/30">
+                {(editedTask?.description?.length || task?.description?.length || 0)}/2000
+              </span>
+            </div>
             <Textarea
-              value={task.description || ""}
-              placeholder="Add a description..."
+              value={editedTask?.description ?? task.description ?? ""}
+              onChange={(e) => setEditedTask(prev => prev ? {
+                ...prev,
+                description: e.target.value
+              } : { ...task, description: e.target.value })}
+              placeholder="Add context, links, or steps needed to complete this task..."
+              maxLength={2000}
               className={cn(
                 "min-h-[100px] bg-white/5 border-white/10 rounded-xl",
                 "text-white/80 placeholder:text-white/30",
@@ -346,6 +355,9 @@ export const BeautifulTaskDetail = memo(({
                 "resize-none transition-all"
               )}
             />
+            <p className="text-xs text-white/30">
+              Use this space for task context, requirements, or helpful links
+            </p>
           </div>
 
           {/* Subtasks */}
@@ -413,9 +425,10 @@ export const BeautifulTaskDetail = memo(({
                   ? "shadow-emerald-500/25"
                   : "shadow-blue-500/25"
               )}
+              title="Start a timer for this task"
             >
-              <Play className="w-4 h-4 fill-current" />
-              Start Focus
+              <Timer className="w-4 h-4" />
+              Start Timer
             </motion.button>
           </div>
         </DrawerFooter>
