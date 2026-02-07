@@ -109,36 +109,12 @@ export const EvenBetterIfSection: React.FC<EvenBetterIfSectionProps> = ({
   );
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Track previous completion state for auto-collapse
-  const prevCompleteRef = useRef(false);
-  // Track expanded state in ref to avoid dependency cycle
-  const isExpandedRef = useRef(isExpanded);
-
-  // Keep ref in sync with state
-  useEffect(() => {
-    isExpandedRef.current = isExpanded;
-  }, [isExpanded]);
-
   // Sync props to local state
   useEffect(() => {
     if (items.length > 0) {
       setEvenBetterIfItems(items);
     }
   }, [items]);
-
-  // Auto-collapse when section becomes complete
-  useEffect(() => {
-    const hasContent = evenBetterIfItems.some(item => item.trim() !== '');
-    const wasComplete = prevCompleteRef.current;
-
-    // If section just got content and was empty before, collapse it
-    // Use ref to check current state without adding isExpanded to dependencies
-    if (hasContent && !wasComplete && isExpandedRef.current) {
-      setIsExpanded(false);
-    }
-
-    prevCompleteRef.current = hasContent;
-  }, [evenBetterIfItems]);
 
   const addEvenBetterIfItem = () => {
     const newItems = [...evenBetterIfItems, ''];
@@ -178,8 +154,8 @@ export const EvenBetterIfSection: React.FC<EvenBetterIfSectionProps> = ({
                 <TrendingUp className="h-4 w-4 text-purple-300" />
               </div>
               <h4 className="text-purple-100 font-semibold text-base truncate">Even Better If...</h4>
-              {/* Green CheckCircle when has content */}
-              {hasContent && (
+              {/* Green CheckCircle when at least 3 items filled */}
+              {completedEvenBetterIf >= 3 && (
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}

@@ -109,36 +109,12 @@ export const WentWellSection: React.FC<WentWellSectionProps> = ({
   );
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Track previous completion state for auto-collapse
-  const prevCompleteRef = useRef(false);
-  // Track expanded state in ref to avoid dependency cycle
-  const isExpandedRef = useRef(isExpanded);
-
-  // Keep ref in sync with state
-  useEffect(() => {
-    isExpandedRef.current = isExpanded;
-  }, [isExpanded]);
-
   // Sync props to local state
   useEffect(() => {
     if (items.length > 0) {
       setWentWellItems(items);
     }
   }, [items]);
-
-  // Auto-collapse when section becomes complete
-  useEffect(() => {
-    const hasContent = wentWellItems.some(item => item.trim() !== '');
-    const wasComplete = prevCompleteRef.current;
-
-    // If section just got content and was empty before, collapse it
-    // Use ref to check current state without adding isExpanded to dependencies
-    if (hasContent && !wasComplete && isExpandedRef.current) {
-      setIsExpanded(false);
-    }
-
-    prevCompleteRef.current = hasContent;
-  }, [wentWellItems]);
 
   const addWentWellItem = () => {
     const newItems = [...wentWellItems, ''];
@@ -178,8 +154,8 @@ export const WentWellSection: React.FC<WentWellSectionProps> = ({
                 <Sparkles className="h-4 w-4 text-purple-300" />
               </div>
               <h4 className="text-purple-100 font-semibold text-base truncate">What went well today?</h4>
-              {/* Green CheckCircle when has content */}
-              {hasContent && (
+              {/* Green CheckCircle when at least 3 items filled */}
+              {completedWentWell >= 3 && (
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}

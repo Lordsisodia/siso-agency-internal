@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Clock, ChevronDown, ChevronUp, AlertCircle, Target, List, CheckCircle, Check, Crosshair } from 'lucide-react';
 import { Card } from '@/components/ui/card';
@@ -30,46 +30,6 @@ export const TomorrowsPlanSection: React.FC<TomorrowsPlanSectionProps> = ({
     mainFocus: false,
     topTasks: false
   });
-
-  // Track previous completion states for auto-collapse
-  const prevCompleteRef = useRef({
-    nonNegotiables: false,
-    mainFocus: false,
-    topTasks: false
-  });
-  // Track expanded sections in ref to avoid dependency cycle
-  const expandedSectionsRef = useRef(expandedSections);
-
-  // Keep ref in sync with state
-  useEffect(() => {
-    expandedSectionsRef.current = expandedSections;
-  }, [expandedSections]);
-
-  // Auto-collapse sections when they become complete
-  useEffect(() => {
-    const hasNonNegotiables = nonNegotiables.some(item => item.trim() !== '');
-    const hasMainFocus = tomorrowFocus.trim() !== '';
-    const hasTopTasks = topTasks.some(task => task.trim() !== '');
-
-    // Check each section for transition from incomplete to complete
-    // Use ref to check current state without adding expandedSections to dependencies
-    if (hasNonNegotiables && !prevCompleteRef.current.nonNegotiables && expandedSectionsRef.current.nonNegotiables) {
-      setExpandedSections(prev => ({ ...prev, nonNegotiables: false }));
-    }
-    if (hasMainFocus && !prevCompleteRef.current.mainFocus && expandedSectionsRef.current.mainFocus) {
-      setExpandedSections(prev => ({ ...prev, mainFocus: false }));
-    }
-    if (hasTopTasks && !prevCompleteRef.current.topTasks && expandedSectionsRef.current.topTasks) {
-      setExpandedSections(prev => ({ ...prev, topTasks: false }));
-    }
-
-    // Update refs
-    prevCompleteRef.current = {
-      nonNegotiables: hasNonNegotiables,
-      mainFocus: hasMainFocus,
-      topTasks: hasTopTasks
-    };
-  }, [nonNegotiables, tomorrowFocus, topTasks]);
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections(prev => ({
@@ -115,8 +75,8 @@ export const TomorrowsPlanSection: React.FC<TomorrowsPlanSectionProps> = ({
                 <Clock className="h-4 w-4 text-purple-300" />
               </div>
               <h4 className="text-purple-100 font-semibold text-base truncate">Tomorrow's Plan</h4>
-              {/* Green CheckCircle when has content */}
-              {(hasNonNegotiables || hasMainFocus || hasTopTasks) && (
+              {/* Green CheckCircle when all 3 subsections have content */}
+              {hasNonNegotiables && hasMainFocus && hasTopTasks && (
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}

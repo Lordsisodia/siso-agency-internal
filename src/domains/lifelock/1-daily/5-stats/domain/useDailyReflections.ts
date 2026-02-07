@@ -250,7 +250,8 @@ export function useDailyReflections({ selectedDate, includePreviousDay = false }
         energyLevel: reflectionData.energyLevel,
         keyLearnings: reflectionData.keyLearnings || '',
         tomorrowFocus: reflectionData.tomorrowFocus || '',
-        tomorrowTopTasks: reflectionData.tomorrowTopTasks || []
+        tomorrowTopTasks: reflectionData.tomorrowTopTasks || [],
+        nonNegotiables: reflectionData.nonNegotiables || []
       });
 
       const savedReflection: DailyReflection = {
@@ -269,6 +270,7 @@ export function useDailyReflections({ selectedDate, includePreviousDay = false }
         keyLearnings: reflectionData.keyLearnings || '',
         tomorrowFocus: reflectionData.tomorrowFocus || '',
         tomorrowTopTasks: reflectionData.tomorrowTopTasks || [],
+        nonNegotiables: reflectionData.nonNegotiables || [],
         createdAt: reflection?.createdAt || new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
