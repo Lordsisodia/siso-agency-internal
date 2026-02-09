@@ -1,0 +1,66 @@
+{
+  "name": "siso-autonomous-task",
+  "version": "1.0.0",
+  "description": "Autonomous task management for SISO Blackbox - spawn sub-agents to complete tasks autonomously",
+  "author": "SISO",
+  "commands": [
+    {
+      "name": "/autonomous create",
+      "description": "Create a new autonomous subtask",
+      "params": [
+        {"name": "parent_task_id", "type": "string", "required": true, "description": "ID of the parent deep_work_task"},
+        {"name": "title", "type": "string", "required": true, "description": "Subtask title"},
+        {"name": "description", "type": "string", "required": false, "description": "Detailed description"},
+        {"name": "agent_role", "type": "string", "required": true, "description": "Role: researcher, coder, reviewer, architect, planner, verifier"},
+        {"name": "priority", "type": "string", "required": false, "description": "low, medium, high, critical (default: medium)"},
+        {"name": "verification_required", "type": "boolean", "required": false, "description": "Whether verification is required (default: true)"}
+      ]
+    },
+    {
+      "name": "/autonomous spawn",
+      "description": "Spawn a sub-agent to work on a subtask",
+      "params": [
+        {"name": "subtask_id", "type": "string", "required": true, "description": "UUID of the autonomous_subtask"},
+        {"name": "context", "type": "object", "required": false, "description": "Additional context to pass to the agent"}
+      ]
+    },
+    {
+      "name": "/autonomous status",
+      "description": "Update subtask status and agent metadata",
+      "params": [
+        {"name": "subtask_id", "type": "string", "required": true, "description": "UUID of the subtask"},
+        {"name": "status", "type": "string", "required": true, "description": "pending, planned, executing, verifying, completed, failed"},
+        {"name": "agent_metadata", "type": "object", "required": false, "description": "Metadata to merge into agent_metadata JSONB"},
+        {"name": "summary", "type": "string", "required": false, "description": "User-visible summary"}
+      ]
+    },
+    {
+      "name": "/autonomous context",
+      "description": "Get full context for a subtask (including agent_metadata)",
+      "params": [
+        {"name": "subtask_id", "type": "string", "required": true, "description": "UUID of the subtask"}
+      ]
+    },
+    {
+      "name": "/autonomous list",
+      "description": "List autonomous subtasks for a parent task",
+      "params": [
+        {"name": "parent_task_id", "type": "string", "required": true, "description": "ID of the parent task"},
+        {"name": "status", "type": "string", "required": false, "description": "Filter by status"}
+      ]
+    },
+    {
+      "name": "/autonomous plan",
+      "description": "Create execution plan for a task (spawns planner agent)",
+      "params": [
+        {"name": "parent_task_id", "type": "string", "required": true, "description": "ID of the task to plan"},
+        {"name": "context", "type": "object", "required": false, "description": "Additional planning context"}
+      ]
+    }
+  ],
+  "mcp_tools": [
+    "mcp__siso-internal-supabase__execute_sql",
+    "mcp__siso-internal-supabase__apply_migration"
+  ],
+  "entry_point": "src/index.ts"
+}

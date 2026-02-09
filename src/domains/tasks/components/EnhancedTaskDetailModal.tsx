@@ -31,6 +31,7 @@ import {
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { EnhancedTask, SubTask, FocusIntensity, TaskContext } from '@/services/shared/task.service';
+import { AutonomousSubtasksSection } from './AutonomousSubtasksSection';
 import { FlowStateTimer, FlowSession, FlowState } from '@/domains/tasks/components-from-shared/FlowStateTimer';
 // // // // // // // // // // import { FlowStatsService } from '@/services/flowStatsService' // TODO: Recreate this import // TODO: Recreate this import // TODO: Recreate this import // TODO: Recreate this import // TODO: Recreate this import // TODO: Recreate this import // TODO: Recreate this import // TODO: Recreate this import // TODO: Recreate this import // TODO: Recreate this import;
 import { TaskTimer } from '@/domains/tasks/components/legacy/TaskTimer';
@@ -281,9 +282,10 @@ export const EnhancedTaskDetailModal: React.FC<EnhancedTaskDetailModalProps> = (
 
         {/* Tabs Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 overflow-hidden">
-          <TabsList className="grid w-full grid-cols-4 bg-gray-800">
+          <TabsList className="grid w-full grid-cols-5 bg-gray-800">
             <TabsTrigger value="overview" className="data-[state=active]:bg-gray-700">Overview</TabsTrigger>
             <TabsTrigger value="progress" className="data-[state=active]:bg-gray-700">Progress</TabsTrigger>
+            <TabsTrigger value="autonomous" className="data-[state=active]:bg-gray-700">Autonomous</TabsTrigger>
             <TabsTrigger value="flow" className="data-[state=active]:bg-gray-700">Flow</TabsTrigger>
             <TabsTrigger value="analytics" className="data-[state=active]:bg-gray-700">Analytics</TabsTrigger>
           </TabsList>
@@ -630,7 +632,11 @@ export const EnhancedTaskDetailModal: React.FC<EnhancedTaskDetailModalProps> = (
                 </div>
               )}
             </TabsContent>
-            
+
+            <TabsContent value="autonomous" className="space-y-6">
+              <AutonomousSubtasksSection taskId={task.id} />
+            </TabsContent>
+
             <TabsContent value="analytics" className="space-y-6">
               {/* Context Analysis */}
               <div className="bg-gray-800/30 rounded-lg p-4">
