@@ -22,6 +22,11 @@ import {
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/lib/supabase/client';
+import {
+  enableAutonomousMode,
+  disableAutonomousMode,
+  triggerAutonomousPlanning
+} from '@/services/autonomousTaskService';
 
 interface AutonomousSubtask {
   id: string;
@@ -164,20 +169,31 @@ export const AutonomousSubtasksSection: React.FC<AutonomousSubtasksSectionProps>
     setExpandedMetadata(expandedMetadata === subtaskId ? null : subtaskId);
   };
 
-  const enableAutonomousMode = async () => {
-    try {
-      const { error } = await supabase
-        .from('deep_work_tasks')
-        .update({ is_autonomous_eligible: true })
-        .eq('id', taskId);
-
-      if (error) throw error;
-
-      // Refresh to show the change
+  const handleEnableAutonomousMode = async () => {
+    setLoading(true);
+    const result = await enableAutonomousMode(taskId);
+    if (result.error) {
+      setError(result.error);
+    } else {
+      // Trigger initial planning
+      const planResult = await triggerAutonomousPlanning(taskId);
+      if (planResult.error) {
+        setError(planResult.error);
+      }
       fetchSubtasks();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to enable autonomous mode');
     }
+    setLoading(false);
+  };
+
+  const handleDisableAutonomousMode = async () => {
+    setLoading(true);
+    const result = await disableAutonomousMode(taskId);
+    if (result.error) {
+      setError(result.error);
+    } else {
+      fetchSubtasks();
+    }
+    setLoading(false);
   };
 
   if (loading) {
@@ -218,7 +234,7 @@ export const AutonomousSubtasksSection: React.FC<AutonomousSubtasksSectionProps>
         {subtasks.length === 0 && (
           <Button
             size="sm"
-            onClick={enableAutonomousMode}
+            onClick={handleEnableAutonomousMode}
             className="bg-cyan-600 hover:bg-cyan-700 text-white"
           >
             <Sparkles className="w-4 h-4 mr-1" />
