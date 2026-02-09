@@ -1,7 +1,7 @@
 {
-  "name": "siso-autonomous-task",
+  "name": "siso-internal-autonomous",
   "version": "1.0.0",
-  "description": "Autonomous task management for SISO Blackbox - spawn sub-agents to complete tasks autonomously",
+  "description": "SISO-Internal autonomous task management - spawn sub-agents to complete tasks via Supabase database",
   "author": "SISO",
   "commands": [
     {

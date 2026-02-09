@@ -1,6 +1,6 @@
-# SISO Autonomous Task Skill
+# SISO-Internal Autonomous Task Skill
 
-Autonomous task management for SISO Blackbox. Enables spawning sub-agents to complete tasks with full lifecycle management.
+Autonomous task management for SISO-Internal via Supabase. Enables spawning sub-agents to complete tasks with full lifecycle management.
 
 ## Overview
 
