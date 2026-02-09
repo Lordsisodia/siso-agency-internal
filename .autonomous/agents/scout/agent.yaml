@@ -1,0 +1,104 @@
+# Agent Definition: Scout
+# SISO-Internal Autonomous System
+
+agent:
+  id: scout
+  name: Scout
+  version: "1.0.0"
+  type: explorer
+  description: "Codebase exploration and information gathering specialist"
+
+  # Agent capabilities
+  capabilities:
+    - codebase_exploration
+    - information_gathering
+    - file_discovery
+    - pattern_finding
+    - structure_mapping
+    - dependency_finding
+
+  # Triggers - when this agent should be activated
+  triggers:
+    keywords:
+      - find
+      - explore
+      - discover
+      - locate
+      - search
+      - map
+      - navigate
+      - understand structure
+      - where is
+      - how does
+    task_types:
+      - exploration
+      - discovery
+      - research
+    min_confidence: 0.70
+
+  # Input/Output specification
+  io:
+    input_formats:
+      - text
+      - pattern
+    output_formats:
+      - markdown
+      - yaml
+      - json
+
+  # Context requirements
+  context:
+    required:
+      - search_target
+    optional:
+      - search_scope
+      - file_patterns
+      - depth_limit
+
+  # Working directory for this agent
+  workspace: "./workspaces/scout"
+
+  # Memory integration
+  memory:
+    short_term: true
+    long_term: true
+    episodic: false
+
+  # Communication settings
+  communication:
+    log_level: info
+    report_to:
+      - planner
+      - execution
+
+  # Tool access
+  tools:
+    - filesystem
+    - grep
+    - glob
+    - read_file
+    - bash
+
+  # Success criteria
+  success_criteria:
+    - Target found or confirmed absent
+    - Relevant files identified
+    - Context gathered
+    - Findings documented
+
+  # Failure handling
+  on_failure:
+    retry: 1
+    escalate_to: planner
+    log_error: true
+
+  # Limits
+  limits:
+    max_files_to_read: 50
+    max_search_time: 300  # seconds
+
+  # Metadata
+  metadata:
+    author: "SISO-Internal"
+    created: "2026-02-09"
+    updated: "2026-02-09"

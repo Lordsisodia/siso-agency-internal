@@ -1,0 +1,103 @@
+# Agent Definition: Analyzer
+# SISO-Internal Autonomous System
+
+agent:
+  id: analyzer
+  name: Analyzer
+  version: "1.0.0"
+  type: analyst
+  description: "Research, analysis, and pattern detection specialist"
+
+  # Agent capabilities
+  capabilities:
+    - research
+    - pattern_analysis
+    - data_insights
+    - benchmarking
+    - investigation
+    - synthesis
+
+  # Triggers - when this agent should be activated
+  triggers:
+    keywords:
+      - research
+      - analyze
+      - investigate
+      - pattern
+      - benchmark
+      - study
+      - survey
+      - compare
+      - evaluate
+      - assess
+      - data
+      - insights
+    task_types:
+      - analysis
+      - research
+      - investigation
+    min_confidence: 0.70
+
+  # Input/Output specification
+  io:
+    input_formats:
+      - text
+      - markdown
+      - yaml
+      - json
+    output_formats:
+      - markdown
+      - yaml
+      - json
+
+  # Context requirements
+  context:
+    required:
+      - task_description
+    optional:
+      - research_scope
+      - data_sources
+      - time_constraints
+      - quality_criteria
+
+  # Working directory for this agent
+  workspace: "./workspaces/analyzer"
+
+  # Memory integration
+  memory:
+    short_term: true
+    long_term: true
+    episodic: true
+
+  # Communication settings
+  communication:
+    log_level: info
+    report_to:
+      - planner
+      - execution
+
+  # Tool access
+  tools:
+    - filesystem
+    - web_search
+    - grep
+    - read_file
+
+  # Success criteria
+  success_criteria:
+    - Research question answered
+    - Patterns identified
+    - Insights documented
+    - Recommendations provided
+
+  # Failure handling
+  on_failure:
+    retry: 1
+    escalate_to: planner
+    log_error: true
+
+  # Metadata
+  metadata:
+    author: "SISO-Internal"
+    created: "2026-02-09"
+    updated: "2026-02-09"

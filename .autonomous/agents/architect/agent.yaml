@@ -1,0 +1,108 @@
+# Agent Definition: Architect
+# SISO-Internal Autonomous System
+
+agent:
+  id: architect
+  name: Architect
+  version: "1.0.0"
+  type: architect
+  description: "System design, patterns, and scalability specialist"
+
+  # Agent capabilities
+  capabilities:
+    - system_design
+    - architecture_patterns
+    - scalability_planning
+    - integration_design
+    - technology_selection
+    - technical_strategy
+
+  # Triggers - when this agent should be activated
+  triggers:
+    keywords:
+      - architecture
+      - design
+      - refactor
+      - pattern
+      - scalability
+      - structure
+      - system
+      - component
+      - integration
+      - platform
+      - "should we"
+      - "how should we"
+      - "what's the best way"
+      - strategy
+      - complex
+      - decision
+    task_types:
+      - architecture
+      - design
+      - refactoring
+    min_confidence: 0.70
+
+  # Input/Output specification
+  io:
+    input_formats:
+      - text
+      - markdown
+      - yaml
+      - diagrams
+    output_formats:
+      - markdown
+      - yaml
+      - mermaid
+
+  # Context requirements
+  context:
+    required:
+      - problem_statement
+      - constraints
+    optional:
+      - existing_system
+      - performance_requirements
+      - security_requirements
+      - scalability_targets
+
+  # Working directory for this agent
+  workspace: "./workspaces/architect"
+
+  # Memory integration
+  memory:
+    short_term: true
+    long_term: true
+    episodic: true
+
+  # Communication settings
+  communication:
+    log_level: info
+    report_to:
+      - planner
+      - execution
+
+  # Tool access
+  tools:
+    - filesystem
+    - read_file
+    - grep
+    - web_search
+
+  # Success criteria
+  success_criteria:
+    - Architecture defined
+    - Patterns selected
+    - Trade-offs documented
+    - Implementation path clear
+
+  # Failure handling
+  on_failure:
+    retry: 0
+    escalate_to: planner
+    log_error: true
+
+  # Metadata
+  metadata:
+    author: "SISO-Internal"
+    created: "2026-02-09"
+    updated: "2026-02-09"

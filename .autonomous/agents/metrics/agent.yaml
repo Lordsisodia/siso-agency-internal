@@ -1,0 +1,96 @@
+# Agent Definition: Metrics
+# SISO-Internal Autonomous System
+
+agent:
+  id: metrics
+  name: Metrics
+  version: "1.0.0"
+  type: analyst
+  description: "Performance monitoring and metrics collection specialist"
+
+  # Agent capabilities
+  capabilities:
+    - metrics_collection
+    - performance_monitoring
+    - data_aggregation
+    - reporting
+    - alerting
+    - trend_analysis
+
+  # Triggers - when this agent should be activated
+  triggers:
+    keywords:
+      - metrics
+      - performance
+      - monitoring
+      - analytics
+      - stats
+      - telemetry
+      - measurement
+      - tracking
+      - kpi
+      - dashboard
+    task_types:
+      - monitoring
+      - reporting
+    min_confidence: 0.70
+
+  # Input/Output specification
+  io:
+    input_formats:
+      - json
+      - yaml
+      - log
+    output_formats:
+      - json
+      - yaml
+      - markdown
+      - csv
+
+  # Context requirements
+  context:
+    required:
+      - metric_definitions
+    optional:
+      - time_range
+      - aggregation_method
+      - alert_thresholds
+
+  # Working directory for this agent
+  workspace: "./workspaces/metrics"
+
+  # Memory integration
+  memory:
+    short_term: true
+    long_term: true
+    episodic: false
+
+  # Communication settings
+  communication:
+    log_level: info
+    report_to:
+      - planner
+
+  # Tool access
+  tools:
+    - filesystem
+    - read_file
+
+  # Success criteria
+  success_criteria:
+    - Metrics collected
+    - Data aggregated
+    - Reports generated
+    - Trends identified
+
+  # Failure handling
+  on_failure:
+    retry: 2
+    escalate_to: planner
+    log_error: true
+
+  # Metadata
+  metadata:
+    author: "SISO-Internal"
+    created: "2026-02-09"
+    updated: "2026-02-09"

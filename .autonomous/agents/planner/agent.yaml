@@ -1,0 +1,105 @@
+# Agent Definition: Planner
+# SISO-Internal Autonomous System
+
+agent:
+  id: planner
+  name: Planner
+  version: "1.0.0"
+  type: coordinator
+  description: "Task planning, coordination, and orchestration specialist"
+
+  # Agent capabilities
+  capabilities:
+    - task_planning
+    - coordination
+    - orchestration
+    - scheduling
+    - dependency_management
+    - resource_allocation
+
+  # Triggers - when this agent should be activated
+  triggers:
+    keywords:
+      - plan
+      - coordinate
+      - orchestrate
+      - schedule
+      - organize
+      - manage
+      - delegate
+      - assign
+      - roadmap
+      - sprint
+      - milestone
+    task_types:
+      - planning
+      - coordination
+      - management
+    min_confidence: 0.70
+
+  # Input/Output specification
+  io:
+    input_formats:
+      - text
+      - markdown
+      - yaml
+    output_formats:
+      - yaml
+      - markdown
+      - json
+
+  # Context requirements
+  context:
+    required:
+      - objective
+    optional:
+      - constraints
+      - resources
+      - timeline
+      - dependencies
+      - priorities
+
+  # Working directory for this agent
+  workspace: "./workspaces/planner"
+
+  # Memory integration
+  memory:
+    short_term: true
+    long_term: true
+    episodic: true
+
+  # Communication settings
+  communication:
+    log_level: info
+    report_to: []
+    can_delegate_to:
+      - analyzer
+      - architect
+      - execution
+      - executor
+      - scout
+
+  # Tool access
+  tools:
+    - filesystem
+    - read_file
+    - task_utils
+
+  # Success criteria
+  success_criteria:
+    - Plan created
+    - Tasks defined
+    - Dependencies mapped
+    - Resources allocated
+
+  # Failure handling
+  on_failure:
+    retry: 1
+    escalate_to: null  # Top-level agent
+    log_error: true
+
+  # Metadata
+  metadata:
+    author: "SISO-Internal"
+    created: "2026-02-09"
+    updated: "2026-02-09"

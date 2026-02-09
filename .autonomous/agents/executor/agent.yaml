@@ -1,0 +1,102 @@
+# Agent Definition: Executor
+# SISO-Internal Autonomous System
+
+agent:
+  id: executor
+  name: Executor
+  version: "1.0.0"
+  type: executor
+  description: "Low-level command execution and automation specialist"
+
+  # Agent capabilities
+  capabilities:
+    - command_execution
+    - script_running
+    - automation
+    - system_operations
+    - batch_processing
+    - pipeline_execution
+
+  # Triggers - when this agent should be activated
+  triggers:
+    keywords:
+      - run
+      - execute
+      - command
+      - script
+      - batch
+      - pipeline
+      - automate
+      - process
+      - job
+    task_types:
+      - execution
+      - automation
+    min_confidence: 0.70
+
+  # Input/Output specification
+  io:
+    input_formats:
+      - text
+      - script
+      - yaml
+    output_formats:
+      - text
+      - json
+      - log
+
+  # Context requirements
+  context:
+    required:
+      - command_or_script
+    optional:
+      - environment_variables
+      - timeout
+      - expected_output
+      - error_handling
+
+  # Working directory for this agent
+  workspace: "./workspaces/executor"
+
+  # Memory integration
+  memory:
+    short_term: true
+    long_term: false
+    episodic: true
+
+  # Communication settings
+  communication:
+    log_level: info
+    report_to:
+      - execution
+      - metrics
+
+  # Tool access
+  tools:
+    - bash
+    - filesystem
+
+  # Success criteria
+  success_criteria:
+    - Commands executed successfully
+    - Output captured
+    - Errors handled
+    - Logs generated
+
+  # Failure handling
+  on_failure:
+    retry: 1
+    escalate_to: execution
+    log_error: true
+
+  # Safety settings
+  safety:
+    dry_run_first: true
+    confirm_destructive: true
+    max_execution_time: 300  # seconds
+
+  # Metadata
+  metadata:
+    author: "SISO-Internal"
+    created: "2026-02-09"
+    updated: "2026-02-09"

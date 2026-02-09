@@ -1,0 +1,107 @@
+# Agent Definition: Execution
+# SISO-Internal Autonomous System
+
+agent:
+  id: execution
+  name: Execution
+  version: "1.0.0"
+  type: executor
+  description: "Task execution and implementation specialist"
+
+  # Agent capabilities
+  capabilities:
+    - task_execution
+    - implementation
+    - code_generation
+    - file_operations
+    - testing
+    - validation
+
+  # Triggers - when this agent should be activated
+  triggers:
+    keywords:
+      - implement
+      - code
+      - develop
+      - build
+      - create
+      - write
+      - function
+      - class
+      - module
+      - api
+      - endpoint
+      - execute
+      - fix
+      - update
+    task_types:
+      - implementation
+      - development
+      - bug_fix
+    min_confidence: 0.70
+
+  # Input/Output specification
+  io:
+    input_formats:
+      - text
+      - markdown
+      - yaml
+      - code
+    output_formats:
+      - code
+      - markdown
+      - yaml
+
+  # Context requirements
+  context:
+    required:
+      - task_specification
+    optional:
+      - code_style
+      - test_requirements
+      - dependencies
+      - examples
+
+  # Working directory for this agent
+  workspace: "./workspaces/execution"
+
+  # Memory integration
+  memory:
+    short_term: true
+    long_term: false
+    episodic: true
+
+  # Communication settings
+  communication:
+    log_level: info
+    report_to:
+      - planner
+      - metrics
+
+  # Tool access
+  tools:
+    - filesystem
+    - read_file
+    - edit_file
+    - write_file
+    - bash
+    - grep
+
+  # Success criteria
+  success_criteria:
+    - Code implemented
+    - Tests passing
+    - Documentation updated
+    - Quality standards met
+
+  # Failure handling
+  on_failure:
+    retry: 2
+    escalate_to: planner
+    log_error: true
+
+  # Metadata
+  metadata:
+    author: "SISO-Internal"
+    created: "2026-02-09"
+    updated: "2026-02-09"
