@@ -22,11 +22,7 @@ import {
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/lib/supabase/client';
-import {
-  enableAutonomousMode,
-  disableAutonomousMode,
-  triggerAutonomousPlanning
-} from '@/services/autonomousTaskService';
+import { RefreshCw } from 'lucide-react';
 
 interface AutonomousSubtask {
   id: string;
@@ -169,30 +165,9 @@ export const AutonomousSubtasksSection: React.FC<AutonomousSubtasksSectionProps>
     setExpandedMetadata(expandedMetadata === subtaskId ? null : subtaskId);
   };
 
-  const handleEnableAutonomousMode = async () => {
+  const handleRefresh = async () => {
     setLoading(true);
-    const result = await enableAutonomousMode(taskId);
-    if (result.error) {
-      setError(result.error);
-    } else {
-      // Trigger initial planning
-      const planResult = await triggerAutonomousPlanning(taskId);
-      if (planResult.error) {
-        setError(planResult.error);
-      }
-      fetchSubtasks();
-    }
-    setLoading(false);
-  };
-
-  const handleDisableAutonomousMode = async () => {
-    setLoading(true);
-    const result = await disableAutonomousMode(taskId);
-    if (result.error) {
-      setError(result.error);
-    } else {
-      fetchSubtasks();
-    }
+    await fetchSubtasks();
     setLoading(false);
   };
 
@@ -231,16 +206,15 @@ export const AutonomousSubtasksSection: React.FC<AutonomousSubtasksSectionProps>
           )}
         </div>
 
-        {subtasks.length === 0 && (
-          <Button
-            size="sm"
-            onClick={handleEnableAutonomousMode}
-            className="bg-cyan-600 hover:bg-cyan-700 text-white"
-          >
-            <Sparkles className="w-4 h-4 mr-1" />
-            Enable Autonomous Mode
-          </Button>
-        )}
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={handleRefresh}
+          disabled={loading}
+          className="text-gray-400 hover:text-white"
+        >
+          <RefreshCw className={cn("w-4 h-4", loading && "animate-spin")} />
+        </Button>
       </div>
 
       {/* Subtasks list */}
@@ -389,7 +363,7 @@ export const AutonomousSubtasksSection: React.FC<AutonomousSubtasksSectionProps>
             <Bot className="w-10 h-10 mx-auto mb-3 opacity-50" />
             <p className="text-sm mb-1">No autonomous work yet</p>
             <p className="text-xs opacity-70">
-              Enable autonomous mode to let agents break this down and work on it
+              The task agent will analyze this task and create subtasks automatically
             </p>
           </div>
         )}
