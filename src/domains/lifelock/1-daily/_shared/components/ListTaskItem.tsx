@@ -15,7 +15,6 @@ import {
   CircleDotDashed,
   ChevronDown,
   ChevronRight,
-  Calendar,
   Timer,
   Plus,
   Building2,
@@ -195,8 +194,6 @@ export function ListTaskItem({
   };
 
   const summary = getTaskTimeSummary?.(task);
-  const elapsedMs = getElapsedMsForTask(task.id);
-  const formattedTime = formatMsAsClock(elapsedMs);
 
   const subtasksToShow = sortSubtasks
     ? sortSubtasks(
@@ -273,7 +270,7 @@ export function ListTaskItem({
                 />
               ) : (
                 <h4
-                  className={`${theme.colors.text} hover:${theme.colors.textSecondary} font-medium text-sm cursor-pointer transition-colors truncate`}
+                  className={`${theme.colors.text} hover:${theme.colors.textSecondary} font-medium text-sm cursor-pointer transition-colors break-words`}
                   onClick={() => onMainTaskStartEditing(task.id, task.title)}
                   title={task.title}
                 >
@@ -284,19 +281,6 @@ export function ListTaskItem({
 
             {/* Compact Metadata Row */}
             <div className="flex items-center gap-2 flex-shrink-0">
-              {/* Due Date - Compact */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onTaskCalendarToggle(task.id);
-                }}
-                className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium transition-colors ${getDueDateClasses(task.dueDate)}`}
-                title={`Due: ${task.dueDate ? formatShortDate(task.dueDate) : 'Not set'}`}
-              >
-                <Calendar className="h-3 w-3" />
-                <span className="hidden sm:inline">{formatShortDate(task.dueDate)}</span>
-              </button>
-
               {/* Priority Badge - Compact */}
               <button
                 onClick={(e) => {
@@ -308,23 +292,6 @@ export function ListTaskItem({
               >
                 <span className="hidden sm:inline">{priorityConfig.icon}</span>
                 <span>{priorityConfig.shortLabel}</span>
-              </button>
-
-              {/* Timer Button - Compact */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onTimerToggle(task.id);
-                }}
-                className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium border transition-colors ${
-                  activeTimer?.taskId === task.id
-                    ? `${theme.colors.timerActiveBg} ${theme.colors.timerActiveText} ${theme.colors.timerActiveBorder}`
-                    : `${theme.colors.timerBg} ${theme.colors.timerText} ${theme.colors.timerBorder}`
-                }`}
-                title={activeTimer?.taskId === task.id ? 'Stop timer' : 'Start timer'}
-              >
-                <Timer className="h-3 w-3" />
-                <span className="hidden sm:inline">{formattedTime}</span>
               </button>
 
               {/* Expand/Collapse Toggle */}
@@ -522,18 +489,6 @@ export function ListTaskItem({
                   </Button>
                 )}
               </div>
-
-              {/* Calendar Popup for Task */}
-              {activeTaskCalendarId === task.id && (
-                <div className="calendar-popup fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 bg-gray-800 border border-gray-600 rounded-lg shadow-xl p-3 min-w-[280px] max-w-[90vw] max-h-[90vh] overflow-auto">
-                  <CustomCalendar
-                    theme={themeName}
-                    subtask={{ dueDate: task.dueDate }}
-                    onDateSelect={(date) => onTaskCalendarSelect(task.id, date)}
-                    onClose={() => onTaskCalendarToggle('')}
-                  />
-                </div>
-              )}
 
               {/* Priority Menu */}
               <AnimatePresence>
