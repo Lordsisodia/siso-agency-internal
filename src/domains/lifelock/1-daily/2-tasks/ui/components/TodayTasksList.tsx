@@ -28,7 +28,6 @@ import {
   Brain,
   Search,
   Filter,
-  CheckSquare,
   X,
   Sparkles,
   Timer,
@@ -818,24 +817,7 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
                           isSelected && "ring-2 ring-teal-500/50 rounded-lg"
                         )}
                       >
-                        {/* Selection checkbox */}
-                        <div className="absolute left-2 top-4 z-10">
-                          <button
-                            onClick={() => toggleTaskSelection(task.id)}
-                            className={cn(
-                              "w-5 h-5 rounded border-2 flex items-center justify-center transition-colors",
-                              isSelected
-                                ? "bg-teal-500 border-teal-500"
-                                : "border-teal-700/50 hover:border-teal-500"
-                            )}
-                            aria-label={isSelected ? "Deselect task" : "Select task"}
-                            aria-pressed={isSelected}
-                          >
-                            {isSelected && <CheckSquare className="h-3 w-3 text-white" />}
-                          </button>
-                        </div>
-
-                        <div className="pl-8">
+                        <div>
                           {/* Time Badge - shows scheduled time */}
                           {task.timebox && (
                             <div className="mb-2 flex items-center gap-2">
