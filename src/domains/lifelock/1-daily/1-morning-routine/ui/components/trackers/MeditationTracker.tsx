@@ -99,6 +99,7 @@ export const MeditationTracker: React.FC<MeditationTrackerProps> = ({
                 return (
                   <button
                     key={preset.minutes}
+                    data-testid={`meditation-preset-${preset.minutes}min`}
                     onClick={() => handlePresetClick(preset.minutes)}
                     disabled={isSaving}
                     className={cn(
@@ -122,12 +123,13 @@ export const MeditationTracker: React.FC<MeditationTrackerProps> = ({
                 <Button
                   size="sm"
                   variant="outline"
+                  data-testid="meditation-decrement"
                   onClick={handleDecrement}
                   className="border-orange-600 text-orange-400 hover:bg-orange-900/30 h-7 px-2 flex-shrink-0 text-xs active:scale-95 transition-transform"
                 >
                   -1
                 </Button>
-                <div className="flex-1 text-center">
+                <div className="flex-1 text-center" data-testid="meditation-value">
                   <div className="text-orange-100 font-bold text-base">
                     {currentMins} min
                   </div>
@@ -136,6 +138,7 @@ export const MeditationTracker: React.FC<MeditationTrackerProps> = ({
                 <Button
                   size="sm"
                   variant="outline"
+                  data-testid="meditation-increment"
                   onClick={handleIncrement}
                   className="border-orange-600 text-orange-400 hover:bg-orange-900/30 h-7 px-2 flex-shrink-0 text-xs active:scale-95 transition-transform"
                 >
@@ -144,6 +147,7 @@ export const MeditationTracker: React.FC<MeditationTrackerProps> = ({
                 <Button
                   size="sm"
                   variant="outline"
+                  data-testid="meditation-quick-add-5"
                   onClick={handleIncrementFive}
                   className="border-orange-600 text-orange-400 hover:bg-orange-900/30 h-7 px-2 flex-shrink-0 text-xs active:scale-95 transition-transform"
                 >
@@ -152,6 +156,7 @@ export const MeditationTracker: React.FC<MeditationTrackerProps> = ({
                 <Button
                   size="sm"
                   variant="outline"
+                  data-testid="meditation-clear"
                   onClick={handleClear}
                   className="border-red-600/50 text-red-400 hover:bg-red-900/20 hover:border-red-500 h-7 px-2 flex-shrink-0 active:scale-95 transition-transform"
                   title="Clear meditation time"
@@ -180,6 +185,7 @@ export const MeditationTracker: React.FC<MeditationTrackerProps> = ({
 
             {/* Timer Button */}
             <Button
+              data-testid="meditation-timer-button"
               onClick={() => setShowTimer(true)}
               className="w-full bg-orange-600/20 hover:bg-orange-600/30 border border-orange-500/40 text-orange-300 active:scale-95 transition-transform"
             >

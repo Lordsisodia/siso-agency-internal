@@ -694,6 +694,11 @@ const waterXPRef = useRef(0);
     }
   };
 
+  // Refs to prevent race conditions in quantifiable subtasks
+  const pushupSyncPendingRef = useRef(false);
+  const waterSyncPendingRef = useRef(false);
+  const supplementsSyncPendingRef = useRef(false);
+
   // Handle habit toggle
   const handleHabitToggle = async (habitKey: string, completed: boolean) => {
     if (!selectedDate) return;
@@ -1160,13 +1165,22 @@ const waterXPRef = useRef(0);
                                         onChange={(value) => {
                                           updatePushupReps(value);
                                           // Sync checkbox state with value (checked if reps > 0)
+                                          // Use ref to prevent race conditions during rapid updates
+                                          if (pushupSyncPendingRef.current) return;
+                                          pushupSyncPendingRef.current = true;
                                           const shouldBeChecked = value > 0;
                                           if (shouldBeChecked !== isHabitCompleted('pushups')) {
-                                            handleHabitToggle('pushups', shouldBeChecked);
+                                            handleHabitToggle('pushups', shouldBeChecked).then(() => {
+                                              setTimeout(() => { pushupSyncPendingRef.current = false; }, 50);
+                                            });
+                                          } else {
+                                            setTimeout(() => { pushupSyncPendingRef.current = false; }, 50);
                                           }
                                         }}
                                         checked={isHabitCompleted('pushups')}
                                         onCheckChange={(checked) => {
+                                          // Prevent race condition: if sync is pending, don't process checkbox change
+                                          if (pushupSyncPendingRef.current) return;
                                           handleHabitToggle('pushups', checked);
                                           if (!checked) updatePushupReps(0);
                                         }}
