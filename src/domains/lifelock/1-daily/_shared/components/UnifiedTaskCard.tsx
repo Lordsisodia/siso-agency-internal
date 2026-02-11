@@ -13,19 +13,11 @@ import {
   Circle,
   CircleAlert,
   CircleDotDashed,
-  Calendar,
-  Timer,
   Plus,
   ChevronDown,
   ChevronRight,
-  ArrowUp,
-  ArrowDown,
-  Building2,
   Play,
   Pause,
-  Maximize2,
-  Brain,
-  Zap,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -585,21 +577,9 @@ export function UnifiedTaskCard({
                 transition={{ duration: 0.2 }}
                 className="pt-3 overflow-hidden"
               >
-                {/* Single-row metadata: Date | Priority | Time | Timer | Arrows */}
-                <div className="flex items-center gap-2 flex-wrap">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onTaskCalendarToggle(task.id);
-                    }}
-                    className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${getDueDateClasses(task.dueDate)}`}
-                    title="Schedule this task"
-                  >
-                    <Calendar className="h-3.5 w-3.5" />
-                    <span>{formatShortDate(task.dueDate)}</span>
-                  </button>
-
-                  {/* Priority Badge - Click to open priority menu */}
+                {/* Clean metadata row: Priority dot | Timebox | Play button */}
+                <div className="flex items-center gap-3">
+                  {/* Priority Dot - Click to open priority menu */}
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -607,163 +587,101 @@ export function UnifiedTaskCard({
                         onTaskPriorityMenuToggle(task.id);
                       }
                     }}
-                    className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${priorityConfig.badgeClass}`}
+                    className={cn(
+                      "w-3 h-3 rounded-full transition-transform hover:scale-125",
+                      task.priority?.toLowerCase() === 'urgent' && "bg-purple-500",
+                      task.priority?.toLowerCase() === 'high' && "bg-red-500",
+                      task.priority?.toLowerCase() === 'medium' && "bg-yellow-500",
+                      task.priority?.toLowerCase() === 'low' && "bg-green-500",
+                      !task.priority && "bg-yellow-500"
+                    )}
                     title="Click to change priority"
-                  >
-                    <span>{priorityConfig.icon}</span>
-                    <span>{priorityConfig.label}</span>
-                  </button>
+                  />
 
-                  {/* Work Type Toggle - Light/Deep Work */}
-                  {onWorkTypeToggle && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        const newWorkType = workType === 'light' ? 'deep' : 'light';
-                        onWorkTypeToggle(task.id, newWorkType);
-                      }}
-                      className={cn(
-                        "flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors border",
-                        workType === 'deep'
-                          ? "bg-blue-900/30 text-blue-200 border-blue-700/40 hover:bg-blue-900/50"
-                          : "bg-green-900/30 text-green-200 border-green-700/40 hover:bg-green-900/50"
-                      )}
-                      title={`Click to switch to ${workType === 'light' ? 'deep' : 'light'} work`}
-                    >
-                      {workType === 'deep' ? (
-                        <>
-                          <Brain className="h-3.5 w-3.5" />
-                          <span>Deep</span>
-                        </>
-                      ) : (
-                        <>
-                          <Zap className="h-3.5 w-3.5" />
-                          <span>Light</span>
-                        </>
-                      )}
-                    </button>
-                  )}
-
-                  {/* Client Badge (Deep Work only) */}
-                  {task.clientId && clientMap && clientMap.has(task.clientId) && (
-                    <div
-                      className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-purple-900/20 text-purple-200 border border-purple-700/40"
-                      title={`Linked to ${clientMap.get(task.clientId)}`}
-                    >
-                      <Building2 className="h-3.5 w-3.5" />
-                      <span className="max-w-[120px] break-words">{clientMap.get(task.clientId)}</span>
+                  {/* Timebox Input - Start time + Duration */}
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
+                      <span className={`text-xs ${theme.colors.textMuted}`}>Start:</span>
+                      <input
+                        type="time"
+                        defaultValue={task.timebox?.startTime || ''}
+                        onChange={(e) => {
+                          const startTime = e.target.value;
+                          if (startTime && onTaskTimeChange) {
+                            // Calculate end time based on existing duration or default 30 min
+                            const [hours, minutes] = startTime.split(':').map(Number);
+                            const durationMinutes = task.timebox
+                              ? (parseInt(task.timebox.endTime.split(':')[0]) * 60 + parseInt(task.timebox.endTime.split(':')[1]))
+                                - (parseInt(task.timebox.startTime.split(':')[0]) * 60 + parseInt(task.timebox.startTime.split(':')[1]))
+                              : 30;
+                            const endTotalMinutes = hours * 60 + minutes + durationMinutes;
+                            const endHours = Math.floor(endTotalMinutes / 60) % 24;
+                            const endMins = endTotalMinutes % 60;
+                            const endTime = `${String(endHours).padStart(2, '0')}:${String(endMins).padStart(2, '0')}`;
+                            onTaskTimeChange(`${startTime}-${endTime}`);
+                          }
+                        }}
+                        className={`w-20 px-1.5 py-0.5 rounded text-xs ${theme.colors.inputBg} border ${theme.colors.inputBorder} ${theme.colors.text} ${theme.colors.inputFocusBorder} focus:outline-none`}
+                      />
                     </div>
-                  )}
+                    <div className="flex items-center gap-1">
+                      <span className={`text-xs ${theme.colors.textMuted}`}>Duration:</span>
+                      <select
+                        defaultValue={task.timebox
+                          ? (() => {
+                              const start = parseInt(task.timebox.startTime.split(':')[0]) * 60 + parseInt(task.timebox.startTime.split(':')[1]);
+                              const end = parseInt(task.timebox.endTime.split(':')[0]) * 60 + parseInt(task.timebox.endTime.split(':')[1]);
+                              const mins = end - start;
+                              return String(mins);
+                            })()
+                          : '30'
+                        }
+                        onChange={(e) => {
+                          const durationMinutes = parseInt(e.target.value);
+                          const startTime = task.timebox?.startTime || '09:00';
+                          if (startTime && onTaskTimeChange) {
+                            const [hours, minutes] = startTime.split(':').map(Number);
+                            const endTotalMinutes = hours * 60 + minutes + durationMinutes;
+                            const endHours = Math.floor(endTotalMinutes / 60) % 24;
+                            const endMins = endTotalMinutes % 60;
+                            const endTime = `${String(endHours).padStart(2, '0')}:${String(endMins).padStart(2, '0')}`;
+                            onTaskTimeChange(`${startTime}-${endTime}`);
+                          }
+                        }}
+                        className={`w-20 px-1.5 py-0.5 rounded text-xs ${theme.colors.inputBg} border ${theme.colors.inputBorder} ${theme.colors.text} ${theme.colors.inputFocusBorder} focus:outline-none`}
+                      >
+                        <option value="15">15 min</option>
+                        <option value="30">30 min</option>
+                        <option value="45">45 min</option>
+                        <option value="60">1 hour</option>
+                        <option value="90">1.5 hours</option>
+                        <option value="120">2 hours</option>
+                        <option value="180">3 hours</option>
+                        <option value="240">4 hours</option>
+                      </select>
+                    </div>
+                  </div>
 
-                  {/* Time Estimate - Always show button to allow editing */}
-                  {editingTaskTimeId === task.id ? (
-                    <input
-                      type="text"
-                      value={editTaskTimeValue}
-                      onChange={(e) => onTaskTimeChange(e.target.value)}
-                      onKeyDown={(e) => onTaskTimeKeyDown(e, task.id)}
-                      onBlur={() => onTaskTimeSave(task.id)}
-                      className={`px-2 py-1 rounded-md text-xs font-medium ${theme.colors.inputBg} border ${theme.colors.inputBorder} ${theme.colors.text} ${theme.colors.inputFocusBorder} focus:outline-none`}
-                      placeholder="e.g. 2h"
-                      autoFocus
-                    />
-                  ) : (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onTaskTimeStartEditing(task, summary?.formatted || '30m');
-                      }}
-                      className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium ${theme.colors.textMuted}/90 ${theme.colors.bg}/20 transition-colors hover:${theme.colors.bg}/40`}
-                      title="Click to set time estimate"
-                    >
-                      <Timer className="h-3.5 w-3.5" />
-                      <span>{summary?.formatted || 'Set time'}</span>
-                    </button>
-                  )}
-
-                  {/* Timer Button - Smart Collapse */}
+                  {/* Timer Play/Pause Button - Icon only */}
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       onTimerToggle(task.id);
                     }}
-                    className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium border transition-all duration-200 ${
+                    className={`flex items-center justify-center w-7 h-7 rounded-full border transition-all duration-200 ml-auto ${
                       task.activeTimer?.taskId === task.id
                         ? `${theme.colors.timerActiveBg} ${theme.colors.timerActiveText} border ${theme.colors.timerActiveBorder} hover:${theme.colors.timerActiveBg}/40`
                         : `${theme.colors.timerBg} ${theme.colors.timerText} border ${theme.colors.timerBorder} hover:${theme.colors.bg}/30`
                     }`}
-                    title={task.activeTimer?.taskId === task.id ? `Stop timer (${formattedTime})` : `Start timer (${formattedTime})`}
+                    title={task.activeTimer?.taskId === task.id ? 'Stop timer' : 'Start timer'}
                   >
                     {task.activeTimer?.taskId === task.id ? (
-                      <>
-                        <Pause className="h-3.5 w-3.5" />
-                        <span>{formattedTime}</span>
-                      </>
+                      <Pause className="h-3.5 w-3.5" />
                     ) : (
-                      <>
-                        <Play className="h-3.5 w-3.5" />
-                        <span className="hidden sm:inline">{formattedTime}</span>
-                      </>
+                      <Play className="h-3.5 w-3.5" />
                     )}
                   </button>
-
-                  {/* Expand Button - Opens Task Detail */}
-                  {onTaskClick && (
-                    <motion.button
-                      className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium border ${theme.colors.bg}/20 hover:${theme.colors.bg}/40 ${theme.colors.textSecondary} transition-colors`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onTaskClick(task);
-                      }}
-                      whileTap={{ scale: 0.9 }}
-                      title="Open task details"
-                    >
-                      <Maximize2 className="h-3.5 w-3.5" />
-                    </motion.button>
-                  )}
-
-                  {/* Reorder Arrows - Inline */}
-                  <div className="flex items-center gap-1 ml-auto">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onMoveTask(task.id, 'up');
-                      }}
-                      disabled={isFirst}
-                      className={`p-1 rounded-md border ${theme.colors.inputBorder} ${theme.colors.textSecondary} transition-colors ${
-                        isFirst ? 'opacity-40 cursor-not-allowed' : theme.colors.priorityHover
-                      }`}
-                      title="Move up"
-                    >
-                      <ArrowUp className="h-3.5 w-3.5" />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onMoveTask(task.id, 'down');
-                      }}
-                      disabled={isLast}
-                      className={`p-1 rounded-md border ${theme.colors.inputBorder} ${theme.colors.textSecondary} transition-colors ${
-                        isLast ? 'opacity-40 cursor-not-allowed' : theme.colors.priorityHover
-                      }`}
-                      title="Move down"
-                    >
-                      <ArrowDown className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
                 </div>
-
-                {/* Calendar Popup */}
-                {activeTaskCalendarId === task.id && (
-                  <div className="calendar-popup fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 bg-gray-800 border border-gray-600 rounded-lg shadow-xl p-3 min-w-[280px] max-w-[90vw] max-h-[90vh] overflow-auto">
-                    <CustomCalendar
-                      theme={themeName}
-                      subtask={{ dueDate: task.dueDate }}
-                      onDateSelect={(date) => onTaskCalendarSelect(task.id, date)}
-                      onClose={() => onTaskCalendarToggle('')}
-                    />
-                  </div>
-                )}
 
                 {/* Priority Menu */}
                 <AnimatePresence>

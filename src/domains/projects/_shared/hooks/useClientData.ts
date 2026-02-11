@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/services/integrations/supabase/client';
-import { useAuthSession } from '@/lib/hooks/auth/useAuthSession';
+import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
+import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 
 export interface ClientData {
   id: string;
@@ -23,12 +24,13 @@ export interface ClientData {
  * Returns client information if user is linked to a client record
  */
 export const useClientData = () => {
-  const { user } = useAuthSession();
+  const { user } = useClerkUser();
+  const internalUserId = useSupabaseUserId(user?.id || null);
 
   return useQuery({
-    queryKey: ['clientData', user?.id],
+    queryKey: ['clientData', internalUserId],
     queryFn: async () => {
-      if (!user?.id) {
+      if (!internalUserId) {
         throw new Error('User not authenticated');
       }
 
@@ -36,7 +38,7 @@ export const useClientData = () => {
       const { data: userLink, error: linkError } = await supabase
         .from('client_user_links')
         .select('client_id')
-        .eq('user_id', user.id)
+        .eq('user_id', internalUserId)
         .single();
 
       // Silently return null if table doesn't exist (internal app doesn't have client tables)
@@ -56,7 +58,7 @@ export const useClientData = () => {
         const { data: clientRecord, error: clientError } = await supabase
           .from('client_onboarding')
           .select('id')
-          .eq('user_id', user.id)
+          .eq('user_id', internalUserId)
           .single();
 
         // Silently return null if table doesn't exist
@@ -91,7 +93,7 @@ export const useClientData = () => {
 
       return clientData as ClientData;
     },
-    enabled: !!user?.id,
+    enabled: !!internalUserId,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
   });

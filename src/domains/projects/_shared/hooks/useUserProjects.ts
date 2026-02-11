@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/services/integrations/supabase/client';
-import { useAuthSession } from '@/lib/hooks/auth/useAuthSession';
+import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
+import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 
 export interface UserProject {
   id: string;
@@ -18,19 +19,20 @@ export interface UserProject {
  * Returns user's projects from the projects table
  */
 export const useUserProjects = () => {
-  const { user } = useAuthSession();
+  const { user } = useClerkUser();
+  const internalUserId = useSupabaseUserId(user?.id || null);
 
   return useQuery({
-    queryKey: ['userProjects', user?.id],
+    queryKey: ['userProjects', internalUserId],
     queryFn: async () => {
-      if (!user?.id) {
+      if (!internalUserId) {
         throw new Error('User not authenticated');
       }
 
       const { data, error } = await supabase
         .from('projects')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', internalUserId)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -39,7 +41,7 @@ export const useUserProjects = () => {
 
       return (data || []) as UserProject[];
     },
-    enabled: !!user?.id,
+    enabled: !!internalUserId,
     staleTime: 2 * 60 * 1000, // 2 minutes
     gcTime: 5 * 60 * 1000, // 5 minutes
   });

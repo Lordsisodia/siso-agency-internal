@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useProjects } from './useProjects';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/services/integrations/supabase/client';
-import { useAuthSession } from '@/lib/hooks/auth/useAuthSession';
+import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
+import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 
 export interface Project {
   id: string;
@@ -18,19 +19,20 @@ export function useSelectedProject() {
   const [isNewUser, setIsNewUser] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAuthSession();
+  const { user } = useClerkUser();
+  const internalUserId = useSupabaseUserId(user?.id || null);
 
   // Check if user has any real projects
   useEffect(() => {
     const checkForProjects = async () => {
-      if (!user) return;
-      
+      if (!internalUserId) return;
+
       try {
         // Check if user has any projects in the database
         const { data: userProjects, error } = await supabase
           .from('projects')
           .select('id')
-          .eq('user_id', user.id)
+          .eq('user_id', internalUserId)
           .limit(1);
           
         if (error) throw error;
@@ -60,7 +62,7 @@ export function useSelectedProject() {
     };
     
     checkForProjects();
-  }, [user]);
+  }, [internalUserId]);
 
   // Parse the current project ID from the URL
   useEffect(() => {
