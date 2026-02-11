@@ -22,8 +22,8 @@ export const PlanDayActions: React.FC<PlanDayActionsProps> = ({
   return (
     <div className="mt-3 space-y-2">
       {/* AI Thought Dump Button */}
-      <div
-        className="p-3 bg-gradient-to-r from-orange-900/20 to-orange-900/20 border border-orange-600/40 rounded-lg hover:border-orange-500/60 transition-all cursor-pointer"
+      <button
+        className="w-full text-left p-3 bg-gradient-to-r from-orange-900/20 to-orange-900/20 border border-orange-600/40 rounded-lg hover:border-orange-500/60 transition-all cursor-pointer"
         onClick={onOpenThoughtDump}
       >
         <div className="flex items-center gap-3">
@@ -33,7 +33,7 @@ export const PlanDayActions: React.FC<PlanDayActionsProps> = ({
             <p className="text-xs text-orange-400/60">Talk → Auto-organize → Timebox</p>
           </div>
         </div>
-      </div>
+      </button>
 
       {/* Mark Complete Button */}
       {!isComplete && (

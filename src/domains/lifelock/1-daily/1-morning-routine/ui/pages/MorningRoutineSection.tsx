@@ -1035,7 +1035,11 @@ const waterXPRef = useRef(0);
                     {/* Clickable Header */}
                     <div
                       className="p-4 cursor-pointer hover:bg-orange-900/10 transition-colors"
-                      onClick={() => toggleSection(task.key)}
+                      onClick={(e) => {
+                        if (e.target === e.currentTarget) {
+                          toggleSection(task.key);
+                        }
+                      }}
                     >
                       <div className="flex items-center justify-between gap-2 mb-3">
                         <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -1218,22 +1222,22 @@ const waterXPRef = useRef(0);
                                     ) : (
                                       /* Regular checkbox subtask - ROUNDED */
                                       <div
-                                        className="group flex items-center gap-3 rounded-lg transition-all duration-200 cursor-pointer touch-manipulation min-h-[44px] p-2 -m-2 hover:bg-orange-900/20 active:bg-orange-900/30"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleHabitToggle(subtask.key, !isHabitCompleted(subtask.key));
-                                        }}
+                                        className="group flex items-center gap-3 rounded-lg transition-all duration-200 touch-manipulation min-h-[44px] p-2 -m-2 hover:bg-orange-900/20 active:bg-orange-900/30"
                                       >
                                         {/* Rounded Checkbox */}
                                         <motion.div
                                           className={cn(
-                                            "flex-shrink-0 w-5 h-5 rounded-full border-2 transition-all duration-200",
+                                            "flex-shrink-0 w-5 h-5 rounded-full border-2 transition-all duration-200 cursor-pointer",
                                             "flex items-center justify-center",
                                             isHabitCompleted(subtask.key)
                                               ? "bg-orange-500 border-orange-500"
                                               : "border-orange-400/50 group-hover:border-orange-400"
                                           )}
                                           whileTap={{ scale: 0.95 }}
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleHabitToggle(subtask.key, !isHabitCompleted(subtask.key));
+                                          }}
                                         >
                                           {isHabitCompleted(subtask.key) && (
                                             <motion.div
@@ -1245,12 +1249,18 @@ const waterXPRef = useRef(0);
                                             </motion.div>
                                           )}
                                         </motion.div>
-                                        <span className={cn(
-                                          "text-sm font-medium transition-all duration-200 flex-1",
-                                          isHabitCompleted(subtask.key)
-                                            ? "text-gray-500 line-through"
-                                            : "text-orange-200/90 group-hover:text-orange-50"
-                                        )}>
+                                        <span
+                                          className={cn(
+                                            "text-sm font-medium transition-all duration-200 flex-1 cursor-pointer",
+                                            isHabitCompleted(subtask.key)
+                                              ? "text-gray-500 line-through"
+                                              : "text-orange-200/90 group-hover:text-orange-50"
+                                          )}
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleHabitToggle(subtask.key, !isHabitCompleted(subtask.key));
+                                          }}
+                                        >
                                           {subtask.title}
                                         </span>
                                       </div>

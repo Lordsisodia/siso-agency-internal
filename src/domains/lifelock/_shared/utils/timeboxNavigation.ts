@@ -52,12 +52,12 @@ export const getDefaultTimeboxSubtab = (state: TimeboxNavState): 'morning' | 'ti
 
 /**
  * Checks if morning routine is completed for a given date
- * This is a placeholder - you'll need to implement the actual check
- * based on your morning routine data structure
+ * NOTE: This function is deprecated. Use the useMorningRoutineSupabase hook instead.
  *
  * @param date - The date to check
  * @param userId - Optional user ID
  * @returns Promise<boolean> - Whether morning routine is completed
+ * @deprecated Use useMorningRoutineSupabase hook for React components
  */
 export const checkMorningRoutineCompletion = async (
   date: Date,
@@ -67,39 +67,10 @@ export const checkMorningRoutineCompletion = async (
     return false;
   }
 
-  const dateKey = format(date, 'yyyy-MM-dd');
-
-  try {
-    const response = await fetch(
-      `/api/morning-routine?userId=${userId}&date=${dateKey}`
-    );
-
-    if (!response.ok) {
-      return false;
-    }
-
-    const data = await response.json();
-
-    // Check completion percentage or completion status
-    // Adjust this based on your actual data structure
-    if (data?.completionPercentage !== undefined) {
-      return data.completionPercentage >= 100;
-    }
-
-    if (data?.completedCount !== undefined && data?.totalCount !== undefined) {
-      return data.completedCount >= data.totalCount;
-    }
-
-    // If we have items, check if all are completed
-    if (data?.items && Array.isArray(data.items)) {
-      return data.items.every((item: { completed: boolean }) => item.completed);
-    }
-
-    return false;
-  } catch (error) {
-    console.error('Failed to check morning routine completion:', error);
-    return false;
-  }
+  // This function previously called /api/morning-routine which no longer exists
+  // For non-React contexts, default to false - the React hooks handle the actual data fetching
+  console.warn('checkMorningRoutineCompletion is deprecated. Use useMorningRoutineSupabase hook instead.');
+  return false;
 };
 
 /**

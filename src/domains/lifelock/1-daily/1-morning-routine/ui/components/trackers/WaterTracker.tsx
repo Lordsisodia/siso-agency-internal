@@ -27,18 +27,21 @@ export const WaterTracker: React.FC<WaterTrackerProps> = ({
           <Button
             size="sm"
             variant="outline"
+            data-testid="water-decrement"
             onClick={onDecrement}
-            className="border-orange-600 text-orange-400 hover:bg-orange-900/30 h-7 w-7 p-0 flex-shrink-0"
+            disabled={value === 0}
+            className="border-orange-600 text-orange-400 hover:bg-orange-900/30 h-7 w-7 p-0 flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Minus className="h-3 w-3" />
           </Button>
-          <div className="flex-1 text-center">
+          <div className="flex-1 text-center" data-testid="water-value">
             <div className="text-orange-100 font-bold text-base">{value}ml</div>
             <div className="text-[10px] text-orange-400/60">Daily intake</div>
           </div>
           <Button
             size="sm"
             variant="outline"
+            data-testid="water-increment"
             onClick={onIncrement}
             className="border-orange-600 text-orange-400 hover:bg-orange-900/30 h-7 w-7 p-0 flex-shrink-0"
           >

@@ -21,8 +21,9 @@ import { SectionSubNav } from '@/components/navigation/SectionSubNav';
 import { celebrateSides } from '@/lib/utils/ui/confetti';
 import { cn } from '@/lib/utils';
 import { calculateDayCompletionPercentage } from '@/lib/utils/api/dayProgress';
-import { checkMorningRoutineCompletion, getDefaultTimeboxSubtab } from '@/domains/lifelock/_shared/utils/timeboxNavigation';
+import { getDefaultTimeboxSubtab } from '@/domains/lifelock/_shared/utils/timeboxNavigation';
 import { useSubtabCompletion } from '@/domains/lifelock/_shared/services/subtabCompletionService';
+import { useMorningRoutineSupabase } from '@/domains/lifelock/1-daily/1-morning-routine/hooks/useMorningRoutineSupabase';
 
 // Use centralized tab configuration to prevent routing inconsistencies
 const tabs = Object.values(TAB_CONFIG);
@@ -148,37 +149,26 @@ export const TabLayoutWrapper: React.FC<TabLayoutWrapperProps> = ({
   // XP Toast management
   const { toasts, addToast, removeToast } = useXPToasts();
 
+  // Morning routine hook for completion percentage
+  const { routine: morningRoutine } = useMorningRoutineSupabase(selectedDate);
+
   // Completion percentages for subtabs
   const [completionPercentages, setCompletionPercentages] = useState<Record<string, number>>({});
 
-  // Fetch morning routine completion percentage
+  // Update morning routine completion percentage from hook
   useEffect(() => {
     if (!userId || activeSection !== 'plan') return;
 
     const isToday = format(selectedDate, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
     if (!isToday) return;
 
-    const fetchMorningProgress = async () => {
-      try {
-        const dateKey = format(selectedDate, 'yyyy-MM-dd');
-        const response = await fetch(`/api/morning-routine?userId=${userId}&date=${dateKey}`);
-
-        if (response.ok) {
-          const data = await response.json();
-          if (data?.completionPercentage !== undefined) {
-            setCompletionPercentages(prev => ({
-              ...prev,
-              morning: data.completionPercentage
-            }));
-          }
-        }
-      } catch (error) {
-        console.error('Failed to fetch morning routine progress:', error);
-      }
-    };
-
-    fetchMorningProgress();
-  }, [selectedDate, userId, activeSection, morningRoutineCompleted]);
+    if (morningRoutine?.completionPercentage !== undefined) {
+      setCompletionPercentages(prev => ({
+        ...prev,
+        morning: morningRoutine.completionPercentage
+      }));
+    }
+  }, [selectedDate, userId, activeSection, morningRoutineCompleted, morningRoutine]);
 
   // Bulk action handlers
   const handleBulkAction = useCallback((action: 'markAllComplete' | 'markAllIncomplete') => {

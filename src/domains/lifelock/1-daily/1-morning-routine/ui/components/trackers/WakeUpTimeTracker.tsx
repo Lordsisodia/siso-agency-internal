@@ -18,6 +18,7 @@ interface WakeUpTimeTrackerProps {
   time: string;
   onOpenPicker: () => void;
   onUseNow: () => void;
+  onTimeChange?: (time: string) => void;
   selectedDate?: Date;
   onClear?: () => void;
 }
@@ -93,6 +94,7 @@ export const WakeUpTimeTracker: React.FC<WakeUpTimeTrackerProps> = ({
   time,
   onOpenPicker,
   onUseNow,
+  onTimeChange,
   selectedDate = new Date(),
   onClear
 }) => {
@@ -137,8 +139,12 @@ export const WakeUpTimeTracker: React.FC<WakeUpTimeTrackerProps> = ({
   ];
 
   const handlePresetClick = (presetTime: string) => {
-    // In real app, this would call onTimeChange
-    onOpenPicker(); // For now, just open picker
+    if (onTimeChange) {
+      onTimeChange(presetTime);
+    } else {
+      onOpenPicker();
+    }
+    setShowPresets(false);
   };
 
   const getBarHeight = (multiplier: number) => {

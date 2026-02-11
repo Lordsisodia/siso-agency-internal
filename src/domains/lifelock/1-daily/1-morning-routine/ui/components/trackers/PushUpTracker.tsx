@@ -28,12 +28,13 @@ export const PushUpTracker: React.FC<PushUpTrackerProps> = ({
             <Button
               size="sm"
               variant="outline"
+              data-testid="pushup-decrement"
               onClick={() => onUpdateReps(Math.max(0, reps - 1))}
               className="border-orange-600 text-orange-400 hover:bg-orange-900/30 h-7 px-2 flex-shrink-0 text-xs"
             >
               -1
             </Button>
-            <div className="flex-1 text-center">
+            <div className="flex-1 text-center" data-testid="pushup-value">
               <div className="text-orange-100 font-bold text-base">
                 {reps} reps
               </div>
@@ -42,6 +43,7 @@ export const PushUpTracker: React.FC<PushUpTrackerProps> = ({
             <Button
               size="sm"
               variant="outline"
+              data-testid="pushup-increment"
               onClick={() => onUpdateReps(reps + 1)}
               className="border-orange-600 text-orange-400 hover:bg-orange-900/30 h-7 px-2 flex-shrink-0 text-xs"
             >
@@ -50,6 +52,7 @@ export const PushUpTracker: React.FC<PushUpTrackerProps> = ({
             <Button
               size="sm"
               variant="outline"
+              data-testid="pushup-quick-add-5"
               onClick={() => onUpdateReps(reps + 5)}
               className="border-orange-600 text-orange-400 hover:bg-orange-900/30 h-7 px-2 flex-shrink-0 text-xs"
             >
@@ -60,7 +63,7 @@ export const PushUpTracker: React.FC<PushUpTrackerProps> = ({
           {/* PB Display */}
           <div className="flex items-center justify-between text-xs px-1">
             <span className="text-orange-400/60">Personal Best:</span>
-            <span className="text-orange-300 font-bold">{personalBest} reps</span>
+            <span className="text-orange-300 font-bold" data-testid="pushup-personal-best">{personalBest} reps</span>
           </div>
 
           {/* New PB celebration */}

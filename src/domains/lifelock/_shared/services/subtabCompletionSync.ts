@@ -2,9 +2,11 @@
  * Subtab Completion Sync Service
  *
  * Syncs subtab completion state with Supabase backend
+ * Uses direct Supabase client calls instead of API endpoints
  */
 
 import { format } from 'date-fns';
+import { supabaseAnon } from '@/lib/services/supabase/clerk-integration';
 
 export interface SubtabCompletionRecord {
   user_id: string;
@@ -55,7 +57,7 @@ class SubtabCompletionSyncService {
   }
 
   /**
-   * Process the sync queue
+   * Process the sync queue using direct Supabase calls
    */
   private async processSyncQueue(): Promise<{ success: boolean; error?: string }> {
     if (this.isSyncing) {
@@ -67,16 +69,27 @@ class SubtabCompletionSyncService {
     try {
       for (const [key, record] of this.syncQueue.entries()) {
         try {
-          const response = await fetch('/api/subtab-completion', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(record),
-          });
+          // Use direct Supabase upsert instead of API call
+          const { error } = await supabaseAnon
+            .from('subtab_completions')
+            .upsert({
+              user_id: record.user_id,
+              date: record.date,
+              subtab_id: record.subtab_id,
+              completed: record.completed,
+              completed_at: record.completed_at,
+              updated_at: record.updated_at,
+            }, {
+              onConflict: 'user_id,date,subtab_id'
+            });
 
-          if (!response.ok) {
-            console.error(`Failed to sync subtab completion for ${key}:`, response.statusText);
+          if (error) {
+            // Table might not exist yet - log and continue
+            if (error.code === '42P01') {
+              console.debug('subtab_completions table does not exist yet');
+            } else {
+              console.error(`Failed to sync subtab completion for ${key}:`, error);
+            }
             continue;
           }
 
@@ -94,7 +107,7 @@ class SubtabCompletionSyncService {
   }
 
   /**
-   * Fetch all completion records for a specific date
+   * Fetch all completion records for a specific date using direct Supabase query
    */
   async fetchCompletions(
     userId: string,
@@ -103,31 +116,35 @@ class SubtabCompletionSyncService {
     const dateKey = format(date, 'yyyy-MM-dd');
 
     try {
-      const response = await fetch(
-        `/api/subtab-completion?userId=${userId}&date=${dateKey}`
-      );
+      const { data, error } = await supabaseAnon
+        .from('subtab_completions')
+        .select('subtab_id, completed')
+        .eq('user_id', userId)
+        .eq('date', dateKey);
 
-      if (!response.ok) {
-        // API endpoint not available yet - use local storage only
-        if (import.meta.env.DEV) {
-          console.debug('Subtab completion API not available, using local state');
+      if (error) {
+        // Table might not exist yet - return empty
+        if (error.code === '42P01') {
+          if (import.meta.env.DEV) {
+            console.debug('subtab_completions table does not exist yet, using local state');
+          }
+        } else {
+          console.error('Failed to fetch subtab completions:', error);
         }
         return {};
       }
 
-      const data: SubtabCompletionRecord[] = await response.json();
-
       // Convert to record of subtab_id -> completed
       const completions: Record<string, boolean> = {};
-      data.forEach(record => {
+      data?.forEach(record => {
         completions[record.subtab_id] = record.completed;
       });
 
       return completions;
     } catch (error) {
-      // Network error or API not available - fall back to local state
+      // Network error or other issue - fall back to local state
       if (import.meta.env.DEV) {
-        console.debug('Subtab completion sync error, using local state');
+        console.debug('Subtab completion fetch error, using local state');
       }
       return {};
     }

@@ -36,6 +36,7 @@ export const MeditationTracker: React.FC<MeditationTrackerProps> = ({
   lastSession
 }) => {
   const [showTimer, setShowTimer] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleDecrement = () => {
     const current = parseInt(duration) || 0;
@@ -57,7 +58,10 @@ export const MeditationTracker: React.FC<MeditationTrackerProps> = ({
   };
 
   const handlePresetClick = (minutes: number) => {
+    if (isSaving) return;
+    setIsSaving(true);
     onChange(minutes.toString());
+    setTimeout(() => setIsSaving(false), 600);
   };
 
   const handleTimerComplete = (durationMinutes: number) => {
@@ -96,11 +100,13 @@ export const MeditationTracker: React.FC<MeditationTrackerProps> = ({
                   <button
                     key={preset.minutes}
                     onClick={() => handlePresetClick(preset.minutes)}
+                    disabled={isSaving}
                     className={cn(
                       "px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 active:scale-95",
                       isSelected
                         ? "bg-orange-600/30 border-2 border-orange-400/60 text-orange-200 shadow-lg shadow-orange-500/20"
-                        : "bg-orange-900/20 border border-orange-600/40 text-orange-300 hover:bg-orange-900/30 hover:border-orange-500/50"
+                        : "bg-orange-900/20 border border-orange-600/40 text-orange-300 hover:bg-orange-900/30 hover:border-orange-500/50",
+                      isSaving && "opacity-50 cursor-not-allowed"
                     )}
                   >
                     {preset.recommended && !isSelected && '⭐ '}

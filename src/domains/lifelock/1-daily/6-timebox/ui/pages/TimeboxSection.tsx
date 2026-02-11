@@ -27,6 +27,7 @@ import { AUTO_TIMEBOX_CONFIG, createOrUpdateAutoTimeboxes } from '@/domains/life
 import { Badge } from '@/components/ui/badge';
 import { PlanningAssistant } from '../components/PlanningAssistant';
 import { useNavigate } from 'react-router-dom';
+import { useMorningRoutineSupabase } from '@/domains/lifelock/1-daily/1-morning-routine/hooks/useMorningRoutineSupabase';
 
 const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }) => {
   // Navigation
@@ -35,6 +36,9 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
   // Authentication
   const { user, isSignedIn } = useClerkUser();
   const internalUserId = useSupabaseUserId(user?.id || null);
+
+  // Morning routine hook for wake-up time
+  const { routine: morningRoutine } = useMorningRoutineSupabase(selectedDate);
 
   // State
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -138,48 +142,16 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
     dateKey
   });
 
+  // Get wake-up time from morning routine hook
   useEffect(() => {
     if (!user?.id) {
       setWakeUpTime('');
       return;
     }
 
-    let isActive = true;
-
-    const fetchWakeUpTime = async () => {
-      try {
-        const response = await fetch(`/api/morning-routine/metadata?userId=${user.id}&date=${dateKey}`);
-        if (response.ok) {
-          const result = await response.json();
-          const fetchedWakeUpTime =
-            result?.data?.wakeUpTime ??
-            result?.wakeUpTime ??
-            result?.metadata?.wakeUpTime ??
-            '';
-
-          if (isActive) {
-            setWakeUpTime(fetchedWakeUpTime || '');
-          }
-        } else if (isActive) {
-          setWakeUpTime('');
-        }
-      } catch (error) {
-        // API endpoint not available - user can manually set wake-up time
-        if (import.meta.env.DEV) {
-          console.debug('Wake-up time metadata API not available');
-        }
-        if (isActive) {
-          setWakeUpTime('');
-        }
-      }
-    };
-
-    fetchWakeUpTime();
-
-    return () => {
-      isActive = false;
-    };
-  }, [user?.id, dateKey]);
+    const wakeUpTimeFromRoutine = morningRoutine?.metadata?.wakeUpTime;
+    setWakeUpTime(wakeUpTimeFromRoutine || '');
+  }, [user?.id, morningRoutine]);
 
   const handleAutoBlocksUpdated = useCallback(() => {
     refreshTimeBlocks();

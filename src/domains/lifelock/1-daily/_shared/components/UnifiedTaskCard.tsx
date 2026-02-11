@@ -520,8 +520,11 @@ export function UnifiedTaskCard({
               </AnimatePresence>
             </motion.div>
 
-            {/* Title */}
-            <div className="flex-1 min-w-0">
+            {/* Title - Click to toggle expansion */}
+            <div
+              className="flex-1 min-w-0 cursor-pointer"
+              onClick={() => onToggleExpansion(task.id)}
+            >
               {editingMainTask === task.id ? (
                 <input
                   type="text"
@@ -534,10 +537,7 @@ export function UnifiedTaskCard({
                 />
               ) : (
                 <h4
-                  className={`${theme.colors.text} hover:${theme.colors.textSecondary} font-semibold text-sm sm:text-base cursor-pointer transition-colors break-words`}
-                  onClick={() => {
-                    // Could open detail sheet here if needed
-                  }}
+                  className={`${theme.colors.text} hover:${theme.colors.textSecondary} font-semibold text-sm sm:text-base transition-colors break-words`}
                 >
                   {task.title}
                 </h4>
@@ -694,7 +694,10 @@ export function UnifiedTaskCard({
                         className="fixed inset-0 z-[9998] bg-black/40"
                         onClick={(e) => {
                           e.stopPropagation();
-                          onTaskPrioritySelect(task.id, task.priority as any);
+                          // Just close the menu without changing priority
+                          if (onTaskPriorityMenuToggle) {
+                            onTaskPriorityMenuToggle(task.id);
+                          }
                         }}
                       />
                       <motion.div

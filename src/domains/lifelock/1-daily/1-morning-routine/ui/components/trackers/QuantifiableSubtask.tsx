@@ -54,6 +54,7 @@ export const QuantifiableSubtask: React.FC<QuantifiableSubtaskProps> = ({
         {/* Checkbox - Visual confirmation - ROUNDED */}
         <motion.button
           type="button"
+          data-testid="quantifiable-checkbox"
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -111,6 +112,7 @@ export const QuantifiableSubtask: React.FC<QuantifiableSubtaskProps> = ({
         <div className="flex items-center gap-0.5 flex-shrink-0">
           {/* Decrement */}
           <motion.button
+            data-testid="quantifiable-decrement"
             onClick={() => onChange(Math.max(0, value - incrementStep))}
             className={cn(
               "w-6 h-6 rounded flex items-center justify-center",
@@ -125,7 +127,7 @@ export const QuantifiableSubtask: React.FC<QuantifiableSubtaskProps> = ({
           </motion.button>
 
           {/* Value Display - Compact */}
-          <div className="min-w-[50px] text-center px-1">
+          <div className="min-w-[50px] text-center px-1" data-testid="quantifiable-value">
             <span className="text-orange-100 font-semibold text-sm">
               {value}
             </span>
@@ -134,6 +136,7 @@ export const QuantifiableSubtask: React.FC<QuantifiableSubtaskProps> = ({
 
           {/* Increment */}
           <motion.button
+            data-testid="quantifiable-increment"
             onClick={() => onChange(value + incrementStep)}
             className={cn(
               "w-6 h-6 rounded flex items-center justify-center",
@@ -149,6 +152,7 @@ export const QuantifiableSubtask: React.FC<QuantifiableSubtaskProps> = ({
           {quickAddButtons.slice(0, 1).map((amount) => (
             <motion.button
               key={amount}
+              data-testid={`quantifiable-quick-add-${amount}`}
               onClick={() => onChange(value + amount)}
               className={cn(
                 "h-6 px-1.5 rounded text-[10px] font-medium",
