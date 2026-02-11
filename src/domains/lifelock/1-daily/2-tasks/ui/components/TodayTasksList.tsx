@@ -15,9 +15,9 @@ import { useTimeBlocks } from "@/domains/lifelock/1-daily/2-tasks/domain/useTime
 import { useGamificationInit } from "@/domains/lifelock/_shared/hooks/useGamificationInit";
 import { useDeepWorkTimers, formatMsAsClock } from "@/domains/lifelock/1-daily/4-deep-work/hooks/useDeepWorkTimers";
 import { useClerkUser } from "@/lib/hooks/auth/useClerkUser";
+import { useSupabaseUserId } from "@/lib/services/supabase/clerk-integration";
 import { format } from 'date-fns';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Plus,
   Calendar,
@@ -25,13 +25,10 @@ import {
   ListTodo,
   Clock,
   ChevronDown,
-  Brain,
-  Search,
-  Filter,
   X,
   Sparkles,
   Timer,
-  Zap
+  Trophy
 } from "lucide-react";
 import { motion, AnimatePresence, LayoutGroup, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -187,140 +184,6 @@ function ProgressBar({ allocated, completed, total }: { allocated: number; compl
   );
 }
 
-// Search and Filter Bar
-function SearchFilterBar({
-  searchQuery,
-  onSearchChange,
-  priorityFilter,
-  onPriorityFilterChange,
-  typeFilter,
-  onTypeFilterChange,
-  showFilters,
-  onToggleFilters,
-}: {
-  searchQuery: string;
-  onSearchChange: (value: string) => void;
-  priorityFilter: string[];
-  onPriorityFilterChange: (priorities: string[]) => void;
-  typeFilter: ('light' | 'deep')[];
-  onTypeFilterChange: (types: ('light' | 'deep')[]) => void;
-  showFilters: boolean;
-  onToggleFilters: () => void;
-}) {
-  const priorities = [
-    { value: 'urgent', label: 'Urgent', color: 'bg-red-500' },
-    { value: 'high', label: 'High', color: 'bg-orange-500' },
-    { value: 'medium', label: 'Medium', color: 'bg-yellow-500' },
-    { value: 'low', label: 'Low', color: 'bg-green-500' },
-  ];
-
-  const types = [
-    { value: 'deep', label: 'Deep', color: 'bg-blue-500' },
-    { value: 'light', label: 'Light', color: 'bg-green-500' },
-  ];
-
-  return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-2">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-teal-400/50" />
-          <Input
-            type="text"
-            placeholder="Search tasks..."
-            value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-9 bg-slate-900/50 border-teal-700/30 text-teal-100 placeholder:text-teal-400/40"
-            aria-label="Search tasks"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => onSearchChange('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-teal-400/50 hover:text-teal-300"
-              aria-label="Clear search"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
-        </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onToggleFilters}
-          className={cn(
-            "text-teal-400/70 hover:text-teal-300 hover:bg-teal-900/20",
-            showFilters && "bg-teal-900/30 text-teal-300"
-          )}
-          aria-label="Toggle filters"
-          aria-expanded={showFilters}
-        >
-          <Filter className="h-4 w-4" />
-        </Button>
-      </div>
-
-      <AnimatePresence>
-        {showFilters && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="space-y-2 overflow-hidden"
-          >
-            {/* Priority filters */}
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs text-teal-400/60">Priority:</span>
-              {priorities.map((p) => (
-                <button
-                  key={p.value}
-                  onClick={() => {
-                    const newFilter = priorityFilter.includes(p.value)
-                      ? priorityFilter.filter((v) => v !== p.value)
-                      : [...priorityFilter, p.value];
-                    onPriorityFilterChange(newFilter);
-                  }}
-                  className={cn(
-                    "text-xs px-2 py-1 rounded-full border transition-colors",
-                    priorityFilter.includes(p.value)
-                      ? `${p.color} text-white border-transparent`
-                      : "border-teal-700/30 text-teal-400/70 hover:text-teal-300"
-                  )}
-                  aria-pressed={priorityFilter.includes(p.value)}
-                >
-                  {p.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Type filters */}
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs text-teal-400/60">Type:</span>
-              {types.map((t) => (
-                <button
-                  key={t.value}
-                  onClick={() => {
-                    const newFilter = typeFilter.includes(t.value as 'light' | 'deep')
-                      ? typeFilter.filter((v) => v !== t.value)
-                      : [...typeFilter, t.value as 'light' | 'deep'];
-                    onTypeFilterChange(newFilter);
-                  }}
-                  className={cn(
-                    "text-xs px-2 py-1 rounded-full border transition-colors",
-                    typeFilter.includes(t.value as 'light' | 'deep')
-                      ? `${t.color} text-white border-transparent`
-                      : "border-teal-700/30 text-teal-400/70 hover:text-teal-300"
-                  )}
-                  aria-pressed={typeFilter.includes(t.value as 'light' | 'deep')}
-                >
-                  {t.label}
-                </button>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
 // Bulk Actions Bar
 function BulkActionsBar({
   selectedTasks,
@@ -386,6 +249,7 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
 
   const prefersReducedMotion = useReducedMotion();
   const { user } = useClerkUser();
+  const internalUserId = useSupabaseUserId(user?.id || null);
   const dateKey = useMemo(() => format(selectedDate, 'yyyy-MM-dd'), [selectedDate]);
 
   // Timer functionality
@@ -412,10 +276,6 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
   const [showUnallocated, setShowUnallocated] = useState(true);
   const [expandedTasks, setExpandedTasks] = useState<string[]>([]);
   const [selectedTasks, setSelectedTasks] = useState<Set<string>>(new Set());
-  const [searchQuery, setSearchQuery] = useState('');
-  const [priorityFilter, setPriorityFilter] = useState<string[]>([]);
-  const [typeFilter, setTypeFilter] = useState<('light' | 'deep')[]>([]);
-  const [showFilters, setShowFilters] = useState(false);
 
   // Task editing state
   const [activeTaskCalendarId, setActiveTaskCalendarId] = useState<string | null>(null);
@@ -439,7 +299,7 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
 
   // Time Blocks hook - for timebox integration
   const timeBlocksHook = useTimeBlocks({
-    userId: user?.id || '',
+    userId: internalUserId || '',
     selectedDate,
   });
 
@@ -479,9 +339,6 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
     rawDeepTasks: deepWorkHook.tasks,
     timeBlocks: timeBlocksHook.timeBlocks,
     selectedDate,
-    searchQuery,
-    priorityFilter,
-    typeFilter,
     userId: user?.id,
     onAutoSchedule: handleAutoSchedule,
   });
@@ -700,45 +557,20 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
             </div>
           </div>
 
-          {/* Stats Grid */}
+          {/* Compact Stats Row */}
           {stats.total > 0 && (
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
-              <div className={`p-3 rounded-lg ${themeColors.statCardBg} border ${themeColors.statCardBorder}`}>
-                <div className="flex items-center gap-2 mb-1">
-                  <ListTodo className={`h-3.5 w-3.5 ${themeColors.statLabelColor}`} />
-                  <span className={`text-xs ${themeColors.statLabelColor}`}>Tasks</span>
-                </div>
-                <div className={`text-lg font-bold ${themeColors.statValueColor}`}>
-                  {stats.allocated}
-                </div>
+            <div className="flex items-center gap-4 mt-3 text-sm">
+              <div className="flex items-center gap-1.5">
+                <ListTodo className={`h-4 w-4 ${themeColors.statLabelColor}`} />
+                <span className={themeColors.textMuted}>{stats.allocated} tasks</span>
               </div>
-
-              <div className={`p-3 rounded-lg ${themeColors.statCardBg} border ${themeColors.statCardBorder}`}>
-                <div className="flex items-center gap-2 mb-1">
-                  <Timer className={`h-3.5 w-3.5 ${themeColors.statLabelColor}`} />
-                  <span className={`text-xs ${themeColors.statLabelColor}`}>Scheduled</span>
-                </div>
-                <div className={`text-lg font-bold ${themeColors.statValueColor}`}>
-                  {stats.scheduled}
-                </div>
+              <div className="flex items-center gap-1.5">
+                <Timer className={`h-4 w-4 ${themeColors.statLabelColor}`} />
+                <span className={themeColors.textMuted}>{stats.scheduled} scheduled</span>
               </div>
-
-              <div className={`p-3 rounded-lg ${themeColors.statCardBg} border ${themeColors.statCardBorder}`}>
-                <div className="flex items-center gap-2 mb-1">
-                  <Calendar className={`h-3.5 w-3.5 ${themeColors.statLabelColor}`} />
-                  <span className={`text-xs ${themeColors.statLabelColor}`}>Unscheduled</span>
-                </div>
-                <div className={`text-lg font-bold ${themeColors.statValueColor}`}>
-                  {stats.allocated - stats.scheduled}
-                </div>
-              </div>
-
-              <div className={`p-3 rounded-lg ${themeColors.statCardBg} border ${themeColors.statCardBorder}`}>
-                <div className="flex items-center gap-2 mb-1">
-                  <Clock className={`h-3.5 w-3.5 ${themeColors.statLabelColor}`} />
-                  <span className={`text-xs ${themeColors.statLabelColor}`}>Est. Time</span>
-                </div>
-                <div className={`text-lg font-bold ${themeColors.statValueColor}`}>
+              <div className="flex items-center gap-1.5">
+                <Clock className={`h-4 w-4 ${themeColors.statLabelColor}`} />
+                <span className={themeColors.textMuted}>
                   {(() => {
                     const rounded = Math.max(0, Math.round(stats.totalEstimatedMinutes));
                     const hours = Math.floor(rounded / 60);
@@ -746,33 +578,18 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
                     if (hours > 0 && minutes > 0) return `${hours}h ${minutes}m`;
                     if (hours > 0) return `${hours}h`;
                     return `${minutes}m`;
-                  })()}
-                </div>
+                  })()} est.
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 ml-auto">
+                <Trophy className={`h-4 w-4 ${themeColors.statLabelColor}`} />
+                <span className={themeColors.textMuted}>
+                  {stats.allocated * 50} XP potential
+                </span>
               </div>
             </div>
           )}
-
-          {/* Progress Bar */}
-          {stats.total > 0 && (
-            <ProgressBar
-              allocated={stats.allocated}
-              completed={stats.completed}
-              total={stats.total}
-            />
-          )}
         </div>
-
-        {/* Search and Filters */}
-        <SearchFilterBar
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          priorityFilter={priorityFilter}
-          onPriorityFilterChange={setPriorityFilter}
-          typeFilter={typeFilter}
-          onTypeFilterChange={setTypeFilter}
-          showFilters={showFilters}
-          onToggleFilters={() => setShowFilters(!showFilters)}
-        />
 
         {/* Bulk Actions */}
         <BulkActionsBar
@@ -782,22 +599,12 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
           onDeleteSelected={deleteSelected}
         />
 
-        {/* ALLOCATED SECTION */}
+        {/* Task List */}
         <div className="space-y-3">
-          <div className="flex items-center justify-center px-3">
-            <h2 className={`text-sm font-medium ${themeColors.sectionHeader} uppercase tracking-wider text-center`}>
-              {stats.scheduled > 0 ? 'Scheduled Tasks' : 'Allocated for Today'}
-              <span className={`ml-2 text-xs ${themeColors.textMuted} normal-case`}>
-                ({allocatedTasks.length} tasks
-                {stats.scheduled > 0 && ` • ${stats.scheduled} scheduled`})
-              </span>
-            </h2>
-          </div>
-
           {allocatedTasks.length > 0 ? (
             <LayoutGroup>
               <div className="overflow-hidden">
-                <ul className="space-y-3 overflow-hidden" role="list" aria-label="Allocated tasks">
+                <ul className="space-y-3 overflow-hidden" role="list" aria-label="Tasks">
                   {allocatedTasks.map((task, index) => {
                     const isExpanded = expandedTasks.includes(task.id);
                     const isFirst = index === 0;
@@ -828,19 +635,6 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
                                   In Progress
                                 </span>
                               )}
-                            </div>
-                          )}
-                          {/* Auto-schedule button for tasks without time */}
-                          {!task.timebox && (
-                            <div className="mb-2">
-                              <button
-                                onClick={() => autoScheduleTask(task.id)}
-                                disabled={loadingOperations[`schedule-${task.id}`]}
-                                className="text-xs flex items-center gap-1.5 px-2 py-1 rounded-md bg-teal-800/30 border border-teal-700/30 text-teal-300 hover:bg-teal-800/50 hover:border-teal-600/40 transition-colors"
-                              >
-                                <Zap className="h-3 w-3" />
-                                {loadingOperations[`schedule-${task.id}`] ? 'Scheduling...' : 'Auto-schedule'}
-                              </button>
                             </div>
                           )}
                           <UnifiedTaskCard
