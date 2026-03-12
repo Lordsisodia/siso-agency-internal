@@ -44,3 +44,12 @@ export function debounce<T extends AnyFunction>(
 
   return debounced as DebouncedFunction<T>;
 }
+
+/**
+ * Returns a greeting message with the provided name.
+ * @param name - The name to greet
+ * @returns A greeting message
+ */
+export function helloWorld(name: string = "World"): string {
+  return `Hello, ${name}!`;
+}
