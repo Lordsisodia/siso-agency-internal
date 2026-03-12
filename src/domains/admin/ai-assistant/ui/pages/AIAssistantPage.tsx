@@ -24,7 +24,7 @@ import { AdminLayout } from '@/components/ui/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
-import { MobileMicrophoneButton } from '@/domains/tasks/features/ai-assistant/ui/components/MobileMicrophoneButton';
+import { MobileMicrophoneButton } from '@/domains/tasks/ui/MobileMicrophoneButton';
 import { ThoughtDumpResults } from '@/components/shared/ui';
 import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
