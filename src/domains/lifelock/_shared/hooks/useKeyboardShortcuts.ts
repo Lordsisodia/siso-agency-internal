@@ -25,38 +25,45 @@ export interface UseKeyboardShortcutsOptions {
  */
 export function useKeyboardShortcuts({ shortcuts, enabled = true }: UseKeyboardShortcutsOptions) {
   const shortcutsRef = useRef(shortcuts);
-  const hotkeysMapRef = useRef<Record<string, (event: KeyboardEvent | MouseEvent | TouchEvent) => void>>({});
+  const enabledRef = useRef(enabled);
 
-  // Keep shortcuts ref up to date
+  // Keep shortcuts and enabled refs up to date
   useEffect(() => {
     shortcutsRef.current = shortcuts;
   }, [shortcuts]);
 
-  // Build a hotkeys map and store in ref to avoid dependency issues
-  // Using useEffect instead of useMemo to update the ref when shortcuts/enabled change
   useEffect(() => {
-    const map: Record<string, (event: KeyboardEvent | MouseEvent | TouchEvent) => void> = {};
+    enabledRef.current = enabled;
+  }, [enabled]);
 
+  // Build a map of keys to shortcuts for quick lookup
+  const shortcutsMapRef = useRef<Map<string, KeyboardShortcut>>(new Map());
+  useEffect(() => {
+    const map = new Map<string, KeyboardShortcut>();
     shortcuts.forEach((shortcut) => {
-      map[shortcut.key] = (event) => {
-        if (shortcut.enabled !== false && enabled) {
-          if (shortcut.preventDefault !== false) {
-            event.preventDefault();
-          }
-          // Use ref to get latest action (in case it changed)
-          const currentShortcut = shortcutsRef.current.find(s => s.key === shortcut.key);
-          currentShortcut?.action();
-        }
-      };
+      map.set(shortcut.key, shortcut);
     });
+    shortcutsMapRef.current = map;
+  }, [shortcuts]);
 
-    hotkeysMapRef.current = map;
-  }, [shortcuts, enabled]);
+  // Get all shortcut keys as an array
+  const shortcutKeys = shortcuts.map((s) => s.key);
 
-  // Register all shortcuts at once at the top level using object syntax
-  // This registers each key in the map as a separate hotkey
+  // Register all shortcuts using useHotkeys with an array of keys
+  // The callback receives the key that was pressed
   useHotkeys(
-    hotkeysMapRef.current,
+    shortcutKeys,
+    (event, hotkey) => {
+      const shortcut = shortcutsMapRef.current.get(hotkey.key);
+      if (!shortcut) return;
+
+      if (shortcut.enabled !== false && enabledRef.current) {
+        if (shortcut.preventDefault !== false) {
+          event.preventDefault();
+        }
+        shortcut.action();
+      }
+    },
     {
       enabled,
     },
