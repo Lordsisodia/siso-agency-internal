@@ -1,1 +1,0 @@
-export { StateSnapshot } from './StateSnapshot';

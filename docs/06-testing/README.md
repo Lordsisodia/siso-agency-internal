@@ -1,6 +1,0 @@
-# Migration Reports — Health
-- ACTUAL-COMPLETION-REPORT
-- CODEBASE-HEALTH-REPORT
-- DEEP-VERIFICATION-REPORT
-- VERIFICATION-SUMMARY
-- README-final (legacy health overview)

@@ -1,0 +1,15 @@
+{
+  "id": "Testing_Agent",
+  "name": "Testing_Agent",
+  "version": "1.0.0",
+  "status": "idle",
+  "current_task": null,
+  "metrics": {
+    "tasks_completed": 0,
+    "uptime_seconds": 0
+  },
+  "config": {
+    "model": "minimax/MiniMax-M2.5-highspeed",
+    "capabilities": ["fs", "terminal", "web"]
+  }
+}

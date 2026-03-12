@@ -1,2 +1,0 @@
-# Architecture — Tasks
-- TASK-ARCHITECTURE-DECOMPOSITION

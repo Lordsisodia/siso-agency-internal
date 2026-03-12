@@ -1,3 +1,0 @@
-# Guides — Fixes
-- EASY-FIXES-GUIDE
-- FIXES-APPLIED
