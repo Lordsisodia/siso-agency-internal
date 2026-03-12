@@ -1,0 +1,245 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - main [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e9]:
+        - generic [ref=e10]:
+          - img [ref=e12]
+          - generic [ref=e15]:
+            - heading "💧 Hydration Check" [level=4] [ref=e16]
+            - paragraph [ref=e17]: Have you logged your water intake?
+          - button [ref=e18] [cursor=pointer]:
+            - img [ref=e19]
+        - generic [ref=e22]:
+          - button "Snooze 30m" [ref=e23] [cursor=pointer]:
+            - img
+            - text: Snooze 30m
+          - button "Got it" [ref=e24] [cursor=pointer]:
+            - img
+            - text: Got it
+      - button "Reminders 1" [ref=e25] [cursor=pointer]:
+        - img
+        - text: Reminders
+        - generic [ref=e26]: "1"
+      - generic [ref=e27]:
+        - generic [ref=e38] [cursor=pointer]: 71%
+        - generic [ref=e40]:
+          - generic [ref=e44]:
+            - button "Today, 12 March" [ref=e45] [cursor=pointer]:
+              - generic [ref=e46]: Today, 12 March
+              - img [ref=e47]
+            - generic [ref=e49]:
+              - generic [ref=e50]: 0 XP
+              - button "Profile" [ref=e52] [cursor=pointer]:
+                - img "Profile" [ref=e53]
+          - generic [ref=e59]:
+            - button "Morning" [ref=e60] [cursor=pointer]:
+              - img [ref=e61]
+              - generic [ref=e66]: Morning
+            - button "Timebox" [ref=e67] [cursor=pointer]:
+              - img [ref=e68]
+              - generic [ref=e70]: Timebox
+            - button "Checkout" [ref=e71] [cursor=pointer]:
+              - img [ref=e72]
+              - generic [ref=e74]: Checkout
+          - generic [ref=e81]:
+            - generic [ref=e83]:
+              - generic [ref=e84]:
+                - img [ref=e86]
+                - generic [ref=e92]:
+                  - heading "Morning Routine" [level=1] [ref=e93]
+                  - paragraph [ref=e94]: Start your day right
+              - generic [ref=e96]:
+                - generic [ref=e97]: 0 XP
+                - generic [ref=e98]: 0% complete
+            - generic [ref=e99]:
+              - generic [ref=e101]:
+                - button "Coding My Brain" [ref=e102] [cursor=pointer]
+                - button "Flow State Rules" [ref=e103] [cursor=pointer]
+                - button "Daily Inspiration" [ref=e104] [cursor=pointer]
+              - generic [ref=e107]:
+                - heading "Coding My Brain" [level=3] [ref=e108]
+                - generic [ref=e109]:
+                  - paragraph [ref=e110]: I am Shaan Sisodia.
+                  - paragraph [ref=e111]: I have been given divine purpose, and on this mission, temptation awaits on either side of the path.
+                  - paragraph [ref=e112]: When I give in to temptation, I shall know I am astray.
+                  - paragraph [ref=e113]: I will bring my family to a new age of freedom.
+                  - paragraph [ref=e114]: I will not be distracted from the path.
+            - generic [ref=e115]:
+              - generic [ref=e116]:
+                - generic [ref=e117] [cursor=pointer]:
+                  - generic [ref=e118]:
+                    - generic [ref=e119]:
+                      - img [ref=e121]
+                      - heading "Wake Up" [level=4] [ref=e127]
+                    - generic [ref=e128]:
+                      - generic [ref=e129]: up to 0 XP
+                      - img [ref=e130]
+                  - generic [ref=e135]: Not started
+                - generic [ref=e137]:
+                  - paragraph [ref=e138]: Start the day before midday to maximize productivity. Track your wake-up time.
+                  - generic [ref=e139]:
+                    - generic [ref=e140]:
+                      - img [ref=e142]
+                      - paragraph [ref=e145]: What time did you wake up today?
+                      - paragraph [ref=e146]: Early risers earn 3x XP! 🌅
+                    - generic [ref=e147]:
+                      - button "Set Time" [ref=e148] [cursor=pointer]:
+                        - img
+                        - text: Set Time
+                      - button "Now" [ref=e149] [cursor=pointer]
+              - generic [ref=e150]:
+                - generic [ref=e151] [cursor=pointer]:
+                  - generic [ref=e152]:
+                    - generic [ref=e153]:
+                      - img [ref=e155]
+                      - heading "Freshen Up" [level=4] [ref=e158]
+                    - generic [ref=e159]:
+                      - generic [ref=e160]: up to 0 XP
+                      - img [ref=e161]
+                  - generic [ref=e166]: 0/3 completed
+                - generic [ref=e168]:
+                  - paragraph [ref=e169]: Cold shower to wake up - Personal hygiene and cleanliness.
+                  - generic [ref=e170]:
+                    - generic [ref=e174] [cursor=pointer]: Bathroom break
+                    - generic [ref=e178] [cursor=pointer]: Brush teeth
+                    - generic [ref=e182] [cursor=pointer]: Cold shower
+              - generic [ref=e183]:
+                - generic [ref=e184] [cursor=pointer]:
+                  - generic [ref=e185]:
+                    - generic [ref=e186]:
+                      - img [ref=e188]
+                      - heading "Get Blood Flowing" [level=4] [ref=e194]
+                    - generic [ref=e195]:
+                      - generic [ref=e196]: up to 0 XP
+                      - img [ref=e197]
+                  - generic [ref=e202]: 0/1 completed
+                - generic [ref=e204]:
+                  - paragraph [ref=e205]: Max rep push-ups - Physical activation to wake up the body.
+                  - generic [ref=e209]:
+                    - button [ref=e210] [cursor=pointer]
+                    - generic [ref=e211]: Push-ups
+                    - generic [ref=e214]:
+                      - button [disabled] [ref=e215]:
+                        - img [ref=e216]
+                      - generic [ref=e217]: 0reps
+                      - button [ref=e218] [cursor=pointer]:
+                        - img [ref=e219]
+                      - button "+5" [ref=e220] [cursor=pointer]
+              - generic [ref=e221]:
+                - generic [ref=e222] [cursor=pointer]:
+                  - generic [ref=e223]:
+                    - generic [ref=e224]:
+                      - img [ref=e226]
+                      - heading "Power Up Brain" [level=4] [ref=e234]
+                    - generic [ref=e235]:
+                      - generic [ref=e236]: up to 0 XP
+                      - img [ref=e237]
+                  - generic [ref=e242]: 0/2 completed
+                - generic [ref=e244]:
+                  - paragraph [ref=e245]: Hydrate and fuel the body and mind.
+                  - generic [ref=e246]:
+                    - generic [ref=e249]:
+                      - button [ref=e250] [cursor=pointer]
+                      - generic [ref=e251]: Supplements
+                      - generic [ref=e254]:
+                        - button [disabled] [ref=e255]:
+                          - img [ref=e256]
+                        - generic [ref=e257]: 0pills
+                        - button [ref=e258] [cursor=pointer]:
+                          - img [ref=e259]
+                        - button "+1" [ref=e260] [cursor=pointer]
+                    - generic [ref=e263]:
+                      - button [ref=e264] [cursor=pointer]
+                      - generic [ref=e265]: Water
+                      - generic [ref=e268]:
+                        - button [disabled] [ref=e269]:
+                          - img [ref=e270]
+                        - generic [ref=e271]: 0ml
+                        - button [ref=e272] [cursor=pointer]:
+                          - img [ref=e273]
+                        - button "+250" [ref=e274] [cursor=pointer]
+              - generic [ref=e275]:
+                - generic [ref=e276] [cursor=pointer]:
+                  - generic [ref=e277]:
+                    - generic [ref=e278]:
+                      - img [ref=e280]
+                      - heading "Plan Day" [level=4] [ref=e282]
+                    - generic [ref=e283]:
+                      - generic [ref=e284]: up to 0 XP
+                      - img [ref=e285]
+                  - generic [ref=e290]: Not started
+                - generic [ref=e292]:
+                  - paragraph [ref=e293]: Use AI Thought Dump to organize tasks and set timebox.
+                  - generic [ref=e294]:
+                    - button "🎤 🧠 AI Thought Dump Talk → Auto-organize → Timebox" [ref=e295] [cursor=pointer]:
+                      - generic [ref=e296]:
+                        - generic [ref=e297]: 🎤
+                        - generic [ref=e298]:
+                          - generic [ref=e299]: 🧠 AI Thought Dump
+                          - paragraph [ref=e300]: Talk → Auto-organize → Timebox
+                    - button "✓ Mark Plan Day Complete" [ref=e301] [cursor=pointer]
+              - generic [ref=e302]:
+                - generic [ref=e303] [cursor=pointer]:
+                  - generic [ref=e304]:
+                    - generic [ref=e305]:
+                      - img [ref=e307]
+                      - heading "Meditation" [level=4] [ref=e309]
+                    - generic [ref=e310]:
+                      - generic [ref=e311]: up to 0 XP
+                      - img [ref=e312]
+                  - generic [ref=e317]: Not started
+                - generic [ref=e319]:
+                  - paragraph [ref=e320]: Meditate to set an innovative mindset for creating business value.
+                  - generic [ref=e322]:
+                    - generic [ref=e323]:
+                      - generic [ref=e324]:
+                        - button "⭐ 2 min" [ref=e325] [cursor=pointer]
+                        - button "5 min" [ref=e326] [cursor=pointer]
+                        - button "10 min" [ref=e327] [cursor=pointer]
+                        - button "15 min" [ref=e328] [cursor=pointer]
+                      - button "Open Meditation Timer" [ref=e329] [cursor=pointer]:
+                        - img
+                        - text: Open Meditation Timer
+                    - paragraph [ref=e330]: "💡 Tip: Even 2 minutes of meditation boosts focus & clarity!"
+            - generic [ref=e332]:
+              - heading "🎯 Top 3 Things I Want to Complete Today" [level=3] [ref=e334]:
+                - img [ref=e335]
+                - text: 🎯 Top 3 Things I Want to Complete Today
+              - generic [ref=e339]:
+                - paragraph [ref=e340]: Not everything - just the 3 that matter most. Be specific.
+                - generic [ref=e341]:
+                  - generic [ref=e342]:
+                    - generic [ref=e344]: "#1"
+                    - textbox "Priority 1..." [ref=e345]
+                  - generic [ref=e346]:
+                    - generic [ref=e348]: "#2"
+                    - textbox "Priority 2..." [ref=e349]
+                  - generic [ref=e350]:
+                    - generic [ref=e352]: "#3"
+                    - textbox "Priority 3..." [ref=e353]
+                - paragraph [ref=e354]: "💡 Tip: Make them specific and actionable!"
+            - generic [ref=e356]:
+              - heading "📊 Today's XP Breakdown" [level=3] [ref=e358]:
+                - img [ref=e359]
+                - text: 📊 Today's XP Breakdown
+              - generic [ref=e368]:
+                - generic [ref=e369]: Total XP Today
+                - generic [ref=e370]: 0 XP 🏆
+        - generic [ref=e371]:
+          - generic [ref=e373]:
+            - button "Plan" [pressed] [ref=e374] [cursor=pointer]:
+              - img [ref=e376]
+              - generic [ref=e378]: Plan
+            - button "Tasks" [ref=e380] [cursor=pointer]:
+              - img [ref=e381]
+              - generic [ref=e384]: Tasks
+            - button "Health" [ref=e385] [cursor=pointer]:
+              - img [ref=e386]
+              - generic [ref=e388]: Health
+            - button "More options" [ref=e390] [cursor=pointer]:
+              - img [ref=e391]
+              - generic [ref=e402]: More
+          - button [ref=e403] [cursor=pointer]:
+            - img [ref=e407]
