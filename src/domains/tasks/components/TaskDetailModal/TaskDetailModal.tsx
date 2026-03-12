@@ -31,8 +31,6 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = React.memo(({
     getTaskForSave
   } = useTaskForm({ task, isOpen });
 
-  if (!task || !editingTask) return null;
-
   const handleToggleComplete = useCallback(() => {
     onToggleComplete?.(task.id);
     toggleTaskCompletion();
@@ -49,6 +47,8 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = React.memo(({
   const handleStartFocus = useCallback(() => {
     onStartFocusSession?.(editingTask.id);
   }, [editingTask.id, onStartFocusSession]);
+
+  if (!task || !editingTask) return null;
 
   return (
     <Drawer open={isOpen} onOpenChange={onClose}>

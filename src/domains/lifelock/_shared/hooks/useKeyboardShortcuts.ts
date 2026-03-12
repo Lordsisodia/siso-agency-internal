@@ -3,7 +3,7 @@
  * Provides global keyboard shortcuts for power users
  */
 
-import { useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback, useRef, useMemo } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 
 export interface KeyboardShortcut {
@@ -31,25 +31,36 @@ export function useKeyboardShortcuts({ shortcuts, enabled = true }: UseKeyboardS
     shortcutsRef.current = shortcuts;
   }, [shortcuts]);
 
-  // Register each shortcut
-  shortcuts.forEach((shortcut) => {
-    useHotkeys(
-      shortcut.key,
-      (event) => {
+  // Build a hotkeys map for bulk registration
+  // This allows calling useHotkeys at the top level (not inside a callback)
+  const hotkeysMap = useMemo(() => {
+    const map: Record<string, (event: KeyboardEvent | MouseEvent | TouchEvent) => void> = {};
+
+    shortcuts.forEach((shortcut) => {
+      map[shortcut.key] = (event) => {
         if (shortcut.enabled !== false && enabled) {
           if (shortcut.preventDefault !== false) {
             event.preventDefault();
           }
-          shortcut.action();
+          // Use ref to get latest action (in case it changed)
+          const currentShortcut = shortcutsRef.current.find(s => s.key === shortcut.key);
+          currentShortcut?.action();
         }
-      },
-      {
-        enabled: shortcut.enabled !== false && enabled,
-        preventDefault: shortcut.preventDefault !== false,
-      },
-      [shortcut.action, shortcut.enabled, enabled]
-    );
-  });
+      };
+    });
+
+    return map;
+  }, [shortcuts, enabled]);
+
+  // Register all shortcuts at once at the top level using object syntax
+  // This registers each key in the map as a separate hotkey
+  useHotkeys(
+    hotkeysMap,
+    {
+      enabled,
+    },
+    [hotkeysMap, enabled]
+  );
 
   // Get shortcut help text
   const getShortcutHelp = useCallback(() => {

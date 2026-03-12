@@ -1,0 +1,91 @@
+{
+  "generated": "2026-03-13T04:30:00Z",
+  "total_count": 23,
+  "by_severity": {
+    "critical": 3,
+    "major": 2,
+    "minor": 18
+  },
+  "issues": [
+    {
+      "id": "agg-1",
+      "title": "React Hook rules-of-hooks violation in useKeyboardShortcuts",
+      "category": "code",
+      "type": "lint",
+      "original_id": "code-7",
+      "location": "src/domains/lifelock/_shared/hooks/useKeyboardShortcuts.ts",
+      "line": 36,
+      "module": "morning-routine",
+      "description": "React Hook 'useHotkeys' cannot be called inside a callback",
+      "severity": "critical",
+      "effort": "medium",
+      "regression": true,
+      "user_impact": "high",
+      "suggested_fix": "Move useHotkeys call outside of callback or use different pattern"
+    },
+    {
+      "id": "agg-2",
+      "title": "React Hook conditional call in TaskDetailModal",
+      "category": "code",
+      "type": "lint",
+      "original_id": "code-11",
+      "location": "src/domains/tasks/components/TaskDetailModal/TaskDetailModal.tsx",
+      "line": 36,
+      "module": "tasks",
+      "description": "React Hooks called conditionally - useCallback called after early return",
+      "severity": "critical",
+      "effort": "medium",
+      "regression": true,
+      "user_impact": "high",
+      "suggested_fix": "Reorder hooks to be called before any early returns"
+    },
+    {
+      "id": "agg-3",
+      "title": "Parsing error in useTaskForm hook",
+      "category": "code",
+      "type": "lint",
+      "original_id": "code-12",
+      "location": "src/domains/tasks/components/TaskDetailModal/hooks/useTaskForm.ts",
+      "line": 1,
+      "module": "tasks",
+      "description": "Parsing error: Unterminated regular expression literal",
+      "severity": "critical",
+      "effort": "small",
+      "regression": true,
+      "user_impact": "high",
+      "suggested_fix": "Fix the unterminated regex at line 1"
+    },
+    {
+      "id": "agg-4",
+      "title": "Duplicate case label in offlineDb",
+      "category": "code",
+      "type": "lint",
+      "original_id": "code-19",
+      "location": "src/services/offline/offlineDb.ts",
+      "line": 756,
+      "module": "tasks",
+      "description": "Duplicate case label in switch statement",
+      "severity": "major",
+      "effort": "small",
+      "regression": true,
+      "user_impact": "medium",
+      "suggested_fix": "Remove duplicate case or merge cases"
+    },
+    {
+      "id": "agg-5",
+      "title": "Duplicate case label in syncService",
+      "category": "code",
+      "type": "lint",
+      "original_id": "code-20",
+      "location": "src/services/offline/syncService.ts",
+      "line": 865,
+      "module": "tasks",
+      "description": "Duplicate case label in switch statement",
+      "severity": "major",
+      "effort": "small",
+      "regression": true,
+      "user_impact": "medium",
+      "suggested_fix": "Remove duplicate case or merge cases"
+    }
+  ]
+}
