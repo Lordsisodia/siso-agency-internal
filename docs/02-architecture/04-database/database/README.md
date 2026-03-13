@@ -1,3 +1,0 @@
-# Architecture — Database
-- DATABASE-ORGANIZATION
-- DATABASE-MIGRATION-PLAN

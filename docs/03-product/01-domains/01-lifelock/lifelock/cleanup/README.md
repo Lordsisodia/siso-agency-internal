@@ -1,2 +1,0 @@
-# LifeLock Cleanup
-- LIFELOCK-COMPONENT-CLEANUP-PLAN

@@ -1,110 +1,37 @@
-# SISO-INTERNAL - Revolutionary Task Management Platform
+# SISO Internal Lab
 
-An advanced task management and productivity platform with AI intelligence, featuring the LifeLock dashboard and comprehensive ecosystem management.
+Internal project for SISO — managing revenue, projects, clients, and operations.
 
-## Features
+## Structure
 
-- **LifeLock Dashboard** - Revolutionary productivity management system
-- **AI-Powered Task Management** - Intelligent task prioritization and automation
-- **Ecosystem Integration** - Internal tools and partnership management
-- **Advanced Authentication** - Multi-provider auth with Clerk integration
-- **Real-time Updates** - Live task synchronization and notifications
-- **Responsive Design** - Optimized for all devices
+| Folder | Purpose |
+|--------|---------|
+| `agents/` | Standalone agents (not part of pipelines) |
+| `swarms/` | Pipeline workflows (e.g., execution_pipeline) |
+| `codebase/` | Application source code |
+| `docs/` | Documentation |
+| `inbox/` | Tasks from external sources |
+| `.beads/` | Task tracking |
 
-## Prerequisites
+## Getting Started
 
-- Node.js 18+
-- npm or yarn
-- Supabase account
+1. **Legacy Agent** - Start here for help:
+   ```bash
+   cd agents/Legacy_Agent && ./run.sh
+   ```
 
-## Setup Instructions
+2. **Swarms** - Pipeline workflows in `swarms/`
+   - `swarms/execution_pipeline/` - Import from Agent_OS when ready
 
-### 1. Clone the repository
+3. **Codebase** - Work on application code in `codebase/`
 
-```bash
-git clone [your-repo-url]
-cd SISO-INTERNAL
-```
+## Tech Stack
+- Supabase (database + auth)
+- Next.js + TypeScript (frontend)
+- API-first architecture
 
-### 2. Install dependencies
-
-```bash
-npm install
-```
-
-### 3. Environment Variables
-
-Create a `.env` file in the root directory:
-
-```env
-VITE_SUPABASE_URL=your_supabase_project_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
-
-### 4. Run locally
-
-```bash
-npm run dev
-```
-
-## Deployment to Vercel
-
-### 1. Push to GitHub
-
-Make sure your code is pushed to a GitHub repository.
-
-### 2. Import to Vercel
-
-1. Go to [Vercel](https://vercel.com)
-2. Click "Add New Project"
-3. Import your GitHub repository
-4. Configure environment variables in Vercel:
-   - `VITE_SUPABASE_URL`
-   - `VITE_SUPABASE_ANON_KEY`
-
-### 3. Deploy
-
-Click "Deploy" and Vercel will build and deploy your application.
-
-## Troubleshooting
-
-### Authentication Errors
-
-If you're getting authentication errors after deployment:
-
-1. **Check Environment Variables**: Make sure both `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are set correctly in Vercel
-2. **Verify Supabase URL**: Ensure the URL doesn't have trailing slashes
-3. **Check API Keys**: Make sure you're using the anon/public key, not the service role key
-4. **CORS Settings**: In Supabase dashboard, check that your Vercel domain is allowed in the URL configuration
-
-### Build Errors
-
-If the build fails:
-
-1. Check the build logs in Vercel
-2. Make sure all dependencies are listed in `package.json`
-3. Verify Node.js version compatibility
-
-## Scripts
-
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
-
-## Architecture
-
-- **Frontend**: React 18 + TypeScript + Vite
-- **Styling**: Tailwind CSS + shadcn/ui components
-- **Database**: Supabase (PostgreSQL) with Row Level Security
-- **Authentication**: Clerk (primary) + Supabase Auth (fallback)
-- **Routing**: React Router with lazy loading (80+ routes)
-- **State Management**: React Context + hooks (no Redux)
-- **Deployment**: Vercel with automatic deployments
-
-## Security Notes
-
-- Never commit `.env` files to version control
-- Always use environment variables for sensitive data
-- Keep your Supabase keys secure
-- Use Row Level Security (RLS) in Supabase
+## Notes
+- Agents in `agents/` are standalone - they don't run as part of pipelines
+- Pipeline agents go in `swarms/<pipeline_name>/agents/`
+- When ready, import execution pipeline from:
+  `~/SISO_Workspace/Agent_OS/agent_ecosystem/standard_modules/execution_pipeline/`

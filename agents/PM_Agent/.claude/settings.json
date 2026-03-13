@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": ["*"],
+    "defaultMode": "bypassPermissions"
+  },
+  "enableAllProjectMcpServers": false,
+  "alwaysThinkingEnabled": false,
+  "disableAllHooks": true,
+  "autoMemoryEnabled": false,
+  "claudeMdExcludes": [
+    "/Users/shaansisodia/.claude/CLAUDE.md"
+  ]
+}
