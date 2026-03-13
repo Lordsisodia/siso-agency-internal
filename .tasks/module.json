@@ -1,0 +1,17 @@
+{
+  "module": "tasks",
+  "version": "1.0.0",
+  "description": "Task backlog system for SISO Internal Lab",
+  "directories": {
+    "backlog": "Tasks waiting to be worked on",
+    "in_progress": "Tasks currently being worked on",
+    "completed": "Finished tasks",
+    "_trash": "Deleted tasks"
+  },
+  "workflow": {
+    "create": "Add JSON to backlog/",
+    "start": "Move to in_progress/",
+    "complete": "Move to completed/",
+    "delete": "Move to _trash/"
+  }
+}

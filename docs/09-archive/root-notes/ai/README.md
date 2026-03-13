@@ -1,2 +1,0 @@
-# Root Notes — AI
-- CLAUDE
