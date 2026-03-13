@@ -422,7 +422,7 @@ interface StatCardProps {
   icon: React.ReactNode;
   label: string;
   value: string | number;
-  color: 'rose' | 'amber' | 'emerald' | 'purple';
+  color: 'rose' | 'amber' | 'emerald' | 'red';
 }
 
 const StatCard: React.FC<StatCardProps> = ({ emoji, icon, label, value, color }) => {
@@ -430,7 +430,7 @@ const StatCard: React.FC<StatCardProps> = ({ emoji, icon, label, value, color })
     rose: 'bg-rose-500/10 border-rose-500/30 text-rose-400',
     amber: 'bg-amber-500/10 border-amber-500/30 text-amber-400',
     emerald: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400',
-    purple: 'bg-purple-500/10 border-purple-500/30 text-purple-400',
+    red: 'bg-red-500/10 border-red-500/30 text-red-400',
   };
 
   return (
@@ -517,7 +517,7 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
 
   // Get exercise type for badge
   const getExerciseType = () => {
-    if (isTimeBased) return { label: 'Cardio', color: 'text-blue-400 bg-blue-500/20 border-blue-500/30' };
+    if (isTimeBased) return { label: 'Cardio', color: 'text-red-400 bg-red-500/20 border-red-500/30' };
     return { label: 'Strength', color: 'text-rose-400 bg-rose-500/20 border-rose-500/30' };
   };
   const exerciseType = getExerciseType();
