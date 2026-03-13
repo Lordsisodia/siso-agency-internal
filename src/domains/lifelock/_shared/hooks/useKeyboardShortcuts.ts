@@ -3,7 +3,7 @@
  * Provides global keyboard shortcuts for power users
  */
 
-import { useEffect, useCallback, useRef, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 
 export interface KeyboardShortcut {
@@ -18,6 +18,12 @@ export interface UseKeyboardShortcutsOptions {
   shortcuts: KeyboardShortcut[];
   enabled?: boolean;
 }
+
+// Maximum number of shortcuts supported by this hook
+const MAX_SHORTCUTS = 20;
+
+// Placeholder key that won't conflict with real shortcuts
+const PLACEHOLDER_KEY = '__placeholder__';
 
 /**
  * Hook for managing keyboard shortcuts
