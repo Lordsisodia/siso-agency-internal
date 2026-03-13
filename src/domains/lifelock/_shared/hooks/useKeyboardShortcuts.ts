@@ -3,7 +3,7 @@
  * Provides global keyboard shortcuts for power users
  */
 
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useRef, useEffect } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 
 export interface KeyboardShortcut {
@@ -30,327 +30,50 @@ const PLACEHOLDER_KEY = '__placeholder__';
  * Uses react-hotkeys-hook for reliable cross-browser support
  */
 export function useKeyboardShortcuts({ shortcuts, enabled = true }: UseKeyboardShortcutsOptions) {
-  // Pad the shortcuts array to a fixed length so hooks are called unconditionally
-  const paddedShortcuts = useMemo(() => {
-    const result: KeyboardShortcut[] = [];
-    for (let i = 0; i < MAX_SHORTCUTS; i++) {
-      if (i < shortcuts.length && shortcuts[i].key) {
-        result.push(shortcuts[i]);
-      } else {
-        // Pad with placeholder shortcuts
-        result.push({
-          key: `${PLACEHOLDER_KEY}${i}`,
-          description: '',
-          action: () => {},
-          enabled: false,
-          preventDefault: false,
-        });
-      }
-    }
-    return result;
+  const shortcutsRef = useRef(shortcuts);
+  const enabledRef = useRef(enabled);
+
+  // Keep shortcuts and enabled refs up to date
+  useEffect(() => {
+    shortcutsRef.current = shortcuts;
   }, [shortcuts]);
 
-  // Extract shortcuts for useHotkeys calls - each called unconditionally at top level
-  const shortcut0 = paddedShortcuts[0];
-  const shortcut1 = paddedShortcuts[1];
-  const shortcut2 = paddedShortcuts[2];
-  const shortcut3 = paddedShortcuts[3];
-  const shortcut4 = paddedShortcuts[4];
-  const shortcut5 = paddedShortcuts[5];
-  const shortcut6 = paddedShortcuts[6];
-  const shortcut7 = paddedShortcuts[7];
-  const shortcut8 = paddedShortcuts[8];
-  const shortcut9 = paddedShortcuts[9];
-  const shortcut10 = paddedShortcuts[10];
-  const shortcut11 = paddedShortcuts[11];
-  const shortcut12 = paddedShortcuts[12];
-  const shortcut13 = paddedShortcuts[13];
-  const shortcut14 = paddedShortcuts[14];
-  const shortcut15 = paddedShortcuts[15];
-  const shortcut16 = paddedShortcuts[16];
-  const shortcut17 = paddedShortcuts[17];
-  const shortcut18 = paddedShortcuts[18];
-  const shortcut19 = paddedShortcuts[19];
+  useEffect(() => {
+    enabledRef.current = enabled;
+  }, [enabled]);
 
-  // Each useHotkeys is called unconditionally at the top level
+  // Build a map of keys to shortcuts for quick lookup
+  const shortcutsMapRef = useRef<Map<string, KeyboardShortcut>>(new Map());
+  useEffect(() => {
+    const map = new Map<string, KeyboardShortcut>();
+    shortcuts.forEach((shortcut) => {
+      map.set(shortcut.key, shortcut);
+    });
+    shortcutsMapRef.current = map;
+  }, [shortcuts]);
+
+  // Get all shortcut keys as an array
+  const shortcutKeys = shortcuts.map((s) => s.key);
+
+  // Register all shortcuts using useHotkeys with an array of keys
+  // The callback receives the key that was pressed
   useHotkeys(
-    shortcut0.key,
-    (event) => {
-      if (shortcut0.enabled !== false && enabled) {
-        if (shortcut0.preventDefault !== false) {
+    shortcutKeys,
+    (event, hotkey) => {
+      const shortcut = shortcutsMapRef.current.get(hotkey.key);
+      if (!shortcut) return;
+
+      if (shortcut.enabled !== false && enabledRef.current) {
+        if (shortcut.preventDefault !== false) {
           event.preventDefault();
         }
-        shortcut0.action();
+        shortcut.action();
       }
     },
-    { enabled: shortcut0.enabled !== false && enabled, preventDefault: shortcut0.preventDefault !== false },
-    [shortcut0.action, shortcut0.enabled, enabled]
-  );
-
-  useHotkeys(
-    shortcut1.key,
-    (event) => {
-      if (shortcut1.enabled !== false && enabled) {
-        if (shortcut1.preventDefault !== false) {
-          event.preventDefault();
-        }
-        shortcut1.action();
-      }
+    {
+      enabled,
     },
-    { enabled: shortcut1.enabled !== false && enabled, preventDefault: shortcut1.preventDefault !== false },
-    [shortcut1.action, shortcut1.enabled, enabled]
-  );
-
-  useHotkeys(
-    shortcut2.key,
-    (event) => {
-      if (shortcut2.enabled !== false && enabled) {
-        if (shortcut2.preventDefault !== false) {
-          event.preventDefault();
-        }
-        shortcut2.action();
-      }
-    },
-    { enabled: shortcut2.enabled !== false && enabled, preventDefault: shortcut2.preventDefault !== false },
-    [shortcut2.action, shortcut2.enabled, enabled]
-  );
-
-  useHotkeys(
-    shortcut3.key,
-    (event) => {
-      if (shortcut3.enabled !== false && enabled) {
-        if (shortcut3.preventDefault !== false) {
-          event.preventDefault();
-        }
-        shortcut3.action();
-      }
-    },
-    { enabled: shortcut3.enabled !== false && enabled, preventDefault: shortcut3.preventDefault !== false },
-    [shortcut3.action, shortcut3.enabled, enabled]
-  );
-
-  useHotkeys(
-    shortcut4.key,
-    (event) => {
-      if (shortcut4.enabled !== false && enabled) {
-        if (shortcut4.preventDefault !== false) {
-          event.preventDefault();
-        }
-        shortcut4.action();
-      }
-    },
-    { enabled: shortcut4.enabled !== false && enabled, preventDefault: shortcut4.preventDefault !== false },
-    [shortcut4.action, shortcut4.enabled, enabled]
-  );
-
-  useHotkeys(
-    shortcut5.key,
-    (event) => {
-      if (shortcut5.enabled !== false && enabled) {
-        if (shortcut5.preventDefault !== false) {
-          event.preventDefault();
-        }
-        shortcut5.action();
-      }
-    },
-    { enabled: shortcut5.enabled !== false && enabled, preventDefault: shortcut5.preventDefault !== false },
-    [shortcut5.action, shortcut5.enabled, enabled]
-  );
-
-  useHotkeys(
-    shortcut6.key,
-    (event) => {
-      if (shortcut6.enabled !== false && enabled) {
-        if (shortcut6.preventDefault !== false) {
-          event.preventDefault();
-        }
-        shortcut6.action();
-      }
-    },
-    { enabled: shortcut6.enabled !== false && enabled, preventDefault: shortcut6.preventDefault !== false },
-    [shortcut6.action, shortcut6.enabled, enabled]
-  );
-
-  useHotkeys(
-    shortcut7.key,
-    (event) => {
-      if (shortcut7.enabled !== false && enabled) {
-        if (shortcut7.preventDefault !== false) {
-          event.preventDefault();
-        }
-        shortcut7.action();
-      }
-    },
-    { enabled: shortcut7.enabled !== false && enabled, preventDefault: shortcut7.preventDefault !== false },
-    [shortcut7.action, shortcut7.enabled, enabled]
-  );
-
-  useHotkeys(
-    shortcut8.key,
-    (event) => {
-      if (shortcut8.enabled !== false && enabled) {
-        if (shortcut8.preventDefault !== false) {
-          event.preventDefault();
-        }
-        shortcut8.action();
-      }
-    },
-    { enabled: shortcut8.enabled !== false && enabled, preventDefault: shortcut8.preventDefault !== false },
-    [shortcut8.action, shortcut8.enabled, enabled]
-  );
-
-  useHotkeys(
-    shortcut9.key,
-    (event) => {
-      if (shortcut9.enabled !== false && enabled) {
-        if (shortcut9.preventDefault !== false) {
-          event.preventDefault();
-        }
-        shortcut9.action();
-      }
-    },
-    { enabled: shortcut9.enabled !== false && enabled, preventDefault: shortcut9.preventDefault !== false },
-    [shortcut9.action, shortcut9.enabled, enabled]
-  );
-
-  useHotkeys(
-    shortcut10.key,
-    (event) => {
-      if (shortcut10.enabled !== false && enabled) {
-        if (shortcut10.preventDefault !== false) {
-          event.preventDefault();
-        }
-        shortcut10.action();
-      }
-    },
-    { enabled: shortcut10.enabled !== false && enabled, preventDefault: shortcut10.preventDefault !== false },
-    [shortcut10.action, shortcut10.enabled, enabled]
-  );
-
-  useHotkeys(
-    shortcut11.key,
-    (event) => {
-      if (shortcut11.enabled !== false && enabled) {
-        if (shortcut11.preventDefault !== false) {
-          event.preventDefault();
-        }
-        shortcut11.action();
-      }
-    },
-    { enabled: shortcut11.enabled !== false && enabled, preventDefault: shortcut11.preventDefault !== false },
-    [shortcut11.action, shortcut11.enabled, enabled]
-  );
-
-  useHotkeys(
-    shortcut12.key,
-    (event) => {
-      if (shortcut12.enabled !== false && enabled) {
-        if (shortcut12.preventDefault !== false) {
-          event.preventDefault();
-        }
-        shortcut12.action();
-      }
-    },
-    { enabled: shortcut12.enabled !== false && enabled, preventDefault: shortcut12.preventDefault !== false },
-    [shortcut12.action, shortcut12.enabled, enabled]
-  );
-
-  useHotkeys(
-    shortcut13.key,
-    (event) => {
-      if (shortcut13.enabled !== false && enabled) {
-        if (shortcut13.preventDefault !== false) {
-          event.preventDefault();
-        }
-        shortcut13.action();
-      }
-    },
-    { enabled: shortcut13.enabled !== false && enabled, preventDefault: shortcut13.preventDefault !== false },
-    [shortcut13.action, shortcut13.enabled, enabled]
-  );
-
-  useHotkeys(
-    shortcut14.key,
-    (event) => {
-      if (shortcut14.enabled !== false && enabled) {
-        if (shortcut14.preventDefault !== false) {
-          event.preventDefault();
-        }
-        shortcut14.action();
-      }
-    },
-    { enabled: shortcut14.enabled !== false && enabled, preventDefault: shortcut14.preventDefault !== false },
-    [shortcut14.action, shortcut14.enabled, enabled]
-  );
-
-  useHotkeys(
-    shortcut15.key,
-    (event) => {
-      if (shortcut15.enabled !== false && enabled) {
-        if (shortcut15.preventDefault !== false) {
-          event.preventDefault();
-        }
-        shortcut15.action();
-      }
-    },
-    { enabled: shortcut15.enabled !== false && enabled, preventDefault: shortcut15.preventDefault !== false },
-    [shortcut15.action, shortcut15.enabled, enabled]
-  );
-
-  useHotkeys(
-    shortcut16.key,
-    (event) => {
-      if (shortcut16.enabled !== false && enabled) {
-        if (shortcut16.preventDefault !== false) {
-          event.preventDefault();
-        }
-        shortcut16.action();
-      }
-    },
-    { enabled: shortcut16.enabled !== false && enabled, preventDefault: shortcut16.preventDefault !== false },
-    [shortcut16.action, shortcut16.enabled, enabled]
-  );
-
-  useHotkeys(
-    shortcut17.key,
-    (event) => {
-      if (shortcut17.enabled !== false && enabled) {
-        if (shortcut17.preventDefault !== false) {
-          event.preventDefault();
-        }
-        shortcut17.action();
-      }
-    },
-    { enabled: shortcut17.enabled !== false && enabled, preventDefault: shortcut17.preventDefault !== false },
-    [shortcut17.action, shortcut17.enabled, enabled]
-  );
-
-  useHotkeys(
-    shortcut18.key,
-    (event) => {
-      if (shortcut18.enabled !== false && enabled) {
-        if (shortcut18.preventDefault !== false) {
-          event.preventDefault();
-        }
-        shortcut18.action();
-      }
-    },
-    { enabled: shortcut18.enabled !== false && enabled, preventDefault: shortcut18.preventDefault !== false },
-    [shortcut18.action, shortcut18.enabled, enabled]
-  );
-
-  useHotkeys(
-    shortcut19.key,
-    (event) => {
-      if (shortcut19.enabled !== false && enabled) {
-        if (shortcut19.preventDefault !== false) {
-          event.preventDefault();
-        }
-        shortcut19.action();
-      }
-    },
-    { enabled: shortcut19.enabled !== false && enabled, preventDefault: shortcut19.preventDefault !== false },
-    [shortcut19.action, shortcut19.enabled, enabled]
+    [enabled]
   );
 
   // Get shortcut help text

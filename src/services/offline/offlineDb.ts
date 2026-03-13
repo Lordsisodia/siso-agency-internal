@@ -753,8 +753,6 @@ class OfflineDatabase {
           return 'timeBlocks';
         case 'smokingTracker':
           return 'smokingTracker';
-        case 'dailyReflections':
-          return 'dailyReflections';
         default:
           return null;
       }

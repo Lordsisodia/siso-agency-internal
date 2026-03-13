@@ -862,21 +862,6 @@ export class SyncService {
         await offlineDb.saveTimeBlock(payload, false);
         break;
       }
-      case 'dailyReflections': {
-        const payload = {
-          id: record.id ?? `${record.user_id}-${record.date}`,
-          user_id: record.user_id,
-          date: record.date,
-          key_learnings: record.key_learnings ?? record.reflection ?? '',
-          went_well: record.went_well ?? record.wins ?? [],
-          even_better_if: record.even_better_if ?? record.improvements ?? [],
-          tomorrow_focus: record.tomorrow_focus ?? '',
-          created_at: record.created_at ?? new Date().toISOString(),
-          updated_at: record.updated_at ?? new Date().toISOString(),
-        };
-        await offlineDb.saveDailyReflection(payload, false);
-        break;
-      }
       default:
         break;
     }
