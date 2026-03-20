@@ -220,18 +220,6 @@ export const ENHANCED_TAB_CONFIG: Record<TabId, EnhancedTabConfig> = {
     componentProps: { activeSubTab: 'fitness' },
   },
 
-  // PHASE 4: Nutrition moved from Health to Stats
-  'nutrition': {
-    ...TAB_CONFIG['wellness'],
-    id: 'nutrition' as TabId,
-    name: 'Nutrition',
-    layoutType: 'standard',
-    backgroundClass: '',
-    showDateNav: true,
-    components: [StatsSection],
-    componentProps: { activeSubTab: 'nutrition' },
-  },
-
   // Diet section - PHASE 2: Now redirects to Health/Nutrition, PHASE 4: redirects to Stats/Nutrition
   // Kept for backward compatibility with old routes
   'diet': {

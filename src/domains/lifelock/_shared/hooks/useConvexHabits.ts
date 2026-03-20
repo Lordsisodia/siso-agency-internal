@@ -6,7 +6,7 @@
  */
 
 import { useQuery, useMutation } from 'convex/react';
-import { api } from '../../../../convex/_generated/api';
+import { api } from '../../../../../convex/_generated/api';
 import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { useCallback, useMemo } from 'react';
 
