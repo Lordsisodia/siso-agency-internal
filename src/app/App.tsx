@@ -96,8 +96,8 @@ function App() {
             <Route path="/admin" element={<ClerkAuthGuard><AdminDashboard /></ClerkAuthGuard>} />
             <Route path="/admin/dashboard" element={<ClerkAuthGuard><AdminDashboard /></ClerkAuthGuard>} />
             <Route path="/admin/industries" element={<ClerkAuthGuard><AdminIndustriesPage /></ClerkAuthGuard>} />
-            <Route path="/admin/clients" element={<ClerkAuthGuard><AdminClients /></ClerkAuthGuard>} />
-            <Route path="/admin/partners" element={<ClerkAuthGuard><AdminPartnershipDashboard /></ClerkAuthGuard>} />
+            <Route path="/admin/clients" element={<AdminClients />} />
+            <Route path="/admin/partners" element={<AdminPartnershipDashboard />} />
 
             {/* LifeLock */}
             <Route path="/admin/life-lock-overview" element={<ClerkAuthGuard><AdminLifeLockOverview /></ClerkAuthGuard>} />
@@ -126,9 +126,9 @@ function App() {
             <Route path="/admin/ai-assistant" element={<ClerkAuthGuard><AIAssistantPage /></ClerkAuthGuard>} />
 
             {/* XP Store */}
-            <Route path="/xp-store" element={<ClerkAuthGuard><XPStorePage /></ClerkAuthGuard>} />
-            <Route path="/xp-store/:section" element={<ClerkAuthGuard><XPStorePage /></ClerkAuthGuard>} />
-            <Route path="/xp-dashboard" element={<ClerkAuthGuard><XPDashboardPage /></ClerkAuthGuard>} />
+            <Route path="/xp-store" element={<XPStorePage />} />
+            <Route path="/xp-store/:section" element={<XPStorePage />} />
+            <Route path="/xp-dashboard" element={<XPDashboardPage />} />
 
             {/* Resources */}
             <Route path="/resources" element={<AuthGuard><ResourcesPage /></AuthGuard>} />
