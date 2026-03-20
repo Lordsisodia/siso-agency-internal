@@ -26,10 +26,11 @@ export function useGamificationInit(): void {
     GamificationService.setUserId(internalUserId);
 
     // Load XP progress from Supabase (async, non-blocking)
-    GamificationService.loadFromSupabase(internalUserId).catch(error => {
-      console.error('Failed to load XP progress:', error);
-      // Continue anyway - will use localStorage
-    });
+    // DISABLED - Using Convex instead of Supabase
+    // GamificationService.loadFromSupabase(internalUserId).catch(error => {
+    //   console.error('Failed to load XP progress:', error);
+    //   // Continue anyway - will use localStorage
+    // });
 
     // Cleanup on unmount
     return () => {

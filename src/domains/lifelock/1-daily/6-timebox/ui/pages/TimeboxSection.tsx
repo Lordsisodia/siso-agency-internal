@@ -36,6 +36,9 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
   const { user, isSignedIn } = useClerkUser();
   const internalUserId = user?.id || null;
 
+  // Date key for queries (must be before hooks that use it)
+  const dateKey = format(selectedDate, 'yyyy-MM-dd');
+
   // Morning routine hook for wake-up time (Convex)
   const { routine: morningRoutine } = useConvexMorningRoutineByDate(dateKey);
 
@@ -60,9 +63,6 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
   const timelineContainerRef = useRef<HTMLDivElement | null>(null);
   const processedAutoAdjustmentsRef = useRef<Set<string>>(new Set());
   const autoSyncingRef = useRef(false);
-
-
-  const dateKey = format(selectedDate, 'yyyy-MM-dd');
 
   // Database hook
   const {

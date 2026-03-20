@@ -542,9 +542,10 @@ export class GamificationService {
     this.notifyProgressUpdate(progress);
 
     // Sync to Supabase in background (if user is logged in)
-    if (this.currentUserId) {
-      scheduleSyncToSupabase(this.currentUserId, progress);
-    }
+    // DISABLED - Using Convex instead of Supabase
+    // if (this.currentUserId) {
+    //   scheduleSyncToSupabase(this.currentUserId, progress);
+    // }
   }
 
   /**
@@ -592,13 +593,15 @@ export class GamificationService {
           // Local progress is more up-to-date - keep it and push to Supabase
           localStorage.setItem(this.STORAGE_KEY, JSON.stringify(existingProgress));
           this.notifyProgressUpdate(existingProgress);
-          scheduleSyncToSupabase(userId, existingProgress, 0);
-          
+          // DISABLED - Using Convex instead of Supabase
+          // scheduleSyncToSupabase(userId, existingProgress, 0);
+
         }
       } else {
         // No Supabase data - sync current localStorage data up
-        await scheduleSyncToSupabase(userId, existingProgress, 0); // Immediate sync
-        
+        // DISABLED - Using Convex instead of Supabase
+        // await scheduleSyncToSupabase(userId, existingProgress, 0); // Immediate sync
+
       }
     } catch (error) {
       console.error('Error loading XP from Supabase:', error);
