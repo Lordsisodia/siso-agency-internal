@@ -29,7 +29,7 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
-import { MorningRoutineMetadata, useMorningRoutineSupabase } from '@/domains/lifelock/1-daily/1-morning-routine/hooks/useMorningRoutineSupabase';
+import { useConvexMorningRoutineByDate, useConvexCreateOrUpdateMorningRoutine, ConvexMorningRoutine } from '@/domains/lifelock/_shared/hooks/useConvexMorningRoutines';
 import { SimpleThoughtDumpPage, ThoughtDumpResults, lifeLockVoiceTaskProcessor } from '@/domains/lifelock/1-daily/1-morning-routine/ui/features/ai-thought-dump';
 import type { ThoughtDumpResult } from '@/domains/lifelock/1-daily/1-morning-routine/ui/features/ai-thought-dump';
 import { getRotatingQuotes } from '@/lib/data/motivational-quotes';
@@ -232,11 +232,32 @@ export const MorningRoutineSection: React.FC<MorningRoutineSectionProps> = React
 
   const {
     routine: morningRoutineState,
-    loading: routineLoading,
-    error: routineError,
-    toggleHabit: toggleMorningHabit,
-    updateMetadata: persistMorningMetadata,
-  } = useMorningRoutineSupabase(selectedDate);
+    isLoading: routineLoading,
+  } = useConvexMorningRoutineByDate(selectedDate);
+
+  const { createOrUpdate } = useConvexCreateOrUpdateMorningRoutine();
+
+  // Wrapper to match Supabase interface
+  const toggleMorningHabit = async (habit: string, completed: boolean) => {
+    const dateStr = format(selectedDate, 'yyyy-MM-dd');
+    const currentRoutine = morningRoutineState || {};
+    await createOrUpdate({
+      date: dateStr,
+      exerciseCompleted: habit === 'exercise' ? completed : currentRoutine.exerciseCompleted,
+      affirmations: habit === 'affirmations' ? completed : currentRoutine.affirmations,
+      waterIntake: habit === 'water' ? (completed ? 1 : 0) : currentRoutine.waterIntake,
+    });
+  };
+
+  const persistMorningMetadata = async (metadata: Partial<ConvexMorningRoutine>) => {
+    const dateStr = format(selectedDate, 'yyyy-MM-dd');
+    await createOrUpdate({
+      date: dateStr,
+      ...metadata,
+    });
+  };
+
+  const routineError = null; // Convex handles errors via React Query
 
   const [wakeUpTime, setWakeUpTime] = useState<string>('');
 
