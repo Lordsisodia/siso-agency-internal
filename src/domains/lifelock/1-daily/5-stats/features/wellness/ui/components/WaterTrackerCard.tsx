@@ -9,6 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { waterService } from '@/services/database/waterService';
 import { XPPill } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/xp/XPPill';
 import type { WaterTrackerSnapshot } from '@/domains/lifelock/1-daily/5-stats/features/wellness/domain/types';
+import { useConvexHabits, useGetOrCreateWellnessHabit, useCompleteConvexHabit, WELLNESS_HABIT_CATEGORIES } from '@/domains/lifelock/_shared/hooks/useConvexHabits';
 
 interface WaterTrackerCardProps {
   selectedDate: Date;
@@ -24,6 +25,13 @@ export const WaterTrackerCard: React.FC<WaterTrackerCardProps> = ({ selectedDate
   const isSelectedDateToday = isToday(selectedDate);
 
   const localStorageKey = useMemo(() => `lifelock-water-${dateKey}`, [dateKey]);
+
+  // Convex habits integration
+  const { getOrCreateHabit } = useGetOrCreateWellnessHabit();
+  const { completeHabit } = useCompleteConvexHabit();
+
+  // Track if habit was already completed today to avoid duplicates
+  const habitCompletedTodayRef = useRef(false);
 
   const defaultSnapshot: WaterTrackerSnapshot = {
     goalMl: 2000,
@@ -158,6 +166,23 @@ export const WaterTrackerCard: React.FC<WaterTrackerCardProps> = ({ selectedDate
           revalidate: true,
         }
       );
+
+      // Complete Convex habit when water goal is reached
+      if (willReachGoal && !habitCompletedTodayRef.current) {
+        habitCompletedTodayRef.current = true;
+        try {
+          const habitId = await getOrCreateHabit(
+            WELLNESS_HABIT_CATEGORIES.HEALTH_STATS,
+            'Track Hydration',
+            'Log water intake'
+          );
+          if (habitId) {
+            await completeHabit(habitId, `Hydration goal reached: ${targetTotal}ml`);
+          }
+        } catch (error) {
+          console.error('Failed to complete Convex hydration habit:', error);
+        }
+      }
     } catch (mutationError) {
       console.error('[WaterTrackerCard] Failed to log water intake', mutationError);
       setActionError('Unable to update water intake. Please try again.');

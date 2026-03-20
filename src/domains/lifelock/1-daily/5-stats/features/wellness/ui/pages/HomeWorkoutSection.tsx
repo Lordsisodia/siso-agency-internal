@@ -44,6 +44,7 @@ import { calculateTotalWorkoutXP } from '@/domains/lifelock/1-daily/5-stats/feat
 import { GamificationService } from '@/domains/lifelock/_shared/services/gamificationService';
 import { WaterTrackerCard } from '../components/WaterTrackerCard';
 import { WorkoutStatistics } from '../components/WorkoutStatistics';
+import { useConvexHabits, useGetOrCreateWellnessHabit, useCompleteConvexHabit, WELLNESS_HABIT_CATEGORIES } from '@/domains/lifelock/_shared/hooks/useConvexHabits';
 
 type WorkoutItemRow = Database['public']['Tables']['workout_items']['Row'];
 
@@ -101,6 +102,14 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({ selected
   const internalUserId = useSupabaseUserId(user?.id || null);
   const dateKey = format(selectedDate, 'yyyy-MM-dd');
   const readableDate = format(selectedDate, 'EEE, MMM d');
+
+  // Convex habits integration
+  const { habits, isLoading: habitsLoading } = useConvexHabits(WELLNESS_HABIT_CATEGORIES.FITNESS);
+  const { getOrCreateHabit } = useGetOrCreateWellnessHabit();
+  const { completeHabit } = useCompleteConvexHabit();
+
+  // Find or create the workout habit
+  const workoutHabitIdRef = useRef<string | null>(null);
 
   const [workoutItems, setWorkoutItems] = useState<WorkoutItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -319,8 +328,26 @@ export const HomeWorkoutSection: React.FC<HomeWorkoutSectionProps> = ({ selected
       GamificationService.awardXP('workout', diff / 40);
       workoutXPRef.current = totalWorkoutXP;
       window.localStorage.setItem(workoutXPStorageKey, totalWorkoutXP.toString());
+
+      // Also complete the habit in Convex
+      const completeConvexHabit = async () => {
+        try {
+          // Get or create the workout habit
+          const habitId = await getOrCreateHabit(
+            WELLNESS_HABIT_CATEGORIES.FITNESS,
+            'Daily Workout',
+            'Complete daily exercise routine'
+          );
+          if (habitId) {
+            await completeHabit(habitId, `Completed workout: ${overallPercent}%`);
+          }
+        } catch (error) {
+          console.error('Failed to complete Convex habit:', error);
+        }
+      };
+      void completeConvexHabit();
     }
-  }, [dateKey, totalWorkoutXP, workoutXPStorageKey]);
+  }, [dateKey, totalWorkoutXP, workoutXPStorageKey, overallPercent, getOrCreateHabit, completeHabit]);
 
   if (isLoading) {
     return (

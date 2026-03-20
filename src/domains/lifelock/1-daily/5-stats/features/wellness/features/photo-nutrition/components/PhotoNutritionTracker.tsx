@@ -12,6 +12,7 @@ import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 import { usePhotoNutrition } from '../hooks/usePhotoNutrition';
 import { useNutritionSupabase } from '@/domains/lifelock/1-daily/5-stats/domain/useNutritionSupabase';
+import { useConvexHabits, useGetOrCreateWellnessHabit, useCompleteConvexHabit, WELLNESS_HABIT_CATEGORIES } from '@/domains/lifelock/_shared/hooks/useConvexHabits';
 import { PhotoCapture } from './PhotoCapture';
 import { FoodPhotoCard } from './FoodPhotoCard';
 import { DailyMacroSummary } from './DailyMacroSummary';
@@ -51,6 +52,10 @@ export const PhotoNutritionTracker: React.FC<PhotoNutritionTrackerProps> = ({
     updateMacros
   } = useNutritionSupabase(internalUserId || '', dateKey);
 
+  // Convex habits integration
+  const { getOrCreateHabit } = useGetOrCreateWellnessHabit();
+  const { completeHabit } = useCompleteConvexHabit();
+
   // Local state for manual entry
   const [meals, setMeals] = useState(nutrition.meals);
   const [macros, setMacros] = useState(nutrition.macros);
@@ -80,6 +85,20 @@ export const PhotoNutritionTracker: React.FC<PhotoNutritionTrackerProps> = ({
   const handlePhotoSelect = async (file: File) => {
     try {
       await uploadPhoto(file);
+
+      // Complete Convex habit when photo is uploaded
+      try {
+        const habitId = await getOrCreateHabit(
+          WELLNESS_HABIT_CATEGORIES.NUTRITION,
+          'Log Nutrition',
+          'Track meals and macros'
+        );
+        if (habitId) {
+          await completeHabit(habitId, 'Photo meal logged');
+        }
+      } catch (error) {
+        console.error('Failed to complete Convex nutrition habit:', error);
+      }
     } catch (err) {
       console.error('Upload failed:', err);
     }
@@ -93,10 +112,26 @@ export const PhotoNutritionTracker: React.FC<PhotoNutritionTrackerProps> = ({
     }
   };
 
-  const handleMealChange = (mealType: keyof typeof meals, value: string) => {
+  const handleMealChange = async (mealType: keyof typeof meals, value: string) => {
     const newMeals = { ...meals, [mealType]: value };
     setMeals(newMeals);
-    updateMeals(newMeals);
+    await updateMeals(newMeals);
+
+    // Complete Convex habit if meals are being logged
+    if (value && value.length > 0) {
+      try {
+        const habitId = await getOrCreateHabit(
+          WELLNESS_HABIT_CATEGORIES.NUTRITION,
+          'Log Nutrition',
+          'Track meals and macros'
+        );
+        if (habitId) {
+          await completeHabit(habitId, `Logged ${mealType}: ${value.substring(0, 50)}`);
+        }
+      } catch (error) {
+        console.error('Failed to complete Convex nutrition habit:', error);
+      }
+    }
   };
 
   const handleMacroChange = (macroType: keyof typeof macros, value: string) => {
