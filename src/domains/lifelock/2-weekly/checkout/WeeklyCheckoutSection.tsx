@@ -111,7 +111,7 @@ export const WeeklyCheckoutSection: React.FC<WeeklyCheckoutSectionProps> = ({
   };
 
   return (
-    <div className="relative min-h-screen pb-28">
+    <div className="relative min-h-screen pb-28 overflow-x-hidden">
       <div className="mx-auto w-full max-w-5xl px-4 pb-8 pt-4 sm:px-6 lg:px-8">
         <Card className="border border-white/10 bg-gradient-to-br from-slate-950 via-slate-900/80 to-slate-950 shadow-2xl shadow-emerald-500/10">
           <CardHeader className="space-y-4">

@@ -274,25 +274,29 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
     return () => clearInterval(timer);
   }, []);
 
-  // Auto-scroll to current time on page load
+  // Auto-scroll to current time on page load (only once)
+  const hasAutoScrolledRef = useRef(false);
+
   useEffect(() => {
-    const container = timelineContainerRef.current;
-    if (!container || currentTimePosition < 0) {
+    if (hasAutoScrolledRef.current || currentTimePosition < 0) {
       return;
     }
 
-    const scrollToPosition = Math.max(0, currentTimePosition - 200);
-    const timeout = window.setTimeout(() => {
-      container.scrollTo({
-        top: scrollToPosition,
-        behavior: 'smooth'
-      });
-    }, 800);
+    const container = timelineContainerRef.current;
+    if (!container) {
+      return;
+    }
 
-    return () => {
-      window.clearTimeout(timeout);
-    };
-  }, [currentTimePosition, tasks]);
+    hasAutoScrolledRef.current = true;
+    const scrollToPosition = Math.max(0, currentTimePosition - 200);
+
+    // Use 'auto' instead of 'smooth' to prevent scroll jank
+    // The parent container already has scroll-smooth which conflicts
+    container.scrollTo({
+      top: scrollToPosition,
+      behavior: 'auto'
+    });
+  }, [currentTimePosition]);
 
   // Cache today's stats for future comparison
   useEffect(() => {
