@@ -11,6 +11,7 @@ import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
 import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 import { unifiedDataService } from '@/services/shared/unified-data.service';
+import { useConvexCreateOrUpdateDailyReflection, useConvexDailyReflectionByDate } from '@/domains/lifelock/_shared/hooks/useConvexDailyReflections';
 
 // Nightly Checkout Metrics Types
 export interface MeditationMetrics {
@@ -101,7 +102,10 @@ export function useDailyReflections({ selectedDate, includePreviousDay = false }
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Convex hooks for daily reflections
   const dateString = selectedDate?.toISOString()?.split('T')[0] || new Date().toISOString().split('T')[0];
+  const { reflection: convexReflection } = useConvexDailyReflectionByDate(dateString);
+  const { createOrUpdate: saveToConvex } = useConvexCreateOrUpdateDailyReflection();
   const previousDateString = useMemo(() => {
     if (!includePreviousDay) return null;
     const previousDate = new Date(selectedDate);
@@ -254,6 +258,20 @@ export function useDailyReflections({ selectedDate, includePreviousDay = false }
         nonNegotiables: reflectionData.nonNegotiables || []
       });
 
+      // Also save to Convex
+      try {
+        await saveToConvex({
+          date: dateString,
+          completedTasks: reflectionData.wentWell || [],
+          tomorrowPlan: reflectionData.tomorrowFocus || '',
+          gratitude: reflectionData.gratitude || '',
+          dailyRating: reflectionData.overallRating,
+          notes: reflectionData.keyLearnings || '',
+        });
+      } catch (convexError) {
+        console.warn('[DailyReflections] Failed to save to Convex:', convexError);
+      }
+
       const savedReflection: DailyReflection = {
         id: reflection?.id || '',
         userId: internalUserId,
@@ -286,7 +304,7 @@ export function useDailyReflections({ selectedDate, includePreviousDay = false }
     } finally {
       setSaving(false);
     }
-  }, [internalUserId, dateString, reflection]);
+  }, [internalUserId, dateString, reflection, saveToConvex]);
 
   // Load reflection when dependencies change
   useEffect(() => {

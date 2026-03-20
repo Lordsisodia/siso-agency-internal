@@ -5,6 +5,7 @@ import { useSupabaseClient, useSupabaseUserId } from '@/lib/services/supabase/cl
 import { syncService } from '@/services/offline/syncService';
 import { offlineDb } from '@/services/offline/offlineDb';
 import { TABLES } from '@/lib/services/supabase/client';
+import { useConvexCreateOrUpdateMorningRoutine, useConvexMorningRoutineByDate } from '@/domains/lifelock/_shared/hooks/useConvexMorningRoutines';
 
 export interface MorningRoutineHabit {
   name: string;
@@ -69,11 +70,14 @@ export function useMorningRoutineSupabase(selectedDate: Date): UseMorningRoutine
   const supabaseClient = useSupabaseClient();
   const internalUserId = useSupabaseUserId(user?.id || null);
 
+  // Convex hooks for morning routines
+  const dateKey = selectedDate.toISOString().split('T')[0];
+  const { routine: convexRoutine } = useConvexMorningRoutineByDate(dateKey);
+  const { createOrUpdate: saveToConvex } = useConvexCreateOrUpdateMorningRoutine();
+
   const [routine, setRoutine] = useState<MorningRoutineState | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const dateKey = useMemo(() => selectedDate.toISOString().split('T')[0], [selectedDate]);
 
   const ensureRoutineShape = useCallback(
     (
@@ -303,8 +307,21 @@ export function useMorningRoutineSupabase(selectedDate: Date): UseMorningRoutine
       } catch (syncError) {
         console.warn('[MorningRoutine] Failed to sync habit update:', syncError);
       }
+
+      // Also save to Convex
+      try {
+        await saveToConvex({
+          date: updated.date,
+          wakeTime: updated.metadata.wakeUpTime,
+          meditationMinutes: updated.metadata.meditationDuration ? parseInt(updated.metadata.meditationDuration) : undefined,
+          waterIntake: updated.metadata.waterAmount,
+          exerciseCompleted: updated.items.some(i => i.name === 'getBloodFlowing' && i.completed),
+        });
+      } catch (convexError) {
+        console.warn('[MorningRoutine] Failed to save to Convex:', convexError);
+      }
     },
-    [internalUserId, persistRoutineOffline, routine, syncToSupabase],
+    [internalUserId, persistRoutineOffline, routine, syncToSupabase, saveToConvex],
   );
 
   const updateMetadata = useCallback(
@@ -329,8 +346,21 @@ export function useMorningRoutineSupabase(selectedDate: Date): UseMorningRoutine
       } catch (syncError) {
         console.warn('[MorningRoutine] Failed to sync metadata update:', syncError);
       }
+
+      // Also save to Convex
+      try {
+        await saveToConvex({
+          date: updated.date,
+          wakeTime: metadata.wakeUpTime,
+          meditationMinutes: metadata.meditationDuration ? parseInt(metadata.meditationDuration) : undefined,
+          waterIntake: metadata.waterAmount,
+          exerciseCompleted: metadata.isPlanDayComplete,
+        });
+      } catch (convexError) {
+        console.warn('[MorningRoutine] Failed to save to Convex:', convexError);
+      }
     },
-    [persistRoutineOffline, routine, syncToSupabase],
+    [persistRoutineOffline, routine, syncToSupabase, saveToConvex],
   );
 
   return {
