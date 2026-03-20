@@ -13,6 +13,7 @@ import { GamificationService } from '@/domains/lifelock/_shared/services/gamific
 import { XPPill } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/xp/XPPill';
 import useSWR from 'swr';
 import { cn } from '@/lib/utils';
+import { useGetOrCreateWellnessHabit, useCompleteConvexHabit, WELLNESS_HABIT_CATEGORIES } from '@/domains/lifelock/_shared/hooks/useConvexHabits';
 
 interface AlcoholTrackerProps {
   selectedDate: Date;
@@ -32,6 +33,11 @@ export const AlcoholTracker: React.FC<AlcoholTrackerProps> = ({ selectedDate }) 
   const internalUserId = useSupabaseUserId(user?.id || null);
   const dateKey = format(selectedDate, 'yyyy-MM-dd');
   const isTodayDate = isToday(selectedDate);
+
+  // Convex habits integration
+  const { getOrCreateHabit } = useGetOrCreateWellnessHabit();
+  const { completeHabit } = useCompleteConvexHabit();
+  const habitCompletedTodayRef = useRef(false);
 
   const { data, error, isLoading, mutate } = useSWR<AlcoholSnapshot>(
     internalUserId ? ['alcohol-tracker', internalUserId, dateKey] : null,
@@ -141,6 +147,9 @@ export const AlcoholTracker: React.FC<AlcoholTrackerProps> = ({ selectedDate }) 
 
     if (newValue === currentValue) return;
 
+    // Check if this will be a dry day (0 drinks)
+    const willBeDryDay = newValue === 0;
+
     try {
       setIsUpdating(true);
       setActionError(null);
@@ -161,13 +170,30 @@ export const AlcoholTracker: React.FC<AlcoholTrackerProps> = ({ selectedDate }) 
           revalidate: true,
         }
       );
+
+      // Complete Convex habit when dry day achieved
+      if (willBeDryDay && !habitCompletedTodayRef.current && isTodayDate) {
+        habitCompletedTodayRef.current = true;
+        try {
+          const habitId = await getOrCreateHabit(
+            WELLNESS_HABIT_CATEGORIES.HEALTH_STATS,
+            'No Alcohol',
+            'Dry day - no alcohol'
+          );
+          if (habitId) {
+            await completeHabit(habitId, 'Dry day achieved!');
+          }
+        } catch (error) {
+          console.error('Failed to complete Convex alcohol habit:', error);
+        }
+      }
     } catch (error) {
       console.error('[AlcoholTracker] Failed to update count:', error);
       setActionError('Failed to update. Please try again.');
     } finally {
       setIsUpdating(false);
     }
-  }, [isUpdating, internalUserId, alcoholData.drinks, mutate, dateKey]);
+  }, [isUpdating, internalUserId, alcoholData.drinks, mutate, dateKey, isTodayDate, getOrCreateHabit, completeHabit]);
 
   // Calculate weekly stats
   const weeklyStats = useMemo(() => {

@@ -10,6 +10,7 @@ import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 import { XPPill } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/xp/XPPill';
 import { GamificationService } from '@/domains/lifelock/_shared/services/gamificationService';
 import { cn } from '@/lib/utils';
+import { useGetOrCreateWellnessHabit, useCompleteConvexHabit, WELLNESS_HABIT_CATEGORIES } from '@/domains/lifelock/_shared/hooks/useConvexHabits';
 
 interface CaffeineTrackerProps {
   selectedDate: Date;
@@ -112,6 +113,11 @@ export const CaffeineTracker: React.FC<CaffeineTrackerProps> = ({ selectedDate }
   const dateKey = format(selectedDate, 'yyyy-MM-dd');
   const isTodayDate = isToday(selectedDate);
 
+  // Convex habits integration
+  const { getOrCreateHabit } = useGetOrCreateWellnessHabit();
+  const { completeHabit } = useCompleteConvexHabit();
+  const habitCompletedTodayRef = useRef(false);
+
   // Local state for data (until backend is implemented)
   const [caffeineData, setCaffeineData] = useState<CaffeineSnapshot>({
     date: dateKey,
@@ -169,6 +175,32 @@ export const CaffeineTracker: React.FC<CaffeineTrackerProps> = ({ selectedDate }
     const stored = window.localStorage.getItem(xpStorageKey);
     caffeineXPRef.current = stored ? Number(stored) || 0 : 0;
   }, [xpStorageKey]);
+
+  // Complete Convex habit when under healthy caffeine limit
+  useEffect(() => {
+    if (!isTodayDate || habitCompletedTodayRef.current) return;
+    if (caffeineData.totalMg === 0) return;
+
+    // Complete habit if under healthy limit (200mg or less)
+    if (caffeineData.totalMg <= CAFFEINE_LOW_THRESHOLD) {
+      habitCompletedTodayRef.current = true;
+      const completeCaffeineHabit = async () => {
+        try {
+          const habitId = await getOrCreateHabit(
+            WELLNESS_HABIT_CATEGORIES.HEALTH_STATS,
+            'Limit Caffeine',
+            'Stay under 200mg caffeine'
+          );
+          if (habitId) {
+            await completeHabit(habitId, `Caffeine under limit: ${caffeineData.totalMg}mg`);
+          }
+        } catch (error) {
+          console.error('Failed to complete Convex caffeine habit:', error);
+        }
+      };
+      void completeCaffeineHabit();
+    }
+  }, [caffeineData.totalMg, isTodayDate, getOrCreateHabit, completeHabit]);
 
   // Calculate current XP
   const caffeineXP = useMemo(() => {

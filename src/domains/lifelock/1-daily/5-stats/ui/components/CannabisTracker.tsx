@@ -10,6 +10,7 @@ import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 import { XPPill } from '@/domains/lifelock/1-daily/1-morning-routine/ui/components/xp/XPPill';
 import useSWR from 'swr';
 import { cn } from '@/lib/utils';
+import { useGetOrCreateWellnessHabit, useCompleteConvexHabit, WELLNESS_HABIT_CATEGORIES } from '@/domains/lifelock/_shared/hooks/useConvexHabits';
 
 interface CannabisTrackerProps {
   selectedDate: Date;
@@ -122,6 +123,11 @@ export const CannabisTracker: React.FC<CannabisTrackerProps> = ({ selectedDate }
   const dateKey = format(selectedDate, 'yyyy-MM-dd');
   const isTodayDate = isToday(selectedDate);
 
+  // Convex habits integration
+  const { getOrCreateHabit } = useGetOrCreateWellnessHabit();
+  const { completeHabit } = useCompleteConvexHabit();
+  const habitCompletedTodayRef = useRef(false);
+
   const { data, error, isLoading, mutate } = useSWR<CannabisData>(
     internalUserId ? ['cannabis-tracker', internalUserId, dateKey] : null,
     () => fetchCannabisData(internalUserId!, dateKey),
@@ -229,6 +235,9 @@ export const CannabisTracker: React.FC<CannabisTrackerProps> = ({ selectedDate }
 
     if (newValue === currentValue) return;
 
+    // Check if this will be a T-break day (0 sessions)
+    const willBeTBreak = newValue === 0;
+
     try {
       setIsUpdating(true);
       setActionError(null);
@@ -250,13 +259,30 @@ export const CannabisTracker: React.FC<CannabisTrackerProps> = ({ selectedDate }
           revalidate: true,
         }
       );
+
+      // Complete Convex habit when T-break achieved
+      if (willBeTBreak && !habitCompletedTodayRef.current && isTodayDate) {
+        habitCompletedTodayRef.current = true;
+        try {
+          const habitId = await getOrCreateHabit(
+            WELLNESS_HABIT_CATEGORIES.HEALTH_STATS,
+            'Cannabis T-Break',
+            'Take a tolerance break'
+          );
+          if (habitId) {
+            await completeHabit(habitId, 'T-break day achieved!');
+          }
+        } catch (error) {
+          console.error('Failed to complete Convex cannabis habit:', error);
+        }
+      }
     } catch (error) {
       console.error('[CannabisTracker] Failed to update sessions:', error);
       setActionError('Failed to update. Please try again.');
     } finally {
       setIsUpdating(false);
     }
-  }, [isUpdating, internalUserId, cannabisData.sessions, mutate, dateKey, selectedMethod]);
+  }, [isUpdating, internalUserId, cannabisData.sessions, mutate, dateKey, selectedMethod, isTodayDate, getOrCreateHabit, completeHabit]);
 
   // Calculate weekly stats
   const weeklyStats = useMemo(() => {

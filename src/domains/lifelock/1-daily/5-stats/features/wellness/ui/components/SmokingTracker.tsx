@@ -14,6 +14,7 @@ import { calculateSmokingXP } from '../../domain/xpCalculations';
 import { GamificationService } from '@/domains/lifelock/_shared/services/gamificationService';
 import useSWR from 'swr';
 import { cn } from '@/lib/utils';
+import { useGetOrCreateWellnessHabit, useCompleteConvexHabit, WELLNESS_HABIT_CATEGORIES } from '@/domains/lifelock/_shared/hooks/useConvexHabits';
 
 interface SmokingTrackerProps {
   selectedDate: Date;
@@ -36,6 +37,11 @@ export const SmokingTracker: React.FC<SmokingTrackerProps> = ({ selectedDate }) 
   const internalUserId = useSupabaseUserId(user?.id || null);
   const dateKey = format(selectedDate, 'yyyy-MM-dd');
   const isTodayDate = isToday(selectedDate);
+
+  // Convex habits integration
+  const { getOrCreateHabit } = useGetOrCreateWellnessHabit();
+  const { completeHabit } = useCompleteConvexHabit();
+  const habitCompletedTodayRef = useRef(false);
 
   const { data, error, isLoading, mutate, isValidating } = useSWR<SmokingSnapshot>(
     internalUserId ? ['smoking-tracker', internalUserId, dateKey] : null,
@@ -147,6 +153,9 @@ export const SmokingTracker: React.FC<SmokingTrackerProps> = ({ selectedDate }) 
 
     if (newValue === currentValue) return;
 
+    // Check if this will make the user smoke-free
+    const willBeSmokeFree = field === 'cigarettes' && newValue === 0;
+
     try {
       setIsUpdating(true);
       setActionError(null);
@@ -172,13 +181,30 @@ export const SmokingTracker: React.FC<SmokingTrackerProps> = ({ selectedDate }) 
           revalidate: true,
         }
       );
+
+      // Complete Convex habit when smoke-free
+      if (willBeSmokeFree && !habitCompletedTodayRef.current && isTodayDate) {
+        habitCompletedTodayRef.current = true;
+        try {
+          const habitId = await getOrCreateHabit(
+            WELLNESS_HABIT_CATEGORIES.HEALTH_STATS,
+            'No Smoking',
+            'Avoid smoking today'
+          );
+          if (habitId) {
+            await completeHabit(habitId, 'Smoke-free day achieved!');
+          }
+        } catch (error) {
+          console.error('Failed to complete Convex smoking habit:', error);
+        }
+      }
     } catch (error) {
       console.error('[SmokingTracker] Failed to update count:', error);
       setActionError('Failed to update. Please try again.');
     } finally {
       setIsUpdating(false);
     }
-  }, [isUpdating, internalUserId, smokingData.cigarettes, smokingData.cravings, mutate, dateKey]);
+  }, [isUpdating, internalUserId, smokingData.cigarettes, smokingData.cravings, mutate, dateKey, isTodayDate, getOrCreateHabit, completeHabit]);
 
   // Calculate status
   const getCigarettesStatus = () => {

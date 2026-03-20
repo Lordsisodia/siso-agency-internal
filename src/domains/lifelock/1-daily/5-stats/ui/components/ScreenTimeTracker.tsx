@@ -12,6 +12,7 @@ import { XPPill } from '@/domains/lifelock/1-daily/1-morning-routine/ui/componen
 import { GamificationService } from '@/domains/lifelock/_shared/services/gamificationService';
 import useSWR from 'swr';
 import { cn } from '@/lib/utils';
+import { useGetOrCreateWellnessHabit, useCompleteConvexHabit, WELLNESS_HABIT_CATEGORIES } from '@/domains/lifelock/_shared/hooks/useConvexHabits';
 
 interface ScreenTimeTrackerProps {
   selectedDate: Date;
@@ -131,6 +132,11 @@ export const ScreenTimeTracker: React.FC<ScreenTimeTrackerProps> = ({ selectedDa
   const internalUserId = useSupabaseUserId(user?.id || null);
   const dateKey = format(selectedDate, 'yyyy-MM-dd');
   const isTodayDate = isToday(selectedDate);
+
+  // Convex habits integration
+  const { getOrCreateHabit } = useGetOrCreateWellnessHabit();
+  const { completeHabit } = useCompleteConvexHabit();
+  const habitCompletedTodayRef = useRef(false);
 
   const { data, error, isLoading, mutate } = useSWR<ScreenTimeData>(
     internalUserId ? ['screen-time-tracker', internalUserId, dateKey] : null,
@@ -304,6 +310,9 @@ export const ScreenTimeTracker: React.FC<ScreenTimeTrackerProps> = ({ selectedDa
     const newValue = !screenTimeData.digitalSunset;
     const newStreak = newValue ? screenTimeData.digitalSunsetStreak + 1 : Math.max(0, screenTimeData.digitalSunsetStreak - 1);
 
+    // Check if enabling digital sunset
+    const willEnableSunset = newValue && !screenTimeData.digitalSunset;
+
     try {
       setIsUpdating(true);
       setActionError(null);
@@ -326,13 +335,30 @@ export const ScreenTimeTracker: React.FC<ScreenTimeTrackerProps> = ({ selectedDa
           revalidate: true
         }
       );
+
+      // Complete Convex habit when digital sunset is enabled
+      if (willEnableSunset && !habitCompletedTodayRef.current && isTodayDate) {
+        habitCompletedTodayRef.current = true;
+        try {
+          const habitId = await getOrCreateHabit(
+            WELLNESS_HABIT_CATEGORIES.HEALTH_STATS,
+            'Digital Sunset',
+            'No screens after sunset'
+          );
+          if (habitId) {
+            await completeHabit(habitId, 'Digital sunset achieved!');
+          }
+        } catch (error) {
+          console.error('Failed to complete Convex digital sunset habit:', error);
+        }
+      }
     } catch (error) {
       console.error('[ScreenTimeTracker] Failed to toggle digital sunset:', error);
       setActionError('Failed to update. Please try again.');
     } finally {
       setIsUpdating(false);
     }
-  }, [isUpdating, internalUserId, screenTimeData.digitalSunset, screenTimeData.digitalSunsetStreak, mutate, dateKey]);
+  }, [isUpdating, internalUserId, screenTimeData.digitalSunset, screenTimeData.digitalSunsetStreak, mutate, dateKey, isTodayDate, getOrCreateHabit, completeHabit]);
 
   // Calculate weekly stats
   const weeklyStats = useMemo(() => {
