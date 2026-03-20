@@ -10,8 +10,8 @@ import QuickTaskScheduler from '../components/QuickTaskScheduler';
 import { useTimeBlocks } from '@/domains/lifelock/1-daily/2-tasks/domain/useTimeBlocks';
 import { toast } from 'sonner';
 import { useClerkUser } from '@/lib/hooks/auth/useClerkUser';
-import { useSupabaseUserId } from '@/lib/services/supabase/clerk-integration';
 import { cn } from '@/lib/utils';
+import { useConvexMorningRoutineByDate } from '@/domains/lifelock/_shared/hooks/useConvexMorningRoutines';
 
 import { TimeboxSectionProps, TimeboxTask, DragPreviewState, GapFillerState, FocusSprintType, TimeboxViewMode } from '../../domain/types';
 import { mapUIToCategory } from '../../domain/utils';
@@ -27,7 +27,6 @@ import { AUTO_TIMEBOX_CONFIG, createOrUpdateAutoTimeboxes } from '@/domains/life
 import { Badge } from '@/components/ui/badge';
 import { PlanningAssistant } from '../components/PlanningAssistant';
 import { useNavigate } from 'react-router-dom';
-import { useMorningRoutineSupabase } from '@/domains/lifelock/1-daily/1-morning-routine/hooks/useMorningRoutineSupabase';
 
 const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }) => {
   // Navigation
@@ -35,10 +34,10 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
 
   // Authentication
   const { user, isSignedIn } = useClerkUser();
-  const internalUserId = useSupabaseUserId(user?.id || null);
+  const internalUserId = user?.id || null;
 
-  // Morning routine hook for wake-up time
-  const { routine: morningRoutine } = useMorningRoutineSupabase(selectedDate);
+  // Morning routine hook for wake-up time (Convex)
+  const { routine: morningRoutine } = useConvexMorningRoutineByDate(dateKey);
 
   // State
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -149,7 +148,7 @@ const TimeboxSectionComponent: React.FC<TimeboxSectionProps> = ({ selectedDate }
       return;
     }
 
-    const wakeUpTimeFromRoutine = morningRoutine?.metadata?.wakeUpTime;
+    const wakeUpTimeFromRoutine = morningRoutine?.wakeTime;
     setWakeUpTime(wakeUpTimeFromRoutine || '');
   }, [user?.id, morningRoutine]);
 

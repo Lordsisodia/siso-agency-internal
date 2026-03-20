@@ -26,8 +26,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
-import { useDeepWorkTasksSupabase } from '@/domains/lifelock/1-daily/4-deep-work/domain/useDeepWorkTasksSupabase';
-import { useLightWorkTasksSupabase } from '@/domains/lifelock/1-daily/3-light-work/domain/useLightWorkTasksSupabase';
+import { useDeepWorkConvexTasks, useLightWorkConvexTasks } from '@/domains/lifelock/_shared/hooks/useConvexTasks';
 import { parseTimeEstimateToMinutes } from '@/domains/lifelock/1-daily/2-tasks/domain/utils/timeUtils';
 
 // Types for our scheduler
@@ -79,16 +78,16 @@ const QuickTaskScheduler: React.FC<QuickTaskSchedulerProps> = ({
   const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set());
   const [addingTasks, setAddingTasks] = useState<Set<string>>(new Set());
 
-  // Use Supabase hooks directly
-  const { 
-    tasks: lightWorkTasks = [], 
-    loading: lightLoading 
-  } = useLightWorkTasksSupabase({ selectedDate });
-  
-  const { 
-    tasks: deepWorkTasks = [], 
-    loading: deepLoading 
-  } = useDeepWorkTasksSupabase({ selectedDate });
+  // Use Convex hooks for tasks
+  const {
+    tasks: lightWorkTasks = [],
+    isLoading: lightLoading
+  } = useLightWorkConvexTasks();
+
+  const {
+    tasks: deepWorkTasks = [],
+    isLoading: deepLoading
+  } = useDeepWorkConvexTasks();
 
   const loading = lightLoading || deepLoading;
 
