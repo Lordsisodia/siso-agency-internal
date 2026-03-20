@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { useAuth } from '@clerk/clerk-react';
 import { useDailyReflections } from '@/domains/lifelock/1-daily/5-stats/domain/useDailyReflections';
-import { useDeepWorkTasksSupabase, type DeepWorkTask } from '@/domains/lifelock/1-daily/4-deep-work/domain/useDeepWorkTasksSupabase';
+import { useDeepWorkConvexTasks, type ConvexTask } from '@/domains/lifelock/_shared/hooks/useConvexTasks';
 import {
   calculateTotalCheckoutXP,
   calculateWentWellXP,
@@ -114,8 +114,32 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
     saveReflection
   } = useDailyReflections({ selectedDate, includePreviousDay: true });
 
-  // Fetch deep work tasks for auto-calculation
-  const { tasks: deepWorkTasks, loading: deepWorkLoading } = useDeepWorkTasksSupabase({ selectedDate });
+  // Fetch deep work tasks from Convex for auto-calculation
+  const { tasks: allDeepWorkTasks, isLoading: deepWorkLoading } = useDeepWorkConvexTasks();
+
+  // Filter deep work tasks by selected date
+  const deepWorkTasks = useMemo(() => {
+    if (!allDeepWorkTasks) return [];
+    const dateStr = format(selectedDate, 'yyyy-MM-dd');
+    return allDeepWorkTasks.filter((task: ConvexTask) => {
+      const taskDate = task.dueDate?.split('T')[0] || task.createdAt.split('T')[0];
+      return taskDate === dateStr;
+    }).map((task: ConvexTask) => ({
+      id: task._id,
+      userId: task.userId,
+      title: task.title,
+      description: task.description,
+      priority: task.priority?.toUpperCase() as 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT' || 'MEDIUM',
+      completed: task.status === 'completed',
+      originalDate: task.dueDate?.split('T')[0] || task.createdAt.split('T')[0],
+      currentDate: task.dueDate?.split('T')[0] || task.createdAt.split('T')[0],
+      estimatedDuration: task.estimatedMinutes,
+      actualDurationMin: task.actualMinutes,
+      createdAt: task.createdAt,
+      updatedAt: task.updatedAt,
+      subtasks: []
+    }));
+  }, [allDeepWorkTasks, selectedDate]);
 
   // Initialize checkout data with default values
   const [checkoutData, setCheckoutData] = useState<CheckoutData>({
