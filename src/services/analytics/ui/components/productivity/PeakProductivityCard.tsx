@@ -17,12 +17,12 @@ export function PeakProductivityCard({ data }: PeakProductivityCardProps) {
   if (data.hourly.length === 0) {
     return (
       <motion.div
-        className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm"
+        className="bg-white/5 border border-white/10 rounded-2xl p-4 sm:p-6 backdrop-blur-sm"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.7 }}
       >
-        <p className="text-center text-gray-500">No productivity data yet</p>
+        <p className="text-center text-gray-500 text-sm">No productivity data yet</p>
       </motion.div>
     );
   }
@@ -31,34 +31,34 @@ export function PeakProductivityCard({ data }: PeakProductivityCardProps) {
 
   return (
     <motion.div
-      className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm"
+      className="bg-white/5 border border-white/10 rounded-2xl p-4 sm:p-6 backdrop-blur-sm"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.7 }}
     >
       {/* Header */}
       <div className="flex justify-between items-start mb-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-gradient-to-br from-amber-500/20 to-orange-500/20 rounded-lg">
-            <Clock className="w-5 h-5 text-amber-400" />
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="p-1.5 sm:p-2 bg-gradient-to-br from-amber-500/20 to-orange-500/20 rounded-lg">
+            <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-white">Peak Productivity</h3>
-            <p className="text-sm text-gray-400">When you earn the most XP</p>
+            <h3 className="text-base sm:text-lg font-bold text-white">Peak Productivity</h3>
+            <p className="text-xs sm:text-sm text-gray-400">When you earn the most XP</p>
           </div>
         </div>
       </div>
 
       {/* Best Period Highlight */}
-      <div className="mb-6 p-4 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-xl">
-        <div className="flex items-center justify-between">
+      <div className="mb-4 p-3 sm:p-4 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-xl">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
-            <p className="text-sm text-gray-400 mb-1">Most Productive Time</p>
-            <p className="text-xl font-bold text-white">{data.bestPeriod.label}</p>
+            <p className="text-xs sm:text-sm text-gray-400 mb-1">Most Productive Time</p>
+            <p className="text-lg sm:text-xl font-bold text-white">{data.bestPeriod.label}</p>
           </div>
-          <div className="text-right">
-            <p className="text-sm text-gray-400 mb-1">XP Earned</p>
-            <p className="text-xl font-bold text-amber-400">{data.bestPeriod.xp}</p>
+          <div className="text-left sm:text-right">
+            <p className="text-xs sm:text-sm text-gray-400 mb-1">XP Earned</p>
+            <p className="text-lg sm:text-xl font-bold text-amber-400">{data.bestPeriod.xp}</p>
           </div>
         </div>
       </div>
@@ -74,7 +74,7 @@ export function PeakProductivityCard({ data }: PeakProductivityCardProps) {
             <motion.div
               key={hour.hour}
               className={cn(
-                'flex items-center gap-3 p-2 rounded-lg transition-all',
+                'flex items-center gap-2 sm:gap-3 p-1.5 sm:p-2 rounded-lg transition-all',
                 isPeak ? 'bg-amber-500/10 border border-amber-500/30' : 'bg-white/5'
               )}
               initial={{ opacity: 0, x: -20 }}
@@ -82,12 +82,12 @@ export function PeakProductivityCard({ data }: PeakProductivityCardProps) {
               transition={{ delay: 0.8 + index * 0.02 }}
             >
               {/* Time Label */}
-              <div className={cn('w-16 text-sm font-medium', isPeak ? 'text-amber-400' : 'text-gray-400')}>
+              <div className={cn('w-12 sm:w-16 text-xs sm:text-sm font-medium shrink-0', isPeak ? 'text-amber-400' : 'text-gray-400')}>
                 {hour.label}
               </div>
 
               {/* Bar */}
-              <div className="flex-1 h-6 bg-white/10 rounded-full overflow-hidden">
+              <div className="flex-1 h-5 sm:h-6 bg-white/10 rounded-full overflow-hidden min-w-0">
                 <motion.div
                   className={cn(
                     'h-full rounded-full relative overflow-hidden',
@@ -114,11 +114,11 @@ export function PeakProductivityCard({ data }: PeakProductivityCardProps) {
               </div>
 
               {/* XP Value */}
-              <div className="w-16 text-right">
-                <p className={cn('text-sm font-bold', isPeak ? 'text-amber-400' : 'text-gray-300')}>
+              <div className="w-12 sm:w-16 text-right shrink-0">
+                <p className={cn('text-xs sm:text-sm font-bold', isPeak ? 'text-amber-400' : 'text-gray-300')}>
                   {hour.xp}
                 </p>
-                <p className="text-xs text-gray-600">{hour.sessions} sessions</p>
+                <p className="text-xs text-gray-600 hidden sm:block">{hour.sessions} sessions</p>
               </div>
             </motion.div>
           );
@@ -126,13 +126,13 @@ export function PeakProductivityCard({ data }: PeakProductivityCardProps) {
       </div>
 
       {/* Summary */}
-      <div className="mt-4 pt-4 border-t border-white/10 grid grid-cols-2 gap-4">
+      <div className="mt-4 pt-4 border-t border-white/10 grid grid-cols-2 gap-2 sm:gap-4">
         <div className="text-center">
-          <p className="text-lg font-bold text-white">{data.totalXP.toLocaleString()}</p>
+          <p className="text-base sm:text-lg font-bold text-white">{data.totalXP.toLocaleString()}</p>
           <p className="text-xs text-gray-500">Total XP (30 days)</p>
         </div>
         <div className="text-center">
-          <p className="text-lg font-bold text-white">{data.averageXPPerSession}</p>
+          <p className="text-base sm:text-lg font-bold text-white">{data.averageXPPerSession}</p>
           <p className="text-xs text-gray-500">Avg XP/session</p>
         </div>
       </div>
