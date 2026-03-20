@@ -380,7 +380,7 @@ export const NightlyCheckoutSection: React.FC<NightlyCheckoutSectionProps> = ({
 
   return (
     <div className="min-h-screen w-full bg-siso-bg relative overflow-x-hidden">
-      <div className="w-full max-w-none p-4 sm:p-6 space-y-4">
+      <div className="w-full max-w-none p-4 sm:p-6 space-y-4 pb-32">
 
         {/* Page Header - Title, Icon, Subtext */}
         <div className="px-3 py-4 border-b border-white/10">

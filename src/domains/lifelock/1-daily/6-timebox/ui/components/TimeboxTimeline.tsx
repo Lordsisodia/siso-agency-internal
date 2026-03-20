@@ -118,7 +118,7 @@ export const TimeboxTimeline = forwardRef<HTMLDivElement, TimeboxTimelineProps>(
   return (
     <div className="relative w-full">
       <div
-        className="relative w-full"
+        className="relative w-full overflow-y-auto overflow-x-hidden"
         data-timeline-container
         ref={ref}
       >
