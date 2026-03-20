@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * 🧠 Deep Work Task List - Thin wrapper around WorkTaskList
+ * 🧠 Deep Work Task List - Wired to Convex
  *
  * Uses the shared WorkTaskList component with DEEP theme
  */
@@ -9,7 +9,14 @@
 import React, { useMemo, useCallback } from "react";
 import { WorkTaskList, WorkTask } from "@/domains/lifelock/1-daily/_shared/components/WorkTaskList";
 import { DEEP_THEME } from "@/domains/lifelock/1-daily/_shared/components/UnifiedTaskCard";
-import { useDeepWorkTasksSupabase, DeepWorkTask } from "@/domains/lifelock/1-daily/4-deep-work/domain/useDeepWorkTasksSupabase";
+import {
+  useDeepWorkConvexTasks,
+  useCreateTask,
+  useUpdateTaskStatus,
+  useCompleteTask,
+  useDeleteTask,
+  ConvexTask,
+} from "@/domains/lifelock/_shared/hooks/useConvexTasks";
 import { useClientsList } from "@/domains/clients/hooks/useClientsList";
 import { GamificationService } from "@/domains/lifelock/_shared/services/gamificationService";
 import { getDeepWorkPriorityMultiplier } from "@/domains/lifelock/1-daily/_shared/utils/taskXpCalculations";
@@ -32,29 +39,18 @@ const DEEP_FLOW_PROTOCOL = {
   ]
 };
 
-function transformToWorkTasks(tasks: DeepWorkTask[]): WorkTask[] {
+function transformToWorkTasks(tasks: ConvexTask[]): WorkTask[] {
   return tasks.map(task => ({
-    id: task.id,
+    id: task._id,
     title: task.title,
     description: task.description || "",
-    status: task.completed ? "completed" : "in-progress",
-    priority: (task.priority || 'MEDIUM').toLowerCase(),
-    subtasks: task.subtasks.map(subtask => ({
-      id: subtask.id,
-      title: subtask.title,
-      description: subtask.text || subtask.title,
-      status: subtask.completed ? "completed" : "pending",
-      priority: subtask.priority || "medium",
-      estimatedTime: subtask.estimatedTime,
-      tools: [],
-      completed: subtask.completed,
-      dueDate: subtask.dueDate
-    })),
-    focusIntensity: (task.focusBlocks || 4) as 1 | 2 | 3 | 4,
-    dueDate: task.dueDate || task.taskDate || null,
-    timeEstimate: task.timeEstimate || null,
-    actualDurationMin: task.actualDurationMin,
-    clientId: task.clientId ?? undefined
+    status: task.status === "completed" ? "completed" : task.status === "in_progress" ? "completed" : "in-progress",
+    priority: (task.priority || 'medium'),
+    subtasks: [],
+    focusIntensity: 4 as 1 | 2 | 3 | 4,
+    dueDate: task.dueDate || null,
+    timeEstimate: task.estimatedMinutes ? `${task.estimatedMinutes}m` : null,
+    actualDurationMin: task.actualMinutes,
   }));
 }
 
@@ -73,7 +69,7 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
   }, [clients]);
 
   // Gamification award function
-  const awardDeepWorkTaskCompletion = useCallback((task: DeepWorkTask) => {
+  const awardDeepWorkTaskCompletion = useCallback((task: WorkTask) => {
     const priorityMultiplier = getDeepWorkPriorityMultiplier(task.priority);
     const baseXP = 30;
     const desiredXP = Math.round(baseXP * priorityMultiplier);
@@ -90,32 +86,67 @@ export default function DeepWorkTaskList({ onStartFocusSession, selectedDate = n
     }
   }, []);
 
-  // Use Deep Work Supabase hook
-  const {
-    tasks: rawTasks,
-    loading,
-    error,
-    toggleTaskCompletion,
-    toggleSubtaskCompletion,
-    createTask,
-    addSubtask,
-    deleteTask,
-    deleteSubtask,
-    updateSubtaskDueDate,
-    updateSubtaskTitle,
-    updateSubtaskPriority,
-    updateSubtaskEstimatedTime,
-    updateSubtaskDescription,
-    updateTaskTitle,
-    updateTaskDueDate,
-    updateTaskPriority,
-    updateTaskTimeEstimate,
-    updateTaskActualDuration,
-    pushTaskToAnotherDay
-  } = useDeepWorkTasksSupabase({ selectedDate });
+  // Use Convex hooks for Deep Work tasks
+  const { tasks: rawTasks, isLoading: loading } = useDeepWorkConvexTasks();
+  const { createTask: convexCreateTask } = useCreateTask();
+  const { updateStatus } = useUpdateTaskStatus();
+  const { completeTask } = useCompleteTask();
+  const { deleteTask: convexDeleteTask } = useDeleteTask();
 
   // Transform data
   const tasks = useMemo(() => transformToWorkTasks(rawTasks), [rawTasks]);
+
+  // Adapter functions for WorkTaskList interface
+  const toggleTaskCompletion = useCallback(async (taskId: string) => {
+    const task = rawTasks.find(t => t._id === taskId);
+    if (!task) return;
+
+    if (task.status === "completed") {
+      await updateStatus(taskId, "pending");
+    } else {
+      const priorityMultiplier = getDeepWorkPriorityMultiplier(task.priority || 'medium');
+      const baseXP = 30;
+      const xpEarned = Math.round(baseXP * priorityMultiplier);
+      await completeTask(taskId, undefined, xpEarned);
+    }
+  }, [rawTasks, updateStatus, completeTask]);
+
+  const toggleSubtaskCompletion = useCallback(async (taskId: string, subtaskId: string) => {
+    // Subtasks not yet supported in Convex - no-op for now
+    console.debug("Subtasks not yet supported in Convex");
+  }, []);
+
+  const createTask = useCallback(async (task: Partial<WorkTask>) => {
+    await convexCreateTask({
+      title: task.title || "New Deep Work Task",
+      description: task.description,
+      taskType: 'deep',
+      priority: task.priority as 'low' | 'medium' | 'high' || 'medium',
+      dueDate: task.dueDate || undefined,
+      estimatedMinutes: task.timeEstimate ? parseInt(task.timeEstimate) : undefined,
+    });
+  }, [convexCreateTask]);
+
+  const deleteTask = useCallback(async (taskId: string) => {
+    await convexDeleteTask(taskId);
+  }, [convexDeleteTask]);
+
+  // No-op adapters for unsupported features
+  const addSubtask = useCallback(async () => { }, []);
+  const deleteSubtask = useCallback(async () => { }, []);
+  const updateSubtaskDueDate = useCallback(async () => { }, []);
+  const updateSubtaskTitle = useCallback(async () => { }, []);
+  const updateSubtaskPriority = useCallback(async () => { }, []);
+  const updateSubtaskEstimatedTime = useCallback(async () => { }, []);
+  const updateSubtaskDescription = useCallback(async () => { }, []);
+  const updateTaskTitle = useCallback(async () => { }, []);
+  const updateTaskDueDate = useCallback(async () => { }, []);
+  const updateTaskPriority = useCallback(async () => { }, []);
+  const updateTaskTimeEstimate = useCallback(async () => { }, []);
+  const updateTaskActualDuration = useCallback(async () => { }, []);
+  const pushTaskToAnotherDay = useCallback(async () => { }, []);
+
+  const error = null;
 
   return (
     <WorkTaskList

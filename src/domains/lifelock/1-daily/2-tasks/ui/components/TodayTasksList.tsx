@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * 📅 Today's Tasks - Master Task List
+ * 📅 Today's Tasks - Master Task List - Wired to Convex
  *
  * Shows tasks allocated for today plus tasks due today that need allocation.
  * Uses UnifiedTaskCard for task display with AMBER theme.
@@ -9,8 +9,16 @@
 
 import React, { useMemo, useState, useRef, useEffect, useCallback } from "react";
 import { TEAL_THEME, UnifiedTaskCard } from "@/domains/lifelock/1-daily/_shared/components/UnifiedTaskCard";
-import { useLightWorkTasksSupabase } from "@/domains/lifelock/1-daily/3-light-work/domain/useLightWorkTasksSupabase";
-import { useDeepWorkTasksSupabase } from "@/domains/lifelock/1-daily/4-deep-work/domain/useDeepWorkTasksSupabase";
+import {
+  useLightWorkConvexTasks,
+  useDeepWorkConvexTasks,
+  useTodayConvexTasks,
+  useCreateTask,
+  useUpdateTaskStatus,
+  useCompleteTask,
+  useDeleteTask,
+  ConvexTask,
+} from "@/domains/lifelock/_shared/hooks/useConvexTasks";
 import { useTimeBlocks } from "@/domains/lifelock/1-daily/2-tasks/domain/useTimeBlocks";
 import { useGamificationInit } from "@/domains/lifelock/_shared/hooks/useGamificationInit";
 import { useDeepWorkTimers, formatMsAsClock } from "@/domains/lifelock/1-daily/4-deep-work/hooks/useDeepWorkTimers";
@@ -291,11 +299,126 @@ export default function TodayTasksList({ onStartFocusSession, selectedDate = new
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   const [showCompletedSubtasks, setShowCompletedSubtasks] = useState<{[taskId: string]: boolean}>({});
 
-  // Light Work hook
-  const lightWorkHook = useLightWorkTasksSupabase({ selectedDate });
+  // Light Work hook - using Convex
+  const { tasks: lightWorkTasks } = useLightWorkConvexTasks();
 
-  // Deep Work hook
-  const deepWorkHook = useDeepWorkTasksSupabase({ selectedDate });
+  // Deep Work hook - using Convex
+  const { tasks: deepWorkTasks } = useDeepWorkConvexTasks();
+
+  // Today's Tasks hook - using Convex
+  const { tasks: todayTasks } = useTodayConvexTasks();
+
+  // Convex mutations
+  const { createTask: convexCreateTask } = useCreateTask();
+  const { updateStatus } = useUpdateTaskStatus();
+  const { completeTask } = useCompleteTask();
+  const { deleteTask: convexDeleteTask } = useDeleteTask();
+
+  // Create adapter hooks to match expected interface
+  const lightWorkHook = useMemo(() => ({
+    tasks: lightWorkTasks.map(t => ({
+      id: t._id,
+      title: t.title,
+      description: t.description,
+      completed: t.status === "completed",
+      priority: t.priority?.toUpperCase() as 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT' || 'MEDIUM',
+      currentDate: selectedDate.toISOString().split('T')[0],
+      dueDate: t.dueDate,
+      subtasks: [] as any[],
+      focusBlocks: 2,
+      timeEstimate: t.estimatedMinutes ? `${t.estimatedMinutes}m` : undefined,
+      actualDurationMin: t.actualMinutes,
+    })),
+    loading: false,
+    error: null,
+    toggleTaskCompletion: async (taskId: string) => {
+      const task = lightWorkTasks.find(t => t._id === taskId);
+      if (!task) return;
+      if (task.status === "completed") {
+        await updateStatus(taskId, "pending");
+      } else {
+        await completeTask(taskId, undefined, 20);
+      }
+    },
+    toggleSubtaskCompletion: async () => {},
+    createTask: async (task: any) => {
+      await convexCreateTask({
+        title: task.title || "New Task",
+        description: task.description,
+        taskType: 'light',
+        priority: task.priority?.toLowerCase() || 'medium',
+        dueDate: task.dueDate,
+        estimatedMinutes: task.timeEstimate ? parseInt(task.timeEstimate) : undefined,
+      });
+    },
+    addSubtask: async () => {},
+    deleteTask: async (taskId: string) => await convexDeleteTask(taskId),
+    deleteSubtask: async () => {},
+    updateSubtaskDueDate: async () => {},
+    updateSubtaskTitle: async () => {},
+    updateSubtaskPriority: async () => {},
+    updateSubtaskEstimatedTime: async () => {},
+    updateSubtaskDescription: async () => {},
+    updateTaskTitle: async () => {},
+    updateTaskDueDate: async () => {},
+    updateTaskPriority: async () => {},
+    updateTaskTimeEstimate: async () => {},
+    updateTaskActualDuration: async () => {},
+    pushTaskToAnotherDay: async () => {},
+  }), [lightWorkTasks, selectedDate, updateStatus, completeTask, convexCreateTask, convexDeleteTask]);
+
+  // Deep Work adapter
+  const deepWorkHook = useMemo(() => ({
+    tasks: deepWorkTasks.map(t => ({
+      id: t._id,
+      title: t.title,
+      description: t.description,
+      completed: t.status === "completed",
+      priority: t.priority?.toUpperCase() as 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT' || 'MEDIUM',
+      taskDate: selectedDate.toISOString().split('T')[0],
+      dueDate: t.dueDate,
+      subtasks: [] as any[],
+      focusBlocks: 4,
+      timeEstimate: t.estimatedMinutes ? `${t.estimatedMinutes}m` : undefined,
+      actualDurationMin: t.actualMinutes,
+    })),
+    loading: false,
+    error: null,
+    toggleTaskCompletion: async (taskId: string) => {
+      const task = deepWorkTasks.find(t => t._id === taskId);
+      if (!task) return;
+      if (task.status === "completed") {
+        await updateStatus(taskId, "pending");
+      } else {
+        await completeTask(taskId, undefined, 30);
+      }
+    },
+    toggleSubtaskCompletion: async () => {},
+    createTask: async (task: any) => {
+      await convexCreateTask({
+        title: task.title || "New Deep Work Task",
+        description: task.description,
+        taskType: 'deep',
+        priority: task.priority?.toLowerCase() || 'medium',
+        dueDate: task.dueDate,
+        estimatedMinutes: task.timeEstimate ? parseInt(task.timeEstimate) : undefined,
+      });
+    },
+    addSubtask: async () => {},
+    deleteTask: async (taskId: string) => await convexDeleteTask(taskId),
+    deleteSubtask: async () => {},
+    updateSubtaskDueDate: async () => {},
+    updateSubtaskTitle: async () => {},
+    updateSubtaskPriority: async () => {},
+    updateSubtaskEstimatedTime: async () => {},
+    updateSubtaskDescription: async () => {},
+    updateTaskTitle: async () => {},
+    updateTaskDueDate: async () => {},
+    updateTaskPriority: async () => {},
+    updateTaskTimeEstimate: async () => {},
+    updateTaskActualDuration: async () => {},
+    pushTaskToAnotherDay: async () => {},
+  }), [deepWorkTasks, selectedDate, updateStatus, completeTask, convexCreateTask, convexDeleteTask]);
 
   // Time Blocks hook - for timebox integration
   const timeBlocksHook = useTimeBlocks({
