@@ -100,6 +100,16 @@ export const WeeklyCheckoutSection: React.FC<WeeklyCheckoutSectionProps> = ({
   const positiveTrends = trends.filter((trend) => trend.direction === 'up');
   const negativeTrends = trends.filter((trend) => trend.direction === 'down');
 
+  const handleReset = () => {
+    setReflection('');
+    setNextWeekFocus('');
+  };
+
+  const handleSave = () => {
+    // TODO: Implement save to Supabase
+    console.log('Saving weekly checkout:', { reflection, nextWeekFocus });
+  };
+
   return (
     <div className="relative min-h-screen pb-28">
       <div className="mx-auto w-full max-w-5xl px-4 pb-8 pt-4 sm:px-6 lg:px-8">
@@ -207,11 +217,11 @@ export const WeeklyCheckoutSection: React.FC<WeeklyCheckoutSectionProps> = ({
               </span>
             </div>
             <div className="flex gap-2">
-              <Button variant="ghost" size="sm" className="text-white/70 hover:bg-white/10">
+              <Button variant="ghost" size="sm" className="text-white/70 hover:bg-white/10" onClick={handleReset}>
                 <RotateCcw className="mr-2 h-4 w-4" />
                 Reset Fields
               </Button>
-              <Button size="sm" className="bg-emerald-500 text-white hover:bg-emerald-500/80">
+              <Button size="sm" className="bg-emerald-500 text-white hover:bg-emerald-500/80" onClick={handleSave}>
                 Save Weekly Checkout
               </Button>
             </div>
