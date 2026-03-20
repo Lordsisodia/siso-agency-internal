@@ -1,7 +1,7 @@
 {
   "config": {
-    "configFile": "/Users/shaansisodia/DEV/SISO-ECOSYSTEM/SISO-INTERNAL/playwright.config.ts",
-    "rootDir": "/Users/shaansisodia/DEV/SISO-ECOSYSTEM/SISO-INTERNAL/tests",
+    "configFile": "/Users/shaansisodia/SISO_Workspace/SISO_Internal_Lab/codebase/playwright.config.ts",
+    "rootDir": "/Users/shaansisodia/SISO_Workspace/SISO_Internal_Lab/codebase/tests",
     "forbidOnly": false,
     "fullyParallel": true,
     "globalSetup": null,
@@ -11,7 +11,7 @@
     "grepInvert": null,
     "maxFailures": 0,
     "metadata": {
-      "actualWorkers": 4
+      "actualWorkers": 1
     },
     "preserveOutput": "always",
     "reporter": [
@@ -40,47 +40,47 @@
     "quiet": false,
     "projects": [
       {
-        "outputDir": "/Users/shaansisodia/DEV/SISO-ECOSYSTEM/SISO-INTERNAL/test-results",
+        "outputDir": "/Users/shaansisodia/SISO_Workspace/SISO_Internal_Lab/codebase/test-results",
         "repeatEach": 1,
         "retries": 1,
         "metadata": {
-          "actualWorkers": 4
+          "actualWorkers": 1
         },
         "id": "smoke",
         "name": "smoke",
-        "testDir": "/Users/shaansisodia/DEV/SISO-ECOSYSTEM/SISO-INTERNAL/tests/smoke",
+        "testDir": "/Users/shaansisodia/SISO_Workspace/SISO_Internal_Lab/codebase/tests/smoke",
         "testIgnore": [],
         "testMatch": [
           "**/*.smoke.spec.ts"
         ],
-        "timeout": 20000
+        "timeout": 30000
       },
       {
-        "outputDir": "/Users/shaansisodia/DEV/SISO-ECOSYSTEM/SISO-INTERNAL/test-results",
+        "outputDir": "/Users/shaansisodia/SISO_Workspace/SISO_Internal_Lab/codebase/test-results",
         "repeatEach": 1,
         "retries": 1,
         "metadata": {
-          "actualWorkers": 4
+          "actualWorkers": 1
         },
         "id": "e2e-chrome",
         "name": "e2e-chrome",
-        "testDir": "/Users/shaansisodia/DEV/SISO-ECOSYSTEM/SISO-INTERNAL/tests/e2e",
+        "testDir": "/Users/shaansisodia/SISO_Workspace/SISO_Internal_Lab/codebase/tests/e2e",
         "testIgnore": [],
         "testMatch": [
           "**/*.e2e.spec.ts"
         ],
-        "timeout": 60000
+        "timeout": 30000
       },
       {
-        "outputDir": "/Users/shaansisodia/DEV/SISO-ECOSYSTEM/SISO-INTERNAL/test-results",
+        "outputDir": "/Users/shaansisodia/SISO_Workspace/SISO_Internal_Lab/codebase/test-results",
         "repeatEach": 1,
         "retries": 1,
         "metadata": {
-          "actualWorkers": 4
+          "actualWorkers": 1
         },
         "id": "mobile",
         "name": "mobile",
-        "testDir": "/Users/shaansisodia/DEV/SISO-ECOSYSTEM/SISO-INTERNAL/tests/e2e",
+        "testDir": "/Users/shaansisodia/SISO_Workspace/SISO_Internal_Lab/codebase/tests/e2e",
         "testIgnore": [],
         "testMatch": [
           "**/mobile/*.spec.ts"
@@ -88,15 +88,15 @@
         "timeout": 30000
       },
       {
-        "outputDir": "/Users/shaansisodia/DEV/SISO-ECOSYSTEM/SISO-INTERNAL/test-results",
+        "outputDir": "/Users/shaansisodia/SISO_Workspace/SISO_Internal_Lab/codebase/test-results",
         "repeatEach": 1,
         "retries": 1,
         "metadata": {
-          "actualWorkers": 4
+          "actualWorkers": 1
         },
         "id": "firefox",
         "name": "firefox",
-        "testDir": "/Users/shaansisodia/DEV/SISO-ECOSYSTEM/SISO-INTERNAL/tests/e2e",
+        "testDir": "/Users/shaansisodia/SISO_Workspace/SISO_Internal_Lab/codebase/tests/e2e",
         "testIgnore": [],
         "testMatch": [
           "**/*.e2e.spec.ts"
@@ -104,15 +104,15 @@
         "timeout": 30000
       },
       {
-        "outputDir": "/Users/shaansisodia/DEV/SISO-ECOSYSTEM/SISO-INTERNAL/test-results",
+        "outputDir": "/Users/shaansisodia/SISO_Workspace/SISO_Internal_Lab/codebase/test-results",
         "repeatEach": 1,
         "retries": 1,
         "metadata": {
-          "actualWorkers": 4
+          "actualWorkers": 1
         },
         "id": "safari",
         "name": "safari",
-        "testDir": "/Users/shaansisodia/DEV/SISO-ECOSYSTEM/SISO-INTERNAL/tests/e2e",
+        "testDir": "/Users/shaansisodia/SISO_Workspace/SISO_Internal_Lab/codebase/tests/e2e",
         "testIgnore": [],
         "testMatch": [
           "**/*.e2e.spec.ts"
@@ -130,187 +130,161 @@
   },
   "suites": [
     {
-      "title": "e2e/desktop-navigation-fix.e2e.spec.ts",
-      "file": "e2e/desktop-navigation-fix.e2e.spec.ts",
+      "title": "e2e/admin-lifelock.e2e.spec.ts",
+      "file": "e2e/admin-lifelock.e2e.spec.ts",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "Desktop Navigation Fix - feedback_20260115_001",
-          "file": "e2e/desktop-navigation-fix.e2e.spec.ts",
+          "title": "AdminLifeLock E2E Tests",
+          "file": "e2e/admin-lifelock.e2e.spec.ts",
           "line": 4,
           "column": 6,
-          "specs": [
+          "specs": [],
+          "suites": [
             {
-              "title": "should display bottom navigation on desktop",
-              "ok": true,
-              "tags": [],
-              "tests": [
+              "title": "Morning Routine",
+              "file": "e2e/admin-lifelock.e2e.spec.ts",
+              "line": 34,
+              "column": 8,
+              "specs": [
                 {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "e2e-chrome",
-                  "projectName": "e2e-chrome",
-                  "results": [
+                  "title": "should display morning routine section",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
                     {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 5318,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-01-15T20:21:00.250Z",
+                      "timeout": 30000,
                       "annotations": [],
-                      "attachments": []
+                      "expectedStatus": "passed",
+                      "projectId": "e2e-chrome",
+                      "projectName": "e2e-chrome",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "failed",
+                          "duration": 13309,
+                          "error": {
+                            "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('body') to be visible\u001b[22m\n\u001b[2m    25 × locator resolved to hidden <body>…</body>\u001b[22m\n",
+                            "stack": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('body') to be visible\u001b[22m\n\u001b[2m    25 × locator resolved to hidden <body>…</body>\u001b[22m\n\n    at Function.waitForLoadComplete (/Users/shaansisodia/SISO_Workspace/SISO_Internal_Lab/codebase/tests/e2e/setup.ts:97:16)\n    at /Users/shaansisodia/SISO_Workspace/SISO_Internal_Lab/codebase/tests/e2e/admin-lifelock.e2e.spec.ts:31:5",
+                            "location": {
+                              "file": "/Users/shaansisodia/SISO_Workspace/SISO_Internal_Lab/codebase/tests/e2e/setup.ts",
+                              "column": 16,
+                              "line": 97
+                            },
+                            "snippet": "\u001b[90m   at \u001b[39me2e/setup.ts:97\n\n   95 |     await page.waitForLoadState('networkidle');\n   96 |     // Wait for app to be fully loaded (adjust selector as needed)\n>  97 |     await page.waitForSelector('body', { state: 'visible' });\n      |                ^\n   98 |   }\n   99 |\n  100 |   static async login(page: any, email: string, password: string) {"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "/Users/shaansisodia/SISO_Workspace/SISO_Internal_Lab/codebase/tests/e2e/setup.ts",
+                                "column": 16,
+                                "line": 97
+                              },
+                              "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('body') to be visible\u001b[22m\n\u001b[2m    25 × locator resolved to hidden <body>…</body>\u001b[22m\n\n\n   at e2e/setup.ts:97\n\n   95 |     await page.waitForLoadState('networkidle');\n   96 |     // Wait for app to be fully loaded (adjust selector as needed)\n>  97 |     await page.waitForSelector('body', { state: 'visible' });\n      |                ^\n   98 |   }\n   99 |\n  100 |   static async login(page: any, email: string, password: string) {\n    at Function.waitForLoadComplete (/Users/shaansisodia/SISO_Workspace/SISO_Internal_Lab/codebase/tests/e2e/setup.ts:97:16)\n    at /Users/shaansisodia/SISO_Workspace/SISO_Internal_Lab/codebase/tests/e2e/admin-lifelock.e2e.spec.ts:31:5"
+                            }
+                          ],
+                          "stdout": [
+                            {
+                              "text": "Performance Metrics: {}\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-03-20T16:55:49.359Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "/Users/shaansisodia/SISO_Workspace/SISO_Internal_Lab/codebase/test-results/admin-lifelock.e2e-AdminLi-c249f-lay-morning-routine-section-e2e-chrome/test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "/Users/shaansisodia/SISO_Workspace/SISO_Internal_Lab/codebase/test-results/admin-lifelock.e2e-AdminLi-c249f-lay-morning-routine-section-e2e-chrome/video.webm"
+                            },
+                            {
+                              "name": "trace",
+                              "contentType": "application/zip",
+                              "path": "/Users/shaansisodia/SISO_Workspace/SISO_Internal_Lab/codebase/test-results/admin-lifelock.e2e-AdminLi-c249f-lay-morning-routine-section-e2e-chrome/trace.zip"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "/Users/shaansisodia/SISO_Workspace/SISO_Internal_Lab/codebase/tests/e2e/setup.ts",
+                            "column": 16,
+                            "line": 97
+                          }
+                        },
+                        {
+                          "workerIndex": 1,
+                          "parallelIndex": 0,
+                          "status": "failed",
+                          "duration": 13432,
+                          "error": {
+                            "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('body') to be visible\u001b[22m\n\u001b[2m    25 × locator resolved to hidden <body>…</body>\u001b[22m\n",
+                            "stack": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('body') to be visible\u001b[22m\n\u001b[2m    25 × locator resolved to hidden <body>…</body>\u001b[22m\n\n    at Function.waitForLoadComplete (/Users/shaansisodia/SISO_Workspace/SISO_Internal_Lab/codebase/tests/e2e/setup.ts:97:16)\n    at /Users/shaansisodia/SISO_Workspace/SISO_Internal_Lab/codebase/tests/e2e/admin-lifelock.e2e.spec.ts:31:5",
+                            "location": {
+                              "file": "/Users/shaansisodia/SISO_Workspace/SISO_Internal_Lab/codebase/tests/e2e/setup.ts",
+                              "column": 16,
+                              "line": 97
+                            },
+                            "snippet": "\u001b[90m   at \u001b[39me2e/setup.ts:97\n\n   95 |     await page.waitForLoadState('networkidle');\n   96 |     // Wait for app to be fully loaded (adjust selector as needed)\n>  97 |     await page.waitForSelector('body', { state: 'visible' });\n      |                ^\n   98 |   }\n   99 |\n  100 |   static async login(page: any, email: string, password: string) {"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "/Users/shaansisodia/SISO_Workspace/SISO_Internal_Lab/codebase/tests/e2e/setup.ts",
+                                "column": 16,
+                                "line": 97
+                              },
+                              "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('body') to be visible\u001b[22m\n\u001b[2m    25 × locator resolved to hidden <body>…</body>\u001b[22m\n\n\n   at e2e/setup.ts:97\n\n   95 |     await page.waitForLoadState('networkidle');\n   96 |     // Wait for app to be fully loaded (adjust selector as needed)\n>  97 |     await page.waitForSelector('body', { state: 'visible' });\n      |                ^\n   98 |   }\n   99 |\n  100 |   static async login(page: any, email: string, password: string) {\n    at Function.waitForLoadComplete (/Users/shaansisodia/SISO_Workspace/SISO_Internal_Lab/codebase/tests/e2e/setup.ts:97:16)\n    at /Users/shaansisodia/SISO_Workspace/SISO_Internal_Lab/codebase/tests/e2e/admin-lifelock.e2e.spec.ts:31:5"
+                            }
+                          ],
+                          "stdout": [
+                            {
+                              "text": "Performance Metrics: {}\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 1,
+                          "startTime": "2026-03-20T16:56:03.686Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "/Users/shaansisodia/SISO_Workspace/SISO_Internal_Lab/codebase/test-results/admin-lifelock.e2e-AdminLi-c249f-lay-morning-routine-section-e2e-chrome-retry1/test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "/Users/shaansisodia/SISO_Workspace/SISO_Internal_Lab/codebase/test-results/admin-lifelock.e2e-AdminLi-c249f-lay-morning-routine-section-e2e-chrome-retry1/video.webm"
+                            },
+                            {
+                              "name": "trace",
+                              "contentType": "application/zip",
+                              "path": "/Users/shaansisodia/SISO_Workspace/SISO_Internal_Lab/codebase/test-results/admin-lifelock.e2e-AdminLi-c249f-lay-morning-routine-section-e2e-chrome-retry1/trace.zip"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "/Users/shaansisodia/SISO_Workspace/SISO_Internal_Lab/codebase/tests/e2e/setup.ts",
+                            "column": 16,
+                            "line": 97
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
                     }
                   ],
-                  "status": "expected"
+                  "id": "cba5abb6c2910e6e7ef6-dd455e36fe12a11b0a51",
+                  "file": "e2e/admin-lifelock.e2e.spec.ts",
+                  "line": 35,
+                  "column": 5
                 }
-              ],
-              "id": "aef83580abec228ee8f6-ce1d2a6b40e972f084fb",
-              "file": "e2e/desktop-navigation-fix.e2e.spec.ts",
-              "line": 31,
-              "column": 3
-            },
-            {
-              "title": "should have proper bottom padding to prevent content overlap",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "e2e-chrome",
-                  "projectName": "e2e-chrome",
-                  "results": [
-                    {
-                      "workerIndex": 1,
-                      "parallelIndex": 1,
-                      "status": "passed",
-                      "duration": 5475,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-01-15T20:21:00.242Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "aef83580abec228ee8f6-54b98da6cfa74dc9a6e3",
-              "file": "e2e/desktop-navigation-fix.e2e.spec.ts",
-              "line": 71,
-              "column": 3
-            },
-            {
-              "title": "should center bottom navigation on desktop with max-width",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "e2e-chrome",
-                  "projectName": "e2e-chrome",
-                  "results": [
-                    {
-                      "workerIndex": 2,
-                      "parallelIndex": 2,
-                      "status": "passed",
-                      "duration": 5355,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-01-15T20:21:00.261Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "aef83580abec228ee8f6-d9776ae8d2169f67f150",
-              "file": "e2e/desktop-navigation-fix.e2e.spec.ts",
-              "line": 97,
-              "column": 3
-            },
-            {
-              "title": "should work on mobile viewport as well",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "e2e-chrome",
-                  "projectName": "e2e-chrome",
-                  "results": [
-                    {
-                      "workerIndex": 3,
-                      "parallelIndex": 3,
-                      "status": "passed",
-                      "duration": 5325,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-01-15T20:21:00.243Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "aef83580abec228ee8f6-1b1d5328daf66b5d7f26",
-              "file": "e2e/desktop-navigation-fix.e2e.spec.ts",
-              "line": 131,
-              "column": 3
-            },
-            {
-              "title": "navigation buttons should be clickable",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "e2e-chrome",
-                  "projectName": "e2e-chrome",
-                  "results": [
-                    {
-                      "workerIndex": 2,
-                      "parallelIndex": 2,
-                      "status": "passed",
-                      "duration": 6907,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-01-15T20:21:06.020Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "aef83580abec228ee8f6-58ffd31fcec4f0883244",
-              "file": "e2e/desktop-navigation-fix.e2e.spec.ts",
-              "line": 154,
-              "column": 3
+              ]
             }
           ]
         }
@@ -319,11 +293,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-01-15T20:20:59.504Z",
-    "duration": 13481.425,
-    "expected": 5,
+    "startTime": "2026-03-20T16:55:48.911Z",
+    "duration": 28618.964,
+    "expected": 0,
     "skipped": 0,
-    "unexpected": 0,
+    "unexpected": 1,
     "flaky": 0
   }
 }
